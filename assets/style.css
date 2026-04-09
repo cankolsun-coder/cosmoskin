@@ -651,3 +651,65 @@ article.product-card:has(.badge[data-brand="COSRX"]) .product-media,
    ============================================================ */
 
 .progress { background: linear-gradient(90deg, #b89b72, #d4b88a); }
+
+/* ============================================================
+   HERO BOTTLE — Layout Fix (badges & overflow)
+   ============================================================ */
+
+/* Shelf must be relative + clipped */
+.hero-shelf-clean {
+  position: relative;
+  overflow: hidden;
+  min-height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Remove the ::after circle that was leaking outside */
+.hero-shelf-clean::after { display: none; }
+
+/* Bottle wrapper — centered, no overflow issues */
+.serum-bottle-wrap {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 40px 0 60px;
+}
+
+/* Badges — properly anchored inside the shelf */
+.bottle-badge {
+  position: absolute;
+  z-index: 4;
+  max-width: 140px;
+}
+
+.bottle-badge-left {
+  left: 18px;
+  top: 50%;
+  transform: translateY(-60%);
+  animation: badgeFloat 4s ease-in-out infinite 0.5s;
+}
+
+.bottle-badge-right {
+  right: 18px;
+  top: 50%;
+  transform: translateY(-20%);
+  animation: badgeFloat 4s ease-in-out infinite 1.2s;
+}
+
+/* Hide badges on small containers where they'd overlap */
+@media (max-width: 1150px) {
+  .bottle-badge { display: none; }
+  .hero-shelf-clean { min-height: 460px; }
+  .serum-bottle-wrap { margin: 24px 0 40px; }
+  .serum-bottle-wrap svg { width: 140px; height: 365px; }
+}
+
+@media (max-width: 760px) {
+  .hero-shelf-clean { min-height: 360px; }
+  .serum-bottle-wrap { margin: 16px 0 28px; }
+  .serum-bottle-wrap svg { width: 110px; height: 285px; }
+}
