@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cosmoskin · Şifre Sıfırlama</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <main class="section">
+    <div class="container narrow">
+      <div class="summary-card">
+        <h3>Şifre sıfırlama</h3>
+        <p class="account-mini">Önce e-posta adresinizi girip sıfırlama bağlantısı isteyin. Linkten döndüğünüzde yeni şifrenizi bu sayfada belirleyebilirsiniz.</p>
+        <form id="requestResetForm" class="form-grid compact" style="margin-top:18px">
+          <div class="field full"><label>E-posta</label><input id="resetEmail" type="email" required placeholder="ornek@eposta.com"></div>
+          <div class="field full"><button class="btn btn-primary" type="submit">Sıfırlama bağlantısı gönder</button></div>
+        </form>
+        <form id="updatePasswordForm" class="form-grid compact" style="margin-top:18px">
+          <div class="field full"><label>Yeni şifre</label><input id="newPassword" type="password" minlength="8" required placeholder="En az 8 karakter"></div>
+          <div class="field full"><button class="btn btn-primary" type="submit">Şifreyi güncelle</button></div>
+        </form>
+        <p id="resetStatus" class="account-mini" style="margin-top:12px"></p>
+      </div>
+    </div>
+  </main>
+  <script src="/assets/site-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (async function(){
+    const cfg = window.COSMOSKIN_CONFIG || {};
+    const statusEl = document.getElementById('resetStatus');
+    const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+    document.getElementById('requestResetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = 'Bağlantı hazırlanıyor...';
+      const email = document.getElementById('resetEmail').value.trim();
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: `${cfg.siteUrl}${cfg.resetPath || '/auth/reset.html'}`
+      });
+      if (error) {
+        statusEl.textContent = error.message;
+        statusEl.style.color = '#8a3b2f';
+        return;
+      }
+      statusEl.textContent = 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.';
+      statusEl.style.color = '#5d554e';
+    });
+
+    document.getElementById('updatePasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      statusEl.textContent = 'Şifre güncelleniyor...';
+      const password = document.getElementById('newPassword').value;
+      const { error } = await client.auth.updateUser({ password });
+      if (error) {
+        statusEl.textContent = error.message;
+        statusEl.style.color = '#8a3b2f';
+        return;
+      }
+      statusEl.textContent = 'Şifreniz güncellendi. Giriş yapabilirsiniz.';
+      statusEl.style.color = '#5d554e';
+    });
+  })();
+  </script>
+</body>
+</html>

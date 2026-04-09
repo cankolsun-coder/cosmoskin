@@ -1,0 +1,9 @@
+# Clean URL redirects for Cloudflare Pages
+/collections/cleanse    /collections/cleanse.html    301
+/collections/hydrate    /collections/hydrate.html    301
+/collections/treat      /collections/treat.html      301
+/collections/protect    /collections/protect.html    301
+/collections/routine    /collections/routine.html    301
+/collections/care       /collections/care.html       301
+/contact                /contact.html                301
+/checkout               /checkout.html               301

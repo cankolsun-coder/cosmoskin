@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cosmoskin · Hesap Doğrulama</title>
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <main class="section">
+    <div class="container narrow">
+      <div class="summary-card">
+        <h3>Hesap doğrulanıyor</h3>
+        <p id="callbackStatus" class="account-mini">Oturumunuz güvenli şekilde hazırlanıyor...</p>
+      </div>
+    </div>
+  </main>
+  <script src="/assets/site-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (async function(){
+    const cfg = window.COSMOSKIN_CONFIG || {};
+    const statusEl = document.getElementById('callbackStatus');
+    try {
+      const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+      });
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code');
+      if (code) {
+        const { error } = await client.auth.exchangeCodeForSession(code);
+        if (error) throw error;
+      }
+      statusEl.textContent = 'Doğrulama tamamlandı. Hesabım sayfasına yönlendiriliyorsunuz...';
+      window.location.replace('/account/orders.html');
+    } catch (error) {
+      statusEl.textContent = error.message || 'Doğrulama başarısız oldu.';
+      statusEl.style.color = '#8a3b2f';
+    }
+  })();
+  </script>
+</body>
+</html>
