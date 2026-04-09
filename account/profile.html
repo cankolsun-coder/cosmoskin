@@ -11,58 +11,55 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/style.css">
   <style>
-    /* ---- Account Layout ---- */
-    .acc-layout{display:grid;grid-template-columns:260px 1fr;gap:28px;align-items:start;padding:40px 0 80px;}
+    .acc-layout{display:grid;grid-template-columns:280px 1fr;gap:28px;align-items:start;padding:40px 0 80px;}
     .acc-sidebar{position:sticky;top:28px;display:grid;gap:14px;}
     .acc-avatar-card{background:#fffdf9;border:1px solid var(--line);border-radius:24px;padding:28px 24px;text-align:center;box-shadow:var(--shadow-soft);}
-    .acc-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#e8ddd0,#d4c8b8);display:inline-flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:#6b5f50;margin-bottom:14px;border:2px solid rgba(184,155,114,.3);}
+    .acc-avatar{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#e8ddd0,#d4c8b8);display:inline-flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:#6b5f50;margin-bottom:14px;border:2px solid rgba(184,155,114,.3);}
     .acc-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#1a1510;margin:0 0 4px;}
     .acc-email-tag{font-size:12px;color:#9a8e82;margin:0 0 16px;word-break:break-all;}
     .acc-tier{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:#f4ece3;border:1px solid rgba(184,155,114,.3);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:#8a6e47;}
     .acc-nav{background:#fffdf9;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-soft);}
-    .acc-nav-item{display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:13px;font-weight:500;color:#5a4f43;cursor:pointer;border-bottom:1px solid var(--line);transition:background .18s,color .18s;border:none;background:none;width:100%;text-align:left;border-bottom:1px solid var(--line);}
+    .acc-nav-item{display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:13px;font-weight:500;color:#5a4f43;cursor:pointer;border-bottom:1px solid var(--line);transition:background .18s,color .18s;border:none;background:none;width:100%;text-align:left;}
     .acc-nav-item:last-child{border-bottom:none;}
     .acc-nav-item:hover{background:#f8f2ea;color:#1a1510;}
     .acc-nav-item.active{background:#1a1510;color:#fff;}
     .acc-nav-item.active .acc-nav-icon{color:#d4b88a;}
-    .acc-nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+    .acc-nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
     .acc-nav-label{flex:1;}
-    .acc-nav-badge{background:rgba(255,255,255,.15);padding:2px 8px;border-radius:999px;font-size:10px;}
+    .acc-nav-badge{padding:2px 8px;border-radius:999px;font-size:10px;}
+    .acc-nav-item.active .acc-nav-badge{background:rgba(255,255,255,.15);color:#fff;}
     .acc-nav-item:not(.active) .acc-nav-badge{background:#f4ece3;color:#8a6e47;}
-
-    /* ---- Main Content ---- */
+    .acc-logout{display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;border:1px solid var(--line-strong);background:transparent;color:#8a3b2f;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;width:100%;justify-content:center;transition:background .2s,border-color .2s;}
+    .acc-logout:hover{background:#fdf0ee;border-color:rgba(138,59,47,.3);}
     .acc-main{display:grid;gap:20px;}
     .acc-panel{background:#fffdf9;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:var(--shadow-soft);}
     .acc-panel-head{padding:22px 28px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;}
     .acc-panel-head h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;margin:0;color:#1a1510;}
-    .acc-panel-head p{font-size:13px;color:#9a8e82;margin:0;}
+    .acc-panel-head p{font-size:13px;color:#9a8e82;margin:4px 0 0;}
     .acc-panel-body{padding:28px;}
-
-    /* Stats strip */
-    .acc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;}
-    .acc-stat{padding:20px 24px;text-align:center;border-right:1px solid var(--line);}
+    .acc-stats{display:grid;grid-template-columns:repeat(3,1fr);}
+    .acc-stat{padding:22px 24px;text-align:center;border-right:1px solid var(--line);}
     .acc-stat:last-child{border-right:none;}
-    .acc-stat-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:#1a1510;display:block;line-height:1;}
+    .acc-stat-val{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;color:#1a1510;display:block;line-height:1;}
     .acc-stat-lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:#b89b72;margin-top:6px;display:block;}
-
-    /* Profile form */
     .prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
     .prof-field{display:grid;gap:7px;}
     .prof-field.full{grid-column:1/-1;}
     .prof-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#b89b72;}
-    .prof-input{padding:13px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
-    .prof-input:focus{border-color:#1a1510;}
+    .prof-input{padding:13px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
+    .prof-input:focus{border-color:#1a1510;box-shadow:0 0 0 3px rgba(26,21,16,.06);}
     .prof-input:read-only{background:#f8f3ed;color:#9a8e82;cursor:default;}
-    .prof-actions{display:flex;gap:10px;margin-top:6px;}
-
-    /* Orders */
-    .order-empty{text-align:center;padding:48px 24px;color:#9a8e82;}
-    .order-empty-icon{font-size:40px;margin-bottom:16px;opacity:.5;}
-    .order-empty h3{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#1a1510;margin:0 0 8px;}
+    .prof-select{padding:13px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;width:100%;appearance:none;}
+    .prof-actions{display:flex;gap:10px;margin-top:20px;}
+    .prof-status{font-size:13px;min-height:18px;margin-top:8px;}
+    .order-empty{text-align:center;padding:52px 24px;color:#9a8e82;}
+    .order-empty-icon{font-size:44px;margin-bottom:16px;opacity:.45;}
+    .order-empty h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#1a1510;margin:0 0 8px;}
     .order-item-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:14px;}
     .order-item-card:last-child{margin-bottom:0;}
     .order-item-head{background:#f8f3ed;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
     .order-num{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:#6b5f50;}
+    .order-date-small{font-size:12px;color:#9a8e82;}
     .order-status{padding:4px 12px;border-radius:999px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;}
     .order-status.confirmed{background:#edf7f1;color:#1f7a4f;}
     .order-status.pending{background:#fef9ec;color:#9a7c20;}
@@ -70,252 +67,247 @@
     .order-item-body{padding:16px 20px;display:grid;gap:6px;}
     .order-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#5a4f43;}
     .order-row strong{color:#1a1510;font-weight:600;}
-    .order-products{margin-top:8px;padding-top:12px;border-top:1px solid var(--line);}
-    .order-product-line{display:flex;justify-content:space-between;font-size:12px;color:#7a6e62;padding:3px 0;}
-
-    /* Security tab */
-    .sec-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid var(--line);}
+    .order-products{margin-top:10px;padding-top:12px;border-top:1px solid var(--line);}
+    .order-product-line{display:flex;justify-content:space-between;font-size:12px;color:#7a6e62;padding:4px 0;}
+    .fav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    .fav-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;background:#fffdf9;}
+    .fav-img{aspect-ratio:1/1;background:linear-gradient(180deg,#f9f3eb,#ece2d6);display:flex;align-items:center;justify-content:center;font-size:40px;color:#c9b99a;}
+    .fav-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
+    .fav-brand{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b89b72;font-weight:600;}
+    .fav-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:#1a1510;margin:0;}
+    .fav-price{font-family:'Cormorant Garamond',serif;font-size:22px;color:#1a1510;}
+    .fav-actions{display:flex;gap:8px;margin-top:4px;align-items:center;}
+    .fav-remove{border:none;background:none;color:#9a8e82;font-size:11px;cursor:pointer;padding:0;letter-spacing:.1em;text-transform:uppercase;}
+    .fav-remove:hover{color:#8a3b2f;}
+    .fav-empty{text-align:center;padding:52px 24px;color:#9a8e82;}
+    .fav-empty h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#1a1510;margin:0 0 8px;}
+    .addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .addr-card{border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:#fffdf9;}
+    .addr-card.default{border-color:rgba(184,155,114,.5);background:#fdf8f2;}
+    .addr-default-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:#f4ece3;border:1px solid rgba(184,155,114,.3);font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:#8a6e47;margin-bottom:10px;}
+    .addr-name{font-weight:600;font-size:14px;color:#1a1510;margin:0 0 8px;}
+    .addr-detail{font-size:13px;color:#6b5f50;line-height:1.7;margin:0;}
+    .addr-actions{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+    .addr-btn{border:none;background:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:#9a8e82;padding:0;}
+    .addr-btn:hover{color:#1a1510;}
+    .addr-btn.danger:hover{color:#8a3b2f;}
+    .addr-add{border:1px dashed var(--line-strong);border-radius:18px;padding:28px;text-align:center;cursor:pointer;transition:background .2s,border-color .2s;background:transparent;}
+    .addr-add:hover{background:#f8f3ed;border-color:rgba(184,155,114,.5);}
+    .addr-add-icon{font-size:28px;color:#c9b99a;margin-bottom:10px;}
+    .addr-add p{font-size:13px;color:#9a8e82;margin:0;}
+    .addr-modal-overlay{position:fixed;inset:0;background:rgba(19,14,10,.4);backdrop-filter:blur(6px);z-index:400;display:none;align-items:center;justify-content:center;padding:20px;}
+    .addr-modal-overlay.open{display:flex;}
+    .addr-modal{background:#fffdf9;border-radius:24px;border:1px solid var(--line);box-shadow:0 32px 80px rgba(19,14,10,.12);width:min(580px,100%);max-height:90vh;overflow-y:auto;padding:32px;position:relative;}
+    .addr-modal h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;margin:0 0 24px;color:#1a1510;}
+    .addr-modal-close{position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-strong);background:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+    .pref-item{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px 0;border-bottom:1px solid var(--line);}
+    .pref-item:last-child{border-bottom:none;}
+    .pref-info strong{display:block;font-size:14px;font-weight:600;color:#1a1510;margin-bottom:4px;}
+    .pref-info span{font-size:13px;color:#9a8e82;line-height:1.6;}
+    .toggle{position:relative;width:48px;height:26px;flex-shrink:0;}
+    .toggle input{opacity:0;width:0;height:0;}
+    .toggle-slider{position:absolute;inset:0;background:#ddd4c6;border-radius:999px;cursor:pointer;transition:.3s;}
+    .toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+    .toggle input:checked + .toggle-slider{background:#1a1510;}
+    .toggle input:checked + .toggle-slider::before{transform:translateX(22px);}
+    .sec-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;border-bottom:1px solid var(--line);}
     .sec-item:last-child{border-bottom:none;}
     .sec-info strong{display:block;font-size:14px;font-weight:600;color:#1a1510;margin-bottom:3px;}
     .sec-info span{font-size:13px;color:#9a8e82;}
-
-    /* Tab content visibility */
     .tab-content{display:none;}
     .tab-content.active{display:grid;gap:20px;}
-
-    /* Form status */
-    .prof-status{font-size:13px;min-height:18px;margin-top:2px;}
-
-    /* Logout */
-    .acc-logout{display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;border:1px solid var(--line-strong);background:transparent;color:#8a3b2f;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;width:100%;justify-content:center;transition:background .2s,border-color .2s;}
-    .acc-logout:hover{background:#fdf0ee;border-color:rgba(138,59,47,.3);}
-
-    @media(max-width:960px){
-      .acc-layout{grid-template-columns:1fr;}
-      .acc-sidebar{position:static;}
-      .acc-stats{grid-template-columns:1fr 1fr;}
-      .acc-stat:nth-child(2){border-right:none;}
-      .acc-stat:nth-child(3){grid-column:1/-1;border-top:1px solid var(--line);}
-    }
-    @media(max-width:640px){
-      .prof-grid{grid-template-columns:1fr;}
-      .prof-field.full{grid-column:1;}
-      .acc-stats{grid-template-columns:1fr 1fr;}
-    }
+    @media(max-width:960px){.acc-layout{grid-template-columns:1fr;}.acc-sidebar{position:static;}.acc-stats{grid-template-columns:1fr 1fr;}.acc-stat:nth-child(2){border-right:none;}.acc-stat:nth-child(3){grid-column:1/-1;border-top:1px solid var(--line);}.addr-grid,.fav-grid{grid-template-columns:1fr;}}
+    @media(max-width:640px){.prof-grid{grid-template-columns:1fr;}.prof-field.full{grid-column:1;}}
   </style>
 </head>
 <body>
-<!-- Header -->
 <div class="announcement"><div class="marquee"><span>Türkiye Geneli Gönderim</span><span>Seçilmiş K-Beauty</span><span>Güvenli alışveriş</span><span>Dengeli rutinler için seçilmiş ürünler</span><span>Türkiye Geneli Gönderim</span><span>Seçilmiş K-Beauty</span></div></div>
 <header class="header" style="top:38px;">
-  <a class="brand" href="/index.html">
-    <img class="brand-logo" src="/assets/logo-mark.png" alt="Cosmoskin">
-    <span class="brand-word">COSMOSKIN</span>
-  </a>
+  <a class="brand" href="/index.html"><img class="brand-logo" src="/assets/logo-mark.png" alt="Cosmoskin"><span class="brand-word">COSMOSKIN</span></a>
   <nav><ul class="nav">
     <li><a href="/index.html#featured">Öne Çıkanlar</a></li>
     <li><a href="/collections/routine.html">Rutinler</a></li>
     <li><a href="/contact.html">Destek</a></li>
   </ul></nav>
-  <div class="header-tools">
-    <a class="btn btn-secondary" href="/index.html" style="font-size:11px;padding:10px 18px;">Alışverişe Dön</a>
-  </div>
+  <div class="header-tools"><a class="btn btn-secondary" href="/index.html" style="font-size:11px;padding:10px 18px;">Alışverişe Dön</a></div>
 </header>
 
-<main>
-  <div class="container">
-    <div class="acc-layout">
+<main><div class="container"><div class="acc-layout">
 
-      <!-- SIDEBAR -->
-      <aside class="acc-sidebar">
-        <div class="acc-avatar-card">
-          <div class="acc-avatar" id="accAvatar">?</div>
-          <h2 class="acc-name" id="accName">Yükleniyor…</h2>
-          <p class="acc-email-tag" id="accEmail">—</p>
-          <span class="acc-tier">✦ Cosmoskin Üyesi</span>
+  <!-- SIDEBAR -->
+  <aside class="acc-sidebar">
+    <div class="acc-avatar-card">
+      <div class="acc-avatar" id="accAvatar">?</div>
+      <h2 class="acc-name" id="accName">Yükleniyor…</h2>
+      <p class="acc-email-tag" id="accEmail">—</p>
+      <span class="acc-tier">✦ Cosmoskin Üyesi</span>
+    </div>
+    <nav class="acc-nav">
+      <button class="acc-nav-item active" data-tab="overview" onclick="switchTab('overview',this)"><span class="acc-nav-icon">◈</span><span class="acc-nav-label">Genel Bakış</span></button>
+      <button class="acc-nav-item" data-tab="orders" onclick="switchTab('orders',this)"><span class="acc-nav-icon">◻</span><span class="acc-nav-label">Siparişlerim</span><span class="acc-nav-badge" id="orderBadge">—</span></button>
+      <button class="acc-nav-item" data-tab="favorites" onclick="switchTab('favorites',this)"><span class="acc-nav-icon">♡</span><span class="acc-nav-label">Favorilerim</span></button>
+      <button class="acc-nav-item" data-tab="profile" onclick="switchTab('profile',this)"><span class="acc-nav-icon">◯</span><span class="acc-nav-label">Kişisel Bilgilerim</span></button>
+      <button class="acc-nav-item" data-tab="addresses" onclick="switchTab('addresses',this)"><span class="acc-nav-icon">◇</span><span class="acc-nav-label">Adres Bilgilerim</span></button>
+      <button class="acc-nav-item" data-tab="communication" onclick="switchTab('communication',this)"><span class="acc-nav-icon">◎</span><span class="acc-nav-label">İletişim Tercihlerim</span></button>
+      <button class="acc-nav-item" data-tab="security" onclick="switchTab('security',this)"><span class="acc-nav-icon">△</span><span class="acc-nav-label">Güvenlik</span></button>
+    </nav>
+    <button class="acc-logout" id="logoutBtn">↩ Çıkış Yap</button>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="acc-main">
+
+    <!-- OVERVIEW -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="acc-panel">
+        <div class="acc-stats">
+          <div class="acc-stat"><span class="acc-stat-val" id="statOrders">—</span><span class="acc-stat-lbl">Sipariş</span></div>
+          <div class="acc-stat"><span class="acc-stat-val" id="statSpend">—</span><span class="acc-stat-lbl">Toplam Harcama</span></div>
+          <div class="acc-stat"><span class="acc-stat-val" id="statSince">—</span><span class="acc-stat-lbl">Üye Yılı</span></div>
         </div>
+      </div>
+      <div class="acc-panel">
+        <div class="acc-panel-head">
+          <div><h2>Son Siparişler</h2><p>En son 3 siparişiniz</p></div>
+          <button class="btn btn-secondary" onclick="switchTab('orders',document.querySelector('[data-tab=orders]'))" style="font-size:11px;padding:10px 16px;">Tümünü Gör</button>
+        </div>
+        <div class="acc-panel-body"><div id="recentOrders"><p style="text-align:center;padding:16px 0;color:#9a8e82;font-size:13px;">Yükleniyor…</p></div></div>
+      </div>
+      <div class="acc-panel">
+        <div class="acc-panel-head"><div><h2>Hızlı Bağlantılar</h2></div></div>
+        <div class="acc-panel-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <a href="/collections/routine.html" class="collection-card" style="padding:18px 20px;"><span>Rutinler</span><strong style="font-size:20px;">Rutin Seçkisi</strong><p>Size özel öneri</p></a>
+          <a href="/contact.html" class="collection-card" style="padding:18px 20px;"><span>Destek</span><strong style="font-size:20px;">Yardım Merkezi</strong><p>Soru & iade</p></a>
+        </div>
+      </div>
+    </div>
 
-        <nav class="acc-nav">
-          <button class="acc-nav-item active" data-tab="overview" onclick="switchTab('overview',this)">
-            <span class="acc-nav-icon">◈</span>
-            <span class="acc-nav-label">Genel Bakış</span>
-          </button>
-          <button class="acc-nav-item" data-tab="orders" onclick="switchTab('orders',this)">
-            <span class="acc-nav-icon">◻</span>
-            <span class="acc-nav-label">Siparişlerim</span>
-            <span class="acc-nav-badge" id="orderBadge">—</span>
-          </button>
-          <button class="acc-nav-item" data-tab="profile" onclick="switchTab('profile',this)">
-            <span class="acc-nav-icon">◯</span>
-            <span class="acc-nav-label">Profilim</span>
-          </button>
-          <button class="acc-nav-item" data-tab="security" onclick="switchTab('security',this)">
-            <span class="acc-nav-icon">◇</span>
-            <span class="acc-nav-label">Güvenlik</span>
-          </button>
-        </nav>
+    <!-- ORDERS -->
+    <div class="tab-content" id="tab-orders">
+      <div class="acc-panel">
+        <div class="acc-panel-head"><div><h2>Siparişlerim</h2><p>Tüm siparişleriniz</p></div></div>
+        <div class="acc-panel-body"><div id="allOrders"><p style="text-align:center;padding:16px 0;color:#9a8e82;font-size:13px;">Yükleniyor…</p></div></div>
+      </div>
+    </div>
 
-        <button class="acc-logout" id="logoutBtn">↩ Çıkış Yap</button>
-      </aside>
-
-      <!-- MAIN -->
-      <div class="acc-main">
-
-        <!-- OVERVIEW TAB -->
-        <div class="tab-content active" id="tab-overview">
-          <div class="acc-panel">
-            <div class="acc-stats">
-              <div class="acc-stat">
-                <span class="acc-stat-val" id="statOrders">—</span>
-                <span class="acc-stat-lbl">Sipariş</span>
-              </div>
-              <div class="acc-stat">
-                <span class="acc-stat-val" id="statSpend">—</span>
-                <span class="acc-stat-lbl">Toplam Harcama</span>
-              </div>
-              <div class="acc-stat">
-                <span class="acc-stat-val" id="statSince">—</span>
-                <span class="acc-stat-lbl">Üye Yılı</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="acc-panel">
-            <div class="acc-panel-head">
-              <div>
-                <h2>Son Siparişler</h2>
-                <p>En son 3 siparişiniz</p>
-              </div>
-              <button class="btn btn-secondary" onclick="switchTab('orders',document.querySelector('[data-tab=orders]'))" style="font-size:11px;padding:10px 16px;">Tümünü Gör</button>
-            </div>
-            <div class="acc-panel-body">
-              <div id="recentOrders"><p class="account-mini" style="text-align:center;padding:16px 0;">Yükleniyor…</p></div>
-            </div>
-          </div>
-
-          <div class="acc-panel">
-            <div class="acc-panel-head">
-              <div><h2>Hızlı Bağlantılar</h2></div>
-            </div>
-            <div class="acc-panel-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-              <a href="/collections/routine.html" class="collection-card" style="padding:18px 20px;">
-                <span>Rutinler</span>
-                <strong style="font-size:20px;">Rutin Seçkisi</strong>
-                <p>Size özel öneri</p>
-              </a>
-              <a href="/contact.html" class="collection-card" style="padding:18px 20px;">
-                <span>Destek</span>
-                <strong style="font-size:20px;">Yardım Merkezi</strong>
-                <p>Soru & iade</p>
-              </a>
+    <!-- FAVORITES -->
+    <div class="tab-content" id="tab-favorites">
+      <div class="acc-panel">
+        <div class="acc-panel-head"><div><h2>Favorilerim</h2><p>Kaydettiğiniz ürünler</p></div></div>
+        <div class="acc-panel-body">
+          <div id="favoritesContainer">
+            <div class="fav-empty">
+              <div style="font-size:44px;margin-bottom:16px;opacity:.45;">♡</div>
+              <h3>Favori ürününüz yok</h3>
+              <p style="font-size:13px;color:#9a8e82;margin:0 0 20px;">Beğendiğiniz ürünleri favorilere ekleyerek buradan takip edebilirsiniz.</p>
+              <a class="btn btn-primary" href="/index.html" style="display:inline-flex;">Ürünleri Keşfet</a>
             </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- ORDERS TAB -->
-        <div class="tab-content" id="tab-orders">
-          <div class="acc-panel">
-            <div class="acc-panel-head">
-              <div><h2>Siparişlerim</h2><p>Onaylanan tüm siparişleriniz</p></div>
-            </div>
-            <div class="acc-panel-body">
-              <div id="allOrders"><p class="account-mini" style="text-align:center;padding:16px 0;">Yükleniyor…</p></div>
-            </div>
+    <!-- PERSONAL INFO -->
+    <div class="tab-content" id="tab-profile">
+      <div class="acc-panel">
+        <div class="acc-panel-head"><div><h2>Kişisel Bilgilerim</h2><p>Bilgilerinizi güncelleyin</p></div></div>
+        <div class="acc-panel-body">
+          <div class="prof-grid">
+            <div class="prof-field"><label class="prof-label">Ad</label><input class="prof-input" id="profFirstName" type="text" placeholder="Adınız"></div>
+            <div class="prof-field"><label class="prof-label">Soyad</label><input class="prof-input" id="profLastName" type="text" placeholder="Soyadınız"></div>
+            <div class="prof-field"><label class="prof-label">Telefon</label><input class="prof-input" id="profPhone" type="tel" placeholder="+90 5xx xxx xx xx"></div>
+            <div class="prof-field"><label class="prof-label">Doğum Tarihi</label><input class="prof-input" id="profBirthdate" type="date"></div>
+            <div class="prof-field full"><label class="prof-label">E-posta</label><input class="prof-input" id="profEmail" type="email" readonly></div>
+            <div class="prof-field full"><label class="prof-label">Cinsiyet</label><select class="prof-input prof-select" id="profGender"><option value="">Belirtmek istemiyorum</option><option value="female">Kadın</option><option value="male">Erkek</option><option value="other">Diğer</option></select></div>
+            <div class="prof-field full"><label class="prof-label">Üyelik Tarihi</label><input class="prof-input" id="profSince" type="text" readonly></div>
           </div>
+          <div class="prof-actions"><button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()" style="font-size:11px;padding:12px 28px;">Değişiklikleri Kaydet</button></div>
+          <div class="prof-status" id="profileStatus"></div>
         </div>
+      </div>
+    </div>
 
-        <!-- PROFILE TAB -->
-        <div class="tab-content" id="tab-profile">
-          <div class="acc-panel">
-            <div class="acc-panel-head">
-              <div><h2>Profil Bilgilerim</h2><p>Kişisel bilgilerinizi güncelleyin</p></div>
-            </div>
-            <div class="acc-panel-body">
-              <div class="prof-grid">
-                <div class="prof-field">
-                  <label class="prof-label">Ad</label>
-                  <input class="prof-input" id="profFirstName" type="text" placeholder="Adınız">
-                </div>
-                <div class="prof-field">
-                  <label class="prof-label">Soyad</label>
-                  <input class="prof-input" id="profLastName" type="text" placeholder="Soyadınız">
-                </div>
-                <div class="prof-field full">
-                  <label class="prof-label">E-posta</label>
-                  <input class="prof-input" id="profEmail" type="email" readonly>
-                </div>
-                <div class="prof-field full">
-                  <label class="prof-label">Üyelik Tarihi</label>
-                  <input class="prof-input" id="profSince" type="text" readonly>
-                </div>
-              </div>
-              <div class="prof-actions">
-                <button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()" style="font-size:11px;padding:12px 24px;">Değişiklikleri Kaydet</button>
-              </div>
-              <div class="prof-status" id="profileStatus"></div>
-            </div>
-          </div>
+    <!-- ADDRESSES -->
+    <div class="tab-content" id="tab-addresses">
+      <div class="acc-panel">
+        <div class="acc-panel-head">
+          <div><h2>Adres Bilgilerim</h2><p>Teslimat adresleriniz</p></div>
+          <button class="btn btn-primary" onclick="openAddressModal()" style="font-size:11px;padding:10px 20px;">+ Yeni Adres</button>
         </div>
+        <div class="acc-panel-body"><div class="addr-grid" id="addressGrid"><div class="addr-add" onclick="openAddressModal()"><div class="addr-add-icon">+</div><p>Yeni adres ekleyin</p></div></div></div>
+      </div>
+    </div>
 
-        <!-- SECURITY TAB -->
-        <div class="tab-content" id="tab-security">
-          <div class="acc-panel">
-            <div class="acc-panel-head">
-              <div><h2>Güvenlik</h2><p>Şifre ve hesap güvenliği</p></div>
-            </div>
-            <div class="acc-panel-body">
-              <div class="sec-item">
-                <div class="sec-info">
-                  <strong>Şifre</strong>
-                  <span>Son değişiklik bilgisi mevcut değil</span>
-                </div>
-                <a href="/auth/reset.html" class="btn btn-secondary" style="font-size:11px;padding:10px 18px;white-space:nowrap;">Şifre Değiştir</a>
-              </div>
-              <div class="sec-item">
-                <div class="sec-info">
-                  <strong>E-posta Bildirimleri</strong>
-                  <span>Sipariş ve kampanya bildirimleri</span>
-                </div>
-                <span style="font-size:12px;color:#1f7a4f;font-weight:600;">Aktif</span>
-              </div>
-              <div class="sec-item">
-                <div class="sec-info">
-                  <strong>Hesap Silme</strong>
-                  <span>Hesabınızı kalıcı olarak silebilirsiniz</span>
-                </div>
-                <a href="mailto:destek@cosmoskin.com.tr?subject=Hesap%20Silme%20Talebi" class="btn btn-secondary" style="font-size:11px;padding:10px 18px;color:#8a3b2f;border-color:rgba(138,59,47,.3);">Talep Gönder</a>
-              </div>
-            </div>
-          </div>
+    <!-- COMMUNICATION -->
+    <div class="tab-content" id="tab-communication">
+      <div class="acc-panel">
+        <div class="acc-panel-head"><div><h2>İletişim Tercihlerim</h2><p>Bildirim ve iletişim ayarlarınız</p></div></div>
+        <div class="acc-panel-body">
+          <div class="pref-item"><div class="pref-info"><strong>Sipariş Bildirimleri</strong><span>Sipariş durumu, kargo takibi ve teslimat güncellemeleri</span></div><label class="toggle"><input type="checkbox" id="prefOrders" checked onchange="savePref('orders',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="pref-item"><div class="pref-info"><strong>Kampanya ve İndirimler</strong><span>Özel indirimler, sezonsal kampanyalar ve fırsatlar</span></div><label class="toggle"><input type="checkbox" id="prefCampaigns" onchange="savePref('campaigns',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="pref-item"><div class="pref-info"><strong>Yeni Ürün Duyuruları</strong><span>Yeni koleksiyon ve ürün lansmanlarından haberdar olun</span></div><label class="toggle"><input type="checkbox" id="prefNewProducts" onchange="savePref('newProducts',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="pref-item"><div class="pref-info"><strong>Cilt Bakımı İpuçları</strong><span>Uzman önerileri, rutin rehberleri ve içerik bülteni</span></div><label class="toggle"><input type="checkbox" id="prefTips" onchange="savePref('tips',this.checked)"><span class="toggle-slider"></span></label></div>
+          <div class="pref-item"><div class="pref-info"><strong>SMS Bildirimleri</strong><span>Kargo takibi ve önemli güncellemeler için SMS</span></div><label class="toggle"><input type="checkbox" id="prefSms" onchange="savePref('sms',this.checked)"><span class="toggle-slider"></span></label></div>
+          <p style="font-size:12px;color:#9a8e82;line-height:1.7;margin-top:20px;">Tercihleriniz otomatik kaydedilir. Zorunlu ticari bildirimler (sipariş onayı vb.) bu ayardan etkilenmez.</p>
         </div>
+      </div>
+    </div>
 
-      </div><!-- /.acc-main -->
-    </div><!-- /.acc-layout -->
+    <!-- SECURITY -->
+    <div class="tab-content" id="tab-security">
+      <div class="acc-panel">
+        <div class="acc-panel-head"><div><h2>Güvenlik</h2><p>Şifre ve hesap güvenliği</p></div></div>
+        <div class="acc-panel-body">
+          <div class="sec-item"><div class="sec-info"><strong>Şifre</strong><span>Hesabınızı güvende tutmak için düzenli olarak şifrenizi değiştirin</span></div><a href="/auth/reset.html" class="btn btn-secondary" style="font-size:11px;padding:10px 18px;white-space:nowrap;">Şifre Değiştir</a></div>
+          <div class="sec-item"><div class="sec-info"><strong>E-posta Bildirimleri</strong><span>Hesap güvenliği bildirimleri</span></div><span style="font-size:12px;color:#1f7a4f;font-weight:600;letter-spacing:.1em;text-transform:uppercase;">Aktif</span></div>
+          <div class="sec-item"><div class="sec-info"><strong>Aktif Oturumlar</strong><span>Şu an 1 cihazda oturum açık</span></div><button class="btn btn-secondary" onclick="handleSignOut()" style="font-size:11px;padding:10px 18px;">Çıkış Yap</button></div>
+          <div class="sec-item"><div class="sec-info"><strong>Hesap Silme</strong><span>Hesabınızı ve tüm verilerinizi kalıcı olarak silebilirsiniz</span></div><a href="mailto:destek@cosmoskin.com.tr?subject=Hesap%20Silme%20Talebi" class="btn btn-secondary" style="font-size:11px;padding:10px 18px;color:#8a3b2f;border-color:rgba(138,59,47,.3);">Talep Gönder</a></div>
+        </div>
+      </div>
+    </div>
+
   </div>
-</main>
+</div></div></div></main>
 
-<footer class="footer" style="border-top:1px solid var(--line);">
-  <div class="container footer-bottom">
-    <span>© 2026 Cosmoskin</span>
-    <span>Seçilmiş K-Beauty</span>
+<!-- Address Modal -->
+<div class="addr-modal-overlay" id="addressModal">
+  <div class="addr-modal">
+    <button class="addr-modal-close" onclick="closeAddressModal()">✕</button>
+    <h3 id="addrModalTitle">Yeni Adres Ekle</h3>
+    <div class="prof-grid">
+      <div class="prof-field"><label class="prof-label">Ad Soyad</label><input class="prof-input" id="addrName" type="text" placeholder="Teslimat alıcısı"></div>
+      <div class="prof-field"><label class="prof-label">Telefon</label><input class="prof-input" id="addrPhone" type="tel" placeholder="+90 5xx xxx xx xx"></div>
+      <div class="prof-field full"><label class="prof-label">Adres Başlığı</label><input class="prof-input" id="addrTitle" type="text" placeholder="Ev, İş..."></div>
+      <div class="prof-field full"><label class="prof-label">Açık Adres</label><input class="prof-input" id="addrLine" type="text" placeholder="Sokak, mahalle, bina no, kat, daire"></div>
+      <div class="prof-field"><label class="prof-label">İl</label><input class="prof-input" id="addrCity" type="text" placeholder="İstanbul"></div>
+      <div class="prof-field"><label class="prof-label">İlçe</label><input class="prof-input" id="addrDistrict" type="text" placeholder="Kadıköy"></div>
+      <div class="prof-field"><label class="prof-label">Posta Kodu</label><input class="prof-input" id="addrPostal" type="text" placeholder="34700"></div>
+      <div class="prof-field" style="align-self:end;padding-bottom:4px;"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="addrDefault" style="width:16px;height:16px;accent-color:#1a1510;"><span style="font-size:13px;color:#5a4f43;">Varsayılan adres olarak ayarla</span></label></div>
+    </div>
+    <div class="prof-actions" style="margin-top:24px;">
+      <button class="btn btn-primary" onclick="saveAddress()" style="font-size:11px;padding:12px 28px;">Adresi Kaydet</button>
+      <button class="btn btn-secondary" onclick="closeAddressModal()" style="font-size:11px;padding:12px 24px;">İptal</button>
+    </div>
+    <div class="prof-status" id="addrStatus"></div>
   </div>
-</footer>
+</div>
+
+<footer class="footer" style="border-top:1px solid var(--line);"><div class="container footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div></footer>
 
 <script src="/assets/site-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+let _client, _session, _addresses = [];
+
 (async function(){
   const cfg = window.COSMOSKIN_CONFIG || {};
-  const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+  _client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
     auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
   });
 
-  // Auth guard
-  const { data:{ session } } = await client.auth.getSession();
-  if (!session) {
-    window.location.replace('/index.html?openAuth=login');
-    return;
-  }
+  const { data:{ session } } = await _client.auth.getSession();
+  if (!session) { window.location.replace('/index.html?openAuth=login'); return; }
+  _session = session;
 
   const user = session.user;
   const meta = user.user_metadata || {};
@@ -333,90 +325,156 @@
   document.getElementById('profLastName').value    = lastName;
   document.getElementById('profEmail').value       = user.email;
   document.getElementById('profSince').value       = since + ' itibarıyla üye';
+  if (meta.phone) document.getElementById('profPhone').value = meta.phone;
+  if (meta.birthdate) document.getElementById('profBirthdate').value = meta.birthdate;
+  if (meta.gender) document.getElementById('profGender').value = meta.gender;
 
-  // Logout
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await client.auth.signOut();
-    window.location.replace('/index.html');
-  });
+  const prefs = meta.comm_prefs || {};
+  if (prefs.orders !== false) document.getElementById('prefOrders').checked = true;
+  if (prefs.campaigns) document.getElementById('prefCampaigns').checked = true;
+  if (prefs.newProducts) document.getElementById('prefNewProducts').checked = true;
+  if (prefs.tips) document.getElementById('prefTips').checked = true;
+  if (prefs.sms) document.getElementById('prefSms').checked = true;
 
-  // Load orders
-  async function loadOrders() {
-    try {
-      const res = await fetch(`${cfg.apiBase||'/api'}/get-orders`, {
-        headers:{ Authorization:`Bearer ${session.access_token}` }
-      });
-      const data = await res.json();
-      const orders = data.orders || [];
-
-      // Stats
-      const total = orders.reduce((s,o)=>s+(o.total_amount||0),0);
-      document.getElementById('statOrders').textContent = orders.length;
-      document.getElementById('statSpend').textContent  =
-        orders.length ? new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(total) : '₺0';
-      document.getElementById('orderBadge').textContent = orders.length;
-
-      function renderOrder(o) {
-        const statusMap = { confirmed:'Onaylandı', pending:'Beklemede', cancelled:'İptal' };
-        const statusClass= { confirmed:'confirmed', pending:'pending', cancelled:'cancelled' };
-        const st = o.status || 'pending';
-        const items = (o.order_items||[]).map(i=>`<div class="order-product-line"><span>${i.brand} ${i.product_name} ×${i.quantity}</span><span>${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(i.line_total||0)}</span></div>`).join('');
-        return `<div class="order-item-card">
-          <div class="order-item-head">
-            <span class="order-num">Sipariş #${o.order_number||o.id.slice(-6).toUpperCase()}</span>
-            <span class="order-status ${statusClass[st]||'pending'}">${statusMap[st]||st}</span>
-          </div>
-          <div class="order-item-body">
-            <div class="order-row"><span>Tarih</span><strong>${new Date(o.created_at).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</strong></div>
-            <div class="order-row"><span>Toplam</span><strong>${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(o.total_amount||0)}</strong></div>
-            ${items ? `<div class="order-products">${items}</div>` : ''}
-          </div>
-        </div>`;
-      }
-
-      const emptyHtml = `<div class="order-empty"><div class="order-empty-icon">◻</div><h3>Henüz siparişiniz yok</h3><p class="account-mini">İlk siparişinizi vermek için alışverişe başlayın.</p><a class="btn btn-primary" href="/index.html" style="margin-top:18px;display:inline-flex;">Alışverişe Başla</a></div>`;
-
-      document.getElementById('recentOrders').innerHTML = orders.length ? orders.slice(0,3).map(renderOrder).join('') : emptyHtml;
-      document.getElementById('allOrders').innerHTML    = orders.length ? orders.map(renderOrder).join('') : emptyHtml;
-
-    } catch(e) {
-      document.getElementById('recentOrders').innerHTML = '<p class="account-mini" style="color:#8a3b2f">Siparişler yüklenemedi.</p>';
-      document.getElementById('allOrders').innerHTML    = '<p class="account-mini" style="color:#8a3b2f">Siparişler yüklenemedi.</p>';
-      document.getElementById('statOrders').textContent = '—';
-      document.getElementById('statSpend').textContent  = '—';
-    }
-  }
-
+  _addresses = meta.addresses || [];
+  renderAddresses();
+  renderFavorites();
+  document.getElementById('logoutBtn').addEventListener('click', handleSignOut);
   loadOrders();
+
+  const urlTab = new URLSearchParams(window.location.search).get('tab');
+  if (urlTab) { const btn = document.querySelector(`[data-tab="${urlTab}"]`); if (btn) switchTab(urlTab, btn); }
 })();
 
-// Save profile
+async function handleSignOut() {
+  await _client.auth.signOut();
+  window.location.replace('/index.html');
+}
+
+async function loadOrders() {
+  const cfg = window.COSMOSKIN_CONFIG || {};
+  try {
+    const res = await fetch(`${cfg.apiBase||'/api'}/get-orders`, { headers:{ Authorization:`Bearer ${_session.access_token}` } });
+    const data = await res.json();
+    const orders = data.orders || [];
+    const total = orders.reduce((s,o)=>s+(o.total_amount||0),0);
+    document.getElementById('statOrders').textContent = orders.length;
+    document.getElementById('statSpend').textContent  = orders.length ? new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(total) : '₺0';
+    document.getElementById('orderBadge').textContent = orders.length;
+
+    function renderOrder(o) {
+      const statusMap={confirmed:'Onaylandı',pending:'Beklemede',cancelled:'İptal'};
+      const statusCls={confirmed:'confirmed',pending:'pending',cancelled:'cancelled'};
+      const st=o.status||'pending';
+      const items=(o.order_items||[]).map(i=>`<div class="order-product-line"><span>${i.brand} ${i.product_name} ×${i.quantity}</span><span>${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(i.line_total||0)}</span></div>`).join('');
+      return `<div class="order-item-card"><div class="order-item-head"><span class="order-num">Sipariş #${o.order_number||o.id.slice(-6).toUpperCase()}</span><div style="display:flex;align-items:center;gap:10px;"><span class="order-date-small">${new Date(o.created_at).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</span><span class="order-status ${statusCls[st]||'pending'}">${statusMap[st]||st}</span></div></div><div class="order-item-body"><div class="order-row"><span>Toplam</span><strong>${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(o.total_amount||0)}</strong></div>${items?`<div class="order-products">${items}</div>`:''}</div></div>`;
+    }
+
+    const emptyHtml=`<div class="order-empty"><div style="font-size:44px;margin-bottom:16px;opacity:.45;">◻</div><h3>Henüz siparişiniz yok</h3><p style="font-size:13px;color:#9a8e82;margin:0 0 20px;">İlk siparişinizi vermek için alışverişe başlayın.</p><a class="btn btn-primary" href="/index.html" style="display:inline-flex;">Alışverişe Başla</a></div>`;
+    document.getElementById('recentOrders').innerHTML = orders.length ? orders.slice(0,3).map(renderOrder).join('') : emptyHtml;
+    document.getElementById('allOrders').innerHTML    = orders.length ? orders.map(renderOrder).join('') : emptyHtml;
+  } catch(e) {
+    const err='<p style="color:#8a3b2f;font-size:13px;">Siparişler yüklenemedi.</p>';
+    document.getElementById('recentOrders').innerHTML=err;
+    document.getElementById('allOrders').innerHTML=err;
+    document.getElementById('statOrders').textContent='0';
+    document.getElementById('statSpend').textContent='₺0';
+  }
+}
+
 async function saveProfile() {
-  const cfg = window.COSMOSKIN_CONFIG||{};
-  const client = window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);
-  const btn    = document.getElementById('saveProfileBtn');
-  const status = document.getElementById('profileStatus');
-  const fn = document.getElementById('profFirstName').value.trim();
-  const ln = document.getElementById('profLastName').value.trim();
-  if(!fn){ status.textContent='Ad alanı boş bırakılamaz.'; status.style.color='#c0392b'; return; }
+  const btn=document.getElementById('saveProfileBtn'), status=document.getElementById('profileStatus');
+  const fn=document.getElementById('profFirstName').value.trim();
+  const ln=document.getElementById('profLastName').value.trim();
+  if(!fn){status.textContent='Ad alanı boş bırakılamaz.';status.style.color='#c0392b';return;}
   btn.disabled=true; btn.textContent='Kaydediliyor…';
   try {
-    const { error } = await client.auth.updateUser({ data:{ first_name:fn, last_name:ln }});
+    const {error}=await _client.auth.updateUser({data:{first_name:fn,last_name:ln,phone:document.getElementById('profPhone').value.trim(),birthdate:document.getElementById('profBirthdate').value,gender:document.getElementById('profGender').value}});
     if(error) throw error;
     status.textContent='Profiliniz güncellendi.'; status.style.color='#1f7a4f';
     document.getElementById('accName').textContent=[fn,ln].filter(Boolean).join(' ');
     document.getElementById('accAvatar').textContent=[fn[0],ln[0]].filter(Boolean).join('').toUpperCase();
-  } catch(e){ status.textContent=e.message||'Hata oluştu.'; status.style.color='#c0392b'; }
+  } catch(e){status.textContent=e.message||'Hata oluştu.';status.style.color='#c0392b';}
   btn.disabled=false; btn.textContent='Değişiklikleri Kaydet';
 }
 
-// Tab switching
-function switchTab(name, el) {
+async function savePref(key, value) {
+  try {
+    const meta=_session.user.user_metadata||{};
+    const prefs=meta.comm_prefs||{};
+    prefs[key]=value;
+    await _client.auth.updateUser({data:{comm_prefs:prefs}});
+  } catch(e){console.error(e);}
+}
+
+function renderAddresses() {
+  const grid=document.getElementById('addressGrid');
+  const cards=_addresses.map((addr,i)=>`<div class="addr-card ${addr.isDefault?'default':''}">
+    ${addr.isDefault?'<div class="addr-default-badge">✓ Varsayılan</div>':''}
+    <p class="addr-name">${addr.title||'Adresim'}</p>
+    <p class="addr-detail">${addr.name}<br>${addr.line}<br>${addr.district?addr.district+' / ':''}${addr.city}${addr.postal?' '+addr.postal:''}</p>
+    ${addr.phone?`<p class="addr-detail" style="margin-top:4px;">${addr.phone}</p>`:''}
+    <div class="addr-actions">
+      <button class="addr-btn" onclick="editAddress(${i})">Düzenle</button>
+      ${!addr.isDefault?`<button class="addr-btn" onclick="setDefaultAddress(${i})">Varsayılan Yap</button>`:''}
+      <button class="addr-btn danger" onclick="deleteAddress(${i})">Sil</button>
+    </div>
+  </div>`).join('');
+  grid.innerHTML=cards+`<div class="addr-add" onclick="openAddressModal()"><div class="addr-add-icon">+</div><p>Yeni adres ekleyin</p></div>`;
+}
+
+function openAddressModal(editIndex=null) {
+  document.getElementById('addrModalTitle').textContent=editIndex!==null?'Adresi Düzenle':'Yeni Adres Ekle';
+  document.getElementById('addressModal').dataset.editIndex=editIndex!==null?editIndex:'';
+  if(editIndex!==null){const a=_addresses[editIndex];document.getElementById('addrName').value=a.name||'';document.getElementById('addrPhone').value=a.phone||'';document.getElementById('addrTitle').value=a.title||'';document.getElementById('addrLine').value=a.line||'';document.getElementById('addrCity').value=a.city||'';document.getElementById('addrDistrict').value=a.district||'';document.getElementById('addrPostal').value=a.postal||'';document.getElementById('addrDefault').checked=!!a.isDefault;}
+  else{['addrName','addrPhone','addrTitle','addrLine','addrCity','addrDistrict','addrPostal'].forEach(id=>document.getElementById(id).value='');document.getElementById('addrDefault').checked=false;}
+  document.getElementById('addrStatus').textContent='';
+  document.getElementById('addressModal').classList.add('open');
+}
+
+function closeAddressModal(){document.getElementById('addressModal').classList.remove('open');}
+
+async function saveAddress() {
+  const status=document.getElementById('addrStatus');
+  const name=document.getElementById('addrName').value.trim();
+  const line=document.getElementById('addrLine').value.trim();
+  const city=document.getElementById('addrCity').value.trim();
+  if(!name||!line||!city){status.textContent='Ad Soyad, Açık Adres ve İl zorunludur.';status.style.color='#c0392b';return;}
+  const newAddr={name,line,city,phone:document.getElementById('addrPhone').value.trim(),title:document.getElementById('addrTitle').value.trim()||'Adresim',district:document.getElementById('addrDistrict').value.trim(),postal:document.getElementById('addrPostal').value.trim(),isDefault:document.getElementById('addrDefault').checked};
+  const editIndex=document.getElementById('addressModal').dataset.editIndex;
+  if(newAddr.isDefault) _addresses.forEach(a=>a.isDefault=false);
+  if(editIndex!==''){_addresses[parseInt(editIndex)]=newAddr;}else{if(!_addresses.length)newAddr.isDefault=true;_addresses.push(newAddr);}
+  try{const{error}=await _client.auth.updateUser({data:{addresses:_addresses}});if(error)throw error;renderAddresses();closeAddressModal();}
+  catch(e){status.textContent=e.message||'Kayıt hatası.';status.style.color='#c0392b';}
+}
+
+async function deleteAddress(i) {
+  if(!confirm('Bu adresi silmek istediğinizden emin misiniz?'))return;
+  _addresses.splice(i,1);
+  if(_addresses.length&&!_addresses.some(a=>a.isDefault))_addresses[0].isDefault=true;
+  await _client.auth.updateUser({data:{addresses:_addresses}});
+  renderAddresses();
+}
+
+async function setDefaultAddress(i){_addresses.forEach((a,idx)=>a.isDefault=idx===i);await _client.auth.updateUser({data:{addresses:_addresses}});renderAddresses();}
+function editAddress(i){openAddressModal(i);}
+
+function renderFavorites(){
+  const favs=JSON.parse(localStorage.getItem('cosmoskin_favorites')||'[]');
+  if(!favs.length)return;
+  document.getElementById('favoritesContainer').innerHTML=`<div class="fav-grid">${favs.map((f,i)=>`<div class="fav-card"><div class="fav-img">◈</div><div class="fav-body"><span class="fav-brand">${f.brand||'Cosmoskin'}</span><h3 class="fav-name">${f.name||'Ürün'}</h3>${f.price?`<span class="fav-price">${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(f.price)}</span>`:''}<div class="fav-actions">${f.url?`<a href="${f.url}" class="btn btn-primary" style="font-size:10px;padding:8px 16px;">İncele</a>`:''}<button class="fav-remove" onclick="removeFavorite(${i})">Kaldır</button></div></div></div>`).join('')}</div>`;
+}
+
+function removeFavorite(i){const favs=JSON.parse(localStorage.getItem('cosmoskin_favorites')||'[]');favs.splice(i,1);localStorage.setItem('cosmoskin_favorites',JSON.stringify(favs));renderFavorites();}
+
+function switchTab(name,el){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.acc-nav-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  el.classList.add('active');
+  if(el)el.classList.add('active');
 }
+
+document.getElementById('addressModal').addEventListener('click',function(e){if(e.target===this)closeAddressModal();});
 </script>
 </body>
 </html>

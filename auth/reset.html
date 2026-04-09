@@ -1,68 +1,184 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cosmoskin · Şifre Sıfırlama</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Şifre Sıfırlama | Cosmoskin</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    body{display:flex;flex-direction:column;min-height:100dvh;justify-content:center;align-items:center;padding:40px 20px;background:linear-gradient(180deg,#f8f3ed 0%,#f3ece3 60%,#f0e8de 100%);}
+    .reset-card{width:min(480px,100%);background:#fffdf9;border:1px solid var(--line);border-radius:32px;box-shadow:0 32px 80px rgba(19,14,10,.09);overflow:hidden;}
+    .reset-bar{height:3px;background:linear-gradient(90deg,#b89b72,#d4b88a);}
+    .reset-body{padding:48px 44px 44px;}
+    .reset-brand{display:inline-flex;align-items:center;gap:11px;margin-bottom:36px;text-decoration:none;}
+    .reset-brand img{width:38px;height:38px;border-radius:50%;}
+    .reset-brand span{font-family:'Cormorant Garamond',serif;font-size:20px;letter-spacing:.34em;color:#1a1510;}
+    .reset-icon{width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:24px;background:#f4ece3;border:1px solid rgba(184,155,114,.25);}
+    .reset-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:#b89b72;margin:0 0 10px;display:block;text-align:center;}
+    .reset-heading{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:#1a1510;margin:0 0 10px;text-align:center;line-height:1.2;}
+    .reset-text{font-size:14px;line-height:1.78;color:#6b6159;margin:0 0 32px;text-align:center;}
+    .reset-field{display:grid;gap:8px;margin-bottom:16px;}
+    .reset-label-field{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#b89b72;}
+    .reset-input{padding:14px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
+    .reset-input:focus{border-color:#1a1510;box-shadow:0 0 0 3px rgba(26,21,16,.06);}
+    .reset-actions{display:grid;gap:10px;margin-top:24px;}
+    .reset-status{font-size:13px;min-height:18px;margin-top:12px;text-align:center;line-height:1.6;}
+    .reset-foot{padding:18px 44px 26px;border-top:1px solid var(--line);font-size:12px;color:#9a8e82;text-align:center;}
+    .reset-foot a{color:#b89b72;text-decoration:none;}
+    .reset-success-icon{width:56px;height:56px;border-radius:50%;background:#edf7f1;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 24px;}
+  </style>
 </head>
 <body>
-  <main class="section">
-    <div class="container narrow">
-      <div class="summary-card">
-        <h3>Şifre sıfırlama</h3>
-        <p class="account-mini">Önce e-posta adresinizi girip sıfırlama bağlantısı isteyin. Linkten döndüğünüzde yeni şifrenizi bu sayfada belirleyebilirsiniz.</p>
-        <form id="requestResetForm" class="form-grid compact" style="margin-top:18px">
-          <div class="field full"><label>E-posta</label><input id="resetEmail" type="email" required placeholder="ornek@eposta.com"></div>
-          <div class="field full"><button class="btn btn-primary" type="submit">Sıfırlama bağlantısı gönder</button></div>
-        </form>
-        <form id="updatePasswordForm" class="form-grid compact" style="margin-top:18px">
-          <div class="field full"><label>Yeni şifre</label><input id="newPassword" type="password" minlength="8" required placeholder="En az 8 karakter"></div>
-          <div class="field full"><button class="btn btn-primary" type="submit">Şifreyi güncelle</button></div>
-        </form>
-        <p id="resetStatus" class="account-mini" style="margin-top:12px"></p>
+
+<div class="reset-card">
+  <div class="reset-bar"></div>
+  <div class="reset-body">
+    <a href="/index.html" class="reset-brand">
+      <img src="/assets/logo-mark.png" alt="Cosmoskin">
+      <span>COSMOSKIN</span>
+    </a>
+
+    <!-- STEP 1: E-posta isteme formu -->
+    <div id="stepRequest">
+      <div style="text-align:center;">
+        <div class="reset-icon">✉</div>
+        <span class="reset-label">Şifre Sıfırlama</span>
+        <h1 class="reset-heading">Şifrenizi mi unuttunuz?</h1>
+        <p class="reset-text">E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.</p>
+      </div>
+      <div class="reset-field">
+        <label class="reset-label-field">E-posta Adresi</label>
+        <input class="reset-input" id="resetEmail" type="email" placeholder="ornek@eposta.com" autocomplete="email">
+      </div>
+      <div class="reset-actions">
+        <button class="btn btn-primary" id="requestBtn" onclick="sendResetLink()" style="min-height:48px;">Sıfırlama Bağlantısı Gönder</button>
+        <a href="/index.html" class="btn btn-secondary" style="min-height:48px;">Geri Dön</a>
+      </div>
+      <div class="reset-status" id="requestStatus"></div>
+    </div>
+
+    <!-- STEP 2: Yeni şifre belirleme (sadece linkten döndüğünde gösterilir) -->
+    <div id="stepUpdate" style="display:none;">
+      <div style="text-align:center;">
+        <div class="reset-icon">🔐</div>
+        <span class="reset-label">Yeni Şifre</span>
+        <h1 class="reset-heading">Yeni şifrenizi belirleyin</h1>
+        <p class="reset-text">Güçlü bir şifre seçin. En az 8 karakter, harf ve rakam içermeli.</p>
+      </div>
+      <div class="reset-field">
+        <label class="reset-label-field">Yeni Şifre</label>
+        <div class="password-wrap">
+          <input class="reset-input" id="newPassword" type="password" minlength="8" placeholder="En az 8 karakter" autocomplete="new-password" style="padding-right:82px;">
+          <button class="password-toggle" type="button" onclick="togglePassword()">Göster</button>
+        </div>
+      </div>
+      <div class="reset-field">
+        <label class="reset-label-field">Şifre Tekrar</label>
+        <input class="reset-input" id="confirmPassword" type="password" minlength="8" placeholder="Şifrenizi tekrar girin" autocomplete="new-password">
+      </div>
+      <div class="reset-actions">
+        <button class="btn btn-primary" id="updateBtn" onclick="updatePassword()" style="min-height:48px;">Şifremi Güncelle</button>
+      </div>
+      <div class="reset-status" id="updateStatus"></div>
+    </div>
+
+    <!-- STEP 3: Başarı mesajı -->
+    <div id="stepSuccess" style="display:none;text-align:center;">
+      <div class="reset-success-icon">✓</div>
+      <span class="reset-label">İşlem Tamamlandı</span>
+      <h1 class="reset-heading">Şifreniz güncellendi</h1>
+      <p class="reset-text">Yeni şifrenizle giriş yapabilirsiniz.</p>
+      <div class="reset-actions">
+        <a href="/index.html?openAuth=login" class="btn btn-primary" style="min-height:48px;">Giriş Yap</a>
+        <a href="/index.html" class="btn btn-secondary" style="min-height:48px;">Anasayfaya Dön</a>
       </div>
     </div>
-  </main>
-  <script src="/assets/site-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-  (async function(){
-    const cfg = window.COSMOSKIN_CONFIG || {};
-    const statusEl = document.getElementById('resetStatus');
-    const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-    });
-    document.getElementById('requestResetForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      statusEl.textContent = 'Bağlantı hazırlanıyor...';
-      const email = document.getElementById('resetEmail').value.trim();
-      const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: `${cfg.siteUrl}${cfg.resetPath || '/auth/reset.html'}`
-      });
-      if (error) {
-        statusEl.textContent = error.message;
-        statusEl.style.color = '#8a3b2f';
-        return;
-      }
-      statusEl.textContent = 'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.';
-      statusEl.style.color = '#5d554e';
-    });
 
-    document.getElementById('updatePasswordForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      statusEl.textContent = 'Şifre güncelleniyor...';
-      const password = document.getElementById('newPassword').value;
-      const { error } = await client.auth.updateUser({ password });
-      if (error) {
-        statusEl.textContent = error.message;
-        statusEl.style.color = '#8a3b2f';
-        return;
-      }
-      statusEl.textContent = 'Şifreniz güncellendi. Giriş yapabilirsiniz.';
-      statusEl.style.color = '#5d554e';
+  </div>
+  <div class="reset-foot">
+    Yardım için: <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a>
+  </div>
+</div>
+
+<script src="/assets/site-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async function(){
+  const cfg = window.COSMOSKIN_CONFIG || {};
+  const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+  });
+
+  // URL'de recovery token var mı kontrol et
+  const hash = window.location.hash;
+  const params = new URLSearchParams(window.location.search);
+  const type = params.get('type') || (hash.includes('type=recovery') ? 'recovery' : null);
+  const code = params.get('code');
+
+  if (type === 'recovery' || code) {
+    // Supabase token'ı otomatik işler, oturumu kontrol et
+    if (code) {
+      await client.auth.exchangeCodeForSession(code);
+    }
+    const { data:{ session } } = await client.auth.getSession();
+    if (session) {
+      // Şifre güncelleme formunu göster, istek formunu gizle
+      document.getElementById('stepRequest').style.display = 'none';
+      document.getElementById('stepUpdate').style.display = 'block';
+    }
+  }
+
+  // Şifre sıfırlama linki gönder
+  window.sendResetLink = async function() {
+    const btn = document.getElementById('requestBtn');
+    const status = document.getElementById('requestStatus');
+    const email = document.getElementById('resetEmail').value.trim();
+    if (!email) { status.textContent='E-posta adresi giriniz.'; status.style.color='#8a3b2f'; return; }
+    btn.disabled=true; btn.textContent='Gönderiliyor…';
+    const { error } = await client.auth.resetPasswordForEmail(email, {
+      redirectTo: `${cfg.siteUrl || window.location.origin}/auth/reset.html`
     });
-  })();
-  </script>
+    btn.disabled=false; btn.textContent='Sıfırlama Bağlantısı Gönder';
+    if (error) { status.textContent=error.message; status.style.color='#8a3b2f'; return; }
+    status.innerHTML='✓ Bağlantı e-posta adresinize gönderildi. Gelen kutunuzu ve spam klasörünüzü kontrol edin.';
+    status.style.color='#1f7a4f';
+    document.getElementById('resetEmail').disabled=true;
+    btn.disabled=true;
+  };
+
+  // Şifreyi güncelle
+  window.updatePassword = async function() {
+    const btn = document.getElementById('updateBtn');
+    const status = document.getElementById('updateStatus');
+    const pw = document.getElementById('newPassword').value;
+    const pw2 = document.getElementById('confirmPassword').value;
+    if (pw.length < 8) { status.textContent='Şifre en az 8 karakter olmalıdır.'; status.style.color='#8a3b2f'; return; }
+    if (pw !== pw2) { status.textContent='Şifreler eşleşmiyor.'; status.style.color='#8a3b2f'; return; }
+    btn.disabled=true; btn.textContent='Güncelleniyor…';
+    const { error } = await client.auth.updateUser({ password: pw });
+    if (error) { status.textContent=error.message; status.style.color='#8a3b2f'; btn.disabled=false; btn.textContent='Şifremi Güncelle'; return; }
+    document.getElementById('stepUpdate').style.display='none';
+    document.getElementById('stepSuccess').style.display='block';
+    await client.auth.signOut();
+  };
+
+  window.togglePassword = function() {
+    const input = document.getElementById('newPassword');
+    const btn = event.target;
+    if (input.type==='password') { input.type='text'; btn.textContent='Gizle'; }
+    else { input.type='password'; btn.textContent='Göster'; }
+  };
+
+  // Enter ile gönder
+  document.getElementById('resetEmail').addEventListener('keydown', e => { if(e.key==='Enter') window.sendResetLink(); });
+  document.getElementById('newPassword').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('confirmPassword').focus(); });
+  document.getElementById('confirmPassword').addEventListener('keydown', e => { if(e.key==='Enter') window.updatePassword(); });
+})();
+</script>
 </body>
 </html>
