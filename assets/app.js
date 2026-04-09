@@ -309,3 +309,22 @@
     }
   }));
 })();
+
+// Handle ?openAuth=login redirect (from email verification callback)
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('openAuth') === 'login') {
+    window.addEventListener('DOMContentLoaded', function() {
+      const accountModal = document.getElementById('accountModal');
+      const backdrop     = document.getElementById('backdrop');
+      if (accountModal && backdrop) {
+        accountModal.classList.add('show');
+        backdrop.classList.add('show');
+        // Clean URL without reload
+        const url = new URL(window.location.href);
+        url.searchParams.delete('openAuth');
+        history.replaceState(null, '', url.toString());
+      }
+    });
+  }
+})();

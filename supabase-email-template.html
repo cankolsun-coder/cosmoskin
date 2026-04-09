@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COSMOSKIN Üyelik Doğrulama</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5efe8;font-family:'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5efe8;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+
+          <!-- LOGO HEADER -->
+          <tr>
+            <td align="center" style="padding:0 0 28px 0;">
+              <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center" valign="middle" style="padding-right:12px;">
+                    <img src="https://www.cosmoskin.com.tr/assets/logo-mark.png"
+                         alt="Cosmoskin" width="44" height="44"
+                         style="display:block;width:44px;height:44px;border-radius:50%;">
+                  </td>
+                  <td align="center" valign="middle">
+                    <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;letter-spacing:0.32em;color:#1a1510;font-weight:400;">COSMOSKIN</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- MAIN CARD -->
+          <tr>
+            <td style="background-color:#fffdf9;border-radius:24px;border:1px solid rgba(23,20,17,0.08);overflow:hidden;">
+
+              <!-- Top accent bar -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="height:3px;background:linear-gradient(90deg,#b89b72,#d4b88a);font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
+              </table>
+
+              <!-- Card content -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="padding:44px 48px 40px;">
+
+                    <!-- Icon -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                      <tr>
+                        <td style="width:52px;height:52px;background-color:#f4ece3;border-radius:50%;text-align:center;vertical-align:middle;">
+                          <span style="font-size:22px;line-height:52px;">✉</span>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Label -->
+                    <p style="margin:0 0 10px;font-size:11px;letter-spacing:0.26em;text-transform:uppercase;color:#b89b72;font-weight:600;">Üyelik Doğrulama</p>
+
+                    <!-- Heading -->
+                    <h1 style="margin:0 0 18px;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:400;line-height:1.2;color:#1a1510;letter-spacing:-0.01em;">
+                      E-posta adresinizi<br>doğrulayın
+                    </h1>
+
+                    <!-- Body -->
+                    <p style="margin:0 0 8px;font-size:15px;line-height:1.75;color:#5e574f;">
+                      Değerli Müşterimiz,
+                    </p>
+                    <p style="margin:0 0 32px;font-size:15px;line-height:1.75;color:#5e574f;">
+                      Cosmoskin üyeliğinizi tamamlamak için aşağıdaki butona tıklayarak e-posta adresinizi onaylayın. Üyeliğiniz aktif hale gelecek ve alışverişe başlayabileceksiniz.
+                    </p>
+
+                    <!-- CTA Button -->
+                    <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom:32px;">
+                      <tr>
+                        <td style="background-color:#1a1510;border-radius:999px;">
+                          <a href="{{ .ConfirmationURL }}"
+                             style="display:inline-block;padding:16px 36px;font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#ffffff;text-decoration:none;">
+                            E-postamı Onayla
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Divider -->
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+                      <tr>
+                        <td style="height:1px;background-color:rgba(23,20,17,0.08);font-size:0;">&nbsp;</td>
+                      </tr>
+                    </table>
+
+                    <!-- Security note -->
+                    <p style="margin:0;font-size:12px;line-height:1.7;color:#9a8e82;">
+                      Bu bağlantı <strong>24 saat</strong> geçerlidir. Eğer Cosmoskin'e kayıt olmak istemediyseniz bu e-postayı görmezden gelebilirsiniz, hesabınız otomatik olarak silinecektir.
+                    </p>
+
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="padding:28px 0 0;text-align:center;">
+              <p style="margin:0 0 8px;font-size:12px;color:#9a8e82;">
+                Sorularınız için:
+                <a href="mailto:destek@cosmoskin.com.tr" style="color:#b89b72;text-decoration:none;">destek@cosmoskin.com.tr</a>
+              </p>
+              <p style="margin:0;font-size:11px;color:#b5a99f;letter-spacing:0.08em;">
+                © 2026 COSMOSKIN · İstanbul, Türkiye
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+<!--
+==========================================================
+SUPABASE DASHBOARD AYARLARI
+==========================================================
+
+1. Supabase Dashboard → Authentication → Email Templates
+2. "Confirm signup" şablonunu seçin
+3. Subject alanına yazın:
+   COSMOSKIN · Üyelik Doğrulama
+
+4. Bu HTML dosyasının içeriğini (yukarıdaki <!DOCTYPE...> ile
+   başlayan kısmı) "Body" alanına yapıştırın.
+
+5. Kaydedin.
+
+NOT: {{ .ConfirmationURL }} Supabase'in otomatik doldurduğu
+     doğrulama linki değişkenidir — değiştirmeyin.
+==========================================================
+-->

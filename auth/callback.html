@@ -1,42 +1,88 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Cosmoskin · Hesap Doğrulama</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COSMOSKIN · E-posta Doğrulama</title>
+  <link rel="icon" href="/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    body{display:flex;flex-direction:column;min-height:100dvh;justify-content:center;align-items:center;padding:40px 20px;}
+    .verify-card{width:min(480px,100%);background:#fffdf9;border:1px solid var(--line);border-radius:32px;box-shadow:0 32px 80px rgba(19,14,10,.09);overflow:hidden;text-align:center;}
+    .verify-bar{height:3px;background:linear-gradient(90deg,#b89b72,#d4b88a);}
+    .verify-body{padding:48px 44px 44px;}
+    .verify-icon{width:64px;height:64px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:28px;line-height:1;}
+    .verify-icon.loading{background:#f4ece3;animation:pulse 1.4s ease-in-out infinite;}
+    .verify-icon.success{background:#edf7f1;}
+    .verify-icon.error{background:#fdf0ee;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .verify-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:#b89b72;margin:0 0 10px;display:block;}
+    .verify-heading{font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;font-weight:400;color:#1a1510;margin:0 0 14px;line-height:1.2;}
+    .verify-text{font-size:14px;line-height:1.78;color:#6b6159;margin:0 0 32px;}
+    .verify-actions{display:grid;gap:10px;}
+    .verify-foot{padding:18px 44px 26px;border-top:1px solid var(--line);font-size:12px;color:#9a8e82;}
+    .verify-foot a{color:#b89b72;text-decoration:none;}
+    .verify-brand{display:inline-flex;align-items:center;gap:11px;margin-bottom:32px;text-decoration:none;}
+    .verify-brand img{width:38px;height:38px;border-radius:50%;}
+    .verify-brand span{font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;letter-spacing:.34em;color:#1a1510;}
+  </style>
 </head>
 <body>
-  <main class="section">
-    <div class="container narrow">
-      <div class="summary-card">
-        <h3>Hesap doğrulanıyor</h3>
-        <p id="callbackStatus" class="account-mini">Oturumunuz güvenli şekilde hazırlanıyor...</p>
-      </div>
+  <div class="verify-card">
+    <div class="verify-bar"></div>
+    <div class="verify-body">
+      <a href="/index.html" class="verify-brand">
+        <img src="/assets/logo-mark.png" alt="Cosmoskin">
+        <span>COSMOSKIN</span>
+      </a>
+      <div class="verify-icon loading" id="vIcon">⏳</div>
+      <span class="verify-label" id="vLabel">İşlem yapılıyor</span>
+      <h1 class="verify-heading" id="vHeading">E-posta doğrulanıyor…</h1>
+      <p class="verify-text" id="vText">Lütfen bekleyin, hesabınız güvenli şekilde aktif hale getiriliyor.</p>
+      <div class="verify-actions" id="vActions" style="display:none;"></div>
     </div>
-  </main>
+    <div class="verify-foot" id="vFoot" style="display:none;">
+      Yardım için: <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a>
+    </div>
+  </div>
+
   <script src="/assets/site-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
   (async function(){
-    const cfg = window.COSMOSKIN_CONFIG || {};
-    const statusEl = document.getElementById('callbackStatus');
-    try {
-      const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-        auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-      });
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get('code');
-      if (code) {
-        const { error } = await client.auth.exchangeCodeForSession(code);
-        if (error) throw error;
-      }
-      statusEl.textContent = 'Doğrulama tamamlandı. Hesabım sayfasına yönlendiriliyorsunuz...';
-      window.location.replace('/account/orders.html');
-    } catch (error) {
-      statusEl.textContent = error.message || 'Doğrulama başarısız oldu.';
-      statusEl.style.color = '#8a3b2f';
+    const cfg=window.COSMOSKIN_CONFIG||{};
+    const icon=document.getElementById('vIcon'),label=document.getElementById('vLabel'),
+          heading=document.getElementById('vHeading'),text=document.getElementById('vText'),
+          actions=document.getElementById('vActions'),foot=document.getElementById('vFoot');
+
+    function showSuccess(){
+      icon.textContent='✓'; icon.className='verify-icon success';
+      label.textContent='Doğrulama Tamamlandı';
+      heading.textContent='E-postanız başarıyla doğrulandı';
+      text.textContent='Cosmoskin hesabınız aktif. Aşağıdan giriş yaparak alışverişe başlayabilirsiniz.';
+      actions.style.display='grid';
+      actions.innerHTML=`<a class="btn btn-primary" href="/index.html?openAuth=login">Giriş Yap</a><a class="btn btn-secondary" href="/index.html">Anasayfaya Dön</a>`;
+      foot.style.display='block';
     }
+    function showError(msg){
+      icon.textContent='✕'; icon.className='verify-icon error';
+      label.textContent='Doğrulama Hatası';
+      heading.textContent='Bir sorun oluştu';
+      text.textContent=msg||'Doğrulama bağlantısı geçersiz veya süresi dolmuş. Lütfen tekrar kayıt olun.';
+      actions.style.display='grid';
+      actions.innerHTML=`<a class="btn btn-primary" href="/index.html">Anasayfaya Dön</a><a class="btn btn-secondary" href="mailto:destek@cosmoskin.com.tr">Destek Al</a>`;
+      foot.style.display='block';
+    }
+    try{
+      const client=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+      const code=new URL(window.location.href).searchParams.get('code');
+      if(code){const{error}=await client.auth.exchangeCodeForSession(code);if(error)throw error;}
+      const{data:{session}}=await client.auth.getSession();
+      if(session) showSuccess(); else throw new Error('Oturum oluşturulamadı.');
+    }catch(err){showError(err.message);}
   })();
   </script>
 </body>

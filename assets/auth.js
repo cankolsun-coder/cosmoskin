@@ -9,6 +9,21 @@ if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
 const supabase = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
 window.cosmoskinSupabase = supabase;
 
+// Redirect account button to profile page when session exists
+supabase.auth.getSession().then(({ data: { session } }) => {
+  if (session) {
+    document.addEventListener('DOMContentLoaded', () => {
+      const accountBtn = document.getElementById('accountBtn');
+      if (accountBtn) {
+        accountBtn.addEventListener('click', (e) => {
+          e.stopImmediatePropagation();
+          window.location.href = '/account/profile.html';
+        }, true);
+      }
+    });
+  }
+});
+
 // -----------------------------
 // Helpers
 // -----------------------------
