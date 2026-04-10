@@ -5,12 +5,37 @@
   const VAT = Number(cfg.vatRate ?? 0.20);
   const FREE_SHIPPING = Number(cfg.freeShippingThreshold ?? 2500);
   const SHIPPING_FEE = Number(cfg.shippingFee ?? 119);
+  const FAVORITES_KEY = 'cosmoskin_favorites';
+  const LEGACY_FAVORITES_KEY = 'cosmoskin_favorites_v1';
+
+  function readFavoriteStorage() {
+    try {
+      const current = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+      if (Array.isArray(current)) return current;
+    } catch (error) {}
+
+    try {
+      const legacy = JSON.parse(localStorage.getItem(LEGACY_FAVORITES_KEY) || '{}');
+      if (legacy && typeof legacy === 'object' && !Array.isArray(legacy)) {
+        return Object.values(legacy).map((item) => ({
+          id: String(item.id || ''),
+          name: item.name || 'Ürün',
+          brand: item.brand || 'Cosmoskin',
+          price: Number(item.price || 0),
+          image: item.image || '',
+          url: item.url || ''
+        })).filter((item) => item.id);
+      }
+    } catch (error) {}
+
+    return [];
+  }
+
   const state = {
     cart: JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'),
-    favorites: JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]'),
+    favorites: readFavoriteStorage(),
     consent: JSON.parse(localStorage.getItem('cosmoskin_consent') || 'null')
   };
-  const FAVORITES_KEY = 'cosmoskin_favorites';
   let favoriteAccountSyncReady = false;
 
   const backdrop = $('#backdrop');
@@ -29,6 +54,44 @@
       currency: 'TRY',
       maximumFractionDigits: 0
     }).format(n);
+  }
+
+  function showToast(message) {
+    if (!message) return;
+    let root = document.getElementById('globalToast');
+    if (!root) {
+      root = document.createElement('div');
+      root.id = 'globalToast';
+      root.setAttribute('role', 'status');
+      root.setAttribute('aria-live', 'polite');
+      root.style.position = 'fixed';
+      root.style.left = '50%';
+      root.style.bottom = '24px';
+      root.style.transform = 'translateX(-50%) translateY(12px)';
+      root.style.padding = '12px 18px';
+      root.style.borderRadius = '999px';
+      root.style.background = 'rgba(26,21,16,.94)';
+      root.style.color = '#fff';
+      root.style.fontSize = '13px';
+      root.style.fontWeight = '600';
+      root.style.letterSpacing = '.01em';
+      root.style.boxShadow = '0 18px 40px rgba(0,0,0,.18)';
+      root.style.zIndex = '9999';
+      root.style.opacity = '0';
+      root.style.pointerEvents = 'none';
+      root.style.transition = 'opacity .22s ease, transform .22s ease';
+      document.body.appendChild(root);
+    }
+    root.textContent = message;
+    clearTimeout(root._toastTimer);
+    requestAnimationFrame(() => {
+      root.style.opacity = '1';
+      root.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    root._toastTimer = setTimeout(() => {
+      root.style.opacity = '0';
+      root.style.transform = 'translateX(-50%) translateY(12px)';
+    }, 1800);
   }
 
   function totals() {
@@ -209,6 +272,7 @@ function broadcastFavoritesChange() {
   function persistFavorites(options = {}) {
     state.favorites = uniqueFavorites(state.favorites);
     localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
+    localStorage.removeItem(LEGACY_FAVORITES_KEY);
     renderFavoriteButtons();
     broadcastFavoritesChange();
     if (!options.skipRemote) {
@@ -253,12 +317,14 @@ function broadcastFavoritesChange() {
   function toggleFavorite(item) {
     const normalized = normalizeFavoriteItem(item);
     if (!normalized?.id) return;
-    if (isFavorite(normalized.id)) {
+    const alreadyFavorite = isFavorite(normalized.id);
+    if (alreadyFavorite) {
       state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
     } else {
       state.favorites.unshift(normalized);
     }
     persistFavorites();
+    showToast(alreadyFavorite ? 'Favorilerden çıkarıldı' : 'Favorilere eklendi');
   }
 
   function getProductDataFromButton(btn) {
