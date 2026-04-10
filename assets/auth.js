@@ -222,6 +222,7 @@ function renderAccountState(user) {
 
     if (accountActions) {
       accountActions.innerHTML = `
+        <a class="btn btn-primary" href="/account/profile.html">Hesabımı Yönet</a>
         <button class="btn btn-secondary" id="signOutBtn">Çıkış Yap</button>
       `;
 
@@ -367,9 +368,23 @@ document.addEventListener('keydown', (e) => {
 
 document.getElementById('backdrop')?.addEventListener('click', closeAccountModal);
 
-document.getElementById('accountBtn')?.addEventListener('click', async () => {
+document.getElementById('accountBtn')?.addEventListener('click', async (event) => {
   const drawer = document.getElementById('accountDrawer');
   const backdrop = document.getElementById('backdrop');
+
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      event.preventDefault();
+      window.location.href = '/account/profile.html';
+      return;
+    }
+  } catch (error) {
+    console.warn('account button auth check failed:', error);
+  }
 
   drawer?.classList.add('open');
   backdrop?.classList.add('show');

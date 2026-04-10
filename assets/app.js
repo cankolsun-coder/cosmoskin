@@ -64,24 +64,41 @@
     closeModals();
     $('.shop-wrap')?.classList.remove('open');
     mobileNav?.classList.remove('open');
+    document.body.classList.remove('modal-open');
   });
 
   $$('.close-any').forEach((btn) => btn.addEventListener('click', () => {
     closeDrawers();
     closeModals();
     mobileNav?.classList.remove('open');
+    document.body.classList.remove('modal-open');
   }));
 
   $('#cartBtn')?.addEventListener('click', () => openDrawer(cartDrawer));
-  $('#accountBtn')?.addEventListener('click', () => openDrawer(accountDrawer));
+  $('#accountBtn')?.addEventListener('click', async () => {
+    try {
+      const supabaseClient = window.cosmoskinSupabase;
+      if (supabaseClient) {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          window.location.href = '/account/profile.html';
+          return;
+        }
+      }
+    } catch (error) {
+      console.warn('account redirect check failed:', error);
+    }
+    openDrawer(accountDrawer);
+  });
 
   document.addEventListener('cosmoskin:open-auth', (event) => {
     document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: event.detail || {} }));
   });
 
   $('#mobileToggle')?.addEventListener('click', () => {
-    mobileNav?.classList.toggle('open');
-    backdrop?.classList.toggle('show', mobileNav?.classList.contains('open'));
+    const isOpen = mobileNav?.classList.toggle('open');
+    backdrop?.classList.toggle('show', !!isOpen);
+    document.body.classList.toggle('modal-open', !!isOpen);
   });
 
   $$('.open-legal').forEach((btn) => btn.addEventListener('click', (e) => {
@@ -100,6 +117,7 @@
       closeModals();
       $('.shop-wrap')?.classList.remove('open');
       mobileNav?.classList.remove('open');
+      document.body.classList.remove('modal-open');
     }
   });
 

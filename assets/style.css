@@ -1734,10 +1734,12 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
     background: rgba(255, 253, 250, .98);
     border: 1px solid var(--line);
     box-shadow: var(--shadow);
-    z-index: 260;
+    z-index: 325;
   }
 
   .mobile-nav.open { display: grid; gap: 8px; }
+
+  body.modal-open .site-header { z-index: 340; }
 
   .mobile-nav a {
     padding: 14px 16px;
