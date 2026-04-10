@@ -437,6 +437,10 @@ button, input, textarea, select { font: inherit; cursor: pointer; }
 }
 
 /* Meta stats */
+
+.highlight {
+  color: #c8a96a;
+}
 .hero-meta { display: grid; gap: 12px; margin-top: 24px; }
 
 .hero-meta div {
@@ -1994,4 +1998,85 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   font-size: 20px;
   line-height: 1;
   pointer-events: none;
+}
+
+
+/* Footer premium dark theme */
+.footer {
+  background: #0d0d0d;
+  color: #ede6dc;
+}
+
+.footer-grid {
+  background: transparent;
+  border: 1px solid rgba(237, 230, 220, .10);
+  box-shadow: none;
+}
+
+.footer .brand-word,
+.footer-copy,
+.footer-col a,
+.footer-col span,
+.footer-bottom {
+  color: #ede6dc;
+}
+
+.footer-copy {
+  opacity: .78;
+}
+
+.footer-col h5 {
+  color: #c8a96a;
+}
+
+.footer-col a,
+.footer-col button {
+  opacity: .82;
+}
+
+.footer-col a:hover,
+.footer-col button:hover {
+  opacity: 1;
+  color: #ffffff;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(237, 230, 220, .10);
+  padding-top: 16px;
+}
+
+.favorite-btn {
+  top: 16px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
+  border-color: rgba(26, 21, 16, .12);
+  box-shadow: 0 18px 36px rgba(26, 21, 16, .12);
+  z-index: 10;
+}
+
+.favorite-btn.active {
+  background: #fff1f1;
+  border-color: rgba(181, 58, 58, .18);
+  color: #c53b3b;
+}
+
+.favorite-btn-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+}
+
+.favorite-btn-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: transparent;
+  transition: fill .18s ease, stroke .18s ease, transform .18s ease;
+}
+
+.favorite-btn.active .favorite-btn-icon svg {
+  fill: currentColor;
+  stroke: currentColor;
+  transform: scale(1.03);
 }

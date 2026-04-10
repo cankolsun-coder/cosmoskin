@@ -179,7 +179,11 @@
     return Array.from(map.values());
   }
 
-  function broadcastFavoritesChange() {
+  
+  function favoriteHeartIcon(active = false) {
+    return `<span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.1 20.3 4.9 13.4a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8l-7.2 6.9a.6.6 0 0 1-.8 0Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+  }
+function broadcastFavoritesChange() {
     window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: state.favorites } }));
   }
 
@@ -280,7 +284,7 @@
       button.setAttribute('aria-label', 'Favorilere ekle');
       button.setAttribute('title', 'Favorilere ekle');
       button.dataset.favoriteId = cartBtn.dataset.id;
-      button.innerHTML = '<span class="favorite-btn-icon" aria-hidden="true">♡</span>';
+      button.innerHTML = favoriteHeartIcon(false);
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -297,7 +301,7 @@
       button.setAttribute('aria-label', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
       button.setAttribute('title', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
       const icon = button.querySelector('.favorite-btn-icon');
-      if (icon) icon.textContent = active ? '♥' : '♡';
+      if (icon) if (icon) icon.innerHTML = favoriteHeartIcon(active).replace('<span class="favorite-btn-icon" aria-hidden="true">','').replace('</span>','');
     });
   }
 
@@ -377,6 +381,15 @@
   renderFavoriteButtons();
   hydrateFavoritesFromAccount();
   watchFavoriteAuthState();
+
+  window.addEventListener('load', () => {
+    ensureFavoriteButtons();
+    renderFavoriteButtons();
+    setTimeout(() => {
+      ensureFavoriteButtons();
+      renderFavoriteButtons();
+    }, 120);
+  });
 
   $$('[data-add-cart]').forEach((btn) => btn.addEventListener('click', () => {
     const item = {
