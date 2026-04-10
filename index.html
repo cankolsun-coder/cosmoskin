@@ -73,6 +73,31 @@
     });
   })();
 </script>
+
+<style id="favorites-inline-style">
+.product-media{position:relative;display:block}
+.favorite-btn{
+  position:absolute;top:14px;right:14px;width:42px;height:42px;border:none;border-radius:999px;
+  background:rgba(255,255,255,.94);box-shadow:0 10px 24px rgba(18,13,10,.12), inset 0 0 0 1px rgba(28,20,15,.08);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:12;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  -webkit-backdrop-filter: blur(8px);backdrop-filter: blur(8px);
+}
+.favorite-btn:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 14px 28px rgba(18,13,10,.16), inset 0 0 0 1px rgba(28,20,15,.08)}
+.favorite-btn svg{width:19px;height:19px;display:block}
+.favorite-btn path{fill:none;stroke:#1c140f;stroke-width:1.9;transition:fill .18s ease, stroke .18s ease}
+.favorite-btn.is-active{background:rgba(255,250,250,.98)}
+.favorite-btn.is-active path{fill:#cf3a3a;stroke:#cf3a3a}
+.favorite-toast{
+  position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(12px);padding:12px 16px;border-radius:999px;
+  background:#16110d;color:#f3eadf;font:600 13px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.02em;
+  box-shadow:0 18px 40px rgba(0,0,0,.22);opacity:0;pointer-events:none;transition:opacity .22s ease, transform .22s ease;z-index:9999
+}
+.favorite-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (max-width: 768px){
+  .favorite-btn{top:10px;right:10px;width:38px;height:38px}
+}
+</style>
+
 </head><body><div class="progress" id="progress"></div><div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Koleksiyonları</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
 <header class="header">
   <a class="brand" href="/index.html" aria-label="Cosmoskin anasayfa">
@@ -191,4 +216,89 @@
 <div class="cookie" id="cookieBanner"><div class="cookie-card"><p>Bu site, temel alışveriş işlevleri için zorunlu çerezleri kullanır. Analitik çerezleri etkinleştirerek deneyimin gelişmesine katkı sağlayabilirsiniz.</p><div class="cookie-actions"><button class="btn btn-secondary" id="cookieCustomize">Tercihleri Yönet</button><button class="btn btn-secondary" id="cookieAcceptEssential">Sadece Zorunlu</button><button class="btn btn-primary" id="cookieAcceptAll">Kabul Et</button></div></div></div>
 <script src="/assets/site-config.js"></script>
 <script type="module" src="/assets/auth.js"></script>
-<script src="/assets/app.js"></script><script src="/assets/commerce.js"></script></body></html>
+<script src="/assets/app.js"></script><script src="/assets/commerce.js"></script>
+<script id="favorites-inline-script">
+(function(){
+  const KEY = 'cosmoskin_favorites_v1';
+  const toast = document.createElement('div');
+  toast.className = 'favorite-toast';
+  document.body.appendChild(toast);
+
+  function readFavorites(){
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
+    catch(e){ return []; }
+  }
+  function writeFavorites(items){
+    localStorage.setItem(KEY, JSON.stringify(items));
+    window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: items }));
+  }
+  function showToast(message){
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+  }
+  function normalizeCard(card){
+    const addBtn = card.querySelector('[data-add-cart]');
+    const mediaImg = card.querySelector('.product-media img');
+    const brand = addBtn?.dataset.brand || card.querySelector('.brandline')?.textContent?.trim() || '';
+    const name = addBtn?.dataset.name || card.querySelector('h3')?.textContent?.trim() || '';
+    const id = addBtn?.dataset.id || (brand + '-' + name).toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const price = addBtn?.dataset.price || '';
+    const image = addBtn?.dataset.image || mediaImg?.getAttribute('src') || '';
+    const url = card.querySelector('.product-media')?.getAttribute('href') || location.pathname;
+    return {id, brand, name, price, image, url};
+  }
+  function isFavorite(id){
+    return readFavorites().some(item => item.id === id);
+  }
+  function syncButtons(){
+    document.querySelectorAll('.favorite-btn').forEach(btn => {
+      const active = isFavorite(btn.dataset.id);
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+      btn.setAttribute('title', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
+    });
+  }
+  function toggleFavorite(product){
+    const items = readFavorites();
+    const index = items.findIndex(item => item.id === product.id);
+    if(index >= 0){
+      items.splice(index, 1);
+      writeFavorites(items);
+      syncButtons();
+      showToast('Ürün favorilerden çıkarıldı');
+      return false;
+    } else {
+      items.push(product);
+      writeFavorites(items);
+      syncButtons();
+      showToast('Ürün favorilere eklendi');
+      return true;
+    }
+  }
+  document.querySelectorAll('.product-card').forEach(card => {
+    const media = card.querySelector('.product-media');
+    if(!media || media.querySelector('.favorite-btn')) return;
+    const product = normalizeCard(card);
+    if(!product.id) return;
+    const btn = document.createElement('button');
+    btn.className = 'favorite-btn';
+    btn.type = 'button';
+    btn.dataset.id = product.id;
+    btn.setAttribute('aria-label', 'Favorilere ekle');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      toggleFavorite(product);
+    });
+    media.appendChild(btn);
+  });
+  syncButtons();
+  window.addEventListener('storage', syncButtons);
+  window.addEventListener('cosmoskin:favorites-updated', syncButtons);
+})();
+</script>
+
+</body></html>
