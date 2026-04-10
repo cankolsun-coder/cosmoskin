@@ -1,26 +1,57 @@
 <!DOCTYPE html><html lang="tr"><head><title>Nem ve bariyer | Cosmoskin</title><meta name="description" content="Tonik, esans ve serum katmanları ile dengeli nem desteği."><link rel="canonical" href="https://www.cosmoskin.com.tr/collections/hydrate.html"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f2ece4"><meta name="robots" content="index, follow"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="icon" href="/favicon.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="manifest" href="/site.webmanifest"><link rel="stylesheet" href="/assets/style.css">
-<style id="favorites-inline-style">
-.product-card{overflow:hidden}
-.product-media{position:relative;display:block;overflow:hidden}
+<style id="favorites-collection-fix">
+.product-media{position:relative;overflow:hidden;display:block}
 .favorite-btn{
-  position:absolute;top:18px;right:18px;width:40px;height:40px;border:none;border-radius:999px;box-sizing:border-box;
-  background:rgba(255,255,255,.94);box-shadow:0 10px 24px rgba(18,13,10,.12), inset 0 0 0 1px rgba(28,20,15,.08);
-  display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:12;transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
-  -webkit-backdrop-filter: blur(8px);backdrop-filter: blur(8px);
+  position:absolute;
+  top:16px;
+  right:16px;
+  width:42px;
+  height:42px;
+  border:1px solid rgba(26,21,16,.08);
+  border-radius:999px;
+  background:rgba(255,255,255,.96);
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:30;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease;
+  padding:0;
+  -webkit-appearance:none;
+  appearance:none;
 }
-.favorite-btn:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 14px 28px rgba(18,13,10,.16), inset 0 0 0 1px rgba(28,20,15,.08)}
-.favorite-btn svg{width:19px;height:19px;display:block}
-.favorite-btn path{fill:none;stroke:#1c140f;stroke-width:1.9;transition:fill .18s ease, stroke .18s ease}
-.favorite-btn.is-active{background:rgba(255,250,250,.98)}
-.favorite-btn.is-active path{fill:#cf3a3a;stroke:#cf3a3a}
-.favorite-toast{
-  position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(12px);padding:12px 16px;border-radius:999px;
-  background:#16110d;color:#f3eadf;font:600 13px/1 "Plus Jakarta Sans",sans-serif;letter-spacing:.02em;
-  box-shadow:0 18px 40px rgba(0,0,0,.22);opacity:0;pointer-events:none;transition:opacity .22s ease, transform .22s ease;z-index:9999
+.favorite-btn:hover{
+  transform:scale(1.06);
+  box-shadow:0 12px 28px rgba(0,0,0,.14);
 }
-.favorite-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.favorite-btn svg{
+  width:18px;
+  height:18px;
+  display:block;
+  pointer-events:none;
+}
+.favorite-btn svg path{
+  fill:none;
+  stroke:#1a1510;
+  stroke-width:1.9;
+  transition:fill .18s ease, stroke .18s ease;
+}
+.favorite-btn.is-active{
+  border-color:rgba(216,75,91,.18);
+  background:#fff7f8;
+}
+.favorite-btn.is-active svg path{
+  fill:#d84b5b;
+  stroke:#d84b5b;
+}
 @media (max-width: 768px){
-  .favorite-btn{top:14px;right:14px;width:38px;height:38px}
+  .favorite-btn{
+    top:12px;
+    right:12px;
+    width:40px;
+    height:40px;
+  }
 }
 </style>
 
@@ -53,7 +84,13 @@
     <button class="tool-btn" id="cartBtn" aria-label="Sepet"><svg fill="none" viewBox="0 0 24 24"><path d="M3 5h2l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L21 8H7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="19" r="1.4" stroke-width="1.8"/><circle cx="18" cy="19" r="1.4" stroke-width="1.8"/></svg><span class="cart-count">0</span></button>
   </div>
 </header>
-<div class="mobile-nav" id="mobileNav"><a href="/index.html">Anasayfa</a><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek Merkezi</a></div><main><section class="page-hero"><div class="container narrow"><p class="kicker">Nemlendir</p><h1>Nem ve bariyer</h1><p>Tonik, esans ve serum katmanları ile dengeli nem desteği.</p></div></section><section class="section"><div class="container"><div class="filter-row" data-filter-wrap><button class="filter-chip active" data-filter="all">Tümü</button><button class="filter-chip " data-filter="serum">serum</button><button class="filter-chip " data-filter="essence">esans</button><button class="filter-chip " data-filter="barrier">bariyer</button></div><div class="product-grid"><article class="product-card" data-filter-item="serum hyaluronic"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="Torriden DIVE-IN Serum"><span class="badge">Torriden</span></a><div class="product-body"><div class="brandline">Torriden</div><h3>DIVE-IN Serum</h3><p>Katmanlı nem hissi için hafif dokulu hyaluronik asit serumu.</p><div class="pills"><span class="pill">serum</span><span class="pill">hyaluronik</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺949</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="torriden-divein-serum" data-name="DIVE-IN Serum" data-brand="Torriden" data-price="949" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="essence barrier"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="COSRX Advanced Snail 96 Mucin Essence"><span class="badge">COSRX</span></a><div class="product-body"><div class="brandline">COSRX</div><h3>Advanced Snail 96 Mucin Essence</h3><p>Esneklik ve nem dengesini destekleyen ikonik essence formülü.</p><div class="pills"><span class="pill">esans</span><span class="pill">bariyer</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺979</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="cosrx-snail" data-name="Advanced Snail 96 Mucin Essence" data-brand="COSRX" data-price="979" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article></div></div></section></main><footer class="footer"><div class="container footer-grid"><div><a class="brand footer-brandlock" href="/index.html"><img class="brand-logo" src="/assets/logo-mark.png" alt="Cosmoskin logo"><span class="brand-word">COSMOSKIN</span></a><p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p></div><div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div><div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/contact.html">Destek</a><a href="mailto:is-ortakligi@cosmoskin.com.tr">İş Ortaklığı</a></div><div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat & Kargo</a><a href="/iade-degisim.html">İade & Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div><div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" target="_blank" rel="noopener">Instagram</a><span>İstanbul, Türkiye</span></div></div><div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div></footer>
+<div class="mobile-nav" id="mobileNav"><a href="/index.html">Anasayfa</a><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek Merkezi</a></div><main><section class="page-hero"><div class="container narrow"><p class="kicker">Nemlendir</p><h1>Nem ve bariyer</h1><p>Tonik, esans ve serum katmanları ile dengeli nem desteği.</p></div></section><section class="section"><div class="container"><div class="filter-row" data-filter-wrap><button class="filter-chip active" data-filter="all">Tümü</button><button class="filter-chip " data-filter="serum">serum</button><button class="filter-chip " data-filter="essence">esans</button><button class="filter-chip " data-filter="barrier">bariyer</button></div><div class="product-grid"><article class="product-card" data-filter-item="serum hyaluronic"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="Torriden DIVE-IN Serum"><span class="badge">Torriden</span>
+<button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="torriden-dive-in-serum" data-name="DIVE-IN Serum" data-brand="Torriden" data-price="949" data-image="/assets/img/hydrate.jpg" data-url="/collections/hydrate.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.716-4.27-9.193-8.12C.89 9.91 1.59 6.1 4.61 4.39c2.06-1.17 4.62-.82 6.39.87 1.77-1.69 4.33-2.04 6.39-.87 3.02 1.71 3.72 5.52 1.803 8.49C18.716 16.73 12 21 12 21z"/></svg></button>
+</a>
+<div class="product-body"><div class="brandline">Torriden</div><h3>DIVE-IN Serum</h3><p>Katmanlı nem hissi için hafif dokulu hyaluronik asit serumu.</p><div class="pills"><span class="pill">serum</span><span class="pill">hyaluronik</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺949</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="torriden-divein-serum" data-name="DIVE-IN Serum" data-brand="Torriden" data-price="949" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="essence barrier"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="COSRX Advanced Snail 96 Mucin Essence"><span class="badge">COSRX</span>
+<button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="cosrx-advanced-snail-96-mucin-essence" data-name="Advanced Snail 96 Mucin Essence" data-brand="COSRX" data-price="979" data-image="/assets/img/hydrate.jpg" data-url="/collections/hydrate.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.716-4.27-9.193-8.12C.89 9.91 1.59 6.1 4.61 4.39c2.06-1.17 4.62-.82 6.39.87 1.77-1.69 4.33-2.04 6.39-.87 3.02 1.71 3.72 5.52 1.803 8.49C18.716 16.73 12 21 12 21z"/></svg></button>
+</a>
+<div class="product-body"><div class="brandline">COSRX</div><h3>Advanced Snail 96 Mucin Essence</h3><p>Esneklik ve nem dengesini destekleyen ikonik essence formülü.</p><div class="pills"><span class="pill">esans</span><span class="pill">bariyer</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺979</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="cosrx-snail" data-name="Advanced Snail 96 Mucin Essence" data-brand="COSRX" data-price="979" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article></div></div></section></main><footer class="footer"><div class="container footer-grid"><div><a class="brand footer-brandlock" href="/index.html"><img class="brand-logo" src="/assets/logo-mark.png" alt="Cosmoskin logo"><span class="brand-word">COSMOSKIN</span></a><p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p></div><div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div><div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/contact.html">Destek</a><a href="mailto:is-ortakligi@cosmoskin.com.tr">İş Ortaklığı</a></div><div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat & Kargo</a><a href="/iade-degisim.html">İade & Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div><div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" target="_blank" rel="noopener">Instagram</a><span>İstanbul, Türkiye</span></div></div><div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div></footer>
 <div class="backdrop" id="backdrop"></div>
 <aside class="drawer" id="cartDrawer"><div class="drawer-head"><div class="drawer-title">Sepet</div><button class="icon-close close-any">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-summary"><div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="cartSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="cartVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="cartShipping">₺0</strong></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="cartTotal">₺0</strong></div><div class="shipping-progress" id="shippingProgress"><div class="shipping-progress-bar"><span id="shippingProgressFill"></span></div><div class="shipping-progress-text" id="shippingProgressText">Kargo avantajı hesaplanıyor...</div></div><a class="btn btn-primary" href="/checkout.html">Ödemeye Geç</a><div class="account-mini">2.500 TL ve üzeri siparişlerde kargo ücretsizdir. Tüm fiyatlara KDV dahildir.</div></div></aside>
 <aside class="drawer" id="accountDrawer"><div class="drawer-head"><div class="drawer-title">Hesap</div><button class="icon-close close-any">×</button></div><div class="account-state" id="accountState"></div><div class="account-actions" id="accountActions"><button class="btn btn-primary" data-open-auth>Giriş Yap</button><button class="btn btn-secondary" data-open-auth>Kayıt Ol</button></div><div class="account-mini">Sipariş geçmişinizi, kayıtlı adreslerinizi ve üyelik tercihlerinizi tek ekranda yönetin.</div></aside>
@@ -62,87 +99,78 @@
 <div class="modal" id="legalModal"><div class="modal-card"><div class="modal-head"><div><h2>KVKK Aydınlatma Metni</h2><div class="account-mini">Kişisel verileriniz 6698 sayılı KVKK kapsamında işlenir.</div></div><button class="icon-close close-any">×</button></div><div class="legal-copy"><p><strong>Veri sorumlusu:</strong> Cosmoskin, üyelik, sipariş, iletişim ve destek süreçleri kapsamında veri sorumlusu olarak hareket eder.</p><p><strong>İşlenen veriler:</strong> İletişim bilgileri, sipariş içeriği, teslimat verileri, destek formu kayıtları ve teknik kullanım verileri.</p><p><strong>İşleme amaçları:</strong> Sipariş yönetimi, üyelik işlemleri, kargo süreçleri, müşteri desteği, mevzuat uyumu ve hizmet geliştirme.</p><p><strong>Başvuru:</strong> Tüm veri talepleriniz için <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a> adresine ulaşabilirsiniz.</p></div></div></div>
 <div class="cookie" id="cookieBanner"><div class="cookie-card"><p>Bu site, temel alışveriş işlevleri için zorunlu çerezleri kullanır. Analitik çerezleri etkinleştirerek deneyimin gelişmesine katkı sağlayabilirsiniz.</p><div class="cookie-actions"><button class="btn btn-secondary" id="cookieCustomize">Tercihleri Yönet</button><button class="btn btn-secondary" id="cookieAcceptEssential">Sadece Zorunlu</button><button class="btn btn-primary" id="cookieAcceptAll">Kabul Et</button></div></div></div>
 <script src="/assets/site-config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/app.js"></script><script type="module" src="/assets/auth.js"></script><script src="/assets/commerce.js"></script>
-<script id="favorites-inline-script">
+<script id="favorites-collection-fix-script">
 (function(){
   const KEY = 'cosmoskin_favorites_v1';
-  const toast = document.createElement('div');
-  toast.className = 'favorite-toast';
-  document.body.appendChild(toast);
 
   function readFavorites(){
-    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
-    catch(e){ return []; }
+    try { return JSON.parse(localStorage.getItem(KEY) || '{}'); }
+    catch(e){ return {}; }
   }
-  function writeFavorites(items){
-    localStorage.setItem(KEY, JSON.stringify(items));
-    window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: items }));
+
+  function writeFavorites(data){
+    localStorage.setItem(KEY, JSON.stringify(data));
+    window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: data }));
   }
-  function showToast(message){
-    toast.textContent = message;
-    toast.classList.add('show');
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+
+  function syncButtonState(btn, favorites){
+    const id = btn.dataset.favoriteId;
+    const active = !!favorites[id];
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    btn.setAttribute('aria-label', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
+    btn.title = active ? 'Favorilerden çıkar' : 'Favorilere ekle';
   }
-  function normalizeCard(card){
-    const addBtn = card.querySelector('[data-add-cart]');
-    const mediaImg = card.querySelector('.product-media img');
-    const brand = addBtn?.dataset.brand || card.querySelector('.brandline')?.textContent?.trim() || '';
-    const name = addBtn?.dataset.name || card.querySelector('h3')?.textContent?.trim() || '';
-    const id = addBtn?.dataset.id || (brand + '-' + name).toLowerCase().replace(/[^a-z0-9]+/g,'-');
-    const price = addBtn?.dataset.price || '';
-    const image = addBtn?.dataset.image || mediaImg?.getAttribute('src') || '';
-    const url = card.querySelector('.product-media')?.getAttribute('href') || location.pathname;
-    return {id, brand, name, price, image, url};
-  }
-  function isFavorite(id){
-    return readFavorites().some(item => item.id === id);
-  }
-  function syncButtons(){
-    document.querySelectorAll('.favorite-btn').forEach(btn => {
-      const active = isFavorite(btn.dataset.id);
-      btn.classList.toggle('is-active', active);
-      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-      btn.setAttribute('title', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
+
+  function initFavorites(){
+    const buttons = document.querySelectorAll('.favorite-btn');
+    if(!buttons.length) return;
+
+    let favorites = readFavorites();
+    buttons.forEach(btn => {
+      syncButtonState(btn, favorites);
+
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        const id = btn.dataset.favoriteId;
+        favorites = readFavorites();
+
+        if(favorites[id]){
+          delete favorites[id];
+        } else {
+          favorites[id] = {
+            id,
+            name: btn.dataset.name || '',
+            brand: btn.dataset.brand || '',
+            price: btn.dataset.price || '',
+            image: btn.dataset.image || '',
+            url: btn.dataset.url || location.pathname
+          };
+        }
+
+        writeFavorites(favorites);
+        syncButtonState(btn, favorites);
+      });
+    });
+
+    window.addEventListener('storage', function(){
+      const latest = readFavorites();
+      document.querySelectorAll('.favorite-btn').forEach(btn => syncButtonState(btn, latest));
+    });
+
+    window.addEventListener('cosmoskin:favorites-updated', function(e){
+      const latest = e.detail || readFavorites();
+      document.querySelectorAll('.favorite-btn').forEach(btn => syncButtonState(btn, latest));
     });
   }
-  function toggleFavorite(product){
-    const items = readFavorites();
-    const index = items.findIndex(item => item.id === product.id);
-    if(index >= 0){
-      items.splice(index, 1);
-      writeFavorites(items);
-      syncButtons();
-      showToast('Ürün favorilerden çıkarıldı');
-      return false;
-    } else {
-      items.push(product);
-      writeFavorites(items);
-      syncButtons();
-      showToast('Ürün favorilere eklendi');
-      return true;
-    }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initFavorites);
+  } else {
+    initFavorites();
   }
-  document.querySelectorAll('.product-card').forEach(card => {
-    const media = card.querySelector('.product-media');
-    if(!media || media.querySelector('.favorite-btn')) return;
-    const product = normalizeCard(card);
-    if(!product.id) return;
-    const btn = document.createElement('button');
-    btn.className = 'favorite-btn';
-    btn.type = 'button';
-    btn.dataset.id = product.id;
-    btn.setAttribute('aria-label', 'Favorilere ekle');
-    btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
-    btn.addEventListener('click', function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      toggleFavorite(product);
-    });
-    media.appendChild(btn);
-  });
-  syncButtons();
-  window.addEventListener('storage', syncButtons);
-  window.addEventListener('cosmoskin:favorites-updated', syncButtons);
 })();
 </script>
 
