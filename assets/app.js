@@ -11,6 +11,7 @@
     consent: JSON.parse(localStorage.getItem('cosmoskin_consent') || 'null')
   };
   const FAVORITES_KEY = 'cosmoskin_favorites';
+  const LEGACY_FAVORITES_KEYS = ['cosmoskin_favorites_v1'];
   let favoriteAccountSyncReady = false;
 
   const backdrop = $('#backdrop');
@@ -179,9 +180,38 @@
     return Array.from(map.values());
   }
 
-  
+  function migrateLegacyFavorites() {
+    const merged = [...state.favorites];
+    LEGACY_FAVORITES_KEYS.forEach((key) => {
+      try {
+        const raw = JSON.parse(localStorage.getItem(key) || 'null');
+        if (Array.isArray(raw)) merged.push(...raw);
+        else if (raw && typeof raw === 'object') merged.push(...Object.values(raw));
+      } catch (error) {
+        console.warn('Legacy favorites migration warning:', error);
+      }
+    });
+    state.favorites = uniqueFavorites(merged);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
+  }
+
+  function showToast(message = '') {
+    if (!message) return;
+    let toast = document.getElementById('cosmoskinToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'cosmoskinToast';
+      toast.className = 'site-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+
   function favoriteHeartIcon(active = false) {
-    return `<span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.1 20.3 4.9 13.4a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8l-7.2 6.9a.6.6 0 0 1-.8 0Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+    return `<span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" ${active ? 'fill="currentColor"' : 'fill="none"'}><path d="M12 20.8a1 1 0 0 1-.7-.28l-6.4-6.18a5.56 5.56 0 0 1 0-7.93 5.73 5.73 0 0 1 8.03 0L12 7.35l-.93-.94a5.73 5.73 0 0 1 8.03 0 5.56 5.56 0 0 1 0 7.93l-6.4 6.18a1 1 0 0 1-.7.28Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
   }
 function broadcastFavoritesChange() {
     window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: state.favorites } }));
@@ -377,7 +407,9 @@ function broadcastFavoritesChange() {
     $$('[data-remove]', target).forEach((btn) => btn.addEventListener('click', () => removeItem(btn.dataset.remove)));
   }
 
+  migrateLegacyFavorites();
   ensureFavoriteButtons();
+  bindExistingFavoriteButtons();
   renderFavoriteButtons();
   hydrateFavoritesFromAccount();
   watchFavoriteAuthState();
@@ -387,6 +419,7 @@ function broadcastFavoritesChange() {
     renderFavoriteButtons();
     setTimeout(() => {
       ensureFavoriteButtons();
+      bindExistingFavoriteButtons();
       renderFavoriteButtons();
     }, 120);
   });
