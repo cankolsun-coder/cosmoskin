@@ -76,7 +76,9 @@
     .fav-brand{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b89b72;font-weight:600;}
     .fav-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:#1a1510;margin:0;}
     .fav-price{font-family:'Cormorant Garamond',serif;font-size:22px;color:#1a1510;}
-    .fav-actions{display:flex;gap:8px;margin-top:4px;align-items:center;}
+    .fav-actions{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
+    .fav-actions .btn{min-width:132px;justify-content:center;}
+    .fav-remove{margin-left:auto;}
     .fav-remove{border:none;background:none;color:#9a8e82;font-size:11px;cursor:pointer;padding:0;letter-spacing:.1em;text-transform:uppercase;}
     .fav-remove:hover{color:#8a3b2f;}
     .fav-empty{text-align:center;padding:52px 24px;color:#9a8e82;}
@@ -145,7 +147,7 @@
     <nav class="acc-nav">
       <button class="acc-nav-item active" data-tab="overview" onclick="switchTab('overview',this)"><span class="acc-nav-icon">◈</span><span class="acc-nav-label">Genel Bakış</span></button>
       <button class="acc-nav-item" data-tab="orders" onclick="switchTab('orders',this)"><span class="acc-nav-icon">◻</span><span class="acc-nav-label">Siparişlerim</span><span class="acc-nav-badge" id="orderBadge">—</span></button>
-      <button class="acc-nav-item" data-tab="favorites" onclick="switchTab('favorites',this)"><span class="acc-nav-icon">♡</span><span class="acc-nav-label">Favorilerim</span></button>
+      <button class="acc-nav-item" data-tab="favorites" onclick="switchTab('favorites',this)"><span class="acc-nav-icon">♡</span><span class="acc-nav-label">Favorilerim</span><span class="acc-nav-badge" id="favoriteBadge">0</span></button>
       <button class="acc-nav-item" data-tab="profile" onclick="switchTab('profile',this)"><span class="acc-nav-icon">◯</span><span class="acc-nav-label">Kişisel Bilgilerim</span></button>
       <button class="acc-nav-item" data-tab="addresses" onclick="switchTab('addresses',this)"><span class="acc-nav-icon">◇</span><span class="acc-nav-label">Adres Bilgilerim</span></button>
       <button class="acc-nav-item" data-tab="communication" onclick="switchTab('communication',this)"><span class="acc-nav-icon">◎</span><span class="acc-nav-label">İletişim Tercihlerim</span></button>
@@ -308,6 +310,7 @@ let _client, _session, _addresses = [];
   const { data:{ session } } = await _client.auth.getSession();
   if (!session) { window.location.replace('/index.html?openAuth=login'); return; }
   _session = session;
+  await hydrateFavoritesFromAccount();
 
   const user = session.user;
   const meta = user.user_metadata || {};
@@ -345,6 +348,54 @@ let _client, _session, _addresses = [];
   const urlTab = new URLSearchParams(window.location.search).get('tab');
   if (urlTab) { const btn = document.querySelector(`[data-tab="${urlTab}"]`); if (btn) switchTab(urlTab, btn); }
 })();
+
+
+function getFavoriteItems(){
+  return JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]');
+}
+
+function setFavoriteItems(favs){
+  localStorage.setItem('cosmoskin_favorites', JSON.stringify(favs));
+  window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: favs } }));
+}
+
+function uniqueFavorites(items = []){
+  const map = new Map();
+  items.forEach((item) => {
+    if(item && item.id && !map.has(String(item.id))) map.set(String(item.id), item);
+  });
+  return Array.from(map.values());
+}
+
+async function syncFavoriteItemsToAccount(favs){
+  if(!_client || !_session?.user) return;
+  const metadata = _session.user.user_metadata || {};
+  const { error } = await _client.auth.updateUser({ data: { ...metadata, favorites: favs } });
+  if(error) throw error;
+  const { data:{ user } } = await _client.auth.getUser();
+  if(user){
+    _session = { ..._session, user };
+  }
+}
+
+async function hydrateFavoritesFromAccount(){
+  const localFavs = getFavoriteItems();
+  const remoteFavs = Array.isArray(_session?.user?.user_metadata?.favorites) ? _session.user.user_metadata.favorites : [];
+  const merged = uniqueFavorites([...localFavs, ...remoteFavs]);
+  setFavoriteItems(merged);
+  if(_client && _session?.user){
+    try{
+      await syncFavoriteItemsToAccount(merged);
+    }catch(e){
+      console.error('Favori senkronizasyon hatası:', e);
+    }
+  }
+}
+
+window.addEventListener('storage', (event) => {
+  if(event.key === 'cosmoskin_favorites') renderFavorites();
+});
+window.addEventListener('cosmoskin:favorites-updated', () => renderFavorites());
 
 async function handleSignOut() {
   await _client.auth.signOut();
@@ -460,12 +511,52 @@ async function setDefaultAddress(i){_addresses.forEach((a,idx)=>a.isDefault=idx=
 function editAddress(i){openAddressModal(i);}
 
 function renderFavorites(){
-  const favs=JSON.parse(localStorage.getItem('cosmoskin_favorites')||'[]');
-  if(!favs.length)return;
-  document.getElementById('favoritesContainer').innerHTML=`<div class="fav-grid">${favs.map((f,i)=>`<div class="fav-card"><div class="fav-img">◈</div><div class="fav-body"><span class="fav-brand">${f.brand||'Cosmoskin'}</span><h3 class="fav-name">${f.name||'Ürün'}</h3>${f.price?`<span class="fav-price">${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(f.price)}</span>`:''}<div class="fav-actions">${f.url?`<a href="${f.url}" class="btn btn-primary" style="font-size:10px;padding:8px 16px;">İncele</a>`:''}<button class="fav-remove" onclick="removeFavorite(${i})">Kaldır</button></div></div></div>`).join('')}</div>`;
+  const favs = getFavoriteItems();
+  const target = document.getElementById('favoritesContainer');
+  const badge = document.getElementById('favoriteBadge');
+  if (badge) badge.textContent = favs.length;
+  if (!favs.length) {
+    target.innerHTML = `<div class="fav-empty"><div style="font-size:44px;margin-bottom:16px;opacity:.45;">♡</div><h3>Favori ürününüz yok</h3><p style="font-size:13px;color:#9a8e82;margin:0 0 20px;">Beğendiğiniz ürünleri favorilere ekleyerek buradan takip edebilirsiniz.</p><a class="btn btn-primary" href="/index.html" style="display:inline-flex;">Ürünleri Keşfet</a></div>`;
+    return;
+  }
+  target.innerHTML = `<div class="fav-grid">${favs.map((f, i) => `
+    <div class="fav-card">
+      <div class="fav-img">${f.image ? `<img src="${f.image}" alt="${f.name || 'Ürün'}" style="width:100%;height:100%;object-fit:cover;">` : '◈'}</div>
+      <div class="fav-body">
+        <span class="fav-brand">${f.brand || 'Cosmoskin'}</span>
+        <h3 class="fav-name">${f.name || 'Ürün'}</h3>
+        ${f.price ? `<span class="fav-price">${new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(f.price)}</span>` : ''}
+        <div class="fav-actions">
+          <button class="btn btn-primary" onclick="moveFavoriteToCart(${i})" style="font-size:10px;padding:8px 16px;">Sepete Ekle</button>
+          ${f.url ? `<a href="${f.url}" class="btn btn-secondary" style="font-size:10px;padding:8px 16px;">İncele</a>` : ''}
+          <button class="fav-remove" onclick="removeFavorite('${f.id}')">Favorilerden Çıkar</button>
+        </div>
+      </div>
+    </div>`).join('')}</div>`;
 }
 
-function removeFavorite(i){const favs=JSON.parse(localStorage.getItem('cosmoskin_favorites')||'[]');favs.splice(i,1);localStorage.setItem('cosmoskin_favorites',JSON.stringify(favs));renderFavorites();}
+async function removeFavorite(productId){
+  const favs = getFavoriteItems().filter((item) => item.id !== productId);
+  setFavoriteItems(favs);
+  try {
+    await syncFavoriteItemsToAccount(favs);
+  } catch (e) {
+    console.error('Favori kaldırma hatası:', e);
+  }
+  renderFavorites();
+}
+
+function moveFavoriteToCart(i){
+  const favs = getFavoriteItems();
+  const item = favs[i];
+  if (!item) return;
+  const cart = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
+  const found = cart.find((entry) => entry.id === item.id);
+  if (found) found.qty += 1;
+  else cart.push({ id: item.id, name: item.name, brand: item.brand, price: Number(item.price || 0), image: item.image, qty: 1 });
+  localStorage.setItem('cosmoskin_cart', JSON.stringify(cart));
+  alert('Ürün sepete eklendi.');
+}
 
 function switchTab(name,el){
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));

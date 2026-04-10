@@ -1950,3 +1950,48 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   .reassurance-grid,
   .legal-layout { grid-template-columns: 1fr; }
 }
+
+
+.favorite-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(26, 21, 16, .10);
+  background: rgba(255, 253, 249, .94);
+  color: #1a1510;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 28px rgba(26, 21, 16, .10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease, color .18s ease;
+  z-index: 3;
+}
+
+.favorite-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 16px 36px rgba(26, 21, 16, .14);
+  border-color: rgba(138, 59, 47, .18);
+}
+
+.favorite-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(138, 59, 47, .12), 0 14px 32px rgba(26, 21, 16, .10);
+}
+
+.favorite-btn.active {
+  background: #fff1f0;
+  border-color: rgba(138, 59, 47, .18);
+  color: #8a3b2f;
+}
+
+.favorite-btn-icon {
+  font-size: 20px;
+  line-height: 1;
+  pointer-events: none;
+}

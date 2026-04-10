@@ -7,8 +7,11 @@
   const SHIPPING_FEE = Number(cfg.shippingFee ?? 119);
   const state = {
     cart: JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'),
+    favorites: JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]'),
     consent: JSON.parse(localStorage.getItem('cosmoskin_consent') || 'null')
   };
+  const FAVORITES_KEY = 'cosmoskin_favorites';
+  let favoriteAccountSyncReady = false;
 
   const backdrop = $('#backdrop');
   const cartDrawer = $('#cartDrawer');
@@ -153,6 +156,151 @@
     renderCheckout();
   }
 
+  function normalizeFavoriteItem(item) {
+    if (!item?.id) return null;
+    return {
+      id: String(item.id),
+      name: item.name || 'Ürün',
+      brand: item.brand || 'Cosmoskin',
+      price: Number(item.price || 0),
+      image: item.image || '',
+      url: item.url || ''
+    };
+  }
+
+  function uniqueFavorites(items = []) {
+    const map = new Map();
+    items.forEach((item) => {
+      const normalized = normalizeFavoriteItem(item);
+      if (normalized && !map.has(normalized.id)) {
+        map.set(normalized.id, normalized);
+      }
+    });
+    return Array.from(map.values());
+  }
+
+  function broadcastFavoritesChange() {
+    window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: state.favorites } }));
+  }
+
+  async function saveFavoritesToAccount() {
+    const client = window.cosmoskinSupabase;
+    if (!client || !favoriteAccountSyncReady) return;
+    try {
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) return;
+      const metadata = user.user_metadata || {};
+      const { error } = await client.auth.updateUser({
+        data: {
+          ...metadata,
+          favorites: state.favorites
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.warn('Favorites account sync warning:', error);
+    }
+  }
+
+  function persistFavorites(options = {}) {
+    state.favorites = uniqueFavorites(state.favorites);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
+    renderFavoriteButtons();
+    broadcastFavoritesChange();
+    if (!options.skipRemote) {
+      saveFavoritesToAccount();
+    }
+  }
+
+  async function hydrateFavoritesFromAccount() {
+    const client = window.cosmoskinSupabase;
+    if (!client) return;
+    try {
+      const { data: { user } } = await client.auth.getUser();
+      favoriteAccountSyncReady = Boolean(user);
+      if (!user) return;
+      const remoteFavorites = Array.isArray(user.user_metadata?.favorites) ? user.user_metadata.favorites : [];
+      state.favorites = uniqueFavorites([...state.favorites, ...remoteFavorites]);
+      persistFavorites({ skipRemote: true });
+      await saveFavoritesToAccount();
+    } catch (error) {
+      console.warn('Favorites hydrate warning:', error);
+    }
+  }
+
+  function watchFavoriteAuthState() {
+    const client = window.cosmoskinSupabase;
+    if (!client?.auth?.onAuthStateChange) return;
+    client.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        favoriteAccountSyncReady = Boolean(session?.user);
+        await hydrateFavoritesFromAccount();
+      }
+      if (event === 'SIGNED_OUT') {
+        favoriteAccountSyncReady = false;
+      }
+    });
+  }
+
+  function isFavorite(id) {
+    return state.favorites.some((item) => item.id === id);
+  }
+
+  function toggleFavorite(item) {
+    const normalized = normalizeFavoriteItem(item);
+    if (!normalized?.id) return;
+    if (isFavorite(normalized.id)) {
+      state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
+    } else {
+      state.favorites.unshift(normalized);
+    }
+    persistFavorites();
+  }
+
+  function getProductDataFromButton(btn) {
+    if (!btn) return null;
+    return {
+      id: btn.dataset.id,
+      name: btn.dataset.name,
+      brand: btn.dataset.brand,
+      price: Number(btn.dataset.price),
+      image: btn.dataset.image,
+      url: btn.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname
+    };
+  }
+
+  function ensureFavoriteButtons() {
+    $$('.product-card').forEach((card) => {
+      const media = card.querySelector('.product-media');
+      const cartBtn = card.querySelector('[data-add-cart]');
+      if (!media || !cartBtn || media.querySelector('.favorite-btn')) return;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'favorite-btn';
+      button.setAttribute('aria-label', 'Favorilere ekle');
+      button.setAttribute('title', 'Favorilere ekle');
+      button.dataset.favoriteId = cartBtn.dataset.id;
+      button.innerHTML = '<span class="favorite-btn-icon" aria-hidden="true">♡</span>';
+      button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleFavorite(getProductDataFromButton(cartBtn));
+      });
+      media.appendChild(button);
+    });
+  }
+
+  function renderFavoriteButtons() {
+    $$('.favorite-btn').forEach((button) => {
+      const active = isFavorite(button.dataset.favoriteId);
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-label', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
+      button.setAttribute('title', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
+      const icon = button.querySelector('.favorite-btn-icon');
+      if (icon) icon.textContent = active ? '♥' : '♡';
+    });
+  }
+
   function updateQty(id, delta) {
     state.cart = state.cart
       .map((item) => item.id === id ? { ...item, qty: item.qty + delta } : item)
@@ -224,6 +372,11 @@
     $$('[data-dec]', target).forEach((btn) => btn.addEventListener('click', () => updateQty(btn.dataset.dec, -1)));
     $$('[data-remove]', target).forEach((btn) => btn.addEventListener('click', () => removeItem(btn.dataset.remove)));
   }
+
+  ensureFavoriteButtons();
+  renderFavoriteButtons();
+  hydrateFavoritesFromAccount();
+  watchFavoriteAuthState();
 
   $$('[data-add-cart]').forEach((btn) => btn.addEventListener('click', () => {
     const item = {
