@@ -171,6 +171,8 @@
     const vatEl = $('#cartVat');
     const shippingEl = $('#cartShipping');
     const totalEl = $('#cartTotal');
+    const shippingProgressFill = $('#shippingProgressFill');
+    const shippingProgressText = $('#shippingProgressText');
     const qty = state.cart.reduce((a, b) => a + b.qty, 0);
 
     $$('.cart-count').forEach((el) => {
@@ -183,6 +185,17 @@
     if (vatEl) vatEl.textContent = fmt(t.vat);
     if (shippingEl) shippingEl.textContent = t.shipping ? fmt(t.shipping) : 'Ücretsiz';
     if (totalEl) totalEl.textContent = fmt(t.total);
+    if (shippingProgressFill && shippingProgressText) {
+      const ratio = Math.max(0, Math.min(100, Math.round((t.subtotal / FREE_SHIPPING) * 100)));
+      shippingProgressFill.style.width = `${ratio}%`;
+      if (t.subtotal === 0) {
+        shippingProgressText.textContent = `${fmt(FREE_SHIPPING)} üzeri siparişlerde ücretsiz kargo avantajı uygulanır.`;
+      } else if (t.subtotal >= FREE_SHIPPING) {
+        shippingProgressText.textContent = 'Siparişiniz ücretsiz kargo avantajına ulaştı.';
+      } else {
+        shippingProgressText.textContent = `${fmt(FREE_SHIPPING - t.subtotal)} daha ekleyerek ücretsiz kargo avantajına ulaşabilirsiniz.`;
+      }
+    }
 
     if (!target) return;
     if (!state.cart.length) {
