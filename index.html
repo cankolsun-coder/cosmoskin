@@ -74,6 +74,76 @@
   })();
 </script>
 
+<style id="favorites-collections-safari-fix">
+.product-card{overflow:hidden}
+.product-media-wrap{
+  position:relative;
+}
+.product-media{
+  display:block;
+  position:relative;
+  overflow:hidden;
+}
+.favorite-btn{
+  position:absolute;
+  top:18px;
+  right:18px;
+  width:40px;
+  height:40px;
+  border:1px solid rgba(26,21,16,.08);
+  border-radius:999px;
+  background:rgba(255,255,255,.98);
+  box-shadow:0 10px 24px rgba(0,0,0,.10);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:40;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  padding:0;
+  margin:0;
+  -webkit-appearance:none;
+  appearance:none;
+  outline:none;
+}
+.favorite-btn:hover{
+  transform:scale(1.04);
+  box-shadow:0 12px 28px rgba(0,0,0,.14);
+}
+.favorite-btn svg{
+  width:20px;
+  height:20px;
+  display:block;
+  pointer-events:none;
+}
+.favorite-btn svg path{
+  fill:none;
+  stroke:#1a1510;
+  stroke-width:1.6;
+  transition:fill .18s ease, stroke .18s ease;
+}
+.favorite-btn.is-active{
+  background:#fff7f8;
+  border-color:rgba(216,75,91,.18);
+}
+.favorite-btn.is-active svg path{
+  fill:#d84b5b;
+  stroke:#d84b5b;
+}
+@media (max-width:768px){
+  .favorite-btn{
+    top:14px;
+    right:14px;
+    width:38px;
+    height:38px;
+  }
+}
+
+.favorite-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(16px);background:#1a1510;color:#fff;padding:12px 18px;border-radius:999px;box-shadow:0 14px 34px rgba(0,0,0,.18);font-size:12px;font-weight:600;letter-spacing:.02em;opacity:0;pointer-events:none;z-index:9999;transition:opacity .22s ease, transform .22s ease;}
+.favorite-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+</style>
+
 </head><body><div class="progress" id="progress"></div><div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Koleksiyonları</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
 <header class="header">
   <a class="brand" href="/index.html" aria-label="Cosmoskin anasayfa">
@@ -104,7 +174,7 @@
   </div>
 </header>
 <div class="mobile-nav" id="mobileNav"><a href="/index.html">Anasayfa</a><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek Merkezi</a></div><main>
-<section class="hero" id="heroSection"><div class="container hero-grid"><div class="hero-copy"><div class="eyebrow">Seçilmiş Kore Cilt Bakımı</div><h1>Gereksiz olanı çıkar.<br><span class="highlight">Etkili</span> olanı bırak.</h1><p>Cosmoskin, sadece işe yarayan içerikleri ve güvenilir markaları bir araya getirir. Sade, şeffaf ve premium bir bakım deneyimi sunar.</p><div class="hero-actions"><a class="btn btn-primary" href="#featured">Keşfet</a><a class="btn btn-secondary" href="/contact.html">Destek Merkezi</a></div><div class="hero-meta"><div><strong>Orijinal Marka Seçkisi</strong><span>Cosrx, Torriden, Round Lab, Beauty of Joseon</span></div><div><strong>Şeffaf Fiyatlama</strong><span>KDV dahil fiyat · güvenli ödeme · destek ekibi</span></div></div></div><div class="hero-stage reveal"><div class="hero-shelf hero-shelf-clean"><div class="hero-product-scene"><div class="hero-bottle-badge hero-bottle-badge-left"><span>İçerik Odağı</span><strong>Hyaluronic Acid</strong></div><div class="hero-bottle-badge hero-bottle-badge-right"><span>Seçilmiş Formül</span><strong>50 mL Serum</strong></div><div class="hero-product-image-wrap"><img class="hero-product-image" src="/assets/img/hero-serum-cosmoskin.png" alt="Cosmoskin hero serum mockup"></div><div class="hero-product-glow" aria-hidden="true"></div></div></div></div></div></section><div class="container"><div class="trust-strip reveal">
+<section class="hero" id="heroSection"><div class="container hero-grid"><div class="hero-copy"><div class="eyebrow">Seçilmiş Kore Cilt Bakımı</div><h1>Gereksiz olanı çıkar.<br><span class="highlight">Etkili</span> olanı bırak.</h1><p>Cosmoskin, sadece işe yarayan içerikleri ve güvenilir markaları bir araya getirir. Sade, şeffaf ve premium bir bakım deneyimi sunar.</p><div class="hero-actions"><a class="btn btn-primary" href="#featured">Keşfet</a><a class="btn btn-secondary" href="/contact.html">Destek Merkezi</a></div><div class="hero-meta"><div><strong>Orijinal Marka Seçkisi</strong><span>Cosrx, Torriden, Round Lab, Beauty of Joseon</span></div><div><strong>Şeffaf Fiyatlama</strong><span>KDV dahil fiyat · güvenli ödeme · destek ekibi</span></div></div></div><div class="hero-stage reveal"><div class="hero-shelf hero-shelf-clean"><div class="hero-product-scene"><div class="hero-bottle-badge hero-bottle-badge-left"><span>İçerik Odağı</span><strong>Hyaluronic Acid</strong></div><div class="hero-bottle-badge hero-bottle-badge-right"><span>Seçilmiş Formül</span><strong>50 mL Serum</strong></div><div class="hero-product-image-wrap"><img class="hero-product-image" src="/assets/img/hero-serum-cosmoskin.png" alt="Cosmoskin hero serum mockup"></div><div class="hero-product-copy"><span class="hero-brand">COSMOSKIN</span><p>Premium Korean Skincare</p></div><div class="hero-product-glow" aria-hidden="true"></div></div></div></div></div></section><div class="container"><div class="trust-strip reveal">
 <div class="trust-item"><strong>KDV dahil fiyat</strong><span>Ürün fiyatları sepette tekrar vergi eklenmeden net şekilde gösterilir.</span></div>
 <div class="trust-item"><strong>Hızlı gönderim</strong><span>2.500 TL ve üzeri siparişlerde ücretsiz kargo, diğer siparişlerde net teslimat özeti sunulur.</span></div>
 <div class="trust-item"><strong>Orijinal marka seçkisi</strong><span>COSRX, Torriden, Round Lab ve Beauty of Joseon odaklı rafine ürün seçkisi.</span></div>
@@ -125,4 +195,6 @@
 <script src="/assets/site-config.js?v=20260411b"></script>
 <script type="module" src="/assets/auth.js?v=20260411b"></script>
 <script src="/assets/app.js?v=20260411b"></script><script src="/assets/commerce.js?v=20260411b"></script>
+
+
 </body></html>

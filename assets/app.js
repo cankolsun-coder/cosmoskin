@@ -5,38 +5,54 @@
   const VAT = Number(cfg.vatRate ?? 0.20);
   const FREE_SHIPPING = Number(cfg.freeShippingThreshold ?? 2500);
   const SHIPPING_FEE = Number(cfg.shippingFee ?? 119);
+  const state = {
+    cart: JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'),
+    favorites: [],
+    consent: JSON.parse(localStorage.getItem('cosmoskin_consent') || 'null')
+  };
   const FAVORITES_KEY = 'cosmoskin_favorites';
   const LEGACY_FAVORITES_KEY = 'cosmoskin_favorites_v1';
+  let favoriteAccountSyncReady = false;
 
   function readFavoriteStorage() {
     try {
-      const current = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-      if (Array.isArray(current)) return current;
-    } catch (error) {}
-
-    try {
-      const legacy = JSON.parse(localStorage.getItem(LEGACY_FAVORITES_KEY) || '{}');
-      if (legacy && typeof legacy === 'object' && !Array.isArray(legacy)) {
-        return Object.values(legacy).map((item) => ({
-          id: String(item.id || ''),
-          name: item.name || 'Ürün',
-          brand: item.brand || 'Cosmoskin',
-          price: Number(item.price || 0),
-          image: item.image || '',
-          url: item.url || ''
-        })).filter((item) => item.id);
+      const currentRaw = localStorage.getItem(FAVORITES_KEY);
+      const legacyRaw = localStorage.getItem(LEGACY_FAVORITES_KEY);
+      let current = [];
+      if (currentRaw) {
+        const parsed = JSON.parse(currentRaw);
+        if (Array.isArray(parsed)) current = parsed;
+        else if (parsed && typeof parsed === 'object') current = Object.values(parsed);
       }
-    } catch (error) {}
-
-    return [];
+      if ((!current || !current.length) && legacyRaw) {
+        const legacyParsed = JSON.parse(legacyRaw);
+        if (Array.isArray(legacyParsed)) current = legacyParsed;
+        else if (legacyParsed && typeof legacyParsed === 'object') current = Object.values(legacyParsed);
+      }
+      return Array.isArray(current) ? current : [];
+    } catch (error) {
+      return [];
+    }
   }
 
-  const state = {
-    cart: JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'),
-    favorites: readFavoriteStorage(),
-    consent: JSON.parse(localStorage.getItem('cosmoskin_consent') || 'null')
-  };
-  let favoriteAccountSyncReady = false;
+  state.favorites = readFavoriteStorage();
+
+  function showFavoriteToast(message) {
+    if (!message) return;
+    let toast = document.querySelector('.favorite-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'favorite-toast';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(showFavoriteToast._timer);
+    showFavoriteToast._timer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 1800);
+  }
+
 
   const backdrop = $('#backdrop');
   const cartDrawer = $('#cartDrawer');
@@ -54,44 +70,6 @@
       currency: 'TRY',
       maximumFractionDigits: 0
     }).format(n);
-  }
-
-  function showToast(message) {
-    if (!message) return;
-    let root = document.getElementById('globalToast');
-    if (!root) {
-      root = document.createElement('div');
-      root.id = 'globalToast';
-      root.setAttribute('role', 'status');
-      root.setAttribute('aria-live', 'polite');
-      root.style.position = 'fixed';
-      root.style.left = '50%';
-      root.style.bottom = '24px';
-      root.style.transform = 'translateX(-50%) translateY(12px)';
-      root.style.padding = '12px 18px';
-      root.style.borderRadius = '999px';
-      root.style.background = 'rgba(26,21,16,.94)';
-      root.style.color = '#fff';
-      root.style.fontSize = '13px';
-      root.style.fontWeight = '600';
-      root.style.letterSpacing = '.01em';
-      root.style.boxShadow = '0 18px 40px rgba(0,0,0,.18)';
-      root.style.zIndex = '9999';
-      root.style.opacity = '0';
-      root.style.pointerEvents = 'none';
-      root.style.transition = 'opacity .22s ease, transform .22s ease';
-      document.body.appendChild(root);
-    }
-    root.textContent = message;
-    clearTimeout(root._toastTimer);
-    requestAnimationFrame(() => {
-      root.style.opacity = '1';
-      root.style.transform = 'translateX(-50%) translateY(0)';
-    });
-    root._toastTimer = setTimeout(() => {
-      root.style.opacity = '0';
-      root.style.transform = 'translateX(-50%) translateY(12px)';
-    }, 1800);
   }
 
   function totals() {
@@ -317,14 +295,14 @@ function broadcastFavoritesChange() {
   function toggleFavorite(item) {
     const normalized = normalizeFavoriteItem(item);
     if (!normalized?.id) return;
-    const alreadyFavorite = isFavorite(normalized.id);
-    if (alreadyFavorite) {
+    if (isFavorite(normalized.id)) {
       state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
+      showFavoriteToast('Favorilerden çıkarıldı');
     } else {
       state.favorites.unshift(normalized);
+      showFavoriteToast('Favorilere eklendi');
     }
     persistFavorites();
-    showToast(alreadyFavorite ? 'Favorilerden çıkarıldı' : 'Favorilere eklendi');
   }
 
   function getProductDataFromButton(btn) {
@@ -362,12 +340,31 @@ function broadcastFavoritesChange() {
 
   function renderFavoriteButtons() {
     $$('.favorite-btn').forEach((button) => {
+      if (!button.dataset.favoriteBound) {
+        button.dataset.favoriteBound = 'true';
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          const explicit = button.dataset.favoriteId ? {
+            id: button.dataset.favoriteId,
+            name: button.dataset.name,
+            brand: button.dataset.brand,
+            price: Number(button.dataset.price || 0),
+            image: button.dataset.image,
+            url: button.dataset.url || button.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname
+          } : null;
+          const cardCartBtn = button.closest('.product-card')?.querySelector('[data-add-cart]');
+          toggleFavorite(explicit?.id ? explicit : getProductDataFromButton(cardCartBtn));
+        });
+      }
       const active = isFavorite(button.dataset.favoriteId);
       button.classList.toggle('active', active);
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
       button.setAttribute('aria-label', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
       button.setAttribute('title', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
       const icon = button.querySelector('.favorite-btn-icon');
-      if (icon) if (icon) icon.innerHTML = favoriteHeartIcon(active).replace('<span class="favorite-btn-icon" aria-hidden="true">','').replace('</span>','');
+      if (icon) icon.innerHTML = favoriteHeartIcon(active).replace('<span class="favorite-btn-icon" aria-hidden="true">','').replace('</span>','');
     });
   }
 

@@ -674,7 +674,6 @@ button, input, textarea, select { font: inherit; cursor: pointer; }
 }
 
 .hero-product-copy {
-  display: none !important;
   position: absolute;
   left: 50%;
   bottom: 52px;
@@ -2395,7 +2394,6 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   }
 
   .hero-product-copy {
-  display: none !important;
     bottom: 34px;
     width: min(100%, 290px);
   }

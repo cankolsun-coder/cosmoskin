@@ -341,6 +341,7 @@ let _client, _session, _addresses = [];
 
   _addresses = meta.addresses || [];
   renderAddresses();
+  hydrateFavoritesFromAccount();
   renderFavorites();
   document.getElementById('logoutBtn').addEventListener('click', handleSignOut);
   loadOrders();
@@ -351,11 +352,22 @@ let _client, _session, _addresses = [];
 
 
 function getFavoriteItems(){
-  return JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]');
+  try {
+    const current = JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]');
+    if (Array.isArray(current)) return current;
+    if (current && typeof current === 'object') return Object.values(current);
+  } catch(e) {}
+  try {
+    const legacy = JSON.parse(localStorage.getItem('cosmoskin_favorites_v1') || '{}');
+    if (Array.isArray(legacy)) return legacy;
+    if (legacy && typeof legacy === 'object') return Object.values(legacy);
+  } catch(e) {}
+  return [];
 }
 
 function setFavoriteItems(favs){
   localStorage.setItem('cosmoskin_favorites', JSON.stringify(favs));
+  localStorage.removeItem('cosmoskin_favorites_v1');
   window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: favs } }));
 }
 
@@ -396,6 +408,19 @@ window.addEventListener('storage', (event) => {
   if(event.key === 'cosmoskin_favorites') renderFavorites();
 });
 window.addEventListener('cosmoskin:favorites-updated', () => renderFavorites());
+
+function showToast(message){
+  let toast = document.querySelector('.favorite-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.className = 'favorite-toast show';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(showToast._timer);
+  showToast._timer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
 
 async function handleSignOut() {
   await _client.auth.signOut();
@@ -544,7 +569,6 @@ async function removeFavorite(productId){
     console.error('Favori kaldırma hatası:', e);
   }
   renderFavorites();
-  showToast('Favorilerden çıkarıldı');
 }
 
 function moveFavoriteToCart(i){
