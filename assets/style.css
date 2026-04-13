@@ -2443,3 +2443,13 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
     height: 18px;
   }
 }
+
+/* Cosmoskin brand asset integration */
+.footer .brand-logo {
+  opacity: .96;
+  filter: drop-shadow(0 0 14px rgba(237, 231, 222, 0.08));
+}
+
+.footer .footer-brandlock {
+  align-items: center;
+}
