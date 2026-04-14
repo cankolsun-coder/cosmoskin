@@ -267,16 +267,14 @@ function broadcastFavoritesChange() {
       if (!user) return;
       const remoteFavorites = Array.isArray(user.user_metadata?.favorites) ? user.user_metadata.favorites : [];
       const localFavorites = uniqueFavorites(state.favorites);
-
-      if (localFavorites.length) {
-        state.favorites = localFavorites;
-        persistFavorites({ skipRemote: true });
-        await saveFavoritesToAccount();
-        return;
-      }
-
-      state.favorites = uniqueFavorites(remoteFavorites);
+      const resolvedFavorites = localFavorites.length ? localFavorites : uniqueFavorites(remoteFavorites);
+      const remoteIds = JSON.stringify(uniqueFavorites(remoteFavorites).map((item) => item.id).sort());
+      const resolvedIds = JSON.stringify(resolvedFavorites.map((item) => item.id).sort());
+      state.favorites = resolvedFavorites;
       persistFavorites({ skipRemote: true });
+      if (remoteIds !== resolvedIds) {
+        await saveFavoritesToAccount();
+      }
     } catch (error) {
       console.warn('Favorites hydrate warning:', error);
     }

@@ -392,21 +392,20 @@ async function syncFavoriteItemsToAccount(favs){
 
 async function hydrateFavoritesFromAccount(){
   const localFavs = uniqueFavorites(getFavoriteItems());
-  const remoteFavs = uniqueFavorites(Array.isArray(_session?.user?.user_metadata?.favorites) ? _session.user.user_metadata.favorites : []);
-
-  if(localFavs.length){
-    setFavoriteItems(localFavs);
-    if(_client && _session?.user){
-      try{
-        await syncFavoriteItemsToAccount(localFavs);
-      }catch(e){
-        console.error('Favori senkronizasyon hatası:', e);
+  const remoteFavs = Array.isArray(_session?.user?.user_metadata?.favorites) ? uniqueFavorites(_session.user.user_metadata.favorites) : [];
+  const resolvedFavs = localFavs.length ? localFavs : remoteFavs;
+  setFavoriteItems(resolvedFavs);
+  if(_client && _session?.user){
+    try{
+      const remoteIds = JSON.stringify(remoteFavs.map((item) => item.id).sort());
+      const resolvedIds = JSON.stringify(resolvedFavs.map((item) => item.id).sort());
+      if(remoteIds !== resolvedIds){
+        await syncFavoriteItemsToAccount(resolvedFavs);
       }
+    }catch(e){
+      console.error('Favori senkronizasyon hatası:', e);
     }
-    return;
   }
-
-  setFavoriteItems(remoteFavs);
 }
 
 window.addEventListener('storage', (event) => {
