@@ -2574,7 +2574,7 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 .hero-apple__media {
   position: absolute;
   inset: 0;
-  background-image: url('/assets/img/hero-serum.jpg');
+  background-image: url('/assets/img/hero-serum-cosmoskin.jpg');
   background-size: cover;
   background-position: 72% center;
   background-repeat: no-repeat;
