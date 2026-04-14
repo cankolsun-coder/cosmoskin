@@ -2554,17 +2554,13 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
    ============================================================ */
 
 .hero-apple {
-  --hero-parallax: 0px;
-  --hero-tilt: 0deg;
   position: relative;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 118px);
   overflow: hidden;
-  display: flex;
-  align-items: center;
   isolation: isolate;
   background:
-    radial-gradient(circle at 18% 22%, rgba(255,255,255,.54) 0%, rgba(255,255,255,0) 34%),
-    linear-gradient(180deg, #f7f1ea 0%, #f2ebe3 52%, #eee5db 100%);
+    radial-gradient(circle at 12% 16%, rgba(255,255,255,.72) 0%, rgba(255,255,255,0) 24%),
+    linear-gradient(180deg, #f6f1ea 0%, #f2ece5 58%, #eee7de 100%);
 }
 
 .hero-apple::before {
@@ -2572,7 +2568,7 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(247,241,234,.92) 0%, rgba(247,241,234,.82) 24%, rgba(247,241,234,.52) 42%, rgba(247,241,234,.08) 62%, rgba(247,241,234,0) 78%);
+    linear-gradient(90deg, rgba(246,241,234,.96) 0%, rgba(246,241,234,.9) 34%, rgba(246,241,234,.5) 52%, rgba(246,241,234,0) 72%);
   z-index: -1;
   pointer-events: none;
 }
@@ -2580,14 +2576,14 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 .hero-apple::after {
   content: "";
   position: absolute;
-  right: 10%;
-  bottom: 10%;
-  width: min(24vw, 300px);
-  height: min(3.4vw, 46px);
+  right: 7%;
+  bottom: 6%;
+  width: min(26vw, 340px);
+  height: 46px;
   border-radius: 999px;
-  background: radial-gradient(ellipse, rgba(77, 59, 39, .18) 0%, rgba(77, 59, 39, 0) 72%);
-  filter: blur(12px);
-  opacity: .34;
+  background: radial-gradient(ellipse, rgba(110, 86, 55, .16) 0%, rgba(110, 86, 55, 0) 72%);
+  filter: blur(14px);
+  opacity: .45;
   z-index: 0;
   pointer-events: none;
 }
@@ -2608,169 +2604,57 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 }
 
 .hero-apple__ambient::before {
-  width: min(28vw, 360px);
-  height: min(28vw, 360px);
-  right: 18%;
-  top: 6%;
-  background: radial-gradient(circle, rgba(255,255,255,.58) 0%, rgba(255,255,255,.08) 42%, rgba(255,255,255,0) 72%);
+  width: min(26vw, 340px);
+  height: min(26vw, 340px);
+  right: 16%;
+  top: 10%;
+  background: radial-gradient(circle, rgba(255,255,255,.65) 0%, rgba(255,255,255,.08) 42%, rgba(255,255,255,0) 72%);
 }
 
 .hero-apple__ambient::after {
-  width: min(22vw, 280px);
-  height: min(22vw, 280px);
+  width: min(18vw, 240px);
+  height: min(18vw, 240px);
   right: 5%;
-  bottom: 3%;
-  background: radial-gradient(circle, rgba(223,207,188,.5) 0%, rgba(223,207,188,0) 72%);
-}
-
-.hero-apple__visual {
-  position: absolute;
-  right: clamp(28px, 6vw, 84px);
-  top: 50%;
-  transform: translate3d(0, calc(-50% + var(--hero-parallax)), 0) rotate(var(--hero-tilt));
-  width: clamp(380px, 38vw, 600px);
-  aspect-ratio: 0.82 / 1;
-  border-radius: 34px;
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.50) 0%, rgba(255,255,255,.12) 100%),
-    linear-gradient(160deg, #efe6db 0%, #e7dccf 54%, #ddd0c2 100%);
-  border: 1px solid rgba(255,255,255,.72);
-  box-shadow: 0 34px 110px rgba(19, 14, 10, .12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  z-index: 1;
-  will-change: transform;
-}
-
-.hero-apple__visual::before {
-  content: "";
-  position: absolute;
-  inset: 14px;
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 24% 18%, rgba(255,255,255,.62) 0%, rgba(255,255,255,0) 22%),
-    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.04));
-  border: 1px solid rgba(255,255,255,.42);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
-  pointer-events: none;
-}
-
-.hero-apple__visual::after {
-  content: "";
-  position: absolute;
-  top: -12%;
-  left: -32%;
-  width: 24%;
-  height: 128%;
-  transform: skewX(-18deg) translateX(0);
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 30%, rgba(255,255,255,.80) 50%, rgba(255,255,255,.18) 70%, rgba(255,255,255,0) 100%);
-  filter: blur(2px);
-  opacity: 0;
-  mix-blend-mode: screen;
-  pointer-events: none;
-  animation: heroFrameSweep 5.8s cubic-bezier(.22, .61, .36, 1) infinite;
-  z-index: 4;
-}
-
-.hero-apple__frame-glow {
-  position: absolute;
-  inset: auto;
-  width: 42%;
-  height: 16%;
-  left: 50%;
-  bottom: 8.5%;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: radial-gradient(ellipse, rgba(255,255,255,.52) 0%, rgba(255,255,255,.10) 38%, rgba(255,255,255,0) 72%);
-  filter: blur(16px);
-  opacity: .72;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.hero-product-img {
-  position: relative;
-  width: 74%;
-  height: auto;
-  object-fit: contain;
-  user-select: none;
-  -webkit-user-drag: none;
-  filter: drop-shadow(0 24px 42px rgba(19, 14, 10, .16));
-  animation: heroBottleFloat 5.8s ease-in-out infinite;
-  z-index: 3;
-}
-
-.hero-apple__drop {
-  position: absolute;
-  top: 16%;
-  right: 23%;
-  width: 20px;
-  height: 30px;
-  border-radius: 50% 50% 58% 58% / 42% 42% 68% 68%;
-  background:
-    radial-gradient(circle at 35% 28%, rgba(255,255,255,.96) 0%, rgba(255,255,255,.54) 24%, rgba(255,255,255,0) 48%),
-    linear-gradient(180deg, rgba(255,255,255,.88) 0%, rgba(255,255,255,.38) 58%, rgba(255,255,255,.10) 100%);
-  box-shadow: 0 0 18px rgba(255,255,255,.42);
-  filter: blur(.2px);
-  opacity: .86;
-  pointer-events: none;
-  z-index: 5;
-  animation: heroDropPulse 5.8s cubic-bezier(.22, .61, .36, 1) infinite;
-}
-
-.hero-apple__drop::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 58%;
-  width: 88px;
-  height: 88px;
-  transform: translate(-50%, -50%);
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(255,255,255,.75) 0%, rgba(255,255,255,.24) 24%, rgba(255,255,255,0) 70%);
-  filter: blur(16px);
-  opacity: .58;
-  animation: heroDropGlow 5.8s cubic-bezier(.22, .61, .36, 1) infinite;
+  bottom: 10%;
+  background: radial-gradient(circle, rgba(224,210,194,.54) 0%, rgba(224,210,194,0) 72%);
 }
 
 .hero-apple__inner {
   position: relative;
-  z-index: 3;
-  width: 100%;
-  display: flex;
+  z-index: 2;
+  min-height: calc(100vh - 118px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(520px, .98fr);
   align-items: center;
-  min-height: calc(100vh - 120px);
-  padding-top: 48px;
-  padding-bottom: 48px;
+  gap: clamp(34px, 5vw, 72px);
+  padding-top: 42px;
+  padding-bottom: 42px;
 }
 
 .hero-apple__copy {
-  max-width: 520px;
-  padding-top: clamp(12px, 3vh, 40px);
+  max-width: 760px;
+  padding-right: clamp(8px, 2vw, 18px);
 }
 
 .hero-apple__eyebrow {
-  margin: 0 0 18px;
+  margin: 0 0 20px;
   font-family: var(--sans);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: .30em;
+  letter-spacing: .28em;
   text-transform: uppercase;
-  color: #9f8251;
+  color: #b18a56;
 }
 
 .hero-apple__copy h1 {
   margin: 0;
   font-family: "Didot", "Bodoni MT", "Cormorant Garamond", Georgia, serif;
   font-weight: 400;
-  font-size: clamp(52px, 7vw, 92px);
+  font-size: clamp(58px, 6.2vw, 94px);
   line-height: .92;
-  letter-spacing: -.03em;
-  color: #17120e;
+  letter-spacing: -.05em;
+  color: #13100d;
   text-wrap: balance;
-  max-width: 8ch;
 }
 
 .hero-apple__word {
@@ -2780,49 +2664,215 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 
 .hero-apple__word--accent {
   color: #b08a5e;
-  background: linear-gradient(90deg, #9f8251 0%, #f4e3bf 18%, #b08a5e 36%, #fff6df 50%, #b08a5e 64%, #9f8251 100%);
+  background: linear-gradient(90deg, #9e7d48 0%, #f0dfbf 18%, #b08a5e 40%, #f9eed8 50%, #b08a5e 63%, #9e7d48 100%);
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: heroAccentShine 5.8s ease-in-out infinite;
-}
-
-.hero-apple__word--accent::after {
-  content: "";
-  position: absolute;
-  top: 4%;
-  left: -22%;
-  width: 38%;
-  height: 92%;
-  transform: skewX(-18deg);
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.14) 28%, rgba(255,255,255,.96) 50%, rgba(255,255,255,.18) 72%, rgba(255,255,255,0) 100%);
-  filter: blur(.4px);
-  mix-blend-mode: screen;
-  opacity: 0;
-  pointer-events: none;
-  animation: heroAccentSweep 5.8s ease-in-out infinite;
+  animation: heroAccentShine 6.2s ease-in-out infinite;
 }
 
 .hero-apple__sub {
-  margin: 18px 0 0;
-  max-width: 28ch;
+  margin: 22px 0 0;
+  max-width: 38ch;
   font-family: var(--sans);
-  font-size: clamp(15px, 1.5vw, 18px);
-  line-height: 1.75;
-  color: #6f645b;
+  font-size: clamp(17px, 1.35vw, 19px);
+  line-height: 1.72;
+  color: #6e6257;
 }
 
 .hero-apple__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 30px;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.hero-apple__benefits {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 56px;
+  padding-top: 26px;
+}
+
+.hero-apple__benefits article {
+  padding-top: 22px;
+  border-top: 1px solid rgba(28, 20, 14, .10);
+}
+
+.hero-apple__benefits h3 {
+  margin: 0 0 10px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #17120e;
+}
+
+.hero-apple__benefits p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #74695f;
+}
+
+.hero-apple__visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 760px;
+}
+
+.hero-apple__visual-inner {
+  position: relative;
+  width: min(100%, 620px);
+  aspect-ratio: 0.82 / 1;
+  border-radius: 38px;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.56) 0%, rgba(255,255,255,.18) 100%),
+    linear-gradient(165deg, #ece2d5 0%, #e7ddcf 48%, #ddd1c2 100%);
+  border: 1px solid rgba(255,255,255,.82);
+  box-shadow: 0 36px 110px rgba(21, 15, 11, .14);
+  overflow: visible;
+}
+
+.hero-apple__visual-inner::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(255,255,255,.45);
+  background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.04));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.48);
+  pointer-events: none;
+}
+
+.hero-apple__visual-inner::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: -26%;
+  width: 18%;
+  height: 124%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.16) 28%, rgba(255,255,255,.85) 50%, rgba(255,255,255,.18) 72%, rgba(255,255,255,0) 100%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  filter: blur(1.5px);
+  animation: heroFrameSweep 6.2s cubic-bezier(.22, .61, .36, 1) infinite;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.hero-apple__frame-glow {
+  position: absolute;
+  left: 50%;
+  bottom: 9%;
+  width: 42%;
+  height: 14%;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: radial-gradient(ellipse, rgba(255,255,255,.56) 0%, rgba(255,255,255,.12) 38%, rgba(255,255,255,0) 72%);
+  filter: blur(16px);
+  opacity: .76;
+  z-index: 1;
+}
+
+.hero-apple__product-stage {
+  position: relative;
+  height: 100%;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 38% 22%, rgba(255,255,255,.58) 0%, rgba(255,255,255,0) 28%),
+    linear-gradient(180deg, #f0e7de 0%, #eee5dc 100%);
+  overflow: hidden;
+  padding: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-product-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  border-radius: 24px;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 26px 46px rgba(20, 14, 10, .14));
+  animation: heroBottleFloat 6.2s ease-in-out infinite;
+  z-index: 1;
+}
+
+.hero-chip {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px 24px;
+  border-radius: 24px;
+  background: rgba(249,245,239,.94);
+  border: 1px solid rgba(207, 192, 173, .88);
+  box-shadow: 0 20px 40px rgba(28, 20, 14, .10);
+  color: #1a1511;
+}
+
+.hero-chip strong {
+  font-family: "Didot", "Bodoni MT", "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(28px, 2.1vw, 40px);
+  font-weight: 400;
+  line-height: 1.05;
+}
+
+.hero-chip__eyebrow {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #a08657;
+}
+
+.hero-chip--top {
+  top: -2px;
+  left: 32px;
+  padding: 16px 28px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.hero-chip--left {
+  top: 28%;
+  left: -66px;
+  min-width: 250px;
+}
+
+.hero-chip--right {
+  top: 32%;
+  right: -70px;
+  min-width: 262px;
+}
+
+.hero-chip--bottom {
+  left: 58%;
+  bottom: -32px;
+  min-width: 270px;
 }
 
 @keyframes heroBottleFloat {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes heroAccentShine {
@@ -2830,152 +2880,155 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   50% { background-position: -20% 50%; }
 }
 
-@keyframes heroAccentSweep {
-  0%, 18% { left: -22%; opacity: 0; }
-  28% { opacity: .98; }
-  50% { left: 116%; opacity: .72; }
-  51%, 100% { opacity: 0; }
-}
-
 @keyframes heroFrameSweep {
   0%, 14% { transform: skewX(-18deg) translateX(0); opacity: 0; }
   24% { opacity: .92; }
-  50% { transform: skewX(-18deg) translateX(560%); opacity: .62; }
+  50% { transform: skewX(-18deg) translateX(620%); opacity: .62; }
   51%, 100% { opacity: 0; }
 }
 
-@keyframes heroDropPulse {
-  0%, 16% {
-    transform: translate3d(0, 0, 0) scale(.92);
-    opacity: .34;
-  }
-  26% {
-    transform: translate3d(0, 2px, 0) scale(1.02);
-    opacity: .96;
-  }
-  36% {
-    transform: translate3d(0, 16px, 0) scale(.86);
-    opacity: .18;
-  }
-  37%, 100% {
-    transform: translate3d(0, 0, 0) scale(.92);
-    opacity: .34;
-  }
-}
-
-@keyframes heroDropGlow {
-  0%, 16% { opacity: .18; transform: translate(-50%, -50%) scale(.76); }
-  26% { opacity: .72; transform: translate(-50%, -50%) scale(1); }
-  36% { opacity: .08; transform: translate(-50%, -50%) scale(1.18); }
-  37%, 100% { opacity: .18; transform: translate(-50%, -50%) scale(.76); }
-}
-
-@media (min-width: 1200px) {
+@media (max-width: 1279px) {
   .hero-apple__inner {
-    align-items: center;
+    grid-template-columns: minmax(0, .96fr) minmax(440px, 1.04fr);
   }
 
-  .hero-apple__copy {
-    margin-left: 2px;
+  .hero-apple__copy h1 {
+    font-size: clamp(52px, 5.6vw, 82px);
+  }
+
+  .hero-chip--left {
+    left: -24px;
+  }
+
+  .hero-chip--right {
+    right: -28px;
+  }
+
+  .hero-chip--bottom {
+    left: 48%;
   }
 }
 
-@media (max-width: 1199px) {
-  .hero-apple__visual {
-    right: clamp(20px, 4vw, 40px);
-    width: clamp(340px, 40vw, 500px);
-  }
-}
-
-@media (max-width: 991px) {
+@media (max-width: 1100px) {
   .hero-apple {
     min-height: auto;
-    padding-top: 24px;
+    padding-top: 10px;
   }
 
   .hero-apple::before {
-    background: linear-gradient(180deg, rgba(247,241,234,.86) 0%, rgba(247,241,234,.54) 28%, rgba(247,241,234,.18) 52%, rgba(247,241,234,0) 74%);
+    background: linear-gradient(180deg, rgba(246,241,234,.94) 0%, rgba(246,241,234,.72) 34%, rgba(246,241,234,.22) 58%, rgba(246,241,234,0) 82%);
   }
 
   .hero-apple__inner {
     min-height: auto;
-    align-items: flex-start;
-    padding-top: 72px;
-    padding-bottom: 48px;
+    grid-template-columns: 1fr;
+    gap: 36px;
+    padding-top: 52px;
+    padding-bottom: 44px;
   }
 
   .hero-apple__copy {
-    max-width: 460px;
+    max-width: 860px;
+    padding-right: 0;
   }
 
   .hero-apple__visual {
-    position: relative;
-    top: auto;
-    right: auto;
-    transform: translate3d(0, 0, 0);
-    width: min(100%, 520px);
-    margin: 18px auto 0;
+    min-height: auto;
   }
 
-  .hero-apple__inner {
-    flex-direction: column;
-    gap: 24px;
-  }
-
-  .hero-apple__copy {
-    width: 100%;
+  .hero-apple__visual-inner {
+    width: min(100%, 700px);
   }
 }
 
 @media (max-width: 767px) {
   .hero-apple {
-    padding-bottom: 10px;
+    padding-bottom: 8px;
   }
 
   .hero-apple__inner {
-    padding-top: 56px;
-    padding-bottom: 36px;
-    gap: 20px;
-  }
-
-  .hero-apple__visual {
-    width: min(100%, 420px);
-    border-radius: 28px;
-  }
-
-  .hero-apple__visual::before {
-    inset: 12px;
-    border-radius: 22px;
-  }
-
-  .hero-product-img {
-    width: 78%;
-  }
-
-  .hero-apple__drop {
-    top: 17%;
-    right: 19%;
-    width: 16px;
-    height: 24px;
+    gap: 26px;
+    padding-top: 46px;
+    padding-bottom: 30px;
   }
 
   .hero-apple__copy h1 {
-    max-width: 9ch;
-    font-size: clamp(42px, 12vw, 64px);
-    line-height: .96;
+    font-size: clamp(42px, 12vw, 62px);
+    line-height: .95;
   }
 
   .hero-apple__sub {
-    max-width: 26ch;
     font-size: 15px;
-    line-height: 1.7;
+    max-width: 30ch;
   }
 
   .hero-apple__actions {
-    margin-top: 24px;
+    margin-top: 26px;
+  }
+
+  .hero-apple__benefits {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 34px;
+  }
+
+  .hero-apple__visual-inner {
+    border-radius: 28px;
+    padding: 12px;
+  }
+
+  .hero-apple__visual-inner::before {
+    inset: 10px;
+    border-radius: 22px;
+  }
+
+  .hero-apple__product-stage {
+    border-radius: 20px;
+    padding: 18px;
+  }
+
+  .hero-product-img {
+    border-radius: 16px;
+  }
+
+  .hero-chip {
+    padding: 12px 14px;
+    border-radius: 18px;
+  }
+
+  .hero-chip strong {
+    font-size: 20px;
+  }
+
+  .hero-chip__eyebrow,
+  .hero-chip--top {
+    font-size: 10px;
+  }
+
+  .hero-chip--top {
+    left: 18px;
+    padding: 12px 18px;
+  }
+
+  .hero-chip--left {
+    top: 18%;
+    left: 6px;
+    min-width: 170px;
+  }
+
+  .hero-chip--right {
+    top: 26%;
+    right: 6px;
+    min-width: 172px;
+  }
+
+  .hero-chip--bottom {
+    left: 50%;
+    bottom: -20px;
+    transform: translateX(-50%);
+    min-width: 180px;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .hero-product-img,
   .hero-apple__visual,
