@@ -191,43 +191,6 @@
     shopWrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
   }
 
-
-  const heroParallax = document.querySelector('[data-hero-parallax]');
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  function updateHeroParallax() {
-    if (!heroParallax || prefersReducedMotion.matches) return;
-    const heroSection = document.getElementById('heroSection');
-    if (!heroSection) return;
-    const rect = heroSection.getBoundingClientRect();
-    const viewport = window.innerHeight || document.documentElement.clientHeight || 1;
-    const progress = Math.max(-1, Math.min(1, (viewport - rect.top) / (viewport + rect.height)));
-    const intensity = window.innerWidth <= 768 ? 0.45 : 1;
-    heroParallax.style.setProperty('--hero-cloud-back-y', `${Math.round(progress * 26 * intensity)}px`);
-    heroParallax.style.setProperty('--hero-cloud-front-y', `${Math.round(progress * 40 * intensity)}px`);
-    heroParallax.style.setProperty('--hero-product-y', `${Math.round(progress * 14 * intensity)}px`);
-    heroParallax.style.setProperty('--hero-card-rotate', `${(progress * -1.2 * intensity).toFixed(3)}deg`);
-    heroParallax.style.setProperty('--hero-glow-shift', `${Math.round(progress * 18 * intensity)}px`);
-  }
-
-  let heroParallaxTick = false;
-  function onHeroParallaxScroll() {
-    if (heroParallaxTick) return;
-    heroParallaxTick = true;
-    requestAnimationFrame(() => {
-      updateHeroParallax();
-      heroParallaxTick = false;
-    });
-  }
-
-  if (heroParallax) {
-    updateHeroParallax();
-    window.addEventListener('scroll', onHeroParallaxScroll, { passive: true });
-    window.addEventListener('resize', onHeroParallaxScroll);
-    if (typeof prefersReducedMotion.addEventListener === 'function') {
-      prefersReducedMotion.addEventListener('change', onHeroParallaxScroll);
-    }
-  }
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
     renderCart();
@@ -595,8 +558,78 @@ function broadcastFavoritesChange() {
     });
   }
 
+
+
+  function initHeroParallax() {
+    const hero = document.querySelector('[data-hero-parallax]');
+    if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const state = { currentY: 0, targetY: 0, currentX: 0, targetX: 0, ticking: false };
+    const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
+
+    function updateTargets() {
+      const rect = hero.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const progress = clamp((vh - rect.top) / (vh + rect.height), 0, 1);
+      state.targetY = (progress - 0.35) * 42;
+    }
+
+    function apply() {
+      state.currentY += (state.targetY - state.currentY) * 0.08;
+      state.currentX += (state.targetX - state.currentX) * 0.08;
+
+      hero.style.setProperty('--hero-cloud-back-y', `${state.currentY * 1.4}px`);
+      hero.style.setProperty('--hero-cloud-front-y', `${state.currentY * 2.1}px`);
+      hero.style.setProperty('--hero-showcase-y', `${state.currentY * -0.16}px`);
+      hero.style.setProperty('--hero-card-y', `${state.currentY * -0.34}px`);
+      hero.style.setProperty('--hero-card-x', `${state.currentX * 6}px`);
+      hero.style.setProperty('--hero-card-rotate', `${state.currentX * 0.4}deg`);
+      hero.style.setProperty('--hero-product-y', `${state.currentY * -0.22}px`);
+      hero.style.setProperty('--hero-product-x', `${state.currentX * 8}px`);
+      hero.style.setProperty('--hero-product-scale', `${1 + Math.abs(state.currentY) * 0.0008}`);
+      hero.style.setProperty('--hero-orb-y', `${state.currentY * -0.9}px`);
+      hero.style.setProperty('--hero-orb-x', `${state.currentX * 12}px`);
+      hero.style.setProperty('--hero-note-left-y', `${state.currentY * -0.1}px`);
+      hero.style.setProperty('--hero-note-left-x', `${state.currentX * 7}px`);
+      hero.style.setProperty('--hero-note-center-y', `${state.currentY * -0.2}px`);
+      hero.style.setProperty('--hero-note-right-y', `${state.currentY * -0.14}px`);
+      hero.style.setProperty('--hero-note-right-x', `${state.currentX * -7}px`);
+
+      if (Math.abs(state.targetY - state.currentY) > 0.08 || Math.abs(state.targetX - state.currentX) > 0.08) {
+        requestAnimationFrame(apply);
+      } else {
+        state.ticking = false;
+      }
+    }
+
+    function queue() {
+      if (state.ticking) return;
+      state.ticking = true;
+      requestAnimationFrame(apply);
+    }
+
+    function onPointerMove(event) {
+      if (window.innerWidth < 900) {
+        state.targetX = 0;
+        return;
+      }
+      const rect = hero.getBoundingClientRect();
+      const localX = clamp((event.clientX - rect.left) / rect.width, 0, 1) - 0.5;
+      state.targetX = localX;
+      queue();
+    }
+
+    updateTargets();
+    queue();
+    window.addEventListener('scroll', () => { updateTargets(); queue(); }, { passive: true });
+    window.addEventListener('resize', () => { updateTargets(); queue(); }, { passive: true });
+    hero.addEventListener('pointermove', onPointerMove, { passive: true });
+    hero.addEventListener('pointerleave', () => { state.targetX = 0; queue(); }, { passive: true });
+  }
+
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+  initHeroParallax();
 
   $$('form[data-static-form="true"]').forEach((form) => form.addEventListener('submit', (event) => {
     event.preventDefault();
