@@ -159,26 +159,18 @@
     if (e.key === 'Escape') {
       closeDrawers();
       closeModals();
-      document.querySelectorAll('.nav-dropdown.open').forEach((item) => {
-        item.classList.remove('open');
-        item.querySelector('button')?.setAttribute('aria-expanded', 'false');
-      });
+      $('.shop-wrap')?.classList.remove('open');
       mobileNav?.classList.remove('open');
       document.body.classList.remove('modal-open');
     }
   });
 
-  const dropdowns = Array.from(document.querySelectorAll('.nav-dropdown'));
-  dropdowns.forEach((wrap) => {
-    const trigger = wrap.querySelector('button');
+  function bindMegaMenu(wrapSelector, triggerSelector) {
+    const wrap = $(wrapSelector);
+    if (!wrap) return;
+    const trigger = wrap.querySelector(triggerSelector);
     const openMenu = () => {
       clearTimeout(megaTimer);
-      dropdowns.forEach((item) => {
-        if (item !== wrap) {
-          item.classList.remove('open');
-          item.querySelector('button')?.setAttribute('aria-expanded', 'false');
-        }
-      });
       wrap.classList.add('open');
       trigger?.setAttribute('aria-expanded', 'true');
     };
@@ -189,23 +181,17 @@
         trigger?.setAttribute('aria-expanded', 'false');
       }, 140);
     };
-
     trigger?.addEventListener('click', (e) => {
       e.preventDefault();
-      const isOpen = wrap.classList.contains('open');
-      dropdowns.forEach((item) => {
-        item.classList.remove('open');
-        item.querySelector('button')?.setAttribute('aria-expanded', 'false');
-      });
-      if (!isOpen) {
-        wrap.classList.add('open');
-        trigger.setAttribute('aria-expanded', 'true');
-      }
+      wrap.classList.toggle('open');
+      trigger?.setAttribute('aria-expanded', wrap.classList.contains('open') ? 'true' : 'false');
     });
-
     wrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
     wrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
-  });
+  }
+
+  bindMegaMenu('.shop-wrap', '.shop-trigger');
+  bindMegaMenu('.brands-wrap', '.brands-trigger');
 
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
@@ -342,21 +328,27 @@ function broadcastFavoritesChange() {
   function ensureFavoriteButtons() {
     $$('.product-card').forEach((card) => {
       const media = card.querySelector('.product-media');
+      const mediaWrap = card.querySelector('.product-media-wrap');
       const cartBtn = card.querySelector('[data-add-cart]');
-      if (!media || !cartBtn || media.querySelector('.favorite-btn')) return;
+      if (!media || !cartBtn || card.querySelector('.favorite-btn')) return;
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'favorite-btn';
       button.setAttribute('aria-label', 'Favorilere ekle');
       button.setAttribute('title', 'Favorilere ekle');
       button.dataset.favoriteId = cartBtn.dataset.id;
+      button.dataset.name = cartBtn.dataset.name || '';
+      button.dataset.brand = cartBtn.dataset.brand || '';
+      button.dataset.price = cartBtn.dataset.price || '';
+      button.dataset.image = cartBtn.dataset.image || '';
+      button.dataset.url = media.getAttribute('href') || window.location.pathname;
       button.innerHTML = favoriteHeartIcon(false);
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
         toggleFavorite(getProductDataFromButton(cartBtn));
       });
-      media.appendChild(button);
+      (mediaWrap || card).appendChild(button);
     });
   }
 
