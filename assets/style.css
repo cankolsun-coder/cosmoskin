@@ -2560,15 +2560,18 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   display: flex;
   align-items: center;
   isolation: isolate;
+  background: #f3ede6;
+}
+
+.hero-apple::before {
+  content: "";
+  position: absolute;
+  inset: 0;
   background:
-    linear-gradient(
-      90deg,
-      rgba(246, 240, 233, .86) 0%,
-      rgba(246, 240, 233, .70) 20%,
-      rgba(246, 240, 233, .28) 42%,
-      rgba(246, 240, 233, .08) 58%,
-      rgba(246, 240, 233, 0) 72%
-    );
+    radial-gradient(circle at 22% 44%, rgba(255,255,255,.24) 0%, rgba(255,255,255,0) 34%),
+    radial-gradient(circle at 81.8% 48.6%, rgba(255,255,255,.92) 0%, rgba(255,255,255,.42) 2.2%, rgba(255,255,255,.12) 4.2%, rgba(255,255,255,0) 8.5%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 .hero-apple::after {
@@ -2606,11 +2609,12 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   background:
     linear-gradient(
       90deg,
-      rgba(247, 241, 234, .88) 0%,
-      rgba(247, 241, 234, .72) 18%,
-      rgba(247, 241, 234, .34) 36%,
-      rgba(247, 241, 234, .10) 56%,
-      rgba(247, 241, 234, 0) 72%
+      #f3ede6 0%,
+      rgba(243, 237, 230, .96) 16%,
+      rgba(243, 237, 230, .82) 28%,
+      rgba(243, 237, 230, .52) 42%,
+      rgba(243, 237, 230, .18) 56%,
+      rgba(243, 237, 230, 0) 70%
     );
   z-index: 1;
 }
@@ -2618,22 +2622,24 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 .hero-apple__media::after {
   content: "";
   position: absolute;
-  top: -8%;
-  left: -24%;
-  width: 24%;
-  height: 116%;
+  top: -10%;
+  left: -26%;
+  width: 26%;
+  height: 124%;
   transform: skewX(-14deg);
   background: linear-gradient(
     90deg,
     rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.08) 30%,
-    rgba(255,255,255,.36) 50%,
-    rgba(255,255,255,.08) 70%,
+    rgba(255,255,255,.06) 28%,
+    rgba(255,255,255,.34) 48%,
+    rgba(255,255,255,.78) 52%,
+    rgba(255,255,255,.30) 56%,
+    rgba(255,255,255,.06) 74%,
     rgba(255,255,255,0) 100%
   );
   filter: blur(2px);
   mix-blend-mode: screen;
-  animation: heroAppleSweep 9s ease-in-out infinite;
+  animation: heroAppleSweep 8.8s ease-in-out infinite;
   z-index: 2;
   pointer-events: none;
 }
@@ -2650,6 +2656,8 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 }
 
 .hero-apple__copy {
+  position: relative;
+  z-index: 3;
   max-width: 520px;
   padding-top: clamp(12px, 3vh, 40px);
 }
@@ -2761,20 +2769,20 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 
 @keyframes heroAppleSweep {
   0%, 100% {
-    left: -24%;
+    left: -26%;
     opacity: 0;
   }
-  14% {
+  12% {
     opacity: 0;
   }
-  28% {
-    opacity: .9;
+  26% {
+    opacity: .95;
   }
-  52% {
+  48% {
     left: 118%;
-    opacity: .52;
+    opacity: .58;
   }
-  53%, 100% {
+  49%, 100% {
     opacity: 0;
   }
 }
@@ -2792,13 +2800,13 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 @media (max-width: 991px) {
   .hero-apple {
     min-height: 82vh;
+    background: #f3ede6;
+  }
+
+  .hero-apple::before {
     background:
-      linear-gradient(
-        180deg,
-        rgba(247, 241, 234, .70) 0%,
-        rgba(247, 241, 234, .24) 32%,
-        rgba(247, 241, 234, 0) 58%
-      );
+      radial-gradient(circle at 28% 26%, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 28%),
+      radial-gradient(circle at 77% 60%, rgba(255,255,255,.62) 0%, rgba(255,255,255,.22) 3%, rgba(255,255,255,0) 7%);
   }
 
   .hero-apple__inner {
@@ -2821,6 +2829,13 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 @media (max-width: 767px) {
   .hero-apple {
     min-height: 78vh;
+    background: #f3ede6;
+  }
+
+  .hero-apple::before {
+    background:
+      radial-gradient(circle at 50% 14%, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 26%),
+      radial-gradient(circle at 73% 64%, rgba(255,255,255,.44) 0%, rgba(255,255,255,.14) 2.8%, rgba(255,255,255,0) 7%);
   }
 
   .hero-apple__inner {
@@ -2840,10 +2855,10 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
     background:
       linear-gradient(
         180deg,
-        rgba(247, 241, 234, .84) 0%,
-        rgba(247, 241, 234, .55) 24%,
-        rgba(247, 241, 234, .18) 46%,
-        rgba(247, 241, 234, 0) 64%
+        rgba(243, 237, 230, .92) 0%,
+        rgba(243, 237, 230, .66) 22%,
+        rgba(243, 237, 230, .28) 44%,
+        rgba(243, 237, 230, 0) 64%
       );
   }
 
