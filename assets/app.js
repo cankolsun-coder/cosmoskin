@@ -191,6 +191,43 @@
     shopWrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
   }
 
+
+  const heroParallax = document.querySelector('[data-hero-parallax]');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function updateHeroParallax() {
+    if (!heroParallax || prefersReducedMotion.matches) return;
+    const heroSection = document.getElementById('heroSection');
+    if (!heroSection) return;
+    const rect = heroSection.getBoundingClientRect();
+    const viewport = window.innerHeight || document.documentElement.clientHeight || 1;
+    const progress = Math.max(-1, Math.min(1, (viewport - rect.top) / (viewport + rect.height)));
+    const intensity = window.innerWidth <= 768 ? 0.45 : 1;
+    heroParallax.style.setProperty('--hero-cloud-back-y', `${Math.round(progress * 26 * intensity)}px`);
+    heroParallax.style.setProperty('--hero-cloud-front-y', `${Math.round(progress * 40 * intensity)}px`);
+    heroParallax.style.setProperty('--hero-product-y', `${Math.round(progress * 14 * intensity)}px`);
+    heroParallax.style.setProperty('--hero-card-rotate', `${(progress * -1.2 * intensity).toFixed(3)}deg`);
+    heroParallax.style.setProperty('--hero-glow-shift', `${Math.round(progress * 18 * intensity)}px`);
+  }
+
+  let heroParallaxTick = false;
+  function onHeroParallaxScroll() {
+    if (heroParallaxTick) return;
+    heroParallaxTick = true;
+    requestAnimationFrame(() => {
+      updateHeroParallax();
+      heroParallaxTick = false;
+    });
+  }
+
+  if (heroParallax) {
+    updateHeroParallax();
+    window.addEventListener('scroll', onHeroParallaxScroll, { passive: true });
+    window.addEventListener('resize', onHeroParallaxScroll);
+    if (typeof prefersReducedMotion.addEventListener === 'function') {
+      prefersReducedMotion.addEventListener('change', onHeroParallaxScroll);
+    }
+  }
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
     renderCart();
