@@ -160,64 +160,38 @@
       closeDrawers();
       closeModals();
       $('.shop-wrap')?.classList.remove('open');
-      $('.brands-wrap')?.classList.remove('open');
       mobileNav?.classList.remove('open');
       document.body.classList.remove('modal-open');
     }
   });
 
-  const shopWrap = $('.shop-wrap');
-  if (shopWrap) {
-    const trigger = shopWrap.querySelector('.shop-trigger');
+  function bindMegaMenu(wrapSelector, triggerSelector) {
+    const wrap = $(wrapSelector);
+    if (!wrap) return;
+    const trigger = wrap.querySelector(triggerSelector);
     const openMenu = () => {
       clearTimeout(megaTimer);
-      shopWrap.classList.add('open');
+      wrap.classList.add('open');
       trigger?.setAttribute('aria-expanded', 'true');
     };
     const closeMenu = () => {
       clearTimeout(megaTimer);
       megaTimer = setTimeout(() => {
-        shopWrap.classList.remove('open');
+        wrap.classList.remove('open');
         trigger?.setAttribute('aria-expanded', 'false');
       }, 140);
     };
-
     trigger?.addEventListener('click', (e) => {
       e.preventDefault();
-      shopWrap.classList.toggle('open');
-      trigger.setAttribute('aria-expanded', shopWrap.classList.contains('open') ? 'true' : 'false');
+      wrap.classList.toggle('open');
+      trigger?.setAttribute('aria-expanded', wrap.classList.contains('open') ? 'true' : 'false');
     });
-
-    shopWrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
-    shopWrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
+    wrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
+    wrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
   }
 
-  // ── Brands mega menu (same pattern as shop-wrap) ──────────
-  const brandsWrap = $('.brands-wrap');
-  if (brandsWrap) {
-    let brandsTimer;
-    const brandsTrigger = brandsWrap.querySelector('.brands-trigger');
-    const openBrands = () => {
-      clearTimeout(brandsTimer);
-      brandsWrap.classList.add('open');
-      brandsTrigger?.setAttribute('aria-expanded', 'true');
-    };
-    const closeBrands = () => {
-      clearTimeout(brandsTimer);
-      brandsTimer = setTimeout(() => {
-        brandsWrap.classList.remove('open');
-        brandsTrigger?.setAttribute('aria-expanded', 'false');
-      }, 140);
-    };
-    brandsTrigger?.addEventListener('click', (e) => {
-      e.preventDefault();
-      brandsWrap.classList.toggle('open');
-      brandsTrigger.setAttribute('aria-expanded', brandsWrap.classList.contains('open') ? 'true' : 'false');
-    });
-    brandsWrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openBrands());
-    brandsWrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeBrands());
-  }
-
+  bindMegaMenu('.shop-wrap', '.shop-trigger');
+  bindMegaMenu('.brands-wrap', '.brands-trigger');
 
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
@@ -354,21 +328,27 @@ function broadcastFavoritesChange() {
   function ensureFavoriteButtons() {
     $$('.product-card').forEach((card) => {
       const media = card.querySelector('.product-media');
+      const mediaWrap = card.querySelector('.product-media-wrap');
       const cartBtn = card.querySelector('[data-add-cart]');
-      if (!media || !cartBtn || media.querySelector('.favorite-btn')) return;
+      if (!media || !cartBtn || card.querySelector('.favorite-btn')) return;
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'favorite-btn';
       button.setAttribute('aria-label', 'Favorilere ekle');
       button.setAttribute('title', 'Favorilere ekle');
       button.dataset.favoriteId = cartBtn.dataset.id;
+      button.dataset.name = cartBtn.dataset.name || '';
+      button.dataset.brand = cartBtn.dataset.brand || '';
+      button.dataset.price = cartBtn.dataset.price || '';
+      button.dataset.image = cartBtn.dataset.image || '';
+      button.dataset.url = media.getAttribute('href') || window.location.pathname;
       button.innerHTML = favoriteHeartIcon(false);
       button.addEventListener('click', (event) => {
         event.preventDefault();
         event.stopPropagation();
         toggleFavorite(getProductDataFromButton(cartBtn));
       });
-      media.appendChild(button);
+      (mediaWrap || card).appendChild(button);
     });
   }
 

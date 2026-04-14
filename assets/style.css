@@ -2832,12 +2832,10 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 
 .hero-chip strong {
   font-family: "Didot", "Bodoni MT", "Cormorant Garamond", Georgia, serif;
-  font-size: 14px;
+  font-size: clamp(14px, 1.15vw, 20px);
   font-weight: 400;
   line-height: 1.02;
   letter-spacing: .01em;
-  white-space: nowrap;
-  text-transform: none;
 }
 
 .hero-chip__eyebrow {
@@ -2884,7 +2882,7 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 
 .hero-chip--bottom {
   left: 50%;
-  bottom: 10px;
+  bottom: 18px;
   transform: translateX(-50%);
   min-width: 0;
   max-width: 220px;
@@ -3438,10 +3436,9 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 }
 
 .hero-chip strong {
-  font-size: 13px;
+  font-size: clamp(12px, .92vw, 16px);
   line-height: 1;
   white-space: nowrap;
-  text-transform: none;
 }
 
 .hero-chip__eyebrow {
@@ -3604,93 +3601,87 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 }
 
 
-/* ── Brands Mega Menu ─────────────────────────────────────── */
-.brands-wrap { position: relative; }
-.brands-trigger {
-  background: none;
-  border: none;
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-  color: inherit;
-  letter-spacing: inherit;
-}
-.brands-mega {
-  position: absolute;
-  top: calc(100% + 14px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #faf8f5;
-  border: 1px solid rgba(218,200,178,.5);
-  border-radius: 18px;
-  box-shadow: 0 24px 60px rgba(20,14,8,.12), 0 8px 20px rgba(20,14,8,.06);
-  padding: 20px;
-  min-width: 280px;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-50%) translateY(8px);
-  transition: opacity .18s ease, transform .18s ease;
-  z-index: 200;
-}
-.brands-wrap.open .brands-mega {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
-}
-.brands-mega h4 {
-  font-family: var(--sans);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: #a08657;
-  margin: 0 0 10px;
-  padding: 0 4px;
-}
-.brands-mega a {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  text-decoration: none;
-  color: #1a1510;
-  transition: background .14s ease;
-}
-.brands-mega a:hover { background: rgba(218,200,178,.25); }
-.brands-mega a strong {
-  font-family: var(--sans);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: .01em;
-}
-.brands-mega a span {
-  font-family: var(--sans);
-  font-size: 11px;
-  color: #8a7460;
-  letter-spacing: .01em;
+
+/* === 2026-04-14 targeted fixes === */
+.product-card { position: relative; }
+
+.hero-chip strong {
+  text-transform: none !important;
+  white-space: nowrap;
 }
 
-/* ── Sparkle chip animation ───────────────────────────────── */
 .hero-chip--top {
+  top: 20px;
+  left: 24px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
-.chip-sparkle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  animation: sparkleRotate 2.4s ease-in-out infinite;
-  flex-shrink: 0;
+
+.hero-chip--top::after {
+  content: '✦';
+  display: inline-block;
+  font-size: 12px;
+  color: #b9924d;
+  text-shadow: 0 0 10px rgba(210, 172, 104, .35);
+  animation: heroSparklePulse 2.2s ease-in-out infinite;
 }
-.chip-sparkle svg {
-  width: 13px;
-  height: 13px;
-  display: block;
+
+@keyframes heroSparklePulse {
+  0%,100% { transform: scale(.9); opacity: .62; }
+  50% { transform: scale(1.16); opacity: 1; }
 }
-@keyframes sparkleRotate {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
-  30% { transform: scale(1.25) rotate(18deg); opacity: .85; }
-  60% { transform: scale(.88) rotate(-10deg); opacity: .95; }
+
+.hero-chip--left {
+  top: 24%;
+  left: 24px;
+  max-width: 188px;
+}
+
+.hero-chip--right {
+  top: 24%;
+  right: 24px;
+  max-width: 194px;
+}
+
+.hero-chip--bottom {
+  bottom: 38px;
+  max-width: 190px;
+}
+
+.hero-chip--bottom strong {
+  font-size: clamp(13px, 1.02vw, 18px);
+}
+
+@media (max-width: 768px) {
+  .hero-chip {
+    padding: 8px 11px;
+  }
+  .hero-chip strong {
+    font-size: 13px;
+  }
+  .hero-chip--left {
+    top: 24%;
+    left: 10px;
+    max-width: 138px;
+  }
+  .hero-chip--right {
+    top: 24%;
+    right: 10px;
+    max-width: 144px;
+  }
+  .hero-chip--bottom {
+    bottom: 30px;
+    max-width: 148px;
+  }
+}
+
+.brands-wrap { position: relative; }
+.brands-trigger { position: relative; }
+.brands-mega {
+  min-width: min(760px, calc(100vw - 64px));
+}
+
+.favorite-btn {
+  z-index: 8;
 }
