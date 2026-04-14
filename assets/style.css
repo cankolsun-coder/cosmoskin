@@ -267,7 +267,8 @@ button, input, textarea, select { font: inherit; cursor: pointer; }
   transition: opacity .3s ease, transform .4s var(--ease-out);
 }
 
-.shop-wrap.open .mega {
+.shop-wrap.open .mega,
+.brands-wrap.open .mega {
   opacity: 1;
   pointer-events: auto;
   transform: translateX(-50%) translateY(0);
