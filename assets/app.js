@@ -266,9 +266,17 @@ function broadcastFavoritesChange() {
       favoriteAccountSyncReady = Boolean(user);
       if (!user) return;
       const remoteFavorites = Array.isArray(user.user_metadata?.favorites) ? user.user_metadata.favorites : [];
-      state.favorites = uniqueFavorites([...state.favorites, ...remoteFavorites]);
+      const localFavorites = uniqueFavorites(state.favorites);
+
+      if (localFavorites.length) {
+        state.favorites = localFavorites;
+        persistFavorites({ skipRemote: true });
+        await saveFavoritesToAccount();
+        return;
+      }
+
+      state.favorites = uniqueFavorites(remoteFavorites);
       persistFavorites({ skipRemote: true });
-      await saveFavoritesToAccount();
     } catch (error) {
       console.warn('Favorites hydrate warning:', error);
     }
