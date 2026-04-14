@@ -2550,17 +2550,21 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 
 
 /* ============================================================
-   APPLE HERO — Full bleed image, left overlay copy
+   APPLE HERO — Framed product visual, synced sweep, premium motion
    ============================================================ */
 
 .hero-apple {
+  --hero-parallax: 0px;
+  --hero-tilt: 0deg;
   position: relative;
   min-height: calc(100vh - 120px);
   overflow: hidden;
   display: flex;
   align-items: center;
   isolation: isolate;
-  background: #f3ede6;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255,255,255,.54) 0%, rgba(255,255,255,0) 34%),
+    linear-gradient(180deg, #f7f1ea 0%, #f2ebe3 52%, #eee5db 100%);
 }
 
 .hero-apple::before {
@@ -2568,80 +2572,167 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 22% 44%, rgba(255,255,255,.24) 0%, rgba(255,255,255,0) 34%),
-    radial-gradient(circle at 81.8% 48.6%, rgba(255,255,255,.92) 0%, rgba(255,255,255,.42) 2.2%, rgba(255,255,255,.12) 4.2%, rgba(255,255,255,0) 8.5%);
-  pointer-events: none;
+    linear-gradient(90deg, rgba(247,241,234,.92) 0%, rgba(247,241,234,.82) 24%, rgba(247,241,234,.52) 42%, rgba(247,241,234,.08) 62%, rgba(247,241,234,0) 78%);
   z-index: -1;
+  pointer-events: none;
 }
 
 .hero-apple::after {
   content: "";
   position: absolute;
-  right: 12%;
-  bottom: 9%;
-  width: min(22vw, 260px);
-  height: min(3.2vw, 44px);
+  right: 10%;
+  bottom: 10%;
+  width: min(24vw, 300px);
+  height: min(3.4vw, 46px);
   border-radius: 999px;
-  background: radial-gradient(ellipse, rgba(74, 55, 35, .16) 0%, rgba(74, 55, 35, 0) 72%);
-  filter: blur(10px);
-  opacity: .42;
-  z-index: -1;
+  background: radial-gradient(ellipse, rgba(77, 59, 39, .18) 0%, rgba(77, 59, 39, 0) 72%);
+  filter: blur(12px);
+  opacity: .34;
+  z-index: 0;
   pointer-events: none;
 }
 
-.hero-apple__media {
+.hero-apple__ambient {
   position: absolute;
   inset: 0;
-  background-image: url('/assets/img/hero-serum-cosmoskin.png');
-  background-size: 78% auto;
-  background-position: 108% calc(100% + 8px);
-  background-repeat: no-repeat;
-  transform: scale(1);
-  animation: heroAppleFloat 14s ease-in-out infinite alternate;
-  z-index: -2;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-apple__ambient::before,
+.hero-apple__ambient::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(10px);
+}
+
+.hero-apple__ambient::before {
+  width: min(28vw, 360px);
+  height: min(28vw, 360px);
+  right: 18%;
+  top: 6%;
+  background: radial-gradient(circle, rgba(255,255,255,.58) 0%, rgba(255,255,255,.08) 42%, rgba(255,255,255,0) 72%);
+}
+
+.hero-apple__ambient::after {
+  width: min(22vw, 280px);
+  height: min(22vw, 280px);
+  right: 5%;
+  bottom: 3%;
+  background: radial-gradient(circle, rgba(223,207,188,.5) 0%, rgba(223,207,188,0) 72%);
+}
+
+.hero-apple__visual {
+  position: absolute;
+  right: clamp(28px, 6vw, 84px);
+  top: 50%;
+  transform: translate3d(0, calc(-50% + var(--hero-parallax)), 0) rotate(var(--hero-tilt));
+  width: clamp(380px, 38vw, 600px);
+  aspect-ratio: 0.82 / 1;
+  border-radius: 34px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.50) 0%, rgba(255,255,255,.12) 100%),
+    linear-gradient(160deg, #efe6db 0%, #e7dccf 54%, #ddd0c2 100%);
+  border: 1px solid rgba(255,255,255,.72);
+  box-shadow: 0 34px 110px rgba(19, 14, 10, .12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 1;
   will-change: transform;
 }
 
-.hero-apple__media::before {
+.hero-apple__visual::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: 14px;
+  border-radius: 26px;
   background:
-    linear-gradient(
-      90deg,
-      #f3ede6 0%,
-      rgba(243, 237, 230, .96) 16%,
-      rgba(243, 237, 230, .82) 28%,
-      rgba(243, 237, 230, .52) 42%,
-      rgba(243, 237, 230, .18) 56%,
-      rgba(243, 237, 230, 0) 70%
-    );
-  z-index: 1;
+    radial-gradient(circle at 24% 18%, rgba(255,255,255,.62) 0%, rgba(255,255,255,0) 22%),
+    linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.42);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+  pointer-events: none;
 }
 
-.hero-apple__media::after {
+.hero-apple__visual::after {
   content: "";
   position: absolute;
-  top: -10%;
-  left: -26%;
-  width: 26%;
-  height: 124%;
-  transform: skewX(-14deg);
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.06) 28%,
-    rgba(255,255,255,.34) 48%,
-    rgba(255,255,255,.78) 52%,
-    rgba(255,255,255,.30) 56%,
-    rgba(255,255,255,.06) 74%,
-    rgba(255,255,255,0) 100%
-  );
+  top: -12%;
+  left: -32%;
+  width: 24%;
+  height: 128%;
+  transform: skewX(-18deg) translateX(0);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 30%, rgba(255,255,255,.80) 50%, rgba(255,255,255,.18) 70%, rgba(255,255,255,0) 100%);
   filter: blur(2px);
+  opacity: 0;
   mix-blend-mode: screen;
-  animation: heroAppleSweep 8.8s ease-in-out infinite;
-  z-index: 2;
   pointer-events: none;
+  animation: heroFrameSweep 5.8s cubic-bezier(.22, .61, .36, 1) infinite;
+  z-index: 4;
+}
+
+.hero-apple__frame-glow {
+  position: absolute;
+  inset: auto;
+  width: 42%;
+  height: 16%;
+  left: 50%;
+  bottom: 8.5%;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: radial-gradient(ellipse, rgba(255,255,255,.52) 0%, rgba(255,255,255,.10) 38%, rgba(255,255,255,0) 72%);
+  filter: blur(16px);
+  opacity: .72;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-product-img {
+  position: relative;
+  width: 74%;
+  height: auto;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 24px 42px rgba(19, 14, 10, .16));
+  animation: heroBottleFloat 5.8s ease-in-out infinite;
+  z-index: 3;
+}
+
+.hero-apple__drop {
+  position: absolute;
+  top: 16%;
+  right: 23%;
+  width: 20px;
+  height: 30px;
+  border-radius: 50% 50% 58% 58% / 42% 42% 68% 68%;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,255,255,.96) 0%, rgba(255,255,255,.54) 24%, rgba(255,255,255,0) 48%),
+    linear-gradient(180deg, rgba(255,255,255,.88) 0%, rgba(255,255,255,.38) 58%, rgba(255,255,255,.10) 100%);
+  box-shadow: 0 0 18px rgba(255,255,255,.42);
+  filter: blur(.2px);
+  opacity: .86;
+  pointer-events: none;
+  z-index: 5;
+  animation: heroDropPulse 5.8s cubic-bezier(.22, .61, .36, 1) infinite;
+}
+
+.hero-apple__drop::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: 88px;
+  height: 88px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255,255,255,.75) 0%, rgba(255,255,255,.24) 24%, rgba(255,255,255,0) 70%);
+  filter: blur(16px);
+  opacity: .58;
+  animation: heroDropGlow 5.8s cubic-bezier(.22, .61, .36, 1) infinite;
 }
 
 .hero-apple__inner {
@@ -2656,8 +2747,6 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 }
 
 .hero-apple__copy {
-  position: relative;
-  z-index: 3;
   max-width: 520px;
   padding-top: clamp(12px, 3vh, 40px);
 }
@@ -2696,7 +2785,7 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: heroAccentShine 5.2s ease-in-out infinite;
+  animation: heroAccentShine 5.8s ease-in-out infinite;
 }
 
 .hero-apple__word--accent::after {
@@ -2712,7 +2801,7 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   mix-blend-mode: screen;
   opacity: 0;
   pointer-events: none;
-  animation: heroAccentSweep 5.2s ease-in-out infinite;
+  animation: heroAccentSweep 5.8s ease-in-out infinite;
 }
 
 .hero-apple__sub {
@@ -2731,60 +2820,54 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   margin-top: 30px;
 }
 
-@keyframes heroAppleFloat {
-  0% {
-    transform: scale(1) translateY(0);
-  }
-  100% {
-    transform: scale(1.01) translateY(-4px);
-  }
+@keyframes heroBottleFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
 }
 
-
 @keyframes heroAccentShine {
-  0%, 100% {
-    background-position: 120% 50%;
-  }
-  50% {
-    background-position: -20% 50%;
-  }
+  0%, 100% { background-position: 120% 50%; }
+  50% { background-position: -20% 50%; }
 }
 
 @keyframes heroAccentSweep {
-  0%, 18% {
-    left: -22%;
-    opacity: 0;
+  0%, 18% { left: -22%; opacity: 0; }
+  28% { opacity: .98; }
+  50% { left: 116%; opacity: .72; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes heroFrameSweep {
+  0%, 14% { transform: skewX(-18deg) translateX(0); opacity: 0; }
+  24% { opacity: .92; }
+  50% { transform: skewX(-18deg) translateX(560%); opacity: .62; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes heroDropPulse {
+  0%, 16% {
+    transform: translate3d(0, 0, 0) scale(.92);
+    opacity: .34;
   }
-  28% {
-    opacity: .98;
+  26% {
+    transform: translate3d(0, 2px, 0) scale(1.02);
+    opacity: .96;
   }
-  50% {
-    left: 116%;
-    opacity: .72;
+  36% {
+    transform: translate3d(0, 16px, 0) scale(.86);
+    opacity: .18;
   }
-  51%, 100% {
-    opacity: 0;
+  37%, 100% {
+    transform: translate3d(0, 0, 0) scale(.92);
+    opacity: .34;
   }
 }
 
-@keyframes heroAppleSweep {
-  0%, 100% {
-    left: -26%;
-    opacity: 0;
-  }
-  12% {
-    opacity: 0;
-  }
-  26% {
-    opacity: .95;
-  }
-  48% {
-    left: 118%;
-    opacity: .58;
-  }
-  49%, 100% {
-    opacity: 0;
-  }
+@keyframes heroDropGlow {
+  0%, 16% { opacity: .18; transform: translate(-50%, -50%) scale(.76); }
+  26% { opacity: .72; transform: translate(-50%, -50%) scale(1); }
+  36% { opacity: .08; transform: translate(-50%, -50%) scale(1.18); }
+  37%, 100% { opacity: .18; transform: translate(-50%, -50%) scale(.76); }
 }
 
 @media (min-width: 1200px) {
@@ -2797,73 +2880,83 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   }
 }
 
+@media (max-width: 1199px) {
+  .hero-apple__visual {
+    right: clamp(20px, 4vw, 40px);
+    width: clamp(340px, 40vw, 500px);
+  }
+}
+
 @media (max-width: 991px) {
   .hero-apple {
-    min-height: 82vh;
-    background: #f3ede6;
+    min-height: auto;
+    padding-top: 24px;
   }
 
   .hero-apple::before {
-    background:
-      radial-gradient(circle at 28% 26%, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 28%),
-      radial-gradient(circle at 77% 60%, rgba(255,255,255,.62) 0%, rgba(255,255,255,.22) 3%, rgba(255,255,255,0) 7%);
+    background: linear-gradient(180deg, rgba(247,241,234,.86) 0%, rgba(247,241,234,.54) 28%, rgba(247,241,234,.18) 52%, rgba(247,241,234,0) 74%);
   }
 
   .hero-apple__inner {
-    min-height: 82vh;
+    min-height: auto;
     align-items: flex-start;
     padding-top: 72px;
-    padding-bottom: 42px;
-  }
-
-  .hero-apple__media {
-    background-size: 96% auto;
-    background-position: 92% calc(100% + 8px);
+    padding-bottom: 48px;
   }
 
   .hero-apple__copy {
     max-width: 460px;
   }
+
+  .hero-apple__visual {
+    position: relative;
+    top: auto;
+    right: auto;
+    transform: translate3d(0, 0, 0);
+    width: min(100%, 520px);
+    margin: 18px auto 0;
+  }
+
+  .hero-apple__inner {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .hero-apple__copy {
+    width: 100%;
+  }
 }
 
 @media (max-width: 767px) {
   .hero-apple {
-    min-height: 78vh;
-    background: #f3ede6;
-  }
-
-  .hero-apple::before {
-    background:
-      radial-gradient(circle at 50% 14%, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 26%),
-      radial-gradient(circle at 73% 64%, rgba(255,255,255,.44) 0%, rgba(255,255,255,.14) 2.8%, rgba(255,255,255,0) 7%);
+    padding-bottom: 10px;
   }
 
   .hero-apple__inner {
-    min-height: 78vh;
-    align-items: flex-start;
     padding-top: 56px;
     padding-bottom: 36px;
+    gap: 20px;
   }
 
-  .hero-apple__media {
-    background-size: 116% auto;
-    background-position: 76% calc(100% + 6px);
-    animation: heroAppleZoomMobile 16s ease-in-out infinite alternate;
+  .hero-apple__visual {
+    width: min(100%, 420px);
+    border-radius: 28px;
   }
 
-  .hero-apple__media::before {
-    background:
-      linear-gradient(
-        180deg,
-        rgba(243, 237, 230, .92) 0%,
-        rgba(243, 237, 230, .66) 22%,
-        rgba(243, 237, 230, .28) 44%,
-        rgba(243, 237, 230, 0) 64%
-      );
+  .hero-apple__visual::before {
+    inset: 12px;
+    border-radius: 22px;
   }
 
-  .hero-apple__media::after {
-    display: none;
+  .hero-product-img {
+    width: 78%;
+  }
+
+  .hero-apple__drop {
+    top: 17%;
+    right: 19%;
+    width: 16px;
+    height: 24px;
   }
 
   .hero-apple__copy h1 {
@@ -2883,18 +2976,19 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   }
 }
 
-@keyframes heroAppleZoomMobile {
-  0% {
-    transform: scale(1) translateY(0);
+@media (prefers-reduced-motion: reduce) {
+  .hero-product-img,
+  .hero-apple__visual,
+  .hero-apple__visual::after,
+  .hero-apple__word--accent,
+  .hero-apple__word--accent::after,
+  .hero-apple__drop,
+  .hero-apple__drop::after {
+    animation: none !important;
   }
-  100% {
-    transform: scale(1.012) translateY(-3px);
+
+  .hero-apple__visual {
+    transform: translate3d(0, 0, 0) !important;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .hero-apple__media,
-  .hero-apple__media::after {
-    animation: none !important;
-  }
-}

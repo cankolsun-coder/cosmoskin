@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="tr"><head><title>Cosmoskin | Seçilmiş Kore Cilt Bakımı</title><meta name="description" content="Seçilmiş Kore cilt bakım ürünlerini sade, güvenli ve premium bir alışveriş deneyimiyle sunan Cosmoskin."/><meta property="og:title" content="Cosmoskin | Seçilmiş Kore Cilt Bakımı"><meta property="og:description" content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar, güvenli ödeme ve premium alışveriş deneyimi."><meta property="og:image" content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a"><meta property="og:url" content="https://www.cosmoskin.com.tr/"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Cosmoskin | Seçilmiş Kore Cilt Bakımı"><meta name="twitter:description" content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar ve premium alışveriş deneyimi."><meta name="twitter:image" content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a"><link rel="canonical" href="https://www.cosmoskin.com.tr/"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f2ece4"><meta name="twitter:site" content="@cosmoskin.tr"><meta name="robots" content="index, follow"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="icon" href="/favicon.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="manifest" href="/site.webmanifest"><link rel="stylesheet" href="/assets/style.css?v=20260411b">
+<!DOCTYPE html><html lang="tr"><head><title>Cosmoskin | Seçilmiş Kore Cilt Bakımı</title><meta name="description" content="Seçilmiş Kore cilt bakım ürünlerini sade, güvenli ve premium bir alışveriş deneyimiyle sunan Cosmoskin."/><meta property="og:title" content="Cosmoskin | Seçilmiş Kore Cilt Bakımı"><meta property="og:description" content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar, güvenli ödeme ve premium alışveriş deneyimi."><meta property="og:image" content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a"><meta property="og:url" content="https://www.cosmoskin.com.tr/"><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Cosmoskin | Seçilmiş Kore Cilt Bakımı"><meta name="twitter:description" content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar ve premium alışveriş deneyimi."><meta name="twitter:image" content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a"><link rel="canonical" href="https://www.cosmoskin.com.tr/"><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#f2ece4"><meta name="twitter:site" content="@cosmoskin.tr"><meta name="robots" content="index, follow"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="icon" href="/favicon.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="shortcut icon" href="/favicon.ico"><link rel="manifest" href="/site.webmanifest"><link rel="stylesheet" href="/assets/style.css?v=20260414d">
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J"></script>
@@ -176,7 +176,12 @@
 <div class="mobile-nav" id="mobileNav"><a href="/index.html">Anasayfa</a><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek Merkezi</a></div><main>
 
 <section class="hero-apple" id="heroSection">
-  <div class="hero-apple__media" aria-hidden="true"></div>
+  <div class="hero-apple__ambient" aria-hidden="true"></div>
+  <div class="hero-apple__visual" aria-hidden="true">
+    <span class="hero-apple__frame-glow"></span>
+    <span class="hero-apple__drop"></span>
+    <img src="/assets/img/cosmoskin-hero.webp?v=20260414d" alt="" class="hero-product-img">
+  </div>
 
   <div class="container hero-apple__inner">
     <div class="hero-apple__copy reveal">
@@ -213,5 +218,34 @@
 <script type="module" src="/assets/auth.js?v=20260411b"></script>
 <script src="/assets/app.js?v=20260411b"></script><script src="/assets/commerce.js?v=20260411b"></script>
 
+
+<script>
+(function () {
+  const hero = document.getElementById('heroSection');
+  if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  let ticking = false;
+
+  function updateHeroMotion() {
+    const rect = hero.getBoundingClientRect();
+    const viewportH = window.innerHeight || document.documentElement.clientHeight;
+    const progress = Math.max(-1, Math.min(1, (viewportH * 0.5 - rect.top) / (viewportH + rect.height)));
+    hero.style.setProperty('--hero-parallax', `${(progress * 18).toFixed(2)}px`);
+    hero.style.setProperty('--hero-tilt', `${(progress * -2.2).toFixed(2)}deg`);
+    ticking = false;
+  }
+
+  function onScroll() {
+    if (!ticking) {
+      window.requestAnimationFrame(updateHeroMotion);
+      ticking = true;
+    }
+  }
+
+  updateHeroMotion();
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+})();
+</script>
 
 </body></html>
