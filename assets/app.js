@@ -159,37 +159,53 @@
     if (e.key === 'Escape') {
       closeDrawers();
       closeModals();
-      $('.shop-wrap')?.classList.remove('open');
+      document.querySelectorAll('.nav-dropdown.open').forEach((item) => {
+        item.classList.remove('open');
+        item.querySelector('button')?.setAttribute('aria-expanded', 'false');
+      });
       mobileNav?.classList.remove('open');
       document.body.classList.remove('modal-open');
     }
   });
 
-  const shopWrap = $('.shop-wrap');
-  if (shopWrap) {
-    const trigger = shopWrap.querySelector('.shop-trigger');
+  const dropdowns = Array.from(document.querySelectorAll('.nav-dropdown'));
+  dropdowns.forEach((wrap) => {
+    const trigger = wrap.querySelector('button');
     const openMenu = () => {
       clearTimeout(megaTimer);
-      shopWrap.classList.add('open');
+      dropdowns.forEach((item) => {
+        if (item !== wrap) {
+          item.classList.remove('open');
+          item.querySelector('button')?.setAttribute('aria-expanded', 'false');
+        }
+      });
+      wrap.classList.add('open');
       trigger?.setAttribute('aria-expanded', 'true');
     };
     const closeMenu = () => {
       clearTimeout(megaTimer);
       megaTimer = setTimeout(() => {
-        shopWrap.classList.remove('open');
+        wrap.classList.remove('open');
         trigger?.setAttribute('aria-expanded', 'false');
       }, 140);
     };
 
     trigger?.addEventListener('click', (e) => {
       e.preventDefault();
-      shopWrap.classList.toggle('open');
-      trigger.setAttribute('aria-expanded', shopWrap.classList.contains('open') ? 'true' : 'false');
+      const isOpen = wrap.classList.contains('open');
+      dropdowns.forEach((item) => {
+        item.classList.remove('open');
+        item.querySelector('button')?.setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        wrap.classList.add('open');
+        trigger.setAttribute('aria-expanded', 'true');
+      }
     });
 
-    shopWrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
-    shopWrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
-  }
+    wrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
+    wrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
+  });
 
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));

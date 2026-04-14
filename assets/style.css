@@ -246,6 +246,24 @@ button, input, textarea, select { font: inherit; cursor: pointer; }
 
 /* Mega dropdown */
 .shop-wrap { position: relative; }
+.shop-wrap, .brand-wrap { position: relative; }
+
+.mega--brands {
+  width: min(980px, calc(100vw - 48px));
+  grid-template-columns: 1fr 1fr .95fr;
+}
+
+.mega--brands h4 {
+  margin-bottom: 14px;
+}
+
+.mega--brands a {
+  min-height: 88px;
+}
+
+.mega-side--brands {
+  background: linear-gradient(180deg, rgba(244,236,226,.9) 0%, rgba(255,252,247,.98) 100%);
+}
 
 .mega {
   position: absolute;
