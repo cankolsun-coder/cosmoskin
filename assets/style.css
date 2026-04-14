@@ -2575,11 +2575,11 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   position: absolute;
   inset: 0;
   background-image: url('/assets/img/hero-serum-cosmoskin.png');
-  background-size: cover;
-  background-position: 72% center;
+  background-size: 92% auto;
+  background-position: 112% bottom;
   background-repeat: no-repeat;
-  transform: scale(1.02);
-  animation: heroAppleZoom 18s cubic-bezier(.22,.61,.36,1) infinite alternate;
+  transform: scale(1);
+  animation: heroAppleFloat 14s ease-in-out infinite alternate;
   z-index: -2;
   will-change: transform;
 }
@@ -2661,6 +2661,36 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   max-width: 8ch;
 }
 
+.hero-apple__word {
+  position: relative;
+  display: inline-block;
+}
+
+.hero-apple__word--accent {
+  color: #b08a5e;
+  background: linear-gradient(90deg, #9f8251 0%, #f4e3bf 18%, #b08a5e 36%, #fff6df 50%, #b08a5e 64%, #9f8251 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: heroAccentShine 5.2s ease-in-out infinite;
+}
+
+.hero-apple__word--accent::after {
+  content: "";
+  position: absolute;
+  top: 6%;
+  left: -18%;
+  width: 34%;
+  height: 88%;
+  transform: skewX(-18deg);
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.18) 32%, rgba(255,255,255,.9) 52%, rgba(255,255,255,.18) 72%, rgba(255,255,255,0) 100%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  animation: heroAccentSweep 5.2s ease-in-out infinite;
+}
+
 .hero-apple__sub {
   margin: 18px 0 0;
   max-width: 28ch;
@@ -2677,12 +2707,39 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   margin-top: 30px;
 }
 
-@keyframes heroAppleZoom {
+@keyframes heroAppleFloat {
   0% {
-    transform: scale(1.02);
+    transform: scale(1) translateY(0);
   }
   100% {
-    transform: scale(1.07);
+    transform: scale(1.02) translateY(-6px);
+  }
+}
+
+
+@keyframes heroAccentShine {
+  0%, 100% {
+    background-position: 120% 50%;
+  }
+  50% {
+    background-position: -20% 50%;
+  }
+}
+
+@keyframes heroAccentSweep {
+  0%, 18% {
+    left: -18%;
+    opacity: 0;
+  }
+  28% {
+    opacity: .95;
+  }
+  50% {
+    left: 112%;
+    opacity: .65;
+  }
+  51%, 100% {
+    opacity: 0;
   }
 }
 
@@ -2736,7 +2793,8 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   }
 
   .hero-apple__media {
-    background-position: 68% center;
+    background-size: 110% auto;
+    background-position: 88% bottom;
   }
 
   .hero-apple__copy {
@@ -2757,7 +2815,8 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
   }
 
   .hero-apple__media {
-    background-position: 74% center;
+    background-size: 132% auto;
+    background-position: 82% bottom;
     animation: heroAppleZoomMobile 16s ease-in-out infinite alternate;
   }
 
@@ -2795,10 +2854,10 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 
 @keyframes heroAppleZoomMobile {
   0% {
-    transform: scale(1.01);
+    transform: scale(1) translateY(0);
   }
   100% {
-    transform: scale(1.045);
+    transform: scale(1.025) translateY(-4px);
   }
 }
 
