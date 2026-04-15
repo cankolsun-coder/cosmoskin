@@ -679,9 +679,11 @@ function broadcastFavoritesChange() {
       const ok = response.ok && payload.ok;
 
       if (status) {
-        status.textContent = payload.message || (ok
-          ? 'Mesajınız başarıyla gönderildi.'
-          : `Şu anda form kullanılamıyor. Lütfen ${fallbackEmail} üzerinden iletişime geçin.`);
+        status.textContent = ok
+          ? (payload.referenceCode
+              ? `Mesajınız gönderildi. Referans kodunuz: ${payload.referenceCode}. Onay e-postası tarafınıza iletildi.`
+              : (payload.message || 'Mesajınız başarıyla gönderildi.'))
+          : (payload.message || `Şu anda form kullanılamıyor. Lütfen ${fallbackEmail} üzerinden iletişime geçin.`);
       }
 
       if (ok) {
