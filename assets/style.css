@@ -3688,3 +3688,75 @@ button[disabled] { opacity: 0.72; cursor: wait; }
 .favorite-btn {
   z-index: 8;
 }
+
+
+/* Footer commerce assurance */
+.footer-assurance {
+  max-width: var(--container);
+  margin: 18px auto 0;
+  padding: 18px 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-top: 1px solid rgba(237, 230, 220, .10);
+}
+
+.footer-trust {
+  display: grid;
+  gap: 7px;
+}
+
+.footer-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(237, 230, 220, .12);
+  color: #f3eee7;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.footer-trust-badge svg {
+  width: 15px;
+  height: 15px;
+  color: #c8a96a;
+  flex: 0 0 auto;
+}
+
+.footer-trust-note {
+  font-size: 12px;
+  line-height: 1.7;
+  color: rgba(237, 230, 220, .68);
+}
+
+.payment-methods {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.payment-method {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 32px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.payment-method svg {
+  display: block;
+  width: 96px;
+  height: 32px;
+}
