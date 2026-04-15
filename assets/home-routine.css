@@ -39,5 +39,3 @@
 .home-routine__bundle-btn{white-space:nowrap}
 @media (max-width:1120px){.home-routine__intro,.home-routine__layout,.home-routine__footer{grid-template-columns:1fr}.home-routine__bundle{align-items:flex-start}}
 @media (max-width:720px){.home-routine{padding-top:14px}.home-routine__builder,.home-routine__result{padding:22px;border-radius:24px}.home-routine__columns{grid-template-columns:1fr}.home-routine__result-head{flex-direction:column}.home-routine__bundle{flex-direction:column}.home-routine__actions .btn,.home-routine__bundle-btn{width:100%;justify-content:center}}
-
-.home-routine__lede{max-width:60ch;line-height:1.8}.home-routine__result h3{font-family:var(--serif);font-weight:400;letter-spacing:-.02em}.home-routine__summary{line-height:1.8}.home-routine__recommendations span{box-shadow:0 8px 18px rgba(26,21,16,.05)}
