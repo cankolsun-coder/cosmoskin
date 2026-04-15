@@ -64,6 +64,23 @@
   const mobileNav = $('#mobileNav');
   let megaTimer;
 
+  function closeAllMegaMenus(exceptWrap = null) {
+    ['.categories-wrap', '.brands-wrap'].forEach((selector) => {
+      const wrap = $(selector);
+      if (!wrap || wrap === exceptWrap) return;
+      wrap.classList.remove('open');
+    });
+    [
+      ['.categories-wrap', '.categories-trigger'],
+      ['.brands-wrap', '.brands-trigger']
+    ].forEach(([wrapSelector, triggerSelector]) => {
+      const wrap = $(wrapSelector);
+      const trigger = wrap?.querySelector(triggerSelector);
+      if (!trigger) return;
+      trigger.setAttribute('aria-expanded', wrap?.classList.contains('open') ? 'true' : 'false');
+    });
+  }
+
   function fmt(n) {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
@@ -106,7 +123,7 @@
   backdrop?.addEventListener('click', () => {
     closeDrawers();
     closeModals();
-    $('.shop-wrap')?.classList.remove('open');
+    closeAllMegaMenus();
     mobileNav?.classList.remove('open');
     document.body.classList.remove('modal-open');
   });
@@ -159,7 +176,7 @@
     if (e.key === 'Escape') {
       closeDrawers();
       closeModals();
-      $('.shop-wrap')?.classList.remove('open');
+      closeAllMegaMenus();
       mobileNav?.classList.remove('open');
       document.body.classList.remove('modal-open');
     }
@@ -171,6 +188,7 @@
     const trigger = wrap.querySelector(triggerSelector);
     const openMenu = () => {
       clearTimeout(megaTimer);
+      closeAllMegaMenus(wrap);
       wrap.classList.add('open');
       trigger?.setAttribute('aria-expanded', 'true');
     };
@@ -183,148 +201,143 @@
     };
     trigger?.addEventListener('click', (e) => {
       e.preventDefault();
-      wrap.classList.toggle('open');
-      trigger?.setAttribute('aria-expanded', wrap.classList.contains('open') ? 'true' : 'false');
+      const willOpen = !wrap.classList.contains('open');
+      closeAllMegaMenus(willOpen ? wrap : null);
+      wrap.classList.toggle('open', willOpen);
+      trigger?.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
     wrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
     wrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
   }
 
-  function enhanceHeaderNavigation() {
-    const header = document.querySelector('.header');
-    const nav = header?.querySelector('.nav');
-    if (!header || !nav || nav.dataset.enhanced === 'true') return;
+  bindMegaMenu('.categories-wrap', '.categories-trigger');
+  bindMegaMenu('.brands-wrap', '.brands-trigger');
 
-    const normalize = (value) => String(value || '')
+  const SEARCH_INDEX = [
+    { label: '1025 Dokdo Cleanser', type: 'Ürün', url: '/collections/cleanse.html', keywords: 'round lab dokdo cleanser nazik temizleyici yuz temizleme', meta: 'Round Lab · Nazik günlük temizleme', badge: 'Ürün' },
+    { label: 'DIVE-IN Serum', type: 'Ürün', url: '/collections/hydrate.html', keywords: 'torriden serum nem hyaluronic hyaluronik', meta: 'Torriden · Katmanlı nem serumu', badge: 'Ürün' },
+    { label: 'The Vitamin C 23 Serum', type: 'Ürün', url: '/collections/treat.html', keywords: 'cosrx vitamin c leke esit ton brightening serum', meta: 'COSRX · Işıltı ve ton eşitleme', badge: 'Ürün' },
+    { label: 'Glow Serum', type: 'Ürün', url: '/collections/treat.html', keywords: 'beauty of joseon glow serum niacinamide propolis isilti', meta: 'Beauty of Joseon · Glow odaklı serum', badge: 'Ürün' },
+    { label: 'Relief Sun SPF50+ PA++++', type: 'Ürün', url: '/collections/protect.html', keywords: 'beauty of joseon sunscreen spf gunes kremi gunes bakimi', meta: 'Beauty of Joseon · Günlük koruma', badge: 'Ürün' },
+    { label: 'DIVE-IN Watery Sun Serum', type: 'Ürün', url: '/collections/protect.html', keywords: 'torriden watery sun serum spf gunes koruyucu', meta: 'Torriden · Hafif SPF seçkisi', badge: 'Ürün' },
+    { label: 'Temizleyiciler', type: 'Kategori', url: '/collections/cleanse.html', keywords: 'cleanser jel kopuk yag bazli makyaj temizleyici arindirici', meta: 'Jel, köpük ve çift temizleme', badge: 'Kategori' },
+    { label: 'Tonik & Essence', type: 'Kategori', url: '/collections/hydrate.html', keywords: 'tonik essence esans nem katmanlari hydrate', meta: 'Hafif nem ve hazırlık katmanları', badge: 'Kategori' },
+    { label: 'Serum & Ampul', type: 'Kategori', url: '/collections/treat.html', keywords: 'serum ampul hedef bakim leke isilti', meta: 'Leke, ton ve ışıltı odaklı serumlar', badge: 'Kategori' },
+    { label: 'Nemlendiriciler', type: 'Kategori', url: '/collections/care.html', keywords: 'nemlendirici krem bariyer goz cevresi care', meta: 'Krem ve destek bakım ürünleri', badge: 'Kategori' },
+    { label: 'Güneş Koruyucular', type: 'Kategori', url: '/collections/protect.html', keywords: 'gunes bakimi gunes kremi spf sun sunscreen protect', meta: 'Şehir kullanımına uygun SPF seçkileri', badge: 'Kategori' },
+    { label: 'Maskeler', type: 'Kategori', url: '/collections/care.html', keywords: 'yuz maskesi sheet mask support care', meta: 'Maskeler ve destek bakım editleri', badge: 'Kategori' },
+    { label: 'Kuru Cilt', type: 'Cilt Tipi', url: '/collections/hydrate.html', keywords: 'dry skin kuru cilt nemsizlik barrier', meta: 'Nem ve konfor odaklı seçkiler', badge: 'Cilt Tipi' },
+    { label: 'Yağlı Cilt', type: 'Cilt Tipi', url: '/collections/protect.html', keywords: 'oily skin yagli cilt sebum parlama hafif spf', meta: 'Daha hafif ve dengeli seçimler', badge: 'Cilt Tipi' },
+    { label: 'Hassas Cilt', type: 'Cilt Tipi', url: '/collections/care.html', keywords: 'sensitive skin hassas cilt centella bariyer', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'Cilt Tipi' },
+    { label: 'Nemsizlik', type: 'Cilt Problemi', url: '/collections/hydrate.html', keywords: 'dehydration nemsizlik hyaluronic acid essence', meta: 'Dolgun görünüm ve su tutma desteği', badge: 'Cilt Problemi' },
+    { label: 'Leke Görünümü', type: 'Cilt Problemi', url: '/collections/treat.html', keywords: 'tone leke gorunumu vitamin c niacinamide serum', meta: 'Daha eşit ton görünümü için serumlar', badge: 'Cilt Problemi' },
+    { label: 'Akne Eğilimi', type: 'Cilt Problemi', url: '/collections/treat.html', keywords: 'blemish acne akne egilimi salicylic acid pore', meta: 'Gözenek ve akne eğilimine uygun bakım', badge: 'Cilt Problemi' },
+    { label: 'Hyaluronic Acid', type: 'İçerik', url: '/collections/hydrate.html', keywords: 'hyaluronic acid hyaluronik nem ingredient', meta: 'Nem ve dolgun görünüm desteği', badge: 'İçerik' },
+    { label: 'Niacinamide', type: 'İçerik', url: '/collections/treat.html', keywords: 'niacinamide tone glow leke ingredient', meta: 'Ton eşitliği ve görünüm dengesi', badge: 'İçerik' },
+    { label: 'Centella Asiatica', type: 'İçerik', url: '/collections/care.html', keywords: 'centella asiatica cica hassasiyet ingredient', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'İçerik' },
+    { label: 'Salicylic Acid', type: 'İçerik', url: '/collections/treat.html', keywords: 'salicylic acid bha akne gozenek ingredient', meta: 'Akne eğilimi ve gözenek desteği', badge: 'İçerik' },
+    { label: 'Round Lab', type: 'Marka', url: '/collections/cleanse.html', keywords: 'marka round lab', meta: 'Nazik temizleme ve günlük denge', badge: 'Marka' },
+    { label: 'Torriden', type: 'Marka', url: '/collections/hydrate.html', keywords: 'marka torriden', meta: 'Nem odaklı serum ve SPF', badge: 'Marka' },
+    { label: 'COSRX', type: 'Marka', url: '/collections/treat.html', keywords: 'marka cosrx', meta: 'Essence ve hedef bakım ikonları', badge: 'Marka' },
+    { label: 'Beauty of Joseon', type: 'Marka', url: '/collections/protect.html', keywords: 'marka beauty of joseon boj', meta: 'Glow ve hafif SPF seçkileri', badge: 'Marka' },
+    { label: 'Rutinler', type: 'Sayfa', url: '/collections/routine.html', keywords: 'rutinler routine cilt bakim rutini sabah aksam', meta: 'Hazır sabah-akşam akışları', badge: 'Sayfa' },
+    { label: 'Destek Merkezi', type: 'Sayfa', url: '/contact.html', keywords: 'destek merkez iletisim yardim partnership', meta: 'İletişim ve iş ortaklığı formları', badge: 'Sayfa' }
+    ];
+
+  function normalizeSearchValue(value) {
+    return String(value || '')
       .toLocaleLowerCase('tr-TR')
-      .normalize('NFD')
-      .replace(/[̀-ͯ]/g, '');
+      .replace(/ç/g, 'c')
+      .replace(/ğ/g, 'g')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ş/g, 's')
+      .replace(/ü/g, 'u')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
 
-    nav.dataset.enhanced = 'true';
+  function findSearchMatches(query) {
+    const normalized = normalizeSearchValue(query);
+    if (!normalized) return [];
+    return SEARCH_INDEX.map((item) => {
+      const haystack = normalizeSearchValue(`${item.label} ${item.type} ${item.keywords || ''}`);
+      let score = 0;
+      if (normalizeSearchValue(item.label) === normalized) score += 120;
+      if (normalizeSearchValue(item.label).startsWith(normalized)) score += 80;
+      if (haystack.includes(normalized)) score += 42;
+      normalized.split(' ').forEach((token) => {
+        if (!token) return;
+        if (haystack.includes(token)) score += 14;
+      });
+      return { ...item, score };
+    }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 6);
+  }
 
-    Array.from(nav.children).forEach((item) => {
-      const label = normalize(item.textContent);
-      if (label.includes('one cikan')) {
-        item.remove();
-      }
-    });
-
-    const categoriesItem = Array.from(nav.children).find((item) => normalize(item.textContent).includes('kategoriler'));
-    if (categoriesItem && !categoriesItem.classList.contains('categories-wrap')) {
-      categoriesItem.classList.add('categories-wrap');
-      categoriesItem.innerHTML = `
-        <button class="linkish categories-trigger" aria-expanded="false">Kategoriler</button>
-        <div class="mega categories-mega">
-          <div>
-            <h4>Cilt Bakımı</h4>
-            <a href="/collections/care.html">Yüz Maskesi<span>Yoğun bakım, nem ve toparlama odaklı maske seçkileri</span></a>
-            <a href="/collections/cleanse.html">Makyaj Temizleyici ve Arındırıcı<span>Yağ, jel ve köpük temizleyicilerle nazik arındırma</span></a>
-          </div>
-          <div>
-            <h4>Koruma</h4>
-            <a href="/collections/protect.html">Güneş Bakımı ve Güneş Kremi<span>Şehir kullanımına uygun, hafif dokulu günlük SPF ürünleri</span></a>
-            <a href="/collections/routine.html">Çok Satanlar<span>En sık tercih edilen serum, essence ve SPF ürünleri</span></a>
-          </div>
-          <div class="mega-side">
-            <small>Kategoriler</small>
-            <strong>Aradığını daha hızlı<br>bulan temiz gezinme.</strong>
-            <p>Kategori bazlı sade yapı; ürünleri ihtiyaç, doku ve kullanım anına göre daha net ayırır.</p>
-            <a class="btn btn-secondary" href="/collections/routine.html">Kategorileri Gör</a>
-          </div>
-        </div>`;
+  function renderSearchResults(container, results) {
+    if (!container) return;
+    if (!results.length) {
+      container.innerHTML = '<div class="site-search-empty"><strong>Sonuç bulunamadı.</strong><span>Farklı bir ürün, kategori, içerik veya marka deneyin.</span><a class="site-search-empty__link" href="/collections/routine.html">Rutinleri incele</a></div>';
+      container.hidden = false;
+      return;
     }
+    container.innerHTML = results.map((item) => `
+      <a class="site-search-result" href="${item.url}">
+        <span class="site-search-result__badge">${item.badge || item.type}</span>
+        <div class="site-search-result__body">
+          <span class="site-search-result__type">${item.type}</span>
+          <strong>${item.label}</strong>
+          <span class="site-search-result__meta">${item.meta || ''}</span>
+        </div>
+        <span class="site-search-result__arrow" aria-hidden="true">→</span>
+      </a>`).join('') + '<a class="site-search-results__all" href="/collections/routine.html">Tüm rutinleri görüntüle</a>';
+    container.hidden = false;
+  }
 
-    if (!nav.querySelector('.nav-search-item')) {
-      const searchItem = document.createElement('li');
-      searchItem.className = 'nav-search-item';
-      searchItem.innerHTML = `
-        <form class="nav-search" role="search" aria-label="Ürün ara">
-          <span class="nav-search__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4.2 4.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-          </span>
-          <input class="nav-search__input" type="search" placeholder="Ürün ara" aria-label="Ürün ara" autocomplete="off">
-          <button class="nav-search__clear" type="button" aria-label="Aramayı temizle">Sil</button>
-        </form>`;
-      nav.prepend(searchItem);
+  function bindSiteSearch() {
+    $$('.site-search-form').forEach((form) => {
+      const input = form.querySelector('.site-search-input');
+      const clearBtn = form.querySelector('.site-search-clear');
+      const resultsBox = form.querySelector('.site-search-results');
+      if (!input || !clearBtn || !resultsBox) return;
 
-      const form = searchItem.querySelector('.nav-search');
-      const input = searchItem.querySelector('.nav-search__input');
-      const clearBtn = searchItem.querySelector('.nav-search__clear');
-      const routes = [
-        { keywords: ['maske', 'mask'], href: '/collections/care.html' },
-        { keywords: ['makyaj temizleyici', 'temizleyici', 'arindirici', 'cleanser'], href: '/collections/cleanse.html' },
-        { keywords: ['gunes', 'spf', 'sun', 'koruma'], href: '/collections/protect.html' },
-        { keywords: ['serum', 'nem', 'hyaluronic', 'hyaluronik', 'torriden'], href: '/collections/hydrate.html' },
-        { keywords: ['vitamin c', 'c vitamini', 'glow', 'leke', 'bakim'], href: '/collections/treat.html' },
-        { keywords: ['cok satan', 'best seller', 'routine', 'rutin'], href: '/collections/routine.html' }
-      ];
-      const syncState = () => {
+      const sync = () => {
         const hasValue = !!input.value.trim();
-        form.classList.toggle('has-value', hasValue);
+        clearBtn.classList.toggle('is-visible', hasValue);
+        if (!hasValue) {
+          resultsBox.hidden = true;
+          resultsBox.innerHTML = '';
+          return;
+        }
+        renderSearchResults(resultsBox, findSearchMatches(input.value));
       };
-      input.addEventListener('input', syncState);
+
+      input.addEventListener('input', sync);
+      input.addEventListener('focus', sync);
       clearBtn.addEventListener('click', () => {
         input.value = '';
-        syncState();
+        sync();
         input.focus();
       });
+
       form.addEventListener('submit', (event) => {
         event.preventDefault();
-        const query = normalize(input.value.trim());
-        if (!query) return;
-        const match = routes.find((item) => item.keywords.some((keyword) => query.includes(normalize(keyword))));
-        window.location.href = match ? match.href : `/collections/routine.html?q=${encodeURIComponent(input.value.trim())}`;
+        const matches = findSearchMatches(input.value);
+        if (!matches.length) return;
+        window.location.href = matches[0].url;
       });
-      syncState();
-    }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('.site-search-form')) return;
+      $$('.site-search-results').forEach((box) => {
+        box.hidden = true;
+      });
+    });
   }
 
-  function enhanceMobileNavigation() {
-    const mobileNav = document.getElementById('mobileNav');
-    if (!mobileNav || mobileNav.dataset.enhanced === 'true') return;
-    mobileNav.dataset.enhanced = 'true';
-    const routineLink = Array.from(mobileNav.querySelectorAll('a')).find((link) => String(link.textContent || '').toLocaleLowerCase('tr-TR').includes('rutin'));
-    const block = document.createElement('div');
-    block.className = 'mobile-nav__group';
-    block.innerHTML = `
-      <span class="mobile-nav__label">Kategoriler</span>
-      <a href="/collections/care.html">Yüz Maskesi</a>
-      <a href="/collections/cleanse.html">Makyaj Temizleyici ve Arındırıcı</a>
-      <a href="/collections/protect.html">Güneş Bakımı ve Güneş Kremi</a>
-      <a href="/collections/routine.html">Çok Satanlar</a>`;
-    if (routineLink) routineLink.insertAdjacentElement('afterend', block);
-    else mobileNav.appendChild(block);
-  }
-
-  function enhanceFooterPayment() {
-    const footer = document.querySelector('.footer');
-    const bottom = footer?.querySelector('.footer-bottom');
-    if (!footer || !bottom || footer.querySelector('.footer-payment')) return;
-    const payment = document.createElement('div');
-    payment.className = 'footer-payment';
-    payment.innerHTML = `
-      <div class="footer-payment__left">
-        <span class="footer-payment__label">Güvenli Ödeme</span>
-        <div class="footer-payment__icons" aria-label="Desteklenen ödeme yöntemleri">
-          <img src="/assets/payment/visa.svg" alt="Visa" loading="lazy">
-          <img src="/assets/payment/mastercard.svg" alt="Mastercard" loading="lazy">
-          <img src="/assets/payment/amex.svg" alt="American Express" loading="lazy">
-        </div>
-      </div>
-      <div class="footer-payment__right">
-        <span class="footer-payment__ssl">256-bit SSL ile korunmaktadır</span>
-        <span class="footer-payment__meta">İyzico sanal POS · 3D Secure destekli güvenli ödeme altyapısı</span>
-      </div>`;
-    bottom.insertAdjacentElement('beforebegin', payment);
-  }
-
-  enhanceHeaderNavigation();
-  enhanceMobileNavigation();
-  enhanceFooterPayment();
-
-  bindMegaMenu('.shop-wrap', '.shop-trigger');
-  bindMegaMenu('.brands-wrap', '.brands-trigger');
-  bindMegaMenu('.categories-wrap', '.categories-trigger');
+  bindSiteSearch();
 
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));

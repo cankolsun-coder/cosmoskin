@@ -80,6 +80,7 @@
     const recs = document.getElementById('homeRoutineRecommendations');
     const title = document.getElementById('homeRoutineTitle');
     const summary = document.getElementById('homeRoutineSummary');
+    const meta = document.getElementById('homeRoutineMeta');
     const bundleName = document.getElementById('homeRoutineBundleName');
     const bundleMeta = document.getElementById('homeRoutineBundleMeta');
     const generateBtn = document.getElementById('homeRoutineGenerate');
@@ -98,8 +99,32 @@
       bundleName.textContent = result.bundle.name;
       bundleMeta.textContent = result.bundle.meta;
       addBundleBtn.dataset.bundle = Object.keys(BUNDLES).find(key => BUNDLES[key] === result.bundle) || 'hydration';
+      if (meta) meta.textContent = `Sabah ${result.morning.length} adım · Akşam ${result.evening.length} adım · ${result.bundle.meta}`;
+      document.querySelectorAll('[data-preset]').forEach((card) => {
+        const key = card.getAttribute('data-preset');
+        card.classList.toggle('is-active', key === addBundleBtn.dataset.bundle);
+      });
     }
+
     document.addEventListener('click', function(event){
+      const presetBtn = event.target.closest('[data-preset]');
+      if (presetBtn) {
+        const preset = presetBtn.getAttribute('data-preset');
+        if (preset === 'hydration') {
+          skin = 'dry';
+          concerns = ['dehydration'];
+        } else if (preset === 'barrier') {
+          skin = 'sensitive';
+          concerns = ['barrier', 'sensitivity'];
+        } else if (preset === 'glow') {
+          skin = 'normal';
+          concerns = ['glow', 'tone'];
+        }
+        render();
+        feedback.textContent = `${presetBtn.querySelector('strong')?.textContent || 'Rutin'} seçim paneline uygulandı.`;
+        feedback.classList.add('is-success');
+        return;
+      }
       const skinBtn = event.target.closest('[data-skin-type]');
       if (skinBtn) { skin = skinBtn.getAttribute('data-skin-type') || skin; render(); return; }
       const concernBtn = event.target.closest('[data-concern]');

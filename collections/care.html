@@ -4,22 +4,47 @@
     <img class="brand-logo" src="/assets/logo-mark.png" alt="Cosmoskin logo">
     <span class="brand-word">COSMOSKIN</span>
   </a>
-  <nav>
-    <ul class="nav">
-      <li class="shop-wrap">
-        <button class="linkish shop-trigger" aria-expanded="false">Ürünler</button>
-        <div class="mega">
-          <div><h4>Temizle</h4><a href="/collections/cleanse.html">Temizle<span>Yağ, jel ve köpük temizleyiciler</span></a><a href="/collections/hydrate.html">Nemlendir<span>Tonik, esans ve serum katmanları</span></a></div>
-          <div><h4>Bakım</h4><a href="/collections/treat.html">Hedef Bakım<span>Leke, doku ve ışıltı odaklı serumlar</span></a><a href="/collections/protect.html">Koru<span>Günlük SPF ve hafif koruma ürünleri</span></a></div>
-          <div><h4>Rutinler</h4><a href="/collections/routine.html">Rutin Seçkisi<span>Başlangıç ve denge odaklı rutin önerileri</span></a><a href="/collections/care.html">Destek Bakım<span>Krem, göz çevresi ve destek ürünleri</span></a></div>
-          <div class="mega-side"><small>Seçki</small><strong>Seçilmiş ürünler,<br>net kategoriler.</strong><p>İlk ziyarette bile rahat gezilen, temiz ve hızlı bir alışveriş akışı.</p><a class="btn btn-secondary" href="/collections/routine.html">Rutinleri Gör</a></div>
+  <nav class="site-nav" aria-label="Ana gezinme">
+    <div class="nav-shell">
+      <form class="site-search-form" role="search" autocomplete="off">
+        <div class="site-search" aria-label="Site içi arama">
+          <span class="site-search-icon" aria-hidden="true">
+            <svg fill="none" viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Zm8 2-3.6-3.6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <input type="search" class="site-search-input" name="q" placeholder="Ürün, kategori veya marka ara" aria-label="Ürün, kategori veya marka ara">
+          <button class="site-search-clear" type="button" aria-label="Aramayı temizle">Sil</button>
         </div>
-      </li>
-      <li><a href="/index.html#featured">Öne Çıkanlar</a></li>
-      <li><a href="/index.html#collections">Kategoriler</a></li>
-      <li><a href="/index.html#brands">Markalar</a></li>
-      <li><a href="/contact.html">Destek</a></li>
-    </ul>
+        <div class="site-search-results" hidden></div>
+      </form>
+      <ul class="nav">
+        <li class="shop-wrap">
+          <button class="linkish shop-trigger" aria-expanded="false">Ürünler</button>
+          <div class="mega">
+            <div><h4>Temizle</h4><a href="/collections/cleanse.html">Temizle<span>Yağ, jel ve köpük temizleyiciler</span></a><a href="/collections/hydrate.html">Nemlendir<span>Tonik, esans ve serum katmanları</span></a></div>
+            <div><h4>Bakım</h4><a href="/collections/treat.html">Hedef Bakım<span>Leke, doku ve ışıltı odaklı serumlar</span></a><a href="/collections/protect.html">Koru<span>Günlük SPF ve hafif koruma ürünleri</span></a></div>
+            <div><h4>Rutin</h4><a href="/collections/routine.html">Rutin Seçkisi<span>Başlangıç ve denge odaklı uygulanabilir rutinler</span></a><a href="/collections/care.html">Destek Bakım<span>Krem, göz çevresi ve destek ürünleri</span></a></div>
+            <div class="mega-side"><small>Seçki</small><strong>Seçilmiş ürünler,<br>net kategoriler.</strong><p>Aradığın ürüne daha hızlı ulaşman için kategori ve rutin akışları tek yapıda toplandı.</p><a class="btn btn-secondary" href="/collections/routine.html">Rutinleri Gör</a></div>
+          </div>
+        </li>
+        <li class="categories-wrap">
+          <button class="linkish categories-trigger" aria-expanded="false">Kategoriler</button>
+          <div class="mega mega--categories">
+            <div><h4>Kategoriler</h4><a href="/collections/care.html">Yüz Maskesi<span>Maske ve destek bakım odaklı editler</span></a><a href="/collections/cleanse.html">Makyaj Temizleyici ve Arındırıcı<span>Günlük arındırma ve çift temizleme çizgisi</span></a></div>
+            <div><h4>Koruma</h4><a href="/collections/protect.html">Güneş Bakımı ve Güneş Kremi<span>Şehir kullanımına uygun SPF seçkileri</span></a><a href="/index.html#featured">Çok Satanlar<span>En çok ilgi gören seçilmiş ürünler</span></a></div>
+            <div class="mega-side"><small>Kategoriler</small><strong>Daha düzenli,<br>daha profesyonel.</strong><p>Kategori yapısı ürün, marka ve rutin gezintisiyle aynı dilde yeniden düzenlendi.</p><a class="btn btn-secondary" href="/index.html#collections">Koleksiyonlara Git</a></div>
+          </div>
+        </li>
+        <li class="brands-wrap">
+          <button class="linkish brands-trigger" aria-expanded="false">Markalar</button>
+          <div class="mega brands-mega">
+            <div><h4>Seçili Markalar</h4><a href="/collections/cleanse.html">Round Lab<span>Nazik temizleyiciler ve günlük denge ürünleri</span></a><a href="/collections/hydrate.html">Torriden<span>Nem odaklı serum ve SPF seçkileri</span></a></div>
+            <div><h4>K-Beauty Editi</h4><a href="/collections/hydrate.html">COSRX<span>Essence, bariyer desteği ve bakım ikonları</span></a><a href="/collections/protect.html">Beauty of Joseon<span>Rahat dokulu SPF ve glow odaklı serumlar</span></a></div>
+            <div class="mega-side"><small>Markalar</small><strong>Rafine seçki,<br>tek bakışta net.</strong><p>Marka bazlı gezinme ile ürünü daha hızlı bulmanızı sağlayan sade yapı.</p><a class="btn btn-secondary" href="/contact.html">Marka Talebi</a></div>
+          </div>
+        </li>
+        <li><a href="/contact.html">Destek</a></li>
+      </ul>
+    </div>
   </nav>
   <div class="header-tools">
     <button class="tool-btn mobile-toggle" id="mobileToggle" aria-label="Menüyü aç"><svg fill="none" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -27,7 +52,64 @@
     <button class="tool-btn" id="cartBtn" aria-label="Sepet"><svg fill="none" viewBox="0 0 24 24"><path d="M3 5h2l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L21 8H7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="19" r="1.4" stroke-width="1.8"/><circle cx="18" cy="19" r="1.4" stroke-width="1.8"/></svg><span class="cart-count">0</span></button>
   </div>
 </header>
-<div class="mobile-nav" id="mobileNav"><a href="/index.html">Anasayfa</a><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek Merkezi</a></div><main><section class="page-hero"><div class="container narrow"><p class="kicker">Destek Bakım</p><h1>Destek ürünleri</h1><p>Kremler ve rutini tamamlayan, cilt bariyerini destekleyen bakım adımları.</p></div></section><section class="section"><div class="container"><div class="filter-row" data-filter-wrap><button class="filter-chip active" data-filter="all">Tümü</button><button class="filter-chip " data-filter="cream">krem</button><button class="filter-chip " data-filter="barrier">bariyer</button></div><div class="product-grid"><article class="product-card" data-filter-item="cream barrier"><a class="product-media" href="/collections/care.html"><img src="/assets/img/care.jpg" alt="Round Lab Soybean Nourishing Cream"><span class="badge">Round Lab</span></a><div class="product-body"><div class="brandline">Round Lab</div><h3>Soybean Nourishing Cream</h3><p>Daha besleyici bir bitiş isteyen akşam rutinleri için yoğun krem dokusu.</p><div class="pills"><span class="pill">krem</span><span class="pill">bariyer</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺1049</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="roundlab-soy" data-name="Soybean Nourishing Cream" data-brand="Round Lab" data-price="1049" data-image="/assets/img/care.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="essence barrier"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="COSRX Advanced Snail 96 Mucin Essence"><span class="badge">COSRX</span></a><div class="product-body"><div class="brandline">COSRX</div><h3>Advanced Snail 96 Mucin Essence</h3><p>Esneklik ve nem dengesini destekleyen ikonik essence formülü.</p><div class="pills"><span class="pill">esans</span><span class="pill">bariyer</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺979</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="cosrx-snail" data-name="Advanced Snail 96 Mucin Essence" data-brand="COSRX" data-price="979" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="serum hyaluronic"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="Torriden DIVE-IN Serum"><span class="badge">Torriden</span></a><div class="product-body"><div class="brandline">Torriden</div><h3>DIVE-IN Serum</h3><p>Katmanlı nem hissi için hafif dokulu hyaluronik asit serumu.</p><div class="pills"><span class="pill">serum</span><span class="pill">hyaluronik</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺949</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="torriden-divein-serum" data-name="DIVE-IN Serum" data-brand="Torriden" data-price="949" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="spf daily"><a class="product-media" href="/collections/protect.html"><img src="/assets/img/protect.jpg" alt="Beauty of Joseon Relief Sun SPF50+ PA++++"><span class="badge">Beauty of Joseon</span></a><div class="product-body"><div class="brandline">Beauty of Joseon</div><h3>Relief Sun SPF50+ PA++++</h3><p>Pirinç özü ve probiyotik destekli, beyaz iz bırakmadan konforlu günlük koruma.</p><div class="pills"><span class="pill">SPF</span><span class="pill">günlük</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺899</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="boj-relief" data-name="Relief Sun SPF50+ PA++++" data-brand="Beauty of Joseon" data-price="899" data-image="/assets/img/protect.jpg">Sepete Ekle</button></div></div></article></div></div></section></main><footer class="footer"><div class="container footer-grid"><div><a class="brand footer-brandlock" href="/index.html"><img class="brand-logo" src="/assets/logo-mark-light.png" alt="Cosmoskin logo"><span class="brand-word">COSMOSKIN</span></a><p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p></div><div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div><div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div><div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat & Kargo</a><a href="/iade-degisim.html">İade & Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div><div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" target="_blank" rel="noopener">Instagram</a><span>İstanbul, Türkiye</span></div></div><div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div></footer>
+<div class="mobile-nav" id="mobileNav">
+  <form class="site-search-form site-search-form--mobile" role="search" autocomplete="off">
+    <div class="site-search" aria-label="Site içi arama">
+      <span class="site-search-icon" aria-hidden="true">
+        <svg fill="none" viewBox="0 0 24 24"><path d="M11 18a7 7 0 1 1 0-14 7 7 0 0 1 0 14Zm8 2-3.6-3.6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <input type="search" class="site-search-input" name="q" placeholder="Ürün, kategori veya marka ara" aria-label="Mobil ürün arama">
+      <button class="site-search-clear" type="button" aria-label="Aramayı temizle">Sil</button>
+    </div>
+    <div class="site-search-results" hidden></div>
+  </form>
+  <a href="/collections/treat.html">Ürünler</a>
+  <a href="/index.html#collections">Kategoriler</a>
+  <a href="/index.html#brands">Markalar</a>
+  <a href="/collections/routine.html">Rutinler</a>
+  <a href="/contact.html">Destek Merkezi</a>
+</div><main><section class="page-hero"><div class="container narrow"><p class="kicker">Destek Bakım</p><h1>Destek ürünleri</h1><p>Kremler ve rutini tamamlayan, cilt bariyerini destekleyen bakım adımları.</p></div></section><section class="section"><div class="container"><div class="filter-row" data-filter-wrap><button class="filter-chip active" data-filter="all">Tümü</button><button class="filter-chip " data-filter="cream">krem</button><button class="filter-chip " data-filter="barrier">bariyer</button></div><div class="product-grid"><article class="product-card" data-filter-item="cream barrier"><a class="product-media" href="/collections/care.html"><img src="/assets/img/care.jpg" alt="Round Lab Soybean Nourishing Cream"><span class="badge">Round Lab</span></a><div class="product-body"><div class="brandline">Round Lab</div><h3>Soybean Nourishing Cream</h3><p>Daha besleyici bir bitiş isteyen akşam rutinleri için yoğun krem dokusu.</p><div class="pills"><span class="pill">krem</span><span class="pill">bariyer</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺1049</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="roundlab-soy" data-name="Soybean Nourishing Cream" data-brand="Round Lab" data-price="1049" data-image="/assets/img/care.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="essence barrier"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="COSRX Advanced Snail 96 Mucin Essence"><span class="badge">COSRX</span></a><div class="product-body"><div class="brandline">COSRX</div><h3>Advanced Snail 96 Mucin Essence</h3><p>Esneklik ve nem dengesini destekleyen ikonik essence formülü.</p><div class="pills"><span class="pill">esans</span><span class="pill">bariyer</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺979</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="cosrx-snail" data-name="Advanced Snail 96 Mucin Essence" data-brand="COSRX" data-price="979" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="serum hyaluronic"><a class="product-media" href="/collections/hydrate.html"><img src="/assets/img/hydrate.jpg" alt="Torriden DIVE-IN Serum"><span class="badge">Torriden</span></a><div class="product-body"><div class="brandline">Torriden</div><h3>DIVE-IN Serum</h3><p>Katmanlı nem hissi için hafif dokulu hyaluronik asit serumu.</p><div class="pills"><span class="pill">serum</span><span class="pill">hyaluronik</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺949</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="torriden-divein-serum" data-name="DIVE-IN Serum" data-brand="Torriden" data-price="949" data-image="/assets/img/hydrate.jpg">Sepete Ekle</button></div></div></article><article class="product-card" data-filter-item="spf daily"><a class="product-media" href="/collections/protect.html"><img src="/assets/img/protect.jpg" alt="Beauty of Joseon Relief Sun SPF50+ PA++++"><span class="badge">Beauty of Joseon</span></a><div class="product-body"><div class="brandline">Beauty of Joseon</div><h3>Relief Sun SPF50+ PA++++</h3><p>Pirinç özü ve probiyotik destekli, beyaz iz bırakmadan konforlu günlük koruma.</p><div class="pills"><span class="pill">SPF</span><span class="pill">günlük</span></div><div class="meta-note">KDV dahil · Türkiye içi gönderim</div><div class="price-row"><div><div class="price">₺899</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="boj-relief" data-name="Relief Sun SPF50+ PA++++" data-brand="Beauty of Joseon" data-price="899" data-image="/assets/img/protect.jpg">Sepete Ekle</button></div></div></article></div></div></section></main><footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <a class="brand footer-brandlock" href="/index.html"><img class="brand-logo" src="/assets/logo-mark-light.png" alt="Cosmoskin logo"><span class="brand-word">COSMOSKIN</span></a>
+      <p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p>
+    </div>
+    <div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
+    <div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
+    <div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat &amp; Kargo</a><a href="/iade-degisim.html">İade &amp; Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
+    <div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" target="_blank" rel="noopener">Instagram</a><span>İstanbul, Türkiye</span></div>
+  </div>
+  <div class="container footer-trustbar">
+    <div class="footer-payment-block">
+      <span class="footer-meta-label">Ödeme Yöntemleri</span>
+      <div class="payment-logos" aria-label="Desteklenen ödeme yöntemleri">
+        <span class="payment-logo" aria-label="Mastercard">
+          <svg viewBox="0 0 84 56" role="img" aria-hidden="true"><circle cx="31" cy="28" r="16.5" fill="#EB001B"></circle><circle cx="53" cy="28" r="16.5" fill="#F79E1B"></circle><path d="M42 13.5a16.5 16.5 0 0 0 0 29 16.5 16.5 0 0 0 0-29Z" fill="#FF5F00"></path></svg>
+        </span>
+        <span class="payment-logo payment-logo--visa" aria-label="Visa">
+          <svg viewBox="0 0 96 34" role="img" aria-hidden="true"><path d="M18.6 25.8 22.7 8h6.5l-4.1 17.8h-6.5Zm30.9-17.4a15.5 15.5 0 0 0-5.8-1c-6.4 0-10.9 3.2-10.9 7.8 0 3.4 3.2 5.3 5.7 6.4 2.6 1.2 3.4 1.9 3.4 3 0 1.7-2.1 2.4-4 2.4-2.7 0-4.2-.4-6.4-1.3l-.9-.4-.9 5.6a21.8 21.8 0 0 0 7.6 1.3c6.8 0 11.2-3.2 11.3-8.2 0-2.7-1.7-4.9-5.4-6.5-2.3-1.1-3.7-1.8-3.7-3 0-1 .9-2.1 3.1-2.1a11 11 0 0 1 4.8.9l.6.3.9-5.2Zm8.6 11 2.6-6.9 1.5 6.9h-4.1Zm8 6.4h6l-5.3-17.8h-5.5a3 3 0 0 0-2.8 1.8l-7.1 16h6.8l1-2.8h8.3l.6 2.8ZM13.2 8 6.8 20.1 6.1 16.6A14.1 14.1 0 0 0 .3 9.2l5.9 22.3h6.9L23.3 8h-6.8Z" fill="#1A1F71"></path><path d="M6.5 8.1h10.8c-.5-.1-1-.1-1.6-.1-3.6 0-7 2-8.6 5.2L6.5 8.1Z" fill="#F7B600"></path></svg>
+        </span>
+        <span class="payment-logo payment-logo--amex" aria-label="American Express">
+          <svg viewBox="0 0 94 56" role="img" aria-hidden="true"><rect x="6" y="8" width="82" height="40" rx="8" fill="#006FCF"></rect><path d="M22 19h10.8l1.7 3.8L36.1 19H72v18H36.1l-1.7-3.7-1.6 3.7H22V19Zm3.5 2.9v11.2h4.6v-2.3h3.4l1 2.3h5l-5.1-11.2h-4.9l-4.9 11.2h3.9l1-2.3h2.2v2.3h4.2V21.9h-10.4Zm6.7 5.7 1.2-2.8 1.2 2.8h-2.4Zm8.6-5.7v11.2h9.8v-2.8h-5.7v-1.4h5.6v-2.7h-5.6v-1.4h5.7v-2.9h-9.8Zm11.4 0v11.2h4.1v-6.5l2.9 6.5h2.8l2.9-6.5v6.5H69V21.9h-5.4l-2.7 5.9-2.6-5.9h-5.1Zm18.6 0v11.2H80v-2.8h-5.7v-1.4h5.5v-2.7h-5.5v-1.4H80v-2.9h-9.2Z" fill="#fff"></path></svg>
+        </span>
+      </div>
+      <p class="footer-meta-copy">Visa, Mastercard ve American Express ile güvenli ödeme deneyimi.</p>
+    </div>
+    <div class="footer-security-block">
+      <span class="footer-meta-label">Güvenlik &amp; Sipariş Detayları</span>
+      <div class="footer-badges">
+        <span>256-bit SSL koruması</span>
+        <span>Güvenli sanal POS</span>
+        <span>KDV dahil fiyatlandırma</span>
+        <span>Sipariş e-posta bilgilendirmesi</span>
+        <span>Teslimat &amp; iade sayfaları</span>
+        <span>Mesafeli satış &amp; ön bilgilendirme</span>
+      </div>
+      <p class="footer-meta-copy">Ödeme adımında bilgileriniz şifreli bağlantı üzerinden işlenir; sipariş, teslimat ve iade akışı yasal metinlerle birlikte açık şekilde sunulur.</p>
+    </div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div>
+</footer>
 <div class="backdrop" id="backdrop"></div>
 <aside class="drawer" id="cartDrawer"><div class="drawer-head"><div class="drawer-title">Sepet</div><button class="icon-close close-any">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-summary"><div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="cartSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="cartVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="cartShipping">₺0</strong></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="cartTotal">₺0</strong></div><div class="shipping-progress" id="shippingProgress"><div class="shipping-progress-bar"><span id="shippingProgressFill"></span></div><div class="shipping-progress-text" id="shippingProgressText">Kargo avantajı hesaplanıyor...</div></div><a class="btn btn-primary" href="/checkout.html">Ödemeye Geç</a><div class="account-mini">2.500 TL ve üzeri siparişlerde kargo ücretsizdir. Tüm fiyatlara KDV dahildir.</div></div></aside>
 <aside class="drawer" id="accountDrawer"><div class="drawer-head"><div class="drawer-title">Hesap</div><button class="icon-close close-any">×</button></div><div class="account-state" id="accountState"></div><div class="account-actions" id="accountActions"><button class="btn btn-primary" data-open-auth>Giriş Yap</button><button class="btn btn-secondary" data-open-auth>Kayıt Ol</button></div><div class="account-mini">Sipariş geçmişinizi, kayıtlı adreslerinizi ve üyelik tercihlerinizi tek ekranda yönetin.</div></aside>
