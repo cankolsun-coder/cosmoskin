@@ -64,6 +64,24 @@
   const mobileNav = $('#mobileNav');
   let megaTimer;
 
+  function closeAllMegaMenus(exceptWrap = null) {
+    ['.shop-wrap', '.categories-wrap', '.brands-wrap'].forEach((selector) => {
+      const wrap = $(selector);
+      if (!wrap || wrap === exceptWrap) return;
+      wrap.classList.remove('open');
+    });
+    [
+      ['.shop-wrap', '.shop-trigger'],
+      ['.categories-wrap', '.categories-trigger'],
+      ['.brands-wrap', '.brands-trigger']
+    ].forEach(([wrapSelector, triggerSelector]) => {
+      const wrap = $(wrapSelector);
+      const trigger = wrap?.querySelector(triggerSelector);
+      if (!trigger) return;
+      trigger.setAttribute('aria-expanded', wrap?.classList.contains('open') ? 'true' : 'false');
+    });
+  }
+
   function fmt(n) {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
@@ -106,7 +124,7 @@
   backdrop?.addEventListener('click', () => {
     closeDrawers();
     closeModals();
-    $('.shop-wrap')?.classList.remove('open');
+    closeAllMegaMenus();
     mobileNav?.classList.remove('open');
     document.body.classList.remove('modal-open');
   });
@@ -159,7 +177,7 @@
     if (e.key === 'Escape') {
       closeDrawers();
       closeModals();
-      $('.shop-wrap')?.classList.remove('open');
+      closeAllMegaMenus();
       mobileNav?.classList.remove('open');
       document.body.classList.remove('modal-open');
     }
@@ -171,6 +189,7 @@
     const trigger = wrap.querySelector(triggerSelector);
     const openMenu = () => {
       clearTimeout(megaTimer);
+      closeAllMegaMenus(wrap);
       wrap.classList.add('open');
       trigger?.setAttribute('aria-expanded', 'true');
     };
@@ -183,15 +202,127 @@
     };
     trigger?.addEventListener('click', (e) => {
       e.preventDefault();
-      wrap.classList.toggle('open');
-      trigger?.setAttribute('aria-expanded', wrap.classList.contains('open') ? 'true' : 'false');
+      const willOpen = !wrap.classList.contains('open');
+      closeAllMegaMenus(willOpen ? wrap : null);
+      wrap.classList.toggle('open', willOpen);
+      trigger?.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
     wrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
     wrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
   }
 
   bindMegaMenu('.shop-wrap', '.shop-trigger');
+  bindMegaMenu('.categories-wrap', '.categories-trigger');
   bindMegaMenu('.brands-wrap', '.brands-trigger');
+
+  const SEARCH_INDEX = [
+    { label: '1025 Dokdo Cleanser', type: 'Ürün', url: '/collections/cleanse.html', keywords: 'round lab temizleyici makeup remover makyaj temizleyici arindirici dokdo cleanser' },
+    { label: 'DIVE-IN Serum', type: 'Ürün', url: '/collections/hydrate.html', keywords: 'torriden serum nem hyaluronic hyaluronik' },
+    { label: 'The Vitamin C 23 Serum', type: 'Ürün', url: '/collections/treat.html', keywords: 'cosrx vitamin c leke esit ton brightening serum' },
+    { label: 'Glow Serum', type: 'Ürün', url: '/collections/treat.html', keywords: 'beauty of joseon glow serum niacinamide propolis isilti' },
+    { label: 'Relief Sun SPF50+ PA++++', type: 'Ürün', url: '/collections/protect.html', keywords: 'beauty of joseon sunscreen spf gunes kremi gunes bakimi' },
+    { label: 'DIVE-IN Watery Sun Serum', type: 'Ürün', url: '/collections/protect.html', keywords: 'torriden watery sun serum spf gunes koruyucu' },
+    { label: 'Yüz Maskesi', type: 'Kategori', url: '/collections/care.html', keywords: 'yuz maskesi maske destek bakim' },
+    { label: 'Makyaj Temizleyici ve Arındırıcı', type: 'Kategori', url: '/collections/cleanse.html', keywords: 'makyaj temizleyici arindirici cleanser oil balm foam' },
+    { label: 'Güneş Bakımı ve Güneş Kremi', type: 'Kategori', url: '/collections/protect.html', keywords: 'gunes bakimi gunes kremi spf sun sunscreen protect' },
+    { label: 'Çok Satanlar', type: 'Kategori', url: '/index.html#featured', keywords: 'cok satanlar populer best seller featured' },
+    { label: 'Round Lab', type: 'Marka', url: '/collections/cleanse.html', keywords: 'marka round lab' },
+    { label: 'Torriden', type: 'Marka', url: '/collections/hydrate.html', keywords: 'marka torriden' },
+    { label: 'COSRX', type: 'Marka', url: '/collections/treat.html', keywords: 'marka cosrx' },
+    { label: 'Beauty of Joseon', type: 'Marka', url: '/collections/protect.html', keywords: 'marka beauty of joseon boj' },
+    { label: 'Rutinler', type: 'Sayfa', url: '/collections/routine.html', keywords: 'rutinler routine cilt bakim rutini' },
+    { label: 'Destek Merkezi', type: 'Sayfa', url: '/contact.html', keywords: 'destek merkez iletisim yardim' }
+  ];
+
+  function normalizeSearchValue(value) {
+    return String(value || '')
+      .toLocaleLowerCase('tr-TR')
+      .replace(/ç/g, 'c')
+      .replace(/ğ/g, 'g')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ş/g, 's')
+      .replace(/ü/g, 'u')
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function findSearchMatches(query) {
+    const normalized = normalizeSearchValue(query);
+    if (!normalized) return [];
+    return SEARCH_INDEX.map((item) => {
+      const haystack = normalizeSearchValue(`${item.label} ${item.type} ${item.keywords || ''}`);
+      let score = 0;
+      if (normalizeSearchValue(item.label) === normalized) score += 120;
+      if (normalizeSearchValue(item.label).startsWith(normalized)) score += 80;
+      if (haystack.includes(normalized)) score += 42;
+      normalized.split(' ').forEach((token) => {
+        if (!token) return;
+        if (haystack.includes(token)) score += 14;
+      });
+      return { ...item, score };
+    }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 6);
+  }
+
+  function renderSearchResults(container, results) {
+    if (!container) return;
+    if (!results.length) {
+      container.innerHTML = '<div class="site-search-empty">Sonuç bulunamadı. Farklı bir ürün, kategori veya marka deneyin.</div>';
+      container.hidden = false;
+      return;
+    }
+    container.innerHTML = results.map((item) => `
+      <a class="site-search-result" href="${item.url}">
+        <span class="site-search-result__type">${item.type}</span>
+        <strong>${item.label}</strong>
+      </a>`).join('');
+    container.hidden = false;
+  }
+
+  function bindSiteSearch() {
+    $$('.site-search-form').forEach((form) => {
+      const input = form.querySelector('.site-search-input');
+      const clearBtn = form.querySelector('.site-search-clear');
+      const resultsBox = form.querySelector('.site-search-results');
+      if (!input || !clearBtn || !resultsBox) return;
+
+      const sync = () => {
+        const hasValue = !!input.value.trim();
+        clearBtn.classList.toggle('is-visible', hasValue);
+        if (!hasValue) {
+          resultsBox.hidden = true;
+          resultsBox.innerHTML = '';
+          return;
+        }
+        renderSearchResults(resultsBox, findSearchMatches(input.value));
+      };
+
+      input.addEventListener('input', sync);
+      input.addEventListener('focus', sync);
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        sync();
+        input.focus();
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const matches = findSearchMatches(input.value);
+        if (!matches.length) return;
+        window.location.href = matches[0].url;
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('.site-search-form')) return;
+      $$('.site-search-results').forEach((box) => {
+        box.hidden = true;
+      });
+    });
+  }
+
+  bindSiteSearch();
 
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
