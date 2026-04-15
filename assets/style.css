@@ -1439,6 +1439,8 @@ article.product-card:has([data-brand="Beauty of Joseon"]) .product-media {
 .field textarea { min-height: 140px; resize: vertical; }
 
 .form-status { font-size: 13px; color: var(--muted); min-height: 20px; }
+.hp-field { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+button[disabled] { opacity: 0.72; cursor: wait; }
 
 .form-inline {
   display: flex;

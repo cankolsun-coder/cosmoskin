@@ -645,11 +645,57 @@ function broadcastFavoritesChange() {
   onScroll();
   initHeroParallax();
 
-  $$('form[data-static-form="true"]').forEach((form) => form.addEventListener('submit', (event) => {
+  $$('form[data-form-endpoint]').forEach((form) => form.addEventListener('submit', async (event) => {
     event.preventDefault();
+
     const status = $('.form-status', form);
+    const submitButton = form.querySelector('button[type="submit"]');
+    const endpoint = form.dataset.formEndpoint;
+    const recipient = form.dataset.formRecipient || 'destek';
+    const fallbackEmail = recipient === 'partnership' ? 'partnership@cosmoskin.com.tr' : 'destek@cosmoskin.com.tr';
+
+    if (!endpoint) return;
+
+    const formData = new FormData(form);
+    formData.set('recipient', recipient);
+
     if (status) {
-      status.textContent = 'Form altyapısı Cloudflare uyumlu şekilde yeniden bağlanana kadar lütfen ilgili e-posta adresi üzerinden bizimle iletişime geçin.';
+      status.textContent = 'Gönderiliyor...';
+    }
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.dataset.originalText = submitButton.dataset.originalText || submitButton.textContent;
+      submitButton.textContent = 'Gönderiliyor...';
+    }
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      const ok = response.ok && payload.ok;
+
+      if (status) {
+        status.textContent = payload.message || (ok
+          ? 'Mesajınız başarıyla gönderildi.'
+          : `Şu anda form kullanılamıyor. Lütfen ${fallbackEmail} üzerinden iletişime geçin.`);
+      }
+
+      if (ok) {
+        form.reset();
+      }
+    } catch (error) {
+      if (status) {
+        status.textContent = `Şu anda form kullanılamıyor. Lütfen ${fallbackEmail} üzerinden iletişime geçin.`;
+      }
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = submitButton.dataset.originalText || 'Gönder';
+      }
     }
   }));
 
