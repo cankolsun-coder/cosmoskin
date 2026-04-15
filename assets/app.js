@@ -468,21 +468,49 @@ function broadcastFavoritesChange() {
     }, 120);
   });
 
+  function addCartItems(items = [], options = {}) {
+    const normalizedItems = (Array.isArray(items) ? items : []).filter(Boolean).map((item) => ({
+      id: item.id,
+      name: item.name,
+      brand: item.brand,
+      price: Number(item.price),
+      image: item.image,
+      qty: Math.max(1, Number(item.qty || 1))
+    })).filter((item) => item.id && item.name && Number.isFinite(item.price));
+
+    if (!normalizedItems.length) return 0;
+
+    normalizedItems.forEach((item) => {
+      const found = state.cart.find((entry) => entry.id === item.id);
+      if (found) found.qty += item.qty;
+      else state.cart.push(item);
+    });
+
+    persistCart();
+    if (options.openDrawer !== false) openDrawer(cartDrawer);
+    return normalizedItems.length;
+  }
+
   $$('[data-add-cart]').forEach((btn) => btn.addEventListener('click', () => {
-    const item = {
+    addCartItems([{
       id: btn.dataset.id,
       name: btn.dataset.name,
       brand: btn.dataset.brand,
       price: Number(btn.dataset.price),
       image: btn.dataset.image,
       qty: 1
-    };
-    const found = state.cart.find((entry) => entry.id === item.id);
-    if (found) found.qty += 1;
-    else state.cart.push(item);
-    persistCart();
-    openDrawer(cartDrawer);
+    }]);
   }));
+
+  document.addEventListener('cosmoskin:add-bundle', (event) => {
+    const items = event.detail?.items || [];
+    addCartItems(items, { openDrawer: true });
+  });
+
+  window.COSMOSKIN_CART_API = {
+    addItems: addCartItems,
+    getItems: () => state.cart.slice()
+  };
 
   function renderCheckout() {
     const itemsWrap = $('#checkoutItems');

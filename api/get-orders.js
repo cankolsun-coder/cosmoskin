@@ -20,7 +20,7 @@ export async function onRequestGet(context) {
     let items = [];
     if (ids.length) {
       items = await selectRows(context, 'order_items', {
-        select: 'order_id,product_name,brand,quantity,line_total',
+        select: 'order_id,product_id,product_name,brand,image,quantity,line_total',
         order_id: `in.(${ids.join(',')})`
       });
     }

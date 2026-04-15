@@ -160,31 +160,6 @@
     .routine-reco-copy{display:grid;gap:4px;}
     .routine-reco-copy span{font-size:11px;line-height:1.6;color:#8e8174;}
     .routine-empty{padding:18px;border:1px dashed var(--line-strong);border-radius:18px;background:#fffdf9;font-size:13px;line-height:1.8;color:#7d7063;}
-    .reminder-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;}
-    .reminder-card{border:1px solid var(--line);border-radius:18px;background:#fff;padding:20px;display:grid;gap:14px;}
-    .reminder-card h3,.reminder-card h4{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#1a1510;margin:0;}
-    .reminder-card p{font-size:13px;line-height:1.75;color:#7d7063;margin:0;}
-    .reminder-kicker{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#b89b72;font-weight:700;}
-    .reminder-status-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
-    .reminder-status-item{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#5a4f43;border-top:1px solid var(--line);padding-top:10px;}
-    .reminder-status-item:first-child{border-top:none;padding-top:0;}
-    .reminder-status-item strong{display:block;color:#1a1510;font-size:14px;font-weight:600;margin-bottom:4px;}
-    .reminder-date{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8a6e47;font-weight:700;white-space:nowrap;}
-    .reminder-select{padding:13px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;width:100%;appearance:none;}
-    .reminder-inline{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    .reminder-note{font-size:12px;color:#9a8e82;line-height:1.75;min-height:18px;}
-    .reminder-note.is-success{color:#1f7a4f;}
-    .reminder-note.is-error{color:#8a3b2f;}
-    .segment-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .segment-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;}
-    .segment-pill{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:#f4ece3;border:1px solid rgba(184,155,114,.26);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a6e47;font-weight:700;}
-    .segment-meta{display:grid;gap:10px;}
-    .segment-meta-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px;font-size:13px;color:#5a4f43;}
-    .segment-meta-row:first-child{border-top:none;padding-top:0;}
-    .segment-meta-row strong{color:#1a1510;font-weight:600;}
-    @media(max-width:960px){.segment-grid{grid-template-columns:1fr;}}
-    @media(max-width:960px){.reminder-grid{grid-template-columns:1fr;}}
-    @media(max-width:640px){.reminder-inline{grid-template-columns:1fr;}}
     @media(max-width:960px){.routine-shell{grid-template-columns:1fr;}}
     @media(max-width:640px){.routine-card,.routine-summary-card,.routine-stage{padding:18px;}.routine-card-head h3{font-size:24px;}.routine-chip-group{gap:8px;}.routine-chip{width:100%;justify-content:center;}}
 
@@ -394,93 +369,14 @@
     <!-- COMMUNICATION -->
     <div class="tab-content" id="tab-communication">
       <div class="acc-panel">
-        <div class="acc-panel-head"><div><h2>İletişim Tercihlerim</h2><p>Bildirim, rutin hatırlatma ve yeniden sipariş ayarları</p></div></div>
-        <div class="acc-panel-body" style="display:grid;gap:18px;">
+        <div class="acc-panel-head"><div><h2>İletişim Tercihlerim</h2><p>Bildirim ve iletişim ayarlarınız</p></div></div>
+        <div class="acc-panel-body">
           <div class="pref-item"><div class="pref-info"><strong>Sipariş Bildirimleri</strong><span>Sipariş durumu, kargo takibi ve teslimat güncellemeleri</span></div><label class="toggle"><input type="checkbox" id="prefOrders" checked onchange="savePref('orders',this.checked)"><span class="toggle-slider"></span></label></div>
           <div class="pref-item"><div class="pref-info"><strong>Kampanya ve İndirimler</strong><span>Özel indirimler, sezonsal kampanyalar ve fırsatlar</span></div><label class="toggle"><input type="checkbox" id="prefCampaigns" onchange="savePref('campaigns',this.checked)"><span class="toggle-slider"></span></label></div>
           <div class="pref-item"><div class="pref-info"><strong>Yeni Ürün Duyuruları</strong><span>Yeni koleksiyon ve ürün lansmanlarından haberdar olun</span></div><label class="toggle"><input type="checkbox" id="prefNewProducts" onchange="savePref('newProducts',this.checked)"><span class="toggle-slider"></span></label></div>
           <div class="pref-item"><div class="pref-info"><strong>Cilt Bakımı İpuçları</strong><span>Uzman önerileri, rutin rehberleri ve içerik bülteni</span></div><label class="toggle"><input type="checkbox" id="prefTips" onchange="savePref('tips',this.checked)"><span class="toggle-slider"></span></label></div>
           <div class="pref-item"><div class="pref-info"><strong>SMS Bildirimleri</strong><span>Kargo takibi ve önemli güncellemeler için SMS</span></div><label class="toggle"><input type="checkbox" id="prefSms" onchange="savePref('sms',this.checked)"><span class="toggle-slider"></span></label></div>
-
-          <div class="reminder-grid">
-            <section class="reminder-card">
-              <div>
-                <span class="reminder-kicker">Hatırlatma Merkezi</span>
-                <h3>Rutin ve yeniden sipariş akışı</h3>
-                <p>Satın aldığın ürünlere ve seçtiğin sıklığa göre gönderilecek e-posta akışını buradan yönetebilirsin.</p>
-              </div>
-              <div class="pref-item"><div class="pref-info"><strong>Rutin Hatırlatmaları</strong><span>Sabah / akşam akışını düzenli hatırlatır</span></div><label class="toggle"><input type="checkbox" id="prefRoutineReminders" onchange="saveReminderPref('routineEmails',this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="pref-item"><div class="pref-info"><strong>Yeniden Sipariş Önerileri</strong><span>Kullanım süresine göre ürün yenileme zamanı yaklaştığında haber verir</span></div><label class="toggle"><input type="checkbox" id="prefRestockReminders" onchange="saveReminderPref('restockEmails',this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="pref-item"><div class="pref-info"><strong>Ürün Azalıyor Uyarıları</strong><span>Yaklaşan bitiş tarihi için daha erken haber gönderir</span></div><label class="toggle"><input type="checkbox" id="prefLowStockAlerts" onchange="saveReminderPref('lowStockAlerts',this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="reminder-inline">
-                <div class="prof-field">
-                  <label class="prof-label">Hatırlatma Sıklığı</label>
-                  <select class="reminder-select" id="reminderCadenceSelect" onchange="saveReminderPref('cadenceDays',Number(this.value))">
-                    <option value="7">Her 7 günde</option>
-                    <option value="14">Her 14 günde</option>
-                    <option value="21">Her 21 günde</option>
-                    <option value="30">Her 30 günde</option>
-                  </select>
-                </div>
-                <div class="prof-field">
-                  <label class="prof-label">Ürün Bitiş Tahmini</label>
-                  <select class="reminder-select" id="depletionWindowSelect" onchange="saveReminderPref('depletionLeadDays',Number(this.value))">
-                    <option value="3">3 gün önce</option>
-                    <option value="5">5 gün önce</option>
-                    <option value="7">7 gün önce</option>
-                    <option value="10">10 gün önce</option>
-                  </select>
-                </div>
-              </div>
-              <div class="routine-actions">
-                <button class="btn btn-secondary" type="button" id="sendRoutineTestBtn" onclick="sendReminderTest('routine')" style="font-size:11px;padding:12px 20px;">Test rutin e-postası</button>
-                <button class="btn btn-secondary" type="button" id="sendRestockTestBtn" onclick="sendReminderTest('restock')" style="font-size:11px;padding:12px 20px;">Test yeniden sipariş e-postası</button>
-              </div>
-              <div class="reminder-note" id="reminderStatusNote">Tercihlerin otomatik kaydedilir. Test e-postası mevcut hesap adresine gönderilir.</div>
-            </section>
-            <aside class="reminder-card">
-              <div>
-                <span class="reminder-kicker">Takvim</span>
-                <h4>Bir sonraki temas</h4>
-                <p>Son sipariş tarihine ve ürün tiplerine göre öngörülen yaklaşan hatırlatma adımları.</p>
-              </div>
-              <ul class="reminder-status-list" id="reminderTimelineList">
-                <li class="routine-empty">Siparişler yüklendiğinde burada ilk tahmini tarihleri göreceksin.</li>
-              </ul>
-            </aside>
-          </div>
-          <div class="segment-grid">
-            <section class="reminder-card">
-              <div>
-                <span class="reminder-kicker">CRM Segmentleri</span>
-                <h4>Checkout sonrası Brevo senkronu</h4>
-                <p>Ödenmiş siparişlerden sonra müşteri listeleri, kategori ilgileri ve yüksek sepet segmenti otomatik güncellenir.</p>
-              </div>
-              <ul class="segment-list" id="brevoSegmentList">
-                <li class="segment-pill">Henüz senkron yok</li>
-              </ul>
-              <div class="segment-meta" id="brevoSegmentMeta">
-                <div class="segment-meta-row"><span>Durum</span><strong id="brevoSyncState">Hazır</strong></div>
-                <div class="segment-meta-row"><span>Brevo listeleri</span><strong id="brevoListState">—</strong></div>
-              </div>
-              <div class="routine-actions">
-                <button class="btn btn-secondary" type="button" id="syncBrevoBtn" onclick="syncBrevoProfile()" style="font-size:11px;padding:12px 20px;">Şimdi Senkronize Et</button>
-              </div>
-            </section>
-            <aside class="reminder-card">
-              <div>
-                <span class="reminder-kicker">Liste Mantığı</span>
-                <h4>Aktif CRM kuralları</h4>
-                <p>Bu alan, ödenmiş siparişlerde çalışacak segment mantığını görünür tutar.</p>
-              </div>
-              <ul class="reminder-status-list">
-                <li class="reminder-status-item"><div><strong>Temel müşteri listesi</strong><span>Her ödenmiş sipariş sonrası güncellenir.</span></div><span class="reminder-date">CUSTOMER</span></li>
-                <li class="reminder-status-item"><div><strong>Kategori ilgisi</strong><span>Cleanse, hydrate, treat, care ve protect ürünlerine göre ayrılır.</span></div><span class="reminder-date">CATEGORY</span></li>
-                <li class="reminder-status-item"><div><strong>Yüksek sepet</strong><span>2.500 TL ve üzeri siparişlerde high-value segmenti atanır.</span></div><span class="reminder-date">AOV</span></li>
-              </ul>
-            </aside>
-          </div>
-          <p style="font-size:12px;color:#9a8e82;line-height:1.7;">Not: Zorunlu ticari bildirimler (sipariş onayı vb.) bu ayarlardan etkilenmez. Otomatik segmentleme için sunucuda <strong>BREVO_API_KEY</strong>, <strong>CONTACT_FROM_EMAIL</strong> ve kullanmak istediğin Brevo listeleri için <strong>BREVO_LIST_..._ID</strong> env değişkenleri tanımlanmalıdır.</p>
+          <p style="font-size:12px;color:#9a8e82;line-height:1.7;margin-top:20px;">Tercihleriniz otomatik kaydedilir. Zorunlu ticari bildirimler (sipariş onayı vb.) bu ayardan etkilenmez.</p>
         </div>
       </div>
     </div>
@@ -529,7 +425,7 @@
 <script src="/assets/site-config.js?v=20260414e"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-let _client, _session, _addresses = [], _latestOrders = [];
+let _client, _session, _addresses = [];
 const ROUTINE_SKIN_KEY = 'cosmoskin_skin_type';
 const ROUTINE_CONCERNS_KEY = 'cosmoskin_skin_concerns';
 const PRODUCT_LIBRARY = {
@@ -588,8 +484,6 @@ const CATEGORY_META = {
   if (prefs.newProducts) document.getElementById('prefNewProducts').checked = true;
   if (prefs.tips) document.getElementById('prefTips').checked = true;
   if (prefs.sms) document.getElementById('prefSms').checked = true;
-  initReminderPreferences(meta);
-  renderBrevoPreview([], []);
 
   _addresses = meta.addresses || [];
   renderAddresses();
@@ -692,7 +586,6 @@ async function loadOrders() {
     const res = await fetch(`${cfg.apiBase||'/api'}/get-orders`, { headers:{ Authorization:`Bearer ${_session.access_token}` } });
     const data = await res.json();
     const orders = data.orders || [];
-    _latestOrders = orders;
     const total = orders.reduce((s,o)=>s+(o.total_amount||0),0);
     document.getElementById('statOrders').textContent = orders.length;
     document.getElementById('statSpend').textContent  = orders.length ? new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(total) : '₺0';
@@ -710,7 +603,6 @@ async function loadOrders() {
     document.getElementById('recentOrders').innerHTML = orders.length ? orders.slice(0,3).map(renderOrder).join('') : emptyHtml;
     document.getElementById('allOrders').innerHTML    = orders.length ? orders.map(renderOrder).join('') : emptyHtml;
     renderRoutineFromOrders(orders);
-    renderReminderTimeline(orders);
   } catch(e) {
     const err='<p style="color:#8a3b2f;font-size:13px;">Siparişler yüklenemedi.</p>';
     document.getElementById('recentOrders').innerHTML=err;
@@ -718,7 +610,6 @@ async function loadOrders() {
     document.getElementById('statOrders').textContent='0';
     document.getElementById('statSpend').textContent='₺0';
     renderRoutineFromOrders([]);
-    renderReminderTimeline([]);
   }
 }
 
@@ -947,211 +838,13 @@ async function saveProfile() {
   btn.disabled=false; btn.textContent='Değişiklikleri Kaydet';
 }
 
-function getReminderPrefs(){
-  const meta = _session?.user?.user_metadata || {};
-  return {
-    routineEmails: meta.routine_reminders?.routineEmails !== false,
-    restockEmails: !!meta.routine_reminders?.restockEmails,
-    lowStockAlerts: !!meta.routine_reminders?.lowStockAlerts,
-    cadenceDays: Number(meta.routine_reminders?.cadenceDays || 14),
-    depletionLeadDays: Number(meta.routine_reminders?.depletionLeadDays || 5)
-  };
-}
-
-function initReminderPreferences(meta = {}){
-  const prefs = {
-    routineEmails: meta.routine_reminders?.routineEmails !== false,
-    restockEmails: !!meta.routine_reminders?.restockEmails,
-    lowStockAlerts: !!meta.routine_reminders?.lowStockAlerts,
-    cadenceDays: Number(meta.routine_reminders?.cadenceDays || 14),
-    depletionLeadDays: Number(meta.routine_reminders?.depletionLeadDays || 5)
-  };
-  const map = {
-    prefRoutineReminders: prefs.routineEmails,
-    prefRestockReminders: prefs.restockEmails,
-    prefLowStockAlerts: prefs.lowStockAlerts
-  };
-  Object.entries(map).forEach(([id,val]) => {
-    const el = document.getElementById(id);
-    if (el) el.checked = !!val;
-  });
-  const cadence = document.getElementById('reminderCadenceSelect');
-  const depletion = document.getElementById('depletionWindowSelect');
-  if (cadence) cadence.value = String(prefs.cadenceDays);
-  if (depletion) depletion.value = String(prefs.depletionLeadDays);
-}
-
-function setReminderStatus(message, type=''){
-  const note = document.getElementById('reminderStatusNote');
-  if(!note) return;
-  note.textContent = message || '';
-  note.classList.remove('is-success','is-error');
-  if(type) note.classList.add(type === 'error' ? 'is-error' : 'is-success');
-}
-
-function renderBrevoPreview(segments = [], listIds = []){
-  const list = document.getElementById('brevoSegmentList');
-  const syncState = document.getElementById('brevoSyncState');
-  const listState = document.getElementById('brevoListState');
-  if(list){
-    if(!segments.length) list.innerHTML = '<li class="segment-pill">Henüz senkron yok</li>';
-    else list.innerHTML = segments.map((segment) => `<li class="segment-pill">${segment.replaceAll('_',' ')}</li>`).join('');
-  }
-  if(syncState) syncState.textContent = segments.length ? 'Son senkron hazır' : 'Hazır';
-  if(listState) listState.textContent = listIds.length ? `${listIds.length} liste` : 'Liste env bekleniyor';
-}
-
-async function syncBrevoProfile(){
-  const btn = document.getElementById('syncBrevoBtn');
-  const original = btn?.textContent || '';
-  try {
-    if(!_session?.access_token) throw new Error('Oturum bulunamadı.');
-    if(btn){ btn.disabled = true; btn.textContent = 'Senkronize ediliyor…'; }
-    const cfg = window.COSMOSKIN_CONFIG || {};
-    const response = await fetch(`${cfg.apiBase || '/api'}/brevo-sync`, {
-      method:'POST',
-      headers:{ 'content-type':'application/json', Authorization:`Bearer ${_session.access_token}` },
-      body: JSON.stringify({ accessToken:_session.access_token })
-    });
-    const data = await response.json().catch(() => ({}));
-    if(!response.ok || !data.ok) throw new Error(data.error || 'Brevo senkronizasyonu tamamlanamadı.');
-    renderBrevoPreview(data.segments || [], data.listIds || []);
-    setReminderStatus('Brevo segmentleri güncellendi.', 'success');
-  } catch (e) {
-    setReminderStatus(e.message || 'Brevo senkronizasyonu tamamlanamadı.', 'error');
-  } finally {
-    if(btn){ btn.disabled = false; btn.textContent = original; }
-  }
-}
-
-async function persistUserMetadata(patch = {}){
-  if(!_client || !_session?.user) return;
-  const metadata = _session.user.user_metadata || {};
-  const next = { ...metadata, ...patch };
-  const { error } = await _client.auth.updateUser({ data: next });
-  if(error) throw error;
-  const { data:{ user } } = await _client.auth.getUser();
-  if(user) _session = { ..._session, user };
-}
-
 async function savePref(key, value) {
   try {
     const meta=_session.user.user_metadata||{};
-    const prefs={...(meta.comm_prefs||{})};
+    const prefs=meta.comm_prefs||{};
     prefs[key]=value;
-    await persistUserMetadata({ comm_prefs:prefs });
+    await _client.auth.updateUser({data:{comm_prefs:prefs}});
   } catch(e){console.error(e);}
-}
-
-async function saveReminderPref(key, value){
-  try {
-    const meta = _session.user.user_metadata || {};
-    const prefs = { ...(meta.routine_reminders || {}) };
-    prefs[key] = value;
-    await persistUserMetadata({ routine_reminders: prefs });
-    setReminderStatus('Hatırlatma tercihlerin güncellendi.', 'success');
-    renderReminderTimeline(_latestOrders);
-  } catch (e) {
-    console.error(e);
-    setReminderStatus(e.message || 'Hatırlatma tercihleri kaydedilemedi.', 'error');
-  }
-}
-
-function addDaysLabel(date, days){
-  const dt = new Date(date);
-  dt.setDate(dt.getDate() + Number(days || 0));
-  return dt.toLocaleDateString('tr-TR', { day:'numeric', month:'long' });
-}
-
-function estimateReminderItems(orders = []){
-  const prefs = getReminderPrefs();
-  if(!orders.length) return [];
-  const latest = [...orders].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0];
-  const items = (latest.order_items || []).map((item) => ({...item, meta: inferItemMeta(item)}));
-  const categoryDays = { cleanser:30, essence:35, serum:30, treatment:28, moisturizer:40, sunscreen:25 };
-  const reminders = [];
-  if (prefs.routineEmails) {
-    reminders.push({
-      title:'Rutin kontrolü',
-      copy:'Sabah ve akşam akışını tazelemek için bir hatırlatma planlandı.',
-      date:addDaysLabel(latest.created_at, prefs.cadenceDays)
-    });
-  }
-  if ((prefs.restockEmails || prefs.lowStockAlerts) && items.length) {
-    const earliest = items.map((item) => {
-      const baseDays = categoryDays[item.meta.category] || 30;
-      const qty = Math.max(1, Number(item.quantity || 1));
-      return {
-        item,
-        days: Math.max(7, baseDays * qty - Number(prefs.depletionLeadDays || 5))
-      };
-    }).sort((a,b) => a.days - b.days)[0];
-    if (earliest) {
-      reminders.push({
-        title:'Yeniden sipariş önerisi',
-        copy:`${earliest.item.product_name || earliest.item.meta.display} için kullanım süresine göre yaklaşan bir yenileme penceresi hesaplandı.`,
-        date:addDaysLabel(latest.created_at, earliest.days)
-      });
-    }
-  }
-  if (!reminders.length) {
-    reminders.push({
-      title:'Hatırlatmalar kapalı',
-      copy:'Rutin ve yeniden sipariş e-postalarını aktif ettiğinde burada öngörülen tarihler görünür.',
-      date:'—'
-    });
-  }
-  return reminders.slice(0, 3);
-}
-
-function renderReminderTimeline(orders = []){
-  const target = document.getElementById('reminderTimelineList');
-  if(!target) return;
-  const timeline = estimateReminderItems(orders);
-  if(!timeline.length){
-    target.innerHTML = '<li class="routine-empty">Sipariş geçmişi oluştukça burada yaklaşan hatırlatma tarihleri yer alacak.</li>';
-    return;
-  }
-  target.innerHTML = timeline.map((item) => `<li class="reminder-status-item"><div><strong>${item.title}</strong><span>${item.copy}</span></div><span class="reminder-date">${item.date}</span></li>`).join('');
-}
-
-async function sendReminderTest(type = 'routine'){
-  const btnId = type === 'restock' ? 'sendRestockTestBtn' : 'sendRoutineTestBtn';
-  const btn = document.getElementById(btnId);
-  const original = btn?.textContent || '';
-  const user = _session?.user;
-  if(!user?.email){
-    setReminderStatus('Test e-postası için oturum bilgisi bulunamadı.', 'error');
-    return;
-  }
-  const prefs = getReminderPrefs();
-  const highlights = type === 'restock'
-    ? estimateReminderItems(_latestOrders).filter((item) => /sipariş/i.test(item.title)).map((item) => `${item.title}: ${item.copy}`)
-    : ['Sabah temizleme adımını gözden geçir.', 'Akşam bakım sırasını yenile.', 'Eksik SPF veya nemlendirici varsa rutini tamamla.'];
-  try {
-    if(btn){ btn.disabled = true; btn.textContent = 'Gönderiliyor…'; }
-    const cfg = window.COSMOSKIN_CONFIG || {};
-    const response = await fetch(`${cfg.apiBase||'/api'}/routine-reminders`, {
-      method:'POST',
-      headers:{ 'content-type':'application/json' },
-      body: JSON.stringify({
-        action:'test',
-        type,
-        email:user.email,
-        name:[user.user_metadata?.first_name, user.user_metadata?.last_name].filter(Boolean).join(' '),
-        cadenceDays:prefs.cadenceDays,
-        nextDate: estimateReminderItems(_latestOrders)[0]?.date || '',
-        highlights
-      })
-    });
-    const data = await response.json().catch(() => ({}));
-    if(!response.ok || !data.ok) throw new Error(data.error || 'Test e-postası gönderilemedi.');
-    setReminderStatus(type === 'restock' ? 'Yeniden sipariş test e-postası gönderildi.' : 'Rutin test e-postası gönderildi.', 'success');
-  } catch (e) {
-    setReminderStatus(e.message || 'Test e-postası gönderilemedi.', 'error');
-  } finally {
-    if(btn){ btn.disabled = false; btn.textContent = original; }
-  }
 }
 
 function renderAddresses() {
