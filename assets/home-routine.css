@@ -64,3 +64,11 @@
 .home-routine__bundle:hover::after{transform:translateX(120%)}
 @media (max-width:1120px){.home-routine__quickcards{grid-template-columns:1fr}}
 @media (max-width:720px){.home-routine__highlights{display:grid}.home-routine__quickcards{grid-template-columns:1fr}.home-routine__highlights span{justify-content:flex-start}}
+
+
+/* Phase 8B routine fixes */
+.home-routine__actions{grid-template-columns:1fr 1fr}
+.home-routine__actions .btn:first-child{background:#8b5b4f;border-color:#8b5b4f;color:#fff;box-shadow:0 16px 34px rgba(139,91,79,.18)}
+.home-routine__actions .btn:first-child:hover{background:#7b4d42;border-color:#7b4d42}
+.home-routine__result-link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 16px;border-radius:999px;background:#f4ede4;border:1px solid rgba(38,27,17,.08);text-decoration:none;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#43372e}
+.home-routine__note{min-height:20px}

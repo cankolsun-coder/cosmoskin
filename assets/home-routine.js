@@ -29,6 +29,8 @@
   };
   const SKIN_LABELS = { dry:'Kuru', oily:'Yağlı', combination:'Karma', sensitive:'Hassas', normal:'Normal' };
   const CONCERN_LABELS = { dehydration:'Nemsizlik', sensitivity:'Hassasiyet', glow:'Donuk görünüm', barrier:'Bariyer desteği', tone:'Leke görünümü', blemish:'Akne eğilimi' };
+  const ROUTE_MAP = { dehydration:'/collections/hydrate.html', sensitivity:'/collections/care.html', barrier:'/collections/care.html', tone:'/collections/treat.html', glow:'/collections/treat.html', blemish:'/collections/treat.html' };
+  function getRoutineHref(skin, concerns){ const first=(concerns||[])[0]; if (first && ROUTE_MAP[first]) return ROUTE_MAP[first]; if (skin==='dry') return '/collections/hydrate.html'; if (skin==='sensitive') return '/collections/care.html'; if (skin==='oily' || skin==='combination') return '/collections/protect.html'; return '/collections/routine.html'; }
 
   function safeGetConcerns(){ try { return JSON.parse(localStorage.getItem(CONCERNS_KEY) || '[]'); } catch(e) { return []; } }
   function saveState(skin, concerns){ if (skin) localStorage.setItem(SKIN_KEY, skin); localStorage.setItem(CONCERNS_KEY, JSON.stringify(concerns || [])); }
@@ -83,8 +85,10 @@
     const meta = document.getElementById('homeRoutineMeta');
     const bundleName = document.getElementById('homeRoutineBundleName');
     const bundleMeta = document.getElementById('homeRoutineBundleMeta');
+    const saveBtn = document.getElementById('homeRoutineSave');
     const generateBtn = document.getElementById('homeRoutineGenerate');
     const addBundleBtn = document.getElementById('homeRoutineAddBundle');
+    const resultLink = document.getElementById('homeRoutineResultLink');
     let skin = localStorage.getItem(SKIN_KEY) || 'combination';
     let concerns = safeGetConcerns();
     function render(){
@@ -100,6 +104,9 @@
       bundleMeta.textContent = result.bundle.meta;
       addBundleBtn.dataset.bundle = Object.keys(BUNDLES).find(key => BUNDLES[key] === result.bundle) || 'hydration';
       if (meta) meta.textContent = `Sabah ${result.morning.length} adım · Akşam ${result.evening.length} adım · ${result.bundle.meta}`;
+      const href = getRoutineHref(skin, concerns);
+      if (generateBtn) generateBtn.dataset.href = href;
+      if (resultLink) resultLink.href = href;
       document.querySelectorAll('[data-preset]').forEach((card) => {
         const key = card.getAttribute('data-preset');
         card.classList.toggle('is-active', key === addBundleBtn.dataset.bundle);
@@ -134,10 +141,14 @@
         render();
       }
     });
-    generateBtn.addEventListener('click', function(){
+    saveBtn?.addEventListener('click', function(){
       saveState(skin, concerns); render();
-      feedback.textContent = `${SKIN_LABELS[skin] || 'Cilt tipi'} seçimin kaydedildi. ${concerns.length ? concerns.map(item => CONCERN_LABELS[item]).join(', ') + ' odağıyla ' : ''}rutin güncellendi.`;
+      feedback.textContent = `${SKIN_LABELS[skin] || 'Cilt tipi'} seçimin kaydedildi. ${concerns.length ? concerns.map(item => CONCERN_LABELS[item]).join(', ') + ' odağıyla ' : ''}rutin hazırlandı.`;
       feedback.classList.add('is-success');
+    });
+    generateBtn?.addEventListener('click', function(){
+      saveState(skin, concerns);
+      window.location.href = this.dataset.href || getRoutineHref(skin, concerns);
     });
     addBundleBtn.addEventListener('click', function(){
       const bundle = BUNDLES[this.dataset.bundle || 'hydration'] || BUNDLES.hydration;

@@ -24,6 +24,38 @@
     return null;
   }
 
+  const authGate = document.getElementById("checkoutAuthGate");
+  const savedAddressField = document.getElementById("savedAddressField");
+  const savedAddressList = document.getElementById("savedAddressList");
+
+  function fillAddress(addr) {
+    if (!addr) return;
+    const map = { first_name: (addr.name||'').split(' ').slice(0,-1).join(' ') || (addr.name||''), last_name: (addr.name||'').split(' ').slice(-1).join(' '), phone: addr.phone || '', city: addr.city || '', district: addr.district || '', postal_code: addr.postal || '', address: addr.line || '' };
+    Object.entries(map).forEach(([name, value]) => { const field = form.querySelector(`[name="${name}"]`); if (field && !field.value) field.value = value; else if (field && name !== 'first_name' && name !== 'last_name') field.value = value; });
+  }
+
+  function renderSavedAddresses(addresses = []) {
+    if (!savedAddressField || !savedAddressList) return;
+    if (!addresses.length) { savedAddressField.hidden = true; savedAddressList.innerHTML = ''; return; }
+    savedAddressField.hidden = false;
+    savedAddressList.innerHTML = addresses.map((addr, index) => `<button type="button" class="saved-address-card ${addr.isDefault ? 'is-active' : ''}" data-address-index="${index}"><strong>${addr.title || 'Adresim'}${addr.isDefault ? ' · Varsayılan' : ''}</strong><span>${addr.name || ''}</span><span>${addr.line || ''}</span><span>${addr.district ? addr.district + ' / ' : ''}${addr.city || ''}${addr.postal ? ' ' + addr.postal : ''}</span></button>`).join('');
+    const active = addresses.find((item) => item.isDefault) || addresses[0];
+    fillAddress(active);
+  }
+
+  async function syncCheckoutAuthState() {
+    const client = await getClient();
+    if (!client) return;
+    const { data: { session } } = await client.auth.getSession();
+    const loggedIn = !!session?.user;
+    if (authGate) authGate.style.display = loggedIn ? 'none' : 'flex';
+    if (checkoutSubmit) checkoutSubmit.disabled = !loggedIn;
+    if (!loggedIn) setStatus('Ödemeye ilerlemek için önce giriş yapın veya hesap oluşturun.', true);
+    else setStatus('');
+    const addresses = session?.user?.user_metadata?.addresses || [];
+    renderSavedAddresses(addresses);
+  }
+
   async function prefillUser() {
     const client = await getClient();
     if (!client) return;
@@ -42,6 +74,20 @@
   }
 
   prefillUser();
+  syncCheckoutAuthState();
+  getClient().then((client) => client?.auth?.onAuthStateChange?.(() => { prefillUser(); syncCheckoutAuthState(); }));
+
+  savedAddressList?.addEventListener('click', async (event) => {
+    const card = event.target.closest('[data-address-index]');
+    if (!card) return;
+    const client = await getClient();
+    const { data: { session } } = await client.auth.getSession();
+    const addresses = session?.user?.user_metadata?.addresses || [];
+    const addr = addresses[Number(card.dataset.addressIndex)];
+    document.querySelectorAll('.saved-address-card').forEach((item) => item.classList.remove('is-active'));
+    card.classList.add('is-active');
+    fillAddress(addr);
+  });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
