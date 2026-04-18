@@ -31,10 +31,9 @@ export async function onRequestPost(context) {
     if (!context.env.IYZICO_API_KEY || !context.env.IYZICO_SECRET_KEY) {
       return json({ ok: false, error: 'Ödeme sistemi henüz aktif değil.' }, { status: 503 });
     }
-    const accessToken = payload.accessToken;
+    const accessToken = payload.accessToken || null;
     const customer = payload.customer || {};
     const cart = normalizeCart(payload.cart || []);
-    if (!accessToken) return json({ ok: false, error: 'Oturum gerekli.' }, { status: 401 });
     if (!cart.length) return json({ ok: false, error: 'Sepet boş.' }, { status: 400 });
 
     const required = ['first_name', 'last_name', 'email', 'phone', 'identity_number', 'city', 'district', 'postal_code', 'address'];
@@ -42,8 +41,8 @@ export async function onRequestPost(context) {
       if (!String(customer[key] || '').trim()) return json({ ok: false, error: `Eksik alan: ${key}` }, { status: 400 });
     }
 
-    const user = await getUserFromAccessToken(context, accessToken);
-    if (!user) return json({ ok: false, error: 'Geçersiz oturum.' }, { status: 401 });
+    const user = accessToken ? await getUserFromAccessToken(context, accessToken) : null;
+    if (accessToken && !user) return json({ ok: false, error: 'Geçersiz oturum.' }, { status: 401 });
 
     const subtotal = cart.reduce((sum, item) => sum + item.line_total, 0);
     const shipping = subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
@@ -52,7 +51,7 @@ export async function onRequestPost(context) {
 
     const orderNumber = `CS-${Date.now()}`;
     const order = await insertRow(context, 'orders', {
-      user_id: user.id,
+      user_id: user?.id || null,
       order_number: orderNumber,
       status: 'pending_payment',
       currency: 'TRY',
@@ -89,14 +88,14 @@ export async function onRequestPost(context) {
       callbackUrl,
       enabledInstallments: [1, 2, 3],
       buyer: {
-        id: user.id,
+        id: user?.id || `guest-${Date.now()}`,
         name: customer.first_name,
         surname: customer.last_name,
         gsmNumber: customer.phone,
         email: customer.email,
         identityNumber: customer.identity_number,
         lastLoginDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
-        registrationDate: new Date(user.created_at || Date.now()).toISOString().slice(0, 19).replace('T', ' '),
+        registrationDate: new Date((user?.created_at) || Date.now()).toISOString().slice(0, 19).replace('T', ' '),
         registrationAddress: customer.address,
         ip,
         city: customer.city,

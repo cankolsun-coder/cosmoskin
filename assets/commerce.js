@@ -43,15 +43,23 @@
     fillAddress(active);
   }
 
+  function markCheckoutAsSignedIn(isSignedIn) {
+    document.body.classList.toggle('checkout-user-signed-in', !!isSignedIn);
+    if (checkoutSubmit) {
+      checkoutSubmit.disabled = false;
+      checkoutSubmit.textContent = 'Güvenli Ödemeye Geç';
+    }
+  }
+
   async function syncCheckoutAuthState() {
     const client = await getClient();
     if (!client) return;
     const { data: { session } } = await client.auth.getSession();
     const loggedIn = !!session?.user;
-    if (authGate) authGate.style.display = loggedIn ? 'none' : 'flex';
-    if (checkoutSubmit) checkoutSubmit.disabled = !loggedIn;
-    if (!loggedIn) setStatus('Ödemeye ilerlemek için önce giriş yapın veya hesap oluşturun.', true);
-    else setStatus('');
+    if (authGate) authGate.hidden = loggedIn;
+    markCheckoutAsSignedIn(loggedIn);
+    if (!loggedIn) setStatus('Misafir ödeme ile devam edebilirsin; hesabın varsa giriş yaparak kayıtlı adreslerini de kullanabilirsin.', false);
+    else setStatus('Kayıtlı adreslerinle daha hızlı ilerleyebilirsin.', false);
     const addresses = session?.user?.user_metadata?.addresses || [];
     renderSavedAddresses(addresses);
   }
@@ -76,6 +84,9 @@
   prefillUser();
   syncCheckoutAuthState();
   getClient().then((client) => client?.auth?.onAuthStateChange?.(() => { prefillUser(); syncCheckoutAuthState(); }));
+  document.addEventListener('cosmoskin:auth-state', () => { prefillUser(); syncCheckoutAuthState(); });
+  document.addEventListener('cosmoskin:auth-refresh-requested', () => { prefillUser(); syncCheckoutAuthState(); });
+  window.addEventListener('pageshow', () => { prefillUser(); syncCheckoutAuthState(); });
 
   savedAddressList?.addEventListener('click', async (event) => {
     const card = event.target.closest('[data-address-index]');
@@ -100,23 +111,18 @@
 
     const client = await getClient();
     if (!client) {
-      setStatus('Üyelik sistemi hazır değil. assets/site-config.js içindeki Supabase bilgilerini tamamlayın.', true);
+      setStatus('Ödeme altyapısı şu anda yüklenemedi. Lütfen tekrar deneyin.', true);
       return;
     }
 
     const { data: { session } } = await client.auth.getSession();
-    if (!session?.access_token) {
-      setStatus('Ödemeye geçmek için önce giriş yapmanız gerekiyor.', true);
-      document.dispatchEvent(new CustomEvent('cosmoskin:open-auth', { detail: { tab: 'loginPanel' } }));
-      return;
-    }
 
     checkoutSubmit?.setAttribute('disabled', 'disabled');
     setStatus('Güvenli ödeme sayfası hazırlanıyor...');
 
     const fd = new FormData(form);
     const payload = {
-      accessToken: session.access_token,
+      accessToken: session?.access_token || null,
       cart,
       customer: Object.fromEntries(fd.entries())
     };

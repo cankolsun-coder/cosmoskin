@@ -10,7 +10,7 @@ create table if not exists public.profiles (
 
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete restrict,
+  user_id uuid references auth.users(id) on delete restrict,
   order_number text not null unique,
   status text not null default 'pending_payment',
   currency text not null default 'TRY',

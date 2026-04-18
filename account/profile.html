@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/style.css?v=20260414e">
+  <link rel="stylesheet" href="/assets/style.css?v=20260418b">
   <style>
     .acc-layout{display:grid;grid-template-columns:280px 1fr;gap:28px;align-items:start;padding:40px 0 80px;}
     .acc-sidebar{position:sticky;top:28px;display:grid;gap:14px;}
@@ -535,7 +535,7 @@
 
 <footer class="footer" style="border-top:1px solid var(--line);"><div class="container footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div></footer>
 
-<script src="/assets/site-config.js?v=20260414e"></script>
+<script src="/assets/site-config.js?v=20260418a"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 let _client, _session, _addresses = [], _latestOrders = [];
@@ -543,12 +543,12 @@ const ROUTINE_SKIN_KEY = 'cosmoskin_skin_type';
 const ROUTINE_CONCERNS_KEY = 'cosmoskin_skin_concerns';
 const PRODUCT_LIBRARY = {
   'roundlab-cleanser': { category:'cleanser', usageTime:['morning','evening'], display:'1025 Dokdo Cleanser', recommendationCopy:'Nazik temizleme ile rutine temiz bir başlangıç sağlar.' },
-  'torriden-divein-serum': { category:'serum', usageTime:['morning','evening'], display:'DIVE-IN Serum', recommendationCopy:'Nem desteğini güçlendiren katman olarak çalışır.' },
+  'torriden-divein-serum': { category:'serum', usageTime:['morning','evening'], display:'DIVE-IN Low Molecular Hyaluronic Acid Serum', recommendationCopy:'Nem desteğini güçlendiren katman olarak çalışır.' },
   'boj-relief': { category:'sunscreen', usageTime:['morning'], display:'Relief Sun SPF50+', recommendationCopy:'Sabah rutininin son adımını tamamlar.' },
-  'torriden-sun': { category:'sunscreen', usageTime:['morning'], display:'DIVE-IN Watery Sun Serum', recommendationCopy:'Günlük koruma adımını hafif yapıda tamamlar.' },
+  'torriden-sun': { category:'sunscreen', usageTime:['morning'], display:'DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++', recommendationCopy:'Günlük koruma adımını hafif yapıda tamamlar.' },
   'roundlab-soy': { category:'moisturizer', usageTime:['evening','morning'], display:'Soybean Nourishing Cream', recommendationCopy:'Serum sonrası nemi ciltte tutmaya yardımcı olur.' },
-  'cosrx-snail': { category:'essence', usageTime:['morning','evening'], display:'Advanced Snail 96 Mucin Essence', recommendationCopy:'Temizleme sonrası esnek bir ara katman oluşturur.' },
-  'boj-glow': { category:'treatment', usageTime:['morning','evening'], display:'Glow Serum', recommendationCopy:'Daha aydınlık ve dengeli görünüm hedefiyle iyi eşleşir.' },
+  'cosrx-snail': { category:'essence', usageTime:['morning','evening'], display:'Advanced Snail 96 Mucin Power Essence', recommendationCopy:'Temizleme sonrası esnek bir ara katman oluşturur.' },
+  'boj-glow': { category:'treatment', usageTime:['morning','evening'], display:'Glow Serum: Propolis + Niacinamide', recommendationCopy:'Daha aydınlık ve dengeli görünüm hedefiyle iyi eşleşir.' },
   'cosrx-vitc': { category:'treatment', usageTime:['morning','evening'], display:'Vitamin C 23 Serum', recommendationCopy:'Ton eşitleme odağı için güçlü bir tamamlayıcıdır.' }
 };
 const CATEGORY_META = {

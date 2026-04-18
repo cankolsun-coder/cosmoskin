@@ -106,6 +106,32 @@ function clearReturnTo() {
   }
 }
 
+function emitAuthState(user = null) {
+  try {
+    document.dispatchEvent(
+      new CustomEvent('cosmoskin:auth-state', {
+        detail: {
+          loggedIn: !!user,
+          user: user || null,
+          email: user?.email || null
+        }
+      })
+    );
+  } catch (error) {
+    console.warn('emitAuthState warning:', error);
+  }
+}
+
+function closeAccountDrawer() {
+  const drawer = document.getElementById('accountDrawer');
+  const backdrop = document.getElementById('backdrop');
+  drawer?.classList.remove('open');
+  backdrop?.classList.remove('show');
+  if (!document.getElementById('cartDrawer')?.classList.contains('open')) {
+    document.body.classList.remove('modal-open');
+  }
+}
+
 function focusFirstInput(panelId) {
   const panel = document.getElementById(panelId);
   if (!panel) return;
@@ -220,6 +246,9 @@ function renderAccountState(user) {
       </div>
     `;
 
+    document.body.classList.add('user-is-authenticated');
+    document.getElementById('accountBtn')?.setAttribute('aria-label', 'Hesabım');
+
     if (accountActions) {
       accountActions.innerHTML = `
         <a class="btn btn-primary" href="/account/profile.html">Hesabımı Yönet</a>
@@ -231,6 +260,7 @@ function renderAccountState(user) {
           const { error } = await supabase.auth.signOut();
           if (error) throw error;
           track('sign_out');
+          closeAccountDrawer();
           location.reload();
         } catch (error) {
           console.error('Sign out error:', error);
@@ -238,6 +268,8 @@ function renderAccountState(user) {
       });
     }
   } else {
+    document.body.classList.remove('user-is-authenticated');
+    document.getElementById('accountBtn')?.setAttribute('aria-label', 'Hesap');
     accountState.innerHTML = '';
     if (accountActions) {
       accountActions.innerHTML = `
@@ -255,6 +287,7 @@ async function refreshAccountUI() {
       data: { user }
     } = await supabase.auth.getUser();
     renderAccountState(user);
+    emitAuthState(user || null);
   } catch (error) {
     console.error('refreshAccountUI error:', error);
   }
@@ -262,6 +295,8 @@ async function refreshAccountUI() {
 
 function bindOpenAuthButtons() {
   qsa('[data-open-auth]').forEach((btn) => {
+    if (btn.dataset.authBound === 'true') return;
+    btn.dataset.authBound = 'true';
     btn.addEventListener('click', () => {
       saveReturnTo();
       openAccountModal(btn.dataset.authTab || 'loginPanel');
@@ -520,17 +555,23 @@ loginForm?.addEventListener('submit', async (e) => {
 
     await refreshAccountUI();
     closeAccountModal();
+    closeAccountDrawer();
 
     const returnTo = getReturnTo();
     clearReturnTo();
+    const currentPath = window.location.pathname + window.location.search + window.location.hash;
 
-    setTimeout(() => {
-      if (returnTo && returnTo !== window.location.pathname) {
-        window.location.href = returnTo;
-      } else {
-        location.reload();
+    if (returnTo && returnTo !== currentPath) {
+      window.location.href = returnTo;
+      return;
+    }
+
+    document.dispatchEvent(new CustomEvent('cosmoskin:auth-refresh-requested', {
+      detail: {
+        source: 'login',
+        path: currentPath
       }
-    }, 500);
+    }));
   } catch (error) {
     console.error('Login error:', error);
 
@@ -554,7 +595,9 @@ loginForm?.addEventListener('submit', async (e) => {
 // Auth state sync
 // -----------------------------
 supabase.auth.onAuthStateChange(async (_event, session) => {
-  renderAccountState(session?.user || null);
+  const user = session?.user || null;
+  renderAccountState(user);
+  emitAuthState(user);
 });
 
 refreshAccountUI();

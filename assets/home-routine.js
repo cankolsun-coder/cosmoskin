@@ -4,27 +4,27 @@
   const CONCERNS_KEY = 'cosmoskin_skin_concerns';
   const PRODUCT_MAP = {
     cleanser: { id:'roundlab-cleanser', name:'1025 Dokdo Cleanser', note:'Nazik temizleme ile rutine net bir başlangıç sağlar.' },
-    serum: { id:'torriden-divein-serum', name:'DIVE-IN Serum', note:'Katmanlı nem için hafif ve günlük kullanıma uygundur.' },
-    sunscreen: { id:'boj-relief', name:'Relief Sun SPF50+ PA++++', note:'Sabah rutininin son adımında konforlu koruma sağlar.' },
-    moisturizer: { id:'roundlab-soy', name:'Soybean Nourishing Cream', note:'Serum sonrası konforu ve bariyer hissini destekler.' },
-    treatment: { id:'boj-glow', name:'Glow Serum', note:'Daha aydınlık ve dengeli görünüm hedefleyen akışlarla uyumludur.' },
-    essence: { id:'cosrx-snail', name:'Advanced Snail 96 Mucin Essence', note:'Serum öncesi esnek bir hazırlık katmanı sunar.' }
+    serum: { id:'torriden-divein-serum', name:'DIVE-IN Low Molecular Hyaluronic Acid Serum', note:'Katmanlı nem için hafif ve günlük kullanıma uygundur.' },
+    sunscreen: { id:'boj-relief', name:'Relief Sun: Rice + Probiotics SPF 50+ PA++++', note:'%30 pirinç özü ve probiyotiklerle günlük kullanıma uygun SPF adımını tamamlar.' },
+    moisturizer: { id:'roundlab-soy', name:'Soybean Nourishing Cream', note:'Siyah soya fasulyesi, seramid ve adenosin ile bakım adımını besleyici şekilde tamamlar.' },
+    treatment: { id:'boj-glow', name:'Glow Serum: Propolis + Niacinamide', note:'Propolis ve niasinamid içeriğiyle daha dengeli ve canlı görünüm hedefleyen akışlara eşlik eder.' },
+    essence: { id:'cosrx-snail', name:'Advanced Snail 96 Mucin Power Essence', note:'%96 snail mucin içeriğiyle serum öncesi nemli ve esnek bir katman sunar.' }
   };
   const BUNDLES = {
     hydration: { name:'Nem Rutini', meta:'3 ürün · günlük nem dengesi', items:[
       {id:'roundlab-cleanser',name:'1025 Dokdo Cleanser',brand:'Round Lab',price:729,image:'/assets/img/cleanse.jpg',qty:1},
-      {id:'torriden-divein-serum',name:'DIVE-IN Serum',brand:'Torriden',price:949,image:'/assets/img/hydrate.jpg',qty:1},
-      {id:'boj-relief',name:'Relief Sun SPF50+ PA++++',brand:'Beauty of Joseon',price:899,image:'/assets/img/protect.jpg',qty:1}
+      {id:'torriden-divein-serum',name:'DIVE-IN Low Molecular Hyaluronic Acid Serum',brand:'Torriden',price:949,image:'/assets/img/hydrate.jpg',qty:1},
+      {id:'boj-relief',name:'Relief Sun: Rice + Probiotics SPF 50+ PA++++',brand:'Beauty of Joseon',price:899,image:'/assets/img/protect.jpg',qty:1}
     ]},
     barrier: { name:'Dengeli Katman', meta:'3 ürün · nem + bariyer desteği', items:[
       {id:'roundlab-cleanser',name:'1025 Dokdo Cleanser',brand:'Round Lab',price:729,image:'/assets/img/cleanse.jpg',qty:1},
-      {id:'cosrx-snail',name:'Advanced Snail 96 Mucin Essence',brand:'COSRX',price:979,image:'/assets/img/hydrate.jpg',qty:1},
+      {id:'cosrx-snail',name:'Advanced Snail 96 Mucin Power Essence',brand:'COSRX',price:979,image:'/assets/img/hydrate.jpg',qty:1},
       {id:'roundlab-soy',name:'Soybean Nourishing Cream',brand:'Round Lab',price:1049,image:'/assets/img/care.jpg',qty:1}
     ]},
     glow: { name:'Glow Rutini', meta:'3 ürün · aydınlık görünüm odağı', items:[
-      {id:'boj-glow',name:'Glow Serum',brand:'Beauty of Joseon',price:879,image:'/assets/img/treat.jpg',qty:1},
-      {id:'torriden-divein-serum',name:'DIVE-IN Serum',brand:'Torriden',price:949,image:'/assets/img/hydrate.jpg',qty:1},
-      {id:'boj-relief',name:'Relief Sun SPF50+ PA++++',brand:'Beauty of Joseon',price:899,image:'/assets/img/protect.jpg',qty:1}
+      {id:'boj-glow',name:'Glow Serum: Propolis + Niacinamide',brand:'Beauty of Joseon',price:879,image:'/assets/img/treat.jpg',qty:1},
+      {id:'torriden-divein-serum',name:'DIVE-IN Low Molecular Hyaluronic Acid Serum',brand:'Torriden',price:949,image:'/assets/img/hydrate.jpg',qty:1},
+      {id:'boj-relief',name:'Relief Sun: Rice + Probiotics SPF 50+ PA++++',brand:'Beauty of Joseon',price:899,image:'/assets/img/protect.jpg',qty:1}
     ]}
   };
   const SKIN_LABELS = { dry:'Kuru', oily:'Yağlı', combination:'Karma', sensitive:'Hassas', normal:'Normal' };
