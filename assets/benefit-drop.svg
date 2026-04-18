@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="dropFill" x1="12" y1="8" x2="48" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7EBDD"/>
+      <stop offset="1" stop-color="#DDBA94"/>
+    </linearGradient>
+    <linearGradient id="dropStroke" x1="14" y1="10" x2="46" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E4C8A6"/>
+      <stop offset="1" stop-color="#B78A5A"/>
+    </linearGradient>
+  </defs>
+  <path d="M32.004 8C32.004 8 16 29.161 16 40C16 48.837 23.164 56 32.004 56C40.845 56 48 48.837 48 40C48 29.161 32.004 8 32.004 8Z" fill="url(#dropFill)"/>
+  <path d="M32.004 8C32.004 8 16 29.161 16 40C16 48.837 23.164 56 32.004 56C40.845 56 48 48.837 48 40C48 29.161 32.004 8 32.004 8Z" stroke="url(#dropStroke)" stroke-width="1.5"/>
+  <path d="M20.5 40.5C20.5 43.948 21.87 47.255 24.308 49.692" stroke="#FFF9F0" stroke-opacity="0.95" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M35.986 27.236L40.038 35.447L49 36.751L42.493 43.093L44.029 52.051L35.986 47.823L27.971 52.051L29.507 43.093L23 36.751L31.934 35.447L35.986 27.236Z" fill="#FFF9F0" fill-opacity="0.92" transform="translate(-7 6) scale(0.42)"/>
+</svg>

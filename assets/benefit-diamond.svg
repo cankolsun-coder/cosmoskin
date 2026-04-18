@@ -1,0 +1,12 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="diaStroke" x1="12" y1="12" x2="52" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E2C19A"/>
+      <stop offset="1" stop-color="#B7834E"/>
+    </linearGradient>
+  </defs>
+  <path d="M19 20L25 13H39L45 20L32 34L19 20Z" fill="#FBF4EA"/>
+  <path d="M19 20L25 13H39L45 20L32 34L19 20Z" stroke="url(#diaStroke)" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M25 13L32 20L39 13M19 20H45M32 20L32 34M24 20L32 34L40 20" stroke="url(#diaStroke)" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M13.4 14.5L14.6 17.6L17.8 18.8L14.6 20L13.4 23.1L12.2 20L9 18.8L12.2 17.6L13.4 14.5Z" fill="#E6C8A5"/>
+</svg>
