@@ -4450,3 +4450,144 @@ body::before{
   .hero-apple__benefits h3{font-size:11px;letter-spacing:.14em;line-height:1.4;}
   .hero-apple__benefits p{font-size:13px;line-height:1.6;}
 }
+
+/* Phase 11 — final mobile dock and hero benefit polish */
+.hero-apple__benefits{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+.hero-apple__benefits article{
+  text-align:center;
+  justify-items:center;
+  padding:26px 22px 24px;
+  border-radius:34px;
+  background:linear-gradient(180deg, rgba(255,255,255,.94), rgba(247,241,235,.86));
+  border:1px solid rgba(39,28,18,.06);
+  box-shadow:0 18px 40px rgba(31,22,15,.06), inset 0 1px 0 rgba(255,255,255,.72);
+}
+.hero-apple__benefits article::before{
+  width:58px;
+  height:58px;
+  border-radius:20px;
+  margin-bottom:4px;
+  background:linear-gradient(180deg,#fffdf9,#f1e3d1);
+  box-shadow:0 14px 28px rgba(27,19,12,.08);
+}
+.hero-apple__benefits article:nth-child(1)::before{content:"💧";}
+.hero-apple__benefits article:nth-child(2)::before{content:"◇";}
+.hero-apple__benefits article:nth-child(3)::before{content:"✓";}
+.hero-apple__benefits h3{
+  font-size:13px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  line-height:1.45;
+}
+.hero-apple__benefits p{
+  max-width:20ch;
+  margin:0;
+  font-size:15px;
+  line-height:1.7;
+  color:#605349;
+}
+
+@media (max-width: 760px){
+  body{padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 118px);}
+  .announcement{position:relative;z-index:35;}
+  .header{
+    height:76px;
+    padding:0 18px;
+    background:rgba(247,241,235,.94);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+    border-bottom:1px solid rgba(31,22,15,.05);
+  }
+  .brand{gap:12px;max-width:100%;}
+  .brand-logo{width:34px;height:34px;}
+  .brand-word{font-size:clamp(16px,4.8vw,20px);letter-spacing:.24em;}
+  .header-tools{
+    left:14px;
+    right:14px;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 12px);
+    transform:none;
+    justify-content:center;
+    width:auto;
+    padding:10px 12px;
+    gap:14px;
+    border-radius:28px;
+    background:rgba(255,251,247,.92);
+    box-shadow:0 18px 44px rgba(22,16,11,.16);
+  }
+  .tool-btn{
+    width:54px;
+    height:54px;
+    border-radius:18px;
+    background:linear-gradient(180deg,#ffffff,#f7efe7);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 10px 20px rgba(30,23,16,.06);
+  }
+  .mobile-nav{
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 92px);
+    left:14px;
+    right:14px;
+    border-radius:30px;
+    padding:14px;
+    background:rgba(255,251,247,.96);
+    box-shadow:0 22px 48px rgba(25,17,10,.14);
+  }
+  .mobile-nav.open{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .mobile-nav a{
+    min-height:56px;
+    border-radius:18px;
+    background:rgba(255,255,255,.84);
+    border:1px solid rgba(31,22,15,.05);
+    box-shadow:0 8px 18px rgba(31,22,15,.04);
+    font-size:11px;
+    letter-spacing:.16em;
+  }
+  .hero-apple{
+    padding-top:34px;
+  }
+  .hero-apple__copy h1{
+    max-width:10ch;
+    text-wrap:balance;
+  }
+  .hero-apple__sub{
+    max-width:30ch;
+    font-size:16px;
+    line-height:1.72;
+  }
+  .hero-apple__actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .hero-apple__actions .btn{
+    min-width:0;
+    width:100%;
+    padding-inline:0;
+  }
+  .hero-apple__benefits{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:12px;
+    margin-top:28px;
+  }
+  .hero-apple__benefits article{
+    min-height:206px;
+    padding:18px 12px 16px;
+    border-radius:28px;
+  }
+  .hero-apple__benefits article::before{
+    width:46px;
+    height:46px;
+    border-radius:16px;
+    font-size:20px;
+  }
+  .hero-apple__benefits h3{
+    font-size:10px;
+    letter-spacing:.16em;
+  }
+  .hero-apple__benefits p{
+    font-size:12px;
+    line-height:1.68;
+    max-width:15ch;
+  }
+  .trust-strip{grid-template-columns:1fr;}
+}

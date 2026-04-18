@@ -165,6 +165,7 @@
       document.querySelectorAll('[data-preset]').forEach(card => {
         const isActive = card.getAttribute('data-preset') === selectedPreset;
         card.classList.toggle('is-active', isActive);
+        card.toggleAttribute('data-active', isActive);
         card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
       });
     }
@@ -194,6 +195,12 @@
           skin = 'normal'; goal = 'glow'; concerns = ['glow'];
         }
         selectedPreset = key;
+        document.querySelectorAll('[data-preset]').forEach(card => {
+          const isActive = card.getAttribute('data-preset') === key;
+          card.classList.toggle('is-active', isActive);
+          card.toggleAttribute('data-active', isActive);
+          card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
         saveAndNotify('Hazır seçim uygulandı.');
         return;
       }
