@@ -1,0 +1,16 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="diaStroke" x1="14" y1="12" x2="50" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E4C8A6"/>
+      <stop offset="1" stop-color="#B78A5A"/>
+    </linearGradient>
+    <linearGradient id="diaFill" x1="18" y1="14" x2="46" y2="40" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBF4EA"/>
+      <stop offset="1" stop-color="#F4E3CF"/>
+    </linearGradient>
+  </defs>
+  <path d="M16 22L24.5 13H39.5L48 22L32 39L16 22Z" fill="url(#diaFill)"/>
+  <path d="M16 22L24.5 13H39.5L48 22L32 39L16 22Z" stroke="url(#diaStroke)" stroke-width="1.9" stroke-linejoin="round"/>
+  <path d="M24.5 13L32 22L39.5 13M16 22H48M32 22V39M22.8 22L32 39L41.2 22" stroke="url(#diaStroke)" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M13.4 15L14.6 18.2L17.8 19.4L14.6 20.6L13.4 23.8L12.2 20.6L9 19.4L12.2 18.2L13.4 15Z" fill="#E6C8A5"/>
+</svg>
