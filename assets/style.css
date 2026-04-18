@@ -4335,3 +4335,118 @@ body::before{
 .pdp-detail-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
 .field-help{margin-top:8px;text-transform:none;letter-spacing:0;font-size:12px}
 @media (max-width: 900px){.pdp-spec-grid,.pdp-columns{grid-template-columns:1fr}.pdp-detail-card{padding:18px}.pdp-detail-card__head{flex-direction:column}.pdp-detail-card__price{font-size:18px}}
+
+
+/* Phase 10 — mobile dock, rounded benefit cards, cleaner mobile nav */
+.hero-apple__benefits article{
+  position:relative;
+  display:grid;
+  gap:10px;
+  padding:22px 20px 20px;
+  border-radius:26px;
+  border:1px solid rgba(38,27,17,.07);
+  background:linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,240,233,.82));
+  box-shadow:0 16px 36px rgba(26,21,16,.06);
+}
+.hero-apple__benefits article::before{
+  content:"";
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  border-radius:16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(243,233,221,.92));
+  border:1px solid rgba(38,27,17,.08);
+  box-shadow:0 12px 24px rgba(26,21,16,.06);
+  font-size:19px;
+  color:#b08a5e;
+}
+.hero-apple__benefits article:nth-child(1)::before{content:"✦";}
+.hero-apple__benefits article:nth-child(2)::before{content:"◇";}
+.hero-apple__benefits article:nth-child(3)::before{content:"✓";}
+.hero-apple__benefits h3{margin:0;}
+.hero-apple__benefits p{font-size:14px;line-height:1.72;}
+
+@media (max-width: 760px){
+  body{padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 104px);}
+  .header{
+    height:74px;
+    padding:0 16px;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+  }
+  .header .site-nav{display:none;}
+  .brand{min-width:0;}
+  .brand-word{font-size:19px;letter-spacing:.28em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .header-tools{
+    position:fixed;
+    left:50%;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 14px);
+    transform:translateX(-50%);
+    z-index:380;
+    gap:12px;
+    padding:10px 14px;
+    border-radius:999px;
+    background:rgba(255,252,248,.9);
+    border:1px solid rgba(22,18,14,.06);
+    box-shadow:0 20px 46px rgba(18,13,8,.14);
+    backdrop-filter:blur(18px);
+    -webkit-backdrop-filter:blur(18px);
+  }
+  .tool-btn{
+    width:52px;
+    height:52px;
+    border-radius:18px;
+  }
+  .tool-btn svg{width:20px;height:20px;}
+  .cart-count{top:4px;right:4px;min-width:17px;height:17px;font-size:9px;}
+  .mobile-nav{
+    top:auto;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 88px);
+    left:12px;
+    right:12px;
+    width:auto;
+    transform:none;
+    border-radius:28px;
+    padding:14px;
+  }
+  .mobile-nav .site-search-form{display:none !important;}
+  .mobile-nav.open{gap:10px;}
+  .mobile-nav a{
+    min-height:54px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-size:12px;
+    letter-spacing:.14em;
+  }
+  .hero-apple__actions{gap:12px;}
+  .hero-apple__actions .btn{
+    min-width:calc(50% - 6px);
+    justify-content:center;
+  }
+  .hero-apple__benefits{
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:10px;
+    margin-top:26px;
+    padding-top:0;
+  }
+  .hero-apple__benefits article{
+    padding:16px 14px;
+    border-top:none;
+    border-radius:24px;
+    gap:8px;
+    min-height:176px;
+    align-content:start;
+  }
+  .hero-apple__benefits article::before{
+    width:38px;
+    height:38px;
+    border-radius:14px;
+    font-size:16px;
+  }
+  .hero-apple__benefits h3{font-size:11px;letter-spacing:.14em;line-height:1.4;}
+  .hero-apple__benefits p{font-size:13px;line-height:1.6;}
+}
