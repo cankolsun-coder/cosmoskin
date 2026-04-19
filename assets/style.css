@@ -5558,7 +5558,7 @@ body::before{
 }
 
 .hero-premium__copy h1 {
-  max-width: 8ch;
+  max-width: 8.6ch;
   margin: 0;
   font-size: clamp(54px, 6vw, 88px);
   line-height: .92;
@@ -5567,9 +5567,31 @@ body::before{
   text-wrap: balance;
 }
 
+.hero-premium__glow {
+  position: relative;
+  display: inline-block;
+  color: #d8bea0;
+  background: linear-gradient(180deg, #ead7c0 0%, #d7b792 48%, #bf9a73 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 18px rgba(230, 207, 181, .22);
+  filter: drop-shadow(0 0 20px rgba(232, 210, 186, .18));
+}
+
+.hero-premium__glow::after {
+  content: "";
+  position: absolute;
+  inset: 12% -2% 6%;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 242, 227, .38) 0%, rgba(255, 242, 227, .14) 34%, rgba(255, 242, 227, 0) 72%);
+  filter: blur(12px);
+  z-index: -1;
+  pointer-events: none;
+}
+
 .hero-premium__sub {
   max-width: 430px;
-  margin: 22px 0 0;
+  margin: 24px 0 0;
   font-size: 16px;
   line-height: 1.8;
   color: rgba(52, 41, 32, .78);
@@ -5788,7 +5810,7 @@ body::before{
 
   .hero-premium__copy h1 {
     font-size: clamp(44px, 10vw, 68px);
-    max-width: 9ch;
+    max-width: 9.2ch;
   }
 
   .hero-premium__sub {
@@ -5839,7 +5861,7 @@ body::before{
 
   .hero-premium__copy h1 {
     font-size: clamp(38px, 12vw, 56px);
-    max-width: 8.5ch;
+    max-width: 9ch;
   }
 
   .hero-premium__sub {
@@ -5953,4 +5975,73 @@ body::before{
     max-width: 150px;
     height: 30px;
   }
+}
+
+
+/* ===== 2026-04-19 homepage hero + brand bar refinement ===== */
+.hero-premium__stage{min-height:780px;}
+.hero-premium__inner{min-height:780px;padding-top:122px;padding-bottom:48px;grid-template-columns:minmax(0,560px) 1fr;}
+.hero-premium__copy{max-width:560px;padding-right:30px;}
+.hero-premium__eyebrow{margin:0 0 18px;letter-spacing:.18em;font-size:13px;color:#b59674;}
+.hero-premium__copy h1{max-width:7.7ch;font-size:clamp(58px,6.2vw,92px);line-height:.9;letter-spacing:-.055em;}
+.hero-premium__sub{max-width:470px;margin-top:24px;font-size:17px;line-height:1.75;color:rgba(52,41,32,.76);}
+.hero-premium__actions{margin-top:34px;gap:14px;}
+.hero-product img{filter:drop-shadow(0 18px 24px rgba(54,40,28,.10)) drop-shadow(0 36px 56px rgba(54,40,28,.10));}
+.hero-product__ground{bottom:10px;width:80%;height:20px;filter:blur(11px);}
+.hero-product--toner{width:138px;left:62.7%;bottom:136px;}
+.hero-product--serum{width:166px;left:69.1%;bottom:134px;}
+.hero-product--mini-serum{width:126px;left:75.2%;bottom:132px;}
+.hero-product--sunscreen{width:142px;left:81.0%;bottom:132px;}
+.hero-product--cream{width:176px;left:86.0%;bottom:153px;}
+.hero-product--sunscreen img{filter:drop-shadow(0 16px 20px rgba(54,40,28,.08)) drop-shadow(0 30px 46px rgba(54,40,28,.09));}
+.brand-ribbon__inner{gap:22px;min-height:124px;}
+.brand-ribbon__item{display:flex;align-items:center;justify-content:center;min-height:56px;overflow:visible;}
+.brand-ribbon__item img{width:auto;max-width:none;max-height:none;height:auto;object-fit:contain;opacity:.96;}
+.brand-ribbon__item--anua img{height:34px;}
+.brand-ribbon__item--cosrx img{height:30px;}
+.brand-ribbon__item--boj img{height:46px;}
+.brand-ribbon__item--skin1004 img{height:20px;transform:scale(1.2);transform-origin:center center;}
+.brand-ribbon__item--thankyoufarmer img{height:18px;transform:scale(1.22);transform-origin:center center;}
+@media (max-width:1280px){
+  .hero-premium__stage,.hero-premium__inner{min-height:730px;}
+  .hero-premium__inner{grid-template-columns:minmax(0,500px) 1fr;padding-top:118px;}
+  .hero-product--toner{width:124px;left:60.8%;bottom:128px;}
+  .hero-product--serum{width:150px;left:67.8%;bottom:126px;}
+  .hero-product--mini-serum{width:114px;left:74.1%;bottom:124px;}
+  .hero-product--sunscreen{width:128px;left:80.4%;bottom:124px;}
+  .hero-product--cream{width:160px;left:85.6%;bottom:144px;}
+}
+@media (max-width:1180px){
+  .hero-premium__stage{min-height:660px;}
+  .hero-premium__inner{grid-template-columns:1fr;min-height:auto;padding-top:108px;}
+  .hero-premium__copy{max-width:100%;}
+  .hero-product--toner{width:118px;left:56%;bottom:116px;}
+  .hero-product--serum{width:142px;left:63.8%;bottom:114px;}
+  .hero-product--mini-serum{width:108px;left:71%;bottom:112px;}
+  .hero-product--sunscreen{width:120px;left:78.2%;bottom:112px;}
+  .hero-product--cream{width:148px;left:84.4%;bottom:132px;}
+  .brand-ribbon__inner{gap:16px;min-height:108px;}
+  .brand-ribbon__item--anua img{height:30px;}
+  .brand-ribbon__item--cosrx img{height:27px;}
+  .brand-ribbon__item--boj img{height:40px;}
+  .brand-ribbon__item--skin1004 img{height:18px;transform:scale(1.14);}
+  .brand-ribbon__item--thankyoufarmer img{height:16px;transform:scale(1.15);}
+}
+@media (max-width:900px){
+  .hero-premium__stage{min-height:600px;}
+  .hero-premium__copy h1{font-size:clamp(46px,9vw,68px);max-width:8.3ch;}
+  .hero-premium__sub{max-width:560px;font-size:15px;line-height:1.7;}
+  .hero-product--toner{width:100px;left:52.5%;bottom:100px;}
+  .hero-product--serum{width:120px;left:61.5%;bottom:98px;}
+  .hero-product--mini-serum{width:92px;left:69.8%;bottom:96px;}
+  .hero-product--sunscreen{width:102px;left:77.6%;bottom:96px;}
+  .hero-product--cream{width:126px;left:84%;bottom:115px;}
+  .brand-ribbon__item--anua img{height:24px;}
+  .brand-ribbon__item--cosrx img{height:22px;}
+  .brand-ribbon__item--boj img{height:30px;}
+  .brand-ribbon__item--skin1004 img{height:14px;transform:scale(1.08);}
+  .brand-ribbon__item--thankyoufarmer img{height:13px;transform:scale(1.08);}
+}
+@media (max-width:768px){
+  .brand-ribbon__item img{transform:none !important;}
 }
