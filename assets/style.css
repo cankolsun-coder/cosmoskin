@@ -6045,3 +6045,33 @@ body::before{
 @media (max-width:768px){
   .brand-ribbon__item img{transform:none !important;}
 }
+
+
+/* ===== BRAND RIBBON FIX ===== */
+.brand-ribbon__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.brand-ribbon__item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  flex: 1;
+}
+
+.brand-ribbon__item img {
+  height: 26px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* brand-specific tuning */
+.brand-ribbon__item--anua img { height: 32px; }
+.brand-ribbon__item--skin1004 img { height: 30px; }
+.brand-ribbon__item--thankyoufarmer img { height: 30px; }
+.brand-ribbon__item--boj img { height: 28px; }
+
