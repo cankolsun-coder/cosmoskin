@@ -213,33 +213,48 @@
   bindMegaMenu('.categories-wrap', '.categories-trigger');
   bindMegaMenu('.brands-wrap', '.brands-trigger');
 
+
+  document.addEventListener('click', (event) => {
+    const anchor = event.target.closest('a');
+    if (!anchor) return;
+    const href = anchor.getAttribute('href') || '';
+    if (href.startsWith('#') || href.startsWith('/') || href.startsWith(window.location.origin)) {
+      closeAllMegaMenus();
+      mobileNav?.classList.remove('open');
+      document.body.classList.remove('modal-open');
+      if (!cartDrawer?.classList.contains('open') && !accountDrawer?.classList.contains('open') && !document.querySelector('.modal.show')) {
+        backdrop?.classList.remove('show');
+      }
+    }
+  });
+
   const SEARCH_INDEX = [
-    { label: '1025 Dokdo Cleanser', type: 'Ürün', url: '/collections/cleanse.html', keywords: 'round lab dokdo cleanser nazik temizleyici yuz temizleme', meta: 'Round Lab · Nazik günlük temizleme', badge: 'Ürün' },
-    { label: 'DIVE-IN Low Molecular Hyaluronic Acid Serum', type: 'Ürün', url: '/collections/hydrate.html', keywords: 'torriden serum nem hyaluronic hyaluronik', meta: 'Torriden · Katmanlı nem serumu', badge: 'Ürün' },
-    { label: 'The Vitamin C 23 Serum', type: 'Ürün', url: '/collections/treat.html', keywords: 'cosrx vitamin c leke esit ton brightening serum', meta: 'COSRX · Işıltı ve ton eşitleme', badge: 'Ürün' },
-    { label: 'Glow Serum: Propolis + Niacinamide', type: 'Ürün', url: '/collections/treat.html', keywords: 'beauty of joseon glow serum niacinamide propolis isilti', meta: 'Beauty of Joseon · Glow odaklı serum', badge: 'Ürün' },
-    { label: 'Relief Sun: Rice + Probiotics SPF 50+ PA++++', type: 'Ürün', url: '/collections/protect.html', keywords: 'beauty of joseon sunscreen spf gunes kremi gunes bakimi', meta: 'Beauty of Joseon · Günlük koruma', badge: 'Ürün' },
-    { label: 'DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++', type: 'Ürün', url: '/collections/protect.html', keywords: 'torriden watery sun serum spf gunes koruyucu', meta: 'Torriden · Hafif SPF seçkisi', badge: 'Ürün' },
+    { label: '1025 Dokdo Cleanser', type: 'Ürün', url: '/collections/cleanse.html?product=roundlab-cleanser', keywords: 'round lab dokdo cleanser nazik temizleyici yuz temizleme', meta: 'Round Lab · Nazik günlük temizleme', badge: 'Ürün' },
+    { label: 'DIVE-IN Low Molecular Hyaluronic Acid Serum', type: 'Ürün', url: '/collections/hydrate.html?product=torriden-divein-serum', keywords: 'torriden serum nem hyaluronic hyaluronik', meta: 'Torriden · Katmanlı nem serumu', badge: 'Ürün' },
+    { label: 'The Vitamin C 23 Serum', type: 'Ürün', url: '/collections/treat.html?product=cosrx-vitc', keywords: 'cosrx vitamin c leke esit ton brightening serum', meta: 'COSRX · Işıltı ve ton eşitleme', badge: 'Ürün' },
+    { label: 'Glow Serum: Propolis + Niacinamide', type: 'Ürün', url: '/collections/treat.html?product=boj-glow', keywords: 'beauty of joseon glow serum niacinamide propolis isilti', meta: 'Beauty of Joseon · Glow odaklı serum', badge: 'Ürün' },
+    { label: 'Relief Sun: Rice + Probiotics SPF 50+ PA++++', type: 'Ürün', url: '/collections/protect.html?product=boj-relief', keywords: 'beauty of joseon sunscreen spf gunes kremi gunes bakimi', meta: 'Beauty of Joseon · Günlük koruma', badge: 'Ürün' },
+    { label: 'DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++', type: 'Ürün', url: '/collections/protect.html?product=torriden-sun', keywords: 'torriden watery sun serum spf gunes koruyucu', meta: 'Torriden · Hafif SPF seçkisi', badge: 'Ürün' },
     { label: 'Temizleyiciler', type: 'Kategori', url: '/collections/cleanse.html', keywords: 'cleanser jel kopuk yag bazli makyaj temizleyici arindirici', meta: 'Jel, köpük ve çift temizleme', badge: 'Kategori' },
     { label: 'Tonik & Essence', type: 'Kategori', url: '/collections/hydrate.html', keywords: 'tonik essence esans nem katmanlari hydrate', meta: 'Hafif nem ve hazırlık katmanları', badge: 'Kategori' },
     { label: 'Serum & Ampul', type: 'Kategori', url: '/collections/treat.html', keywords: 'serum ampul hedef bakim leke isilti', meta: 'Leke, ton ve ışıltı odaklı serumlar', badge: 'Kategori' },
     { label: 'Nemlendiriciler', type: 'Kategori', url: '/collections/care.html', keywords: 'nemlendirici krem bariyer goz cevresi care', meta: 'Krem ve destek bakım ürünleri', badge: 'Kategori' },
     { label: 'Güneş Koruyucular', type: 'Kategori', url: '/collections/protect.html', keywords: 'gunes bakimi gunes kremi spf sun sunscreen protect', meta: 'Şehir kullanımına uygun SPF seçkileri', badge: 'Kategori' },
-    { label: 'Maskeler', type: 'Kategori', url: '/collections/care.html', keywords: 'yuz maskesi sheet mask support care', meta: 'Maskeler ve destek bakım editleri', badge: 'Kategori' },
+    { label: 'Maskeler', type: 'Kategori', url: '/collections/masks.html', keywords: 'yuz maskesi sheet mask support care', meta: 'Maskeler ve destek bakım editleri', badge: 'Kategori' },
     { label: 'Kuru Cilt', type: 'Cilt Tipi', url: '/collections/hydrate.html', keywords: 'dry skin kuru cilt nemsizlik barrier', meta: 'Nem ve konfor odaklı seçkiler', badge: 'Cilt Tipi' },
     { label: 'Yağlı Cilt', type: 'Cilt Tipi', url: '/collections/protect.html', keywords: 'oily skin yagli cilt sebum parlama hafif spf', meta: 'Daha hafif ve dengeli seçimler', badge: 'Cilt Tipi' },
     { label: 'Hassas Cilt', type: 'Cilt Tipi', url: '/collections/care.html', keywords: 'sensitive skin hassas cilt centella bariyer', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'Cilt Tipi' },
     { label: 'Nemsizlik', type: 'Cilt Problemi', url: '/collections/hydrate.html', keywords: 'dehydration nemsizlik hyaluronic acid essence', meta: 'Dolgun görünüm ve su tutma desteği', badge: 'Cilt Problemi' },
     { label: 'Leke Görünümü', type: 'Cilt Problemi', url: '/collections/treat.html', keywords: 'tone leke gorunumu vitamin c niacinamide serum', meta: 'Daha eşit ton görünümü için serumlar', badge: 'Cilt Problemi' },
-    { label: 'Akne Eğilimi', type: 'Cilt Problemi', url: '/collections/treat.html', keywords: 'blemish acne akne egilimi salicylic acid pore', meta: 'Gözenek ve akne eğilimine uygun bakım', badge: 'Cilt Problemi' },
+    { label: 'Akne Eğilimi', type: 'Cilt Problemi', url: '/collections/blemish.html', keywords: 'blemish acne akne egilimi salicylic acid pore', meta: 'Gözenek ve akne eğilimine uygun bakım', badge: 'Cilt Problemi' },
     { label: 'DIVE-IN Serum', type: 'İçerik', url: '/collections/hydrate.html', keywords: 'hyaluronic acid hyaluronik nem ingredient', meta: 'Nem ve dolgun görünüm desteği', badge: 'İçerik' },
     { label: 'Niacinamide', type: 'İçerik', url: '/collections/treat.html', keywords: 'niacinamide tone glow leke ingredient', meta: 'Ton eşitliği ve görünüm dengesi', badge: 'İçerik' },
     { label: 'Centella Asiatica', type: 'İçerik', url: '/collections/care.html', keywords: 'centella asiatica cica hassasiyet ingredient', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'İçerik' },
-    { label: 'Salicylic Acid', type: 'İçerik', url: '/collections/treat.html', keywords: 'salicylic acid bha akne gozenek ingredient', meta: 'Akne eğilimi ve gözenek desteği', badge: 'İçerik' },
-    { label: 'Round Lab', type: 'Marka', url: '/collections/cleanse.html', keywords: 'marka round lab', meta: 'Nazik temizleme ve günlük denge', badge: 'Marka' },
-    { label: 'Torriden', type: 'Marka', url: '/collections/hydrate.html', keywords: 'marka torriden', meta: 'Nem odaklı serum ve SPF', badge: 'Marka' },
-    { label: 'COSRX', type: 'Marka', url: '/collections/treat.html', keywords: 'marka cosrx', meta: 'Essence ve hedef bakım ikonları', badge: 'Marka' },
-    { label: 'Beauty of Joseon', type: 'Marka', url: '/collections/protect.html', keywords: 'marka beauty of joseon boj', meta: 'Glow ve hafif SPF seçkileri', badge: 'Marka' },
+    { label: 'Salicylic Acid', type: 'İçerik', url: '/collections/blemish.html', keywords: 'salicylic acid bha akne gozenek ingredient', meta: 'Akne eğilimi ve gözenek desteği', badge: 'İçerik' },
+    { label: 'Round Lab', type: 'Marka', url: '/collections/round-lab.html', keywords: 'marka round lab', meta: 'Nazik temizleme ve günlük denge', badge: 'Marka' },
+    { label: 'Torriden', type: 'Marka', url: '/collections/torriden.html', keywords: 'marka torriden', meta: 'Nem odaklı serum ve SPF', badge: 'Marka' },
+    { label: 'COSRX', type: 'Marka', url: '/collections/cosrx.html', keywords: 'marka cosrx', meta: 'Essence ve hedef bakım ikonları', badge: 'Marka' },
+    { label: 'Beauty of Joseon', type: 'Marka', url: '/collections/beauty-of-joseon.html', keywords: 'marka beauty of joseon boj', meta: 'Glow ve hafif SPF seçkileri', badge: 'Marka' },
     { label: 'Rutinler', type: 'Sayfa', url: '/collections/routine.html', keywords: 'rutinler routine cilt bakim rutini sabah aksam', meta: 'Hazır sabah-akşam akışları', badge: 'Sayfa' },
     { label: 'Destek Merkezi', type: 'Sayfa', url: '/contact.html', keywords: 'destek merkez iletisim yardim partnership', meta: 'İletişim ve iş ortaklığı formları', badge: 'Sayfa' }
     ];
@@ -1065,7 +1080,7 @@ function broadcastFavoritesChange() {
       detailShell.innerHTML = `
         <div class="collection-detail-toolbar">
           <button type="button" class="collection-detail-back">Tüm Ürünlere Dön</button>
-          <div class="collection-detail-note">Satış odaklı ürün görünümü · tek ürün odaklı detay ekranı</div>
+          <div class="collection-detail-note">Ürün bilgileri, kullanım sırası ve temel teslimat notları</div>
         </div>
         <div class="collection-detail-grid">
           <div class="collection-detail-media">
