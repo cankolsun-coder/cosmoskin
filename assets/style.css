@@ -5155,25 +5155,25 @@ body::before{
   width: 100%;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 22px 34px rgba(45, 32, 22, .18)) drop-shadow(0 44px 70px rgba(45, 32, 22, .1));
+  filter: drop-shadow(0 18px 28px rgba(45, 32, 22, .16)) drop-shadow(0 40px 64px rgba(45, 32, 22, .09)) drop-shadow(0 8px 12px rgba(45, 32, 22, .08));
 }
 
 .hero-product__ground {
   position: absolute;
   left: 50%;
-  bottom: -6px;
+  bottom: -8px;
   transform: translateX(-50%);
-  width: 72%;
-  height: 24px;
+  width: 76%;
+  height: 28px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(76, 57, 41, .22) 0%, rgba(76, 57, 41, .08) 42%, rgba(76, 57, 41, 0) 72%);
-  filter: blur(14px);
+  background: radial-gradient(circle, rgba(60, 44, 30, .28) 0%, rgba(60, 44, 30, .1) 40%, rgba(60, 44, 30, 0) 70%);
+  filter: blur(16px);
 }
 
 .hero-product--toner {
-  width: 132px;
-  left: 468px;
-  bottom: 112px;
+  width: 172px;
+  left: 412px;
+  bottom: 68px;
   z-index: 3;
 }
 
@@ -5182,34 +5182,34 @@ body::before{
 }
 
 .hero-product--serum {
-  width: 156px;
-  left: 560px;
-  bottom: 106px;
+  width: 204px;
+  left: 508px;
+  bottom: 60px;
   z-index: 5;
 }
 
 .hero-product--mini-serum {
-  width: 118px;
-  left: 652px;
-  bottom: 102px;
+  width: 154px;
+  left: 614px;
+  bottom: 56px;
   z-index: 6;
 }
 
 .hero-product--sunscreen {
-  width: 150px;
-  left: 718px;
-  bottom: 108px;
+  width: 196px;
+  left: 680px;
+  bottom: 62px;
   z-index: 4;
 }
 
 .hero-product--sunscreen img {
-  filter: drop-shadow(0 20px 30px rgba(45, 32, 22, .16)) drop-shadow(0 40px 65px rgba(45, 32, 22, .08));
+  filter: drop-shadow(0 28px 40px rgba(45, 32, 22, .2)) drop-shadow(0 52px 80px rgba(45, 32, 22, .1));
 }
 
 .hero-product--cream {
-  width: 176px;
-  left: 790px;
-  bottom: 106px;
+  width: 232px;
+  left: 752px;
+  bottom: 58px;
   z-index: 7;
 }
 
@@ -5267,33 +5267,33 @@ body::before{
   }
 
   .hero-product--toner {
-    width: 120px;
-    left: 390px;
-    bottom: 102px;
+    width: 148px;
+    left: 334px;
+    bottom: 58px;
   }
 
   .hero-product--serum {
-    width: 145px;
-    left: 472px;
-    bottom: 97px;
+    width: 178px;
+    left: 420px;
+    bottom: 50px;
   }
 
   .hero-product--mini-serum {
-    width: 108px;
-    left: 554px;
-    bottom: 94px;
+    width: 134px;
+    left: 512px;
+    bottom: 46px;
   }
 
   .hero-product--sunscreen {
-    width: 138px;
-    left: 614px;
-    bottom: 99px;
+    width: 170px;
+    left: 572px;
+    bottom: 52px;
   }
 
   .hero-product--cream {
-    width: 162px;
-    left: 676px;
-    bottom: 97px;
+    width: 202px;
+    left: 632px;
+    bottom: 48px;
   }
 }
 
@@ -5336,33 +5336,33 @@ body::before{
   }
 
   .hero-product--toner {
-    width: 96px;
-    left: 39%;
-    bottom: 83px;
+    width: 118px;
+    left: 36%;
+    bottom: 44px;
   }
 
   .hero-product--serum {
-    width: 118px;
-    left: 49%;
-    bottom: 80px;
+    width: 144px;
+    left: 46%;
+    bottom: 36px;
   }
 
   .hero-product--mini-serum {
-    width: 88px;
-    left: 58%;
-    bottom: 78px;
+    width: 108px;
+    left: 56%;
+    bottom: 32px;
   }
 
   .hero-product--sunscreen {
-    width: 112px;
-    left: 65%;
-    bottom: 82px;
+    width: 138px;
+    left: 64%;
+    bottom: 40px;
   }
 
   .hero-product--cream {
-    width: 136px;
-    left: 74%;
-    bottom: 80px;
+    width: 168px;
+    left: 72%;
+    bottom: 36px;
   }
 
   .brand-ribbon__inner {
@@ -5424,33 +5424,33 @@ body::before{
   }
 
   .hero-product--toner {
-    width: 72px;
-    left: 36%;
-    bottom: 54px;
+    width: 92px;
+    left: 34%;
+    bottom: 32px;
   }
 
   .hero-product--serum {
-    width: 90px;
-    left: 47%;
-    bottom: 50px;
+    width: 116px;
+    left: 45%;
+    bottom: 26px;
   }
 
   .hero-product--mini-serum {
-    width: 66px;
-    left: 57%;
-    bottom: 48px;
+    width: 86px;
+    left: 56%;
+    bottom: 22px;
   }
 
   .hero-product--sunscreen {
-    width: 84px;
-    left: 66%;
-    bottom: 52px;
+    width: 108px;
+    left: 65%;
+    bottom: 28px;
   }
 
   .hero-product--cream {
-    width: 102px;
-    left: 76%;
-    bottom: 50px;
+    width: 132px;
+    left: 74%;
+    bottom: 24px;
   }
 
   .hero-product__ground {
@@ -5953,4 +5953,66 @@ body::before{
     max-width: 150px;
     height: 30px;
   }
+}
+
+/* ═══════════════════════════════════════════════
+   COSMOSKIN HERO v3 — ACCENT GLOW + PRODUCT UPGRADES
+   ═══════════════════════════════════════════════ */
+
+/* Hafif / Saf highlighted accent words */
+.hero-premium__accent {
+  display: inline;
+  font-style: italic;
+  color: #c9a97a;
+  position: relative;
+}
+
+.hero-premium__glow-word {
+  display: inline;
+  position: relative;
+  color: #c9a97a;
+  font-style: italic;
+  text-shadow:
+    0 0 28px rgba(201, 169, 122, .45),
+    0 0 56px rgba(201, 169, 122, .20),
+    0 2px 8px rgba(180, 148, 96, .15);
+  animation: heroGlowPulse 3.6s ease-in-out infinite alternate;
+}
+
+.hero-premium__glow-word:last-child {
+  animation-delay: -1.8s;
+}
+
+@keyframes heroGlowPulse {
+  0%   {
+    text-shadow:
+      0 0 22px rgba(201,169,122,.36),
+      0 0 44px rgba(201,169,122,.16),
+      0 2px 6px rgba(180,148,96,.12);
+  }
+  100% {
+    text-shadow:
+      0 0 40px rgba(201,169,122,.64),
+      0 0 72px rgba(201,169,122,.28),
+      0 2px 10px rgba(180,148,96,.20);
+  }
+}
+
+/* Respect reduce-motion */
+@media (prefers-reduced-motion: reduce) {
+  .hero-premium__glow-word {
+    animation: none;
+    text-shadow: 0 0 24px rgba(201,169,122,.38);
+  }
+}
+
+/* H1 line-height tightening for three-line layout */
+.hero-premium__copy h1 {
+  line-height: 1.10;
+}
+
+/* Marble surface colour stop — deepen the ground plane gradient */
+.hero-premium__stage::after {
+  height: 28%;
+  background: linear-gradient(180deg, rgba(243,237,232,0) 0%, rgba(232,225,216,.22) 40%, rgba(225,216,205,.52) 100%);
 }
