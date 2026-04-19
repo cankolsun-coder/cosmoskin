@@ -174,8 +174,8 @@
 <li class="brands-wrap">
 <button aria-expanded="false" class="linkish brands-trigger">Markalar</button>
 <div class="mega brands-mega">
-<div><h4>Seçili Markalar</h4><a href="/collections/cleanse.html">Round Lab<span>Nazik temizleyiciler ve günlük denge ürünleri</span></a><a href="/collections/hydrate.html">Torriden<span>Nem odaklı serum ve SPF seçkileri</span></a></div>
-<div><h4>K-Beauty Editi</h4><a href="/collections/hydrate.html">COSRX<span>Essence, bariyer desteği ve bakım ikonları</span></a><a href="/collections/protect.html">Beauty of Joseon<span>Rahat dokulu SPF ve glow odaklı serumlar</span></a></div>
+<div><h4>Seçili Markalar</h4><a href="/collections/cleanse.html">Round Lab<span>Nazik temizleyiciler ve günlük denge ürünleri</span></a><a href="/collections/hydrate.html">Torriden<span>Nem odaklı serum ve SPF seçkileri</span></a><a href="/collections/hydrate.html">Anua<span>Hafif toner ve sakinleştirici günlük bakım seçkileri</span></a></div>
+<div><h4>K-Beauty Editi</h4><a href="/collections/hydrate.html">COSRX<span>Essence, bariyer desteği ve bakım ikonları</span></a><a href="/collections/protect.html">Beauty of Joseon<span>Rahat dokulu SPF ve glow odaklı serumlar</span></a><a href="/collections/treat.html">SKIN1004<span>Centella odaklı serum ve yatıştırıcı bakım çizgisi</span></a><a href="/collections/care.html">Thank You Farmer<span>Nem odaklı krem ve konforlu günlük bakım ürünleri</span></a></div>
 <div class="mega-side"><small>Markalar</small><strong>Rafine seçki,<br/>tek bakışta net.</strong><p>Marka bazlı gezinme ile ürünü daha hızlı bulmanızı sağlayan sade yapı.</p><a class="btn btn-secondary" href="/contact.html">Marka Talebi</a></div>
 </div>
 </li>
@@ -210,7 +210,33 @@
     </div>
 
     <div class="hero-premium__visual reveal" aria-hidden="true">
-      <img class="hero-premium__scene" src="/assets/img/official-hero-scene.png?v=20260418a" alt=""/>
+      <div class="hero-premium__stage" data-hero-parallax>
+        <img class="hero-premium__bg" src="/assets/hero/hero-bg.png?v=20260419b" alt=""/>
+        <div class="hero-premium__ambient hero-premium__ambient--one"></div>
+        <div class="hero-premium__ambient hero-premium__ambient--two"></div>
+        <div class="hero-premium__products" id="heroProducts">
+          <div class="hero-product hero-product--toner" data-hero-product>
+            <span class="hero-product__ground"></span>
+            <img src="/assets/hero/toner.webp?v=20260419b" alt=""/>
+          </div>
+          <div class="hero-product hero-product--serum" data-hero-product>
+            <span class="hero-product__ground"></span>
+            <img src="/assets/hero/serum.webp?v=20260419b" alt=""/>
+          </div>
+          <div class="hero-product hero-product--mini-serum" data-hero-product>
+            <span class="hero-product__ground"></span>
+            <img src="/assets/hero/mini-serum.webp?v=20260419b" alt=""/>
+          </div>
+          <div class="hero-product hero-product--sunscreen" data-hero-product>
+            <span class="hero-product__ground"></span>
+            <img src="/assets/hero/sunscreen.webp?v=20260419b" alt=""/>
+          </div>
+          <div class="hero-product hero-product--cream" data-hero-product>
+            <span class="hero-product__ground"></span>
+            <img src="/assets/hero/cream.webp?v=20260419b" alt=""/>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -449,11 +475,15 @@
 <script>
 (function () {
   const hero = document.getElementById('heroSection');
-  if (!hero || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const heroProducts = document.querySelectorAll('[data-hero-product]');
+  const stage = hero ? hero.querySelector('[data-hero-parallax]') : null;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!hero || !stage || reduceMotion) return;
 
   let ticking = false;
+  let rafId = null;
 
-  function updateHeroMotion() {
+  function updateHeroScrollMotion() {
     const rect = hero.getBoundingClientRect();
     const viewportH = window.innerHeight || document.documentElement.clientHeight;
     const progress = Math.max(-1, Math.min(1, (viewportH * 0.5 - rect.top) / (viewportH + rect.height)));
@@ -464,12 +494,46 @@
 
   function onScroll() {
     if (!ticking) {
-      window.requestAnimationFrame(updateHeroMotion);
+      window.requestAnimationFrame(updateHeroScrollMotion);
       ticking = true;
     }
   }
 
-  updateHeroMotion();
+  function setPointerMotion(clientX, clientY) {
+    const rect = stage.getBoundingClientRect();
+    const px = ((clientX - rect.left) / rect.width) - 0.5;
+    const py = ((clientY - rect.top) / rect.height) - 0.5;
+    hero.style.setProperty('--hero-pointer-x', `${(px * 20).toFixed(2)}px`);
+    hero.style.setProperty('--hero-pointer-y', `${(py * 16).toFixed(2)}px`);
+    hero.style.setProperty('--hero-pointer-tilt', `${(px * 1.4).toFixed(2)}deg`);
+    heroProducts.forEach((item, index) => {
+      const depth = Number(item.dataset.depth || index + 1);
+      const moveX = px * depth * 10;
+      const moveY = py * depth * 7;
+      item.style.setProperty('--hero-item-x', `${moveX.toFixed(2)}px`);
+      item.style.setProperty('--hero-item-y', `${moveY.toFixed(2)}px`);
+      item.style.setProperty('--hero-item-rotate', `${(px * depth * 0.6).toFixed(2)}deg`);
+    });
+  }
+
+  function resetPointerMotion() {
+    hero.style.setProperty('--hero-pointer-x', '0px');
+    hero.style.setProperty('--hero-pointer-y', '0px');
+    hero.style.setProperty('--hero-pointer-tilt', '0deg');
+    heroProducts.forEach((item) => {
+      item.style.setProperty('--hero-item-x', '0px');
+      item.style.setProperty('--hero-item-y', '0px');
+      item.style.setProperty('--hero-item-rotate', '0deg');
+    });
+  }
+
+  stage.addEventListener('pointermove', (event) => {
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(() => setPointerMotion(event.clientX, event.clientY));
+  });
+
+  stage.addEventListener('pointerleave', resetPointerMotion);
+  updateHeroScrollMotion();
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll);
 })();
