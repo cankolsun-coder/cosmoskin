@@ -6170,3 +6170,245 @@ body::before{
   .brand-ribbon__item[href*="round-lab"] img  { height: 22px !important; }
   .brand-ribbon__item[href*="torriden"] img   { height: 22px !important; }
 }
+
+/* ============================================================
+   HERO & BRAND RIBBON — COMPREHENSIVE REDESIGN FIX
+   ============================================================ */
+
+/* --- HERO: Product sizes 2.2× bigger, seated on marble --- */
+.hero-product img {
+  filter:
+    drop-shadow(0 6px 12px rgba(54,40,28,.20))
+    drop-shadow(0 28px 52px rgba(54,40,28,.18))
+    drop-shadow(0 52px 90px rgba(54,40,28,.12)) !important;
+  transition: transform .45s cubic-bezier(.22,.68,0,1.2), filter .3s ease !important;
+}
+.hero-product:hover img {
+  transform: translateY(-8px) scale(1.03) !important;
+}
+
+/* Marble surface contact shadow — bigger & more realistic */
+.hero-product__ground {
+  width: 88% !important;
+  height: 28px !important;
+  bottom: 4px !important;
+  background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(73,55,40,.32) 0%, rgba(73,55,40,.14) 52%, rgba(73,55,40,0) 80%) !important;
+  filter: blur(12px) !important;
+}
+
+/* Product sizes — 2.2× scale up */
+.hero-product--toner {
+  width: 214px !important;
+  left: 52.5% !important;
+  bottom: 172px !important;
+  z-index: 4 !important;
+}
+.hero-product--serum {
+  width: 224px !important;
+  left: 58.5% !important;
+  bottom: 168px !important;
+  z-index: 6 !important;
+}
+.hero-product--mini-serum {
+  width: 166px !important;
+  left: 65.8% !important;
+  bottom: 164px !important;
+  z-index: 7 !important;
+}
+.hero-product--sunscreen {
+  width: 214px !important;
+  left: 72.5% !important;
+  bottom: 168px !important;
+  z-index: 5 !important;
+}
+.hero-product--cream {
+  width: 198px !important;
+  left: 80.5% !important;
+  bottom: 196px !important;
+  z-index: 8 !important;
+}
+.hero-product--cream .hero-product__ground {
+  width: 92% !important;
+}
+
+/* Subtle floating animation on hero serum (tallest product = focal) */
+@keyframes cs-float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-9px); }
+}
+.hero-product--serum img {
+  animation: cs-float 5.6s ease-in-out infinite !important;
+}
+.hero-product--serum:hover img {
+  animation: none !important;
+}
+
+/* 1280px */
+@media (max-width: 1280px) {
+  .hero-product--toner      { width: 186px !important; left: 51.5% !important; bottom: 162px !important; }
+  .hero-product--serum      { width: 196px !important; left: 58%   !important; bottom: 158px !important; }
+  .hero-product--mini-serum { width: 144px !important; left: 65.2% !important; bottom: 154px !important; }
+  .hero-product--sunscreen  { width: 186px !important; left: 71.8% !important; bottom: 158px !important; }
+  .hero-product--cream      { width: 172px !important; left: 80%   !important; bottom: 185px !important; }
+}
+
+/* 1180px */
+@media (max-width: 1180px) {
+  .hero-product--toner      { width: 162px !important; left: 50.5% !important; bottom: 148px !important; }
+  .hero-product--serum      { width: 172px !important; left: 57.5% !important; bottom: 144px !important; }
+  .hero-product--mini-serum { width: 126px !important; left: 64.8% !important; bottom: 141px !important; }
+  .hero-product--sunscreen  { width: 162px !important; left: 71.2% !important; bottom: 144px !important; }
+  .hero-product--cream      { width: 150px !important; left: 79.5% !important; bottom: 168px !important; }
+}
+
+/* 900px — tablet: reduce and regroup */
+@media (max-width: 900px) {
+  .hero-product--toner      { width: 108px !important; left: 47% !important; bottom: 130px !important; }
+  .hero-product--serum      { width: 116px !important; left: 54% !important; bottom: 126px !important; }
+  .hero-product--mini-serum { width:  86px !important; left: 61% !important; bottom: 123px !important; }
+  .hero-product--sunscreen  { width: 108px !important; left: 68% !important; bottom: 126px !important; }
+  .hero-product--cream      { width: 100px !important; left: 76% !important; bottom: 148px !important; }
+}
+
+/* 768px — mobile: hide products to avoid clutter */
+@media (max-width: 768px) {
+  .hero-product--toner      { width: 82px  !important; left: 44% !important; bottom: 108px !important; }
+  .hero-product--serum      { width: 90px  !important; left: 52% !important; bottom: 104px !important; }
+  .hero-product--mini-serum { width: 66px  !important; left: 60% !important; bottom: 101px !important; }
+  .hero-product--sunscreen  { width: 84px  !important; left: 67% !important; bottom: 104px !important; }
+  .hero-product--cream      { width: 78px  !important; left: 75% !important; bottom: 122px !important; }
+}
+
+/* --- BRAND RIBBON — Professional redesign --- */
+.brand-ribbon {
+  background: linear-gradient(180deg, #faf7f3 0%, #f5f0eb 100%) !important;
+  border-top: 1px solid rgba(79,62,46,.07) !important;
+  border-bottom: 1px solid rgba(79,62,46,.07) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Subtle inner glow */
+.brand-ribbon::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: radial-gradient(ellipse 60% 100% at 50% -10%, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 100%) !important;
+  pointer-events: none !important;
+}
+
+.brand-ribbon__inner {
+  min-height: 120px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 0 !important;
+  padding-inline: 0 !important;
+}
+
+.brand-ribbon__divider {
+  width: 1px !important;
+  height: 38px !important;
+  background: linear-gradient(180deg,
+    rgba(79,62,46,0) 0%,
+    rgba(79,62,46,.16) 30%,
+    rgba(79,62,46,.16) 70%,
+    rgba(79,62,46,0) 100%) !important;
+  flex-shrink: 0 !important;
+}
+
+.brand-ribbon__item {
+  flex: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 80px !important;
+  padding: 0 12px !important;
+  opacity: 1 !important;
+  transition: background .22s ease !important;
+  border-radius: 8px !important;
+}
+.brand-ribbon__item:hover {
+  background: rgba(79,62,46,.04) !important;
+}
+
+/* Logo images — crisp, legible, premium muted */
+.brand-ribbon__item img {
+  max-height: none !important;
+  width: auto !important;
+  max-width: 130px !important;
+  display: block !important;
+  filter: grayscale(100%) opacity(0.52) !important;
+  transition: filter .28s ease, transform .28s ease !important;
+}
+.brand-ribbon__item:hover img {
+  filter: grayscale(0%) opacity(1) !important;
+  transform: scale(1.06) !important;
+}
+
+/* Per-brand optimal heights */
+.brand-ribbon__item[href*="anua"]           img { height: 44px !important; }
+.brand-ribbon__item[href*="cosrx"]          img { height: 38px !important; }
+.brand-ribbon__item[href*="beauty-of-joseon"] img { height: 60px !important; }
+.brand-ribbon__item[href*="skin1004"]       img { height: 35px !important; }
+.brand-ribbon__item[href*="thank-you-farmer"] img { height: 36px !important; }
+.brand-ribbon__item[href*="round-lab"]      img { height: 32px !important; }
+.brand-ribbon__item[href*="torriden"]       img { height: 30px !important; }
+
+/* "Seçilen Markalar" label above ribbon */
+.brand-ribbon__label {
+  display: block;
+  text-align: center;
+  font-size: 10.5px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(79,62,46,.42);
+  margin-bottom: 6px;
+}
+
+@media (max-width: 900px) {
+  .brand-ribbon__inner {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0 !important;
+    min-height: auto !important;
+    padding: 18px 0 !important;
+  }
+  .brand-ribbon__divider { display: none !important; }
+  .brand-ribbon__item { min-height: 60px !important; padding: 8px !important; }
+  .brand-ribbon__item[href*="beauty-of-joseon"] img { height: 44px !important; }
+}
+
+@media (max-width: 768px) {
+  .brand-ribbon__inner {
+    grid-template-columns: repeat(2, 1fr) !important;
+    row-gap: 4px !important;
+    padding: 16px 0 20px !important;
+  }
+  .brand-ribbon__item[href*="anua"]           img { height: 36px !important; }
+  .brand-ribbon__item[href*="cosrx"]          img { height: 30px !important; }
+  .brand-ribbon__item[href*="beauty-of-joseon"] img { height: 38px !important; }
+  .brand-ribbon__item[href*="skin1004"]       img { height: 26px !important; }
+  .brand-ribbon__item[href*="thank-you-farmer"] img { height: 28px !important; }
+  .brand-ribbon__item[href*="round-lab"]      img { height: 24px !important; }
+  .brand-ribbon__item[href*="torriden"]       img { height: 24px !important; }
+}
+
+/* --- HERO COPY: Tighten ambient glow --- */
+.hero-premium__ambient--one {
+  width: 280px !important;
+  height: 280px !important;
+  right: 8% !important;
+  bottom: 18% !important;
+  background: radial-gradient(circle, rgba(255,255,255,.38), rgba(255,255,255,0) 72%) !important;
+}
+
+/* --- TRUST STRIP: Cleaner presentation --- */
+.trust-strip {
+  border-radius: 0 !important;
+  border-top: 1px solid rgba(79,62,46,.07) !important;
+  border-bottom: none !important;
+  background: transparent !important;
+  padding: 32px 0 !important;
+}
+
