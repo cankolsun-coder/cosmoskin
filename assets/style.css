@@ -6136,3 +6136,37 @@ body::before{
 @media (max-width:1180px){.hero-premium__copy h1{max-width:10ch}.hero-product--toner{width:154px;left:58.8%;bottom:30px}.hero-product--serum{width:164px;left:68.8%;bottom:32px}.hero-product--mini-serum{width:120px;left:76.6%;bottom:28px}.hero-product--sunscreen{width:176px;left:84.5%;bottom:27px}.hero-product--cream{width:160px;left:91.8%;bottom:34px}}
 @media (max-width:900px){.hero-premium__stage{min-height:620px}.hero-premium__inner{padding-top:104px}.hero-premium__copy{max-width:420px}.hero-premium__copy h1{max-width:8.8ch}.hero-product--toner{width:108px;left:55%;bottom:42px}.hero-product--serum{width:116px;left:65%;bottom:46px}.hero-product--mini-serum{width:86px;left:74%;bottom:42px}.hero-product--sunscreen{width:122px;left:82%;bottom:40px}.hero-product--cream{width:110px;left:89%;bottom:50px}.brand-ribbon__inner{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px 10px;padding:16px 0}.brand-ribbon__divider,.brand-ribbon__inner::before,.brand-ribbon__inner::after{display:none}.brand-ribbon__item[href*="beauty-of-joseon"] img{height:42px}}
 @media (max-width:768px){.hero-premium__stage{min-height:520px}.hero-premium__inner{min-height:520px;padding-top:88px}.hero-premium__copy{max-width:320px}.hero-premium__eyebrow{margin-bottom:14px}.hero-premium__sub{font-size:13.5px;max-width:300px}.hero-premium__actions .btn{padding:13px 20px}.hero-product--toner{width:82px;left:53%;bottom:32px}.hero-product--serum{width:90px;left:63%;bottom:36px}.hero-product--mini-serum{width:66px;left:72.5%;bottom:31px}.hero-product--sunscreen{width:94px;left:81%;bottom:30px}.hero-product--cream{width:86px;left:88.5%;bottom:38px}.brand-ribbon__inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px;padding:18px 0 20px}.brand-ribbon__item{min-height:40px}.brand-ribbon__item[href*="anua"] img{height:34px}.brand-ribbon__item[href*="cosrx"] img{height:28px}.brand-ribbon__item[href*="beauty-of-joseon"] img{height:34px}.brand-ribbon__item[href*="skin1004"] img{height:24px}.brand-ribbon__item[href*="thank-you-farmer"] img{height:26px}.brand-ribbon__item[href*="round-lab"] img{height:22px}.brand-ribbon__item[href*="torriden"] img{height:22px}}
+
+/* ===== BRAND RIBBON LOGO FIX =====
+   Sorun 1: max-height:28px önceki kural tüm logoları kısıtlıyordu
+   Sorun 2: brightness(.16) logolara neredeyse görünmez yapıyordu
+   ================================ */
+.brand-ribbon__item img {
+  max-height: none !important;
+  filter: grayscale(100%) opacity(0.48) !important;
+  transition: filter .24s ease, transform .24s ease, opacity .24s ease !important;
+}
+.brand-ribbon__item:hover img {
+  filter: grayscale(0%) opacity(1) !important;
+  transform: scale(1.04) !important;
+}
+/* Per-brand heights - override with higher specificity */
+.brand-ribbon__item[href*="anua"] img       { height: 42px !important; }
+.brand-ribbon__item[href*="cosrx"] img      { height: 36px !important; }
+.brand-ribbon__item[href*="beauty-of-joseon"] img { height: 56px !important; }
+.brand-ribbon__item[href*="skin1004"] img   { height: 33px !important; }
+.brand-ribbon__item[href*="thank-you-farmer"] img { height: 34px !important; }
+.brand-ribbon__item[href*="round-lab"] img  { height: 30px !important; }
+.brand-ribbon__item[href*="torriden"] img   { height: 28px !important; }
+@media (max-width: 900px) {
+  .brand-ribbon__item[href*="beauty-of-joseon"] img { height: 42px !important; }
+}
+@media (max-width: 768px) {
+  .brand-ribbon__item[href*="anua"] img       { height: 34px !important; }
+  .brand-ribbon__item[href*="cosrx"] img      { height: 28px !important; }
+  .brand-ribbon__item[href*="beauty-of-joseon"] img { height: 36px !important; }
+  .brand-ribbon__item[href*="skin1004"] img   { height: 24px !important; }
+  .brand-ribbon__item[href*="thank-you-farmer"] img { height: 26px !important; }
+  .brand-ribbon__item[href*="round-lab"] img  { height: 22px !important; }
+  .brand-ribbon__item[href*="torriden"] img   { height: 22px !important; }
+}
