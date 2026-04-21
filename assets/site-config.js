@@ -10,3 +10,9 @@ window.COSMOSKIN_CONFIG = {
   freeShippingThreshold: 2500,
   shippingFee: 119
 };
+
+window.__COSMOSKIN_CFG = {
+  apiBase: window.COSMOSKIN_CONFIG.apiBase,
+  supabaseUrl: window.COSMOSKIN_CONFIG.supabaseUrl,
+  supabaseAnonKey: window.COSMOSKIN_CONFIG.supabaseAnonKey
+};
