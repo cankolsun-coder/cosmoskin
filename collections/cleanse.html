@@ -69,7 +69,1479 @@
 <div class="pdp-columns"><div><h4>Öne çıkan gerçekler</h4><ul><li>Slightly acidic pH 5.0–6.0 temizleyici yapı</li><li>Deniz derin suyu ile nem dengesini destekleyen formül</li><li>Kremden köpüğe dönen doku, fazla sebumu arındırır</li></ul></div><div><h4>Rutin içinde kullanımı</h4><ol><li>Sabah ve akşam ıslak cilde uygula</li><li>30–40 saniye nazikçe köpürt</li><li>Ilık su ile durula ve bir sonraki adıma geç</li></ol></div></div>
 <div class="pdp-detail-note"><strong>Not:</strong> İlk adım olarak kullanılır Makyaj veya yoğun SPF varsa çift temizlemeyle desteklenebilir Kuruluk hissini artırmadan arındırma hedefler</div>
 <div class="pdp-detail-actions"><a class="btn btn-primary" href="/checkout.html">Güvenli Ödemeye Geç</a><a class="btn btn-secondary" href="/teslimat-kargo.html">Teslimat Bilgisi</a></div>
-</article></div></div></section><section class="section faq-section"><div class="container narrow"><p class="kicker">Sipariş Öncesi</p><h2>Sık sorulan sorular</h2><div class="faq-list"><details class="faq-item"><summary>Ürün bilgileri neye göre yazıldı?</summary><p>Hacim, ana içerik ve kullanım notları resmi marka sayfaları ile güvenilir ürün sayfalarındaki açıklamalara göre sadeleştirildi; abartılı veya doğrulanmayan vaatler kullanılmadı.</p></details><details class="faq-item"><summary>Fiyatlar sepette değişiyor mu?</summary><p>Site akışında ürün fiyatları KDV dahil gösterilir. Kargo tutarı sipariş toplamına göre ödeme öncesinde ayrıca belirtilir.</p></details><details class="faq-item"><summary>İade ve teslimat koşullarına nereden ulaşabilirim?</summary><p>Footer alanındaki Teslimat &amp; Kargo, İade &amp; Değişim, Ön Bilgilendirme ve Mesafeli Satış sayfalarından ödeme öncesi tüm metinlere erişebilirsin.</p></details><details class="faq-item"><summary>Bu temizleyici çift temizleme rutininin neresinde kullanılır?</summary><p>Yoğun makyaj veya dayanıklı güneş koruyucu kullanıyorsanız su bazlı temizleyici adımı olarak ikinci aşamada kullanılabilir. Tek başına kullanımda ise sabah ve akşam ana temizleme ürünü olarak konumlanır.</p></details></div></div></section></main><footer class="footer">
+</article></div></div></section><section class="section faq-section"><div class="container narrow"><p class="kicker">Sipariş Öncesi</p><h2>Sık sorulan sorular</h2><div class="faq-list"><details class="faq-item"><summary>Ürün bilgileri neye göre yazıldı?</summary><p>Hacim, ana içerik ve kullanım notları resmi marka sayfaları ile güvenilir ürün sayfalarındaki açıklamalara göre sadeleştirildi; abartılı veya doğrulanmayan vaatler kullanılmadı.</p></details><details class="faq-item"><summary>Fiyatlar sepette değişiyor mu?</summary><p>Site akışında ürün fiyatları KDV dahil gösterilir. Kargo tutarı sipariş toplamına göre ödeme öncesinde ayrıca belirtilir.</p></details><details class="faq-item"><summary>İade ve teslimat koşullarına nereden ulaşabilirim?</summary><p>Footer alanındaki Teslimat &amp; Kargo, İade &amp; Değişim, Ön Bilgilendirme ve Mesafeli Satış sayfalarından ödeme öncesi tüm metinlere erişebilirsin.</p></details><details class="faq-item"><summary>Bu temizleyici çift temizleme rutininin neresinde kullanılır?</summary><p>Yoğun makyaj veya dayanıklı güneş koruyucu kullanıyorsanız su bazlı temizleyici adımı olarak ikinci aşamada kullanılabilir. Tek başına kullanımda ise sabah ve akşam ana temizleme ürünü olarak konumlanır.</p></details></div></div></section><!-- ============================================================
+  COSMOSKIN — Ürün Sayfası Yorum Bileşeni
+  Dosya: reviews-component.html (ürün sayfasına snippet olarak eklenir)
+  Bağımlılıklar: style.css, supabase-js@2, mevcut auth sistemi
+  ============================================================ -->
+
+<!-- ── Yorum Bölümü (ürün sayfasındaki sekme veya section içine yerleştir) ── -->
+<section class="reviews-section" id="reviewsSection" data-product-id="__AUTO__">
+
+  <!-- Özet Başlık -->
+  <div class="reviews-header">
+    <div class="reviews-header-left">
+      <div class="reviews-score-block">
+        <span class="reviews-big-score" id="rvgBigScore">—</span>
+        <div class="reviews-stars-row" id="rvgStarsRow" aria-label="Ürün puanı"></div>
+        <span class="reviews-count-label" id="rvgCountLabel">0 değerlendirme</span>
+      </div>
+      <div class="reviews-histogram" id="rvgHistogram">
+        <!-- JS tarafından doldurulur -->
+      </div>
+    </div>
+    <div class="reviews-header-right">
+      <button class="btn btn-primary" id="rvgWriteBtn" onclick="ReviewModule.openForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M12 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>
+          <path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"/>
+        </svg>
+        Yorum Yaz
+      </button>
+      <p class="reviews-write-note" id="rvgWriteNote"></p>
+    </div>
+  </div>
+
+  <!-- Filtre Çubuğu -->
+  <div class="reviews-filter-row" id="rvgFilterRow" style="display:none">
+    <button class="rvg-filter-btn active" data-filter="all" onclick="ReviewModule.filter('all',this)">Tümü</button>
+    <button class="rvg-filter-btn" data-filter="5" onclick="ReviewModule.filter('5',this)">
+      <span class="rvg-star-mini">★</span> 5
+    </button>
+    <button class="rvg-filter-btn" data-filter="4" onclick="ReviewModule.filter('4',this)">
+      <span class="rvg-star-mini">★</span> 4
+    </button>
+    <button class="rvg-filter-btn" data-filter="3" onclick="ReviewModule.filter('3',this)">
+      <span class="rvg-star-mini">★</span> 3
+    </button>
+    <button class="rvg-filter-btn" data-filter="photo" onclick="ReviewModule.filter('photo',this)">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+      Fotoğraflı
+    </button>
+  </div>
+
+  <!-- Yorum Listesi -->
+  <div class="reviews-list" id="rvgList">
+    <div class="reviews-loading" id="rvgLoading">
+      <div class="rvg-shimmer-card"></div>
+      <div class="rvg-shimmer-card"></div>
+      <div class="rvg-shimmer-card"></div>
+    </div>
+  </div>
+
+  <!-- Daha Fazla Yükle -->
+  <div class="reviews-more-wrap" id="rvgMoreWrap" style="display:none">
+    <button class="btn btn-secondary" id="rvgMoreBtn" onclick="ReviewModule.loadMore()">
+      Daha Fazla Göster
+    </button>
+  </div>
+
+</section>
+
+<!-- ── Yorum Yazma Modalı ── -->
+<div class="backdrop" id="rvgBackdrop" onclick="ReviewModule.closeForm()"></div>
+<div class="modal" id="rvgModal" role="dialog" aria-modal="true" aria-label="Yorum yaz">
+  <div class="modal-card rvg-modal-card" onclick="event.stopPropagation()">
+
+    <div class="rvg-modal-head">
+      <div>
+        <h2 class="rvg-modal-title">Deneyiminizi Paylaşın</h2>
+        <p class="rvg-modal-sub" id="rvgModalProductName">Ürün adı yükleniyor…</p>
+      </div>
+      <button class="rvg-close-btn" onclick="ReviewModule.closeForm()" aria-label="Kapat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Yıldız Seçici -->
+    <div class="rvg-field-block">
+      <label class="rvg-field-label">Puanınız</label>
+      <div class="rvg-star-picker" id="rvgStarPicker" role="radiogroup" aria-label="Puan seç">
+        <button type="button" class="rvg-star-pick" data-val="1" onclick="ReviewModule.setRating(1)" aria-label="1 yıldız">★</button>
+        <button type="button" class="rvg-star-pick" data-val="2" onclick="ReviewModule.setRating(2)" aria-label="2 yıldız">★</button>
+        <button type="button" class="rvg-star-pick" data-val="3" onclick="ReviewModule.setRating(3)" aria-label="3 yıldız">★</button>
+        <button type="button" class="rvg-star-pick" data-val="4" onclick="ReviewModule.setRating(4)" aria-label="4 yıldız">★</button>
+        <button type="button" class="rvg-star-pick" data-val="5" onclick="ReviewModule.setRating(5)" aria-label="5 yıldız">★</button>
+      </div>
+      <span class="rvg-rating-label" id="rvgRatingLabel">Puan seçin</span>
+    </div>
+
+    <!-- Başlık -->
+    <div class="rvg-field-block">
+      <label class="rvg-field-label" for="rvgTitleInput">Başlık</label>
+      <input
+        type="text"
+        id="rvgTitleInput"
+        class="rvg-input"
+        placeholder="Kısa ve öz bir başlık yazın"
+        maxlength="100"
+      />
+      <span class="rvg-char-count" id="rvgTitleCount">0 / 100</span>
+    </div>
+
+    <!-- Yorum Metni -->
+    <div class="rvg-field-block">
+      <label class="rvg-field-label" for="rvgBodyInput">Yorumunuz</label>
+      <textarea
+        id="rvgBodyInput"
+        class="rvg-textarea"
+        placeholder="Bu ürünle deneyiminizi anlatın. Cilt tipiniz, ne kadar süredir kullandığınız, sonuçlar…"
+        maxlength="2000"
+        rows="5"
+      ></textarea>
+      <span class="rvg-char-count" id="rvgBodyCount">0 / 2000</span>
+    </div>
+
+    <!-- Görsel Yükleme -->
+    <div class="rvg-field-block">
+      <label class="rvg-field-label">Fotoğraf Ekle <span class="rvg-optional">(İsteğe Bağlı)</span></label>
+      <div class="rvg-upload-zone" id="rvgUploadZone"
+           onclick="document.getElementById('rvgFileInput').click()"
+           ondragover="ReviewModule.onDragOver(event)"
+           ondragleave="ReviewModule.onDragLeave(event)"
+           ondrop="ReviewModule.onDrop(event)">
+        <div class="rvg-upload-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="5"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="m21 15-5-5L5 21"/>
+          </svg>
+        </div>
+        <p class="rvg-upload-text">Fotoğraf yüklemek için tıklayın<br><span>veya sürükleyip bırakın · JPG, PNG, WEBP · En fazla 5 görsel · Her biri 10 MB altı</span></p>
+        <input type="file" id="rvgFileInput" accept="image/jpeg,image/png,image/webp"
+               multiple style="display:none" onchange="ReviewModule.handleFiles(this.files)">
+      </div>
+
+      <!-- Görsel Önizleme -->
+      <div class="rvg-preview-row" id="rvgPreviewRow"></div>
+    </div>
+
+    <!-- Bilgilendirme -->
+    <div class="rvg-notice">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      Yorumunuz ve fotoğraflarınız ekibimiz tarafından incelendikten sonra yayına alınacaktır.
+    </div>
+
+    <!-- Hata / Durum -->
+    <div class="rvg-status" id="rvgFormStatus"></div>
+
+    <!-- Gönder -->
+    <div class="rvg-modal-actions">
+      <button class="btn btn-secondary" onclick="ReviewModule.closeForm()">Vazgeç</button>
+      <button class="btn btn-primary" id="rvgSubmitBtn" onclick="ReviewModule.submitReview()">
+        <span id="rvgSubmitLabel">Yorumu Gönder</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Görsel Lightbox ── -->
+<div class="rvg-lightbox" id="rvgLightbox" onclick="ReviewModule.closeLightbox()">
+  <button class="rvg-lb-close" onclick="ReviewModule.closeLightbox()">✕</button>
+  <button class="rvg-lb-prev" onclick="ReviewModule.lbNav(-1,event)">‹</button>
+  <img class="rvg-lb-img" id="rvgLbImg" src="" alt="">
+  <button class="rvg-lb-next" onclick="ReviewModule.lbNav(1,event)">›</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     STYLES
+     ══════════════════════════════════════════════════════════ -->
+<style>
+/* ── Yorum Bölümü Genel ── */
+.reviews-section {
+  padding: 52px 0 64px;
+  border-top: 1px solid var(--line);
+}
+
+.reviews-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.reviews-header-left {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.reviews-score-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.reviews-big-score {
+  font-family: var(--serif);
+  font-size: 72px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: -.02em;
+}
+
+.reviews-stars-row {
+  display: flex;
+  gap: 3px;
+}
+
+.reviews-stars-row .rvg-star {
+  font-size: 18px;
+  line-height: 1;
+  color: var(--gold);
+  opacity: .22;
+  transition: opacity .2s;
+}
+
+.reviews-stars-row .rvg-star.filled { opacity: 1; }
+.reviews-stars-row .rvg-star.half   { opacity: .55; }
+
+.reviews-count-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── Histogram ── */
+.reviews-histogram {
+  display: grid;
+  gap: 7px;
+  min-width: 180px;
+}
+
+.rvg-hist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.rvg-hist-label { width: 24px; text-align: right; }
+
+.rvg-hist-track {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--bg-2);
+  overflow: hidden;
+}
+
+.rvg-hist-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--gold), #c9a97a);
+  transition: width .6s cubic-bezier(.2,.8,.2,1);
+  width: 0;
+}
+
+.rvg-hist-num { width: 20px; font-size: 10px; }
+
+/* ── Yorum Yazma Notu ── */
+.reviews-write-note {
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 220px;
+  text-align: center;
+  margin: 8px 0 0;
+  line-height: 1.6;
+}
+
+/* ── Filtre ── */
+.reviews-filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.rvg-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .2s, border-color .2s, color .2s;
+}
+
+.rvg-filter-btn:hover { background: var(--bg-2); color: var(--text); }
+.rvg-filter-btn.active {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+.rvg-star-mini { color: var(--gold); font-size: 12px; }
+
+/* ── Yorum Listesi ── */
+.reviews-list { display: grid; gap: 16px; }
+
+/* Shimmer yükleme */
+.rvg-shimmer-card {
+  height: 140px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg) 50%, var(--bg-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Yorum Kartı */
+.rvg-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 22px 24px;
+  display: grid;
+  gap: 14px;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.rvg-card:hover { border-color: var(--beige-deep); box-shadow: var(--shadow-card); }
+
+.rvg-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rvg-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rvg-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--beige), var(--beige-deep));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--gold);
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+}
+
+.rvg-user-info { display: grid; gap: 2px; }
+
+.rvg-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.rvg-user-date {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+.rvg-card-stars { display: flex; gap: 2px; }
+
+.rvg-card-star {
+  font-size: 13px;
+  line-height: 1;
+  color: var(--gold);
+  opacity: .2;
+}
+
+.rvg-card-star.on { opacity: 1; }
+
+.rvg-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #edf7f1;
+  border: 1px solid rgba(31, 122, 79, .2);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #1f7a4f;
+}
+
+.rvg-card-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.rvg-card-body {
+  font-size: 14px;
+  color: #5a5048;
+  line-height: 1.76;
+  margin: 0;
+}
+
+.rvg-edited-tag {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ── Yorum Görselleri ── */
+.rvg-img-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rvg-thumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+  cursor: zoom-in;
+  border: 1px solid var(--line);
+  transition: transform .2s, border-color .2s;
+}
+
+.rvg-thumb:hover { transform: scale(1.04); border-color: var(--gold-light); }
+
+/* ── Faydalı Oy ── */
+.rvg-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.rvg-helpful-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .18s, color .18s, border-color .18s;
+}
+
+.rvg-helpful-btn:hover, .rvg-helpful-btn.voted {
+  background: var(--gold-subtle);
+  border-color: var(--gold-light);
+  color: var(--gold);
+}
+
+/* ── Boş Durum ── */
+.reviews-empty {
+  text-align: center;
+  padding: 52px 24px;
+  color: var(--muted);
+}
+
+.reviews-empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+
+.reviews-empty h3 {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+.reviews-empty p { font-size: 14px; margin: 0; }
+
+/* ── Daha Fazla ── */
+.reviews-more-wrap { text-align: center; padding-top: 28px; }
+
+/* ══════════════════════════════════════════════════════════
+   MODAL
+   ══════════════════════════════════════════════════════════ */
+.rvg-modal-card {
+  width: min(640px, 100%);
+  max-height: 92dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: 20px;
+  padding: 32px 36px;
+  border-radius: 30px;
+  background: #fffdf9;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-premium);
+}
+
+.rvg-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rvg-modal-title {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.rvg-modal-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  letter-spacing: .04em;
+}
+
+.rvg-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .18s;
+}
+
+.rvg-close-btn:hover { background: var(--bg-2); }
+
+/* Alanlar */
+.rvg-field-block { display: grid; gap: 8px; }
+
+.rvg-field-label {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.rvg-optional {
+  font-weight: 400;
+  color: var(--muted);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 10px;
+}
+
+.rvg-input, .rvg-textarea {
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: #fffdf9;
+  color: var(--text);
+  outline: none;
+  transition: border-color .22s, box-shadow .22s;
+  width: 100%;
+}
+
+.rvg-input:focus, .rvg-textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(176, 138, 94, .1);
+}
+
+.rvg-textarea { min-height: 130px; resize: vertical; }
+
+.rvg-char-count {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: right;
+  letter-spacing: .06em;
+}
+
+/* ── Yıldız Seçici ── */
+.rvg-star-picker {
+  display: flex;
+  gap: 4px;
+}
+
+.rvg-star-pick {
+  background: none;
+  border: none;
+  font-size: 34px;
+  line-height: 1;
+  color: var(--beige-deep);
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color .18s, transform .18s var(--ease-spring);
+}
+
+.rvg-star-pick:hover,
+.rvg-star-pick.active { color: var(--gold); transform: scale(1.18); }
+
+.rvg-rating-label {
+  font-size: 12px;
+  color: var(--muted);
+  min-height: 18px;
+}
+
+/* ── Upload Zone ── */
+.rvg-upload-zone {
+  border: 2px dashed var(--beige-deep);
+  border-radius: var(--radius-sm);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: #fdf9f4;
+  transition: border-color .2s, background .2s;
+}
+
+.rvg-upload-zone:hover, .rvg-upload-zone.drag-over {
+  border-color: var(--gold);
+  background: rgba(176, 138, 94, .05);
+}
+
+.rvg-upload-icon { color: var(--gold); margin: 0 auto 12px; opacity: .7; }
+
+.rvg-upload-text {
+  font-size: 14px;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.rvg-upload-text span { font-size: 11px; color: var(--muted); }
+
+/* ── Önizleme ── */
+.rvg-preview-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.rvg-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.rvg-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.rvg-preview-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #16120e;
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+
+.rvg-preview-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 0 0 12px 12px;
+  background: rgba(22,18,14,.12);
+  overflow: hidden;
+}
+
+.rvg-preview-progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 999px;
+  width: 0;
+  transition: width .3s ease;
+}
+
+/* ── Bilgilendirme ── */
+.rvg-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: var(--radius-xs);
+  background: rgba(176, 138, 94, .08);
+  border: 1px solid rgba(176, 138, 94, .2);
+  font-size: 12px;
+  color: #6b5840;
+  line-height: 1.6;
+}
+
+.rvg-notice svg { flex-shrink: 0; margin-top: 1px; opacity: .7; }
+
+/* ── Durum Mesajı ── */
+.rvg-status {
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.rvg-status.error { color: #8a3b2f; }
+.rvg-status.success { color: #1f7a4f; }
+
+/* ── Modal Aksiyonlar ── */
+.rvg-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+/* ── Başarı Ekranı ── */
+.rvg-success-screen {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.rvg-success-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #edf7f1;
+  border: 1px solid rgba(31, 122, 79, .2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+}
+
+/* ══════════════════════════════════════════════════════════
+   LIGHTBOX
+   ══════════════════════════════════════════════════════════ */
+.rvg-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 9, 6, .92);
+  backdrop-filter: blur(12px);
+  display: none;
+  place-items: center;
+  z-index: 400;
+}
+
+.rvg-lightbox.show { display: grid; }
+
+.rvg-lb-img {
+  max-width: min(90vw, 860px);
+  max-height: 88dvh;
+  object-fit: contain;
+  border-radius: 16px;
+}
+
+.rvg-lb-close {
+  position: fixed;
+  top: 20px; right: 24px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .18s;
+}
+
+.rvg-lb-close:hover { background: rgba(255,255,255,.22); }
+
+.rvg-lb-prev, .rvg-lb-next {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 50%;
+  width: 48px; height: 48px;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .18s;
+}
+
+.rvg-lb-prev { left: 24px; }
+.rvg-lb-next { right: 24px; }
+.rvg-lb-prev:hover, .rvg-lb-next:hover { background: rgba(255,255,255,.22); }
+
+/* ══════════════════════════════════════════════════════════
+   MOBİL
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .reviews-header { flex-direction: column; }
+  .reviews-header-left { gap: 20px; }
+  .reviews-big-score { font-size: 52px; }
+  .rvg-modal-card { padding: 24px 20px; border-radius: 24px 24px 0 0; align-self: end; max-height: 96dvh; }
+  .modal { padding: 0; align-items: end; }
+  .rvg-modal-title { font-size: 22px; }
+  .rvg-star-pick { font-size: 28px; }
+  .rvg-lb-prev { left: 12px; }
+  .rvg-lb-next { right: 12px; }
+}
+</style>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ══════════════════════════════════════════════════════════ -->
+<script>
+// ── ReviewModule: Cosmoskin Yorum Bileşeni ──────────────────
+const ReviewModule = (() => {
+
+  // ── Yapılandırma (ürün sayfasına göre ayarla)
+  const CFG = {
+    apiBase: window.__COSMOSKIN_CFG?.apiBase || '/api',
+    supabaseUrl: window.__COSMOSKIN_CFG?.supabaseUrl || '',
+    supabaseAnon: window.__COSMOSKIN_CFG?.supabaseAnonKey || '',
+    storageBase: '', // Supabase storage URL'si (init'te set edilir)
+  };
+
+  // ── Durum
+  let _productId    = '';
+  let _productName  = '';
+  let _session      = null;
+  let _supabase     = null;
+  let _reviews      = [];
+  let _filtered     = [];
+  let _page         = 0;
+  const _PER_PAGE   = 6;
+  let _rating       = 0;
+  let _pendingFiles = []; // { file, objectUrl, uploaded: false, storagePath, publicUrl }
+  let _lbImages     = [];
+  let _lbIndex      = 0;
+  let _userReview   = null; // mevcut kullanıcının yorumu
+  let _helpedIds    = new Set(); // oy kullandığı yorumlar
+
+  const RATING_LABELS = {
+    1: 'Hayal kırıklığı yarattı',
+    2: 'Beklentinin altında kaldı',
+    3: 'İdare eder',
+    4: 'Oldukça memnunum',
+    5: 'Mükemmel, kesinlikle öneririm',
+  };
+
+  // ── Init
+  function resolveProductId(section) {
+    const qp = new URLSearchParams(window.location.search);
+    const requested = qp.get('product') || '';
+    const path = window.location.pathname;
+    const routeMap = {
+      '/protect.html': { default: 'boj-relief', 'boj-relief': 'boj-relief', 'torriden-sun': 'torriden-sun' },
+      '/collections/protect.html': { default: 'boj-relief', 'boj-relief': 'boj-relief', 'torriden-sun': 'torriden-sun' },
+      '/hydrate.html': { default: 'torriden-divein-serum', 'torriden-divein-serum': 'torriden-divein-serum', 'cosrx-snail': 'cosrx-snail' },
+      '/collections/hydrate.html': { default: 'torriden-divein-serum', 'torriden-divein-serum': 'torriden-divein-serum', 'cosrx-snail': 'cosrx-snail' },
+      '/treat.html': { default: 'boj-glow', 'boj-glow': 'boj-glow', 'cosrx-vitc': 'cosrx-vitc' },
+      '/collections/treat.html': { default: 'boj-glow', 'boj-glow': 'boj-glow', 'cosrx-vitc': 'cosrx-vitc' },
+      '/cleanse.html': { default: 'roundlab-cleanser', 'roundlab-cleanser': 'roundlab-cleanser' },
+      '/collections/cleanse.html': { default: 'roundlab-cleanser', 'roundlab-cleanser': 'roundlab-cleanser' },
+      '/care.html': { default: 'roundlab-soy', 'roundlab-soy': 'roundlab-soy' },
+      '/collections/care.html': { default: 'roundlab-soy', 'roundlab-soy': 'roundlab-soy' }
+    };
+    const current = routeMap[path];
+    if (!current) return section.dataset.productId || '';
+    return current[requested] || current.default || section.dataset.productId || '';
+  }
+
+  async function init() {
+    const section = document.getElementById('reviewsSection');
+    if (!section) return;
+
+    const resolvedProductId = resolveProductId(section);
+    if (resolvedProductId) section.dataset.productId = resolvedProductId;
+
+    _productId   = section.dataset.productId || '';
+    _productName = document.querySelector('.pdp-title, h1, .pdp-detail-card h3')?.textContent?.trim() || 'Ürün';
+
+    document.getElementById('rvgModalProductName').textContent = _productName;
+
+    // Supabase client
+    if (window.supabase && CFG.supabaseUrl) {
+      _supabase = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnon);
+      const { data: { session } } = await _supabase.auth.getSession();
+      _session = session;
+      CFG.storageBase = `${CFG.supabaseUrl}/storage/v1/object/public/review-images/`;
+    }
+
+    // Char count dinleyicileri
+    const titleInput = document.getElementById('rvgTitleInput');
+    const bodyInput  = document.getElementById('rvgBodyInput');
+    titleInput?.addEventListener('input', () => {
+      document.getElementById('rvgTitleCount').textContent = `${titleInput.value.length} / 100`;
+    });
+    bodyInput?.addEventListener('input', () => {
+      document.getElementById('rvgBodyCount').textContent = `${bodyInput.value.length} / 2000`;
+    });
+
+    // Yorumları yükle
+    await loadReviews();
+    await checkUserEligibility();
+  }
+
+  // ── Yorumları API'den yükle
+  async function loadReviews() {
+    try {
+      const res  = await fetch(`${CFG.apiBase}/reviews?product_id=${encodeURIComponent(_productId)}`);
+      const data = await res.json();
+
+      _reviews  = data.reviews || [];
+      _filtered = [..._reviews];
+
+      renderSummary(data.summary);
+      renderList(true);
+
+      if (_reviews.length > 0) {
+        document.getElementById('rvgFilterRow').style.display = 'flex';
+      }
+    } catch (e) {
+      document.getElementById('rvgList').innerHTML =
+        `<div class="rvg-status error">Yorumlar yüklenemedi. Sayfayı yenileyin.</div>`;
+    }
+  }
+
+  // ── Kullanıcının yorum yapabilirliğini kontrol et
+  async function checkUserEligibility() {
+    const writeBtn  = document.getElementById('rvgWriteBtn');
+    const writeNote = document.getElementById('rvgWriteNote');
+
+    if (!_session) {
+      writeNote.textContent = 'Yorum yazmak için giriş yapın.';
+      return;
+    }
+
+    // Daha önce yorum yapmış mı?
+    _userReview = _reviews.find(r => r.user_id === _session.user.id);
+    if (_userReview) {
+      writeBtn.textContent = 'Yorumunuzu Düzenleyin';
+      writeNote.textContent = 'Bu ürün için bir yorum bıraktınız.';
+      return;
+    }
+
+    // Satın alma kontrolü (API satın alma doğrulaması server-side yapıyor,
+    // burada kullanıcıya bilgi veriyoruz)
+    writeNote.textContent = 'Satın aldığınız ürünleri değerlendirebilirsiniz.';
+  }
+
+  // ── Özet Render
+  function renderSummary(summary) {
+    const score = parseFloat(summary?.avg_rating || 0);
+    const count = parseInt(summary?.approved_count || 0);
+    const total = count || 1;
+
+    // Büyük puan
+    document.getElementById('rvgBigScore').textContent = count ? score.toFixed(1) : '—';
+
+    // Yıldızlar
+    const starsRow = document.getElementById('rvgStarsRow');
+    starsRow.innerHTML = [1,2,3,4,5].map(s => {
+      const filled = score >= s ? 'filled' : score >= s - 0.5 ? 'half' : '';
+      return `<span class="rvg-star ${filled}" aria-hidden="true">★</span>`;
+    }).join('');
+
+    document.getElementById('rvgCountLabel').textContent =
+      count ? `${count} değerlendirme` : 'Henüz değerlendirme yok';
+
+    // Histogram
+    const hist = document.getElementById('rvgHistogram');
+    const stars = { 5: summary?.five_star||0, 4: summary?.four_star||0,
+                    3: summary?.three_star||0, 2: summary?.two_star||0, 1: summary?.one_star||0 };
+
+    hist.innerHTML = [5,4,3,2,1].map(s => {
+      const pct = Math.round((stars[s] / total) * 100);
+      return `
+        <div class="rvg-hist-row">
+          <span class="rvg-hist-label">${s}</span>
+          <div class="rvg-hist-track">
+            <div class="rvg-hist-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="rvg-hist-num">${stars[s]}</span>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Liste Render
+  function renderList(reset = false) {
+    if (reset) _page = 0;
+    const chunk = _filtered.slice(0, (_page + 1) * _PER_PAGE);
+
+    document.getElementById('rvgLoading').style.display = 'none';
+
+    if (_filtered.length === 0) {
+      document.getElementById('rvgList').innerHTML = `
+        <div class="reviews-empty">
+          <div class="reviews-empty-icon">✦</div>
+          <h3>Henüz yorum yok</h3>
+          <p>Bu ürünü deneyenler arasında ilk siz olabilirsiniz.</p>
+        </div>`;
+      document.getElementById('rvgMoreWrap').style.display = 'none';
+      return;
+    }
+
+    const html = chunk.map(r => renderCard(r)).join('');
+    document.getElementById('rvgList').innerHTML = html;
+
+    const hasMore = _filtered.length > chunk.length;
+    document.getElementById('rvgMoreWrap').style.display = hasMore ? 'block' : 'none';
+  }
+
+  function renderCard(r) {
+    const initials = r.user_display_name
+      ? r.user_display_name.charAt(0).toUpperCase()
+      : '✦';
+    const name  = r.user_display_name || 'Doğrulanmış Müşteri';
+    const date  = new Date(r.created_at).toLocaleDateString('tr-TR', { year:'numeric', month:'long', day:'numeric' });
+    const stars = [1,2,3,4,5].map(s => `<span class="rvg-card-star ${s<=r.rating?'on':''}" aria-hidden="true">★</span>`).join('');
+    const images = (r.review_images || []).filter(img => img.status !== 'rejected');
+    const imgHtml = images.length
+      ? `<div class="rvg-img-row">${images.map((img, i) =>
+          `<img class="rvg-thumb" src="${img.public_url}" alt="Yorum görseli ${i+1}"
+                onclick="ReviewModule.openLightbox(${JSON.stringify(images.map(x=>x.public_url)).replace(/"/g,'&quot;')}, ${i})"
+                loading="lazy" width="${img.width||80}" height="${img.height||80}">`
+        ).join('')}</div>` : '';
+
+    const voted = _helpedIds.has(r.id);
+
+    return `
+      <article class="rvg-card" id="rvgCard-${r.id}">
+        <div class="rvg-card-top">
+          <div class="rvg-card-meta">
+            <div class="rvg-avatar">${initials}</div>
+            <div class="rvg-user-info">
+              <span class="rvg-user-name">${escHtml(name)}</span>
+              <span class="rvg-user-date">${date}</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div class="rvg-card-stars" aria-label="${r.rating} yıldız">${stars}</div>
+            <span class="rvg-verified-badge">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+              Satın Aldı
+            </span>
+          </div>
+        </div>
+        <h3 class="rvg-card-title">${escHtml(r.title)}</h3>
+        <p class="rvg-card-body">${escHtml(r.body)}</p>
+        ${imgHtml}
+        ${r.is_edited ? `<span class="rvg-edited-tag">(Düzenlendi)</span>` : ''}
+        <div class="rvg-card-footer">
+          <button class="rvg-helpful-btn ${voted?'voted':''}"
+                  onclick="ReviewModule.toggleHelpful('${r.id}', this)"
+                  aria-pressed="${voted}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="${voted?'currentColor':'none'}" stroke="currentColor" stroke-width="2">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14Z"/>
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+            </svg>
+            Faydalı (${r.helpful_count || 0})
+          </button>
+          ${_session?.user?.id === r.user_id
+            ? `<button class="rvg-helpful-btn" onclick="ReviewModule.openForm(true)">Düzenle</button>`
+            : ''}
+        </div>
+      </article>`;
+  }
+
+  // ── Filtrele
+  function filter(type, btn) {
+    document.querySelectorAll('.rvg-filter-btn').forEach(b => b.classList.remove('active'));
+    btn?.classList.add('active');
+
+    if (type === 'all')   _filtered = [..._reviews];
+    else if (type === 'photo') _filtered = _reviews.filter(r => r.review_images?.length > 0);
+    else _filtered = _reviews.filter(r => r.rating === parseInt(type));
+
+    renderList(true);
+  }
+
+  // ── Daha Fazla
+  function loadMore() {
+    _page++;
+    renderList(false);
+  }
+
+  // ── Yorum Formu Aç/Kapat
+  function openForm(isEdit = false) {
+    if (!_session) {
+      // Giriş sayfasına yönlendir
+      window.location.href = `/auth/login.html?redirect=${encodeURIComponent(location.href)}`;
+      return;
+    }
+
+    if (isEdit && _userReview) {
+      // Mevcut yorum değerlerini doldur
+      document.getElementById('rvgTitleInput').value = _userReview.title || '';
+      document.getElementById('rvgBodyInput').value  = _userReview.body  || '';
+      setRating(_userReview.rating || 0);
+      document.getElementById('rvgTitleCount').textContent = `${(_userReview.title||'').length} / 100`;
+      document.getElementById('rvgBodyCount').textContent  = `${(_userReview.body||'').length} / 2000`;
+    }
+
+    document.getElementById('rvgModal').classList.add('show');
+    document.getElementById('rvgBackdrop').classList.add('show');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeForm() {
+    document.getElementById('rvgModal').classList.remove('show');
+    document.getElementById('rvgBackdrop').classList.remove('show');
+    document.body.classList.remove('modal-open');
+    clearFormStatus();
+  }
+
+  // ── Puan Seç
+  function setRating(val) {
+    _rating = val;
+    document.querySelectorAll('.rvg-star-pick').forEach(btn => {
+      const v = parseInt(btn.dataset.val);
+      btn.classList.toggle('active', v <= val);
+    });
+    document.getElementById('rvgRatingLabel').textContent = RATING_LABELS[val] || '';
+  }
+
+  // ── Görsel İşleme
+  function handleFiles(files) {
+    const remaining = 5 - _pendingFiles.length;
+    const toAdd     = Array.from(files).slice(0, remaining);
+    toAdd.forEach(addFile);
+  }
+
+  function addFile(file) {
+    if (_pendingFiles.length >= 5) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setFormStatus(`"${file.name}" dosyası 10 MB sınırını aşıyor.`, 'error');
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    const item = { file, objectUrl, uploaded: false, storagePath: null, publicUrl: null };
+    _pendingFiles.push(item);
+    renderPreviews();
+  }
+
+  function renderPreviews() {
+    const row = document.getElementById('rvgPreviewRow');
+    row.innerHTML = _pendingFiles.map((item, i) => `
+      <div class="rvg-preview-item" id="rvgPrev-${i}">
+        <img class="rvg-preview-img" src="${item.objectUrl}" alt="Önizleme ${i+1}">
+        <button class="rvg-preview-remove" onclick="ReviewModule.removeFile(${i})" aria-label="Kaldır">✕</button>
+        <div class="rvg-preview-progress" id="rvgProg-${i}" style="${item.uploaded?'display:none':''}">
+          <div class="rvg-preview-progress-fill" id="rvgProgFill-${i}"></div>
+        </div>
+      </div>`).join('');
+  }
+
+  function removeFile(i) {
+    URL.revokeObjectURL(_pendingFiles[i].objectUrl);
+    _pendingFiles.splice(i, 1);
+    renderPreviews();
+  }
+
+  function onDragOver(e) {
+    e.preventDefault();
+    document.getElementById('rvgUploadZone').classList.add('drag-over');
+  }
+
+  function onDragLeave() {
+    document.getElementById('rvgUploadZone').classList.remove('drag-over');
+  }
+
+  function onDrop(e) {
+    e.preventDefault();
+    onDragLeave();
+    handleFiles(e.dataTransfer.files);
+  }
+
+  // Görseli sıkıştır ve Supabase Storage'a yükle
+  async function uploadImage(item, index, reviewId) {
+    return new Promise(async (resolve) => {
+      try {
+        // Canvas ile sıkıştırma
+        const compressed = await compressImage(item.file, 1200, 0.82);
+        const ext        = 'webp';
+        const path       = `${_session.user.id}/${reviewId}/${Date.now()}-${index}.${ext}`;
+
+        // İlerleme göster
+        animateProgress(index, 0, 60, 800);
+
+        const { data, error } = await _supabase.storage
+          .from('review-images')
+          .upload(path, compressed, { contentType: 'image/webp', upsert: false });
+
+        if (error) throw error;
+
+        animateProgress(index, 60, 100, 400);
+
+        const { data: { publicUrl } } = _supabase.storage
+          .from('review-images')
+          .getPublicUrl(path);
+
+        item.storagePath = path;
+        item.publicUrl   = publicUrl;
+        item.uploaded    = true;
+
+        resolve({ storagePath: path, publicUrl });
+      } catch (e) {
+        console.error('Görsel yükleme hatası:', e);
+        resolve(null);
+      }
+    });
+  }
+
+  function animateProgress(index, from, to, duration) {
+    const fill = document.getElementById(`rvgProgFill-${index}`);
+    if (!fill) return;
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const t = Math.min(elapsed / duration, 1);
+      fill.style.width = `${from + (to - from) * t}%`;
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // Canvas ile WebP sıkıştırma
+  function compressImage(file, maxSize, quality) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          const ratio = Math.min(maxSize / width, maxSize / height);
+          width  = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width  = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(resolve, 'image/webp', quality);
+      };
+      img.src = url;
+    });
+  }
+
+  // ── Yorum Gönder
+  async function submitReview() {
+    const titleVal = document.getElementById('rvgTitleInput').value.trim();
+    const bodyVal  = document.getElementById('rvgBodyInput').value.trim();
+
+    // Validasyon
+    if (!_rating)             return setFormStatus('Lütfen puan seçin.', 'error');
+    if (titleVal.length < 3)  return setFormStatus('Başlık en az 3 karakter olmalı.', 'error');
+    if (bodyVal.length < 10)  return setFormStatus('Yorum en az 10 karakter olmalı.', 'error');
+
+    const submitBtn = document.getElementById('rvgSubmitBtn');
+    const label     = document.getElementById('rvgSubmitLabel');
+    submitBtn.disabled = true;
+    label.textContent  = 'Gönderiliyor…';
+    clearFormStatus();
+
+    try {
+      const token = _session.access_token;
+
+      // 1. Yorumu gönder (veya güncelle)
+      const isEdit  = !!_userReview;
+      const method  = isEdit ? 'PATCH' : 'POST';
+      const endpoint = isEdit
+        ? `${CFG.apiBase}/reviews/${_userReview.id}`
+        : `${CFG.apiBase}/reviews`;
+
+      const res = await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          product_id: _productId,
+          title: titleVal,
+          review_body: bodyVal,
+          rating: _rating,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) return setFormStatus(data.error || 'Bir hata oluştu.', 'error');
+
+      const reviewId = data.review_id || _userReview?.id;
+
+      // 2. Görselleri yükle (paralel)
+      if (_pendingFiles.length && reviewId) {
+        label.textContent = 'Görseller yükleniyor…';
+        const uploads = await Promise.all(
+          _pendingFiles.map((item, i) => uploadImage(item, i, reviewId))
+        );
+
+        // Görsel kayıtlarını API'ye bildir
+        const validUploads = uploads.filter(Boolean);
+        if (validUploads.length) {
+          await fetch(`${CFG.apiBase}/reviews/images`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ review_id: reviewId, images: validUploads }),
+          });
+        }
+      }
+
+      // ── Başarı Ekranı
+      showSuccessScreen();
+
+    } catch (e) {
+      setFormStatus('Bağlantı hatası. Lütfen tekrar deneyin.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      label.textContent  = 'Yorumu Gönder';
+    }
+  }
+
+  function showSuccessScreen() {
+    const card = document.querySelector('.rvg-modal-card');
+    card.innerHTML = `
+      <div class="rvg-success-screen">
+        <div class="rvg-success-icon">✓</div>
+        <h2 class="rvg-modal-title">Teşekkür Ederiz</h2>
+        <p style="color:var(--muted);margin:10px 0 24px;font-size:14px;line-height:1.7">
+          Yorumunuz ekibimize iletildi.<br>İnceleme sonrası en kısa sürede yayınlanacaktır.
+        </p>
+        <button class="btn btn-secondary" onclick="ReviewModule.closeForm()">Kapat</button>
+      </div>`;
+  }
+
+  // ── Faydalı Oy
+  async function toggleHelpful(reviewId, btn) {
+    if (!_session) {
+      window.location.href = `/auth/login.html`;
+      return;
+    }
+    const voted  = _helpedIds.has(reviewId);
+    const action = voted ? 'remove' : 'add';
+
+    try {
+      await fetch(`${CFG.apiBase}/reviews/helpful`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${_session.access_token}` },
+        body: JSON.stringify({ review_id: reviewId, action }),
+      });
+
+      if (voted) _helpedIds.delete(reviewId);
+      else       _helpedIds.add(reviewId);
+
+      // Yerel güncelleme
+      const review = _reviews.find(r => r.id === reviewId);
+      if (review) {
+        review.helpful_count = Math.max(0, (review.helpful_count || 0) + (voted ? -1 : 1));
+        const card = document.getElementById(`rvgCard-${reviewId}`);
+        if (card) card.outerHTML = renderCard(review);
+      }
+    } catch (e) { /* sessizce geç */ }
+  }
+
+  // ── Lightbox
+  function openLightbox(images, index) {
+    if (typeof images === 'string') images = JSON.parse(images.replace(/&quot;/g, '"'));
+    _lbImages = images;
+    _lbIndex  = index;
+    document.getElementById('rvgLbImg').src = _lbImages[_lbIndex];
+    document.getElementById('rvgLightbox').classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('rvgLightbox').classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  function lbNav(dir, e) {
+    e?.stopPropagation();
+    _lbIndex = (_lbIndex + dir + _lbImages.length) % _lbImages.length;
+    document.getElementById('rvgLbImg').src = _lbImages[_lbIndex];
+  }
+
+  // ── Yardımcılar
+  function setFormStatus(msg, type = '') {
+    const el = document.getElementById('rvgFormStatus');
+    el.textContent  = msg;
+    el.className    = `rvg-status ${type}`;
+  }
+
+  function clearFormStatus() { setFormStatus(''); }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Klavye kısayolları
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeForm(); closeLightbox(); }
+    if (document.getElementById('rvgLightbox').classList.contains('show')) {
+      if (e.key === 'ArrowLeft')  lbNav(-1);
+      if (e.key === 'ArrowRight') lbNav(1);
+    }
+  });
+
+  // ── Başlat
+  document.addEventListener('DOMContentLoaded', init);
+
+  return { openForm, closeForm, filter, loadMore, setRating,
+           handleFiles, removeFile, onDragOver, onDragLeave, onDrop,
+           submitReview, toggleHelpful, openLightbox, closeLightbox, lbNav };
+})();
+</script>
+</main><footer class="footer">
 <div class="container footer-grid">
 <div>
 <a class="brand footer-brandlock" href="/index.html"><img alt="Cosmoskin logo" class="brand-logo" src="/assets/logo-mark-light.png"/><span class="brand-word">COSMOSKIN</span></a>

@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yorum Yönetimi — Cosmoskin Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+
+<style>
+/* ── Admin Panel Spesifik Stiller ── */
+.adm-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8f3ec 0%, #f2eadf 100%);
+}
+
+/* Sidebar */
+.adm-sidebar {
+  background: rgba(255, 253, 250, .92);
+  border-right: 1px solid var(--line);
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.adm-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+
+.adm-brand-word {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: .38em;
+  color: var(--text);
+}
+
+.adm-brand-tag {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-subtle);
+  border: 1px solid var(--gold-light);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.adm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--radius-xs);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background .18s, color .18s;
+}
+
+.adm-nav-item:hover { background: var(--bg-2); color: var(--text); }
+.adm-nav-item.active { background: var(--text); color: #fff; }
+
+.adm-nav-badge {
+  margin-left: auto;
+  background: #c0392b;
+  color: #fff;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.adm-nav-badge.zero { background: var(--bg-2); color: var(--muted); }
+
+/* Ana İçerik */
+.adm-main {
+  padding: 32px 36px;
+  overflow-y: auto;
+}
+
+.adm-page-head {
+  margin-bottom: 28px;
+}
+
+.adm-page-title {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 400;
+  color: var(--text);
+  margin: 0 0 6px;
+  line-height: 1;
+}
+
+.adm-page-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* İstatistik Kartları */
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.adm-stat-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.adm-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.adm-stat-val {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1;
+}
+
+.adm-stat-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+/* Filtre Araç Çubuğu */
+.adm-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.adm-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-2);
+  padding: 5px;
+  border-radius: 999px;
+}
+
+.adm-tab {
+  padding: 9px 18px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+.adm-tab.active { background: var(--text); color: #fff; }
+
+.adm-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  padding: 8px 14px;
+}
+
+.adm-search svg { color: var(--muted); flex-shrink: 0; }
+
+.adm-search-input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--text);
+  width: 220px;
+}
+
+.adm-search-input::placeholder { color: var(--muted); }
+
+/* İçerik Listesi */
+.adm-list { display: grid; gap: 14px; }
+
+/* Moderasyon Kartı */
+.adm-mod-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: border-color .2s;
+}
+
+.adm-mod-card:hover { border-color: var(--beige-deep); }
+
+.adm-mod-card.status-approved { border-left: 3px solid #1f7a4f; }
+.adm-mod-card.status-rejected { border-left: 3px solid #8a3b2f; }
+.adm-mod-card.status-pending  { border-left: 3px solid var(--gold); }
+
+/* Kart Başlığı */
+.adm-card-head {
+  padding: 16px 20px;
+  background: #fdf9f4;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.adm-product-info { display: grid; gap: 2px; flex: 1; }
+
+.adm-product-name {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.adm-user-line {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adm-date { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+.adm-status-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+
+.adm-status-pill.pending  { background: #fef9ec; color: #9a7c20; border: 1px solid rgba(154,124,32,.2); }
+.adm-status-pill.approved { background: #edf7f1; color: #1f7a4f; border: 1px solid rgba(31,122,79,.2); }
+.adm-status-pill.rejected { background: #fdf0ee; color: #8a3b2f; border: 1px solid rgba(138,59,47,.2); }
+
+/* Kart Gövdesi */
+.adm-card-body { padding: 18px 20px; display: grid; gap: 14px; }
+
+.adm-review-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+  margin: 0;
+}
+
+.adm-review-body {
+  font-size: 13px;
+  color: #5a5048;
+  line-height: 1.76;
+  margin: 0;
+}
+
+.adm-stars {
+  display: flex;
+  gap: 2px;
+}
+
+.adm-star { font-size: 14px; color: var(--gold); opacity: .2; }
+.adm-star.on { opacity: 1; }
+
+/* Görsel Önizlemeler */
+.adm-img-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.adm-img-item {
+  position: relative;
+}
+
+.adm-img-thumb {
+  width: 90px;
+  height: 90px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: opacity .18s;
+}
+
+.adm-img-thumb:hover { opacity: .88; }
+
+.adm-img-status {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.adm-img-status.pending  { background: #fef9ec; color: #9a7c20; border: 1px solid rgba(154,124,32,.3); }
+.adm-img-status.approved { background: #edf7f1; color: #1f7a4f; border: 1px solid rgba(31,122,79,.3); }
+.adm-img-status.rejected { background: #fdf0ee; color: #8a3b2f; border: 1px solid rgba(138,59,47,.3); }
+
+.adm-img-btns {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.adm-img-btn {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border: 1px solid;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.adm-img-btn.approve {
+  background: #edf7f1; color: #1f7a4f; border-color: rgba(31,122,79,.3);
+}
+.adm-img-btn.approve:hover { background: #d5f0e3; }
+.adm-img-btn.reject {
+  background: #fdf0ee; color: #8a3b2f; border-color: rgba(138,59,47,.3);
+}
+.adm-img-btn.reject:hover { background: #faddda; }
+
+/* Moderasyon Aksiyonları */
+.adm-card-actions {
+  padding: 16px 20px;
+  border-top: 1px solid var(--line);
+  background: #fdf9f4;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adm-note-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 13px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--line-strong);
+  background: #fffdf9;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s;
+}
+
+.adm-note-input:focus { border-color: var(--gold); }
+.adm-note-input::placeholder { color: var(--muted); }
+
+.adm-approve-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(31,122,79,.3);
+  background: #edf7f1;
+  color: #1f7a4f;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .18s, transform .18s;
+}
+
+.adm-approve-btn:hover { background: #d5f0e3; transform: translateY(-1px); }
+
+.adm-reject-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(138,59,47,.3);
+  background: #fdf0ee;
+  color: #8a3b2f;
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .18s, transform .18s;
+}
+
+.adm-reject-btn:hover { background: #faddda; transform: translateY(-1px); }
+
+/* Toast Bildirimi */
+.adm-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 500;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: var(--text);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform .3s var(--ease-out), opacity .3s ease;
+  pointer-events: none;
+}
+
+.adm-toast.show { transform: translateY(0); opacity: 1; }
+.adm-toast.success { background: #1f7a4f; }
+.adm-toast.error   { background: #8a3b2f; }
+
+/* Boş Durum */
+.adm-empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--muted);
+}
+
+.adm-empty-icon { font-size: 44px; margin-bottom: 14px; opacity: .35; }
+
+.adm-empty h3 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+  margin: 0 0 8px;
+}
+
+/* Yükleme */
+.adm-loading {
+  text-align: center;
+  padding: 48px;
+  color: var(--muted);
+  font-size: 13px;
+  letter-spacing: .08em;
+}
+
+/* Sayfalama */
+.adm-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.adm-page-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .18s, color .18s;
+}
+
+.adm-page-btn:hover { background: var(--bg-2); color: var(--text); }
+.adm-page-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+.adm-page-btn:disabled { opacity: .4; pointer-events: none; }
+
+@media (max-width: 900px) {
+  .adm-layout { grid-template-columns: 1fr; }
+  .adm-sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; padding: 16px; }
+  .adm-brand { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .adm-stats { grid-template-columns: repeat(2, 1fr); }
+  .adm-main { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="adm-layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="adm-sidebar">
+    <div class="adm-brand">
+      <span class="adm-brand-word">COSMO</span>
+      <span class="adm-brand-tag">Admin</span>
+    </div>
+    <button class="adm-nav-item active" onclick="AdminPanel.switchTab('reviews',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Yorum Moderasyonu
+      <span class="adm-nav-badge" id="sidebarPendingBadge" data-zero>0</span>
+    </button>
+    <button class="adm-nav-item" onclick="AdminPanel.switchTab('images',this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+      </svg>
+      Görsel Moderasyonu
+      <span class="adm-nav-badge" id="sidebarImgBadge" data-zero>0</span>
+    </button>
+    <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--line)">
+      <a href="/index.html" class="adm-nav-item" style="text-decoration:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/>
+        </svg>
+        Siteye Dön
+      </a>
+      <button class="adm-nav-item" id="admLogoutBtn" onclick="AdminPanel.logout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Çıkış Yap
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Ana Panel ── -->
+  <main class="adm-main">
+
+    <!-- Sayfa Başlığı -->
+    <div class="adm-page-head">
+      <h1 class="adm-page-title" id="admPageTitle">Yorum Moderasyonu</h1>
+      <p class="adm-page-sub" id="admPageSub">Bekleyen yorumları inceleyin ve yayın kararını verin</p>
+    </div>
+
+    <!-- İstatistikler -->
+    <div class="adm-stats">
+      <div class="adm-stat-card">
+        <div class="adm-stat-label">Bekleyen Yorum</div>
+        <div class="adm-stat-val" id="statPending">—</div>
+        <div class="adm-stat-hint">İnceleme bekliyor</div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-label">Yayındaki Yorum</div>
+        <div class="adm-stat-val" id="statApproved">—</div>
+        <div class="adm-stat-hint">Canlı yayında</div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-label">Reddedilen</div>
+        <div class="adm-stat-val" id="statRejected">—</div>
+        <div class="adm-stat-hint">Gizlendi</div>
+      </div>
+      <div class="adm-stat-card">
+        <div class="adm-stat-label">Bekleyen Görsel</div>
+        <div class="adm-stat-val" id="statImgPending">—</div>
+        <div class="adm-stat-hint">Görsel incelemesi</div>
+      </div>
+    </div>
+
+    <!-- Araç Çubuğu -->
+    <div class="adm-toolbar">
+      <div class="adm-tabs" id="admStatusTabs">
+        <button class="adm-tab active" data-status="pending"  onclick="AdminPanel.filterStatus('pending',this)">Bekleyen</button>
+        <button class="adm-tab"        data-status="approved" onclick="AdminPanel.filterStatus('approved',this)">Yayında</button>
+        <button class="adm-tab"        data-status="rejected" onclick="AdminPanel.filterStatus('rejected',this)">Reddedilen</button>
+      </div>
+      <div class="adm-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" class="adm-search-input" placeholder="Ürün, kullanıcı veya içerik ara…"
+               id="admSearchInput" oninput="AdminPanel.search(this.value)">
+      </div>
+    </div>
+
+    <!-- İçerik Listesi -->
+    <div class="adm-list" id="admList">
+      <div class="adm-loading">Yükleniyor…</div>
+    </div>
+
+    <!-- Sayfalama -->
+    <div class="adm-pagination" id="admPagination" style="display:none"></div>
+
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="adm-toast" id="admToast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+window.__COSMOSKIN_CFG = {
+  supabaseUrl: "https://nrwimlsqbmuiimkosthb.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yd2ltbHNxYm11aWlta29zdGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2ODI1NzUsImV4cCI6MjA5MTI1ODU3NX0.qrb5GEcvUbMcKJ9jIS3v051DlKV5z3tEyKlSNB8jOXk",
+  apiBase: "/api"
+};
+</script>
+
+<script>
+// ── Admin Panel Modülü ──────────────────────────────────────
+const AdminPanel = (() => {
+
+  const CFG = {
+    apiBase: window.__COSMOSKIN_CFG?.apiBase || '/api',
+    supabaseUrl: window.__COSMOSKIN_CFG?.supabaseUrl || '',
+    supabaseAnon: window.__COSMOSKIN_CFG?.supabaseAnonKey || '',
+  };
+
+  let _supabase = null;
+  let _session  = null;
+  let _currentTab    = 'reviews';
+  let _currentStatus = 'pending';
+  let _allItems  = [];
+  let _filtered  = [];
+  let _page      = 1;
+  const PER_PAGE = 15;
+  let _searchQ   = '';
+
+  // ── Init
+  async function init() {
+    if (!CFG.supabaseUrl) {
+      document.getElementById('admList').innerHTML =
+        `<div class="adm-empty"><p>Yapılandırma eksik. SUPABASE_URL ayarlayın.</p></div>`;
+      return;
+    }
+
+    _supabase = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnon);
+    const { data: { session } } = await _supabase.auth.getSession();
+
+    if (!session) {
+      window.location.href = '/auth/login.html?redirect=/admin/reviews.html';
+      return;
+    }
+
+    // Admin kontrolü (app_metadata)
+    const isAdmin = session.user?.app_metadata?.role === 'admin';
+    if (!isAdmin) {
+      document.body.innerHTML = `
+        <div style="display:grid;place-items:center;height:100vh;text-align:center;font-family:var(--sans)">
+          <div>
+            <p style="font-size:32px;margin-bottom:12px">⛔</p>
+            <h2 style="font-family:var(--serif);font-weight:400;margin:0 0 8px">Yetkisiz Erişim</h2>
+            <p style="color:var(--muted)">Bu sayfaya erişim izniniz yok.</p>
+            <a href="/" class="btn btn-secondary" style="margin-top:20px;display:inline-flex">Ana Sayfaya Dön</a>
+          </div>
+        </div>`;
+      return;
+    }
+
+    _session = session;
+
+    await loadStats();
+    await loadItems();
+  }
+
+  // ── İstatistikleri Yükle
+  async function loadStats() {
+    try {
+      const token = _session.access_token;
+
+      const [rPending, rApproved, rRejected] = await Promise.all([
+        fetch(`${CFG.apiBase}/reviews/admin?status=pending&limit=1`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${CFG.apiBase}/reviews/admin?status=approved&limit=1`, { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`${CFG.apiBase}/reviews/admin?status=rejected&limit=1`, { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+
+      // Basit sayım için header'dan veya ayrı endpoint kullanılabilir
+      // Bu örnekte görsel sayımı simüle ediyoruz
+      const pending  = (await rPending.json())?.reviews?.length  || 0;
+      const approved = (await rApproved.json())?.reviews?.length || 0;
+      const rejected = (await rRejected.json())?.reviews?.length || 0;
+
+      document.getElementById('statPending').textContent  = pending;
+      document.getElementById('statApproved').textContent = approved;
+      document.getElementById('statRejected').textContent = rejected;
+      document.getElementById('statImgPending').textContent = '—';
+
+      // Sidebar badge'lerini güncelle
+      updateBadge('sidebarPendingBadge', pending);
+      updateBadge('sidebarImgBadge', 0);
+    } catch (e) { /* sessizce geç */ }
+  }
+
+  function updateBadge(id, count) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = count;
+    el.classList.toggle('zero', count === 0);
+  }
+
+  // ── İçerikleri Yükle
+  async function loadItems() {
+    document.getElementById('admList').innerHTML = `<div class="adm-loading">Yükleniyor…</div>`;
+
+    try {
+      const endpoint = _currentTab === 'reviews'
+        ? `${CFG.apiBase}/reviews/admin?status=${_currentStatus}&page=${_page}`
+        : `${CFG.apiBase}/reviews/admin/images?status=${_currentStatus}&page=${_page}`;
+
+      const res  = await fetch(endpoint, {
+        headers: { Authorization: `Bearer ${_session.access_token}` }
+      });
+      const data = await res.json();
+
+      _allItems = data.reviews || data.images || [];
+      applySearch(_searchQ);
+    } catch (e) {
+      document.getElementById('admList').innerHTML =
+        `<div class="adm-empty"><p>Veriler yüklenemedi.</p></div>`;
+    }
+  }
+
+  // ── Arama
+  function search(q) {
+    _searchQ = q.toLowerCase();
+    applySearch(_searchQ);
+  }
+
+  function applySearch(q) {
+    _filtered = q
+      ? _allItems.filter(item =>
+          (item.product_id || '').includes(q) ||
+          (item.title || '').toLowerCase().includes(q) ||
+          (item.body  || '').toLowerCase().includes(q)
+        )
+      : [..._allItems];
+    renderList();
+  }
+
+  // ── Listeyi Render Et
+  function renderList() {
+    const list = document.getElementById('admList');
+
+    if (_filtered.length === 0) {
+      list.innerHTML = `
+        <div class="adm-empty">
+          <div class="adm-empty-icon">◻</div>
+          <h3>${_currentStatus === 'pending' ? 'Bekleyen içerik yok' : 'İçerik bulunamadı'}</h3>
+          <p>Tüm içerikler incelendi.</p>
+        </div>`;
+      document.getElementById('admPagination').style.display = 'none';
+      return;
+    }
+
+    list.innerHTML = _filtered.map(item =>
+      _currentTab === 'reviews' ? renderReviewCard(item) : renderImageCard(item)
+    ).join('');
+  }
+
+  // ── Yorum Kartı Render
+  function renderReviewCard(r) {
+    const stars = [1,2,3,4,5].map(s =>
+      `<span class="adm-star ${s <= r.rating ? 'on' : ''}">★</span>`
+    ).join('');
+
+    const date = new Date(r.created_at).toLocaleDateString('tr-TR', {
+      day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+
+    const images = r.review_images || [];
+    const imgHtml = images.length ? `
+      <div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">
+          Eklenen Görseller (${images.length})
+        </div>
+        <div class="adm-img-strip">
+          ${images.map(img => `
+            <div class="adm-img-item">
+              <img class="adm-img-thumb" src="${img.public_url}" alt="Yorum görseli"
+                   onclick="window.open('${img.public_url}','_blank')" loading="lazy">
+              <div class="adm-img-status ${img.status}">${statusLabel(img.status)}</div>
+              ${img.status === 'pending' ? `
+                <div class="adm-img-btns" style="margin-top:12px">
+                  <button class="adm-img-btn approve" onclick="AdminPanel.moderateImage('${img.id}','approved',this)">✓ Onayla</button>
+                  <button class="adm-img-btn reject"  onclick="AdminPanel.moderateImage('${img.id}','rejected',this)">✕ Reddet</button>
+                </div>` : ''}
+            </div>`).join('')}
+        </div>
+      </div>` : '';
+
+    const actionBtns = r.status === 'pending' ? `
+      <input type="text" class="adm-note-input" id="note-${r.id}" placeholder="Moderasyon notu (isteğe bağlı)…">
+      <button class="adm-approve-btn" onclick="AdminPanel.moderate('${r.id}','approved')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+        Onayla & Yayınla
+      </button>
+      <button class="adm-reject-btn" onclick="AdminPanel.moderate('${r.id}','rejected')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        Reddet
+      </button>` : `<span style="font-size:12px;color:var(--muted)">${r.moderation_note ? `Not: ${r.moderation_note}` : ''}</span>`;
+
+    return `
+      <div class="adm-mod-card status-${r.status}" id="admCard-${r.id}">
+        <div class="adm-card-head">
+          <div class="adm-product-info">
+            <span class="adm-product-name">${escHtml(r.product_id)}</span>
+            <span class="adm-user-line">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              Doğrulanmış Müşteri
+              ${r.is_edited ? '<span style="font-size:10px;color:var(--gold)">&nbsp;· Düzenlendi</span>' : ''}
+            </span>
+          </div>
+          <div class="adm-stars">${stars}</div>
+          <div class="adm-date">${date}</div>
+          <span class="adm-status-pill ${r.status}">${statusLabel(r.status)}</span>
+        </div>
+        <div class="adm-card-body">
+          <h3 class="adm-review-title">${escHtml(r.title)}</h3>
+          <p class="adm-review-body">${escHtml(r.body)}</p>
+          ${imgHtml}
+        </div>
+        <div class="adm-card-actions">${actionBtns}</div>
+      </div>`;
+  }
+
+  function renderImageCard(img) {
+    // Bağımsız görsel moderasyon kartı (gerekirse genişletilebilir)
+    return `
+      <div class="adm-mod-card status-${img.status}">
+        <div class="adm-card-head">
+          <span class="adm-product-name">Görsel — Yorum: ${img.review_id?.slice(0,8)}…</span>
+          <span class="adm-status-pill ${img.status}">${statusLabel(img.status)}</span>
+        </div>
+        <div class="adm-card-body">
+          <div class="adm-img-strip">
+            <img src="${img.public_url}" class="adm-img-thumb" onclick="window.open('${img.public_url}','_blank')">
+          </div>
+        </div>
+        ${img.status === 'pending' ? `
+          <div class="adm-card-actions">
+            <button class="adm-approve-btn" onclick="AdminPanel.moderateImage('${img.id}','approved')">Onayla</button>
+            <button class="adm-reject-btn"  onclick="AdminPanel.moderateImage('${img.id}','rejected')">Reddet</button>
+          </div>` : ''}
+      </div>`;
+  }
+
+  // ── Yorum Modere Et
+  async function moderate(reviewId, action) {
+    const note = document.getElementById(`note-${reviewId}`)?.value?.trim();
+
+    try {
+      const res = await fetch(`${CFG.apiBase}/reviews/admin/${reviewId}/moderate`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${_session.access_token}`,
+        },
+        body: JSON.stringify({ action, note }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      toast(data.message, 'success');
+
+      // Kartı listeden kaldır
+      document.getElementById(`admCard-${reviewId}`)?.remove();
+      _allItems = _allItems.filter(r => r.id !== reviewId);
+      _filtered = _filtered.filter(r => r.id !== reviewId);
+
+      if (_filtered.length === 0) renderList();
+
+      await loadStats();
+    } catch (e) {
+      toast(e.message || 'İşlem başarısız', 'error');
+    }
+  }
+
+  // ── Görsel Modere Et
+  async function moderateImage(imageId, action, btn) {
+    try {
+      const res = await fetch(`${CFG.apiBase}/reviews/admin/images/${imageId}/moderate`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${_session.access_token}`,
+        },
+        body: JSON.stringify({ action }),
+      });
+
+      if (!res.ok) throw new Error('İşlem başarısız');
+
+      toast(action === 'approved' ? 'Görsel onaylandı.' : 'Görsel reddedildi.', 'success');
+
+      // Butonu kaldır
+      btn?.closest('.adm-img-btns')?.remove();
+      const statusEl = btn?.closest('.adm-img-item')?.querySelector('.adm-img-status');
+      if (statusEl) {
+        statusEl.className = `adm-img-status ${action}`;
+        statusEl.textContent = statusLabel(action);
+      }
+    } catch (e) {
+      toast('Görsel işlemi başarısız', 'error');
+    }
+  }
+
+  // ── Tab Değiştir
+  function switchTab(tab, btn) {
+    _currentTab = tab;
+    _page = 1;
+    _searchQ = '';
+    document.getElementById('admSearchInput').value = '';
+
+    document.querySelectorAll('.adm-nav-item').forEach(b => b.classList.remove('active'));
+    btn?.classList.add('active');
+
+    const titles = {
+      reviews: ['Yorum Moderasyonu', 'Bekleyen yorumları inceleyin ve yayın kararını verin'],
+      images:  ['Görsel Moderasyonu', 'Yorum görsellerini inceleyin'],
+    };
+    document.getElementById('admPageTitle').textContent = titles[tab][0];
+    document.getElementById('admPageSub').textContent   = titles[tab][1];
+
+    filterStatus('pending', document.querySelector('.adm-tab[data-status="pending"]'));
+  }
+
+  // ── Durum Filtrele
+  function filterStatus(status, btn) {
+    _currentStatus = status;
+    _page = 1;
+
+    document.querySelectorAll('.adm-tab').forEach(b => b.classList.remove('active'));
+    btn?.classList.add('active');
+
+    loadItems();
+  }
+
+  // ── Toast Bildirim
+  let _toastTimer;
+  function toast(msg, type = '') {
+    const el = document.getElementById('admToast');
+    el.textContent = msg;
+    el.className   = `adm-toast show ${type}`;
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+  }
+
+  // ── Çıkış
+  async function logout() {
+    await _supabase?.auth.signOut();
+    window.location.href = '/';
+  }
+
+  // ── Yardımcılar
+  function statusLabel(s) {
+    return { pending: 'Beklemede', approved: 'Yayında', rejected: 'Reddedildi' }[s] || s;
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+
+  return { switchTab, filterStatus, search, moderate, moderateImage, logout };
+})();
+</script>
+</body>
+</html>
