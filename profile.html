@@ -1277,6 +1277,6 @@ function openDeleteAccountModal(){document.getElementById('deleteAccountModal').
 function closeDeleteAccountModal(){document.getElementById('deleteAccountModal').classList.remove('open');document.getElementById('deleteAccountStatus').textContent='';}
 document.getElementById('openDeleteAccountModal')?.addEventListener('click',openDeleteAccountModal);
 document.getElementById('confirmDeleteAccountBtn')?.addEventListener('click',function(){const value=(document.getElementById('deleteAccountConfirmInput')?.value||'').trim().toUpperCase();const status=document.getElementById('deleteAccountStatus');if(value!=='HESABIMI SIL'){status.textContent='Devam etmek için HESABIMI SIL yazın.';status.style.color='#8a3b2f';return;}window.location.href='mailto:destek@cosmoskin.com.tr?subject=Hesab%C4%B1m%C4%B1%20Sil&body=Hesab%C4%B1m%C4%B1n%20kal%C4%B1c%C4%B1%20olarak%20silinmesini%20istiyorum.';});
-</script><script src="/assets/mobile-enhancements.js?v=20260421a"></script>
+</script><script src="/assets/mobile-enhancements.js?v=20260421final"></script>
 </body>
 </html>

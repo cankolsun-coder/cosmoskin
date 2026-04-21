@@ -20,13 +20,24 @@
     'torriden.html': {eyebrow:'Brand edit', title:'Torriden', desc:'Katmanlı nem ve hafif doku arayanlar için edit.', chips:['Nem','Serum','SPF']},
     'skin1004.html': {eyebrow:'Brand edit', title:'SKIN1004', desc:'Centella odaklı hafif ve yatıştırıcı bakım akışı.', chips:['Centella','Hassas','Calm']},
     'thank-you-farmer.html': {eyebrow:'Brand edit', title:'Thank You Farmer', desc:'Günlük konfor ve bakım hissi veren rafine ürün çizgisi.', chips:['Daily','Comfort','Cream']},
-    'blemish.html': {eyebrow:'Concern', title:'Akne eğilimi', desc:'Sebum ve gözenek odağında daha hafif seçimler.', chips:['Akne','Sebum','Gözenek']}
+    'blemish.html': {eyebrow:'Concern', title:'Akne eğilimi', desc:'Sebum ve gözenek odağında daha hafif seçimler.', chips:['Akne','Sebum','Gözenek']},
+    'index.html': {eyebrow:'Cosmoskin mobile', title:'Seçilmiş K-beauty', desc:'Ana sayfada hızlı keşif, rafine kartlar ve uygulama hissine yakın gezinme.', chips:['Edit','Premium','Mobile']}
   };
 
+  document.documentElement.classList.add('mobile-master-ready');
+  document.body.classList.add('mobile-master-ready');
+
+  function qs(sel, root=document){ return root.querySelector(sel); }
+  function qsa(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
+
   function createSearchSheet(){
-    if (document.querySelector('.mobile-search-sheet')) return;
+    if (qs('.mobile-search-sheet')) return;
     const el = document.createElement('div');
     el.className = 'mobile-search-sheet';
+    const links = [
+      ['/cleanse.html','Temizleyiciler'], ['/hydrate.html','Nem & Bariyer'], ['/treat.html','Hedef Bakım'], ['/protect.html','SPF'], ['/routine.html','Rutinler']
+    ];
+    const brands = [ ['/anua.html','Anua'], ['/cosrx.html','COSRX'], ['/beauty-of-joseon.html','BOJ'], ['/torriden.html','Torriden'] ];
     el.innerHTML = `
       <div class="mobile-search-sheet__inner">
         <div class="mobile-search-sheet__top">
@@ -38,31 +49,20 @@
         </div>
         <div class="mobile-search-sheet__section">
           <h4>Hızlı erişim</h4>
-          <div class="mobile-search-sheet__chips">
-            <a href="/cleanse.html">Temizleyiciler</a>
-            <a href="/hydrate.html">Nem &amp; Bariyer</a>
-            <a href="/treat.html">Hedef Bakım</a>
-            <a href="/protect.html">SPF</a>
-            <a href="/routine.html">Rutinler</a>
-          </div>
+          <div class="mobile-search-sheet__chips">${links.map(([u,t])=>`<a href="${u}">${t}</a>`).join('')}</div>
         </div>
         <div class="mobile-search-sheet__section">
           <h4>Markalar</h4>
-          <div class="mobile-search-sheet__cards">
-            <a href="/anua.html"><small>Brand</small><strong>Anua</strong></a>
-            <a href="/cosrx.html"><small>Brand</small><strong>COSRX</strong></a>
-            <a href="/beauty-of-joseon.html"><small>Brand</small><strong>BOJ</strong></a>
-            <a href="/torriden.html"><small>Brand</small><strong>Torriden</strong></a>
-          </div>
+          <div class="mobile-search-sheet__cards">${brands.map(([u,t])=>`<a href="${u}"><small>Brand</small><strong>${t}</strong></a>`).join('')}</div>
         </div>
       </div>`;
     document.body.appendChild(el);
-    const input = el.querySelector('input');
-    el.querySelector('.mobile-search-sheet__close').addEventListener('click', ()=> el.classList.remove('is-open'));
+    const input = qs('input', el);
+    qs('.mobile-search-sheet__close', el).addEventListener('click', ()=> el.classList.remove('is-open'));
     input.addEventListener('keydown', (e)=>{
       if(e.key === 'Enter'){
         const q = input.value.trim();
-        if(q){ window.location.href = `/index.html?q=${encodeURIComponent(q)}`; }
+        if(q) window.location.href = `/index.html?q=${encodeURIComponent(q)}`;
       }
     });
     document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') el.classList.remove('is-open'); });
@@ -70,8 +70,8 @@
   }
 
   function addSearchButton(){
-    const tools = document.querySelector('.header-tools');
-    if (!tools || tools.querySelector('.mobile-header-search-btn')) return;
+    const tools = qs('.header-tools');
+    if (!tools || qs('.mobile-header-search-btn', tools)) return;
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'mobile-header-search-btn';
@@ -82,13 +82,13 @@
   }
 
   function enhanceHeader(){
-    const header = document.querySelector('.header');
+    const header = qs('.header');
     if(!header) return;
     let lastY = 0;
     const onScroll = ()=>{
       const y = window.scrollY || 0;
       header.classList.toggle('mobile-header-condensed', y > 24);
-      document.body.classList.toggle('mobile-scroll-down', y > lastY && y > 80);
+      document.body.classList.toggle('mobile-scroll-down', y > lastY && y > 88);
       lastY = y;
     };
     onScroll();
@@ -96,41 +96,40 @@
   }
 
   function addBottomNav(){
-    if(document.querySelector('.mobile-bottom-nav')) return;
+    if(qs('.mobile-bottom-nav')) return;
     const nav = document.createElement('nav');
     nav.className = 'mobile-bottom-nav';
-    const catPages = ['cleanse.html','hydrate.html','treat.html','protect.html','care.html','masks.html','blemish.html','anua.html','beauty-of-joseon.html','cosrx.html','round-lab.html','skin1004.html','thank-you-farmer.html','torriden.html'];
+    const catPages = ['cleanse.html','hydrate.html','treat.html','protect.html','care.html','masks.html','blemish.html','anua.html','beauty-of-joseon.html','cosrx.html','round-lab.html','skin1004.html','thank-you-farmer.html','torriden.html','routine.html'];
     const accountActive = /profile|orders/.test(path);
     const cartActive = /checkout/.test(path);
     nav.innerHTML = `
-      <a href="/index.html" class="${path === 'index.html' ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">⌂</span><span>Ana Sayfa</span></a>
+      <a href="/index.html" class="${path === 'index.html' ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">⌂</span><span>Anasayfa</span></a>
       <a href="/cleanse.html" class="${catPages.includes(path) ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">◫</span><span>Shop</span></a>
       <button type="button" class="mobile-bottom-nav__search"><span class="mobile-bottom-nav__icon">⌕</span><span>Ara</span></button>
       <a href="/profile.html" class="${accountActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">◌</span><span>Hesap</span></a>
       <a href="/checkout.html" class="${cartActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">👜</span><span>Sepet</span></a>`;
-    nav.querySelector('.mobile-bottom-nav__search').addEventListener('click', ()=> window.openMobileSearch && window.openMobileSearch());
+    qs('.mobile-bottom-nav__search', nav).addEventListener('click', ()=> window.openMobileSearch && window.openMobileSearch());
     document.body.appendChild(nav);
   }
 
   function decoratePageHero(){
-    const hero = document.querySelector('.page-hero, .empty-collection__card');
-    if(!hero || hero.querySelector('.mobile-luxe-hero__meta')) return;
+    const hero = qs('.page-hero, .empty-collection__card');
+    if(!hero || qs('.mobile-luxe-hero__meta', hero)) return;
     hero.classList.add('mobile-luxe-hero');
-    const meta = pageMeta[path] || {eyebrow:'Cosmoskin', title:'Mobil seçki', desc:'Rafine ve hızlı bir mobil alışveriş deneyimi.' , chips:['Premium','Mobile','Edit']};
+    const meta = pageMeta[path] || pageMeta['index.html'];
     const metaEl = document.createElement('div');
     metaEl.className = 'mobile-luxe-hero__meta';
     metaEl.innerHTML = `
       <div class="mobile-luxe-hero__topline"><span>${meta.eyebrow}</span><strong>${meta.title}</strong></div>
       <p>${meta.desc}</p>
       <div class="mobile-luxe-hero__chips">${meta.chips.map(ch => `<span>${ch}</span>`).join('')}</div>`;
-    const inner = hero.querySelector('.container, .empty-collection__card');
-    if (hero.classList.contains('empty-collection__card')) hero.appendChild(metaEl);
-    else inner.appendChild(metaEl);
+    const inner = hero.classList.contains('empty-collection__card') ? hero : qs('.container', hero) || hero;
+    inner.appendChild(metaEl);
   }
 
   function addPagePills(){
-    const hero = document.querySelector('.page-hero .container, .empty-collection__card');
-    if(!hero || hero.querySelector('.mobile-page-pillbar')) return;
+    const hero = qs('.page-hero .container, .empty-collection__card');
+    if(!hero || qs('.mobile-page-pillbar', hero)) return;
     const wrap = document.createElement('div');
     wrap.className = 'mobile-page-pillbar';
     wrap.innerHTML = `
@@ -139,88 +138,91 @@
       <a href="/protect.html">SPF</a>
       <a href="/hydrate.html">Nem</a>
       <a href="/treat.html">Bakım</a>`;
-    wrap.querySelectorAll('a').forEach(a=>{ if(a.getAttribute('href').endsWith(path)) a.classList.add('is-active'); });
+    qsa('a', wrap).forEach(a=>{ if((a.getAttribute('href').split('/').pop() || '').replace(/\?.*/, '') === path) a.classList.add('is-active'); });
     hero.appendChild(wrap);
   }
 
   function addEditorialRail(){
-    if(path === 'index.html' || document.querySelector('.mobile-editorial-rail')) return;
-    const anchor = document.querySelector('.page-hero, .empty-collection, .section');
+    if(path === 'index.html' || qs('.mobile-editorial-rail')) return;
+    const anchor = qs('.page-hero, .empty-collection, .section');
     if(!anchor) return;
     const section = document.createElement('section');
     section.className = 'mobile-editorial-rail';
     section.innerHTML = `
-      <div class="mobile-editorial-rail__head">
-        <span>Mobil edit</span>
-        <strong>Hızlı seçim alanı</strong>
-      </div>
+      <div class="mobile-editorial-rail__head"><span>Mobil edit</span><strong>Hızlı seçim alanı</strong></div>
       <div class="mobile-editorial-rail__track">
         <a href="/cleanse.html"><small>Step 01</small><strong>Temizle</strong><span>Arındır & başlat</span></a>
-        <a href="/hydrate.html"><small>Step 02</small><strong>Nemlendir</strong><span>Katmanlı denge</span></a>
-        <a href="/treat.html"><small>Step 03</small><strong>Hedef Bakım</strong><span>Aktif seçkiler</span></a>
-        <a href="/protect.html"><small>Step 04</small><strong>Koru</strong><span>Günlük SPF</span></a>
+        <a href="/hydrate.html"><small>Step 02</small><strong>Nemlendir</strong><span>Katmanlı nem</span></a>
+        <a href="/treat.html"><small>Step 03</small><strong>Bakım</strong><span>Aktif hedef seçkisi</span></a>
+        <a href="/protect.html"><small>Step 04</small><strong>Koru</strong><span>Hafif SPF</span></a>
       </div>`;
-    anchor.insertAdjacentElement('afterend', section);
+    anchor.parentNode.insertBefore(section, anchor.nextSibling);
   }
 
   function addCategoryShortcuts(){
-    const productGrid = document.querySelector('.product-grid, .routine-bundles__grid, .checkout-layout, .acc-main');
-    const anchor = document.querySelector('.mobile-editorial-rail, .page-hero, .empty-collection');
-    if(!anchor || !productGrid || document.querySelector('.mobile-category-shortcuts')) return;
-    const sec = document.createElement('section');
-    sec.className = 'mobile-category-shortcuts';
-    sec.innerHTML = `
-      <div class="mobile-category-shortcuts__head"><p class="mobile-category-shortcuts__title">Mobilde popüler akış</p><a href="/index.html#collections">Tümü</a></div>
+    if(path === 'index.html' || qs('.mobile-category-shortcuts')) return;
+    const target = qs('.product-grid')?.parentElement;
+    if(!target) return;
+    const section = document.createElement('section');
+    section.className = 'mobile-category-shortcuts';
+    section.innerHTML = `
+      <div class="mobile-category-shortcuts__head"><div class="mobile-category-shortcuts__title">Hızlı kategori</div><a href="/index.html#collections">Tümü</a></div>
       <div class="mobile-category-shortcuts__track">
-        <a class="mobile-category-shortcuts__item" href="/cleanse.html"><span class="mobile-category-shortcuts__eyebrow">Cleanse</span><span class="mobile-category-shortcuts__name">Temizle</span></a>
-        <a class="mobile-category-shortcuts__item" href="/hydrate.html"><span class="mobile-category-shortcuts__eyebrow">Hydrate</span><span class="mobile-category-shortcuts__name">Nemlendir</span></a>
-        <a class="mobile-category-shortcuts__item" href="/treat.html"><span class="mobile-category-shortcuts__eyebrow">Treat</span><span class="mobile-category-shortcuts__name">Hedef Bakım</span></a>
-        <a class="mobile-category-shortcuts__item" href="/protect.html"><span class="mobile-category-shortcuts__eyebrow">Protect</span><span class="mobile-category-shortcuts__name">Koru</span></a>
+        <a class="mobile-category-shortcuts__item" href="/cleanse.html"><span class="mobile-category-shortcuts__eyebrow">Step 01</span><strong class="mobile-category-shortcuts__name">Temizle</strong></a>
+        <a class="mobile-category-shortcuts__item" href="/hydrate.html"><span class="mobile-category-shortcuts__eyebrow">Step 02</span><strong class="mobile-category-shortcuts__name">Nemlendir</strong></a>
+        <a class="mobile-category-shortcuts__item" href="/treat.html"><span class="mobile-category-shortcuts__eyebrow">Step 03</span><strong class="mobile-category-shortcuts__name">Bakım</strong></a>
+        <a class="mobile-category-shortcuts__item" href="/protect.html"><span class="mobile-category-shortcuts__eyebrow">Step 04</span><strong class="mobile-category-shortcuts__name">Koru</strong></a>
       </div>`;
-    anchor.insertAdjacentElement('afterend', sec);
+    target.parentNode.insertBefore(section, target);
   }
 
   function decorateProductCards(){
-    document.querySelectorAll('.product-card').forEach((card, idx)=>{
-      if(card.querySelector('.mobile-card-accent')) return;
-      card.classList.add('mobile-product-card');
+    qsa('.product-card').forEach((card, index)=>{
+      if(qs('.mobile-card-accent', card)) return;
+      const body = qs('.product-body', card);
+      if(!body) return;
       const accent = document.createElement('div');
       accent.className = 'mobile-card-accent';
-      accent.innerHTML = `<span>${idx < 2 ? 'Editör Seçimi' : 'Günlük Seçki'}</span><small>KDV dahil</small>`;
-      const body = card.querySelector('.product-body');
-      if(body) body.prepend(accent);
+      accent.innerHTML = `<span>Selected edit</span><small>${String(index+1).padStart(2,'0')}</small>`;
+      body.insertBefore(accent, body.firstChild);
+      const priceRow = qs('.price-row', card);
+      if(priceRow && !qs('.mobile-card-detail-link', priceRow)){
+        const mediaLink = qs('.product-media', card);
+        const detail = document.createElement(mediaLink && mediaLink.getAttribute('href') ? 'a' : 'button');
+        detail.className = 'mobile-card-detail-link';
+        detail.textContent = 'Detayı Gör';
+        if(detail.tagName === 'A') detail.href = mediaLink.getAttribute('href');
+        else detail.type = 'button';
+        priceRow.insertBefore(detail, priceRow.lastElementChild);
+      }
     });
   }
 
   function enhanceAccountPage(){
     if(path !== 'profile.html') return;
-    const main = document.querySelector('.acc-main');
-    const sidebar = document.querySelector('.acc-sidebar');
-    if(!main || !sidebar || document.querySelector('.mobile-account-tabs')) return;
+    const main = qs('.acc-main');
+    if(!main || qs('.mobile-account-tabs')) return;
     const tabs = document.createElement('div');
     tabs.className = 'mobile-account-tabs';
     tabs.innerHTML = `
-      <button data-target="overview" class="is-active">Genel</button>
-      <button data-target="orders">Sipariş</button>
-      <button data-target="favorites">Favori</button>
-      <button data-target="addresses">Adres</button>`;
-    sidebar.insertAdjacentElement('afterend', tabs);
-    tabs.querySelectorAll('button').forEach(btn=>{
+      <button type="button" data-mobile-tab="overview" class="is-active">Genel</button>
+      <button type="button" data-mobile-tab="orders">Sipariş</button>
+      <button type="button" data-mobile-tab="favorites">Favori</button>
+      <button type="button" data-mobile-tab="profile">Profil</button>`;
+    main.parentNode.insertBefore(tabs, main);
+    qsa('button', tabs).forEach(btn => {
       btn.addEventListener('click', ()=>{
-        const target = btn.dataset.target;
-        const navBtn = document.querySelector(`.acc-nav-item[data-tab="${target}"]`);
-        if(navBtn) navBtn.click();
-        tabs.querySelectorAll('button').forEach(b=>b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        window.scrollTo({top: tabs.offsetTop - 12, behavior:'smooth'});
+        qsa('button', tabs).forEach(b=>b.classList.toggle('is-active', b===btn));
+        const target = qs('#tab-'+btn.dataset.mobileTab);
+        if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
       });
     });
   }
 
   function enhanceOrdersPage(){
     if(path !== 'orders.html') return;
-    const head = document.querySelector('.section-head');
-    if(!head || document.querySelector('.mobile-orders-banner')) return;
+    const head = qs('.section-head');
+    if(!head || qs('.mobile-orders-banner')) return;
     const banner = document.createElement('div');
     banner.className = 'mobile-orders-banner';
     banner.innerHTML = `<small>Sipariş Merkezi</small><strong>Onay, toplam ve geçmişi tek akışta görüntüle</strong>`;
@@ -228,8 +230,8 @@
   }
 
   function addCheckoutStepper(){
-    if(path !== 'checkout.html' || document.querySelector('.mobile-checkout-steps')) return;
-    const hero = document.querySelector('.page-hero .container');
+    if(path !== 'checkout.html' || qs('.mobile-checkout-steps')) return;
+    const hero = qs('.page-hero .container');
     if(!hero) return;
     const steps = document.createElement('div');
     steps.className = 'mobile-checkout-steps';
@@ -240,141 +242,9 @@
     hero.appendChild(steps);
   }
 
-
-  function enhancePdpExperience(){
-    const pdpCards = Array.from(document.querySelectorAll('.pdp-detail-card'));
-    if(!pdpCards.length) return;
-
-    const cardMap = new Map();
-    document.querySelectorAll('.product-card').forEach(card => {
-      const title = card.querySelector('h3')?.textContent?.trim();
-      if(title) cardMap.set(title, card);
-    });
-
-    const railItems = [];
-    pdpCards.forEach((card, idx) => {
-      const titleEl = card.querySelector('.pdp-detail-card__head h3');
-      const priceEl = card.querySelector('.pdp-detail-card__price');
-      const eyebrowEl = card.querySelector('.fact-card__eyebrow');
-      const title = titleEl?.textContent?.trim() || `Ürün ${idx + 1}`;
-      const slug = title.toLowerCase().replace(/[^a-z0-9ğüşöçıİĞÜŞÖÇ]+/gi, '-').replace(/^-+|-+$/g, '');
-      card.id = card.id || `pdp-${slug || idx + 1}`;
-      card.dataset.pdpTitle = title;
-      card.dataset.pdpPrice = priceEl?.textContent?.trim() || '—';
-      if(idx === 0) card.classList.add('is-current');
-
-      const linkedCard = cardMap.get(title);
-      const mediaImg = linkedCard?.querySelector('.product-media img');
-      railItems.push({
-        id: card.id,
-        title,
-        brand: eyebrowEl?.textContent?.trim() || 'Product',
-        price: priceEl?.textContent?.trim() || '—',
-        src: mediaImg?.getAttribute('src') || '',
-        alt: mediaImg?.getAttribute('alt') || title
-      });
-
-      if(linkedCard && !linkedCard.querySelector('.mobile-card-detail-btn')){
-        const row = linkedCard.querySelector('.price-row');
-        const btn = document.createElement('a');
-        btn.className = 'mobile-card-detail-btn';
-        btn.href = `#${card.id}`;
-        btn.textContent = 'Detayı Gör';
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          card.scrollIntoView({behavior:'smooth', block:'start'});
-        });
-        if(row) row.parentNode.insertBefore(btn, row);
-      }
-
-      const columns = card.querySelector('.pdp-columns');
-      if(columns && !card.querySelector('.mobile-pdp-accordions')){
-        const wrap = document.createElement('div');
-        wrap.className = 'mobile-pdp-accordions';
-        Array.from(columns.children).forEach((col, colIdx) => {
-          const heading = col.querySelector('h4')?.textContent?.trim() || `Detay ${colIdx + 1}`;
-          const details = document.createElement('details');
-          details.className = 'mobile-pdp-accordion';
-          if(colIdx === 0) details.open = true;
-          details.innerHTML = `
-            <summary><span>${heading}</span><span class="mobile-pdp-accordion__icon">+</span></summary>
-            <div class="mobile-pdp-accordion__body">${col.innerHTML}</div>`;
-          wrap.appendChild(details);
-        });
-        columns.replaceWith(wrap);
-      }
-
-      const note = card.querySelector('.pdp-detail-note');
-      if(note && !card.querySelector('.mobile-pdp-mini-meta')){
-        const mini = document.createElement('div');
-        mini.className = 'mobile-pdp-mini-meta';
-        mini.innerHTML = `<span>Ürün Notu</span>${note.innerHTML}`;
-        note.replaceWith(mini);
-      }
-    });
-
-    const pdpSection = document.querySelector('.pdp-section .container');
-    if(pdpSection && !document.querySelector('.mobile-pdp-gallery') && railItems.length){
-      const gallery = document.createElement('section');
-      gallery.className = 'mobile-pdp-gallery';
-      gallery.innerHTML = `
-        <div class="mobile-pdp-gallery__head">
-          <span>Ürün detay görünümü</span>
-          <strong>Mobil PDP ön izleme</strong>
-        </div>
-        <div class="mobile-pdp-gallery__track">
-          ${railItems.map(item => `
-            <button type="button" class="mobile-pdp-gallery__item" data-target="${item.id}">
-              <div class="mobile-pdp-gallery__thumb">${item.src ? `<img src="${item.src}" alt="${item.alt}">` : `<div class="mobile-pdp-gallery__placeholder">✦</div>`}</div>
-              <small>${item.brand}</small>
-              <strong>${item.title}</strong>
-              <span>${item.price}</span>
-            </button>`).join('')}
-        </div>`;
-      const sectionHead = document.querySelector('.pdp-section .section-head');
-      if(sectionHead) sectionHead.insertAdjacentElement('afterend', gallery);
-      gallery.querySelectorAll('.mobile-pdp-gallery__item').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const target = document.getElementById(btn.dataset.target);
-          target && target.scrollIntoView({behavior:'smooth', block:'start'});
-        });
-      });
-    }
-
-    if(!document.querySelector('.mobile-pdp-sticky-bar')){
-      const sticky = document.createElement('div');
-      sticky.className = 'mobile-pdp-sticky-bar';
-      sticky.innerHTML = `
-        <div class="mobile-pdp-sticky-bar__meta">
-          <span class="mobile-pdp-sticky-bar__eyebrow">Ürün detayı</span>
-          <strong class="mobile-pdp-sticky-bar__title">${railItems[0]?.title || 'Ürün'}</strong>
-          <small class="mobile-pdp-sticky-bar__price">${railItems[0]?.price || '—'}</small>
-        </div>
-        <div class="mobile-pdp-sticky-bar__actions">
-          <button type="button" class="mobile-pdp-sticky-bar__ghost">Detaylar</button>
-          <a href="/checkout.html" class="btn btn-primary mobile-pdp-sticky-bar__cta">Sepete Git</a>
-        </div>`;
-      document.body.appendChild(sticky);
-      sticky.querySelector('.mobile-pdp-sticky-bar__ghost').addEventListener('click', () => {
-        const current = document.querySelector('.pdp-detail-card.is-current') || pdpCards[0];
-        current && current.scrollIntoView({behavior:'smooth', block:'start'});
-      });
-
-      const observer = new IntersectionObserver((entries) => {
-        const visible = entries.filter(entry => entry.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if(!visible) return;
-        pdpCards.forEach(card => card.classList.remove('is-current'));
-        visible.target.classList.add('is-current');
-        sticky.querySelector('.mobile-pdp-sticky-bar__title').textContent = visible.target.dataset.pdpTitle || 'Ürün';
-        sticky.querySelector('.mobile-pdp-sticky-bar__price').textContent = visible.target.dataset.pdpPrice || '—';
-      }, { threshold:[0.35, 0.55, 0.75] });
-      pdpCards.forEach(card => observer.observe(card));
-    }
-  }
-
   function addCheckoutSticky(){
-    if (path !== 'checkout.html' || document.querySelector('.mobile-sticky-checkout')) return;
-    const sourceBtn = document.querySelector('.checkout-summary .btn.btn-primary, .checkout-summary a.btn.btn-primary');
+    if (path !== 'checkout.html' || qs('.mobile-sticky-checkout')) return;
+    const sourceBtn = qs('.checkout-summary .btn.btn-primary, .checkout-summary a.btn.btn-primary, #checkoutSubmit');
     const bar = document.createElement('div');
     bar.className = 'mobile-sticky-checkout';
     bar.innerHTML = `
@@ -383,31 +253,111 @@
         <strong class="mobile-sticky-checkout__price">—</strong>
       </div>
       <button class="btn btn-primary" type="button">Ödemeye Geç</button>`;
-    bar.querySelector('button').addEventListener('click', ()=>{
+    qs('button', bar).addEventListener('click', ()=>{
       if(sourceBtn) sourceBtn.click();
       else window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'});
     });
     document.body.appendChild(bar);
     const sync = ()=>{
-      const liveTotal = document.querySelector('#cartTotal, .checkout-summary .sum-row.total strong, .checkout-summary strong');
-      if(liveTotal) bar.querySelector('.mobile-sticky-checkout__price').textContent = liveTotal.textContent.trim();
+      const liveTotal = qs('#checkoutTotal, #cartTotal, .checkout-summary .sum-row.total strong');
+      if(liveTotal) qs('.mobile-sticky-checkout__price', bar).textContent = liveTotal.textContent.trim();
     };
     sync();
     setInterval(sync, 900);
   }
 
-  createSearchSheet();
-  addSearchButton();
-  enhanceHeader();
-  addBottomNav();
-  decoratePageHero();
-  addPagePills();
-  addEditorialRail();
-  addCategoryShortcuts();
-  decorateProductCards();
-  enhanceAccountPage();
-  enhanceOrdersPage();
-  addCheckoutStepper();
-  addCheckoutSticky();
-  enhancePdpExperience();
+  function makePdpAccordions(){
+    qsa('.pdp-detail-card').forEach((card, idx)=>{
+      if(qs('.mobile-pdp-accordion', card)) return;
+      const columns = qs('.pdp-columns', card);
+      const note = qs('.pdp-detail-note', card);
+      const specs = qs('.pdp-spec-grid', card);
+      const head = qs('.pdp-detail-card__head', card);
+      if(!head || !columns) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'mobile-pdp-accordion';
+      const sections = [];
+      if(specs) sections.push({title:'Teknik bilgiler', body:specs.outerHTML});
+      qsa('div', columns).forEach(col=>{
+        const h = qs('h4', col); const block = col.cloneNode(true); if(h) h.remove();
+        sections.push({title:h ? h.textContent.trim() : 'Detay', body:block.innerHTML});
+      });
+      if(note) sections.push({title:'Kısa not', body:note.innerHTML});
+      wrap.innerHTML = sections.map((s, i)=>`<details class="mobile-pdp-accordion__item" ${i===0?'open':''}><summary>${s.title}</summary><div class="mobile-pdp-accordion__body">${s.body}</div></details>`).join('');
+      columns.style.display='none';
+      if(specs) specs.style.display='none';
+      if(note) note.style.display='none';
+      card.insertBefore(wrap, qs('.pdp-detail-actions', card) || null);
+      const badge = document.createElement('div');
+      badge.className = 'mobile-pdp-card-badge';
+      badge.textContent = idx === 0 ? 'Öne çıkan seçim' : 'Detaylı inceleme';
+      head.appendChild(badge);
+    });
+  }
+
+  function addStickyPdpBar(){
+    if(path === 'checkout.html' || path === 'index.html' || qs('.mobile-sticky-pdp')) return;
+    const first = qs('.pdp-detail-card');
+    if(!first) return;
+    const title = qs('h3', first)?.textContent?.trim() || 'Seçili ürün';
+    const price = qs('.pdp-detail-card__price', first)?.textContent?.trim() || '—';
+    const primaryLink = qs('.pdp-detail-actions .btn.btn-primary', first);
+    const bar = document.createElement('div');
+    bar.className = 'mobile-sticky-pdp';
+    bar.innerHTML = `
+      <div class="mobile-sticky-pdp__copy">
+        <span>${title}</span>
+        <strong>${price}</strong>
+      </div>
+      <button type="button" class="btn btn-primary">Güvenli Ödeme</button>`;
+    qs('button', bar).addEventListener('click', ()=>{
+      if(primaryLink) window.location.href = primaryLink.getAttribute('href') || '/checkout.html';
+      else window.location.href = '/checkout.html';
+    });
+    document.body.appendChild(bar);
+  }
+
+  function makeFiltersSticky(){
+    const row = qs('.filter-row');
+    if(row) row.classList.add('mobile-sticky-filters');
+  }
+
+  function addButtonFeedback(){
+    qsa('button, .btn, a').forEach(el=>{
+      if(el.dataset.mobileFxBound) return;
+      el.dataset.mobileFxBound='1';
+      el.addEventListener('touchstart', ()=> el.classList.add('is-touched'), {passive:true});
+      const clear = ()=> el.classList.remove('is-touched');
+      el.addEventListener('touchend', clear, {passive:true});
+      el.addEventListener('touchcancel', clear, {passive:true});
+    });
+  }
+
+  function upgradeDrawers(){
+    qsa('.drawer').forEach(d=>d.classList.add('mobile-bottom-sheet'));
+  }
+
+  function init(){
+    createSearchSheet();
+    addSearchButton();
+    enhanceHeader();
+    addBottomNav();
+    decoratePageHero();
+    addPagePills();
+    addEditorialRail();
+    addCategoryShortcuts();
+    decorateProductCards();
+    enhanceAccountPage();
+    enhanceOrdersPage();
+    addCheckoutStepper();
+    addCheckoutSticky();
+    makePdpAccordions();
+    addStickyPdpBar();
+    makeFiltersSticky();
+    upgradeDrawers();
+    addButtonFeedback();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, {once:true});
+  else init();
 })();
