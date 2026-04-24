@@ -1,0 +1,15 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="lockFill" x1="15" y1="18" x2="46" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7EBDD"/>
+      <stop offset="1" stop-color="#DDBA94"/>
+    </linearGradient>
+    <linearGradient id="lockStroke" x1="16" y1="14" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E4C8A6"/>
+      <stop offset="1" stop-color="#B78A5A"/>
+    </linearGradient>
+  </defs>
+  <path d="M23 29.5V23C23 17.4772 27.4772 13 33 13C38.5228 13 43 17.4772 43 23V29.5" stroke="url(#lockStroke)" stroke-width="2.2" stroke-linecap="round"/>
+  <rect x="17" y="28" width="30" height="22" rx="9" fill="url(#lockFill)" stroke="url(#lockStroke)" stroke-width="1.6"/>
+  <path d="M32 36.5C34.2091 36.5 36 38.2909 36 40.5C36 42.0117 35.1619 43.3277 33.925 44.0054V47.5C33.925 48.0523 33.4773 48.5 32.925 48.5H31.075C30.5227 48.5 30.075 48.0523 30.075 47.5V44.0054C28.8381 43.3277 28 42.0117 28 40.5C28 38.2909 29.7909 36.5 32 36.5Z" fill="#FFF9F0"/>
+</svg>
