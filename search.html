@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<title>Arama | Cosmoskin</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Cosmoskin ürün arama"/>
+<meta name="theme-color" content="#f2ece4"/>
+<meta name="robots" content="noindex"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link rel="icon" href="/favicon.png" sizes="32x32" type="image/png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+<link rel="manifest" href="/site.webmanifest"/>
+<link rel="stylesheet" href="/assets/style.css?v=20260421b"/>
+<link rel="stylesheet" href="/assets/mobile-system.css?v=20260424"/>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="announcement">
+  <div class="marquee">
+    <span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span>
+    <span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span>
+    <span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span>
+    <span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span>
+  </div>
+</div>
+
+<header class="header">
+  <a class="brand" href="/index.html" aria-label="Cosmoskin anasayfa">
+    <img class="brand-logo" src="/assets/logo-mark.png" alt="Cosmoskin logo"/>
+    <span class="brand-word">COSMOSKIN</span>
+  </a>
+  <div class="header-tools">
+    <button class="tool-btn" id="accountBtn" aria-label="Hesap">
+      <svg fill="none" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path></svg>
+    </button>
+    <button class="tool-btn" id="cartBtn" aria-label="Sepet">
+      <svg fill="none" viewBox="0 0 24 24"><path d="M3 5h2l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L21 8H7" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path><circle cx="10" cy="19" r="1.4" stroke-width="1.8"></circle><circle cx="18" cy="19" r="1.4" stroke-width="1.8"></circle></svg>
+      <span class="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+
+    <!-- Search bar -->
+    <div class="search-page-hero">
+      <div class="search-page-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/>
+        </svg>
+        <input
+          class="search-page-input"
+          type="search"
+          id="searchPageInput"
+          placeholder="Ürün, marka veya içerik ara"
+          aria-label="Ürün arama"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
+        <button class="search-page-clear" id="searchPageClear" type="button" aria-label="Aramayı temizle">Sil</button>
+      </div>
+    </div>
+
+    <!-- Results header -->
+    <div class="search-results-header" id="searchResultsHeader" style="display:none">
+      <span class="search-results-count" id="searchResultsCount"></span>
+    </div>
+
+    <!-- Results grid -->
+    <div class="section" style="padding-top: 16px;">
+      <div class="product-grid" id="searchResultsGrid"></div>
+    </div>
+
+    <!-- Empty / default state -->
+    <div class="search-empty-state" id="searchEmptyState">
+      <h3>K-Beauty'de ne arıyorsun?</h3>
+      <p>Ürün adı, marka veya içerik yazarak başla.</p>
+      <div class="popular-searches">
+        <a class="popular-search-chip" href="#" data-search="COSRX">COSRX</a>
+        <a class="popular-search-chip" href="#" data-search="serum">Serum</a>
+        <a class="popular-search-chip" href="#" data-search="vitamin c">Vitamin C</a>
+        <a class="popular-search-chip" href="#" data-search="güneş">Güneş Koruyucu</a>
+        <a class="popular-search-chip" href="#" data-search="torriden">Torriden</a>
+        <a class="popular-search-chip" href="#" data-search="centella">Centella</a>
+        <a class="popular-search-chip" href="#" data-search="anua">Anua</a>
+        <a class="popular-search-chip" href="#" data-search="nem">Nem</a>
+      </div>
+    </div>
+
+    <!-- No results state -->
+    <div class="search-empty-state" id="searchNoResults" style="display:none">
+      <h3 id="searchNoResultsTitle">Sonuç bulunamadı</h3>
+      <p>Farklı bir arama dene veya kategorilere göz at.</p>
+      <div class="popular-searches">
+        <a class="popular-search-chip" href="/collections/cleanse.html">Temizleyiciler</a>
+        <a class="popular-search-chip" href="/collections/treat.html">Serumlar</a>
+        <a class="popular-search-chip" href="/collections/protect.html">SPF</a>
+        <a class="popular-search-chip" href="/collections/hydrate.html">Nem</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div class="backdrop" id="backdrop"></div>
+<aside class="drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <div class="drawer-title">Sepet</div>
+    <button class="icon-close close-any">×</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-summary">
+    <div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="cartSubtotal">₺0</strong></div>
+    <div class="sum-row total"><span>Ödenecek Toplam</span><strong id="cartTotal">₺0</strong></div>
+    <a class="btn btn-primary" href="/checkout.html">Ödemeye Geç</a>
+  </div>
+</aside>
+
+<aside class="drawer" id="accountDrawer">
+  <div class="drawer-head">
+    <div class="drawer-title">Hesap</div>
+    <button class="icon-close close-any">×</button>
+  </div>
+  <div class="account-state" id="accountState"></div>
+  <div class="account-actions" id="accountActions">
+    <button class="btn btn-primary" data-auth-tab="loginPanel" data-open-auth="">Giriş Yap</button>
+    <button class="btn btn-secondary" data-auth-tab="registerPanel" data-open-auth="">Kayıt Ol</button>
+  </div>
+</aside>
+
+<script src="/assets/products-data.js?v=20260424a"></script>
+<script src="/assets/site-config.js?v=20260418a"></script>
+<script src="/assets/auth.js?v=20260418d" type="module"></script>
+<script src="/assets/app.js?v=20260418b"></script>
+<script src="/assets/commerce.js?v=20260418d"></script>
+<script src="/assets/mobile-enhancements.js?v=20260421final"></script>
+<script src="/assets/bottom-nav.js?v=20260424"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var products = [];
+  var currentQuery = '';
+
+  function norm(s) {
+    return String(s || '').toLowerCase()
+      .replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u')
+      .replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c')
+      .replace(/İ/g,'i').trim();
+  }
+
+  function score(p, q) {
+    var nq = norm(q);
+    var nn = norm(p.name || '');
+    var nb = norm(p.brand || '');
+    var nc = norm(p.category || '');
+    var kw = (Array.isArray(p.keywords) ? p.keywords : (p.keywords||'').split(' '))
+               .map(function(k){ return norm(String(k)); }).join(' ');
+
+    if (nn === nq || nb === nq) return 100;
+    if (nn.startsWith(nq)) return 90;
+    if (nb.startsWith(nq)) return 85;
+    if (nn.includes(nq)) return 70;
+    if (nb.includes(nq)) return 65;
+    if (nc.includes(nq)) return 50;
+    if (kw.includes(nq)) return 30;
+
+    var words = nq.split(/\s+/).filter(Boolean);
+    if (words.length > 1) {
+      var all = words.every(function(w){ return nn.includes(w)||nb.includes(w)||nc.includes(w)||kw.includes(w); });
+      if (all) return 40;
+      var some = words.some(function(w){ return nn.includes(w)||nb.includes(w)||kw.includes(w); });
+      if (some) return 20;
+    }
+    return 0;
+  }
+
+  function doSearch(q) {
+    if (!q || q.length < 1) return [];
+    return products
+      .map(function(p){ return {p:p, s:score(p,q)}; })
+      .filter(function(x){ return x.s > 0; })
+      .sort(function(a,b){ return b.s - a.s; })
+      .map(function(x){ return x.p; });
+  }
+
+  function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function buildCard(p) {
+    var url = p.url || ('/products/' + (p.id||p.slug) + '.html');
+    var img = p.image || '';
+    var price = p.price || 0;
+    return '<article class="product-card">' +
+      '<div class="product-media-wrap">' +
+        '<a class="product-media" href="' + esc(url) + '">' +
+          '<img alt="' + esc(p.name) + '" src="' + esc(img) + '" loading="lazy" width="400" height="400"/>' +
+          '<span class="badge">' + esc(p.brand) + '</span>' +
+        '</a>' +
+      '</div>' +
+      '<div class="product-body">' +
+        '<div class="brandline">' + esc(p.brand) + '</div>' +
+        '<a href="' + esc(url) + '"><h3>' + esc(p.name) + '</h3></a>' +
+        '<div class="price-row">' +
+          '<div><div class="price">&#8378;' + esc(String(price)) + '</div><div class="price-note">KDV dahil</div></div>' +
+          '<button class="btn btn-primary" data-add-cart="" data-id="' + esc(p.id||p.slug) + '"' +
+            ' data-name="' + esc(p.name) + '" data-brand="' + esc(p.brand) + '"' +
+            ' data-price="' + esc(String(price)) + '" data-image="' + esc(img) + '">Sepete Ekle</button>' +
+        '</div>' +
+      '</div>' +
+    '</article>';
+  }
+
+  function render(results, q) {
+    var grid = document.getElementById('searchResultsGrid');
+    var header = document.getElementById('searchResultsHeader');
+    var count = document.getElementById('searchResultsCount');
+    var empty = document.getElementById('searchEmptyState');
+    var noRes = document.getElementById('searchNoResults');
+
+    if (!q || q.length < 1) {
+      grid.innerHTML = '';
+      header.style.display = 'none';
+      empty.style.display = '';
+      noRes.style.display = 'none';
+      return;
+    }
+
+    empty.style.display = 'none';
+
+    if (!results.length) {
+      grid.innerHTML = '';
+      header.style.display = 'none';
+      noRes.style.display = '';
+      document.getElementById('searchNoResultsTitle').textContent = '"' + q + '" için sonuç bulunamadı';
+      return;
+    }
+
+    noRes.style.display = 'none';
+    header.style.display = '';
+    count.textContent = results.length + ' ürün bulundu';
+    grid.innerHTML = results.map(buildCard).join('');
+
+    /* Re-init cart buttons */
+    if (typeof window.initCartButtons === 'function') window.initCartButtons();
+  }
+
+  function loadProducts() {
+    return fetch('/products.json', {cache:'default'})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ products = d.products || []; })
+      .catch(function() {
+        products = (window.COSMOSKIN_PRODUCTS || []);
+      });
+  }
+
+  function init() {
+    var input = document.getElementById('searchPageInput');
+    var clearBtn = document.getElementById('searchPageClear');
+    if (!input) return;
+
+    /* Popular search chips */
+    document.querySelectorAll('[data-search]').forEach(function(chip) {
+      chip.addEventListener('click', function(e) {
+        e.preventDefault();
+        input.value = chip.getAttribute('data-search');
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+      });
+    });
+
+    /* Clear button */
+    clearBtn.addEventListener('click', function() {
+      input.value = '';
+      input.focus();
+      clearBtn.classList.remove('visible');
+      render([], '');
+      currentQuery = '';
+      history.replaceState(null, '', '/search.html');
+    });
+
+    /* Input handler */
+    var timer = null;
+    input.addEventListener('input', function() {
+      var q = input.value.trim();
+      clearBtn.classList.toggle('visible', q.length > 0);
+      clearTimeout(timer);
+      timer = setTimeout(function() {
+        currentQuery = q;
+        if (q.length >= 1) {
+          history.replaceState(null, '', '/search.html?q=' + encodeURIComponent(q));
+        }
+        render(doSearch(q), q);
+      }, 120);
+    });
+
+    /* URL param on load */
+    var params = new URLSearchParams(location.search);
+    var qParam = params.get('q') || '';
+    if (qParam) {
+      input.value = qParam;
+      clearBtn.classList.add('visible');
+    }
+
+    loadProducts().then(function() {
+      if (qParam) {
+        currentQuery = qParam;
+        render(doSearch(qParam), qParam);
+      }
+      input.focus();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+</body>
+</html>

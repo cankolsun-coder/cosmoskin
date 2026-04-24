@@ -201,6 +201,7 @@
     .sec-item .btn.btn-secondary{min-width:110px;justify-content:center}
 
 </style>
+<link rel="stylesheet" href="/assets/mobile-system.css?v=20260424"/>
 </head>
 <body>
 <div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
@@ -535,6 +536,7 @@
 
 <footer class="footer" style="border-top:1px solid var(--line);"><div class="container footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div></footer>
 
+<script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -1278,5 +1280,6 @@ function closeDeleteAccountModal(){document.getElementById('deleteAccountModal')
 document.getElementById('openDeleteAccountModal')?.addEventListener('click',openDeleteAccountModal);
 document.getElementById('confirmDeleteAccountBtn')?.addEventListener('click',function(){const value=(document.getElementById('deleteAccountConfirmInput')?.value||'').trim().toUpperCase();const status=document.getElementById('deleteAccountStatus');if(value!=='HESABIMI SIL'){status.textContent='Devam etmek için HESABIMI SIL yazın.';status.style.color='#8a3b2f';return;}window.location.href='mailto:destek@cosmoskin.com.tr?subject=Hesab%C4%B1m%C4%B1%20Sil&body=Hesab%C4%B1m%C4%B1n%20kal%C4%B1c%C4%B1%20olarak%20silinmesini%20istiyorum.';});
 </script><script src="/assets/mobile-enhancements.js?v=20260421final"></script>
+<script src="/assets/bottom-nav.js?v=20260424"></script>
 </body>
 </html>
