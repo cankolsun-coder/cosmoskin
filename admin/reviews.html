@@ -666,7 +666,7 @@ const AdminPanel = (() => {
     const { data: { session } } = await _supabase.auth.getSession();
 
     if (!session) {
-      window.location.href = '/auth/login.html?redirect=/admin/reviews.html';
+      window.location.href = '/index.html?openAuth=1';
       return;
     }
 
