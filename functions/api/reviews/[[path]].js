@@ -3,7 +3,7 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // Admin endpoint kontrolü
+  // ── ADMIN ENDPOINT ─────────────────────────────
   if (path.includes("/admin")) {
     const token = request.headers.get("x-admin-token");
 
@@ -32,12 +32,22 @@ export async function onRequest(context) {
 
       const data = await res.json();
 
-      return new Response(JSON.stringify(data), {
-        status: 200,
-        headers: {
-          "content-type": "application/json",
-        },
-      });
+      // 🔥 BURASI DÜZELTİLDİ (ADMIN PANEL İÇİN FORMAT)
+      return new Response(
+        JSON.stringify({
+          reviews: Array.isArray(data) ? data : [],
+          items: Array.isArray(data) ? data : [],
+          total: Array.isArray(data) ? data.length : 0
+        }),
+        {
+          status: 200,
+          headers: {
+            "content-type": "application/json; charset=utf-8",
+            "access-control-allow-origin": "*"
+          }
+        }
+      );
+
     } catch (err) {
       return new Response(
         JSON.stringify({ error: err.message }),
@@ -46,14 +56,17 @@ export async function onRequest(context) {
     }
   }
 
-  // Default endpoint
+  // ── DEFAULT ENDPOINT ───────────────────────────
   return new Response(
-    JSON.stringify({ message: "Reviews API çalışıyor" }),
+    JSON.stringify({
+      ok: true,
+      message: "Reviews API çalışıyor"
+    }),
     {
       status: 200,
       headers: {
-        "content-type": "application/json",
-      },
+        "content-type": "application/json; charset=utf-8"
+      }
     }
   );
 }
