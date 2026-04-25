@@ -1,686 +1,2377 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="robots" content="noindex, nofollow"/>
-<title>Yorum Yönetimi · Cosmoskin Admin</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Review Moderation Console · Cosmoskin Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  *, *::before, *::after { box-sizing: border-box; }
 
   :root {
-    --bg:        #faf6f1;
-    --surface:   #ffffff;
-    --line:      rgba(22,18,14,.08);
-    --line-2:    rgba(22,18,14,.14);
-    --text:      #16120e;
-    --muted:     #6a6059;
-    --pending:   #b08a5e;
-    --pending-bg:#f5ede0;
-    --approved:  #1f7a4f;
-    --approved-bg:#e8f4ed;
-    --rejected:  #8a3b2f;
-    --rejected-bg:#fbeae6;
-    --serif:     'Cormorant Garamond', Georgia, serif;
-    --sans:      'Plus Jakarta Sans', system-ui, sans-serif;
+    --bg: #f5efe7;
+    --bg-2: #efe4d5;
+    --panel: rgba(255, 250, 243, .82);
+    --panel-strong: #fffaf3;
+    --panel-dark: #171311;
+    --panel-dark-2: #201a17;
+    --line: rgba(23, 19, 17, .1);
+    --line-strong: rgba(23, 19, 17, .18);
+    --text: #171311;
+    --muted: #77685d;
+    --muted-2: #9a8979;
+    --sand: #d5c0a4;
+    --sand-deep: #b8956c;
+    --approved: #1f6f4d;
+    --approved-bg: rgba(31, 111, 77, .12);
+    --pending: #9b6c37;
+    --pending-bg: rgba(155, 108, 55, .12);
+    --rejected: #8c3f35;
+    --rejected-bg: rgba(140, 63, 53, .12);
+    --shadow: 0 18px 50px rgba(28, 20, 15, .08);
+    --shadow-soft: 0 10px 28px rgba(28, 20, 15, .06);
+    --radius-xl: 28px;
+    --radius-lg: 22px;
+    --radius-md: 18px;
+    --radius-sm: 14px;
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Manrope", system-ui, sans-serif;
   }
 
-  body {
-    font-family: var(--sans);
-    font-size: 14px;
-    line-height: 1.6;
+  html, body {
+    margin: 0;
+    min-height: 100%;
+    background:
+      radial-gradient(circle at top left, rgba(213, 192, 164, .28), transparent 28%),
+      radial-gradient(circle at bottom right, rgba(23, 19, 17, .06), transparent 24%),
+      linear-gradient(180deg, #faf6f0 0%, var(--bg) 40%, #f1e7da 100%);
     color: var(--text);
-    background: var(--bg);
-    min-height: 100vh;
+    font-family: var(--sans);
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── HEADER ─────────────────────────────────────────────── */
-  .topbar {
-    height: 64px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--line);
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+  body {
+    overflow-x: hidden;
   }
-  .topbar h1 {
-    font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 500;
-    letter-spacing: .04em;
-    margin-right: auto;
+
+  button, input {
+    font: inherit;
   }
-  .topbar h1 span { color: var(--muted); font-size: 14px; font-family: var(--sans); margin-left: 8px; }
-  .logout-btn {
+
+  button {
+    border: 0;
     background: none;
-    border: 1px solid var(--line-2);
-    color: var(--text);
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
+    color: inherit;
   }
-  .logout-btn:hover { background: var(--bg); }
 
-  /* ── CONTAINER ─────────────────────────────────────────── */
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+  .is-hidden {
+    display: none !important;
+  }
 
-  /* ── LOGIN ─────────────────────────────────────────────── */
-  .login-card {
-    max-width: 400px;
-    margin: 80px auto;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 40px 28px;
-    box-shadow: 0 8px 28px rgba(22,18,14,.06);
+  .auth-screen {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 32px 18px;
   }
-  .login-card h2 {
-    font-family: var(--serif);
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 6px;
+
+  .auth-card {
+    width: min(520px, 100%);
+    background: rgba(255, 250, 243, .88);
+    border: 1px solid rgba(23, 19, 17, .08);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+    overflow: hidden;
   }
-  .login-card p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
-  .login-card label {
-    display: block;
+
+  .auth-hero {
+    padding: 30px 30px 20px;
+    background:
+      linear-gradient(135deg, rgba(23, 19, 17, .98), rgba(42, 34, 29, .94));
+    color: #fff6eb;
+  }
+
+  .auth-kicker,
+  .sidebar-kicker,
+  .section-kicker,
+  .stat-label,
+  .eyebrow,
+  .mini-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
     font-size: 11px;
+    font-weight: 800;
+  }
+
+  .auth-kicker::before,
+  .sidebar-kicker::before,
+  .section-kicker::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--sand);
+    box-shadow: 0 0 0 4px rgba(213, 192, 164, .16);
+  }
+
+  .auth-title,
+  .brand-title,
+  .hero-title,
+  .empty-title {
+    font-family: var(--serif);
     font-weight: 600;
-    letter-spacing: .12em;
+    letter-spacing: -.03em;
+  }
+
+  .auth-title {
+    margin: 18px 0 10px;
+    font-size: clamp(34px, 4vw, 46px);
+    line-height: 1.02;
+  }
+
+  .auth-copy {
+    margin: 0;
+    max-width: 44ch;
+    color: rgba(255, 246, 235, .78);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+
+  .auth-body {
+    padding: 28px 30px 30px;
+    display: grid;
+    gap: 18px;
+  }
+
+  .field {
+    display: grid;
+    gap: 10px;
+  }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .16em;
     text-transform: uppercase;
     color: var(--muted);
-    margin-bottom: 8px;
   }
-  .login-card input {
+
+  .field input {
     width: 100%;
-    height: 46px;
-    padding: 0 14px;
-    border: 1.5px solid var(--line-2);
-    border-radius: 12px;
-    background: var(--bg);
-    font-family: inherit;
-    font-size: 14px;
+    height: 54px;
+    border-radius: 16px;
+    border: 1px solid rgba(23, 19, 17, .12);
+    background: rgba(255, 255, 255, .72);
+    padding: 0 18px;
     color: var(--text);
     outline: none;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .login-card input:focus {
-    border-color: var(--pending);
-    background: var(--surface);
-    box-shadow: 0 0 0 3px rgba(176,138,94,.1);
-  }
-  .login-card button {
-    width: 100%;
-    height: 46px;
-    margin-top: 20px;
-    background: var(--text);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .15s;
-  }
-  .login-card button:hover { opacity: .85; }
-  .login-error {
-    margin-top: 14px;
-    padding: 10px 14px;
-    background: var(--rejected-bg);
-    border-radius: 10px;
-    font-size: 12px;
-    color: var(--rejected);
-    display: none;
-  }
-  .login-error.show { display: block; }
-
-  /* ── STATS ─────────────────────────────────────────────── */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-  .stat {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 16px 18px;
-  }
-  .stat__label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .stat__value {
-    font-family: var(--serif);
-    font-size: 32px;
-    font-weight: 500;
-    color: var(--text);
-    line-height: 1;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
   }
 
-  /* ── FILTERS ──────────────────────────────────────────── */
-  .filters {
+  .field input:focus {
+    border-color: var(--sand-deep);
+    box-shadow: 0 0 0 4px rgba(184, 149, 108, .14);
+    transform: translateY(-1px);
+  }
+
+  .auth-actions {
     display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
+    align-items: center;
+    gap: 12px;
     flex-wrap: wrap;
   }
-  .filter-btn {
-    height: 38px;
-    padding: 0 16px;
-    background: var(--surface);
-    border: 1px solid var(--line-2);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    font-family: inherit;
-    transition: all .14s;
-  }
-  .filter-btn:hover { border-color: var(--text); color: var(--text); }
-  .filter-btn.is-active {
-    background: var(--text);
-    border-color: var(--text);
-    color: #fff;
-  }
-  .filter-btn span { font-weight: 700; margin-left: 4px; opacity: .8; }
 
-  /* ── REVIEW CARDS ─────────────────────────────────────── */
-  .reviews-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .review {
-    background: var(--surface);
-    border: 1px solid var(--line);
+  .primary-btn,
+  .secondary-btn,
+  .ghost-btn,
+  .filter-chip,
+  .tiny-btn,
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 18px;
     border-radius: 14px;
-    padding: 18px 20px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease, color .16s ease, opacity .16s ease;
+    white-space: nowrap;
+    text-decoration: none;
   }
-  .review__header {
+
+  .primary-btn:hover,
+  .secondary-btn:hover,
+  .ghost-btn:hover,
+  .filter-chip:hover,
+  .tiny-btn:hover,
+  .action-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .primary-btn:disabled,
+  .secondary-btn:disabled,
+  .ghost-btn:disabled,
+  .filter-chip:disabled,
+  .tiny-btn:disabled,
+  .action-btn:disabled {
+    opacity: .56;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .primary-btn {
+    background: linear-gradient(135deg, #171311 0%, #2a221d 100%);
+    color: #fff8ef;
+    box-shadow: 0 14px 26px rgba(23, 19, 17, .16);
+  }
+
+  .secondary-btn {
+    background: rgba(255, 255, 255, .72);
+    border-color: rgba(23, 19, 17, .12);
+    color: var(--text);
+  }
+
+  .ghost-btn {
+    background: transparent;
+    border-color: rgba(23, 19, 17, .14);
+    color: var(--muted);
+  }
+
+  .auth-meta {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .auth-error {
+    display: none;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(140, 63, 53, .08);
+    border: 1px solid rgba(140, 63, 53, .16);
+    color: var(--rejected);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .auth-error.show {
+    display: block;
+  }
+
+  .app-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
+    padding: 28px 20px 24px;
+    background:
+      linear-gradient(180deg, rgba(23, 19, 17, .985), rgba(30, 24, 21, .96));
+    color: #f7efe3;
+    border-right: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .sidebar-inner {
+    display: grid;
+    gap: 24px;
+  }
+
+  .brand-card,
+  .sidebar-panel {
+    border-radius: 24px;
+    background: rgba(255, 250, 243, .06);
+    border: 1px solid rgba(255, 255, 255, .08);
+    padding: 22px 20px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+  }
+
+  .brand-mark {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, rgba(213, 192, 164, .28), rgba(255, 255, 255, .08));
+    color: #fff2df;
+    font-family: var(--serif);
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+
+  .brand-title {
+    margin: 10px 0 8px;
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  .brand-copy,
+  .sidebar-copy {
+    margin: 0;
+    color: rgba(247, 239, 227, .72);
+    font-size: 13px;
+    line-height: 1.72;
+  }
+
+  .sidebar-nav {
+    display: grid;
+    gap: 10px;
+  }
+
+  .nav-item {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 10px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .04);
+    color: #fff5e9;
+    cursor: pointer;
   }
-  .review__meta { flex: 1; min-width: 0; }
-  .review__name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 2px;
+
+  .nav-item.is-active {
+    background: linear-gradient(135deg, rgba(213, 192, 164, .22), rgba(213, 192, 164, .08));
+    border-color: rgba(213, 192, 164, .28);
   }
-  .review__meta-line {
-    font-size: 11px;
-    color: var(--muted);
+
+  .nav-item small {
+    color: rgba(247, 239, 227, .62);
+  }
+
+  .nav-count {
+    min-width: 34px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, .1);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .sidebar-metrics {
+    display: grid;
+    gap: 12px;
+  }
+
+  .sidebar-metric {
     display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+  }
+
+  .sidebar-metric:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .sidebar-metric:first-child {
+    padding-top: 0;
+  }
+
+  .sidebar-metric strong {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+  }
+
+  .sidebar-metric span {
+    color: rgba(247, 239, 227, .7);
+    font-size: 13px;
+  }
+
+  .workspace {
+    min-width: 0;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 24px 28px 18px;
+    backdrop-filter: blur(16px);
+    background: linear-gradient(180deg, rgba(245, 239, 231, .92), rgba(245, 239, 231, .72));
+    border-bottom: 1px solid rgba(23, 19, 17, .06);
+  }
+
+  .topbar-left {
+    display: grid;
     gap: 8px;
+  }
+
+  .topbar-title {
+    margin: 0;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.02;
+    letter-spacing: -.04em;
+  }
+
+  .topbar-copy {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     flex-wrap: wrap;
   }
-  .review__rating {
-    display: flex;
-    gap: 1px;
-    flex-shrink: 0;
-  }
-  .review__rating svg { width: 14px; height: 14px; fill: var(--text); }
-  .review__rating svg.empty { fill: var(--line); }
 
-  .review__product {
-    display: inline-block;
-    font-size: 11px;
+  .token-chip,
+  .sync-chip,
+  .status-pill,
+  .image-pill,
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(23, 19, 17, .08);
+    background: rgba(255, 255, 255, .7);
     color: var(--muted);
-    background: var(--bg);
-    padding: 3px 8px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    font-family: monospace;
+    font-size: 12px;
+    font-weight: 700;
   }
 
-  .review__title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 4px;
+  .token-chip::before,
+  .sync-chip::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--approved);
   }
-  .review__body {
+
+  .content {
+    padding: 22px 28px 40px;
+  }
+
+  .hero {
+    padding: 28px;
+    border-radius: 28px;
+    background:
+      linear-gradient(135deg, rgba(255, 250, 243, .88), rgba(255, 247, 238, .72)),
+      linear-gradient(145deg, rgba(213, 192, 164, .1), transparent 45%);
+    border: 1px solid rgba(23, 19, 17, .08);
+    box-shadow: var(--shadow-soft);
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(320px, .95fr);
+    gap: 20px;
+    margin-bottom: 18px;
+  }
+
+  .hero-title {
+    margin: 14px 0 10px;
+    font-size: clamp(34px, 4vw, 48px);
+    line-height: 1.02;
+  }
+
+  .hero-copy {
+    margin: 0;
+    max-width: 58ch;
+    color: var(--muted);
+    line-height: 1.78;
+    font-size: 15px;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .hero-panel {
+    padding: 18px;
+    border-radius: 20px;
+    background: rgba(23, 19, 17, .04);
+    border: 1px solid rgba(23, 19, 17, .08);
+  }
+
+  .hero-panel strong {
+    display: block;
+    margin-top: 12px;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -.03em;
+  }
+
+  .hero-panel p {
+    margin: 8px 0 0;
+    color: var(--muted);
     font-size: 13px;
-    line-height: 1.55;
+    line-height: 1.7;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+    padding: 22px 20px 18px;
+    border-radius: 22px;
+    background: rgba(255, 250, 243, .8);
+    border: 1px solid rgba(23, 19, 17, .08);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .stat-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -12% -28px auto;
+    width: 110px;
+    height: 110px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(213, 192, 164, .18), transparent);
+  }
+
+  .stat-label {
+    color: var(--muted);
+  }
+
+  .stat-value {
+    margin-top: 18px;
+    font-size: clamp(34px, 4vw, 42px);
+    line-height: 1;
+    letter-spacing: -.05em;
+    font-weight: 800;
+  }
+
+  .stat-copy {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+    padding: 18px 20px;
+    border-radius: 24px;
+    background: rgba(255, 250, 243, .8);
+    border: 1px solid rgba(23, 19, 17, .08);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 18px;
+  }
+
+  .toolbar-left {
+    display: grid;
+    gap: 14px;
+  }
+
+  .search-shell {
+    position: relative;
+  }
+
+  .search-shell input {
+    width: 100%;
+    height: 52px;
+    border-radius: 16px;
+    border: 1px solid rgba(23, 19, 17, .1);
+    background: rgba(255, 255, 255, .82);
+    padding: 0 18px 0 48px;
+    outline: none;
+    transition: border-color .18s ease, box-shadow .18s ease;
+  }
+
+  .search-shell input:focus {
+    border-color: var(--sand-deep);
+    box-shadow: 0 0 0 4px rgba(184, 149, 108, .14);
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--muted-2);
+  }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .filter-chip {
+    min-height: 42px;
+    padding-inline: 16px;
+    background: rgba(255, 255, 255, .74);
+    border-color: rgba(23, 19, 17, .1);
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .filter-chip.is-active {
+    background: linear-gradient(135deg, #171311, #2a221d);
+    color: #fff8ef;
+    border-color: rgba(23, 19, 17, .92);
+    box-shadow: 0 12px 22px rgba(23, 19, 17, .12);
+  }
+
+  .filter-chip span {
+    display: inline-flex;
+    min-width: 26px;
+    height: 26px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: rgba(23, 19, 17, .06);
+    color: inherit;
+    font-size: 12px;
+  }
+
+  .filter-chip.is-active span {
+    background: rgba(255, 255, 255, .12);
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .feed {
+    display: grid;
+    gap: 16px;
+  }
+
+  .review-card,
+  .state-card {
+    border-radius: 28px;
+    background: rgba(255, 250, 243, .82);
+    border: 1px solid rgba(23, 19, 17, .08);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .review-card {
+    padding: 22px;
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr) 178px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .product-panel {
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(23, 19, 17, .035);
+    border: 1px solid rgba(23, 19, 17, .07);
+    display: grid;
+    gap: 14px;
+  }
+
+  .product-thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 18px;
+    overflow: hidden;
+    background:
+      linear-gradient(135deg, rgba(213, 192, 164, .26), rgba(255, 255, 255, .5));
+    display: grid;
+    place-items: center;
+  }
+
+  .product-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .product-fallback {
+    font-family: var(--serif);
+    font-size: 34px;
+    color: rgba(23, 19, 17, .4);
+  }
+
+  .product-title {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.35;
+    letter-spacing: -.02em;
+  }
+
+  .product-meta {
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .product-meta code {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(23, 19, 17, .05);
     color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+  }
+
+  .product-link {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .product-link:hover {
+    text-decoration: underline;
+  }
+
+  .review-main {
+    min-width: 0;
+    display: grid;
+    gap: 14px;
+  }
+
+  .review-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .review-headline {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .review-title {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -.03em;
+  }
+
+  .review-text {
+    margin: 0;
+    color: var(--text);
+    line-height: 1.85;
+    font-size: 14px;
     white-space: pre-wrap;
     word-break: break-word;
   }
 
-  .review__status {
+  .rating-row,
+  .meta-row,
+  .media-toolbar,
+  .action-column {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .star-row {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    flex-shrink: 0;
   }
-  .review__status--pending  { background: var(--pending-bg);  color: var(--pending); }
-  .review__status--approved { background: var(--approved-bg); color: var(--approved); }
-  .review__status--rejected { background: var(--rejected-bg); color: var(--rejected); }
 
-  .review__footer {
+  .star-row svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--text);
+  }
+
+  .star-row svg.is-empty {
+    fill: rgba(23, 19, 17, .16);
+  }
+
+  .status-pill,
+  .image-pill {
+    font-weight: 800;
+  }
+
+  .status-pill--pending,
+  .image-pill--pending {
+    background: var(--pending-bg);
+    color: var(--pending);
+    border-color: rgba(155, 108, 55, .14);
+  }
+
+  .status-pill--approved,
+  .image-pill--approved {
+    background: var(--approved-bg);
+    color: var(--approved);
+    border-color: rgba(31, 111, 77, .14);
+  }
+
+  .status-pill--rejected,
+  .image-pill--rejected {
+    background: var(--rejected-bg);
+    color: var(--rejected);
+    border-color: rgba(140, 63, 53, .14);
+  }
+
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .meta-box {
+    min-width: 0;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(23, 19, 17, .035);
+    border: 1px solid rgba(23, 19, 17, .07);
+  }
+
+  .mini-label {
+    color: var(--muted-2);
+  }
+
+  .meta-value {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 1.65;
+    word-break: break-word;
+  }
+
+  .media-section {
+    display: grid;
+    gap: 14px;
+    padding-top: 2px;
+  }
+
+  .media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+  }
+
+  .media-card {
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(23, 19, 17, .08);
+  }
+
+  .media-thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.35 / 1;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(213, 192, 164, .26), rgba(255, 255, 255, .4));
+    cursor: pointer;
+  }
+
+  .media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .media-body {
+    padding: 12px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .media-meta {
     display: flex;
-    gap: 8px;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
     flex-wrap: wrap;
   }
-  .btn {
-    height: 36px;
-    padding: 0 14px;
-    border-radius: 8px;
+
+  .media-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tiny-btn {
+    min-height: 34px;
+    padding-inline: 12px;
+    border-radius: 12px;
+    border-color: rgba(23, 19, 17, .09);
+    background: rgba(23, 19, 17, .035);
     font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid transparent;
-    font-family: inherit;
-    transition: opacity .14s, transform .12s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    font-weight: 800;
   }
-  .btn:active { transform: scale(.97); }
-  .btn--approve { background: var(--approved); color: #fff; }
-  .btn--reject  { background: var(--rejected); color: #fff; }
-  .btn--pending { background: var(--surface); color: var(--text); border-color: var(--line-2); }
-  .btn--delete  { background: transparent; color: var(--muted); border-color: var(--line); margin-left: auto; }
-  .btn--delete:hover { color: var(--rejected); border-color: var(--rejected); }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
 
-  /* ── EMPTY ─────────────────────────────────────────────── */
-  .empty {
-    text-align: center;
-    padding: 60px 20px;
+  .tiny-btn[data-tone="approve"] {
+    background: var(--approved-bg);
+    color: var(--approved);
+    border-color: rgba(31, 111, 77, .14);
+  }
+
+  .tiny-btn[data-tone="reject"] {
+    background: var(--rejected-bg);
+    color: var(--rejected);
+    border-color: rgba(140, 63, 53, .14);
+  }
+
+  .tiny-btn[data-tone="delete"] {
+    background: rgba(140, 63, 53, .06);
+    color: var(--rejected);
+    border-color: rgba(140, 63, 53, .12);
+  }
+
+  .no-media {
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(23, 19, 17, .03);
+    border: 1px dashed rgba(23, 19, 17, .12);
     color: var(--muted);
-  }
-  .empty h3 {
-    font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 6px;
-  }
-
-  /* ── TOAST ─────────────────────────────────────────────── */
-  .toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--text);
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 10px;
     font-size: 13px;
-    font-weight: 500;
-    z-index: 100;
-    transition: transform .22s ease;
-    box-shadow: 0 10px 30px rgba(0,0,0,.18);
-    max-width: 90%;
   }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast--error { background: var(--rejected); }
 
-  @media (max-width: 600px) {
-    .topbar h1 { font-size: 18px; }
-    .topbar h1 span { display: none; }
-    .wrap { padding: 16px 14px 80px; }
-    .review { padding: 14px 16px; }
-    .review__footer .btn--delete { margin-left: 0; }
+  .review-actions {
+    position: sticky;
+    top: 108px;
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(23, 19, 17, .035);
+    border: 1px solid rgba(23, 19, 17, .08);
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+    padding-inline: 14px;
+    font-size: 13px;
+    font-weight: 800;
+    border-radius: 14px;
+  }
+
+  .action-btn[data-tone="approve"] {
+    background: linear-gradient(135deg, #1f6f4d, #245f48);
+    color: #f4fff9;
+  }
+
+  .action-btn[data-tone="reject"] {
+    background: linear-gradient(135deg, #8c3f35, #7a352d);
+    color: #fff5f3;
+  }
+
+  .action-btn[data-tone="delete"] {
+    background: rgba(140, 63, 53, .08);
+    color: var(--rejected);
+    border: 1px solid rgba(140, 63, 53, .16);
+  }
+
+  .review-actions-note {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .state-card {
+    padding: 42px 28px;
+    text-align: center;
+  }
+
+  .empty-title {
+    margin: 16px 0 10px;
+    font-size: clamp(30px, 4vw, 40px);
+    line-height: 1.05;
+  }
+
+  .state-copy {
+    margin: 0 auto;
+    max-width: 54ch;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .state-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+    background: rgba(23, 19, 17, .05);
+    color: var(--sand-deep);
+    font-size: 30px;
+    font-family: var(--serif);
+  }
+
+  .skeleton-card {
+    overflow: hidden;
+    position: relative;
+    min-height: 248px;
+  }
+
+  .skeleton-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+
+  .skeleton-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr) 178px;
+    gap: 20px;
+    padding: 22px;
+  }
+
+  .skeleton-box {
+    border-radius: 18px;
+    background: rgba(23, 19, 17, .06);
+  }
+
+  .skeleton-stack {
+    display: grid;
+    gap: 12px;
+  }
+
+  .toast-stack {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 80;
+    display: grid;
+    gap: 10px;
+    width: min(360px, calc(100vw - 28px));
+  }
+
+  .toast {
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(23, 19, 17, .96);
+    color: #fff7ee;
+    box-shadow: 0 20px 40px rgba(23, 19, 17, .24);
+    transform: translateY(12px);
+    opacity: 0;
+    transition: opacity .18s ease, transform .18s ease;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .toast.is-error {
+    background: rgba(122, 53, 45, .96);
+  }
+
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: none;
+    padding: 28px;
+    background: rgba(17, 13, 12, .82);
+    backdrop-filter: blur(10px);
+  }
+
+  .lightbox.is-open {
+    display: grid;
+    place-items: center;
+  }
+
+  .lightbox-dialog {
+    width: min(960px, 100%);
+    background: rgba(255, 250, 243, .96);
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, .24);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .lightbox-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(23, 19, 17, .08);
+  }
+
+  .lightbox-body {
+    padding: 20px;
+    max-height: calc(100vh - 180px);
+    overflow: auto;
+  }
+
+  .lightbox-body img {
+    width: 100%;
+    display: block;
+    border-radius: 20px;
+    background: rgba(23, 19, 17, .04);
+  }
+
+  @keyframes shimmer {
+    100% { transform: translateX(100%); }
+  }
+
+  @media (max-width: 1280px) {
+    .hero {
+      grid-template-columns: 1fr;
+    }
+
+    .review-card,
+    .skeleton-layout {
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .review-actions {
+      position: static;
+      grid-column: 1 / -1;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      align-items: stretch;
+    }
+
+    .review-actions-note {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 1080px) {
+    .app-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+      min-height: auto;
+      position: relative;
+      padding-bottom: 18px;
+      border-right: 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+
+    .sidebar-inner {
+      gap: 16px;
+    }
+
+    .meta-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .topbar,
+    .content {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .hero,
+    .toolbar,
+    .review-card,
+    .state-card,
+    .stat-card {
+      border-radius: 22px;
+    }
+
+    .review-card,
+    .skeleton-layout {
+      grid-template-columns: 1fr;
+      padding: 16px;
+    }
+
+    .product-panel,
+    .review-actions {
+      position: static;
+    }
+
+    .review-actions {
+      grid-template-columns: 1fr;
+    }
+
+    .toolbar {
+      grid-template-columns: 1fr;
+    }
+
+    .toolbar-right {
+      justify-content: flex-start;
+    }
+
+    .topbar {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .stats-grid,
+    .meta-grid,
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-row,
+    .topbar-actions,
+    .auth-actions,
+    .media-actions {
+      width: 100%;
+    }
+
+    .filter-chip,
+    .action-btn,
+    .primary-btn,
+    .secondary-btn,
+    .ghost-btn {
+      width: 100%;
+    }
+
+    .toast-stack {
+      right: 12px;
+      left: 12px;
+      width: auto;
+    }
+
+    .lightbox {
+      padding: 12px;
+    }
+
+    .auth-card {
+      border-radius: 24px;
+    }
   }
 </style>
 </head>
 <body>
 
-<header class="topbar" id="topbar" style="display:none">
-  <h1>Yorum Yönetimi <span>· Cosmoskin Admin</span></h1>
-  <button class="logout-btn" id="logoutBtn" type="button">Çıkış</button>
-</header>
-
-<main class="wrap">
-
-  <!-- LOGIN -->
-  <div class="login-card" id="loginCard">
-    <h2>Admin Girişi</h2>
-    <p>Yorum yönetim paneline erişmek için admin token girin.</p>
-    <label for="tokenInput">Admin Token</label>
-    <input
-      type="password"
-      id="tokenInput"
-      placeholder="••••••••••••"
-      autocomplete="off"
-      autofocus
-    />
-    <button id="loginBtn" type="button">Giriş Yap</button>
-    <div class="login-error" id="loginError"></div>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="dashboard" style="display:none">
-
-    <div class="stats" id="stats"></div>
-
-    <div class="filters" id="filters">
-      <button class="filter-btn is-active" data-status="pending"  type="button">Bekleyen <span id="cPending">0</span></button>
-      <button class="filter-btn"           data-status="approved" type="button">Onaylı <span id="cApproved">0</span></button>
-      <button class="filter-btn"           data-status="rejected" type="button">Reddedilen <span id="cRejected">0</span></button>
-      <button class="filter-btn"           data-status=""         type="button">Tümü <span id="cAll">0</span></button>
+<div class="auth-screen" id="loginView">
+  <div class="auth-card">
+    <div class="auth-hero">
+      <span class="auth-kicker">Cosmoskin Admin</span>
+      <h1 class="auth-title">Review moderation, gerçek e-ticaret operasyon standardında.</h1>
+      <p class="auth-copy">
+        Bekleyen yorumları, kullanıcı görsellerini ve ürün bağlarını tek akışta yönetmek için
+        admin token ile giriş yapın.
+      </p>
     </div>
-
-    <div class="reviews-list" id="reviewsList">
-      <div class="empty"><p>Yükleniyor...</p></div>
+    <div class="auth-body">
+      <div class="field">
+        <label for="tokenInput">Admin Token</label>
+        <input
+          id="tokenInput"
+          type="password"
+          placeholder="••••••••••••••••"
+          autocomplete="off"
+          autofocus
+        />
+      </div>
+      <div class="auth-actions">
+        <button class="primary-btn" id="loginBtn" type="button">Giriş Yap</button>
+        <div class="auth-meta">Token localStorage'da saklanır, ekranda veya panelde açıkça gösterilmez.</div>
+      </div>
+      <div class="auth-error" id="loginError"></div>
     </div>
-
   </div>
+</div>
 
-</main>
+<div class="app-shell is-hidden" id="appView">
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <section class="brand-card">
+        <div class="brand-mark">C</div>
+        <span class="sidebar-kicker">Moderation Console</span>
+        <h2 class="brand-title">Cosmoskin Reviews</h2>
+        <p class="brand-copy">
+          Ürün yorumları, sipariş bağları ve kullanıcı görselleri tek panelde. Moderasyon kararı
+          verdikçe sayaçlar ve liste anlık güncellenir.
+        </p>
+      </section>
 
-<div class="toast" id="toast"></div>
+      <section class="sidebar-panel">
+        <span class="sidebar-kicker">Navigation</span>
+        <div class="sidebar-nav" id="sidebarNav">
+          <button class="nav-item is-active" type="button" data-filter-nav="pending">
+            <span>
+              <strong>Bekleyen Kuyruk</strong><br />
+              <small>Öncelikli moderasyon akışı</small>
+            </span>
+            <span class="nav-count" id="navPending">0</span>
+          </button>
+          <button class="nav-item" type="button" data-filter-nav="approved">
+            <span>
+              <strong>Yayındaki Yorumlar</strong><br />
+              <small>Ürün sayfasında görünenler</small>
+            </span>
+            <span class="nav-count" id="navApproved">0</span>
+          </button>
+          <button class="nav-item" type="button" data-filter-nav="rejected">
+            <span>
+              <strong>Reddedilenler</strong><br />
+              <small>Yayına alınmayan içerik</small>
+            </span>
+            <span class="nav-count" id="navRejected">0</span>
+          </button>
+          <button class="nav-item" type="button" data-filter-nav="all">
+            <span>
+              <strong>Tüm Kayıtlar</strong><br />
+              <small>Genel görünüm ve arşiv</small>
+            </span>
+            <span class="nav-count" id="navAll">0</span>
+          </button>
+        </div>
+      </section>
 
+      <section class="sidebar-panel">
+        <span class="sidebar-kicker">Overview</span>
+        <div class="sidebar-metrics" id="sidebarMetrics"></div>
+      </section>
+
+      <section class="sidebar-panel">
+        <span class="sidebar-kicker">Security</span>
+        <p class="sidebar-copy">
+          Tüm admin endpoint'leri <code>x-admin-token</code> ile korunur. Panel token'ı sadece
+          doğrulama için kullanır, ekranda düz metin olarak göstermez.
+        </p>
+      </section>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="section-kicker">Professional Moderation Desk</span>
+        <h1 class="topbar-title hero-title">Review moderation dashboard</h1>
+        <p class="topbar-copy">
+          Ürün, kullanıcı, sipariş ve görsel sinyallerini tek kartta toplayan kompakt admin panel.
+        </p>
+      </div>
+
+      <div class="topbar-actions">
+        <span class="token-chip">Token aktif</span>
+        <span class="sync-chip" id="syncChip">Henüz senkron yok</span>
+        <button class="ghost-btn" id="logoutBtn" type="button">Çıkış</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="hero">
+        <div>
+          <span class="section-kicker">Operations Snapshot</span>
+          <h2 class="hero-title">Yoğunluğu azaltan, karar hızını artıran moderasyon akışı.</h2>
+          <p class="hero-copy">
+            Bekleyen yorumları önceleyen, ürün bilgisini otomatik bağlayan ve kullanıcı görsellerini
+            yorumun içinde ayrı ayrı yöneten akış. Filtreler, arama ve toast bildirimleri
+            moderasyon turunu kesmeden çalışır.
+          </p>
+        </div>
+
+        <div class="hero-grid" id="heroGrid"></div>
+      </section>
+
+      <section class="stats-grid" id="statsGrid"></section>
+
+      <section class="toolbar">
+        <div class="toolbar-left">
+          <div class="search-shell">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m20 20-3.5-3.5"></path>
+            </svg>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Ürün adı, slug, user id/email, sipariş id, yorum başlığı..."
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="filter-row" id="filterRow"></div>
+        </div>
+
+        <div class="toolbar-right">
+          <span class="meta-pill" id="resultPill">0 kayıt</span>
+          <button class="secondary-btn" id="refreshBtn" type="button">Yenile</button>
+        </div>
+      </section>
+
+      <section class="feed" id="reviewsFeed"></section>
+    </main>
+  </div>
+</div>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-dialog">
+    <div class="lightbox-top">
+      <div>
+        <div class="mini-label">Review Image</div>
+        <strong id="lightboxTitle">Kullanıcı görseli</strong>
+      </div>
+      <button class="ghost-btn" id="lightboxClose" type="button">Kapat</button>
+    </div>
+    <div class="lightbox-body">
+      <img id="lightboxImage" alt="Review görseli" />
+    </div>
+  </div>
+</div>
+
+<script src="/assets/products-data.js?v=20260424a"></script>
 <script>
 (function () {
   'use strict';
 
   var TOKEN_KEY = 'cosmoskin_admin_token';
-  var API_BASE  = '/api/reviews';
-  var currentFilter = 'pending';
-  var allReviews = [];
+  var API_BASE = '/api/reviews';
+  var FILTERS = [
+    { key: 'pending', label: 'Bekleyen' },
+    { key: 'approved', label: 'Onaylı' },
+    { key: 'rejected', label: 'Reddedilen' },
+    { key: 'all', label: 'Tümü' }
+  ];
 
-  /* ── DOM ── */
-  var loginCard  = document.getElementById('loginCard');
-  var dashboard  = document.getElementById('dashboard');
-  var topbar     = document.getElementById('topbar');
+  var state = {
+    reviews: [],
+    filter: 'pending',
+    search: '',
+    loading: false,
+    error: '',
+    busy: new Set(),
+    lastLoadedAt: null
+  };
+
+  var catalog = buildProductCatalog(window.COSMOSKIN_PRODUCTS || []);
+
+  var loginView = document.getElementById('loginView');
+  var appView = document.getElementById('appView');
   var tokenInput = document.getElementById('tokenInput');
-  var loginBtn   = document.getElementById('loginBtn');
-  var logoutBtn  = document.getElementById('logoutBtn');
+  var loginBtn = document.getElementById('loginBtn');
+  var logoutBtn = document.getElementById('logoutBtn');
   var loginError = document.getElementById('loginError');
-  var listEl     = document.getElementById('reviewsList');
-  var statsEl    = document.getElementById('stats');
-  var toast      = document.getElementById('toast');
+  var statsGrid = document.getElementById('statsGrid');
+  var heroGrid = document.getElementById('heroGrid');
+  var filterRow = document.getElementById('filterRow');
+  var reviewsFeed = document.getElementById('reviewsFeed');
+  var sidebarMetrics = document.getElementById('sidebarMetrics');
+  var resultPill = document.getElementById('resultPill');
+  var syncChip = document.getElementById('syncChip');
+  var searchInput = document.getElementById('searchInput');
+  var refreshBtn = document.getElementById('refreshBtn');
+  var toastStack = document.getElementById('toastStack');
+  var lightbox = document.getElementById('lightbox');
+  var lightboxImage = document.getElementById('lightboxImage');
+  var lightboxTitle = document.getElementById('lightboxTitle');
+  var lightboxClose = document.getElementById('lightboxClose');
+  var sidebarNav = document.getElementById('sidebarNav');
 
-  /* ── Helpers ── */
-  function getToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
-  function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
-  function clearToken() { localStorage.removeItem(TOKEN_KEY); }
-
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY) || '';
   }
 
-  function showToast(msg, isError) {
-    toast.textContent = msg;
-    toast.classList.toggle('toast--error', !!isError);
-    toast.classList.add('show');
-    setTimeout(function () { toast.classList.remove('show'); }, 2500);
+  function setToken(token) {
+    localStorage.setItem(TOKEN_KEY, token);
   }
 
-  function fmtDate(ts) {
-    if (!ts) return '';
-    var d = new Date(Number(ts));
-    if (isNaN(d.getTime())) return '';
-    return d.toLocaleDateString('tr-TR', {
-      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+  function clearToken() {
+    localStorage.removeItem(TOKEN_KEY);
+  }
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function normalizeText(value) {
+    return String(value == null ? '' : value)
+      .toLocaleLowerCase('tr-TR')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function parseDate(value) {
+    if (typeof value === 'number') {
+      return value < 1000000000000 ? value * 1000 : value;
+    }
+    var parsed = Date.parse(String(value || ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function formatDate(value) {
+    var timestamp = parseDate(value);
+    if (!timestamp) return 'Tarih yok';
+    return new Date(timestamp).toLocaleString('tr-TR', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
-  function stars(rating) {
-    var html = '<div class="review__rating" aria-label="' + rating + ' yıldız">';
-    for (var i = 1; i <= 5; i++) {
-      html += '<svg viewBox="0 0 20 20" class="' + (i > rating ? 'empty' : '') + '">' +
-              '<path d="M10 1l2.7 5.7 6.3.6-4.7 4.3 1.4 6.2L10 14.7 4.3 17.8l1.4-6.2L1 7.3l6.3-.6z"/></svg>';
-    }
-    html += '</div>';
-    return html;
+  function formatRelativeSync(value) {
+    var timestamp = parseDate(value);
+    if (!timestamp) return 'Henüz senkron yok';
+    return 'Son senkron: ' + new Date(timestamp).toLocaleTimeString('tr-TR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   }
 
-  /* ── API ── */
-  function api(path, opts) {
-    opts = opts || {};
-    opts.headers = Object.assign({
-      'X-Admin-Token': getToken(),
-      'Content-Type':  'application/json',
-    }, opts.headers || {});
-    return fetch(API_BASE + path, opts).then(function (r) {
-      if (r.status === 401) {
-        clearToken();
-        showLogin();
-        throw new Error('unauthorized');
-      }
-      return r.json().then(function (data) {
-        if (!r.ok || data.ok === false) throw new Error(data.error || 'Hata oluştu');
+  function statusLabel(status) {
+    return {
+      pending: 'Bekliyor',
+      approved: 'Onaylı',
+      rejected: 'Reddedildi'
+    }[status] || 'Durum yok';
+  }
+
+  function statusTone(status) {
+    return {
+      pending: 'pending',
+      approved: 'approved',
+      rejected: 'rejected'
+    }[status] || 'pending';
+  }
+
+  function showLogin() {
+    loginView.classList.remove('is-hidden');
+    appView.classList.add('is-hidden');
+    tokenInput.focus();
+  }
+
+  function showApp() {
+    loginView.classList.add('is-hidden');
+    appView.classList.remove('is-hidden');
+  }
+
+  function setLoginError(message) {
+    loginError.textContent = message || '';
+    loginError.classList.toggle('show', !!message);
+  }
+
+  function pushToast(message, isError) {
+    var toast = document.createElement('div');
+    toast.className = 'toast' + (isError ? ' is-error' : '');
+    toast.textContent = message;
+    toastStack.appendChild(toast);
+    requestAnimationFrame(function () {
+      toast.classList.add('show');
+    });
+    setTimeout(function () {
+      toast.classList.remove('show');
+      setTimeout(function () {
+        toast.remove();
+      }, 180);
+    }, 2800);
+  }
+
+  function isBusy(key) {
+    return state.busy.has(key);
+  }
+
+  function setBusy(key, value) {
+    if (value) state.busy.add(key);
+    else state.busy.delete(key);
+  }
+
+  function api(path, options) {
+    options = options || {};
+    options.headers = Object.assign({
+      'X-Admin-Token': getToken()
+    }, options.headers || {});
+
+    if (options.body && !options.headers['Content-Type']) {
+      options.headers['Content-Type'] = 'application/json';
+    }
+
+    return fetch(API_BASE + path, options).then(function (response) {
+      return response.text().then(function (text) {
+        var data = {};
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch (_error) {
+          data = { ok: response.ok, raw: text };
+        }
+
+        if (response.status === 401) {
+          clearToken();
+          state.reviews = [];
+          showLogin();
+          throw new Error('Token geçersiz veya süresi doldu.');
+        }
+
+        if (!response.ok || data.ok === false) {
+          throw new Error(data.error || 'İşlem başarısız.');
+        }
+
         return data;
       });
     });
   }
 
-  /* ── Login flow ── */
-  function showLogin() {
-    loginCard.style.display = 'block';
-    dashboard.style.display = 'none';
-    topbar.style.display = 'none';
-    tokenInput.focus();
+  function buildProductCatalog(products) {
+    var bySlug = new Map();
+    var byId = new Map();
+
+    (products || []).forEach(function (product) {
+      if (!product) return;
+      var slug = product.slug || product.id || '';
+      var id = product.id || product.slug || '';
+      var normalized = {
+        id: id || '',
+        slug: slug || '',
+        name: product.name || '',
+        brand: product.brand || '',
+        image: product.imageUrl || product.image || '',
+        url: product.pageUrl || product.url || (slug ? '/products/' + slug + '.html' : '')
+      };
+      if (slug) bySlug.set(slug, normalized);
+      if (id) byId.set(id, normalized);
+    });
+
+    return { bySlug: bySlug, byId: byId };
   }
 
-  function showDashboard() {
-    loginCard.style.display = 'none';
-    dashboard.style.display = 'block';
-    topbar.style.display = 'flex';
-    loadReviews();
+  function hydrateReview(review) {
+    var product = Object.assign({
+      id: '',
+      slug: '',
+      name: '',
+      brand: '',
+      image: '',
+      url: ''
+    }, review.product || {});
+    var fallback = catalog.bySlug.get(product.slug) || catalog.byId.get(product.id) || null;
+
+    if (fallback) {
+      product.id = product.id || fallback.id || fallback.slug || '';
+      product.slug = product.slug || fallback.slug || fallback.id || '';
+      product.name = product.name || fallback.name || '';
+      product.brand = product.brand || fallback.brand || '';
+      product.image = product.image || fallback.image || '';
+      product.url = product.url || fallback.url || '';
+    }
+
+    if (product.slug && !product.url) {
+      product.url = '/products/' + product.slug + '.html';
+    }
+
+    var user = Object.assign({ id: '', name: '', email: '' }, review.user || {});
+    var order = Object.assign({ id: '', number: '', status: '', created_at: '' }, review.order || {});
+    var images = Array.isArray(review.images) ? review.images.map(function (image) {
+      return Object.assign({
+        id: '',
+        url: '',
+        status: review.status || 'pending',
+        source: 'inline',
+        field: '',
+        index: 0,
+        table: '',
+        created_at: review.created_at || ''
+      }, image || {});
+    }) : [];
+
+    return Object.assign({}, review, {
+      product: product,
+      user: user,
+      order: order,
+      images: images
+    });
   }
 
-  function tryLogin() {
-    var t = tokenInput.value.trim();
-    if (!t) {
-      loginError.textContent = 'Token girin';
-      loginError.classList.add('show');
+  function computeCounts(reviews) {
+    return (reviews || []).reduce(function (acc, review) {
+      acc.total += 1;
+      if (acc[review.status] != null) acc[review.status] += 1;
+      if ((review.images || []).length > 0) acc.withMedia += 1;
+      acc.pendingMedia += (review.images || []).filter(function (image) {
+        return image.status === 'pending';
+      }).length;
+      return acc;
+    }, {
+      pending: 0,
+      approved: 0,
+      rejected: 0,
+      total: 0,
+      withMedia: 0,
+      pendingMedia: 0
+    });
+  }
+
+  function getVisibleReviews() {
+    var term = normalizeText(state.search);
+    return state.reviews.filter(function (review) {
+      if (state.filter !== 'all' && review.status !== state.filter) return false;
+      if (!term) return true;
+      return normalizeText([
+        review.product.name,
+        review.product.slug,
+        review.product.id,
+        review.product.brand,
+        review.user.id,
+        review.user.name,
+        review.user.email,
+        review.order.id,
+        review.order.number,
+        review.title,
+        review.body
+      ].filter(Boolean).join(' ')).indexOf(term) !== -1;
+    });
+  }
+
+  function renderStars(rating) {
+    var html = '<span class="star-row" aria-label="' + esc(rating) + ' yıldız">';
+    for (var i = 1; i <= 5; i += 1) {
+      html += '<svg viewBox="0 0 20 20" class="' + (i > rating ? 'is-empty' : '') + '">' +
+        '<path d="M10 1.4 12.8 7l6.2.8-4.5 4.2 1.2 6.3L10 15.4 4.3 18.3l1.2-6.3L1 7.8 7.2 7z"></path>' +
+      '</svg>';
+    }
+    html += '</span>';
+    return html;
+  }
+
+  function renderStats(counts) {
+    var cards = [
+      {
+        label: 'Bekleyen',
+        value: counts.pending,
+        copy: 'Onay veya ret kararı bekleyen yorumlar.'
+      },
+      {
+        label: 'Onaylı',
+        value: counts.approved,
+        copy: 'Ürün sayfasında görünen aktif yorumlar.'
+      },
+      {
+        label: 'Reddedilen',
+        value: counts.rejected,
+        copy: 'Yayına alınmayan veya geri çekilen içerik.'
+      },
+      {
+        label: 'Toplam',
+        value: counts.total,
+        copy: 'Panelin okuduğu toplam review kaydı.'
+      }
+    ];
+
+    statsGrid.innerHTML = cards.map(function (card) {
+      return [
+        '<article class="stat-card">',
+          '<span class="stat-label">' + esc(card.label) + '</span>',
+          '<div class="stat-value">' + esc(card.value) + '</div>',
+          '<div class="stat-copy">' + esc(card.copy) + '</div>',
+        '</article>'
+      ].join('');
+    }).join('');
+
+    sidebarMetrics.innerHTML = [
+      metricRow('Bekleyen queue', counts.pending),
+      metricRow('Görselli yorum', counts.withMedia),
+      metricRow('Pending görsel', counts.pendingMedia)
+    ].join('');
+
+    heroGrid.innerHTML = [
+      heroPanel('Canlı akış', counts.pending, 'Şu an moderasyon sırası bekleyen yorum sayısı.'),
+      heroPanel('Görselli kayıt', counts.withMedia, 'En az bir kullanıcı görseli taşıyan yorumlar.'),
+      heroPanel('Medya inceleme', counts.pendingMedia, 'Ayrı görsel kararı bekleyen thumbnail adedi.'),
+      heroPanel('Toplam havuz', counts.total, 'Filtreler ve arama bu veri kümesi üzerinde çalışır.')
+    ].join('');
+  }
+
+  function metricRow(label, value) {
+    return [
+      '<div class="sidebar-metric">',
+        '<span>' + esc(label) + '</span>',
+        '<strong>' + esc(value) + '</strong>',
+      '</div>'
+    ].join('');
+  }
+
+  function heroPanel(label, value, copy) {
+    return [
+      '<article class="hero-panel">',
+        '<span class="mini-label">' + esc(label) + '</span>',
+        '<strong>' + esc(value) + '</strong>',
+        '<p>' + esc(copy) + '</p>',
+      '</article>'
+    ].join('');
+  }
+
+  function renderFilters(counts) {
+    filterRow.innerHTML = FILTERS.map(function (filter) {
+      var count = filter.key === 'all' ? counts.total : counts[filter.key];
+      var isActive = state.filter === filter.key;
+      return [
+        '<button class="filter-chip' + (isActive ? ' is-active' : '') + '" type="button" data-filter="' + esc(filter.key) + '">',
+          esc(filter.label),
+          '<span>' + esc(count) + '</span>',
+        '</button>'
+      ].join('');
+    }).join('');
+
+    document.getElementById('navPending').textContent = counts.pending;
+    document.getElementById('navApproved').textContent = counts.approved;
+    document.getElementById('navRejected').textContent = counts.rejected;
+    document.getElementById('navAll').textContent = counts.total;
+
+    Array.prototype.forEach.call(sidebarNav.querySelectorAll('[data-filter-nav]'), function (node) {
+      node.classList.toggle('is-active', node.getAttribute('data-filter-nav') === state.filter);
+    });
+  }
+
+  function renderFeed() {
+    var counts = computeCounts(state.reviews);
+    var visible = getVisibleReviews();
+
+    renderStats(counts);
+    renderFilters(counts);
+
+    resultPill.textContent = visible.length + ' kayıt';
+    syncChip.textContent = state.loading ? 'Yenileniyor...' : formatRelativeSync(state.lastLoadedAt);
+
+    if (state.loading && !state.reviews.length) {
+      reviewsFeed.innerHTML = renderSkeletons();
       return;
     }
-    loginError.classList.remove('show');
+
+    if (state.error && !state.reviews.length) {
+      reviewsFeed.innerHTML = renderStateCard(
+        'Yorumlar yüklenemedi',
+        state.error,
+        '<button class="primary-btn" type="button" data-action="retry">Tekrar dene</button>'
+      );
+      return;
+    }
+
+    if (!visible.length) {
+      var emptyCopy = state.search
+        ? 'Arama ve filtre kombinasyonu için eşleşen kayıt bulunamadı.'
+        : 'Bu filtrede gösterilecek yorum yok. Yeni kayıtlar geldiğinde burada görünecek.';
+      reviewsFeed.innerHTML = renderStateCard(
+        'Sonuç bulunamadı',
+        emptyCopy,
+        '<button class="secondary-btn" type="button" data-action="clear-filters">Filtreleri sıfırla</button>'
+      );
+      return;
+    }
+
+    reviewsFeed.innerHTML = visible.map(renderReviewCard).join('');
+  }
+
+  function renderStateCard(title, copy, actionsHtml) {
+    return [
+      '<article class="state-card">',
+        '<div class="empty-icon">R</div>',
+        '<h2 class="empty-title">' + esc(title) + '</h2>',
+        '<p class="state-copy">' + esc(copy) + '</p>',
+        actionsHtml ? '<div class="state-actions">' + actionsHtml + '</div>' : '',
+      '</article>'
+    ].join('');
+  }
+
+  function renderSkeletons() {
+    var cards = [];
+    for (var i = 0; i < 3; i += 1) {
+      cards.push([
+        '<article class="review-card skeleton-card">',
+          '<div class="skeleton-layout">',
+            '<div class="skeleton-stack">',
+              '<div class="skeleton-box" style="height: 220px;"></div>',
+            '</div>',
+            '<div class="skeleton-stack">',
+              '<div class="skeleton-box" style="height: 24px; width: 180px;"></div>',
+              '<div class="skeleton-box" style="height: 18px; width: 260px;"></div>',
+              '<div class="skeleton-box" style="height: 76px;"></div>',
+              '<div class="skeleton-box" style="height: 124px;"></div>',
+            '</div>',
+            '<div class="skeleton-stack">',
+              '<div class="skeleton-box" style="height: 42px;"></div>',
+              '<div class="skeleton-box" style="height: 42px;"></div>',
+              '<div class="skeleton-box" style="height: 42px;"></div>',
+            '</div>',
+          '</div>',
+        '</article>'
+      ].join(''));
+    }
+    return cards.join('');
+  }
+
+  function renderReviewCard(review) {
+    var busyReviewKey = 'review:' + review.id;
+    var reviewBusy = isBusy(busyReviewKey);
+    var status = statusTone(review.status);
+    var productImage = review.product.image
+      ? '<img src="' + esc(review.product.image) + '" alt="' + esc(review.product.name || review.product.slug || 'Ürün') + '" loading="lazy" />'
+      : '<div class="product-fallback">' + esc((review.product.brand || 'C').charAt(0).toUpperCase()) + '</div>';
+
+    var mediaHtml = review.images.length
+      ? '<div class="media-grid">' + review.images.map(function (image) { return renderImageCard(review, image); }).join('') + '</div>'
+      : '<div class="no-media">Bu yorumda görsel yok.</div>';
+
+    return [
+      '<article class="review-card" data-review-id="' + esc(review.id) + '">',
+        '<section class="product-panel">',
+          '<div class="product-thumb">' + productImage + '</div>',
+          '<div>',
+            '<span class="eyebrow">' + esc(review.product.brand || 'Cosmoskin Product') + '</span>',
+            '<h3 class="product-title">' + esc(review.product.name || 'Ürün bilgisi bağlanamadı') + '</h3>',
+          '</div>',
+          '<div class="product-meta">',
+            '<div>Slug: <code>' + esc(review.product.slug || 'yok') + '</code></div>',
+            '<div>ID: <code>' + esc(review.product.id || review.product.slug || 'yok') + '</code></div>',
+          '</div>',
+          (review.product.url
+            ? '<a class="product-link" href="' + esc(review.product.url) + '" target="_blank" rel="noreferrer">Ürün sayfasını aç</a>'
+            : ''),
+        '</section>',
+
+        '<section class="review-main">',
+          '<div class="review-top">',
+            '<div class="review-headline">',
+              '<div class="rating-row">',
+                '<span class="status-pill status-pill--' + esc(status) + '">' + esc(statusLabel(review.status)) + '</span>',
+                '<span class="meta-pill">' + esc(review.rating || 0) + ' / 5</span>',
+                renderStars(review.rating || 0),
+              '</div>',
+              '<h3 class="review-title">' + esc(review.title || 'Başlıksız yorum') + '</h3>',
+            '</div>',
+          '</div>',
+
+          '<div class="meta-grid">',
+            metaBox('Kullanıcı', [review.user.name || 'Anonim', review.user.email || review.user.id || 'Kimlik bilgisi yok']),
+            metaBox('Sipariş', [review.order.number || review.order.id || 'Sipariş bağlanamadı', review.order.status || 'Durum yok']),
+            metaBox('Tarih', [formatDate(review.created_at), review.updated_at ? 'Güncellendi: ' + formatDate(review.updated_at) : '']),
+            metaBox('Kaynak', [review.source_table || 'product_reviews', review.images.length ? review.images.length + ' görsel' : 'Görsel yok']),
+          '</div>',
+
+          '<p class="review-text">' + esc(review.body || 'Yorum metni yok.') + '</p>',
+
+          '<section class="media-section">',
+            '<div class="media-toolbar">',
+              '<span class="section-kicker">User Media</span>',
+              '<span class="meta-pill">' + esc(review.images.length) + ' görsel</span>',
+            '</div>',
+            mediaHtml,
+          '</section>',
+        '</section>',
+
+        '<aside class="review-actions">',
+          '<button class="action-btn" type="button" data-review-action="approve" data-tone="approve" data-review-id="' + esc(review.id) + '"' + (reviewBusy ? ' disabled' : '') + '>Onayla</button>',
+          '<button class="action-btn" type="button" data-review-action="reject" data-tone="reject" data-review-id="' + esc(review.id) + '"' + (reviewBusy ? ' disabled' : '') + '>Reddet</button>',
+          '<button class="action-btn" type="button" data-review-action="delete" data-tone="delete" data-review-id="' + esc(review.id) + '"' + (reviewBusy ? ' disabled' : '') + '>Sil</button>',
+          '<p class="review-actions-note">' + esc(getReviewActionHint(review.status)) + '</p>',
+        '</aside>',
+      '</article>'
+    ].join('');
+  }
+
+  function renderImageCard(review, image) {
+    var busyKey = 'image:' + review.id + ':' + image.id;
+    var disabled = isBusy(busyKey) ? ' disabled' : '';
+    var created = image.created_at ? formatDate(image.created_at) : 'Tarih yok';
+    return [
+      '<article class="media-card">',
+        '<button class="media-thumb" type="button" data-image-action="open" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '">',
+          '<img src="' + esc(image.url) + '" alt="Review görseli" loading="lazy" />',
+        '</button>',
+        '<div class="media-body">',
+          '<div class="media-meta">',
+            '<span class="image-pill image-pill--' + esc(statusTone(image.status)) + '">' + esc(statusLabel(image.status)) + '</span>',
+            '<span class="mini-label">' + esc(created) + '</span>',
+          '</div>',
+          '<div class="media-actions">',
+            '<button class="tiny-btn" type="button" data-image-action="open" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '">Görseli Aç</button>',
+            '<button class="tiny-btn" data-tone="approve" type="button" data-image-action="approve" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Onayla</button>',
+            '<button class="tiny-btn" data-tone="reject" type="button" data-image-action="reject" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Reddet</button>',
+            '<button class="tiny-btn" data-tone="delete" type="button" data-image-action="delete" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Sil</button>',
+          '</div>',
+        '</div>',
+      '</article>'
+    ].join('');
+  }
+
+  function metaBox(label, values) {
+    return [
+      '<div class="meta-box">',
+        '<div class="mini-label">' + esc(label) + '</div>',
+        '<div class="meta-value">' + values.filter(Boolean).map(function (value) {
+          return esc(value);
+        }).join('<br />') + '</div>',
+      '</div>'
+    ].join('');
+  }
+
+  function getReviewActionHint(status) {
+    if (status === 'approved') return 'Yorum şu anda yayında. Reddetmek veya silmek anında panelden düşürür.';
+    if (status === 'rejected') return 'Yorum reddedilmiş durumda. Gerekirse yeniden onaylayabilirsiniz.';
+    return 'Bekleyen yorum. Onay kararı verildiğinde ürün sayfasına çıkmaya hazır hale gelir.';
+  }
+
+  function findReview(reviewId) {
+    return state.reviews.find(function (review) { return String(review.id) === String(reviewId); }) || null;
+  }
+
+  function findImage(review, imageId) {
+    return (review.images || []).find(function (image) {
+      return String(image.id) === String(imageId);
+    }) || null;
+  }
+
+  function resetFilters() {
+    state.filter = 'all';
+    state.search = '';
+    searchInput.value = '';
+    renderFeed();
+  }
+
+  function openLightbox(url, title) {
+    lightboxImage.src = url;
+    lightboxTitle.textContent = title || 'Kullanıcı görseli';
+    lightbox.classList.add('is-open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('is-open');
+    lightboxImage.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+
+  async function verifyToken(token) {
+    return fetch(API_BASE + '/admin', {
+      headers: { 'X-Admin-Token': token }
+    }).then(function (response) {
+      if (!response.ok) throw new Error('Token doğrulanamadı.');
+      return response.json();
+    });
+  }
+
+  async function attemptLogin() {
+    var token = tokenInput.value.trim();
+    if (!token) {
+      setLoginError('Admin token girin.');
+      return;
+    }
+
+    setLoginError('');
     loginBtn.disabled = true;
     loginBtn.textContent = 'Doğrulanıyor...';
 
-    setToken(t);
-    fetch(API_BASE + '/admin', {
-      headers: { 'X-Admin-Token': t }
-    })
-      .then(function (r) {
-        if (r.status === 401) throw new Error('Token geçersiz');
-        if (!r.ok) throw new Error('Sunucu hatası');
-        return r.json();
-      })
-      .then(function () {
-        showDashboard();
-      })
-      .catch(function (err) {
-        clearToken();
-        loginError.textContent = err.message || 'Giriş başarısız';
-        loginError.classList.add('show');
-      })
-      .finally(function () {
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Giriş Yap';
-      });
+    try {
+      await verifyToken(token);
+      setToken(token);
+      showApp();
+      await loadReviews();
+    } catch (error) {
+      clearToken();
+      setLoginError(error.message || 'Giriş başarısız.');
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Giriş Yap';
+    }
   }
 
-  loginBtn.addEventListener('click', tryLogin);
-  tokenInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') tryLogin();
+  async function loadReviews() {
+    state.loading = true;
+    state.error = '';
+    renderFeed();
+
+    try {
+      var data = await api('/admin');
+      state.reviews = (data.reviews || []).map(hydrateReview);
+      state.lastLoadedAt = Date.now();
+    } catch (error) {
+      state.error = error.message || 'Yorumlar yüklenemedi.';
+      if (!state.reviews.length) {
+        pushToast(state.error, true);
+      }
+    } finally {
+      state.loading = false;
+      renderFeed();
+    }
+  }
+
+  async function changeReviewStatus(reviewId, nextStatus) {
+    var review = findReview(reviewId);
+    if (!review) return;
+
+    var key = 'review:' + reviewId;
+    var previous = review.status;
+    review.status = nextStatus;
+    setBusy(key, true);
+    renderFeed();
+
+    try {
+      await api('/admin/' + encodeURIComponent(reviewId), {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status: nextStatus,
+          source_table: review.source_table
+        })
+      });
+      pushToast('Yorum ' + statusLabel(nextStatus).toLocaleLowerCase('tr-TR') + '.');
+    } catch (error) {
+      review.status = previous;
+      pushToast(error.message || 'Yorum güncellenemedi.', true);
+    } finally {
+      setBusy(key, false);
+      renderFeed();
+    }
+  }
+
+  async function deleteReview(reviewId) {
+    var review = findReview(reviewId);
+    if (!review) return;
+    if (!window.confirm('Bu yorum kalıcı olarak silinsin mi?')) return;
+
+    var key = 'review:' + reviewId;
+    var previousReviews = state.reviews.slice();
+    state.reviews = state.reviews.filter(function (item) { return item.id !== reviewId; });
+    setBusy(key, true);
+    renderFeed();
+
+    try {
+      await api('/admin/' + encodeURIComponent(reviewId), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ source_table: review.source_table })
+      });
+      pushToast('Yorum silindi.');
+    } catch (error) {
+      state.reviews = previousReviews;
+      pushToast(error.message || 'Yorum silinemedi.', true);
+    } finally {
+      setBusy(key, false);
+      renderFeed();
+    }
+  }
+
+  async function changeImageStatus(reviewId, imageId, nextStatus) {
+    var review = findReview(reviewId);
+    if (!review) return;
+    var image = findImage(review, imageId);
+    if (!image) return;
+
+    var key = 'image:' + reviewId + ':' + imageId;
+    var previous = image.status;
+    image.status = nextStatus;
+    setBusy(key, true);
+    renderFeed();
+
+    try {
+      await api('/admin/' + encodeURIComponent(reviewId) + '/images/' + encodeURIComponent(imageId), {
+        method: 'PATCH',
+        body: JSON.stringify({
+          status: nextStatus,
+          review_source_table: review.source_table,
+          table: image.table || '',
+          source: image.source || 'inline',
+          field: image.field || '',
+          index: Number.isFinite(Number(image.index)) ? Number(image.index) : 0
+        })
+      });
+      pushToast('Görsel ' + statusLabel(nextStatus).toLocaleLowerCase('tr-TR') + '.');
+    } catch (error) {
+      image.status = previous;
+      pushToast(error.message || 'Görsel güncellenemedi.', true);
+    } finally {
+      setBusy(key, false);
+      renderFeed();
+    }
+  }
+
+  async function deleteImage(reviewId, imageId) {
+    var review = findReview(reviewId);
+    if (!review) return;
+    var image = findImage(review, imageId);
+    if (!image) return;
+    if (!window.confirm('Bu görsel kalıcı olarak silinsin mi?')) return;
+
+    var key = 'image:' + reviewId + ':' + imageId;
+    var previousImages = review.images.slice();
+    review.images = review.images.filter(function (item) { return String(item.id) !== String(imageId); });
+    setBusy(key, true);
+    renderFeed();
+
+    try {
+      await api('/admin/' + encodeURIComponent(reviewId) + '/images/' + encodeURIComponent(imageId), {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          review_source_table: review.source_table,
+          table: image.table || '',
+          source: image.source || 'inline',
+          field: image.field || '',
+          index: Number.isFinite(Number(image.index)) ? Number(image.index) : 0
+        })
+      });
+      pushToast('Görsel silindi.');
+    } catch (error) {
+      review.images = previousImages;
+      pushToast(error.message || 'Görsel silinemedi.', true);
+    } finally {
+      setBusy(key, false);
+      renderFeed();
+    }
+  }
+
+  loginBtn.addEventListener('click', attemptLogin);
+  tokenInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') attemptLogin();
   });
 
   logoutBtn.addEventListener('click', function () {
     clearToken();
+    state.reviews = [];
+    state.search = '';
+    state.filter = 'pending';
     tokenInput.value = '';
     showLogin();
   });
 
-  /* ── Load reviews ── */
-  function loadReviews() {
-    listEl.innerHTML = '<div class="empty"><p>Yükleniyor...</p></div>';
-    var query = currentFilter ? '?status=' + currentFilter : '';
-
-    api('/admin' + query)
-      .then(function (data) {
-        allReviews = data.reviews || [];
-        renderStats(data.counts || {});
-        renderList(allReviews);
-      })
-      .catch(function (err) {
-        if (err.message !== 'unauthorized') {
-          listEl.innerHTML = '<div class="empty"><h3>Hata</h3><p>' + esc(err.message) + '</p></div>';
-        }
-      });
-  }
-
-  function renderStats(c) {
-    var total = (c.pending || 0) + (c.approved || 0) + (c.rejected || 0);
-    document.getElementById('cPending').textContent  = c.pending  || 0;
-    document.getElementById('cApproved').textContent = c.approved || 0;
-    document.getElementById('cRejected').textContent = c.rejected || 0;
-    document.getElementById('cAll').textContent      = total;
-
-    statsEl.innerHTML =
-      '<div class="stat"><div class="stat__label">Bekleyen</div><div class="stat__value">' + (c.pending  || 0) + '</div></div>' +
-      '<div class="stat"><div class="stat__label">Onaylı</div><div class="stat__value">'   + (c.approved || 0) + '</div></div>' +
-      '<div class="stat"><div class="stat__label">Reddedilen</div><div class="stat__value">' + (c.rejected || 0) + '</div></div>' +
-      '<div class="stat"><div class="stat__label">Toplam</div><div class="stat__value">'   + total + '</div></div>';
-  }
-
-  function renderList(reviews) {
-    if (!reviews.length) {
-      var labels = { pending: 'bekleyen', approved: 'onaylı', rejected: 'reddedilmiş', '': '' };
-      listEl.innerHTML =
-        '<div class="empty"><h3>' + (currentFilter ? labels[currentFilter] + ' ' : '') + 'yorum yok</h3>' +
-        '<p>Yeni yorumlar bu alanda görünecek.</p></div>';
-      return;
-    }
-
-    listEl.innerHTML = reviews.map(function (r) {
-      var statusLabels = { pending: 'Bekliyor', approved: 'Onaylandı', rejected: 'Reddedildi' };
-      var actions = '';
-      if (r.status === 'pending') {
-        actions =
-          '<button class="btn btn--approve" data-action="approve" data-id="' + r.id + '">Onayla</button>' +
-          '<button class="btn btn--reject"  data-action="reject"  data-id="' + r.id + '">Reddet</button>';
-      } else if (r.status === 'approved') {
-        actions =
-          '<button class="btn btn--reject"  data-action="reject"  data-id="' + r.id + '">Yayından Kaldır</button>' +
-          '<button class="btn btn--pending" data-action="pending" data-id="' + r.id + '">Bekleyene Al</button>';
-      } else {
-        actions =
-          '<button class="btn btn--approve" data-action="approve" data-id="' + r.id + '">Onayla</button>' +
-          '<button class="btn btn--pending" data-action="pending" data-id="' + r.id + '">Bekleyene Al</button>';
-      }
-
-      return (
-        '<article class="review" data-id="' + r.id + '">' +
-          '<div class="review__header">' +
-            '<div class="review__meta">' +
-              '<div class="review__name">' + esc(r.name) +
-                (r.email ? ' <span style="color:var(--muted);font-weight:400">· ' + esc(r.email) + '</span>' : '') +
-              '</div>' +
-              '<div class="review__meta-line">' +
-                '<span>' + fmtDate(r.created_at) + '</span>' +
-                '<span>· ID #' + r.id + '</span>' +
-              '</div>' +
-            '</div>' +
-            '<div style="display:flex;gap:10px;align-items:center;flex-shrink:0">' +
-              stars(r.rating) +
-              '<span class="review__status review__status--' + r.status + '">' + statusLabels[r.status] + '</span>' +
-            '</div>' +
-          '</div>' +
-          '<div class="review__product">' + esc(r.product_slug) + '</div>' +
-          (r.title ? '<div class="review__title">' + esc(r.title) + '</div>' : '') +
-          '<div class="review__body">' + esc(r.body) + '</div>' +
-          '<div class="review__footer">' +
-            actions +
-            '<button class="btn btn--delete" data-action="delete" data-id="' + r.id + '">Sil</button>' +
-          '</div>' +
-        '</article>'
-      );
-    }).join('');
-  }
-
-  /* ── Action handler ── */
-  listEl.addEventListener('click', function (e) {
-    var btn = e.target.closest('button[data-action]');
-    if (!btn) return;
-    var action = btn.dataset.action;
-    var id = btn.dataset.id;
-    if (!id) return;
-
-    if (action === 'delete') {
-      if (!confirm('Yorum kalıcı olarak silinsin mi?')) return;
-      btn.disabled = true;
-      api('/admin/' + id, { method: 'DELETE' })
-        .then(function () {
-          showToast('Yorum silindi');
-          loadReviews();
-        })
-        .catch(function (err) { showToast(err.message, true); btn.disabled = false; });
-      return;
-    }
-
-    btn.disabled = true;
-    api('/admin/' + id + '/' + action, { method: 'POST' })
-      .then(function (data) {
-        var msgs = { approved: 'Onaylandı', rejected: 'Reddedildi', pending: 'Bekleyene alındı' };
-        showToast(msgs[data.status] || 'Güncellendi');
-        loadReviews();
-      })
-      .catch(function (err) { showToast(err.message, true); btn.disabled = false; });
-  });
-
-  /* ── Filter buttons ── */
-  document.getElementById('filters').addEventListener('click', function (e) {
-    var btn = e.target.closest('.filter-btn');
-    if (!btn) return;
-    document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('is-active'); });
-    btn.classList.add('is-active');
-    currentFilter = btn.dataset.status || '';
+  refreshBtn.addEventListener('click', function () {
     loadReviews();
   });
 
-  /* ── INIT ── */
-  if (getToken()) {
-    fetch(API_BASE + '/admin', {
-      headers: { 'X-Admin-Token': getToken() }
-    })
-      .then(function (r) {
-        if (r.ok) showDashboard();
-        else { clearToken(); showLogin(); }
-      })
-      .catch(function () { showLogin(); });
-  } else {
-    showLogin();
+  searchInput.addEventListener('input', function (event) {
+    state.search = event.target.value || '';
+    renderFeed();
+  });
+
+  filterRow.addEventListener('click', function (event) {
+    var chip = event.target.closest('[data-filter]');
+    if (!chip) return;
+    state.filter = chip.getAttribute('data-filter') || 'all';
+    renderFeed();
+  });
+
+  sidebarNav.addEventListener('click', function (event) {
+    var button = event.target.closest('[data-filter-nav]');
+    if (!button) return;
+    state.filter = button.getAttribute('data-filter-nav') || 'all';
+    renderFeed();
+  });
+
+  reviewsFeed.addEventListener('click', function (event) {
+    var reviewAction = event.target.closest('[data-review-action]');
+    if (reviewAction) {
+      var reviewId = reviewAction.getAttribute('data-review-id');
+      var action = reviewAction.getAttribute('data-review-action');
+      if (action === 'approve') changeReviewStatus(reviewId, 'approved');
+      if (action === 'reject') changeReviewStatus(reviewId, 'rejected');
+      if (action === 'delete') deleteReview(reviewId);
+      return;
+    }
+
+    var imageAction = event.target.closest('[data-image-action]');
+    if (imageAction) {
+      var imgReviewId = imageAction.getAttribute('data-review-id');
+      var imageId = imageAction.getAttribute('data-image-id');
+      var actionName = imageAction.getAttribute('data-image-action');
+      var review = findReview(imgReviewId);
+      var image = review ? findImage(review, imageId) : null;
+      if (!review || !image) return;
+
+      if (actionName === 'open') {
+        openLightbox(image.url, (review.product.name || 'Kullanıcı görseli') + ' · ' + statusLabel(image.status));
+      } else if (actionName === 'approve') {
+        changeImageStatus(imgReviewId, imageId, 'approved');
+      } else if (actionName === 'reject') {
+        changeImageStatus(imgReviewId, imageId, 'rejected');
+      } else if (actionName === 'delete') {
+        deleteImage(imgReviewId, imageId);
+      }
+      return;
+    }
+
+    var pageAction = event.target.closest('[data-action]');
+    if (!pageAction) return;
+    var pageActionName = pageAction.getAttribute('data-action');
+    if (pageActionName === 'retry') loadReviews();
+    if (pageActionName === 'clear-filters') resetFilters();
+  });
+
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', function (event) {
+    if (event.target === lightbox) closeLightbox();
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && lightbox.classList.contains('is-open')) {
+      closeLightbox();
+    }
+  });
+
+  function boot() {
+    renderFeed();
+    var token = getToken();
+    if (!token) {
+      showLogin();
+      return;
+    }
+
+    showApp();
+    loadReviews().catch(function () {
+      showLogin();
+    });
   }
 
+  boot();
 })();
 </script>
-
 </body>
 </html>
