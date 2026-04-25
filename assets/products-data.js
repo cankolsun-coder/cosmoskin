@@ -69,13 +69,13 @@ window.COSMOSKIN_PRODUCTS = [
     image:'/assets/img/products/cosrx/vitamin-c-23-serum-card.png',
     keywords:'cosrx vitamin c 23 serum leke ton esitleme isilti brightening'},
 
-  { id:'cosrx-acne-pimple-master-patch', concernSlugs:['blemish'], name:'Acne Pimple Master Patch',
+  { id:'cosrx-acne-pimple-master-patch', name:'Acne Pimple Master Patch',
     brand:'COSRX', brandSlug:'cosrx', category:'Maskeler', categorySlug:'masks',
     price:379, volume:'24 adet', url:'/products/cosrx-acne-pimple-master-patch.html',
     image:'/assets/img/products/cosrx/cosrx-acne-pimple-master-patch-card.webp',
     keywords:'cosrx acne pimple master patch akne sivilce yama hydrocolloid'},
 
-  { id:'cosrx-aha-bha-clarifying-treatment-toner', concernSlugs:['blemish'], name:'AHA/BHA Clarifying Treatment Toner',
+  { id:'cosrx-aha-bha-clarifying-treatment-toner', name:'AHA/BHA Clarifying Treatment Toner',
     brand:'COSRX', brandSlug:'cosrx', category:'Tonik & Essence', categorySlug:'hydrate',
     price:729, volume:'150 ml', url:'/products/cosrx-aha-bha-clarifying-treatment-toner.html',
     image:'/assets/img/products/cosrx/cosrx-aha-bha-clarifying-treatment-toner-card.webp',
@@ -87,7 +87,7 @@ window.COSMOSKIN_PRODUCTS = [
     image:'/assets/img/products/cosrx/cosrx-low-ph-good-morning-gel-cleanser-card.webp',
     keywords:'cosrx low ph good morning gel cleanser dusuk ph sabah temizleyici'},
 
-  { id:'cosrx-salicylic-acid-daily-gentle-cleanser', concernSlugs:['blemish'], name:'Salicylic Acid Daily Gentle Cleanser',
+  { id:'cosrx-salicylic-acid-daily-gentle-cleanser', name:'Salicylic Acid Daily Gentle Cleanser',
     brand:'COSRX', brandSlug:'cosrx', category:'Temizleyiciler', categorySlug:'cleanse',
     price:679, volume:'150 ml', url:'/products/cosrx-salicylic-acid-daily-gentle-cleanser.html',
     image:'/assets/img/products/cosrx/cosrx-salicylic-acid-daily-gentle-cleanser-card.webp',
@@ -121,7 +121,7 @@ window.COSMOSKIN_PRODUCTS = [
     keywords:'im from rice toner pirinc tonik parlaklik nem isilti glutathione'},
 
   /* ── INNISFREE ─────────────────────────────────────────── */
-  { id:'innisfree-super-volcanic-clay-mask', concernSlugs:['blemish'], name:'Super Volcanic Clay Mask 2X',
+  { id:'innisfree-super-volcanic-clay-mask', name:'Super Volcanic Clay Mask 2X',
     brand:'Innisfree', brandSlug:'innisfree', category:'Maskeler', categorySlug:'masks',
     price:849, volume:'100 ml', url:'/products/innisfree-super-volcanic-clay-mask.html',
     image:'/assets/img/products/innisfree/innisfree-super-volcanic-clay-mask-card.webp',
@@ -142,13 +142,13 @@ window.COSMOSKIN_PRODUCTS = [
     keywords:'laneige water sleeping mask uyku maskesi gece nem hidrasyon'},
 
   /* ── MEDICUBE ──────────────────────────────────────────── */
-  { id:'medicube-zero-pore-pad', concernSlugs:['blemish'], name:'Zero Pore Pad',
+  { id:'medicube-zero-pore-pad', name:'Zero Pore Pad',
     brand:'Medicube', brandSlug:'medicube', category:'Tonik & Essence', categorySlug:'hydrate',
     price:849, volume:'70 adet', url:'/products/medicube-zero-pore-pad.html',
     image:'/assets/img/products/medicube/medicube-zero-pore-pad-card.webp',
     keywords:'medicube zero pore pad gozenek ped aha bha sebum akne'},
 
-  { id:'medicube-collagen-night-wrapping-mask', concernSlugs:['blemish'], name:'Collagen Night Wrapping Mask',
+  { id:'medicube-collagen-night-wrapping-mask', name:'Collagen Night Wrapping Mask',
     brand:'Medicube', brandSlug:'medicube', category:'Maskeler', categorySlug:'masks',
     price:749, volume:'100 ml', url:'/products/medicube-collagen-night-wrapping-mask.html',
     image:'/assets/img/products/medicube/medicube-collagen-night-wrapping-mask-card.webp',
@@ -206,7 +206,7 @@ window.COSMOSKIN_PRODUCTS = [
     keywords:'skin1004 hyalu cica water fit sun serum spf50 centella hyaluronik'},
 
   /* ── SOME BY MI ────────────────────────────────────────── */
-  { id:'some-by-mi-aha-bha-miracle-toner', concernSlugs:['blemish'], name:'AHA BHA PHA 30 Days Miracle Toner',
+  { id:'some-by-mi-aha-bha-miracle-toner', name:'AHA BHA PHA 30 Days Miracle Toner',
     brand:'Some By Mi', brandSlug:'some-by-mi', category:'Tonik & Essence', categorySlug:'hydrate',
     price:729, volume:'150 ml', url:'/products/some-by-mi-aha-bha-miracle-toner.html',
     image:'/assets/img/products/some-by-mi/some-by-mi-aha-bha-miracle-toner-card.webp',
