@@ -66,10 +66,11 @@
       }
     });
     document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') el.classList.remove('is-open'); });
-    window.openMobileSearch = function(){ el.classList.add('is-open'); setTimeout(()=>input.focus(), 30); };
+    window.openMobileSearch = function(){ if(qs('.cs-bottom-nav')){ location.href='/search.html'; return; } el.classList.add('is-open'); setTimeout(()=>input.focus(), 30); };
   }
 
   function addSearchButton(){
+    if(qs('.cs-bottom-nav')) return;
     const tools = qs('.header-tools');
     if (!tools || qs('.mobile-header-search-btn', tools)) return;
     const btn = document.createElement('button');
@@ -96,7 +97,7 @@
   }
 
   function addBottomNav(){
-    if(qs('.mobile-bottom-nav')) return;
+    if(qs('.mobile-bottom-nav') || qs('.cs-bottom-nav')) return;
     const nav = document.createElement('nav');
     nav.className = 'mobile-bottom-nav';
     const catPages = ['cleanse.html','hydrate.html','treat.html','protect.html','care.html','masks.html','blemish.html','anua.html','beauty-of-joseon.html','cosrx.html','round-lab.html','skin1004.html','thank-you-farmer.html','torriden.html','routine.html'];

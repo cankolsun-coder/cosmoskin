@@ -1,0 +1,76 @@
+-- ============================================================
+-- COSMOSKIN — Test Data SQL
+-- ⚠️ Sadece geliştirme ortamında kullanın, production'a sürmeyin.
+-- ============================================================
+
+-- Ürün tablosuna test ürünleri (products zaten seed edilmiş olmalı)
+-- Bu dosya sadece reviews sistemi için test senaryoları içerir.
+
+-- ─── TEST KULLANICILARI ───────────────────────────────────────
+-- Supabase Auth'dan gerçek user_id'ler alın.
+-- Aşağıdaki UUID'ler placeholder'dır, gerçek değerlerle değiştirin.
+
+-- Örnek: Gerçek bir kullanıcı UUID'si ile test order + order_item ekleyin:
+-- 
+-- INSERT INTO orders (user_id, status, total_try)
+-- VALUES ('GERCEK-USER-UUID-BURAYA', 'paid', 1798);
+--
+-- INSERT INTO order_items (order_id, product_slug, quantity, price_try)
+-- SELECT id, 'beauty-of-joseon-relief-sun-spf50', 2, 899
+-- FROM orders WHERE user_id = 'GERCEK-USER-UUID-BURAYA' ORDER BY created_at DESC LIMIT 1;
+
+-- ─── TEST SENARYOLARI ─────────────────────────────────────────
+-- 
+-- SENARYO 1: Satın alma yok → yorum yazma butonu görünmez
+--   Giriş yap → ürün sayfasına git → yorum butonu YOK
+--
+-- SENARYO 2: Satın alma var (status='paid') → yorum yazılabilir
+--   1. orders'a status='paid' kayıt ekle
+--   2. order_items'a product_slug eşleştir
+--   3. Ürün sayfasını aç → "Yorum Yaz" butonu görünür
+--
+-- SENARYO 3: Yorum gönder → approved=false → görünmez
+--   Yorum yaz → gönder → admin panelde approved=false olarak bekler
+--
+-- SENARYO 4: Admin onay → approved=true → frontend'de görünür
+--   Admin panelden "Onayla" tıkla → reviews.approved = TRUE
+--   Ürün sayfasını yenile → yorum görünür
+--
+-- SENARYO 5: Admin reddet → sil veya approved=false bırak
+--   Admin panelden "Reddet" tıkla → yorum silinir
+--
+-- ─── ONAYLANMIŞ DEMO YORUM (sadece test için) ─────────────────
+-- Bu kayıtlar admin panelinde görünür. 
+-- product_slug ve user_id'yi kendi ortamınıza göre ayarlayın.
+--
+-- INSERT INTO reviews (product_slug, user_id, user_display_name, title, body, rating, approved)
+-- VALUES (
+--   'beauty-of-joseon-relief-sun-spf50',
+--   NULL,  -- anonim (test için)
+--   'Test Kullanıcısı',
+--   'Harika bir güneş kremi!',
+--   'Hiç beyaz iz bırakmıyor ve cilde çok hafif hissettiriyor. Makyaj öncesi de rahatça kullanılabiliyor.',
+--   5,
+--   TRUE  -- onaylı, frontend'de görünür
+-- );
+
+-- ─── TEST SIRASINDA KULLANILACAK KOMUTLAR ────────────────────
+-- 
+-- Tüm bekleyen yorumları listele:
+-- SELECT r.*, ri.public_url as image
+-- FROM reviews r
+-- LEFT JOIN review_images ri ON ri.review_id = r.id
+-- WHERE r.approved = FALSE
+-- ORDER BY r.created_at DESC;
+--
+-- Bir yorumu onayla:
+-- UPDATE reviews SET approved = TRUE WHERE id = 'REVIEW-UUID';
+--
+-- Bir yorumu sil:
+-- DELETE FROM reviews WHERE id = 'REVIEW-UUID';
+--
+-- Kullanıcının satın alıp almadığını kontrol et:
+-- SELECT check_purchase('USER-UUID', 'beauty-of-joseon-relief-sun-spf50');
+--
+-- Ürün yorum özetini getir:
+-- SELECT get_review_summary('beauty-of-joseon-relief-sun-spf50');

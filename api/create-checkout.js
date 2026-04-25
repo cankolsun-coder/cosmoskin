@@ -14,13 +14,14 @@ function normalizeCart(rawCart) {
     if (!product) throw new Error(`Geçersiz ürün: ${item.id}`);
     const quantity = Math.max(1, Number(item.qty || 1));
     return {
-      product_id: product.id,
+      product_id:   product.id,
+      product_slug: item.slug || product.slug || null, // URL slug (reviews için)
       product_name: product.name,
-      brand: product.brand,
-      unit_price: product.price,
+      brand:        product.brand,
+      unit_price:   product.price,
       quantity,
-      image: product.image,
-      line_total: product.price * quantity
+      image:        product.image,
+      line_total:   product.price * quantity
     };
   });
 }

@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <title>Yorum Yönetimi — Cosmoskin Admin</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet"/>
+
+<style>
+:root {
+  --serif:   'Cormorant Garamond', Georgia, serif;
+  --sans:    'Plus Jakarta Sans', system-ui, sans-serif;
+  --text:    #16120e;
+  --muted:   #9a8f85;
+  --gold:    #b08a5e;
+  --gold-l:  #d4b896;
+  --line:    rgba(22,18,14,.10);
+  --bg:      #faf6f1;
+  --card:    #fffdf9;
+  --green:   #1f7a4f;
+  --green-bg:#edf7f1;
+  --red:     #8a3b2f;
+  --red-bg:  #fdf0ee;
+  --radius:  16px;
+  --shadow:  0 2px 12px rgba(22,18,14,.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Layout ─────────────────────────────────────────────── */
+.adm-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.adm-sidebar {
+  background: var(--card);
+  border-right: 1px solid var(--line);
+  padding: 28px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.adm-brand {
+  padding: 0 8px 20px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+
+.adm-brand-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: .32em;
+  color: var(--text);
+  display: block;
+}
+
+.adm-brand-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: block;
+  margin-top: 4px;
+}
+
+.adm-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  transition: background .15s, color .15s;
+}
+
+.adm-nav-item:hover, .adm-nav-item.active {
+  background: rgba(176,138,94,.1);
+  color: var(--gold);
+}
+
+.adm-nav-badge {
+  margin-left: auto;
+  background: var(--red-bg);
+  color: var(--red);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 22px;
+  text-align: center;
+}
+
+.adm-nav-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 8px 0;
+}
+
+.adm-logout {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* ── Ana içerik ──────────────────────────────────────────── */
+.adm-main {
+  padding: 36px 40px;
+  min-height: 100vh;
+}
+
+.adm-page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.adm-page-title {
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -.01em;
+  line-height: 1.1;
+}
+
+.adm-page-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* ── Filtre çubuğu ───────────────────────────────────────── */
+.adm-filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.adm-filter-btn {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.adm-filter-btn:hover { background: rgba(176,138,94,.08); color: var(--gold); }
+.adm-filter-btn.active {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+.adm-search-input {
+  margin-left: auto;
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text);
+  width: 220px;
+  outline: none;
+  transition: border-color .2s;
+}
+
+.adm-search-input:focus { border-color: var(--gold-l); }
+
+/* ── İstatistik kartları ─────────────────────────────────── */
+.adm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.adm-stat-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.adm-stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.adm-stat-value {
+  font-family: var(--serif);
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--text);
+}
+
+.adm-stat-value.pending { color: var(--gold); }
+.adm-stat-value.approved { color: var(--green); }
+
+/* ── Yorum kartları ──────────────────────────────────────── */
+.adm-review-list {
+  display: grid;
+  gap: 16px;
+}
+
+.adm-review-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+  box-shadow: var(--shadow);
+  transition: border-color .2s;
+}
+
+.adm-review-card:hover { border-color: var(--gold-l); }
+
+.adm-review-card.approved { border-left: 3px solid var(--green); }
+.adm-review-card.pending  { border-left: 3px solid var(--gold); }
+
+.adm-rc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.adm-rc-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adm-rc-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f2e8dd, #e5d0ba);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--gold);
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+}
+
+.adm-rc-user-info { display: grid; gap: 2px; }
+.adm-rc-name { font-size: 14px; font-weight: 600; }
+.adm-rc-email { font-size: 12px; color: var(--muted); }
+
+.adm-rc-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adm-rc-product {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: rgba(176,138,94,.1);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.adm-rc-stars { display: flex; gap: 2px; }
+.adm-star { font-size: 14px; color: var(--gold); opacity: .2; }
+.adm-star.on { opacity: 1; }
+
+.adm-rc-date { font-size: 12px; color: var(--muted); }
+
+.adm-rc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.adm-rc-status.pending  { background: rgba(176,138,94,.12); color: #7a5a32; }
+.adm-rc-status.approved { background: var(--green-bg); color: var(--green); }
+
+/* ── Yorum içeriği ───────────────────────────────────────── */
+.adm-rc-body {
+  display: grid;
+  gap: 10px;
+}
+
+.adm-rc-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.adm-rc-text {
+  font-size: 14px;
+  color: #5a5048;
+  line-height: 1.75;
+}
+
+/* ── Görseller ───────────────────────────────────────────── */
+.adm-rc-images {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.adm-rc-thumb {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: transform .2s, border-color .2s;
+}
+
+.adm-rc-thumb:hover { transform: scale(1.04); border-color: var(--gold-l); }
+
+/* ── Aksiyonlar ──────────────────────────────────────────── */
+.adm-rc-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.adm-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity .15s, transform .12s;
+}
+
+.adm-btn:hover  { opacity: .85; }
+.adm-btn:active { transform: scale(.97); }
+.adm-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.adm-btn-approve {
+  background: var(--green);
+  color: #fff;
+}
+
+.adm-btn-reject {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid rgba(138,59,47,.2);
+}
+
+.adm-btn-view {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.adm-rc-id {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+}
+
+/* ── Boş durum ───────────────────────────────────────────── */
+.adm-empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--muted);
+}
+
+.adm-empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .3; }
+
+.adm-empty h3 {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+/* ── Shimmer ─────────────────────────────────────────────── */
+.adm-shimmer {
+  height: 140px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, var(--bg) 25%, #fff 50%, var(--bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+.adm-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  background: var(--text);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(22,18,14,.25);
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: transform .3s, opacity .3s;
+  pointer-events: none;
+}
+
+.adm-toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.adm-toast.success { background: var(--green); }
+.adm-toast.error   { background: var(--red); }
+
+/* ── Lightbox ────────────────────────────────────────────── */
+.adm-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(12,9,6,.9);
+  display: none;
+  place-items: center;
+  z-index: 500;
+}
+
+.adm-lightbox.show { display: grid; }
+
+.adm-lb-img {
+  max-width: min(90vw, 900px);
+  max-height: 88dvh;
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.adm-lb-close {
+  position: fixed;
+  top: 20px; right: 24px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50%;
+  width: 44px; height: 44px;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+
+.adm-lb-close:hover { background: rgba(255,255,255,.25); }
+
+/* ── Auth overlay ────────────────────────────────────────── */
+.adm-auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.adm-auth-box {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 40px;
+  width: min(420px, 90vw);
+  box-shadow: 0 8px 40px rgba(22,18,14,.12);
+  text-align: center;
+}
+
+.adm-auth-title {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 400;
+  margin-bottom: 8px;
+}
+
+.adm-auth-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+.adm-field { margin-bottom: 16px; text-align: left; }
+.adm-field label { font-size: 11px; font-weight: 600; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--gold); display: block; margin-bottom: 6px; }
+
+.adm-input {
+  width: 100%; padding: 13px 16px;
+  border-radius: 10px; border: 1px solid var(--line);
+  background: var(--bg); font-family: var(--sans); font-size: 14px;
+  color: var(--text); outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.adm-input:focus {
+  border-color: var(--gold-l);
+  box-shadow: 0 0 0 3px rgba(176,138,94,.12);
+}
+
+.adm-auth-btn {
+  width: 100%; padding: 13px;
+  border-radius: 10px; border: none;
+  background: var(--text); color: #fff;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  cursor: pointer; transition: opacity .15s;
+  margin-top: 8px;
+}
+
+.adm-auth-btn:hover { opacity: .85; }
+.adm-auth-status { font-size: 13px; margin-top: 12px; min-height: 20px; }
+.adm-auth-status.error { color: var(--red); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .adm-layout { grid-template-columns: 1fr; }
+  .adm-sidebar { display: none; }
+  .adm-main { padding: 24px 20px; }
+  .adm-stats-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ── Auth Overlay ──────────────────────────────────────── -->
+<div class="adm-auth-overlay" id="authOverlay">
+  <div class="adm-auth-box">
+    <span class="adm-auth-title">Admin</span>
+    <p class="adm-auth-sub">Cosmoskin Yönetim Paneli</p>
+    <div class="adm-field">
+      <label for="authEmail">E-posta</label>
+      <input id="authEmail" type="email" class="adm-input"
+             placeholder="cankolsun@cosmoskin.com.tr" value="cankolsun@cosmoskin.com.tr"/>
+    </div>
+    <div class="adm-field">
+      <label for="authPassword">Şifre</label>
+      <input id="authPassword" type="password" class="adm-input" placeholder="••••••••"/>
+    </div>
+    <button class="adm-auth-btn" onclick="AdminPanel.login()">Giriş Yap</button>
+    <div class="adm-auth-status" id="authStatus" role="alert"></div>
+  </div>
+</div>
+
+<!-- ── Ana Layout ────────────────────────────────────────── -->
+<div class="adm-layout" id="adminLayout" style="display:none">
+
+  <!-- Sidebar -->
+  <aside class="adm-sidebar">
+    <div class="adm-brand">
+      <span class="adm-brand-title">COSMOSKIN</span>
+      <span class="adm-brand-tag">Admin Paneli</span>
+    </div>
+
+    <button class="adm-nav-item active" onclick="AdminPanel.setView('pending', this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+      </svg>
+      Bekleyen Yorumlar
+      <span class="adm-nav-badge" id="pendingBadge">—</span>
+    </button>
+
+    <button class="adm-nav-item" onclick="AdminPanel.setView('approved', this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 6 9 17l-5-5"/>
+      </svg>
+      Onaylı Yorumlar
+    </button>
+
+    <button class="adm-nav-item" onclick="AdminPanel.setView('all', this)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="18" height="18" rx="4"/>
+        <path d="M3 9h18M9 21V9"/>
+      </svg>
+      Tümü
+    </button>
+
+    <div class="adm-nav-divider"></div>
+
+    <a class="adm-nav-item" href="/index.html" target="_blank">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+      </svg>
+      Siteyi Görüntüle
+    </a>
+
+    <div class="adm-logout">
+      <button class="adm-nav-item" onclick="AdminPanel.logout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+        </svg>
+        Çıkış Yap
+      </button>
+    </div>
+  </aside>
+
+  <!-- Ana içerik -->
+  <main class="adm-main">
+    <div class="adm-page-head">
+      <div>
+        <h1 class="adm-page-title">Yorum Yönetimi</h1>
+        <p class="adm-page-sub" id="pageSubtitle">Bekleyen yorumlar yükleniyor…</p>
+      </div>
+      <button class="adm-btn adm-btn-view" onclick="AdminPanel.load()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M4 4v5h5M20 20v-5h-5M4 9a9 9 0 0 1 15.8-4.2M20 15a9 9 0 0 1-15.8 4.2"/>
+        </svg>
+        Yenile
+      </button>
+    </div>
+
+    <!-- İstatistikler -->
+    <div class="adm-stats-grid">
+      <div class="adm-stat-card">
+        <span class="adm-stat-label">Bekleyen</span>
+        <span class="adm-stat-value pending" id="statPending">—</span>
+      </div>
+      <div class="adm-stat-card">
+        <span class="adm-stat-label">Onaylı</span>
+        <span class="adm-stat-value approved" id="statApproved">—</span>
+      </div>
+      <div class="adm-stat-card">
+        <span class="adm-stat-label">Toplam</span>
+        <span class="adm-stat-value" id="statTotal">—</span>
+      </div>
+      <div class="adm-stat-card">
+        <span class="adm-stat-label">Ort. Puan</span>
+        <span class="adm-stat-value" id="statAvg">—</span>
+      </div>
+    </div>
+
+    <!-- Filtre + Arama -->
+    <div class="adm-filter-bar">
+      <button class="adm-filter-btn active" data-filter="pending"
+              onclick="AdminPanel.setView('pending', this)">Bekleyen</button>
+      <button class="adm-filter-btn" data-filter="approved"
+              onclick="AdminPanel.setView('approved', this)">Onaylı</button>
+      <button class="adm-filter-btn" data-filter="all"
+              onclick="AdminPanel.setView('all', this)">Tümü</button>
+      <input class="adm-search-input" type="search" id="reviewSearch"
+             placeholder="Ürün, kullanıcı veya yorum ara…"
+             oninput="AdminPanel.searchFilter(this.value)"/>
+    </div>
+
+    <!-- Liste -->
+    <div class="adm-review-list" id="reviewList">
+      <div class="adm-shimmer"></div>
+      <div class="adm-shimmer"></div>
+      <div class="adm-shimmer"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Lightbox -->
+<div class="adm-lightbox" id="admLightbox" onclick="AdminPanel.closeLb()">
+  <button class="adm-lb-close" onclick="AdminPanel.closeLb()">×</button>
+  <img class="adm-lb-img" id="admLbImg" src="" alt="Yorum görseli"/>
+</div>
+
+<!-- Toast -->
+<div class="adm-toast" id="admToast"></div>
+
+<!-- Scripts -->
+<script src="/assets/site-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<script>
+'use strict';
+
+const AdminPanel = (() => {
+
+  const ADMIN_EMAIL = 'cankolsun@cosmoskin.com.tr';
+  let _sb      = null;
+  let _session = null;
+  let _all     = [];      // tüm yorumlar (Supabase'den)
+  let _view    = 'pending'; // 'pending' | 'approved' | 'all'
+  let _query   = '';
+
+  /* ── XSS koruma ─────────────────────────────────────────── */
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── Supabase init ──────────────────────────────────────── */
+  async function init() {
+    const cfg = window.COSMOSKIN_CONFIG || {};
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
+      _authErr('site-config.js eksik. Supabase bilgileri ayarlanmalı.');
+      return;
+    }
+    _sb = supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+
+    // Mevcut oturumu kontrol et
+    const { data: { session } } = await _sb.auth.getSession();
+    if (session && session.user.email === ADMIN_EMAIL) {
+      _session = session;
+      _showPanel();
+      await load();
+    }
+
+    // Auth state değişikliklerini dinle
+    _sb.auth.onAuthStateChange((_ev, sess) => {
+      if (sess && sess.user.email === ADMIN_EMAIL) {
+        _session = sess;
+        _showPanel();
+      } else if (!sess) {
+        _session = null;
+        document.getElementById('authOverlay').style.display = 'flex';
+        document.getElementById('adminLayout').style.display = 'none';
+      }
+    });
+  }
+
+  /* ── Login ──────────────────────────────────────────────── */
+  async function login() {
+    const email = document.getElementById('authEmail').value.trim();
+    const pass  = document.getElementById('authPassword').value;
+
+    if (email !== ADMIN_EMAIL) {
+      return _authErr('Bu panel yalnızca yetkili admin için erişilebilir.');
+    }
+
+    _authErr('Giriş yapılıyor…');
+
+    const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
+
+    if (error) {
+      _authErr(error.message.includes('Invalid') ? 'E-posta veya şifre hatalı.' : error.message);
+      return;
+    }
+
+    if (data.user.email !== ADMIN_EMAIL) {
+      await _sb.auth.signOut();
+      _authErr('Bu hesabın admin yetkisi yok.');
+      return;
+    }
+
+    _session = data.session;
+    _showPanel();
+    await load();
+  }
+
+  async function logout() {
+    await _sb.auth.signOut();
+    _session = null;
+    document.getElementById('authOverlay').style.display = 'flex';
+    document.getElementById('adminLayout').style.display = 'none';
+  }
+
+  function _showPanel() {
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('adminLayout').style.display = 'grid';
+  }
+
+  function _authErr(msg) {
+    const el = document.getElementById('authStatus');
+    el.textContent = msg;
+    el.className   = 'adm-auth-status error';
+  }
+
+  /* ── Yorumları yükle ────────────────────────────────────── */
+  async function load() {
+    const list = document.getElementById('reviewList');
+    list.innerHTML = `
+      <div class="adm-shimmer"></div>
+      <div class="adm-shimmer"></div>
+      <div class="adm-shimmer"></div>`;
+
+    try {
+      // Yorumları + görsellerini çek
+      const { data: reviews, error } = await _sb
+        .from('reviews')
+        .select('*, review_images(id, public_url, status, storage_path)')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      _all = reviews || [];
+
+      _updateStats();
+      _render();
+
+    } catch (err) {
+      list.innerHTML = `
+        <div class="adm-empty">
+          <div class="adm-empty-icon">⚠</div>
+          <h3>Yüklenemedi</h3>
+          <p>${esc(err.message)}</p>
+        </div>`;
+    }
+  }
+
+  /* ── İstatistikler ──────────────────────────────────────── */
+  function _updateStats() {
+    const pending  = _all.filter(r => !r.approved).length;
+    const approved = _all.filter(r => r.approved).length;
+    const total    = _all.length;
+    const avg      = total
+      ? (_all.reduce((s, r) => s + r.rating, 0) / total).toFixed(1)
+      : '—';
+
+    document.getElementById('statPending').textContent  = pending;
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statTotal').textContent    = total;
+    document.getElementById('statAvg').textContent      = avg;
+    document.getElementById('pendingBadge').textContent = pending || '0';
+  }
+
+  /* ── Görünümü değiştir ──────────────────────────────────── */
+  function setView(view, btn) {
+    _view = view;
+    _query = '';
+    document.getElementById('reviewSearch').value = '';
+
+    document.querySelectorAll('.adm-filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.adm-nav-item').forEach(b => b.classList.remove('active'));
+    btn?.classList.add('active');
+
+    _render();
+  }
+
+  function searchFilter(q) {
+    _query = (q || '').toLowerCase().trim();
+    _render();
+  }
+
+  /* ── Render ─────────────────────────────────────────────── */
+  function _render() {
+    let data = [..._all];
+
+    // Görünüm filtresi
+    if (_view === 'pending')  data = data.filter(r => !r.approved);
+    if (_view === 'approved') data = data.filter(r => r.approved);
+
+    // Arama filtresi
+    if (_query) {
+      data = data.filter(r =>
+        r.product_slug?.toLowerCase().includes(_query) ||
+        r.user_display_name?.toLowerCase().includes(_query) ||
+        r.title?.toLowerCase().includes(_query) ||
+        r.body?.toLowerCase().includes(_query)
+      );
+    }
+
+    const subtitle = {
+      pending:  `${data.length} bekleyen yorum`,
+      approved: `${data.length} onaylı yorum`,
+      all:      `${data.length} yorum`,
+    };
+    document.getElementById('pageSubtitle').textContent = subtitle[_view] || `${data.length} yorum`;
+
+    const list = document.getElementById('reviewList');
+
+    if (!data.length) {
+      list.innerHTML = `
+        <div class="adm-empty">
+          <div class="adm-empty-icon">✦</div>
+          <h3>${_view === 'pending' ? 'Bekleyen yorum yok' : 'Yorum bulunamadı'}</h3>
+          <p>${_view === 'pending' ? 'Harika! Tüm yorumlar işlendi.' : 'Farklı bir filtre deneyin.'}</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = data.map(_renderCard).join('');
+  }
+
+  function _renderCard(r) {
+    const initial  = (r.user_display_name || 'M').charAt(0).toUpperCase();
+    const name     = esc(r.user_display_name || 'Anonim');
+    const email    = esc(r.user_email || '');
+    const date     = new Date(r.created_at).toLocaleDateString('tr-TR', {
+      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+    const stars    = [1,2,3,4,5].map(n =>
+      `<span class="adm-star ${n <= r.rating ? 'on' : ''}">★</span>`
+    ).join('');
+    const status   = r.approved ? 'approved' : 'pending';
+    const statusTr = r.approved ? 'Onaylı' : 'Bekliyor';
+
+    // Görseller
+    const images = (r.review_images || []);
+    const imgHtml = images.length
+      ? `<div class="adm-rc-images">
+          ${images.map(img => `
+            <img class="adm-rc-thumb"
+                 src="${esc(img.public_url)}" alt="Yorum görseli"
+                 loading="lazy"
+                 onclick="AdminPanel.openLb('${esc(img.public_url)}')"
+                 onerror="this.style.opacity='.2'"/>`
+          ).join('')}
+        </div>`
+      : '';
+
+    return `
+      <article class="adm-review-card ${status}" id="rc-${r.id}">
+        <div class="adm-rc-header">
+          <div class="adm-rc-user">
+            <div class="adm-rc-avatar">${initial}</div>
+            <div class="adm-rc-user-info">
+              <span class="adm-rc-name">${name}</span>
+              ${email ? `<span class="adm-rc-email">${email}</span>` : ''}
+            </div>
+          </div>
+          <div class="adm-rc-meta">
+            <span class="adm-rc-product">${esc(r.product_slug)}</span>
+            <div class="adm-rc-stars">${stars}</div>
+            <span class="adm-rc-date">${date}</span>
+            <span class="adm-rc-status ${status}">${statusTr}</span>
+          </div>
+        </div>
+
+        <div class="adm-rc-body">
+          <h3 class="adm-rc-title">${esc(r.title)}</h3>
+          <p class="adm-rc-text">${esc(r.body)}</p>
+        </div>
+
+        ${imgHtml}
+
+        <div class="adm-rc-actions">
+          ${!r.approved
+            ? `<button class="adm-btn adm-btn-approve" onclick="AdminPanel.approve('${r.id}')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                Onayla
+               </button>`
+            : `<button class="adm-btn adm-btn-view" style="cursor:default;opacity:.5" disabled>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+                Onaylandı
+               </button>`
+          }
+          <button class="adm-btn adm-btn-reject" onclick="AdminPanel.reject('${r.id}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+            Reddet & Sil
+          </button>
+          <span class="adm-rc-id">${r.id.slice(0, 8)}…</span>
+        </div>
+      </article>`;
+  }
+
+  /* ── Onayla ─────────────────────────────────────────────── */
+  async function approve(id) {
+    const btn = document.querySelector(`#rc-${id} .adm-btn-approve`);
+    if (btn) { btn.disabled = true; btn.textContent = 'Onaylanıyor…'; }
+
+    try {
+      const { error } = await _sb
+        .from('reviews')
+        .update({ approved: true })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Görsel(ler)i de onayla
+      await _sb
+        .from('review_images')
+        .update({ status: 'approved' })
+        .eq('review_id', id);
+
+      const r = _all.find(x => x.id === id);
+      if (r) r.approved = true;
+
+      _updateStats();
+      _render();
+      _toast('Yorum onaylandı ve yayına alındı.', 'success');
+
+    } catch (err) {
+      _toast(`Hata: ${err.message}`, 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Onayla'; }
+    }
+  }
+
+  /* ── Reddet & Sil ───────────────────────────────────────── */
+  async function reject(id) {
+    if (!confirm('Bu yorum ve görselleri kalıcı olarak silinecek. Onaylıyor musunuz?')) return;
+
+    const card = document.getElementById(`rc-${id}`);
+    if (card) card.style.opacity = '.4';
+
+    try {
+      // Önce storage'daki görselleri sil
+      const r = _all.find(x => x.id === id);
+      const images = r?.review_images || [];
+      if (images.length) {
+        const paths = images.map(i => i.storage_path).filter(Boolean);
+        if (paths.length) {
+          await _sb.storage.from('review-images').remove(paths);
+        }
+      }
+
+      // Yorumu sil (cascade ile review_images da silinir)
+      const { error } = await _sb.from('reviews').delete().eq('id', id);
+      if (error) throw error;
+
+      _all = _all.filter(x => x.id !== id);
+      _updateStats();
+      _render();
+      _toast('Yorum başarıyla silindi.', 'success');
+
+    } catch (err) {
+      _toast(`Hata: ${err.message}`, 'error');
+      if (card) card.style.opacity = '1';
+    }
+  }
+
+  /* ── Lightbox ───────────────────────────────────────────── */
+  function openLb(url) {
+    document.getElementById('admLbImg').src = url;
+    document.getElementById('admLightbox').classList.add('show');
+  }
+
+  function closeLb() {
+    document.getElementById('admLightbox').classList.remove('show');
+  }
+
+  /* ── Toast ──────────────────────────────────────────────── */
+  let _toastTimer;
+  function _toast(msg, type = '') {
+    const t = document.getElementById('admToast');
+    t.textContent = msg;
+    t.className   = `adm-toast ${type} show`;
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  /* ── Klavye ─────────────────────────────────────────────── */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeLb();
+    if (e.key === 'Enter' && document.getElementById('authOverlay').style.display !== 'none') {
+      login();
+    }
+  });
+
+  /* ── Boot ───────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', init);
+
+  return { login, logout, load, setView, searchFilter, approve, reject, openLb, closeLb };
+
+})();
+</script>
+</body>
+</html>

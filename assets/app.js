@@ -366,7 +366,26 @@
     });
   }
 
-  bindSiteSearch();
+  // search.js varsa kendi sistemi devreye girer
+  if (!window.__COSMOSKIN_SEARCH_BOUND) { bindSiteSearch(); }
+  else {
+    // Yalnızca clear buton state'ini senkronize et
+    $$('.site-search-form').forEach(form => {
+      const input    = form.querySelector('.site-search-input');
+      const clearBtn = form.querySelector('.site-search-clear');
+      if (!input || !clearBtn) return;
+      input.addEventListener('input', () => {
+        clearBtn.classList.toggle('is-visible', !!input.value.trim());
+      });
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        clearBtn.classList.remove('is-visible');
+        const res = form.querySelector('.site-search-results');
+        if (res) { res.hidden = true; res.innerHTML = ''; }
+        input.focus();
+      });
+    });
+  }
 
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
@@ -668,12 +687,13 @@ function broadcastFavoritesChange() {
 
   $$('[data-add-cart]').forEach((btn) => btn.addEventListener('click', () => {
     addCartItems([{
-      id: btn.dataset.id,
-      name: btn.dataset.name,
+      id:   btn.dataset.id,
+      slug: btn.dataset.slug || btn.dataset.id,  // URL slug → checkout'a iletilir
+      name:  btn.dataset.name,
       brand: btn.dataset.brand,
       price: Number(btn.dataset.price),
       image: btn.dataset.image,
-      qty: 1
+      qty:   1
     }]);
   }));
 
