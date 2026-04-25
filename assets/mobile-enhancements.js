@@ -1,4 +1,6 @@
 (function(){
+  /* v5: completely disabled — replaced by mobile.css + mobile.js */
+  return;
   if (window.innerWidth > 768) return;
 
   const path = (location.pathname.split('/').pop() || 'index.html').replace(/\?.*$/, '');

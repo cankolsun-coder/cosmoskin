@@ -6973,6 +6973,7 @@ body::before{
 }
 
 
+/* === DISABLED v5 — replaced by mobile.css ===
 /* ===== FINAL MASTER MOBILE LAYER ===== */
 @media (max-width:768px){
   html{scroll-padding-top:92px}
@@ -7080,6 +7081,8 @@ body::before{
 
   .footer{padding-bottom:98px !important}
 }
+*/
+
 
 
 /* ===== 2026-04-21 hero refinement ===== */
