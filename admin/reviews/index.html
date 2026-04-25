@@ -2150,22 +2150,30 @@
     if (!review) return;
 
     var key = 'review:' + reviewId;
-    var previous = review.status;
+    var previousReview = JSON.parse(JSON.stringify(review));
     review.status = nextStatus;
     setBusy(key, true);
     renderFeed();
 
     try {
-      await api('/admin/' + encodeURIComponent(reviewId), {
+      var data = await api('/admin/' + encodeURIComponent(reviewId), {
         method: 'PATCH',
         body: JSON.stringify({
-          status: nextStatus,
-          source_table: review.source_table
+          status: nextStatus
         })
       });
+      if (data.review) {
+        var index = state.reviews.findIndex(function (item) { return String(item.id) === String(reviewId); });
+        if (index !== -1) {
+          state.reviews[index] = hydrateReview(Object.assign({}, state.reviews[index], data.review));
+        }
+      }
       pushToast('Yorum ' + statusLabel(nextStatus).toLocaleLowerCase('tr-TR') + '.');
     } catch (error) {
-      review.status = previous;
+      var rollbackIndex = state.reviews.findIndex(function (item) { return String(item.id) === String(reviewId); });
+      if (rollbackIndex !== -1) {
+        state.reviews[rollbackIndex] = previousReview;
+      }
       pushToast(error.message || 'Yorum güncellenemedi.', true);
     } finally {
       setBusy(key, false);
@@ -2186,9 +2194,7 @@
 
     try {
       await api('/admin/' + encodeURIComponent(reviewId), {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ source_table: review.source_table })
+        method: 'DELETE'
       });
       pushToast('Yorum silindi.');
     } catch (error) {

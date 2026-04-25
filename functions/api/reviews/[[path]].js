@@ -88,10 +88,21 @@ async function handleAdmin(context, route, url) {
   }
 
   if (context.request.method === 'DELETE' && route.length === 1) {
+    const deletedReview = await deleteProductReview(context, reviewId);
+    return reply({ ok: true, review: deletedReview }, 200, {
+      'Cache-Control': 'no-store',
+    });
+  }
+
+  if (context.request.method === 'PATCH' && route.length === 1) {
     const body = await readJson(context.request);
-    const source = normalizeReviewTable(body?.source_table);
-    await deleteReview(context, reviewId, source);
-    return reply({ ok: true, deleted: true, id: reviewId }, 200, {
+    const status = normalizeRequestedStatus(body?.status);
+    if (status !== 'approved' && status !== 'rejected') {
+      return reply({ ok: false, error: 'status yalnızca approved veya rejected olabilir.' }, 400);
+    }
+
+    const updatedReview = await patchProductReviewStatus(context, reviewId, status);
+    return reply({ ok: true, review: updatedReview }, 200, {
       'Cache-Control': 'no-store',
     });
   }
@@ -109,16 +120,9 @@ async function handleAdmin(context, route, url) {
     }
 
     const updated = await updateReviewStatus(context, reviewId, source, status);
-    return reply(
-      {
-        ok: true,
-        id: reviewId,
-        status: updated.status,
-        review: updated.review,
-      },
-      200,
-      { 'Cache-Control': 'no-store' }
-    );
+    return reply({ ok: true, review: updated.review }, 200, {
+      'Cache-Control': 'no-store',
+    });
   }
 
   return reply({ ok: false, error: 'Desteklenmeyen admin endpoint.' }, 404);
@@ -581,6 +585,13 @@ async function updateReviewStatus(context, reviewId, sourceHint, status) {
   return { status, review };
 }
 
+async function patchProductReviewStatus(context, reviewId, status) {
+  const target = await resolveProductReview(context, reviewId);
+  const payload = buildProductReviewStatusPayload(target.row, status);
+  await patchRows(context, 'product_reviews', { id: reviewId }, payload);
+  return normalizeReview({ ...target.row, ...payload, id: reviewId }, 'product_reviews');
+}
+
 async function deleteReview(context, reviewId, sourceHint) {
   const target = await resolveReviewRecord(context, reviewId, sourceHint);
 
@@ -589,6 +600,12 @@ async function deleteReview(context, reviewId, sourceHint) {
   }
 
   await deleteRows(context, target.table, { id: reviewId });
+}
+
+async function deleteProductReview(context, reviewId) {
+  const target = await resolveProductReview(context, reviewId);
+  await deleteRows(context, 'product_reviews', { id: reviewId });
+  return normalizeReview(target.row, 'product_reviews');
 }
 
 async function updateReviewImageStatus(context, reviewId, imageId, status, body) {
@@ -688,6 +705,24 @@ async function resolveReviewRecord(context, reviewId, sourceHint) {
     if (rows && rows[0]) {
       return { table, row: rows[0] };
     }
+  }
+
+  throw new Error('Yorum bulunamadı.');
+}
+
+async function resolveProductReview(context, reviewId) {
+  const rows = await safeSelect(
+    context,
+    'product_reviews',
+    {
+      select: '*',
+      id: `eq.${reviewId}`,
+    },
+    false
+  );
+
+  if (rows && rows[0]) {
+    return { table: 'product_reviews', row: rows[0] };
   }
 
   throw new Error('Yorum bulunamadı.');
@@ -972,6 +1007,20 @@ function buildReviewStatusPayload(row, status) {
   if ('status' in row || row.status !== undefined) {
     payload.status = status;
   }
+
+  if ('is_approved' in row || row.is_approved !== undefined) {
+    payload.is_approved = status === 'approved';
+  }
+
+  if ('approved' in row || row.approved !== undefined) {
+    payload.approved = status === 'approved';
+  }
+
+  return withUpdatedAt(row, payload);
+}
+
+function buildProductReviewStatusPayload(row, status) {
+  const payload = { status };
 
   if ('is_approved' in row || row.is_approved !== undefined) {
     payload.is_approved = status === 'approved';
