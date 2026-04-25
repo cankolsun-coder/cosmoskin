@@ -1,0 +1,280 @@
+/* ============================================================
+   COSMOSKIN — Reviews Widget Styles
+   Used in PDP pages with <div data-cs-reviews>
+   ============================================================ */
+
+[data-cs-reviews] {
+  --csr-text:    #16120e;
+  --csr-muted:   #6a6059;
+  --csr-line:    rgba(22,18,14,.08);
+  --csr-line-2:  rgba(22,18,14,.14);
+  --csr-bg:      #faf6f1;
+  --csr-card:    #ffffff;
+  --csr-gold:    #b08a5e;
+  --csr-success: #1f7a4f;
+  --csr-success-bg: #e8f4ed;
+  --csr-error:   #8a3b2f;
+  --csr-error-bg:#fbeae6;
+
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: var(--csr-text);
+  margin-top: 24px;
+}
+
+.csr-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--csr-card);
+  border: 1px solid var(--csr-line);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.csr-summary__avg {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.csr-avg-num {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 36px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--csr-text);
+}
+
+.csr-count {
+  font-size: 12px;
+  color: var(--csr-muted);
+}
+
+.csr-write-btn {
+  height: 40px;
+  padding: 0 18px;
+  background: var(--csr-text);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .14s;
+}
+.csr-write-btn:hover { opacity: .85; }
+
+/* ── STARS ─────────────────────────────────────────────────── */
+.csr-stars {
+  display: inline-flex;
+  gap: 1px;
+}
+.csr-stars svg {
+  fill: var(--csr-text);
+}
+.csr-stars svg.is-empty { fill: var(--csr-line); }
+
+
+/* ── FORM ──────────────────────────────────────────────────── */
+.csr-form {
+  background: var(--csr-card);
+  border: 1px solid var(--csr-line);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 18px;
+}
+
+.csr-form h4 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  margin: 0 0 16px;
+}
+
+.csr-form-row {
+  margin-bottom: 12px;
+}
+
+.csr-form-row label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--csr-muted);
+  margin-bottom: 6px;
+}
+
+.csr-form-row input,
+.csr-form-row textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--csr-line-2);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--csr-text);
+  background: #fff;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+.csr-form-row input:focus,
+.csr-form-row textarea:focus {
+  border-color: var(--csr-gold);
+  box-shadow: 0 0 0 3px rgba(176,138,94,.1);
+}
+.csr-form-row textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+}
+
+/* Rating input */
+.csr-rating-input {
+  display: flex;
+  gap: 4px;
+}
+.csr-rating-input button {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--csr-line-2);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .12s;
+}
+.csr-rating-input button:hover { transform: scale(1.12); }
+.csr-rating-input button svg { fill: var(--csr-line); transition: fill .14s; }
+.csr-rating-input button.is-on svg { fill: var(--csr-text); }
+
+/* Form actions */
+.csr-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.csr-form-actions button {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.csr-cancel {
+  background: transparent;
+  color: var(--csr-muted);
+  border-color: var(--csr-line-2);
+}
+.csr-submit {
+  background: var(--csr-text);
+  color: #fff;
+}
+.csr-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+.csr-form-msg {
+  margin-top: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  display: none;
+}
+.csr-form-msg.is-success {
+  display: block;
+  background: var(--csr-success-bg);
+  color: var(--csr-success);
+}
+.csr-form-msg.is-error {
+  display: block;
+  background: var(--csr-error-bg);
+  color: var(--csr-error);
+}
+
+/* ── REVIEW ITEMS ──────────────────────────────────────────── */
+.csr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.csr-item {
+  background: var(--csr-card);
+  border: 1px solid var(--csr-line);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.csr-item header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.csr-item header > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.csr-item strong {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--csr-text);
+}
+
+.csr-item time {
+  font-size: 11px;
+  color: var(--csr-muted);
+}
+
+.csr-item h5 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--csr-text);
+  margin: 0 0 4px;
+}
+
+.csr-item p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--csr-text);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.csr-empty {
+  padding: 28px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--csr-muted);
+  background: var(--csr-card);
+  border: 1px dashed var(--csr-line-2);
+  border-radius: 12px;
+}
+
+.csr-loading {
+  padding: 32px;
+  text-align: center;
+  color: var(--csr-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .csr-summary { padding: 14px 16px; }
+  .csr-avg-num { font-size: 30px; }
+  .csr-form { padding: 16px; }
+  .csr-form-actions { flex-direction: column-reverse; }
+  .csr-form-actions button { width: 100%; }
+}

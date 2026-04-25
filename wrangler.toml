@@ -1,0 +1,21 @@
+name             = "cosmoskin"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "."
+
+# ── D1 Database (reviews) ─────────────────────────────────────
+# Run this once to create:
+#   wrangler d1 create cosmoskin-reviews
+# Then paste the returned database_id below.
+[[d1_databases]]
+binding       = "DB"
+database_name = "cosmoskin-reviews"
+database_id   = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# ── Secrets (set via CLI, not here) ──────────────────────────
+# wrangler pages secret put ADMIN_TOKEN
+#   → admin panel password (32+ random chars recommended)
+#
+# Other already-existing secrets the project may use:
+#   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+#   IYZICO_API_KEY, IYZICO_SECRET_KEY
+#   BREVO_API_KEY

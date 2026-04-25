@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="noindex, nofollow"/>
+<title>Yorum Yönetimi · Cosmoskin Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #faf6f1;
+    --surface:   #ffffff;
+    --line:      rgba(22,18,14,.08);
+    --line-2:    rgba(22,18,14,.14);
+    --text:      #16120e;
+    --muted:     #6a6059;
+    --pending:   #b08a5e;
+    --pending-bg:#f5ede0;
+    --approved:  #1f7a4f;
+    --approved-bg:#e8f4ed;
+    --rejected:  #8a3b2f;
+    --rejected-bg:#fbeae6;
+    --serif:     'Cormorant Garamond', Georgia, serif;
+    --sans:      'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ─────────────────────────────────────────────── */
+  .topbar {
+    height: 64px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar h1 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: .04em;
+    margin-right: auto;
+  }
+  .topbar h1 span { color: var(--muted); font-size: 14px; font-family: var(--sans); margin-left: 8px; }
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--line-2);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .logout-btn:hover { background: var(--bg); }
+
+  /* ── CONTAINER ─────────────────────────────────────────── */
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  /* ── LOGIN ─────────────────────────────────────────────── */
+  .login-card {
+    max-width: 400px;
+    margin: 80px auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 40px 28px;
+    box-shadow: 0 8px 28px rgba(22,18,14,.06);
+  }
+  .login-card h2 {
+    font-family: var(--serif);
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .login-card p { color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+  .login-card label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .login-card input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px;
+    border: 1.5px solid var(--line-2);
+    border-radius: 12px;
+    background: var(--bg);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .login-card input:focus {
+    border-color: var(--pending);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px rgba(176,138,94,.1);
+  }
+  .login-card button {
+    width: 100%;
+    height: 46px;
+    margin-top: 20px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .login-card button:hover { opacity: .85; }
+  .login-error {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background: var(--rejected-bg);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--rejected);
+    display: none;
+  }
+  .login-error.show { display: block; }
+
+  /* ── STATS ─────────────────────────────────────────────── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .stat__label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .stat__value {
+    font-family: var(--serif);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  /* ── FILTERS ──────────────────────────────────────────── */
+  .filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    height: 38px;
+    padding: 0 16px;
+    background: var(--surface);
+    border: 1px solid var(--line-2);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .14s;
+  }
+  .filter-btn:hover { border-color: var(--text); color: var(--text); }
+  .filter-btn.is-active {
+    background: var(--text);
+    border-color: var(--text);
+    color: #fff;
+  }
+  .filter-btn span { font-weight: 700; margin-left: 4px; opacity: .8; }
+
+  /* ── REVIEW CARDS ─────────────────────────────────────── */
+  .reviews-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .review {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+  }
+  .review__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .review__meta { flex: 1; min-width: 0; }
+  .review__name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .review__meta-line {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .review__rating {
+    display: flex;
+    gap: 1px;
+    flex-shrink: 0;
+  }
+  .review__rating svg { width: 14px; height: 14px; fill: var(--text); }
+  .review__rating svg.empty { fill: var(--line); }
+
+  .review__product {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg);
+    padding: 3px 8px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-family: monospace;
+  }
+
+  .review__title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .review__body {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .review__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .review__status--pending  { background: var(--pending-bg);  color: var(--pending); }
+  .review__status--approved { background: var(--approved-bg); color: var(--approved); }
+  .review__status--rejected { background: var(--rejected-bg); color: var(--rejected); }
+
+  .review__footer {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    flex-wrap: wrap;
+  }
+  .btn {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-family: inherit;
+    transition: opacity .14s, transform .12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn--approve { background: var(--approved); color: #fff; }
+  .btn--reject  { background: var(--rejected); color: #fff; }
+  .btn--pending { background: var(--surface); color: var(--text); border-color: var(--line-2); }
+  .btn--delete  { background: transparent; color: var(--muted); border-color: var(--line); margin-left: auto; }
+  .btn--delete:hover { color: var(--rejected); border-color: var(--rejected); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* ── EMPTY ─────────────────────────────────────────────── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  /* ── TOAST ─────────────────────────────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 100;
+    transition: transform .22s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    max-width: 90%;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast--error { background: var(--rejected); }
+
+  @media (max-width: 600px) {
+    .topbar h1 { font-size: 18px; }
+    .topbar h1 span { display: none; }
+    .wrap { padding: 16px 14px 80px; }
+    .review { padding: 14px 16px; }
+    .review__footer .btn--delete { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar" style="display:none">
+  <h1>Yorum Yönetimi <span>· Cosmoskin Admin</span></h1>
+  <button class="logout-btn" id="logoutBtn" type="button">Çıkış</button>
+</header>
+
+<main class="wrap">
+
+  <!-- LOGIN -->
+  <div class="login-card" id="loginCard">
+    <h2>Admin Girişi</h2>
+    <p>Yorum yönetim paneline erişmek için admin token girin.</p>
+    <label for="tokenInput">Admin Token</label>
+    <input
+      type="password"
+      id="tokenInput"
+      placeholder="••••••••••••"
+      autocomplete="off"
+      autofocus
+    />
+    <button id="loginBtn" type="button">Giriş Yap</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" style="display:none">
+
+    <div class="stats" id="stats"></div>
+
+    <div class="filters" id="filters">
+      <button class="filter-btn is-active" data-status="pending"  type="button">Bekleyen <span id="cPending">0</span></button>
+      <button class="filter-btn"           data-status="approved" type="button">Onaylı <span id="cApproved">0</span></button>
+      <button class="filter-btn"           data-status="rejected" type="button">Reddedilen <span id="cRejected">0</span></button>
+      <button class="filter-btn"           data-status=""         type="button">Tümü <span id="cAll">0</span></button>
+    </div>
+
+    <div class="reviews-list" id="reviewsList">
+      <div class="empty"><p>Yükleniyor...</p></div>
+    </div>
+
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var TOKEN_KEY = 'cosmoskin_admin_token';
+  var API_BASE  = '/api/reviews';
+  var currentFilter = 'pending';
+  var allReviews = [];
+
+  /* ── DOM ── */
+  var loginCard  = document.getElementById('loginCard');
+  var dashboard  = document.getElementById('dashboard');
+  var topbar     = document.getElementById('topbar');
+  var tokenInput = document.getElementById('tokenInput');
+  var loginBtn   = document.getElementById('loginBtn');
+  var logoutBtn  = document.getElementById('logoutBtn');
+  var loginError = document.getElementById('loginError');
+  var listEl     = document.getElementById('reviewsList');
+  var statsEl    = document.getElementById('stats');
+  var toast      = document.getElementById('toast');
+
+  /* ── Helpers ── */
+  function getToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
+  function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+  function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function showToast(msg, isError) {
+    toast.textContent = msg;
+    toast.classList.toggle('toast--error', !!isError);
+    toast.classList.add('show');
+    setTimeout(function () { toast.classList.remove('show'); }, 2500);
+  }
+
+  function fmtDate(ts) {
+    if (!ts) return '';
+    var d = new Date(Number(ts));
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('tr-TR', {
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function stars(rating) {
+    var html = '<div class="review__rating" aria-label="' + rating + ' yıldız">';
+    for (var i = 1; i <= 5; i++) {
+      html += '<svg viewBox="0 0 20 20" class="' + (i > rating ? 'empty' : '') + '">' +
+              '<path d="M10 1l2.7 5.7 6.3.6-4.7 4.3 1.4 6.2L10 14.7 4.3 17.8l1.4-6.2L1 7.3l6.3-.6z"/></svg>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  /* ── API ── */
+  function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({
+      'X-Admin-Token': getToken(),
+      'Content-Type':  'application/json',
+    }, opts.headers || {});
+    return fetch(API_BASE + path, opts).then(function (r) {
+      if (r.status === 401) {
+        clearToken();
+        showLogin();
+        throw new Error('unauthorized');
+      }
+      return r.json().then(function (data) {
+        if (!r.ok || data.ok === false) throw new Error(data.error || 'Hata oluştu');
+        return data;
+      });
+    });
+  }
+
+  /* ── Login flow ── */
+  function showLogin() {
+    loginCard.style.display = 'block';
+    dashboard.style.display = 'none';
+    topbar.style.display = 'none';
+    tokenInput.focus();
+  }
+
+  function showDashboard() {
+    loginCard.style.display = 'none';
+    dashboard.style.display = 'block';
+    topbar.style.display = 'flex';
+    loadReviews();
+  }
+
+  function tryLogin() {
+    var t = tokenInput.value.trim();
+    if (!t) {
+      loginError.textContent = 'Token girin';
+      loginError.classList.add('show');
+      return;
+    }
+    loginError.classList.remove('show');
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Doğrulanıyor...';
+
+    setToken(t);
+    fetch(API_BASE + '/admin', {
+      headers: { 'X-Admin-Token': t }
+    })
+      .then(function (r) {
+        if (r.status === 401) throw new Error('Token geçersiz');
+        if (!r.ok) throw new Error('Sunucu hatası');
+        return r.json();
+      })
+      .then(function () {
+        showDashboard();
+      })
+      .catch(function (err) {
+        clearToken();
+        loginError.textContent = err.message || 'Giriş başarısız';
+        loginError.classList.add('show');
+      })
+      .finally(function () {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Giriş Yap';
+      });
+  }
+
+  loginBtn.addEventListener('click', tryLogin);
+  tokenInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') tryLogin();
+  });
+
+  logoutBtn.addEventListener('click', function () {
+    clearToken();
+    tokenInput.value = '';
+    showLogin();
+  });
+
+  /* ── Load reviews ── */
+  function loadReviews() {
+    listEl.innerHTML = '<div class="empty"><p>Yükleniyor...</p></div>';
+    var query = currentFilter ? '?status=' + currentFilter : '';
+
+    api('/admin' + query)
+      .then(function (data) {
+        allReviews = data.reviews || [];
+        renderStats(data.counts || {});
+        renderList(allReviews);
+      })
+      .catch(function (err) {
+        if (err.message !== 'unauthorized') {
+          listEl.innerHTML = '<div class="empty"><h3>Hata</h3><p>' + esc(err.message) + '</p></div>';
+        }
+      });
+  }
+
+  function renderStats(c) {
+    var total = (c.pending || 0) + (c.approved || 0) + (c.rejected || 0);
+    document.getElementById('cPending').textContent  = c.pending  || 0;
+    document.getElementById('cApproved').textContent = c.approved || 0;
+    document.getElementById('cRejected').textContent = c.rejected || 0;
+    document.getElementById('cAll').textContent      = total;
+
+    statsEl.innerHTML =
+      '<div class="stat"><div class="stat__label">Bekleyen</div><div class="stat__value">' + (c.pending  || 0) + '</div></div>' +
+      '<div class="stat"><div class="stat__label">Onaylı</div><div class="stat__value">'   + (c.approved || 0) + '</div></div>' +
+      '<div class="stat"><div class="stat__label">Reddedilen</div><div class="stat__value">' + (c.rejected || 0) + '</div></div>' +
+      '<div class="stat"><div class="stat__label">Toplam</div><div class="stat__value">'   + total + '</div></div>';
+  }
+
+  function renderList(reviews) {
+    if (!reviews.length) {
+      var labels = { pending: 'bekleyen', approved: 'onaylı', rejected: 'reddedilmiş', '': '' };
+      listEl.innerHTML =
+        '<div class="empty"><h3>' + (currentFilter ? labels[currentFilter] + ' ' : '') + 'yorum yok</h3>' +
+        '<p>Yeni yorumlar bu alanda görünecek.</p></div>';
+      return;
+    }
+
+    listEl.innerHTML = reviews.map(function (r) {
+      var statusLabels = { pending: 'Bekliyor', approved: 'Onaylandı', rejected: 'Reddedildi' };
+      var actions = '';
+      if (r.status === 'pending') {
+        actions =
+          '<button class="btn btn--approve" data-action="approve" data-id="' + r.id + '">Onayla</button>' +
+          '<button class="btn btn--reject"  data-action="reject"  data-id="' + r.id + '">Reddet</button>';
+      } else if (r.status === 'approved') {
+        actions =
+          '<button class="btn btn--reject"  data-action="reject"  data-id="' + r.id + '">Yayından Kaldır</button>' +
+          '<button class="btn btn--pending" data-action="pending" data-id="' + r.id + '">Bekleyene Al</button>';
+      } else {
+        actions =
+          '<button class="btn btn--approve" data-action="approve" data-id="' + r.id + '">Onayla</button>' +
+          '<button class="btn btn--pending" data-action="pending" data-id="' + r.id + '">Bekleyene Al</button>';
+      }
+
+      return (
+        '<article class="review" data-id="' + r.id + '">' +
+          '<div class="review__header">' +
+            '<div class="review__meta">' +
+              '<div class="review__name">' + esc(r.name) +
+                (r.email ? ' <span style="color:var(--muted);font-weight:400">· ' + esc(r.email) + '</span>' : '') +
+              '</div>' +
+              '<div class="review__meta-line">' +
+                '<span>' + fmtDate(r.created_at) + '</span>' +
+                '<span>· ID #' + r.id + '</span>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:10px;align-items:center;flex-shrink:0">' +
+              stars(r.rating) +
+              '<span class="review__status review__status--' + r.status + '">' + statusLabels[r.status] + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="review__product">' + esc(r.product_slug) + '</div>' +
+          (r.title ? '<div class="review__title">' + esc(r.title) + '</div>' : '') +
+          '<div class="review__body">' + esc(r.body) + '</div>' +
+          '<div class="review__footer">' +
+            actions +
+            '<button class="btn btn--delete" data-action="delete" data-id="' + r.id + '">Sil</button>' +
+          '</div>' +
+        '</article>'
+      );
+    }).join('');
+  }
+
+  /* ── Action handler ── */
+  listEl.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    var id = btn.dataset.id;
+    if (!id) return;
+
+    if (action === 'delete') {
+      if (!confirm('Yorum kalıcı olarak silinsin mi?')) return;
+      btn.disabled = true;
+      api('/admin/' + id, { method: 'DELETE' })
+        .then(function () {
+          showToast('Yorum silindi');
+          loadReviews();
+        })
+        .catch(function (err) { showToast(err.message, true); btn.disabled = false; });
+      return;
+    }
+
+    btn.disabled = true;
+    api('/admin/' + id + '/' + action, { method: 'POST' })
+      .then(function (data) {
+        var msgs = { approved: 'Onaylandı', rejected: 'Reddedildi', pending: 'Bekleyene alındı' };
+        showToast(msgs[data.status] || 'Güncellendi');
+        loadReviews();
+      })
+      .catch(function (err) { showToast(err.message, true); btn.disabled = false; });
+  });
+
+  /* ── Filter buttons ── */
+  document.getElementById('filters').addEventListener('click', function (e) {
+    var btn = e.target.closest('.filter-btn');
+    if (!btn) return;
+    document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('is-active'); });
+    btn.classList.add('is-active');
+    currentFilter = btn.dataset.status || '';
+    loadReviews();
+  });
+
+  /* ── INIT ── */
+  if (getToken()) {
+    fetch(API_BASE + '/admin', {
+      headers: { 'X-Admin-Token': getToken() }
+    })
+      .then(function (r) {
+        if (r.ok) showDashboard();
+        else { clearToken(); showLogin(); }
+      })
+      .catch(function () { showLogin(); });
+  } else {
+    showLogin();
+  }
+
+})();
+</script>
+
+</body>
+</html>
