@@ -1,5 +1,5 @@
-import { getUserFromAccessToken, selectRows } from '../../api/_lib/supabase.js';
-import { deriveCommerceSegments, mapSegmentsToLists, upsertBrevoContact } from '../../api/_lib/brevo.js';
+import { getUserFromAccessToken, selectRows } from './_lib/supabase.js';
+import { mapSegmentsToLists, upsertBrevoContact } from './_lib/brevo.js';
 
 function json(payload, status = 200) {
   return new Response(JSON.stringify(payload), {
