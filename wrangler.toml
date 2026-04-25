@@ -2,7 +2,7 @@ name = "cosmoskin"
 compatibility_date = "2024-12-01"
 pages_build_output_dir = "."
 
-# Secrets:
+# ── ENV SECRETS (Cloudflare Dashboard'tan ekle) ───────────────
 # ADMIN_TOKEN
 # SUPABASE_URL
 # SUPABASE_ANON_KEY
