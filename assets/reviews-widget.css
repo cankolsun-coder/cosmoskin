@@ -42,3 +42,52 @@
 .csr-item__body{font-size:13px;line-height:1.55;margin:0;white-space:pre-wrap;word-break:break-word}
 .csr-empty{padding:28px 16px;text-align:center;font-size:13px;color:var(--csr-muted);background:var(--csr-card);border:1px dashed var(--csr-line2);border-radius:12px}
 @media(max-width:600px){.csr-form{padding:16px}.csr-form-footer{flex-direction:column-reverse}.csr-cancel,.csr-submit{width:100%}}
+
+/* ── Edit form ─────────────────────────────────────────────── */
+.csr-edit-form { border-left: 3px solid #b08a5e; }
+.csr-edit-btn {
+  background: none;
+  border: 1px solid rgba(22,18,14,.14);
+  color: var(--csr-muted, #6a6059);
+  font-size: 11px; font-weight: 600; font-family: inherit;
+  padding: 4px 12px; border-radius: 999px;
+  cursor: pointer; margin-top: 8px;
+  transition: border-color .14s, color .14s;
+}
+.csr-edit-btn:hover { border-color: var(--csr-ink, #16120e); color: var(--csr-ink, #16120e); }
+
+.csr-item__actions { margin-top: 8px; }
+
+/* ── Review images ─────────────────────────────────────────── */
+.csr-item__photos {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 10px;
+}
+.csr-item__photo-link { display: block; }
+.csr-item__photo {
+  width: 72px; height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(22,18,14,.08);
+}
+
+/* ── Photo upload preview ──────────────────────────────────── */
+.csr-photo-preview {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+}
+.csr-photo-thumb img {
+  width: 64px; height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(22,18,14,.08);
+}
+
+/* ── Edited badge ──────────────────────────────────────────── */
+.csr-edited {
+  font-size: 10px;
+  color: var(--csr-muted, #6a6059);
+  background: rgba(22,18,14,.05);
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 6px;
+}
