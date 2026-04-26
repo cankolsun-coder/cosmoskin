@@ -7611,3 +7611,428 @@ body::before{
   letter-spacing: .1em;
   text-transform: uppercase;
 }
+
+/* mobile-sticky-pdp: hidden by default; @media (max-width:768px) opts
+   it back in for mobile only. Without this default, the element leaks
+   into desktop document flow and shows a stray price line. */
+.mobile-sticky-pdp{display:none}
+
+/* ── Account · Orders page · order-items list (Phase 3) ─────────── */
+.order-items{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px}
+.order-items .order-item{display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid rgba(26,21,16,.08)}
+.order-items .order-item:first-child{border-top:0}
+.order-item__media{display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:12px;overflow:hidden;background:#f4ede4;flex-shrink:0;text-decoration:none}
+.order-item__media img{width:100%;height:100%;object-fit:cover;display:block}
+.order-item__placeholder{font-size:22px;opacity:.4;color:#6c6054}
+.order-item__body{display:grid;gap:2px;min-width:0}
+.order-item__brand{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c6054}
+.order-item__name{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;line-height:1.25;color:#1a1510;text-decoration:none;overflow:hidden;text-overflow:ellipsis}
+.order-item__name:hover{text-decoration:underline}
+.order-item__meta{font-size:12px;color:#6c6054}
+.order-item__total{font-family:'Cormorant Garamond',Georgia,serif;font-size:18px;color:#1a1510;white-space:nowrap}
+
+/* ==========================================================================
+   PHASE 5 — "Akıllı Rutin Seçimi" redesign
+   --------------------------------------------------------------------------
+   Premium, minimal, conversion-focused. Inline custom SVG icons (no emoji).
+   Soft Gündüz / Akşam mood transition. Standalone block; sits at the end of
+   the file so it overrides any earlier rules cleanly.
+   ========================================================================== */
+
+/* --- Section frame -------------------------------------------------------- */
+.home-routine{
+  --r-surface: #fdfaf5;
+  --r-surface-soft: #f6efe5;
+  --r-ink: #1a1510;
+  --r-ink-soft: #6c6054;
+  --r-line: rgba(26, 21, 16, .12);
+  --r-line-strong: rgba(26, 21, 16, .22);
+  --r-accent: #b5654a;
+  --r-night-surface: #1f2730;
+  --r-night-surface-soft: #2c2520;
+  --r-night-ink: #f4ece1;
+  --r-night-ink-soft: rgba(244, 236, 225, .68);
+  --r-night-line: rgba(244, 236, 225, .14);
+  --r-night-accent: #d8a384;
+}
+
+/* --- Mood toggle (Gündüz / Akşam) ----------------------------------------- */
+.home-routine__mood{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  margin: 12px auto 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .56);
+  border: 1px solid var(--r-line);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  /* center within the section */
+  display: flex;
+  width: max-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+.home-routine__mood-btn{
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font: 500 12px/1 'Inter', system-ui, sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--r-ink-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 220ms ease, background 220ms ease;
+}
+.home-routine__mood-btn:hover{ color: var(--r-ink); }
+.home-routine__mood-btn.is-active{
+  background: var(--r-ink);
+  color: #fff;
+}
+.home-routine__mood-icon{
+  width: 14px; height: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.home-routine__mood-icon svg{ width: 100%; height: 100%; }
+
+/* --- Builder shell mood transition ---------------------------------------- */
+/* Applied to the section itself so it tints the whole area gently. */
+.home-routine{
+  background: linear-gradient(180deg, var(--r-surface) 0%, var(--r-surface-soft) 100%);
+  transition: background 600ms ease, color 320ms ease;
+  border-radius: 36px;
+  margin: 24px 16px;
+  padding-top: 48px !important;
+  padding-bottom: 48px !important;
+}
+.home-routine[data-mood="night"]{
+  background: linear-gradient(180deg, var(--r-night-surface) 0%, var(--r-night-surface-soft) 100%);
+  color: var(--r-night-ink);
+}
+.home-routine[data-mood="night"] .home-routine__lede,
+.home-routine[data-mood="night"] .home-routine__step-head p,
+.home-routine[data-mood="night"] .home-routine__option small,
+.home-routine[data-mood="night"] .home-routine__preset small,
+.home-routine[data-mood="night"] .home-routine__note,
+.home-routine[data-mood="night"] .home-routine__hero-points span{
+  color: var(--r-night-ink-soft);
+}
+.home-routine[data-mood="night"] .home-routine__badge{
+  background: rgba(244, 236, 225, .08);
+  border-color: var(--r-night-line);
+  color: var(--r-night-ink);
+}
+.home-routine[data-mood="night"] .home-routine__hero-points span{
+  border-color: var(--r-night-line);
+}
+.home-routine[data-mood="night"] .home-routine__mood{
+  background: rgba(244, 236, 225, .06);
+  border-color: var(--r-night-line);
+}
+.home-routine[data-mood="night"] .home-routine__mood-btn{
+  color: var(--r-night-ink-soft);
+}
+.home-routine[data-mood="night"] .home-routine__mood-btn:hover{ color: var(--r-night-ink); }
+.home-routine[data-mood="night"] .home-routine__mood-btn.is-active{
+  background: var(--r-night-ink);
+  color: var(--r-night-surface);
+}
+
+/* --- Preset cards (Nem / Bariyer / Işıltı) -------------------------------- */
+.home-routine__presets{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin: 8px 0 4px;
+}
+.home-routine__preset{
+  appearance: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 22px 24px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, .58);
+  border: 1px solid var(--r-line);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--r-ink);
+  transition: transform 220ms cubic-bezier(.2,.7,.2,1),
+              background 220ms ease,
+              border-color 220ms ease,
+              box-shadow 220ms ease,
+              color 220ms ease;
+}
+.home-routine__preset:hover{
+  transform: translateY(-1px);
+  border-color: var(--r-line-strong);
+  background: rgba(255, 255, 255, .82);
+}
+.home-routine__preset:focus-visible{
+  outline: 2px solid var(--r-ink);
+  outline-offset: 3px;
+}
+.home-routine__preset.is-active,
+.home-routine__preset[aria-pressed="true"]{
+  background: var(--r-ink);
+  border-color: var(--r-ink);
+  color: #fff;
+}
+.home-routine__preset-icon{
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--r-accent);
+  /* allow icon to inherit color when card flips to active state */
+  transition: color 220ms ease;
+}
+.home-routine__preset.is-active .home-routine__preset-icon,
+.home-routine__preset[aria-pressed="true"] .home-routine__preset-icon{
+  color: #fff;
+}
+.home-routine__preset-icon svg{
+  width: 100%; height: 100%;
+  display: block;
+}
+.home-routine__preset strong{
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+}
+.home-routine__preset small{
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--r-ink-soft);
+  letter-spacing: 0;
+}
+
+/* Night-mode preset cards */
+.home-routine[data-mood="night"] .home-routine__preset{
+  background: rgba(244, 236, 225, .04);
+  border-color: var(--r-night-line);
+  color: var(--r-night-ink);
+}
+.home-routine[data-mood="night"] .home-routine__preset:hover{
+  background: rgba(244, 236, 225, .08);
+  border-color: rgba(244, 236, 225, .26);
+}
+.home-routine[data-mood="night"] .home-routine__preset-icon{ color: var(--r-night-accent); }
+.home-routine[data-mood="night"] .home-routine__preset.is-active,
+.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"]{
+  background: var(--r-night-ink);
+  border-color: var(--r-night-ink);
+  color: var(--r-night-surface);
+}
+.home-routine[data-mood="night"] .home-routine__preset.is-active .home-routine__preset-icon,
+.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"] .home-routine__preset-icon{
+  color: var(--r-night-surface);
+}
+
+/* --- Step option pills (cilt tipi / hedef / öncelikler) ------------------- */
+.home-routine__option-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+}
+.home-routine__option{
+  appearance: none;
+  cursor: pointer;
+  text-align: left;
+  background: rgba(255, 255, 255, .54);
+  border: 1px solid var(--r-line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--r-ink);
+  transition: background 200ms ease, border-color 200ms ease, transform 200ms ease;
+}
+.home-routine__option:hover{
+  background: rgba(255, 255, 255, .82);
+  border-color: var(--r-line-strong);
+}
+.home-routine__option:focus-visible{
+  outline: 2px solid var(--r-ink);
+  outline-offset: 2px;
+}
+.home-routine__option span{
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -.005em;
+}
+.home-routine__option small{
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--r-ink-soft);
+}
+.home-routine__option.is-active,
+.home-routine__option[aria-pressed="true"]{
+  background: var(--r-ink);
+  border-color: var(--r-ink);
+  color: #fff;
+}
+.home-routine__option.is-active small,
+.home-routine__option[aria-pressed="true"] small{
+  color: rgba(255, 255, 255, .72);
+}
+/* Night-mode options */
+.home-routine[data-mood="night"] .home-routine__option{
+  background: rgba(244, 236, 225, .04);
+  border-color: var(--r-night-line);
+  color: var(--r-night-ink);
+}
+.home-routine[data-mood="night"] .home-routine__option:hover{
+  background: rgba(244, 236, 225, .09);
+  border-color: rgba(244, 236, 225, .28);
+}
+.home-routine[data-mood="night"] .home-routine__option.is-active,
+.home-routine[data-mood="night"] .home-routine__option[aria-pressed="true"]{
+  background: var(--r-night-ink);
+  border-color: var(--r-night-ink);
+  color: var(--r-night-surface);
+}
+.home-routine[data-mood="night"] .home-routine__option.is-active small,
+.home-routine[data-mood="night"] .home-routine__option[aria-pressed="true"] small{
+  color: rgba(31, 39, 48, .72);
+}
+
+/* --- Builder hierarchy ---------------------------------------------------- */
+.home-routine__step-head{
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.home-routine__step-no{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--r-line-strong);
+  font: 500 11px/1 'Inter', system-ui, sans-serif;
+  letter-spacing: .08em;
+  color: var(--r-ink);
+  flex-shrink: 0;
+  background: transparent;
+}
+.home-routine__step-head h3{
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  margin: 0 0 2px;
+  color: inherit;
+}
+.home-routine__step-head p{
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--r-ink-soft);
+}
+.home-routine[data-mood="night"] .home-routine__step-no{
+  border-color: var(--r-night-line);
+  color: var(--r-night-ink);
+}
+.home-routine__step{
+  padding: 22px 0;
+  border-top: 1px solid var(--r-line);
+}
+.home-routine__step:first-of-type{ border-top: 0; padding-top: 4px; }
+.home-routine[data-mood="night"] .home-routine__step{ border-top-color: var(--r-night-line); }
+
+/* --- BAŞTAN button override (Task 7) -------------------------------------- */
+/* Override the earlier .home-routine .btn copper paint at line ~6045
+   and remove any white halo. BAŞTAN is now a quiet outline pill that
+   ladders up to the same destination as Keşfet on hover. */
+.home-routine .btn-secondary,
+.home-routine #homeRoutineReset{
+  background: transparent !important;
+  color: var(--r-ink) !important;
+  border: 1px solid var(--r-line-strong) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  filter: none !important;
+  transition: background 220ms ease, color 220ms ease, border-color 220ms ease, transform 220ms ease;
+}
+.home-routine .btn-secondary:hover,
+.home-routine #homeRoutineReset:hover{
+  background: var(--r-ink) !important;
+  color: #fff !important;
+  border-color: var(--r-ink) !important;
+  transform: translateY(-1px);
+}
+.home-routine[data-mood="night"] .btn-secondary,
+.home-routine[data-mood="night"] #homeRoutineReset{
+  color: var(--r-night-ink) !important;
+  border-color: var(--r-night-line) !important;
+}
+.home-routine[data-mood="night"] .btn-secondary:hover,
+.home-routine[data-mood="night"] #homeRoutineReset:hover{
+  background: var(--r-night-ink) !important;
+  color: var(--r-night-surface) !important;
+  border-color: var(--r-night-ink) !important;
+}
+/* The earlier rule .home-routine .btn { background: #b5654a; ... } is
+   intentionally left for primary CTAs (Rutini Kaydet, Seti Sepete Ekle).
+   We only neutralize the copper coat on the secondary action. */
+
+/* --- Hero "Keşfet" hover refinement (Task 8) ------------------------------ */
+/* Soften the heavy warm halo that read as a "patlama"/flash; add a subtle
+   premium hover that matches BAŞTAN above. */
+.hero-premium__copy .btn-primary{
+  box-shadow: 0 8px 22px rgba(26, 21, 16, .14) !important;
+  transition: background 220ms ease, transform 220ms cubic-bezier(.2,.7,.2,1), box-shadow 220ms ease;
+}
+.hero-premium__copy .btn-primary:hover{
+  background: #2a2018;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(26, 21, 16, .20) !important;
+}
+.hero-premium__copy .btn-primary:active{
+  transform: translateY(0);
+  box-shadow: 0 6px 14px rgba(26, 21, 16, .18) !important;
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+@media (max-width: 720px){
+  .home-routine{ margin: 16px 8px; padding-top: 36px !important; padding-bottom: 36px !important; }
+  .home-routine__presets{ grid-template-columns: 1fr; gap: 12px; }
+  .home-routine__preset{ padding: 18px 20px; }
+  .home-routine__preset strong{ font-size: 22px; }
+  .home-routine__mood{ width: 100%; max-width: 320px; }
+  .home-routine__mood-btn{ flex: 1; justify-content: center; padding: 10px 14px; }
+}
+
+/* Honor reduced-motion preference site-wide for this component. */
+@media (prefers-reduced-motion: reduce){
+  .home-routine,
+  .home-routine__preset,
+  .home-routine__option,
+  .home-routine__mood-btn,
+  .home-routine .btn-secondary,
+  .home-routine #homeRoutineReset,
+  .hero-premium__copy .btn-primary{
+    transition-duration: 0ms !important;
+  }
+  .home-routine__preset:hover,
+  .home-routine .btn-secondary:hover,
+  .home-routine #homeRoutineReset:hover,
+  .hero-premium__copy .btn-primary:hover{
+    transform: none !important;
+  }
+}

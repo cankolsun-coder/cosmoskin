@@ -1,7 +1,9 @@
 /**
  * COSMOSKIN — Merkezi Ürün Veritabanı v2
- * Tek kaynak: Arama, kategori ve marka sayfaları bu veriden beslenir.
- * Yeni ürün eklemek için COSMOSKIN_PRODUCTS dizisine nesne ekleyin.
+ * Tek kaynak: /products.json
+ * Bu dosyadaki price alanları products.json ile senkronize olmalıdır.
+ * Fiyat güncellemek için ÖNCE products.json düzenleyin, sonra _migrate.py çalıştırın.
+ * Yapısal değişiklikler (yeni ürün eklemek, alanlar) elle yapılır; price alanı senkronizedir.
  */
 window.COSMOSKIN_PRODUCTS = [
 
@@ -14,7 +16,7 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'anua-heartleaf-pore-control-cleansing-oil', name:'Heartleaf Pore Control Cleansing Oil',
     brand:'Anua', brandSlug:'anua', category:'Temizleyiciler', categorySlug:'cleanse',
-    price:879, volume:'200 ml', url:'/products/anua-heartleaf-pore-control-cleansing-oil.html',
+    price:849, volume:'200 ml', url:'/products/anua-heartleaf-pore-control-cleansing-oil.html',
     image:'/assets/img/products/anua/anua-heartleaf-pore-control-cleansing-oil-card.webp',
     keywords:'anua heartleaf pore control cleansing oil yag bazli temizleyici makyaj'},
 
@@ -33,7 +35,7 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'beauty-of-joseon-glow-deep-serum', name:'Glow Deep Serum: Rice + Arbutin',
     brand:'Beauty of Joseon', brandSlug:'beauty-of-joseon', category:'Serum & Ampul', categorySlug:'treat',
-    price:879, volume:'30 ml', url:'/products/beauty-of-joseon-glow-deep-serum.html',
+    price:949, volume:'30 ml', url:'/products/beauty-of-joseon-glow-deep-serum.html',
     image:'/assets/img/products/beauty-of-joseon/beauty-of-joseon-glow-deep-serum-card.webp',
     keywords:'beauty of joseon glow deep serum rice arbutin pirinc leke isilti boj'},
 
@@ -45,14 +47,14 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'beauty-of-joseon-green-plum-refreshing-cleanser', name:'Green Plum Refreshing Cleanser',
     brand:'Beauty of Joseon', brandSlug:'beauty-of-joseon', category:'Temizleyiciler', categorySlug:'cleanse',
-    price:759, volume:'170 ml', url:'/products/beauty-of-joseon-green-plum-refreshing-cleanser.html',
+    price:729, volume:'170 ml', url:'/products/beauty-of-joseon-green-plum-refreshing-cleanser.html',
     image:'/assets/img/products/beauty-of-joseon/beauty-of-joseon-green-plum-refreshing-cleanser-card.webp',
     keywords:'beauty of joseon green plum refreshing cleanser yesil erik temizleyici boj'},
 
   /* ── BY WISHTREND ──────────────────────────────────────── */
   { id:'by-wishtrend-pure-vitamin-c-21-5-serum', name:'Pure Vitamin C 21.5% Advanced Serum',
     brand:'By Wishtrend', brandSlug:'by-wishtrend', category:'Serum & Ampul', categorySlug:'treat',
-    price:1249, volume:'30 ml', url:'/products/by-wishtrend-pure-vitamin-c-21-5-serum.html',
+    price:1149, volume:'30 ml', url:'/products/by-wishtrend-pure-vitamin-c-21-5-serum.html',
     image:'/assets/img/products/by-wishtrend/by-wishtrend-pure-vitamin-c-21-5-serum-card.webp',
     keywords:'by wishtrend pure vitamin c 21 5 serum leke ton esitleme isilti'},
 
@@ -71,38 +73,38 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'cosrx-acne-pimple-master-patch', concernSlugs:['blemish'], name:'Acne Pimple Master Patch',
     brand:'COSRX', brandSlug:'cosrx', category:'Maskeler', categorySlug:'masks',
-    price:379, volume:'24 adet', url:'/products/cosrx-acne-pimple-master-patch.html',
+    price:449, volume:'24 adet', url:'/products/cosrx-acne-pimple-master-patch.html',
     image:'/assets/img/products/cosrx/cosrx-acne-pimple-master-patch-card.webp',
     keywords:'cosrx acne pimple master patch akne sivilce yama hydrocolloid'},
 
   { id:'cosrx-aha-bha-clarifying-treatment-toner', concernSlugs:['blemish'], name:'AHA/BHA Clarifying Treatment Toner',
     brand:'COSRX', brandSlug:'cosrx', category:'Tonik & Essence', categorySlug:'hydrate',
-    price:729, volume:'150 ml', url:'/products/cosrx-aha-bha-clarifying-treatment-toner.html',
+    price:879, volume:'150 ml', url:'/products/cosrx-aha-bha-clarifying-treatment-toner.html',
     image:'/assets/img/products/cosrx/cosrx-aha-bha-clarifying-treatment-toner-card.webp',
     keywords:'cosrx aha bha clarifying treatment toner asit tonik gozenek akne'},
 
   { id:'cosrx-low-ph-good-morning-gel-cleanser', name:'Low pH Good Morning Gel Cleanser',
     brand:'COSRX', brandSlug:'cosrx', category:'Temizleyiciler', categorySlug:'cleanse',
-    price:649, volume:'150 ml', url:'/products/cosrx-low-ph-good-morning-gel-cleanser.html',
+    price:749, volume:'150 ml', url:'/products/cosrx-low-ph-good-morning-gel-cleanser.html',
     image:'/assets/img/products/cosrx/cosrx-low-ph-good-morning-gel-cleanser-card.webp',
     keywords:'cosrx low ph good morning gel cleanser dusuk ph sabah temizleyici'},
 
   { id:'cosrx-salicylic-acid-daily-gentle-cleanser', concernSlugs:['blemish'], name:'Salicylic Acid Daily Gentle Cleanser',
     brand:'COSRX', brandSlug:'cosrx', category:'Temizleyiciler', categorySlug:'cleanse',
-    price:679, volume:'150 ml', url:'/products/cosrx-salicylic-acid-daily-gentle-cleanser.html',
+    price:769, volume:'150 ml', url:'/products/cosrx-salicylic-acid-daily-gentle-cleanser.html',
     image:'/assets/img/products/cosrx/cosrx-salicylic-acid-daily-gentle-cleanser-card.webp',
     keywords:'cosrx salicylic acid daily gentle cleanser salisilik asit gozenek akne'},
 
   { id:'cosrx-oil-free-ultra-moisturizing-lotion', name:'Oil-Free Ultra Moisturizing Lotion',
     brand:'COSRX', brandSlug:'cosrx', category:'Nemlendiriciler', categorySlug:'care',
-    price:799, volume:'100 ml', url:'/products/cosrx-oil-free-ultra-moisturizing-lotion.html',
+    price:849, volume:'100 ml', url:'/products/cosrx-oil-free-ultra-moisturizing-lotion.html',
     image:'/assets/img/products/cosrx/cosrx-oil-free-ultra-moisturizing-lotion-card.webp',
     keywords:'cosrx oil free ultra moisturizing lotion yaglanmayan hafif nemlendirici'},
 
   /* ── DR. JART+ ─────────────────────────────────────────── */
   { id:'dr-jart-ceramidin-cream', name:'Ceramidin Cream',
     brand:'Dr. Jart+', brandSlug:'dr-jart', category:'Nemlendiriciler', categorySlug:'care',
-    price:1349, volume:'50 ml', url:'/products/dr-jart-ceramidin-cream.html',
+    price:1249, volume:'50 ml', url:'/products/dr-jart-ceramidin-cream.html',
     image:'/assets/img/products/dr-jart/dr-jart-ceramidin-cream-card.webp',
     keywords:'dr jart ceramidin cream seramid ceramide bariyer kuru hassas'},
 
@@ -116,14 +118,14 @@ window.COSMOSKIN_PRODUCTS = [
   /* ── I'M FROM ──────────────────────────────────────────── */
   { id:'im-from-rice-toner', name:'Rice Toner',
     brand:"I'm From", brandSlug:'im-from', category:'Tonik & Essence', categorySlug:'hydrate',
-    price:949, volume:'150 ml', url:'/products/im-from-rice-toner.html',
+    price:899, volume:'150 ml', url:'/products/im-from-rice-toner.html',
     image:'/assets/img/products/im-from/im-from-rice-toner-card.webp',
     keywords:'im from rice toner pirinc tonik parlaklik nem isilti glutathione'},
 
   /* ── INNISFREE ─────────────────────────────────────────── */
   { id:'innisfree-super-volcanic-clay-mask', concernSlugs:['blemish'], name:'Super Volcanic Clay Mask 2X',
     brand:'Innisfree', brandSlug:'innisfree', category:'Maskeler', categorySlug:'masks',
-    price:849, volume:'100 ml', url:'/products/innisfree-super-volcanic-clay-mask.html',
+    price:649, volume:'100 ml', url:'/products/innisfree-super-volcanic-clay-mask.html',
     image:'/assets/img/products/innisfree/innisfree-super-volcanic-clay-mask-card.webp',
     keywords:'innisfree super volcanic clay mask jeju volkanik kil gozenek sebum'},
 
@@ -137,7 +139,7 @@ window.COSMOSKIN_PRODUCTS = [
   /* ── LANEIGE ───────────────────────────────────────────── */
   { id:'laneige-water-sleeping-mask', name:'Water Sleeping Mask',
     brand:'Laneige', brandSlug:'laneige', category:'Maskeler', categorySlug:'masks',
-    price:1249, volume:'70 ml', url:'/products/laneige-water-sleeping-mask.html',
+    price:1199, volume:'70 ml', url:'/products/laneige-water-sleeping-mask.html',
     image:'/assets/img/products/laneige/laneige-water-sleeping-mask-card.webp',
     keywords:'laneige water sleeping mask uyku maskesi gece nem hidrasyon'},
 
@@ -150,14 +152,14 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'medicube-collagen-night-wrapping-mask', concernSlugs:['blemish'], name:'Collagen Night Wrapping Mask',
     brand:'Medicube', brandSlug:'medicube', category:'Maskeler', categorySlug:'masks',
-    price:749, volume:'100 ml', url:'/products/medicube-collagen-night-wrapping-mask.html',
+    price:849, volume:'100 ml', url:'/products/medicube-collagen-night-wrapping-mask.html',
     image:'/assets/img/products/medicube/medicube-collagen-night-wrapping-mask-card.webp',
     keywords:'medicube collagen night wrapping mask kolajen gece maskesi dolgunluk'},
 
   /* ── MEDIHEAL ──────────────────────────────────────────── */
   { id:'mediheal-nmf-aquaring-sheet-mask', name:'NMF Aquaring Ampoule Mask',
     brand:'Mediheal', brandSlug:'mediheal', category:'Maskeler', categorySlug:'masks',
-    price:129, volume:'1 adet', url:'/products/mediheal-nmf-aquaring-sheet-mask.html',
+    price:549, volume:'1 adet', url:'/products/mediheal-nmf-aquaring-sheet-mask.html',
     image:'/assets/img/products/mediheal/mediheal-nmf-aquaring-sheet-mask-card.webp',
     keywords:'mediheal nmf aquaring ampoule sheet mask yaprak maskesi nem dolgunluk'},
 
@@ -170,13 +172,13 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'round-lab-dokdo-toner', name:'Dokdo Toner',
     brand:'Round Lab', brandSlug:'round-lab', category:'Tonik & Essence', categorySlug:'hydrate',
-    price:849, volume:'200 ml', url:'/products/round-lab-dokdo-toner.html',
+    price:799, volume:'200 ml', url:'/products/round-lab-dokdo-toner.html',
     image:'/assets/img/products/round-lab/round-lab-dokdo-toner-card.webp',
     keywords:'round lab dokdo toner mineral tonik nem deniz suyu hassas'},
 
   { id:'round-lab-birch-juice-sunscreen', name:'Birch Juice Moisturizing Sunscreen SPF 50+ PA++++',
     brand:'Round Lab', brandSlug:'round-lab', category:'Güneş Koruyucular', categorySlug:'protect',
-    price:899, volume:'50 ml', url:'/products/round-lab-birch-juice-sunscreen.html',
+    price:849, volume:'50 ml', url:'/products/round-lab-birch-juice-sunscreen.html',
     image:'/assets/img/products/round-lab/round-lab-birch-juice-sunscreen-card.webp',
     keywords:'round lab birch juice moisturizing sunscreen spf50 hus suyu gunes'},
 
@@ -201,14 +203,14 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'skin1004-hyalu-cica-water-fit-sun-serum', name:'Hyalu-Cica Water-Fit Sun Serum SPF 50+ PA++++',
     brand:'SKIN1004', brandSlug:'skin1004', category:'Güneş Koruyucular', categorySlug:'protect',
-    price:879, volume:'50 ml', url:'/products/skin1004-hyalu-cica-water-fit-sun-serum.html',
+    price:899, volume:'50 ml', url:'/products/skin1004-hyalu-cica-water-fit-sun-serum.html',
     image:'/assets/img/products/skin1004/skin1004-hyalu-cica-water-fit-sun-serum-card.webp',
     keywords:'skin1004 hyalu cica water fit sun serum spf50 centella hyaluronik'},
 
   /* ── SOME BY MI ────────────────────────────────────────── */
   { id:'some-by-mi-aha-bha-miracle-toner', concernSlugs:['blemish'], name:'AHA BHA PHA 30 Days Miracle Toner',
     brand:'Some By Mi', brandSlug:'some-by-mi', category:'Tonik & Essence', categorySlug:'hydrate',
-    price:729, volume:'150 ml', url:'/products/some-by-mi-aha-bha-miracle-toner.html',
+    price:799, volume:'150 ml', url:'/products/some-by-mi-aha-bha-miracle-toner.html',
     image:'/assets/img/products/some-by-mi/some-by-mi-aha-bha-miracle-toner-card.webp',
     keywords:'some by mi aha bha pha 30 days miracle toner asit tonik gozenek leke akne'},
 
@@ -221,7 +223,7 @@ window.COSMOSKIN_PRODUCTS = [
 
   { id:'torriden-solid-in-ceramide-cream', name:'SOLID-IN Ceramide Cream',
     brand:'Torriden', brandSlug:'torriden', category:'Nemlendiriciler', categorySlug:'care',
-    price:989, volume:'70 ml', url:'/products/torriden-solid-in-ceramide-cream.html',
+    price:1099, volume:'70 ml', url:'/products/torriden-solid-in-ceramide-cream.html',
     image:'/assets/img/products/torriden/torriden-solid-in-ceramide-cream-card.webp',
     keywords:'torriden solid in ceramide cream seramid bariyer kuru hassas krem'},
 

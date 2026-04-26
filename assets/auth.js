@@ -445,7 +445,22 @@ bindPasswordMeter();
 // -----------------------------
 // Register
 // -----------------------------
+// Register
+// -----------------------------
 const registerForm = document.getElementById('registerForm');
+
+// Mirror of /functions/api/auth/register.js — kept in sync intentionally.
+// If a rule changes here, update the server file too.
+const PASSWORD_RULES = [
+  { code: 'length', test: (p) => p.length >= 8,         message: 'Şifre en az 8 karakter olmalı.' },
+  { code: 'upper',  test: (p) => /[A-ZÇĞİÖŞÜ]/.test(p), message: 'Şifre en az 1 büyük harf içermeli.' },
+  { code: 'lower',  test: (p) => /[a-zçğıöşü]/.test(p), message: 'Şifre en az 1 küçük harf içermeli.' },
+  { code: 'number', test: (p) => /\d/.test(p),          message: 'Şifre en az 1 rakam içermeli.' },
+];
+
+function firstFailingPasswordRule(pw) {
+  return PASSWORD_RULES.find((rule) => !rule.test(pw)) || null;
+}
 
 registerForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -465,57 +480,89 @@ registerForm?.addEventListener('submit', async (e) => {
     return;
   }
 
-  if (password.length < 8) {
-    setStatus('Şifre en az 8 karakter olmalı.', true, 'registerStatus');
+  // Frontend rule check — must match the server. Block submit on any failure.
+  const failingRule = firstFailingPasswordRule(password);
+  if (failingRule) {
+    setStatus(failingRule.message, true, 'registerStatus');
     setLoading(submitBtn, false);
+    document.getElementById('registerPassword')?.focus();
     return;
   }
 
   try {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: getRedirectTo(),
-        data: {
-          first_name: firstName,
-          last_name: lastName
-        }
-      }
+    // Send to server — it enforces the same rules and proxies to Supabase.
+    // This guarantees rules can't be bypassed by tampering with this file.
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password,
+        first_name: firstName,
+        last_name: lastName
+      })
     });
 
-    if (error) throw error;
+    let body = null;
+    try { body = await response.json(); } catch { body = null; }
 
-    if (data?.user?.identities?.length === 0) {
-      setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
-      setLoading(submitBtn, false);
+    if (!response.ok || !body?.ok) {
+      const code = body?.code || '';
+      const serverMsg = body?.error || '';
+      if (code === 'email_exists') {
+        setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
+      } else if (['length', 'upper', 'lower', 'number', 'invalid_email', 'missing_name'].includes(code)) {
+        setStatus(serverMsg || 'Form bilgilerini kontrol edin.', true, 'registerStatus');
+      } else if (code === 'server_misconfig') {
+        setStatus('Kayıt servisi şu an aktif değil. Lütfen kısa süre sonra tekrar dene.', true, 'registerStatus');
+      } else {
+        setStatus(serverMsg || 'Kayıt sırasında bir hata oluştu. Lütfen tekrar dene.', true, 'registerStatus');
+      }
       return;
     }
 
-    setStatus('Kayıt başarılı. Lütfen e-postanı kontrol et.', false, 'registerStatus');
+    // Success path. Two cases:
+    //   (a) requiresEmailConfirmation === true  → Supabase project has email
+    //       confirmation on. Tell the user to check their inbox.
+    //   (b) requiresEmailConfirmation === false → server returned a session.
+    //       Hydrate the local Supabase client so the user is signed in
+    //       immediately (used by the checkout register-and-continue flow).
+    if (body.session?.access_token && body.session?.refresh_token) {
+      try {
+        await supabase.auth.setSession({
+          access_token: body.session.access_token,
+          refresh_token: body.session.refresh_token
+        });
+      } catch (sessionError) {
+        console.warn('setSession after register failed:', sessionError);
+      }
+      setStatus('Kayıt başarılı. Hoş geldin!', false, 'registerStatus');
+      // Notify the rest of the app so checkout can hide its auth gate, etc.
+      document.dispatchEvent(new CustomEvent('cosmoskin:auth-state', {
+        detail: { state: 'SIGNED_IN', source: 'register' }
+      }));
+      document.dispatchEvent(new CustomEvent('cosmoskin:auth-refresh-requested', {
+        detail: { source: 'register' }
+      }));
+      // Close the modal so the user can continue (e.g. checkout) without
+      // an extra click. Login does the same after a successful sign-in.
+      try {
+        await refreshAccountUI();
+        closeAccountModal();
+        closeAccountDrawer();
+      } catch (closeError) {
+        console.warn('post-register modal close failed:', closeError);
+      }
+    } else {
+      setStatus('Kayıt başarılı. Lütfen e-postanı kontrol et.', false, 'registerStatus');
+    }
+
     track('sign_up', { email_domain: email.split('@')[1] || '' });
     registerForm.reset();
     bindPasswordMeter();
   } catch (error) {
     console.error('Register error:', error);
-
-    const msg = String(error?.message || '').toLowerCase();
-
-    if (
-      msg.includes('already') ||
-      msg.includes('exists') ||
-      msg.includes('duplicate') ||
-      msg.includes('registered') ||
-      msg.includes('database error saving new user')
-    ) {
-      setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
-    } else if (msg.includes('password')) {
-      setStatus('Şifre kriterleri sağlanmadı. Lütfen daha güçlü bir şifre dene.', true, 'registerStatus');
-    } else if (msg.includes('rate limit')) {
-      setStatus('Çok fazla deneme yapıldı. Lütfen biraz sonra tekrar dene.', true, 'registerStatus');
-    } else {
-      setStatus('Kayıt sırasında bir hata oluştu. Lütfen tekrar dene.', true, 'registerStatus');
-    }
+    setStatus('Sunucuya ulaşılamadı. Bağlantıyı kontrol edip tekrar dene.', true, 'registerStatus');
   } finally {
     setLoading(submitBtn, false);
   }

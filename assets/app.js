@@ -454,6 +454,65 @@ function broadcastFavoritesChange() {
     }
   }
 
+  // External-sync listener: when anything else writes to the favorites store
+  // (account/profile.html removing a favorite, or another tab), pull the
+  // canonical list back from localStorage, refresh in-memory state, and
+  // repaint heart icons. localStorage is the single source of truth; this
+  // listener keeps every page in sync without a reload.
+  let _externalSyncRunning = false;
+  function syncFavoritesFromStorage(reason) {
+    if (_externalSyncRunning) return;
+    const fresh = uniqueFavorites(readFavoriteStorage());
+    const sameLength = fresh.length === state.favorites.length;
+    const sameIds = sameLength &&
+      fresh.every((item, idx) => item.id === state.favorites[idx]?.id);
+    if (sameIds) return; // already in sync, no need to repaint
+    _externalSyncRunning = true;
+    try {
+      state.favorites = fresh;
+      renderFavoriteButtons();
+    } finally {
+      _externalSyncRunning = false;
+    }
+  }
+  window.addEventListener('storage', (event) => {
+    if (event.key === FAVORITES_KEY) syncFavoritesFromStorage('storage-event');
+  });
+  window.addEventListener('cosmoskin:favorites-updated', () => {
+    // Defer one tick so persistFavorites' own dispatch settles first; the
+    // _externalSyncRunning guard above prevents recursion.
+    setTimeout(() => syncFavoritesFromStorage('custom-event'), 0);
+  });
+
+  // External-sync listener for cart: account/profile.html's "add to cart from
+  // favorites" flow writes localStorage directly, so we re-read here and
+  // re-render the cart drawer. Same pattern as the favorites sync above.
+  let _cartSyncRunning = false;
+  function syncCartFromStorage() {
+    if (_cartSyncRunning) return;
+    let fresh = [];
+    try {
+      fresh = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
+      if (!Array.isArray(fresh)) fresh = [];
+    } catch { fresh = []; }
+    const a = JSON.stringify(state.cart);
+    const b = JSON.stringify(fresh);
+    if (a === b) return;
+    _cartSyncRunning = true;
+    try {
+      state.cart = fresh;
+      renderCart();
+    } finally {
+      _cartSyncRunning = false;
+    }
+  }
+  window.addEventListener('storage', (event) => {
+    if (event.key === 'cosmoskin_cart') syncCartFromStorage();
+  });
+  window.addEventListener('cosmoskin:cart-updated', () => {
+    setTimeout(syncCartFromStorage, 0);
+  });
+
   async function hydrateFavoritesFromAccount() {
     const client = window.cosmoskinSupabase;
     if (!client) return;
@@ -1240,5 +1299,46 @@ function broadcastFavoritesChange() {
   }
 
   attachCollectionDetailExperience();
+
+  // ---------------------------------------------------------------------------
+  // Phase 5 — Akıllı Rutin Seçimi: Gündüz / Akşam mood toggle
+  // ---------------------------------------------------------------------------
+  // Toggles `data-mood` on the .home-routine section so CSS can swap the
+  // background gradient + ink color. Choice is persisted in localStorage so
+  // it survives page reloads. Soft, single-line behavior; no animations
+  // beyond the CSS `transition`.
+  function attachRoutineMoodToggle() {
+    const section = document.querySelector('.home-routine');
+    if (!section) return;
+    const buttons = Array.from(section.querySelectorAll('.home-routine__mood-btn'));
+    if (!buttons.length) return;
+
+    const STORAGE_KEY = 'cosmoskin_routine_mood';
+    const apply = (mood) => {
+      section.dataset.mood = mood;
+      buttons.forEach((btn) => {
+        const isActive = btn.dataset.mood === mood;
+        btn.classList.toggle('is-active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+    };
+
+    let initial = 'day';
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === 'day' || stored === 'night') initial = stored;
+    } catch (_) { /* localStorage unavailable */ }
+    apply(initial);
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const next = btn.dataset.mood;
+        if (next !== 'day' && next !== 'night') return;
+        apply(next);
+        try { localStorage.setItem(STORAGE_KEY, next); } catch (_) { /* swallow */ }
+      });
+    });
+  }
+  attachRoutineMoodToggle();
 
 })();
