@@ -25,6 +25,23 @@ const CosmoSearch = (() => {
 
   async function _loadProducts() {
     if (_loaded) return;
+    if (window.COSMOSKIN_PRODUCTS_READY && typeof window.COSMOSKIN_PRODUCTS_READY.then === 'function') {
+      try {
+        await window.COSMOSKIN_PRODUCTS_READY;
+        _products = (window.COSMOSKIN_PRODUCTS || []).map(p => ({
+          slug:     p.slug || p.id,
+          name:     p.name,
+          brand:    p.brand,
+          category: p.category,
+          image:    p.image,
+          url:      p.url,
+          price:    p.price,
+          keywords: Array.isArray(p.keywords) ? p.keywords : String(p.keywords || '').split(' '),
+        }));
+        _loaded = true;
+        return;
+      } catch (_) {}
+    }
     try {
       const res  = await fetch('/products.json', { cache: 'default' });
       if (!res.ok) throw new Error('products.json 404');
@@ -117,7 +134,10 @@ const CosmoSearch = (() => {
     }
     return results.map(function(p, i) {
       const hiName  = _highlight(p.name, q);
-      const priceStr = p.price ? ' \u00b7 \u20ba' + p.price : '';
+      const formattedPrice = p.price
+        ? (typeof window.COSMOSKIN_FORMAT_PRICE === 'function' ? window.COSMOSKIN_FORMAT_PRICE(p.price) : '\u20ba' + p.price)
+        : '';
+      const priceStr = formattedPrice ? ' \u00b7 ' + formattedPrice : '';
       return '<a class="srch-item" href="' + esc(p.url) + '" role="option" data-idx="' + i + '" aria-selected="false">' +
         '<img class="srch-item-img" src="' + esc(p.image) + '" alt="" loading="lazy" width="44" height="44" onerror="this.style.opacity=\'.15\'">' +
         '<div class="srch-item-body">' +

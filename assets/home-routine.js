@@ -10,43 +10,67 @@
     concern: { dehydration:'Nemsizlik', sensitivity:'Hassasiyet', barrier:'Bariyer desteği', tone:'Leke görünümü', glow:'Mat görünüm', blemish:'Akne eğilimi' }
   };
 
-  const PRODUCTS = {
+  const PRODUCT_BLUEPRINTS = {
     cleanser: {
-      id:'roundlab-cleanser', name:'1025 Dokdo Cleanser', brand:'Round Lab', volume:'150 ml', price:729, image:'/assets/img/products/round-lab/1025-dokdo-cleanser-card.png',
-      step:'Temizle', reason:'Nazik köpük yapısı ve Ceramide NP desteğiyle temizlemeyi daha konforlu başlatır.'
+      slug:'round-lab-1025-dokdo-cleanser',
+      step:'Temizle',
+      reason:'Nazik köpük yapısı ve Ceramide NP desteğiyle temizlemeyi daha konforlu başlatır.'
     },
     hydratingSerum: {
-      id:'torriden-divein-serum', name:'DIVE-IN Low Molecular Hyaluronic Acid Serum', brand:'Torriden', volume:'50 ml', price:949, image:'/assets/img/products/torriden/dive-in-serum-card.png',
-      step:'Serum', reason:'5 farklı molekül boyutunda hyaluronik asit ile hafif ama katmanlı nem desteği sunar.'
+      slug:'torriden-dive-in-hyaluronic-acid-serum',
+      step:'Serum',
+      reason:'5 farklı molekül boyutunda hyaluronik asit ile hafif ama katmanlı nem desteği sunar.'
     },
     snailEssence: {
-      id:'cosrx-snail', name:'Advanced Snail 96 Mucin Power Essence', brand:'COSRX', volume:'100 ml', price:979, image:'/assets/img/products/cosrx/advanced-snail-96-essence-card.png',
-      step:'Essence', reason:'%96 snail secretion filtrate içeriğiyle ara katmanda nem ve esneklik hissini destekler.'
+      slug:'cosrx-advanced-snail-96-mucin-essence',
+      step:'Essence',
+      reason:'%96 snail secretion filtrate içeriğiyle ara katmanda nem ve esneklik hissini destekler.'
     },
     glowSerum: {
-      id:'boj-glow', name:'Glow Serum: Propolis + Niacinamide', brand:'Beauty of Joseon', volume:'30 ml', price:879, image:'/assets/img/products/beauty-of-joseon/glow-serum-card.png',
-      step:'Tedavi', reason:'Niacinamide ve propolis ile daha dengeli, sakin ve canlı görünüm odağı kurar.'
+      slug:'beauty-of-joseon-glow-serum-propolis-niacinamide',
+      step:'Tedavi',
+      reason:'Niacinamide ve propolis ile daha dengeli, sakin ve canlı görünüm odağı kurar.'
     },
     moisturizer: {
-      id:'roundlab-soy', name:'Soybean Nourishing Cream', brand:'Round Lab', volume:'80 ml', price:1049, image:'/assets/img/products/round-lab/soybean-nourishing-cream-card.png',
-      step:'Nemlendir', reason:'Siyah soya fasulyesi, seramid ve adenosin ile besleyici kapanış sağlar.'
+      slug:'round-lab-soybean-nourishing-cream',
+      step:'Nemlendir',
+      reason:'Siyah soya fasulyesi, seramid ve adenosin ile besleyici kapanış sağlar.'
     },
     reliefSun: {
-      id:'boj-relief', name:'Relief Sun: Rice + Probiotics SPF50+ PA++++', brand:'Beauty of Joseon', volume:'50 ml', price:899, image:'/assets/img/products/beauty-of-joseon/relief-sun-spf50-card.png',
-      step:'Koruma', reason:'Pirinç özü destekli kremsi ama hafif SPF yapısıyla sabah rutinini tamamlar.'
+      slug:'beauty-of-joseon-relief-sun-spf50',
+      step:'Koruma',
+      reason:'Pirinç özü destekli kremsi ama hafif SPF yapısıyla sabah rutinini tamamlar.'
     },
     waterySun: {
-      id:'torriden-watery-sun', name:'DIVE-IN Watery Moisture Sun Cream SPF50+ PA++++', brand:'Torriden', volume:'60 ml', price:899, image:'/assets/img/products/torriden/watery-moisture-sun-cream-card.png',
-      step:'Koruma', reason:'10 çeşit hyaluronik asit destekli hafif yapısıyla gündüz katmanını dengeler.'
+      slug:'torriden-dive-in-watery-moisture-sun-cream',
+      step:'Koruma',
+      reason:'10 çeşit hyaluronik asit destekli hafif yapısıyla gündüz katmanını dengeler.'
     }
   };
 
   function getSavedArray(){ try { return JSON.parse(localStorage.getItem(CONCERNS_KEY) || '[]'); } catch(e){ return []; } }
   function saveState(skin, goal, concerns){ if (skin) localStorage.setItem(SKIN_KEY, skin); if (goal) localStorage.setItem(GOAL_KEY, goal); localStorage.setItem(CONCERNS_KEY, JSON.stringify(concerns || [])); }
   function getState(){ return { skin: localStorage.getItem(SKIN_KEY) || 'combination', goal: localStorage.getItem(GOAL_KEY) || 'balance', concerns: getSavedArray() }; }
-  function money(v){ return `${fmt.format(v)} TL`; }
+  function money(v){ return typeof window.COSMOSKIN_FORMAT_PRICE === 'function' ? window.COSMOSKIN_FORMAT_PRICE(v) : `${fmt.format(v)} TL`; }
+  function getCatalogProduct(slug){ return window.COSMOSKIN_PRODUCT_HELPERS?.getProductByHandle?.(slug) || null; }
+  function getRoutineProducts(){
+    return Object.fromEntries(Object.entries(PRODUCT_BLUEPRINTS).map(([key, config]) => {
+      const product = getCatalogProduct(config.slug);
+      return [key, {
+        id: product?.id || config.slug,
+        name: product?.name || config.slug,
+        brand: product?.brand || '',
+        volume: product?.volume || '',
+        price: Number(product?.price || 0),
+        image: product?.image || '',
+        step: config.step,
+        reason: config.reason
+      }];
+    }));
+  }
 
   function buildRoutine(skin, goal, concerns){
+    const PRODUCTS = getRoutineProducts();
     const selected = new Set(concerns || []);
     let items = [PRODUCTS.cleanser];
     let title = 'Dengeli günlük rutin';
@@ -239,6 +263,7 @@
       } catch(e) {}
     });
 
+    document.addEventListener('cosmoskin:products-updated', render);
     render();
   });
 })();

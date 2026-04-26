@@ -41,6 +41,12 @@
       const moneyFmt = new Intl.NumberFormat('tr-TR', {
         style: 'currency', currency: 'TRY', maximumFractionDigits: 0
       });
+      const statusLabels = {
+        paid: 'Odendi',
+        pending_payment: 'Odeme Bekleniyor',
+        payment_failed: 'Odeme Basarisiz',
+        failed: 'Basarisiz'
+      };
 
       // Lookup table for product slug → URL when the order row predates the
       // schema change (older rows may not store `product_slug`).
@@ -57,7 +63,7 @@
       const itemRow = (item) => {
         const slug = item.product_slug || item.product_id || '';
         const fallback = productById.get(slug);
-        const url = slug ? `/products/${encodeURIComponent(slug)}.html` : '';
+        const url = item.product_url || fallback?.url || (slug ? `/products/${encodeURIComponent(slug)}.html` : '');
         const image = item.image || fallback?.image || '';
         const name = item.product_name || fallback?.name || 'Ürün';
         const brand = item.brand || fallback?.brand || '';
@@ -94,7 +100,7 @@
         return `
           <article class="summary-card order-card">
             <div class="sum-row"><span>Sipariş No</span><strong>${escapeHtml(order.order_number || order.id)}</strong></div>
-            <div class="sum-row"><span>Durum</span><strong>${escapeHtml(order.status)}</strong></div>
+            <div class="sum-row"><span>Durum</span><strong>${escapeHtml(statusLabels[order.status] || order.status)}</strong></div>
             <div class="sum-row"><span>Tarih</span><strong>${new Date(order.created_at).toLocaleString('tr-TR')}</strong></div>
             <div class="sum-row"><span>Toplam</span><strong>${moneyFmt.format(order.total_amount || 0)}</strong></div>
             <ul class="order-items">${items}</ul>

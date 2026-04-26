@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "updated": "2026-04-24",
+  "updated": "2026-04-26",
   "products": [
     {
       "slug": "anua-heartleaf-77-soothing-toner",
@@ -22,6 +22,9 @@
         "nem",
         "doğal",
         "kore"
+      ],
+      "aliases": [
+        "anua-heartleaf-toner"
       ]
     },
     {
@@ -42,6 +45,9 @@
         "yağ bazlı",
         "makyaj",
         "temizleme"
+      ],
+      "aliases": [
+        "anua-cleansing-oil"
       ]
     },
     {
@@ -64,6 +70,10 @@
         "pa++++",
         "günlük",
         "kore spf"
+      ],
+      "aliases": [
+        "boj-relief",
+        "beauty-of-joseon-relief-sun-spf50-pa"
       ]
     },
     {
@@ -85,6 +95,10 @@
         "serum",
         "niasinamid",
         "boj"
+      ],
+      "aliases": [
+        "boj-glow",
+        "beauty-of-joseon-glow-serum"
       ]
     },
     {
@@ -106,6 +120,9 @@
         "serum",
         "boj",
         "aydınlatıcı"
+      ],
+      "aliases": [
+        "boj-glow-deep"
       ]
     },
     {
@@ -125,6 +142,9 @@
         "bariyer",
         "boj",
         "gece kremi"
+      ],
+      "aliases": [
+        "boj-dynasty"
       ]
     },
     {
@@ -145,6 +165,9 @@
         "köpük",
         "günlük",
         "boj"
+      ],
+      "aliases": [
+        "boj-green-plum"
       ]
     },
     {
@@ -164,6 +187,9 @@
         "aydınlatıcı",
         "leke",
         "antioksidan"
+      ],
+      "aliases": [
+        "bywishtrend-vitc"
       ]
     },
     {
@@ -184,6 +210,9 @@
         "bariyer",
         "nem",
         "essans"
+      ],
+      "aliases": [
+        "cosrx-snail"
       ]
     },
     {
@@ -204,6 +233,9 @@
         "ton",
         "aydınlatıcı",
         "antioksidan"
+      ],
+      "aliases": [
+        "cosrx-vitc"
       ]
     },
     {
@@ -223,6 +255,12 @@
         "akne",
         "gözenek",
         "nokta tedavi"
+      ],
+      "aliases": [
+        "cosrx-patch"
+      ],
+      "concernSlugs": [
+        "blemish"
       ]
     },
     {
@@ -244,6 +282,12 @@
         "gözenek",
         "akne",
         "arındırıcı"
+      ],
+      "aliases": [
+        "cosrx-aha-bha"
+      ],
+      "concernSlugs": [
+        "blemish"
       ]
     },
     {
@@ -263,6 +307,9 @@
         "düşük ph",
         "sabah",
         "günlük"
+      ],
+      "aliases": [
+        "cosrx-morning"
       ]
     },
     {
@@ -282,6 +329,12 @@
         "temizleyici",
         "akne",
         "günlük"
+      ],
+      "aliases": [
+        "cosrx-salicylic"
+      ],
+      "concernSlugs": [
+        "blemish"
       ]
     },
     {
@@ -301,6 +354,9 @@
         "yağsız",
         "lotion",
         "hafif"
+      ],
+      "aliases": [
+        "cosrx-lotion"
       ]
     },
     {
@@ -321,6 +377,9 @@
         "bariyer",
         "nem",
         "onarıcı"
+      ],
+      "aliases": [
+        "drjart-ceramidin"
       ]
     },
     {
@@ -341,6 +400,9 @@
         "serum",
         "aydınlatıcı",
         "leke"
+      ],
+      "aliases": [
+        "goodal-vitc"
       ]
     },
     {
@@ -360,6 +422,9 @@
         "parlak",
         "tonik",
         "kore"
+      ],
+      "aliases": [
+        "imfrom-rice"
       ]
     },
     {
@@ -379,6 +444,12 @@
         "arındırıcı",
         "maske",
         "volkanik kil"
+      ],
+      "aliases": [
+        "innisfree-clay"
+      ],
+      "concernSlugs": [
+        "blemish"
       ]
     },
     {
@@ -399,6 +470,9 @@
         "spf",
         "jel",
         "hafif"
+      ],
+      "aliases": [
+        "isntree-sun"
       ]
     },
     {
@@ -418,6 +492,9 @@
         "nem",
         "maske",
         "hydration"
+      ],
+      "aliases": [
+        "laneige-sleeping"
       ]
     },
     {
@@ -437,6 +514,12 @@
         "bha",
         "toner pad",
         "gözenek"
+      ],
+      "aliases": [
+        "medicube-pad"
+      ],
+      "concernSlugs": [
+        "blemish"
       ]
     },
     {
@@ -456,6 +539,12 @@
         "gece maskesi",
         "sarma",
         "sıkılaştırıcı"
+      ],
+      "aliases": [
+        "medicube-mask"
+      ],
+      "concernSlugs": [
+        "blemish"
       ]
     },
     {
@@ -475,6 +564,9 @@
         "yaprak maske",
         "nem",
         "hydration"
+      ],
+      "aliases": [
+        "mediheal-nmf"
       ]
     },
     {
@@ -494,6 +586,9 @@
         "nazik",
         "köpük",
         "günlük"
+      ],
+      "aliases": [
+        "roundlab-cleanser"
       ]
     },
     {
@@ -513,6 +608,9 @@
         "nem",
         "mineral",
         "hassas"
+      ],
+      "aliases": [
+        "roundlab-toner"
       ]
     },
     {
@@ -532,6 +630,9 @@
         "güneş",
         "spf",
         "hafif"
+      ],
+      "aliases": [
+        "roundlab-birch"
       ]
     },
     {
@@ -551,6 +652,9 @@
         "besleyici krem",
         "seramid",
         "nem"
+      ],
+      "aliases": [
+        "roundlab-soy"
       ]
     },
     {
@@ -571,6 +675,9 @@
         "yatıştırıcı",
         "hassas",
         "centella asiatica"
+      ],
+      "aliases": [
+        "skin1004-ampoule"
       ]
     },
     {
@@ -589,6 +696,9 @@
         "centella asiatica",
         "yatıştırıcı",
         "nem"
+      ],
+      "aliases": [
+        "skin1004-toner"
       ]
     },
     {
@@ -608,6 +718,9 @@
         "spf",
         "centella",
         "hyalüronik"
+      ],
+      "aliases": [
+        "skin1004-sun"
       ]
     },
     {
@@ -627,6 +740,12 @@
         "gözenek",
         "akne",
         "arındırıcı"
+      ],
+      "aliases": [
+        "some-by-mi-toner"
+      ],
+      "concernSlugs": [
+        "blemish"
       ]
     },
     {
@@ -646,6 +765,10 @@
         "hyalüronik asit",
         "nem",
         "katmanlı"
+      ],
+      "aliases": [
+        "torriden-divein-serum",
+        "torriden-dive-in-serum"
       ]
     },
     {
@@ -665,6 +788,9 @@
         "krem",
         "bariyer",
         "nem"
+      ],
+      "aliases": [
+        "torriden-ceramide"
       ]
     },
     {
@@ -685,6 +811,11 @@
         "hyalüronik",
         "spf",
         "kore spf"
+      ],
+      "aliases": [
+        "torriden-sun",
+        "torriden-watery-sun",
+        "torriden-dive-in-watery-sun-serum"
       ]
     }
   ]

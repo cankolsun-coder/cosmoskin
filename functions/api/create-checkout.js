@@ -15,7 +15,7 @@ function normalizeCart(rawCart) {
     const quantity = Math.max(1, Number(item.qty || 1));
     return {
       product_id:   product.id,
-      product_slug: item.slug || product.slug || null, // URL slug (reviews için)
+      product_slug: product.slug || item.slug || null, // Always store canonical PDP slug.
       product_name: product.name,
       brand:        product.brand,
       unit_price:   product.price,

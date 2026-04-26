@@ -912,16 +912,68 @@ const ReviewModule = (() => {
     const requested = qp.get('product') || '';
     const path = window.location.pathname;
     const routeMap = {
-      '/protect.html': { default: 'boj-relief', 'boj-relief': 'boj-relief', 'torriden-sun': 'torriden-sun' },
-      '/collections/protect.html': { default: 'boj-relief', 'boj-relief': 'boj-relief', 'torriden-sun': 'torriden-sun' },
-      '/hydrate.html': { default: 'torriden-divein-serum', 'torriden-divein-serum': 'torriden-divein-serum', 'cosrx-snail': 'cosrx-snail' },
-      '/collections/hydrate.html': { default: 'torriden-divein-serum', 'torriden-divein-serum': 'torriden-divein-serum', 'cosrx-snail': 'cosrx-snail' },
-      '/treat.html': { default: 'boj-glow', 'boj-glow': 'boj-glow', 'cosrx-vitc': 'cosrx-vitc' },
-      '/collections/treat.html': { default: 'boj-glow', 'boj-glow': 'boj-glow', 'cosrx-vitc': 'cosrx-vitc' },
-      '/cleanse.html': { default: 'roundlab-cleanser', 'roundlab-cleanser': 'roundlab-cleanser' },
-      '/collections/cleanse.html': { default: 'roundlab-cleanser', 'roundlab-cleanser': 'roundlab-cleanser' },
-      '/care.html': { default: 'roundlab-soy', 'roundlab-soy': 'roundlab-soy' },
-      '/collections/care.html': { default: 'roundlab-soy', 'roundlab-soy': 'roundlab-soy' }
+      '/protect.html': {
+        default: 'beauty-of-joseon-relief-sun-spf50',
+        'boj-relief': 'beauty-of-joseon-relief-sun-spf50',
+        'beauty-of-joseon-relief-sun-spf50': 'beauty-of-joseon-relief-sun-spf50',
+        'torriden-sun': 'torriden-dive-in-watery-moisture-sun-cream',
+        'torriden-dive-in-watery-moisture-sun-cream': 'torriden-dive-in-watery-moisture-sun-cream'
+      },
+      '/collections/protect.html': {
+        default: 'beauty-of-joseon-relief-sun-spf50',
+        'boj-relief': 'beauty-of-joseon-relief-sun-spf50',
+        'beauty-of-joseon-relief-sun-spf50': 'beauty-of-joseon-relief-sun-spf50',
+        'torriden-sun': 'torriden-dive-in-watery-moisture-sun-cream',
+        'torriden-dive-in-watery-moisture-sun-cream': 'torriden-dive-in-watery-moisture-sun-cream'
+      },
+      '/hydrate.html': {
+        default: 'torriden-dive-in-hyaluronic-acid-serum',
+        'torriden-divein-serum': 'torriden-dive-in-hyaluronic-acid-serum',
+        'torriden-dive-in-hyaluronic-acid-serum': 'torriden-dive-in-hyaluronic-acid-serum',
+        'cosrx-snail': 'cosrx-advanced-snail-96-mucin-essence',
+        'cosrx-advanced-snail-96-mucin-essence': 'cosrx-advanced-snail-96-mucin-essence'
+      },
+      '/collections/hydrate.html': {
+        default: 'torriden-dive-in-hyaluronic-acid-serum',
+        'torriden-divein-serum': 'torriden-dive-in-hyaluronic-acid-serum',
+        'torriden-dive-in-hyaluronic-acid-serum': 'torriden-dive-in-hyaluronic-acid-serum',
+        'cosrx-snail': 'cosrx-advanced-snail-96-mucin-essence',
+        'cosrx-advanced-snail-96-mucin-essence': 'cosrx-advanced-snail-96-mucin-essence'
+      },
+      '/treat.html': {
+        default: 'beauty-of-joseon-glow-serum-propolis-niacinamide',
+        'boj-glow': 'beauty-of-joseon-glow-serum-propolis-niacinamide',
+        'beauty-of-joseon-glow-serum-propolis-niacinamide': 'beauty-of-joseon-glow-serum-propolis-niacinamide',
+        'cosrx-vitc': 'cosrx-the-vitamin-c-23-serum',
+        'cosrx-the-vitamin-c-23-serum': 'cosrx-the-vitamin-c-23-serum'
+      },
+      '/collections/treat.html': {
+        default: 'beauty-of-joseon-glow-serum-propolis-niacinamide',
+        'boj-glow': 'beauty-of-joseon-glow-serum-propolis-niacinamide',
+        'beauty-of-joseon-glow-serum-propolis-niacinamide': 'beauty-of-joseon-glow-serum-propolis-niacinamide',
+        'cosrx-vitc': 'cosrx-the-vitamin-c-23-serum',
+        'cosrx-the-vitamin-c-23-serum': 'cosrx-the-vitamin-c-23-serum'
+      },
+      '/cleanse.html': {
+        default: 'round-lab-1025-dokdo-cleanser',
+        'roundlab-cleanser': 'round-lab-1025-dokdo-cleanser',
+        'round-lab-1025-dokdo-cleanser': 'round-lab-1025-dokdo-cleanser'
+      },
+      '/collections/cleanse.html': {
+        default: 'round-lab-1025-dokdo-cleanser',
+        'roundlab-cleanser': 'round-lab-1025-dokdo-cleanser',
+        'round-lab-1025-dokdo-cleanser': 'round-lab-1025-dokdo-cleanser'
+      },
+      '/care.html': {
+        default: 'round-lab-soybean-nourishing-cream',
+        'roundlab-soy': 'round-lab-soybean-nourishing-cream',
+        'round-lab-soybean-nourishing-cream': 'round-lab-soybean-nourishing-cream'
+      },
+      '/collections/care.html': {
+        default: 'round-lab-soybean-nourishing-cream',
+        'roundlab-soy': 'round-lab-soybean-nourishing-cream',
+        'round-lab-soybean-nourishing-cream': 'round-lab-soybean-nourishing-cream'
+      }
     };
     const current = routeMap[path];
     if (!current) return section.dataset.productId || '';

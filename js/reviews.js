@@ -13,6 +13,9 @@
 'use strict';
 
 const CosmoReviews = (() => {
+  if (typeof window !== 'undefined' && window.Reviews && document.getElementById('reviewsSection')) {
+    return window.Reviews;
+  }
 
   /* ── Sabitler ──────────────────────────────────────────── */
   const BUCKET       = 'review-images';

@@ -69,12 +69,24 @@
     .order-row strong{color:#1a1510;font-weight:600;}
     .order-products{margin-top:10px;padding-top:12px;border-top:1px solid var(--line);}
     .order-product-line{display:flex;justify-content:space-between;font-size:12px;color:#7a6e62;padding:4px 0;}
+    .order-product-line--rich{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;}
+    .order-product-link{display:flex;align-items:center;gap:12px;min-width:0;color:inherit;text-decoration:none;}
+    .order-product-link:hover .order-product-title{color:#1a1510;}
+    .order-product-thumb{width:52px;height:52px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#f8f2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .order-product-thumb img{width:100%;height:100%;object-fit:cover;}
+    .order-product-copy{display:grid;gap:3px;min-width:0;}
+    .order-product-brand{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#b89b72;font-weight:700;}
+    .order-product-title{font-size:13px;color:#5a4f43;font-weight:600;line-height:1.4;}
+    .order-product-qty{font-size:11px;color:#9a8e82;}
+    .order-product-total{font-size:12px;color:#1a1510;font-weight:600;white-space:nowrap;}
     .fav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
     .fav-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;background:#fffdf9;}
     .fav-img{aspect-ratio:1/1;background:linear-gradient(180deg,#f9f3eb,#ece2d6);display:flex;align-items:center;justify-content:center;font-size:40px;color:#c9b99a;}
+    .fav-img a{display:flex;width:100%;height:100%;}
     .fav-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
     .fav-brand{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b89b72;font-weight:600;}
     .fav-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:#1a1510;margin:0;}
+    .fav-name a{color:inherit;text-decoration:none;}
     .fav-price{font-family:'Cormorant Garamond',serif;font-size:22px;color:#1a1510;}
     .fav-actions{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
     .fav-actions .btn{min-width:132px;justify-content:center;}
@@ -584,15 +596,13 @@
 let _client, _session, _addresses = [], _latestOrders = [];
 const ROUTINE_SKIN_KEY = 'cosmoskin_skin_type';
 const ROUTINE_CONCERNS_KEY = 'cosmoskin_skin_concerns';
-const PRODUCT_LIBRARY = {
-  'roundlab-cleanser': { category:'cleanser', usageTime:['morning','evening'], display:'1025 Dokdo Cleanser', recommendationCopy:'Nazik temizleme ile rutine temiz bir başlangıç sağlar.' },
-  'torriden-divein-serum': { category:'serum', usageTime:['morning','evening'], display:'DIVE-IN Low Molecular Hyaluronic Acid Serum', recommendationCopy:'Nem desteğini güçlendiren katman olarak çalışır.' },
-  'boj-relief': { category:'sunscreen', usageTime:['morning'], display:'Relief Sun SPF50+', recommendationCopy:'Sabah rutininin son adımını tamamlar.' },
-  'torriden-sun': { category:'sunscreen', usageTime:['morning'], display:'DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++', recommendationCopy:'Günlük koruma adımını hafif yapıda tamamlar.' },
-  'roundlab-soy': { category:'moisturizer', usageTime:['evening','morning'], display:'Soybean Nourishing Cream', recommendationCopy:'Serum sonrası nemi ciltte tutmaya yardımcı olur.' },
-  'cosrx-snail': { category:'essence', usageTime:['morning','evening'], display:'Advanced Snail 96 Mucin Power Essence', recommendationCopy:'Temizleme sonrası esnek bir ara katman oluşturur.' },
-  'boj-glow': { category:'treatment', usageTime:['morning','evening'], display:'Glow Serum: Propolis + Niacinamide', recommendationCopy:'Daha aydınlık ve dengeli görünüm hedefiyle iyi eşleşir.' },
-  'cosrx-vitc': { category:'treatment', usageTime:['morning','evening'], display:'Vitamin C 23 Serum', recommendationCopy:'Ton eşitleme odağı için güçlü bir tamamlayıcıdır.' }
+const ROUTINE_CATEGORY_COPY = {
+  cleanser: { usageTime:['morning','evening'], recommendationCopy:'Nazik temizleme ile rutine temiz bir başlangıç sağlar.' },
+  essence: { usageTime:['morning','evening'], recommendationCopy:'Temizleme sonrası esnek bir ara katman oluşturur.' },
+  serum: { usageTime:['morning','evening'], recommendationCopy:'Nem desteğini güçlendiren katman olarak çalışır.' },
+  treatment: { usageTime:['morning','evening'], recommendationCopy:'Hedef odaklı bakım katmanı olarak iyi eşleşir.' },
+  moisturizer: { usageTime:['morning','evening'], recommendationCopy:'Serum sonrası nemi ciltte tutmaya yardımcı olur.' },
+  sunscreen: { usageTime:['morning'], recommendationCopy:'Sabah rutininin son adımını tamamlar.' }
 };
 const CATEGORY_META = {
   cleanser: { title:'Temizleme', description:'Cildi nazikçe arındırarak sonraki adımlar için dengeli bir zemin hazırlar.' },
@@ -660,27 +670,77 @@ const CATEGORY_META = {
 function getFavoriteItems(){
   try {
     const current = JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]');
-    if (Array.isArray(current)) return current;
-    if (current && typeof current === 'object') return Object.values(current);
+    if (Array.isArray(current)) return uniqueFavorites(current);
+    if (current && typeof current === 'object') return uniqueFavorites(Object.values(current));
   } catch(e) {}
   try {
     const legacy = JSON.parse(localStorage.getItem('cosmoskin_favorites_v1') || '{}');
-    if (Array.isArray(legacy)) return legacy;
-    if (legacy && typeof legacy === 'object') return Object.values(legacy);
+    if (Array.isArray(legacy)) return uniqueFavorites(legacy);
+    if (legacy && typeof legacy === 'object') return uniqueFavorites(Object.values(legacy));
   } catch(e) {}
   return [];
 }
 
 function setFavoriteItems(favs){
-  localStorage.setItem('cosmoskin_favorites', JSON.stringify(favs));
+  const next = uniqueFavorites(favs);
+  localStorage.setItem('cosmoskin_favorites', JSON.stringify(next));
   localStorage.removeItem('cosmoskin_favorites_v1');
-  window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: favs } }));
+  window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: next } }));
+}
+
+function normalizeText(value){
+  return String(value || '').trim().toLocaleLowerCase('tr-TR');
+}
+
+function getProductHelpers(){
+  return window.COSMOSKIN_PRODUCT_HELPERS || {};
+}
+
+function resolveAccountProduct(item = {}){
+  const helpers = getProductHelpers();
+  const getByHandle = typeof helpers.getProductByHandle === 'function'
+    ? helpers.getProductByHandle.bind(helpers)
+    : null;
+  const fallbackProducts = Array.isArray(window.COSMOSKIN_PRODUCTS) ? window.COSMOSKIN_PRODUCTS : [];
+  const raw = item && typeof item === 'object' ? item : { id: item };
+  const product =
+    (getByHandle && getByHandle(raw.slug || raw.id || raw.product_slug || raw.product_id || raw.url || '')) ||
+    fallbackProducts.find((entry) => (
+      normalizeText(entry?.name || '') === normalizeText(raw.name || raw.product_name || '')
+    )) ||
+    null;
+  const slug = product?.slug || raw.slug || raw.product_slug || raw.product_id || raw.id || '';
+  const price = Number(product?.price ?? raw.price ?? 0);
+  return {
+    id: product?.id || slug,
+    slug: product?.slug || slug,
+    name: product?.name || raw.name || raw.product_name || 'Ürün',
+    brand: product?.brand || raw.brand || 'Cosmoskin',
+    price: Number.isFinite(price) ? price : 0,
+    image: product?.image || raw.image || '',
+    url: product?.url || raw.product_url || raw.url || (slug ? `/products/${slug}.html` : '')
+  };
+}
+
+function normalizeFavoriteItem(item){
+  const product = resolveAccountProduct(item);
+  if(!product.id) return null;
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    brand: product.brand,
+    price: product.price,
+    image: product.image,
+    url: product.url
+  };
 }
 
 function uniqueFavorites(items = []){
   const map = new Map();
   items.forEach((item) => {
-    if(item && item.id && !map.has(String(item.id))) map.set(String(item.id), item);
+    const normalized = normalizeFavoriteItem(item);
+    if(normalized && !map.has(String(normalized.id))) map.set(String(normalized.id), normalized);
   });
   return Array.from(map.values());
 }
@@ -751,10 +811,18 @@ async function loadOrders() {
     document.getElementById('orderBadge').textContent = orders.length;
 
     function renderOrder(o) {
-      const statusMap={confirmed:'Onaylandı',pending:'Beklemede',cancelled:'İptal'};
-      const statusCls={confirmed:'confirmed',pending:'pending',cancelled:'cancelled'};
+      const statusMap={paid:'Onaylandı',confirmed:'Onaylandı',pending_payment:'Ödeme Bekleniyor',pending:'Beklemede',payment_failed:'Ödeme Başarısız',failed:'Başarısız',cancelled:'İptal'};
+      const statusCls={paid:'confirmed',confirmed:'confirmed',pending_payment:'pending',pending:'pending',payment_failed:'cancelled',failed:'cancelled',cancelled:'cancelled'};
       const st=o.status||'pending';
-      const items=(o.order_items||[]).map(i=>`<div class="order-product-line"><span>${i.brand} ${i.product_name} ×${i.quantity}</span><span>${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(i.line_total||0)}</span></div>`).join('');
+      const items=(o.order_items||[]).map((i) => {
+        const product = resolveAccountProduct(i);
+        const productLabel = [product.brand, product.name].filter(Boolean).join(' ');
+        const mediaInner = `${product.image ? `<span class="order-product-thumb"><img src="${product.image}" alt="${product.name || 'Ürün'}"></span>` : `<span class="order-product-thumb">◈</span>`}<span class="order-product-copy"><span class="order-product-brand">${product.brand || 'Cosmoskin'}</span><span class="order-product-title">${product.name || productLabel || 'Ürün'}</span><span class="order-product-qty">Adet: ${Number(i.quantity || 0) || 1}</span></span>`;
+        const media = product.url
+          ? `<a class="order-product-link" href="${product.url}">${mediaInner}</a>`
+          : `<span class="order-product-link">${mediaInner}</span>`;
+        return `<div class="order-product-line order-product-line--rich">${media}<span class="order-product-total">${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(i.line_total||0)}</span></div>`;
+      }).join('');
       return `<div class="order-item-card"><div class="order-item-head"><span class="order-num">Sipariş #${o.order_number||o.id.slice(-6).toUpperCase()}</span><div style="display:flex;align-items:center;gap:10px;"><span class="order-date-small">${new Date(o.created_at).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</span><span class="order-status ${statusCls[st]||'pending'}">${statusMap[st]||st}</span></div></div><div class="order-item-body"><div class="order-row"><span>Toplam</span><strong>${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(o.total_amount||0)}</strong></div>${items?`<div class="order-products">${items}</div>`:''}</div></div>`;
     }
 
@@ -860,10 +928,65 @@ function slugifyText(value=''){
   return String(value || '').toLowerCase().replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 }
 
+function getCatalogProductForAccount(item = {}){
+  const helpers = window.COSMOSKIN_PRODUCT_HELPERS || {};
+  const byHandle = typeof helpers.getProductByHandle === 'function' ? helpers.getProductByHandle.bind(helpers) : null;
+  const bySlug = typeof helpers.getProductBySlug === 'function' ? helpers.getProductBySlug.bind(helpers) : null;
+  const candidates = [
+    item.product_slug,
+    item.product_id,
+    item.slug,
+    item.id,
+    item.url,
+    slugifyText(item.product_name || '')
+  ].filter(Boolean);
+
+  for(const candidate of candidates){
+    const product = (byHandle && byHandle(candidate)) || (bySlug && bySlug(candidate));
+    if(product) return product;
+  }
+
+  const fallbackProducts = Array.isArray(window.COSMOSKIN_PRODUCTS) ? window.COSMOSKIN_PRODUCTS : [];
+  const targetName = String(item.product_name || '').trim().toLowerCase();
+  return fallbackProducts.find((product) => (
+    product.slug && candidates.includes(product.slug)
+  ) || (
+    targetName && String(product.name || '').trim().toLowerCase() === targetName
+  )) || null;
+}
+
+function inferCatalogRoutineMeta(product = {}){
+  const combined = `${product.brand || ''} ${product.name || ''}`.toLowerCase();
+  if(product.category === 'Temizleyiciler'){
+    return { ...ROUTINE_CATEGORY_COPY.cleanser, category:'cleanser' };
+  }
+  if(product.category === 'Güneş Koruyucular'){
+    return { ...ROUTINE_CATEGORY_COPY.sunscreen, category:'sunscreen' };
+  }
+  if(product.category === 'Nemlendiriciler'){
+    return { ...ROUTINE_CATEGORY_COPY.moisturizer, category:'moisturizer' };
+  }
+  if(product.category === 'Tonik & Essence'){
+    const category = /essence|mucin|snail/.test(combined) ? 'essence' : 'serum';
+    return { ...ROUTINE_CATEGORY_COPY[category], category };
+  }
+  if(product.category === 'Serum & Ampul'){
+    const category = /vitamin|glow|arbutin|niacinamide|spot|tone|clarifying/.test(combined) ? 'treatment' : 'serum';
+    return { ...ROUTINE_CATEGORY_COPY[category], category };
+  }
+  if(product.category === 'Maskeler'){
+    return { ...ROUTINE_CATEGORY_COPY.treatment, category:'treatment' };
+  }
+  return { ...ROUTINE_CATEGORY_COPY.serum, category:'serum' };
+}
+
 function inferItemMeta(item = {}){
-  const sourceId = item.product_id || slugifyText(item.product_name || '');
-  const library = PRODUCT_LIBRARY[sourceId];
-  if(library) return { ...library, key: sourceId };
+  const product = getCatalogProductForAccount(item);
+  if(product){
+    const meta = inferCatalogRoutineMeta(product);
+    return { ...meta, display: product.name, key: product.slug, product };
+  }
+  const sourceId = item.product_slug || item.product_id || slugifyText(item.product_name || '');
   const combined = `${item.brand || ''} ${item.product_name || ''}`.toLowerCase();
   if(/cleanser|temizleyici|cleanse|dokdo/.test(combined)) return { category:'cleanser', usageTime:['morning','evening'], display:item.product_name, recommendationCopy:'Rutinin ilk adımında kullanılır.' , key: sourceId};
   if(/sun|spf|gunes|relief/.test(combined)) return { category:'sunscreen', usageTime:['morning'], display:item.product_name, recommendationCopy:'Sabah rutininin son adımını tamamlar.', key: sourceId};
@@ -1269,13 +1392,13 @@ function renderFavorites(){
   }
   target.innerHTML = `<div class="fav-grid">${favs.map((f, i) => `
     <div class="fav-card">
-      <div class="fav-img">${f.image ? `<img src="${f.image}" alt="${f.name || 'Ürün'}" style="width:100%;height:100%;object-fit:cover;">` : '◈'}</div>
+      <div class="fav-img">${f.url ? `<a href="${f.url}">${f.image ? `<img src="${f.image}" alt="${f.name || 'Ürün'}" style="width:100%;height:100%;object-fit:cover;">` : '◈'}</a>` : (f.image ? `<img src="${f.image}" alt="${f.name || 'Ürün'}" style="width:100%;height:100%;object-fit:cover;">` : '◈')}</div>
       <div class="fav-body">
         <span class="fav-brand">${f.brand || 'Cosmoskin'}</span>
-        <h3 class="fav-name">${f.name || 'Ürün'}</h3>
+        <h3 class="fav-name">${f.url ? `<a href="${f.url}">${f.name || 'Ürün'}</a>` : (f.name || 'Ürün')}</h3>
         ${f.price ? `<span class="fav-price">${new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(f.price)}</span>` : ''}
         <div class="fav-actions">
-          <button class="btn btn-primary" onclick="moveFavoriteToCart(${i})" style="font-size:10px;padding:8px 16px;">Sepete Ekle</button>
+          <button class="btn btn-primary" onclick="moveFavoriteToCart(${i})" style="font-size:10px;padding:8px 16px;">SEPETE EKLE</button>
           ${f.url ? `<a href="${f.url}" class="btn btn-secondary" style="font-size:10px;padding:8px 16px;">İncele</a>` : ''}
           <button class="fav-remove" onclick="removeFavorite('${f.id}')">Favorilerden Çıkar</button>
         </div>
@@ -1296,12 +1419,12 @@ async function removeFavorite(productId){
 
 function moveFavoriteToCart(i){
   const favs = getFavoriteItems();
-  const item = favs[i];
+  const item = normalizeFavoriteItem(favs[i]);
   if (!item) return;
   const cart = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
   const found = cart.find((entry) => entry.id === item.id);
   if (found) found.qty += 1;
-  else cart.push({ id: item.id, name: item.name, brand: item.brand, price: Number(item.price || 0), image: item.image, qty: 1 });
+  else cart.push({ id: item.id, slug: item.slug, name: item.name, brand: item.brand, price: Number(item.price || 0), image: item.image, url: item.url, qty: 1 });
   localStorage.setItem('cosmoskin_cart', JSON.stringify(cart));
   // Notify the rest of the app (cart drawer, header count, etc.) so they
   // re-read from localStorage. Without this dispatch, the cart count badge

@@ -1,10 +1,72 @@
-export const catalog = {
-  "boj-relief": {"id":"boj-relief","name":"Relief Sun: Rice + Probiotics SPF 50+ PA++++","brand":"Beauty of Joseon","price":899,"image":"/assets/img/protect.jpg","category":"protect"},
-  "torriden-divein-serum": {"id":"torriden-divein-serum","name":"DIVE-IN Low Molecular Hyaluronic Acid Serum","brand":"Torriden","price":949,"image":"/assets/img/hydrate.jpg","category":"hydrate"},
-  "cosrx-snail": {"id":"cosrx-snail","name":"Advanced Snail 96 Mucin Power Essence","brand":"COSRX","price":979,"image":"/assets/img/hydrate.jpg","category":"care"},
-  "roundlab-cleanser": {"id":"roundlab-cleanser","name":"1025 Dokdo Cleanser","brand":"Round Lab","price":729,"image":"/assets/img/cleanse.jpg","category":"cleanse"},
-  "boj-glow": {"id":"boj-glow","name":"Glow Serum: Propolis + Niacinamide","brand":"Beauty of Joseon","price":879,"image":"/assets/img/treat.jpg","category":"treat"},
-  "cosrx-vitc": {"id":"cosrx-vitc","name":"The Vitamin C 23 Serum","brand":"COSRX","price":999,"image":"/assets/img/treat.jpg","category":"treat"},
-  "torriden-sun": {"id":"torriden-sun","name":"DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++","brand":"Torriden","price":939,"image":"/assets/img/protect.jpg","category":"protect"},
-  "roundlab-soy": {"id":"roundlab-soy","name":"Soybean Nourishing Cream","brand":"Round Lab","price":1049,"image":"/assets/img/care.jpg","category":"care"}
-};
+import productSource from '../../../products.json' with { type: 'json' };
+
+function toArray(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (value == null || value === '') return [];
+  return [value];
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .trim()
+    .toLocaleLowerCase('tr-TR');
+}
+
+function extractSlug(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return '';
+  const productPathMatch = raw.match(/\/products\/([^.?#/]+)\.html(?:[?#].*)?$/i);
+  if (productPathMatch) return productPathMatch[1];
+  return raw;
+}
+
+function normalizeProduct(product) {
+  const slug = extractSlug(product?.slug || product?.id || product?.url || '');
+  if (!slug) return null;
+
+  return {
+    id: slug,
+    slug,
+    name: String(product.name || '').trim(),
+    brand: String(product.brand || '').trim(),
+    price: Number(product.price || 0),
+    image: String(product.image || '').trim(),
+    url: String(product.url || `/products/${slug}.html`).trim(),
+    category: String(product.category || '').trim(),
+    aliases: toArray(product.aliases).map((alias) => String(alias || '').trim()).filter(Boolean)
+  };
+}
+
+export const products = toArray(productSource?.products)
+  .map(normalizeProduct)
+  .filter(Boolean);
+
+const catalogByName = Object.create(null);
+
+export const catalog = Object.fromEntries(products.flatMap((product) => {
+  catalogByName[normalizeText(product.name)] = product;
+  const handles = [product.id, product.slug].concat(product.aliases || []);
+  return handles
+    .filter(Boolean)
+    .map((handle) => [extractSlug(handle), product]);
+}));
+
+export function getCatalogProductByHandle(handle) {
+  if (!handle) return null;
+  if (typeof handle === 'object') {
+    return getCatalogProductByHandle(handle.slug || handle.id || handle.url || '');
+  }
+  const raw = extractSlug(handle);
+  if (!raw) return null;
+  return catalog[raw] || null;
+}
+
+export function getCatalogProductByName(name) {
+  const key = normalizeText(name);
+  if (!key) return null;
+  return catalogByName[key] || null;
+}
+
+export function resolveCatalogProduct(reference) {
+  return getCatalogProductByHandle(reference) || getCatalogProductByName(reference);
+}

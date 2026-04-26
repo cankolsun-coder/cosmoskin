@@ -24,7 +24,9 @@ const Reviews = (() => {
 
   const CFG = window.COSMOSKIN_CONFIG || {};
   const API  = CFG.apiBase || '/api';
-  const PRODUCT_ID = document.getElementById('reviewsSection')?.dataset.productId || '';
+  const reviewSection = document.getElementById('reviewsSection');
+  const PRODUCT_ID = reviewSection?.dataset.productId || '';
+  const PRODUCT_SLUG = reviewSection?.dataset.productSlug || PRODUCT_ID;
 
   let _session      = null;
   let _hasPurchased = false;
@@ -58,6 +60,8 @@ const Reviews = (() => {
       const { data: { session } } = await sb2.auth.getSession();
       _session = session;
       if (_session) await checkPurchase();
+      else _hasPurchased = false;
+      await loadReviews();
       renderWriteBtn();
     });
 
@@ -86,16 +90,12 @@ const Reviews = (() => {
     if (!_session) { _hasPurchased = false; return; }
     try {
       const sb = window.cosmoskinSupabase;
-      const { data: orders } = await sb
-        .from('orders')
-        .select('id, order_items')
-        .eq('user_id', _session.user.id)
-        .eq('status', 'confirmed');
-      _hasPurchased = (orders || []).some(order =>
-        (order.order_items || []).some(item =>
-          item.product_id === PRODUCT_ID || slugify(item.product_name || '') === PRODUCT_ID
-        )
-      );
+      const { data, error } = await sb.rpc('check_purchase', {
+        p_user_id: _session.user.id,
+        p_product_slug: PRODUCT_SLUG
+      });
+      if (error) throw error;
+      _hasPurchased = !!data;
     } catch { _hasPurchased = false; }
   }
 
@@ -119,17 +119,22 @@ const Reviews = (() => {
 
   async function loadReviews() {
     try {
-      const res  = await fetch(`${API}/reviews?product_id=${encodeURIComponent(PRODUCT_ID)}`);
+      const headers = {};
+      if (_session?.access_token) {
+        headers.Authorization = `Bearer ${_session.access_token}`;
+      }
+      const res  = await fetch(`${API}/reviews?product_slug=${encodeURIComponent(PRODUCT_SLUG)}`, { headers });
       const data = await res.json();
       _allReviews = data.reviews || [];
       _filtered   = [..._allReviews];
-      if (_session) {
-        _userReview = _allReviews.find(r => r.user_id === _session.user.id) || null;
-      }
+      _userReview = data.user_review || null;
+      _helpedIds = new Set(data.helpful_ids || []);
       renderSummary(data.summary);
       renderList(true);
       if (_allReviews.length > 0) {
         document.getElementById('rvFilterRow').style.display = 'flex';
+      } else {
+        document.getElementById('rvFilterRow').style.display = 'none';
       }
     } catch {
       document.getElementById('rvList').innerHTML =
@@ -246,6 +251,15 @@ const Reviews = (() => {
       document.getElementById('rvTitleCount').textContent = `${(_userReview.title||'').length} / 100`;
       document.getElementById('rvBodyCount').textContent  = `${(_userReview.body||'').length} / 2000`;
       setRating(_userReview.rating || 0);
+    } else {
+      document.getElementById('rvTitleInput').value = '';
+      document.getElementById('rvBodyInput').value = '';
+      document.getElementById('rvTitleCount').textContent = '0 / 100';
+      document.getElementById('rvBodyCount').textContent = '0 / 2000';
+      setRating(0);
+      _files.forEach((item) => URL.revokeObjectURL(item.url));
+      _files = [];
+      renderPreviews();
     }
     document.getElementById('rvModalOverlay').classList.add('show');
     document.body.classList.add('modal-open');
@@ -330,6 +344,9 @@ const Reviews = (() => {
   }
 
   async function submit() {
+    if (!_session?.access_token) return setStatus('Yorum yazmak icin giris yapin.', 'error');
+    if (!_hasPurchased) return setStatus('Yalnizca satin alinan urunler icin yorum yazilabilir.', 'error');
+
     const title = document.getElementById('rvTitleInput').value.trim();
     const body  = document.getElementById('rvBodyInput').value.trim();
     if (!_rating)          return setStatus('Lütfen puan seçin.', 'error');
@@ -342,16 +359,30 @@ const Reviews = (() => {
       const token  = _session.access_token;
       const isEdit = !!_userReview;
       const endpoint = isEdit ? `${API}/reviews/${_userReview.id}` : `${API}/reviews`;
+      let uploadedImages = [];
+
+      if (isEdit && _files.length) {
+        label.textContent = 'Gorseller hazirlaniyor...';
+        uploadedImages = await uploadImages(_userReview.id);
+      }
+
       const res = await fetch(endpoint, {
         method: isEdit ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ product_id: PRODUCT_ID, title, review_body: body, rating: _rating }),
+        body: JSON.stringify({
+          product_slug: PRODUCT_SLUG,
+          product_id: PRODUCT_ID,
+          title,
+          review_body: body,
+          rating: _rating,
+          images: isEdit ? uploadedImages : []
+        }),
       });
       const data = await res.json();
       if (!res.ok) { setStatus(data.error || 'Bir hata oluştu.', 'error'); return; }
       const reviewId = data.review_id || _userReview?.id;
-      if (_files.length && reviewId) {
-        label.textContent = 'Görseller yükleniyor…';
+      if (!isEdit && _files.length && reviewId) {
+        label.textContent = 'Gorseller yukleniyor...';
         const uploads = await uploadImages(reviewId);
         if (uploads.length) {
           await fetch(`${API}/reviews/images`, {
@@ -361,6 +392,10 @@ const Reviews = (() => {
           });
         }
       }
+      _userReview = data.review || _userReview;
+      _files.forEach((item) => URL.revokeObjectURL(item.url));
+      _files = [];
+      renderPreviews();
       document.querySelector('.pdp-modal-box').innerHTML = `
         <div style="text-align:center;padding:24px 0">
           <div style="width:60px;height:60px;border-radius:50%;background:#edf7f1;border:1px solid rgba(31,122,79,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:26px">✓</div>
@@ -432,3 +467,5 @@ const Reviews = (() => {
            handleFiles, removeFile, onDragOver, onDragLeave, onDrop,
            toggleHelpful, submit, openLightbox, closeLightbox, lbNav };
 })();
+
+window.Reviews = Reviews;

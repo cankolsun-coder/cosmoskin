@@ -82,6 +82,9 @@
   }
 
   function fmt(n) {
+    if (typeof window.COSMOSKIN_FORMAT_PRICE === 'function') {
+      return window.COSMOSKIN_FORMAT_PRICE(n);
+    }
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'TRY',
@@ -94,6 +97,182 @@
     const vat = Math.round(subtotal * VAT / (1 + VAT));
     const shipping = subtotal >= FREE_SHIPPING || subtotal === 0 ? 0 : SHIPPING_FEE;
     return { subtotal, vat, shipping, total: subtotal + shipping };
+  }
+
+  function getProductHelpers() {
+    return window.COSMOSKIN_PRODUCT_HELPERS || {};
+  }
+
+  function normalizeProductReference(reference) {
+    const input = reference && typeof reference === 'object' ? reference : { id: reference };
+    const helpers = getProductHelpers();
+    const lookup = typeof helpers.getProductByHandle === 'function'
+      ? helpers.getProductByHandle(input.slug || input.id || input.favoriteId || input.url || '')
+      : null;
+    const extractedSlug = typeof helpers.extractSlug === 'function'
+      ? (helpers.extractSlug(input.url || '') || helpers.extractSlug(input.slug || input.id || input.favoriteId || ''))
+      : '';
+    const price = lookup ? Number(lookup.price || 0) : Number(input.price || 0);
+
+    return {
+      id: lookup?.id || extractedSlug || String(input.id || '').trim(),
+      slug: lookup?.slug || extractedSlug || String(input.slug || input.id || '').trim(),
+      name: lookup?.name || input.name || 'Ürün',
+      brand: lookup?.brand || input.brand || 'Cosmoskin',
+      price: Number.isFinite(price) ? price : 0,
+      image: lookup?.image || input.image || '',
+      url: lookup?.url || input.url || (extractedSlug ? `/products/${extractedSlug}.html` : ''),
+      volume: lookup?.volume || input.volume || ''
+    };
+  }
+
+  function canonicalizeCartItems(items = []) {
+    return (Array.isArray(items) ? items : []).map((item) => {
+      const product = normalizeProductReference(item);
+      const qty = Math.max(1, Number(item?.qty || 1));
+      return product.id ? { ...product, qty } : null;
+    }).filter(Boolean);
+  }
+
+  function setCartButtonData(button, product) {
+    if (!button || !product?.id) return;
+    button.dataset.id = product.id;
+    button.dataset.slug = product.slug;
+    button.dataset.name = product.name;
+    button.dataset.brand = product.brand;
+    button.dataset.price = String(product.price);
+    button.dataset.image = product.image;
+    if (product.url) button.dataset.url = product.url;
+  }
+
+  function setFavoriteButtonData(button, product) {
+    if (!button || !product?.id) return;
+    button.dataset.favoriteId = product.id;
+    button.dataset.name = product.name;
+    button.dataset.brand = product.brand;
+    button.dataset.price = String(product.price);
+    button.dataset.image = product.image;
+    button.dataset.url = product.url;
+  }
+
+  function syncProductCard(card) {
+    if (!card) return;
+
+    const media = card.querySelector('.product-media');
+    const image = media?.querySelector('img') || card.querySelector('img');
+    const cartBtn = card.querySelector('[data-add-cart]');
+    const favoriteBtn = card.querySelector('.favorite-btn');
+    const titleLink = card.querySelector('h3 a, .product-name a');
+    const titleHeading = titleLink ? null : card.querySelector('h3, .product-name');
+    const brandline = card.querySelector('.brandline');
+    const badge = card.querySelector('.badge');
+    const priceEls = card.querySelectorAll('.price');
+
+    const product = normalizeProductReference({
+      id: cartBtn?.dataset.id || favoriteBtn?.dataset.favoriteId || card.dataset.productId || '',
+      slug: cartBtn?.dataset.slug || '',
+      url: cartBtn?.dataset.url || favoriteBtn?.dataset.url || media?.getAttribute('href') || '',
+      name: cartBtn?.dataset.name || favoriteBtn?.dataset.name || titleLink?.textContent || titleHeading?.textContent || '',
+      brand: cartBtn?.dataset.brand || favoriteBtn?.dataset.brand || brandline?.textContent || badge?.textContent || '',
+      price: cartBtn?.dataset.price || favoriteBtn?.dataset.price || 0,
+      image: cartBtn?.dataset.image || favoriteBtn?.dataset.image || image?.getAttribute('src') || ''
+    });
+
+    if (!product.id) return;
+
+    if (media && product.url) media.setAttribute('href', product.url);
+    if (image) {
+      if (product.image) image.setAttribute('src', product.image);
+      image.setAttribute('alt', product.name);
+    }
+    if (titleLink) {
+      titleLink.textContent = product.name;
+      if (product.url) titleLink.setAttribute('href', product.url);
+    } else if (titleHeading) {
+      titleHeading.textContent = product.name;
+    }
+    if (brandline) brandline.textContent = product.brand;
+    if (badge) badge.textContent = product.brand;
+    priceEls.forEach((priceEl) => {
+      priceEl.textContent = fmt(product.price);
+    });
+    setCartButtonData(cartBtn, product);
+    setFavoriteButtonData(favoriteBtn, product);
+  }
+
+  function syncBundleButton(button) {
+    if (!button) return;
+
+    let items = [];
+    try {
+      items = JSON.parse(button.getAttribute('data-bundle-items') || '[]');
+    } catch (_error) {
+      items = [];
+    }
+    if (!Array.isArray(items) || !items.length) return;
+
+    const normalizedItems = items.map((item) => {
+      const product = normalizeProductReference(item);
+      const qty = Math.max(1, Number(item?.qty || 1));
+      return product.id ? { id: product.id, name: product.name, brand: product.brand, price: product.price, image: product.image, qty } : null;
+    }).filter(Boolean);
+
+    if (!normalizedItems.length) return;
+
+    button.dataset.bundleItems = JSON.stringify(normalizedItems);
+
+    const card = button.closest('.routine-bundle');
+    if (!card) return;
+
+    const rows = card.querySelectorAll('.routine-bundle__item');
+    normalizedItems.forEach((item, index) => {
+      const row = rows[index];
+      if (!row) return;
+      const nameEl = row.querySelector('strong');
+      const priceEl = row.lastElementChild;
+      if (nameEl) nameEl.textContent = item.name;
+      if (priceEl) priceEl.textContent = fmt(item.price * item.qty);
+    });
+
+    const totalEl = card.querySelector('.routine-bundle__price-copy strong');
+    if (totalEl) {
+      const total = normalizedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      totalEl.textContent = fmt(total);
+    }
+  }
+
+  function syncPdpState(root = document) {
+    if (!window.location.pathname.includes('/products/')) return;
+
+    const product = normalizeProductReference({
+      slug: window.location.pathname,
+      url: window.location.pathname
+    });
+    if (!product.id) return;
+
+    root.querySelectorAll('.pdp-actions [data-add-cart], #mobileStickyAddBtn[data-add-cart]').forEach((button) => {
+      setCartButtonData(button, product);
+    });
+    root.querySelectorAll('.pdp-fav-btn').forEach((button) => {
+      setFavoriteButtonData(button, product);
+    });
+    root.querySelectorAll('.pdp-price, .pdp-detail-card__price').forEach((priceEl) => {
+      priceEl.textContent = fmt(product.price);
+    });
+    const stickyPrice = root.querySelector('.mobile-sticky-pdp__copy strong');
+    if (stickyPrice) stickyPrice.textContent = fmt(product.price);
+    const stickyBrand = root.querySelector('.mobile-sticky-pdp__copy span');
+    if (stickyBrand) stickyBrand.textContent = product.brand;
+    const brandEl = root.querySelector('.pdp-brand');
+    if (brandEl) brandEl.textContent = product.brand;
+    const volumeEl = root.querySelector('.pdp-volume-note');
+    if (volumeEl && product.volume) volumeEl.textContent = product.volume;
+  }
+
+  function syncProductBindings(root = document) {
+    root.querySelectorAll('.product-card').forEach(syncProductCard);
+    root.querySelectorAll('[data-add-bundle]').forEach(syncBundleButton);
+    if (root === document) syncPdpState(root);
   }
 
   function openDrawer(drawer) {
@@ -394,14 +573,15 @@
   }
 
   function normalizeFavoriteItem(item) {
-    if (!item?.id) return null;
+    const product = normalizeProductReference(item);
+    if (!product?.id) return null;
     return {
-      id: String(item.id),
-      name: item.name || 'Ürün',
-      brand: item.brand || 'Cosmoskin',
-      price: Number(item.price || 0),
-      image: item.image || '',
-      url: item.url || ''
+      id: product.id,
+      name: product.name,
+      brand: product.brand,
+      price: Number(product.price || 0),
+      image: product.image || '',
+      url: product.url || ''
     };
   }
 
@@ -495,6 +675,7 @@ function broadcastFavoritesChange() {
       fresh = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
       if (!Array.isArray(fresh)) fresh = [];
     } catch { fresh = []; }
+    fresh = canonicalizeCartItems(fresh);
     const a = JSON.stringify(state.cart);
     const b = JSON.stringify(fresh);
     if (a === b) return;
@@ -568,33 +749,31 @@ function broadcastFavoritesChange() {
 
   function getProductDataFromButton(btn) {
     if (!btn) return null;
-    return {
+    return normalizeProductReference({
       id: btn.dataset.id,
+      slug: btn.dataset.slug,
       name: btn.dataset.name,
       brand: btn.dataset.brand,
-      price: Number(btn.dataset.price),
+      price: btn.dataset.price,
       image: btn.dataset.image,
-      url: btn.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname
-    };
+      url: btn.dataset.url || btn.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname
+    });
   }
 
-  function ensureFavoriteButtons() {
-    $$('.product-card').forEach((card) => {
+  function ensureFavoriteButtons(root = document) {
+    root.querySelectorAll('.product-card').forEach((card) => {
       const media = card.querySelector('.product-media');
       const mediaWrap = card.querySelector('.product-media-wrap');
       const cartBtn = card.querySelector('[data-add-cart]');
       if (!media || !cartBtn || card.querySelector('.favorite-btn')) return;
+      const product = getProductDataFromButton(cartBtn);
+      if (!product?.id) return;
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'favorite-btn';
       button.setAttribute('aria-label', 'Favorilere ekle');
       button.setAttribute('title', 'Favorilere ekle');
-      button.dataset.favoriteId = cartBtn.dataset.id;
-      button.dataset.name = cartBtn.dataset.name || '';
-      button.dataset.brand = cartBtn.dataset.brand || '';
-      button.dataset.price = cartBtn.dataset.price || '';
-      button.dataset.image = cartBtn.dataset.image || '';
-      button.dataset.url = media.getAttribute('href') || window.location.pathname;
+      setFavoriteButtonData(button, product);
       button.innerHTML = favoriteHeartIcon(false);
       button.addEventListener('click', (event) => {
         event.preventDefault();
@@ -605,8 +784,8 @@ function broadcastFavoritesChange() {
     });
   }
 
-  function renderFavoriteButtons() {
-    $$('.favorite-btn').forEach((button) => {
+  function renderFavoriteButtons(root = document) {
+    root.querySelectorAll('.favorite-btn').forEach((button) => {
       if (!button.dataset.favoriteBound) {
         button.dataset.favoriteBound = 'true';
         button.addEventListener('click', (event) => {
@@ -707,29 +886,63 @@ function broadcastFavoritesChange() {
     $$('[data-remove]', target).forEach((btn) => btn.addEventListener('click', () => removeItem(btn.dataset.remove)));
   }
 
-  ensureFavoriteButtons();
-  renderFavoriteButtons();
-  hydrateFavoritesFromAccount();
-  watchFavoriteAuthState();
+  function bindCartButtons(root = document) {
+    root.querySelectorAll('[data-add-cart]').forEach((btn) => {
+      if (btn.dataset.cartBound) return;
+      btn.dataset.cartBound = 'true';
+      btn.addEventListener('click', () => {
+        addCartItems([{
+          id: btn.dataset.id,
+          slug: btn.dataset.slug || btn.dataset.id,
+          name: btn.dataset.name,
+          brand: btn.dataset.brand,
+          price: Number(btn.dataset.price),
+          image: btn.dataset.image,
+          url: btn.dataset.url || btn.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname,
+          qty: 1
+        }]);
+      });
+    });
+  }
 
-  window.addEventListener('load', () => {
-    ensureFavoriteButtons();
-    renderFavoriteButtons();
-    setTimeout(() => {
-      ensureFavoriteButtons();
-      renderFavoriteButtons();
-    }, 120);
-  });
+  function refreshCatalogDrivenState() {
+    const nextCart = canonicalizeCartItems(state.cart);
+    if (JSON.stringify(nextCart) !== JSON.stringify(state.cart)) {
+      state.cart = nextCart;
+      localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
+    }
+
+    const nextFavorites = uniqueFavorites(state.favorites);
+    if (JSON.stringify(nextFavorites) !== JSON.stringify(state.favorites)) {
+      state.favorites = nextFavorites;
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
+      localStorage.removeItem(LEGACY_FAVORITES_KEY);
+    }
+  }
+
+  function initFavoriteButtons(root = document) {
+    syncProductBindings(root);
+    ensureFavoriteButtons(root);
+    renderFavoriteButtons(root);
+  }
+
+  function initCartButtons(root = document) {
+    syncProductBindings(root);
+    bindCartButtons(root);
+  }
+
+  function refreshCommerceUi(root = document) {
+    refreshCatalogDrivenState();
+    syncProductBindings(root);
+    ensureFavoriteButtons(root);
+    renderFavoriteButtons(root);
+    bindCartButtons(root);
+    renderCart();
+    renderCheckout();
+  }
 
   function addCartItems(items = [], options = {}) {
-    const normalizedItems = (Array.isArray(items) ? items : []).filter(Boolean).map((item) => ({
-      id: item.id,
-      name: item.name,
-      brand: item.brand,
-      price: Number(item.price),
-      image: item.image,
-      qty: Math.max(1, Number(item.qty || 1))
-    })).filter((item) => item.id && item.name && Number.isFinite(item.price));
+    const normalizedItems = canonicalizeCartItems(items);
 
     if (!normalizedItems.length) return 0;
 
@@ -744,18 +957,6 @@ function broadcastFavoritesChange() {
     return normalizedItems.length;
   }
 
-  $$('[data-add-cart]').forEach((btn) => btn.addEventListener('click', () => {
-    addCartItems([{
-      id:   btn.dataset.id,
-      slug: btn.dataset.slug || btn.dataset.id,  // URL slug → checkout'a iletilir
-      name:  btn.dataset.name,
-      brand: btn.dataset.brand,
-      price: Number(btn.dataset.price),
-      image: btn.dataset.image,
-      qty:   1
-    }]);
-  }));
-
   document.addEventListener('cosmoskin:add-bundle', (event) => {
     const items = event.detail?.items || [];
     addCartItems(items, { openDrawer: true });
@@ -765,6 +966,8 @@ function broadcastFavoritesChange() {
     addItems: addCartItems,
     getItems: () => state.cart.slice()
   };
+  window.initCartButtons = initCartButtons;
+  window.initFavoriteButtons = initFavoriteButtons;
 
   function renderCheckout() {
     const itemsWrap = $('#checkoutItems');
@@ -803,8 +1006,20 @@ function broadcastFavoritesChange() {
     }
   }
 
-  renderCart();
-  renderCheckout();
+  refreshCommerceUi();
+  hydrateFavoritesFromAccount();
+  watchFavoriteAuthState();
+
+  document.addEventListener('cosmoskin:products-updated', () => {
+    refreshCommerceUi();
+  });
+
+  window.addEventListener('load', () => {
+    refreshCommerceUi();
+    setTimeout(() => {
+      refreshCommerceUi();
+    }, 120);
+  });
 
   function setConsent(mode) {
     const consent = {

@@ -19,9 +19,23 @@
     }
   }
 
-  async function getClient() {
+  async function getClient(timeout = 2500) {
     if (window.cosmoskinSupabase) return window.cosmoskinSupabase;
-    return null;
+    const startedAt = Date.now();
+    return await new Promise((resolve) => {
+      const tick = () => {
+        if (window.cosmoskinSupabase) {
+          resolve(window.cosmoskinSupabase);
+          return;
+        }
+        if (Date.now() - startedAt >= timeout) {
+          resolve(null);
+          return;
+        }
+        window.setTimeout(tick, 80);
+      };
+      tick();
+    });
   }
 
   const authGate = document.getElementById("checkoutAuthGate");
@@ -53,7 +67,12 @@
 
   async function syncCheckoutAuthState() {
     const client = await getClient();
-    if (!client) return;
+    if (!client) {
+      if (authGate) authGate.hidden = false;
+      markCheckoutAsSignedIn(false);
+      renderSavedAddresses([]);
+      return;
+    }
     const { data: { session } } = await client.auth.getSession();
     const loggedIn = !!session?.user;
     if (authGate) authGate.hidden = loggedIn;

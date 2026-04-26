@@ -15,6 +15,13 @@
       .replace(/"/g, '&quot;');
   }
 
+  function formatPrice(value) {
+    if (typeof window.COSMOSKIN_FORMAT_PRICE === 'function') {
+      return window.COSMOSKIN_FORMAT_PRICE(value);
+    }
+    return '₺' + String(value || 0);
+  }
+
   function buildCard(p) {
     return [
       '<article class="product-card">',
@@ -43,16 +50,18 @@
           (p.description ? '<p>' + esc(p.description) + '</p>' : ''),
           '<div class="price-row">',
             '<div>',
-              '<div class="price">&#8378;' + esc(String(p.price)) + '</div>',
+              '<div class="price">' + esc(formatPrice(p.price)) + '</div>',
               '<div class="price-note">KDV dahil</div>',
             '</div>',
             '<button class="btn btn-primary"',
               ' data-add-cart=""',
               ' data-id="' + esc(p.id) + '"',
+              ' data-slug="' + esc(p.slug || p.id) + '"',
               ' data-name="' + esc(p.name) + '"',
               ' data-brand="' + esc(p.brand) + '"',
               ' data-price="' + esc(String(p.price)) + '"',
               ' data-image="' + esc(p.image) + '"',
+              ' data-url="' + esc(p.url) + '"',
               '>Sepete Ekle</button>',
           '</div>',
         '</div>',

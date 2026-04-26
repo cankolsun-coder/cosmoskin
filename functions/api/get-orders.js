@@ -1,5 +1,24 @@
 import { getUserFromAccessToken, selectRows } from './_lib/supabase.js';
 import { json } from './_lib/response.js';
+import { getCatalogProductByHandle, getCatalogProductByName } from './_lib/catalog.js';
+
+function resolveOrderItem(item = {}) {
+  const product =
+    getCatalogProductByHandle(item.product_slug || item.product_id || '') ||
+    getCatalogProductByName(item.product_name || '');
+
+  const productSlug = product?.slug || item.product_slug || item.product_id || null;
+
+  return {
+    ...item,
+    product_id: product?.id || item.product_id || productSlug,
+    product_slug: productSlug,
+    product_name: product?.name || item.product_name || 'Ürün',
+    brand: product?.brand || item.brand || 'Cosmoskin',
+    image: product?.image || item.image || '',
+    product_url: product?.url || (productSlug ? `/products/${productSlug}.html` : '')
+  };
+}
 
 export async function onRequestGet(context) {
   try {
@@ -34,7 +53,7 @@ export async function onRequestGet(context) {
 
     const data = (orders || []).map(order => ({
       ...order,
-      order_items: grouped.get(order.id) || []
+      order_items: (grouped.get(order.id) || []).map(resolveOrderItem)
     }));
 
     return json({ ok: true, orders: data });

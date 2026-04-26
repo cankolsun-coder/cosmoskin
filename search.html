@@ -199,6 +199,9 @@
     var url = p.url || ('/products/' + (p.id||p.slug) + '.html');
     var img = p.image || '';
     var price = p.price || 0;
+    var formattedPrice = typeof window.COSMOSKIN_FORMAT_PRICE === 'function'
+      ? window.COSMOSKIN_FORMAT_PRICE(price)
+      : ('₺' + String(price));
     return '<article class="product-card">' +
       '<div class="product-media-wrap">' +
         '<a class="product-media" href="' + esc(url) + '">' +
@@ -210,10 +213,12 @@
         '<div class="brandline">' + esc(p.brand) + '</div>' +
         '<a href="' + esc(url) + '"><h3>' + esc(p.name) + '</h3></a>' +
         '<div class="price-row">' +
-          '<div><div class="price">&#8378;' + esc(String(price)) + '</div><div class="price-note">KDV dahil</div></div>' +
+          '<div><div class="price">' + esc(formattedPrice) + '</div><div class="price-note">KDV dahil</div></div>' +
           '<button class="btn btn-primary" data-add-cart="" data-id="' + esc(p.id||p.slug) + '"' +
+            ' data-slug="' + esc(p.slug||p.id) + '"' +
             ' data-name="' + esc(p.name) + '" data-brand="' + esc(p.brand) + '"' +
-            ' data-price="' + esc(String(price)) + '" data-image="' + esc(img) + '">Sepete Ekle</button>' +
+            ' data-price="' + esc(String(price)) + '" data-image="' + esc(img) + '"' +
+            ' data-url="' + esc(url) + '">Sepete Ekle</button>' +
         '</div>' +
       '</div>' +
     '</article>';
@@ -254,6 +259,11 @@
   }
 
   function loadProducts() {
+    if (window.COSMOSKIN_PRODUCTS_READY && typeof window.COSMOSKIN_PRODUCTS_READY.then === 'function') {
+      return window.COSMOSKIN_PRODUCTS_READY.then(function() {
+        products = window.COSMOSKIN_PRODUCTS || [];
+      });
+    }
     return fetch('/products.json', {cache:'default'})
       .then(function(r){ return r.json(); })
       .then(function(d){ products = d.products || []; })
