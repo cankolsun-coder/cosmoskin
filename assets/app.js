@@ -590,27 +590,19 @@
     const wrap = $(wrapSelector);
     if (!wrap) return;
     const trigger = wrap.querySelector(triggerSelector);
-    const panel = wrap.querySelector('.mega');
-    let closeTimer;
-
-    const isDesktopMenu = () => window.matchMedia('(hover: hover) and (min-width: 769px)').matches;
-
     const openMenu = () => {
       clearTimeout(megaTimer);
-      clearTimeout(closeTimer);
       closeAllMegaMenus(wrap);
       wrap.classList.add('open');
       trigger?.setAttribute('aria-expanded', 'true');
     };
-
     const closeMenu = () => {
-      clearTimeout(closeTimer);
-      closeTimer = setTimeout(() => {
+      clearTimeout(megaTimer);
+      megaTimer = setTimeout(() => {
         wrap.classList.remove('open');
         trigger?.setAttribute('aria-expanded', 'false');
-      }, 260);
+      }, 140);
     };
-
     trigger?.addEventListener('click', (e) => {
       e.preventDefault();
       const willOpen = !wrap.classList.contains('open');
@@ -618,16 +610,8 @@
       wrap.classList.toggle('open', willOpen);
       trigger?.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     });
-
-    wrap.addEventListener('pointerenter', () => {
-      if (isDesktopMenu()) openMenu();
-    });
-    wrap.addEventListener('pointerleave', () => {
-      if (isDesktopMenu()) closeMenu();
-    });
-    panel?.addEventListener('pointerenter', () => {
-      if (isDesktopMenu()) openMenu();
-    });
+    wrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
+    wrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
   }
 
   bindMegaMenu('.categories-wrap', '.categories-trigger');
