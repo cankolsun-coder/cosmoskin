@@ -335,3 +335,255 @@
   border-color:rgba(216,177,132,.34) !important;
   box-shadow:0 28px 72px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
+
+/* ============================================================
+   COSMOSKIN — Akıllı Rutin Seçimi / Final live dark-mode override
+   Scope: only .home-routine[data-mood="night"]
+   Purpose: make live night mode match the darker Phase 5 preview and prevent
+   earlier light panel/card styles from washing it out after deploy.
+   ============================================================ */
+.home-routine[data-mood="night"]{
+  --routine-night-bg-1:#101821;
+  --routine-night-bg-2:#1b211f;
+  --routine-night-panel:rgba(18,24,31,.72);
+  --routine-night-panel-soft:rgba(244,236,225,.055);
+  --routine-night-border:rgba(244,236,225,.12);
+  --routine-night-border-strong:rgba(244,236,225,.24);
+  --routine-night-text:#f4ece1;
+  --routine-night-text-soft:rgba(244,236,225,.72);
+  --routine-night-gold:#d8a384;
+  position:relative;
+  isolation:isolate;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(216,163,132,.16), transparent 34%),
+    radial-gradient(circle at 82% 24%, rgba(244,236,225,.075), transparent 36%),
+    linear-gradient(180deg,var(--routine-night-bg-1) 0%,var(--routine-night-bg-2) 100%) !important;
+  color:var(--routine-night-text) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 30px 90px rgba(0,0,0,.20);
+}
+.home-routine[data-mood="night"]::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,.055), transparent 36%),
+    radial-gradient(circle at 80% 30%, rgba(216,163,132,.10), transparent 34%),
+    linear-gradient(90deg, rgba(255,255,255,.025), transparent 42%, rgba(255,255,255,.018));
+  opacity:.95;
+}
+.home-routine[data-mood="night"] .home-routine__hero-art,
+.home-routine[data-mood="night"] .glass-panel,
+.home-routine[data-mood="night"] .home-routine__analysis-card,
+.home-routine[data-mood="night"] .home-routine__product-card,
+.home-routine[data-mood="night"] .home-routine__preset,
+.home-routine[data-mood="night"] .home-routine__option{
+  background:var(--routine-night-panel) !important;
+  border-color:var(--routine-night-border) !important;
+  color:var(--routine-night-text) !important;
+  box-shadow:0 24px 70px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.055) !important;
+  backdrop-filter:blur(22px);
+  -webkit-backdrop-filter:blur(22px);
+}
+.home-routine[data-mood="night"] .home-routine__analysis-card,
+.home-routine[data-mood="night"] .home-routine__product-card,
+.home-routine[data-mood="night"] .home-routine__option{
+  background:rgba(18,24,31,.64) !important;
+}
+.home-routine[data-mood="night"] .home-routine__hero-points span,
+.home-routine[data-mood="night"] .home-routine__trust-row span,
+.home-routine[data-mood="night"] .home-routine__analysis-tags span,
+.home-routine[data-mood="night"] .home-routine__badge,
+.home-routine[data-mood="night"] .home-routine__result-link,
+.home-routine[data-mood="night"] .home-routine__analysis-badge,
+.home-routine[data-mood="night"] .home-routine__mood{
+  background:var(--routine-night-panel-soft) !important;
+  border-color:var(--routine-night-border) !important;
+  color:var(--routine-night-text) !important;
+  box-shadow:none !important;
+}
+.home-routine[data-mood="night"] h2,
+.home-routine[data-mood="night"] h3,
+.home-routine[data-mood="night"] strong,
+.home-routine[data-mood="night"] .home-routine__result h3,
+.home-routine[data-mood="night"] .home-routine__product-name,
+.home-routine[data-mood="night"] .home-routine__analysis-head strong,
+.home-routine[data-mood="night"] .home-routine__option span{
+  color:var(--routine-night-text) !important;
+}
+.home-routine[data-mood="night"] p,
+.home-routine[data-mood="night"] small,
+.home-routine[data-mood="night"] .home-routine__lede,
+.home-routine[data-mood="night"] .home-routine__step-head p,
+.home-routine[data-mood="night"] .home-routine__option small,
+.home-routine[data-mood="night"] .home-routine__preset small,
+.home-routine[data-mood="night"] .home-routine__product-meta,
+.home-routine[data-mood="night"] .home-routine__product-reason,
+.home-routine[data-mood="night"] .home-routine__analysis-card p,
+.home-routine[data-mood="night"] .home-routine__note{
+  color:var(--routine-night-text-soft) !important;
+}
+.home-routine[data-mood="night"] .home-routine__eyebrow,
+.home-routine[data-mood="night"] .home-routine__product-step,
+.home-routine[data-mood="night"] .home-routine__preset-icon,
+.home-routine[data-mood="night"] .home-routine__mood-icon{
+  color:var(--routine-night-gold) !important;
+}
+.home-routine[data-mood="night"] .home-routine__preset-icon,
+.home-routine[data-mood="night"] .home-routine__product-media,
+.home-routine[data-mood="night"] .home-routine__step-no{
+  background:rgba(244,236,225,.075) !important;
+  border-color:var(--routine-night-border) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045) !important;
+}
+.home-routine[data-mood="night"] .home-routine__preset:hover,
+.home-routine[data-mood="night"] .home-routine__option:hover,
+.home-routine[data-mood="night"] .home-routine__product-card:hover{
+  background:rgba(24,31,39,.82) !important;
+  border-color:var(--routine-night-border-strong) !important;
+  box-shadow:0 30px 76px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+.home-routine[data-mood="night"] .home-routine__preset.is-active,
+.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"],
+.home-routine[data-mood="night"] .home-routine__preset[data-active],
+.home-routine[data-mood="night"] .home-routine__option.is-active{
+  background:linear-gradient(180deg,#f4ece1,#dec5a8) !important;
+  border-color:rgba(244,236,225,.72) !important;
+  color:#111820 !important;
+}
+.home-routine[data-mood="night"] .home-routine__preset.is-active strong,
+.home-routine[data-mood="night"] .home-routine__preset.is-active small,
+.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"] strong,
+.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"] small,
+.home-routine[data-mood="night"] .home-routine__preset[data-active] strong,
+.home-routine[data-mood="night"] .home-routine__preset[data-active] small,
+.home-routine[data-mood="night"] .home-routine__option.is-active span,
+.home-routine[data-mood="night"] .home-routine__option.is-active small{
+  color:#111820 !important;
+}
+.home-routine[data-mood="night"] .home-routine__mood-btn{color:var(--routine-night-text-soft) !important;}
+.home-routine[data-mood="night"] .home-routine__mood-btn.is-active{
+  background:var(--routine-night-text) !important;
+  color:#111820 !important;
+}
+.home-routine[data-mood="night"] .home-routine__progress{background:rgba(244,236,225,.10) !important;}
+.home-routine[data-mood="night"] .home-routine__progress-fill{background:linear-gradient(90deg,#d8a384,#f0d8bd) !important;}
+.home-routine[data-mood="night"] .home-routine__bundle,
+.home-routine[data-mood="night"] .btn-primary{
+  background:linear-gradient(180deg,#f4ece1,#dec5a8) !important;
+  border-color:rgba(244,236,225,.72) !important;
+  color:#111820 !important;
+}
+.home-routine[data-mood="night"] .home-routine__bundle strong,
+.home-routine[data-mood="night"] .home-routine__bundle span{color:#111820 !important;}
+
+
+/* ============================================================
+   COSMOSKIN — Akıllı Rutin Seçimi / Cinematic night interactions
+   Scope: only .home-routine[data-mood="night"]
+   - subtle product glow
+   - premium light sweep on cards/buttons
+   - refined depth on preset/option/product hover
+   ============================================================ */
+.home-routine[data-mood="night"] .home-routine__product-media{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(244,236,225,.16), transparent 42%),
+    rgba(244,236,225,.07) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 18px 42px rgba(0,0,0,.20),
+    0 0 32px rgba(216,163,132,.10) !important;
+}
+.home-routine[data-mood="night"] .home-routine__product-media img{
+  filter: drop-shadow(0 18px 22px rgba(0,0,0,.22));
+  transition: transform .34s cubic-bezier(.2,.8,.2,1), filter .34s ease;
+}
+.home-routine[data-mood="night"] .home-routine__product-card:hover .home-routine__product-media img{
+  transform: translateY(-2px) scale(1.025);
+  filter: drop-shadow(0 22px 28px rgba(0,0,0,.28));
+}
+.home-routine[data-mood="night"] .home-routine__preset,
+.home-routine[data-mood="night"] .home-routine__option,
+.home-routine[data-mood="night"] .home-routine__product-card,
+.home-routine[data-mood="night"] .home-routine__analysis-card,
+.home-routine[data-mood="night"] .home-routine__bundle,
+.home-routine[data-mood="night"] .btn-primary{
+  position:relative;
+  overflow:hidden;
+  transform-style:preserve-3d;
+}
+.home-routine[data-mood="night"] .home-routine__preset::after,
+.home-routine[data-mood="night"] .home-routine__option::after,
+.home-routine[data-mood="night"] .home-routine__product-card::after,
+.home-routine[data-mood="night"] .home-routine__analysis-card::after,
+.home-routine[data-mood="night"] .home-routine__bundle::before,
+.home-routine[data-mood="night"] .btn-primary::after{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  pointer-events:none;
+  background:linear-gradient(110deg, transparent 0%, rgba(255,255,255,.00) 34%, rgba(255,255,255,.18) 48%, rgba(216,163,132,.10) 54%, rgba(255,255,255,.00) 68%, transparent 100%);
+  transform:translateX(-135%) skewX(-12deg);
+  opacity:0;
+  transition:transform .9s cubic-bezier(.2,.8,.2,1), opacity .28s ease;
+}
+.home-routine[data-mood="night"] .home-routine__preset:hover::after,
+.home-routine[data-mood="night"] .home-routine__option:hover::after,
+.home-routine[data-mood="night"] .home-routine__product-card:hover::after,
+.home-routine[data-mood="night"] .home-routine__analysis-card:hover::after,
+.home-routine[data-mood="night"] .home-routine__bundle:hover::before,
+.home-routine[data-mood="night"] .btn-primary:hover::after{
+  transform:translateX(135%) skewX(-12deg);
+  opacity:1;
+}
+.home-routine[data-mood="night"] .home-routine__preset:hover,
+.home-routine[data-mood="night"] .home-routine__option:hover,
+.home-routine[data-mood="night"] .home-routine__product-card:hover{
+  transform:translateY(-3px);
+}
+.home-routine[data-mood="night"] .home-routine__preset:hover,
+.home-routine[data-mood="night"] .home-routine__option:hover{
+  box-shadow:
+    0 34px 82px rgba(0,0,0,.30),
+    0 0 0 1px rgba(216,163,132,.10),
+    inset 0 1px 0 rgba(255,255,255,.085) !important;
+}
+.home-routine[data-mood="night"] .home-routine__product-card:hover{
+  box-shadow:
+    0 38px 92px rgba(0,0,0,.34),
+    0 0 46px rgba(216,163,132,.10),
+    inset 0 1px 0 rgba(255,255,255,.085) !important;
+}
+.home-routine[data-mood="night"] .home-routine__preset-icon,
+.home-routine[data-mood="night"] .home-routine__mood-icon{
+  filter:drop-shadow(0 0 10px rgba(216,163,132,.18));
+}
+.home-routine[data-mood="night"] .home-routine__hero-art::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 52% 38%, rgba(244,236,225,.09), transparent 26%),
+    linear-gradient(120deg, transparent 0%, rgba(255,255,255,.045) 34%, transparent 64%);
+  mix-blend-mode:screen;
+  opacity:.75;
+}
+.home-routine[data-mood="night"] .home-routine__hero-card{
+  box-shadow:
+    0 32px 78px rgba(0,0,0,.30),
+    0 0 52px rgba(244,236,225,.09) !important;
+}
+@media (prefers-reduced-motion: reduce){
+  .home-routine[data-mood="night"] .home-routine__preset::after,
+  .home-routine[data-mood="night"] .home-routine__option::after,
+  .home-routine[data-mood="night"] .home-routine__product-card::after,
+  .home-routine[data-mood="night"] .home-routine__analysis-card::after,
+  .home-routine[data-mood="night"] .home-routine__bundle::before,
+  .home-routine[data-mood="night"] .btn-primary::after{
+    transition:none;
+  }
+}
