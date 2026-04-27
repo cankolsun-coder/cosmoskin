@@ -8204,3 +8204,747 @@ body::before{
     padding: 18px 20px 28px;
   }
 }
+
+/* ==========================================================================
+   PHASE 6 — Rutinler page redesign + Account routine atmospheric cards
+   --------------------------------------------------------------------------
+   Mobile-first. 8px spacing grid. Premium skincare palette.
+   No emoji, no decorative storytelling, single primary CTA per card.
+   ========================================================================== */
+
+/* --- Design tokens (scoped to the surfaces we redesign) ------------------- */
+:root{
+  --rt-space-1: 8px;
+  --rt-space-2: 16px;
+  --rt-space-3: 24px;
+  --rt-space-4: 32px;
+  --rt-space-5: 40px;
+  --rt-space-6: 48px;
+  --rt-space-8: 64px;
+  --rt-space-10: 80px;
+
+  --rt-radius-pill: 999px;
+  --rt-radius-md:    14px;
+  --rt-radius-lg:    20px;
+  --rt-radius-xl:    28px;
+
+  --rt-font-serif: 'Cormorant Garamond', Georgia, serif;
+
+  --rt-ink:        #1a1510;
+  --rt-ink-soft:   #6c6054;
+  --rt-ink-mute:   #9a8e82;
+  --rt-line:       rgba(26, 21, 16, .10);
+  --rt-line-strong:rgba(26, 21, 16, .22);
+  --rt-surface:    #faf6ef;
+  --rt-surface-2:  #fdfaf5;
+  --rt-accent:     #b5654a;
+
+  /* Soft category gradients — low saturation, premium derm-grade */
+  --rt-grad-hydration: linear-gradient(155deg, #fdfbf7 0%, #f4ecdf 100%);
+  --rt-grad-barrier:   linear-gradient(155deg, #fbf8f3 0%, #ece4d6 100%);
+  --rt-grad-glow:      linear-gradient(155deg, #fef9ee 0%, #f3e6c8 100%);
+  --rt-grad-day:       linear-gradient(155deg, #fefaf3 0%, #fdefdb 50%, #fadbb1 100%);
+  --rt-grad-night:     linear-gradient(160deg, #2a3140 0%, #1f2730 60%, #2c2520 100%);
+
+  /* Atmospheric highlights — radial blobs (no clipart sun/moon) */
+  --rt-halo-day:   radial-gradient(140% 100% at 110% -10%, rgba(255, 211, 142, .50) 0%, rgba(255, 211, 142, 0) 60%);
+  --rt-halo-night: radial-gradient(120%  90% at 110% -10%, rgba(244, 236, 225, .14) 0%, rgba(244, 236, 225, 0) 65%);
+  --rt-halo-card-day:   radial-gradient(120% 90% at 110% -10%, rgba(255, 217, 161, .42) 0%, rgba(255, 217, 161, 0) 60%);
+  --rt-halo-card-night: radial-gradient(110% 80% at 110% -10%, rgba(244, 236, 225, .14) 0%, rgba(244, 236, 225, 0) 60%);
+
+  --rt-shadow-rest:  none;
+  --rt-shadow-hover: 0 12px 28px rgba(26, 21, 16, .06);
+  --rt-shadow-cta:   0 8px 22px rgba(26, 21, 16, .14);
+
+  --rt-motion: 240ms cubic-bezier(.2, .7, .2, 1);
+}
+
+/* --- A1. Hero ------------------------------------------------------------- */
+.routine-hero{
+  padding: var(--rt-space-6) 0 var(--rt-space-5);
+  background: var(--rt-surface);
+  text-align: center;
+}
+.routine-hero__kicker{
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--rt-ink-soft);
+  margin: 0 0 var(--rt-space-1);
+}
+.routine-hero__title{
+  font-family: var(--rt-font-serif);
+  font-weight: 500;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1;
+  letter-spacing: -.02em;
+  color: var(--rt-ink);
+  margin: 0;
+}
+@media (min-width: 720px){
+  .routine-hero{ padding: var(--rt-space-10) 0 var(--rt-space-8); }
+}
+
+/* --- A2. Filter bar (sticky, horizontal scroll on mobile) ----------------- */
+.routine-filter-bar{
+  position: sticky;
+  top: 64px;
+  z-index: 50;
+  background: rgba(250, 246, 239, .92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid var(--rt-line);
+  border-bottom: 1px solid var(--rt-line);
+  padding: var(--rt-space-1) 0;
+}
+.routine-filter-bar__inner{
+  display: flex;
+  gap: var(--rt-space-1);
+  padding: 0 var(--rt-space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+.routine-filter-bar__inner::-webkit-scrollbar{ display: none; }
+.routine-chip{
+  appearance: none;
+  flex-shrink: 0;
+  cursor: pointer;
+  scroll-snap-align: start;
+  padding: 10px 18px;
+  border-radius: var(--rt-radius-pill);
+  border: 1px solid var(--rt-line-strong);
+  background: transparent;
+  color: var(--rt-ink);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .01em;
+  line-height: 1;
+  transition: background var(--rt-motion), color var(--rt-motion), border-color var(--rt-motion);
+}
+.routine-chip:hover{
+  background: rgba(26, 21, 16, .04);
+}
+.routine-chip:focus-visible{
+  outline: 2px solid var(--rt-ink);
+  outline-offset: 2px;
+}
+.routine-chip.is-active{
+  background: var(--rt-ink);
+  color: #fff;
+  border-color: var(--rt-ink);
+}
+@media (min-width: 720px){
+  .routine-filter-bar__inner{
+    justify-content: center;
+    padding: 0 var(--rt-space-3);
+    overflow-x: visible;
+  }
+  .routine-chip{ padding: 11px 22px; font-size: 14px; }
+}
+
+/* --- A3. Routine grid ----------------------------------------------------- */
+.routine-grid-section{ padding: var(--rt-space-5) 0 var(--rt-space-8); }
+.routine-grid-section .container{
+  display: grid;
+  gap: var(--rt-space-2);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px){
+  .routine-grid-section{ padding: var(--rt-space-8) 0 var(--rt-space-10); }
+  .routine-grid-section .container{
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--rt-space-3);
+  }
+}
+@media (min-width: 1080px){
+  .routine-grid-section .container{
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--rt-space-3);
+  }
+  /* Day + Night occupy the last row at half-width each on 3-col layout */
+  .routine-card--day,
+  .routine-card--night{
+    grid-column: span 1;
+  }
+  /* When only Day + Night are visible (filter narrows results), centre them */
+}
+
+/* --- Routine card --------------------------------------------------------- */
+.routine-card{
+  display: flex;
+  flex-direction: column;
+  gap: var(--rt-space-1);
+  padding: var(--rt-space-3);
+  border-radius: var(--rt-radius-lg);
+  border: 1px solid var(--rt-line);
+  background: var(--rt-surface-2);
+  text-decoration: none;
+  color: var(--rt-ink);
+  transform: scale(1);
+  transition: transform var(--rt-motion), box-shadow var(--rt-motion), border-color var(--rt-motion);
+  min-height: 320px;
+}
+@media (min-width: 720px){
+  .routine-card{ padding: var(--rt-space-4); }
+}
+.routine-card[hidden]{ display: none !important; }
+
+.routine-card:hover{
+  transform: scale(1.005);          /* well under the 1–2% ceiling */
+  box-shadow: var(--rt-shadow-hover);
+  border-color: var(--rt-line-strong);
+}
+.routine-card:focus-within{
+  outline: 2px solid var(--rt-ink);
+  outline-offset: 3px;
+}
+
+.routine-card__eyebrow{
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--rt-ink-soft);
+  font-weight: 500;
+}
+.routine-card__title{
+  font-family: var(--rt-font-serif);
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.05;
+  letter-spacing: -.01em;
+  color: var(--rt-ink);
+  margin: 0;
+}
+.routine-card__benefit{
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--rt-ink-soft);
+  margin: 0;
+}
+.routine-card__thumbs{
+  display: flex;
+  align-items: center;
+  margin-top: var(--rt-space-1);
+  margin-bottom: var(--rt-space-2);
+}
+.routine-card__thumbs img{
+  width: 56px;
+  height: 56px;
+  border-radius: var(--rt-radius-md);
+  object-fit: contain;
+  background: rgba(255, 255, 255, .65);
+  padding: 4px;
+  border: 1px solid var(--rt-line);
+}
+.routine-card__thumbs img + img{ margin-left: -8px; }
+
+.routine-card__cta{
+  margin-top: auto;            /* pin to card bottom for equal-height layout */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--rt-space-1);
+  padding: 14px 20px;
+  border-radius: var(--rt-radius-md);
+  background: var(--rt-ink);
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  transition: background var(--rt-motion), box-shadow var(--rt-motion), transform var(--rt-motion);
+}
+.routine-card__cta svg{ flex-shrink: 0; transition: transform var(--rt-motion); }
+.routine-card:hover .routine-card__cta{
+  background: #2a2018;
+  box-shadow: var(--rt-shadow-cta);
+}
+.routine-card:hover .routine-card__cta svg{ transform: translateX(2px); }
+
+/* Per-category surfaces */
+.routine-card--hydration{
+  background: var(--rt-grad-hydration);
+}
+.routine-card--barrier{
+  background: var(--rt-grad-barrier);
+}
+.routine-card--glow{
+  background: var(--rt-grad-glow);
+}
+.routine-card--day{
+  background:
+    var(--rt-halo-card-day),
+    var(--rt-grad-day);
+  border-color: rgba(180, 130, 70, .18);
+}
+.routine-card--day .routine-card__eyebrow{ color: #a76a2c; }
+
+.routine-card--night{
+  background:
+    var(--rt-halo-card-night),
+    var(--rt-grad-night);
+  border-color: rgba(244, 236, 225, .14);
+  color: #f4ece1;
+}
+.routine-card--night .routine-card__title{ color: #f4ece1; }
+.routine-card--night .routine-card__benefit,
+.routine-card--night .routine-card__eyebrow{ color: rgba(244, 236, 225, .68); }
+.routine-card--night .routine-card__thumbs img{
+  background: rgba(244, 236, 225, .08);
+  border-color: rgba(244, 236, 225, .14);
+}
+.routine-card--night .routine-card__cta{
+  background: #f4ece1;
+  color: #1f2730;
+}
+.routine-card--night:hover .routine-card__cta{
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
+}
+
+/* --- Part B. Account profile · routine-stage atmospheric backgrounds ------ */
+/* Two distinct moods — Sabah = soft dawn, Akşam = calm dusk. Background is
+   gradient + radial highlight only; no clipart, no decorative element added
+   to markup. */
+.routine-stage.is-morning,
+.routine-stage[data-mood="morning"]{
+  background:
+    var(--rt-halo-card-day),
+    var(--rt-grad-day);
+  border-color: rgba(180, 130, 70, .18);
+  border-radius: var(--rt-radius-lg);
+  padding: var(--rt-space-3);
+  color: var(--rt-ink);
+}
+.routine-stage.is-morning .routine-stage-head h4,
+.routine-stage[data-mood="morning"] .routine-stage-head h4{ color: var(--rt-ink); }
+.routine-stage.is-morning .routine-stage-head span,
+.routine-stage[data-mood="morning"] .routine-stage-head span{ color: #a76a2c; }
+
+.routine-stage.is-evening,
+.routine-stage[data-mood="evening"]{
+  background:
+    var(--rt-halo-card-night),
+    var(--rt-grad-night);
+  border-color: rgba(244, 236, 225, .14);
+  border-radius: var(--rt-radius-lg);
+  padding: var(--rt-space-3);
+  color: #f4ece1;
+}
+.routine-stage.is-evening .routine-stage-head h4,
+.routine-stage[data-mood="evening"] .routine-stage-head h4{ color: #f4ece1; }
+.routine-stage.is-evening .routine-stage-head span,
+.routine-stage[data-mood="evening"] .routine-stage-head span{ color: #d8b58a; }
+.routine-stage.is-evening .routine-step-list li,
+.routine-stage[data-mood="evening"] .routine-step-list li,
+.routine-stage.is-evening .routine-empty,
+.routine-stage[data-mood="evening"] .routine-empty{ color: rgba(244, 236, 225, .72); }
+
+/* Remove the `✦` glyph the routine-stage h4 used to render — atmospheric
+   gradient communicates time of day; the asterisk is decorative noise. */
+.routine-stage-head h4::before,
+.routine-summary-card h4::before{
+  content: none !important;
+}
+
+/* --- Reduced-motion safety ------------------------------------------------ */
+@media (prefers-reduced-motion: reduce){
+  .routine-chip,
+  .routine-card,
+  .routine-card__cta,
+  .routine-card__cta svg{
+    transition-duration: 0ms !important;
+  }
+  .routine-card:hover{ transform: none !important; }
+  .routine-card:hover .routine-card__cta svg{ transform: none !important; }
+}
+
+/* ==========================================================================
+   PHASE 7 — Homepage Discovery section (replaces Kategoriler + Markalar)
+   --------------------------------------------------------------------------
+   "Cilt İhtiyacına Göre Keşfet" — three skin-need cards, each anchored to a
+   real PDP for one-click discovery.
+   "Editör Seçimi" — horizontal-scroll product rail with 4 curated picks.
+   Mobile-first. 8px grid. No emoji, no decorative icons.
+   ========================================================================== */
+
+/* --- Tokens (reuses earlier --rt-* tokens; defines local --dc-* defensively) */
+:root{
+  --dc-ink:        #1a1510;
+  --dc-ink-soft:   #6c6054;
+  --dc-ink-mute:   #9a8e82;
+  --dc-line:       rgba(26, 21, 16, .10);
+  --dc-line-strong:rgba(26, 21, 16, .22);
+  --dc-cream:      #fdfaf5;
+  --dc-sand:       #f4ecdf;
+  --dc-khaki-soft: #ece4d6;
+  --dc-warm-1:     #fbf8f3;
+  --dc-warm-2:     #f9f1e3;
+  --dc-warm-3:     #efe4cf;
+
+  /* Premium dark surface for the editor pick row */
+  --dc-night-1:    #1f1a16;
+  --dc-night-2:    #15110d;
+  --dc-night-ink:  #f4ece1;
+
+  --dc-motion: 240ms cubic-bezier(.2, .7, .2, 1);
+}
+
+/* ============== Section 1 · Cilt İhtiyacına Göre Keşfet ==================== */
+.discovery{
+  padding: 64px 0;
+  background:
+    radial-gradient(80% 60% at 50% 0%, rgba(245, 235, 220, .55) 0%, rgba(245, 235, 220, 0) 70%),
+    var(--dc-cream);
+}
+@media (min-width: 720px){
+  .discovery{ padding: 96px 0 80px; }
+}
+
+.discovery__head{
+  text-align: center;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.discovery__kicker{
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--dc-ink-soft);
+  margin: 0;
+  font-weight: 500;
+}
+.discovery__title{
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.04;
+  letter-spacing: -.02em;
+  color: var(--dc-ink);
+  margin: 0;
+}
+@media (min-width: 720px){ .discovery__head{ margin-bottom: 48px; } }
+
+.discovery__grid{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 720px){
+  .discovery__grid{ grid-template-columns: repeat(3, 1fr); gap: 20px; }
+}
+
+/* --- Skin-need card --- */
+.discovery-card{
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: var(--dc-ink);
+  background: var(--dc-warm-1);
+  border: 1px solid var(--dc-line);
+  border-radius: 20px;
+  overflow: hidden;
+  transform: scale(1);
+  transition: transform var(--dc-motion), box-shadow var(--dc-motion), border-color var(--dc-motion);
+}
+.discovery-card:hover,
+.discovery-card:focus-visible{
+  transform: scale(1.005);
+  box-shadow: 0 12px 28px rgba(26, 21, 16, .06);
+  border-color: var(--dc-line-strong);
+}
+.discovery-card:focus-visible{ outline: 2px solid var(--dc-ink); outline-offset: 3px; }
+
+.discovery-card__media{
+  aspect-ratio: 4 / 3;
+  background:
+    radial-gradient(70% 60% at 50% 30%, #ffffff 0%, rgba(255,255,255,0) 60%),
+    linear-gradient(155deg, var(--dc-warm-2) 0%, var(--dc-warm-3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.discovery-card__media img{
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 18px rgba(35, 24, 15, .10)) drop-shadow(0 22px 34px rgba(35, 24, 15, .08));
+  transition: transform var(--dc-motion);
+}
+.discovery-card:hover .discovery-card__media img{ transform: translateY(-2px); }
+
+.discovery-card__body{
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+@media (min-width: 720px){
+  .discovery-card__body{ padding: 28px; }
+}
+
+.discovery-card__eyebrow{
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--dc-ink-soft);
+  font-weight: 500;
+}
+.discovery-card__title{
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  margin: 0;
+  color: var(--dc-ink);
+}
+
+/* Product attribution row — brand · name · price stacked elegantly */
+.discovery-card__product{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 16px;
+  border-top: 1px solid var(--dc-line);
+  margin-top: 4px;
+}
+.discovery-card__brand{
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--dc-ink-mute);
+  font-weight: 500;
+}
+.discovery-card__name{
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 500;
+  color: var(--dc-ink);
+}
+.discovery-card__price{
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--dc-ink);
+  margin-top: 4px;
+  font-feature-settings: "tnum";
+}
+
+.discovery-card__cta{
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 8px;
+  font-size: 12px;
+  letter-spacing: .04em;
+  font-weight: 500;
+  color: var(--dc-ink);
+  text-transform: uppercase;
+}
+.discovery-card__cta svg{ transition: transform var(--dc-motion); }
+.discovery-card:hover .discovery-card__cta svg{ transform: translateX(3px); }
+
+.discovery__foot{
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+.discovery__more{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--dc-ink);
+  text-decoration: none;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--dc-line-strong);
+  transition: color var(--dc-motion), border-color var(--dc-motion);
+}
+.discovery__more:hover{ border-color: var(--dc-ink); }
+.discovery__more svg{ transition: transform var(--dc-motion); }
+.discovery__more:hover svg{ transform: translateX(2px); }
+
+/* ============== Section 2 · COSMOSKIN Editör Seçimi ======================== */
+.editor-pick{
+  padding: 56px 0;
+  background:
+    radial-gradient(60% 50% at 100% 0%, rgba(245, 230, 200, .14) 0%, rgba(245, 230, 200, 0) 60%),
+    linear-gradient(180deg, var(--dc-night-1) 0%, var(--dc-night-2) 100%);
+  color: var(--dc-night-ink);
+}
+@media (min-width: 720px){
+  .editor-pick{ padding: 80px 0; }
+}
+
+.editor-pick__head{
+  text-align: center;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.editor-pick__kicker{
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(244, 236, 225, .58);
+  margin: 0;
+  font-weight: 500;
+}
+.editor-pick__title{
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.04;
+  letter-spacing: -.02em;
+  color: var(--dc-night-ink);
+  margin: 0;
+}
+@media (min-width: 720px){ .editor-pick__head{ margin-bottom: 36px; } }
+
+/* Horizontal scroll rail — feels like a premium app shelf on mobile.
+   On desktop becomes a 4-up grid. */
+.editor-pick__rail{
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 78%;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 4px 24px;
+  margin: 0 -16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.editor-pick__rail::-webkit-scrollbar{ display: none; }
+@media (min-width: 720px){
+  .editor-pick__rail{
+    grid-auto-flow: row;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-columns: unset;
+    gap: 18px;
+    margin: 0;
+    padding: 4px 0 0;
+  }
+}
+
+.editor-pick-card{
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  background: rgba(244, 236, 225, .04);
+  border: 1px solid rgba(244, 236, 225, .10);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: background var(--dc-motion), border-color var(--dc-motion), transform var(--dc-motion);
+}
+.editor-pick-card:hover,
+.editor-pick-card:focus-visible{
+  background: rgba(244, 236, 225, .07);
+  border-color: rgba(244, 236, 225, .22);
+  transform: translateY(-2px);
+}
+.editor-pick-card:focus-visible{ outline: 2px solid var(--dc-night-ink); outline-offset: 3px; }
+
+.editor-pick-card__media{
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background:
+    radial-gradient(60% 50% at 50% 25%, rgba(244, 236, 225, .08) 0%, rgba(244, 236, 225, 0) 70%);
+}
+.editor-pick-card__media img{
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 22px rgba(0, 0, 0, .35));
+}
+
+.editor-pick-card__body{
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(244, 236, 225, .08);
+}
+.editor-pick-card__brand{
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: rgba(244, 236, 225, .58);
+  font-weight: 500;
+}
+.editor-pick-card__name{
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--dc-night-ink);
+  font-weight: 500;
+  /* clamp to 2 lines for visual evenness */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.editor-pick-card__price{
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dc-night-ink);
+  margin-top: 6px;
+  font-feature-settings: "tnum";
+}
+
+.editor-pick__foot{
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+}
+.editor-pick__more{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--dc-night-ink);
+  text-decoration: none;
+  padding: 12px 4px;
+  border-bottom: 1px solid rgba(244, 236, 225, .22);
+  transition: border-color var(--dc-motion);
+}
+.editor-pick__more:hover{ border-color: var(--dc-night-ink); }
+.editor-pick__more svg{ transition: transform var(--dc-motion); }
+.editor-pick__more:hover svg{ transform: translateX(2px); }
+
+/* --- Reduced-motion fallback --------------------------------------------- */
+@media (prefers-reduced-motion: reduce){
+  .discovery-card,
+  .discovery-card__media img,
+  .discovery-card__cta svg,
+  .editor-pick-card,
+  .editor-pick__more svg,
+  .discovery__more svg{
+    transition-duration: 0ms !important;
+  }
+  .discovery-card:hover,
+  .editor-pick-card:hover{ transform: none !important; }
+  .discovery-card:hover .discovery-card__media img,
+  .discovery-card:hover .discovery-card__cta svg,
+  .editor-pick__more:hover svg,
+  .discovery__more:hover svg{ transform: none !important; }
+}
