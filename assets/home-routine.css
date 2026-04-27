@@ -297,102 +297,41 @@
   box-shadow:0 16px 34px rgba(0,0,0,.18) !important;
 }
 
+
 /* ============================================================
-   HOME ROUTINE — Final Night Visual Correction
-   Keeps Phase 5 structure, fixes bright panels/text loss in night mode
+   COSMOSKIN — Routine section precision fixes
+   Scope: Akıllı Rutin Seçimi only
+   - restores visible preset SVG icon color in day mode
+   - keeps product cards clearly clickable
    ============================================================ */
-.home-routine[data-mood="night"]{
-  background:
-    radial-gradient(circle at 18% 6%, rgba(216,163,132,.22) 0, rgba(216,163,132,0) 34%),
-    radial-gradient(circle at 82% 12%, rgba(115,135,158,.18) 0, rgba(115,135,158,0) 32%),
-    linear-gradient(180deg,#1f2730 0%,#2c2520 100%) !important;
-  color:#f4ece1 !important;
+.home-routine:not([data-mood="night"]) .home-routine__preset-icon,
+.home-routine:not([data-mood="night"]) .home-routine__preset.is-active .home-routine__preset-icon,
+.home-routine:not([data-mood="night"]) .home-routine__preset[aria-pressed="true"] .home-routine__preset-icon,
+.home-routine:not([data-mood="night"]) .home-routine__preset[data-active] .home-routine__preset-icon{
+  color:#b5654a !important;
+  background:#fffdfa !important;
+  border-color:rgba(38,27,17,.08) !important;
 }
-.home-routine[data-mood="night"] .home-routine__hero-art,
-.home-routine[data-mood="night"] .glass-panel,
-.home-routine[data-mood="night"] .home-routine__analysis-card,
-.home-routine[data-mood="night"] .home-routine__product-card{
-  background:rgba(244,236,225,.06) !important;
-  border-color:rgba(244,236,225,.14) !important;
-  box-shadow:0 26px 70px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06) !important;
+.home-routine:not([data-mood="night"]) .home-routine__preset-icon svg,
+.home-routine:not([data-mood="night"]) .home-routine__preset-icon svg *{
+  stroke:currentColor !important;
 }
-.home-routine[data-mood="night"] .home-routine__preset,
-.home-routine[data-mood="night"] .home-routine__preset:not(.is-active)[aria-pressed="false"],
-.home-routine[data-mood="night"] .home-routine__option{
-  background:rgba(244,236,225,.055) !important;
-  border-color:rgba(244,236,225,.14) !important;
-  color:#f4ece1 !important;
-  box-shadow:none !important;
+.home-routine__product-card{
+  cursor:pointer;
+  text-decoration:none;
+  color:inherit;
+  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
 }
-.home-routine[data-mood="night"] .home-routine__preset:hover,
-.home-routine[data-mood="night"] .home-routine__option:hover{
-  background:rgba(244,236,225,.09) !important;
-  border-color:rgba(244,236,225,.26) !important;
+.home-routine__product-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(176,138,94,.28);
+  box-shadow:0 18px 38px rgba(26,21,16,.09);
 }
-.home-routine[data-mood="night"] .home-routine__preset.is-active,
-.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"],
-.home-routine[data-mood="night"] .home-routine__preset[data-active],
-.home-routine[data-mood="night"] .home-routine__option.is-active{
-  background:linear-gradient(180deg,#f7efe6,#ddc9ae) !important;
-  border-color:rgba(244,236,225,.62) !important;
-  color:#1f2730 !important;
-  box-shadow:0 20px 44px rgba(0,0,0,.20) !important;
+.home-routine__product-card:focus-visible{
+  outline:2px solid rgba(176,138,94,.45);
+  outline-offset:3px;
 }
-.home-routine[data-mood="night"] .home-routine__preset strong,
-.home-routine[data-mood="night"] .home-routine__option span,
-.home-routine[data-mood="night"] .home-routine__option strong,
-.home-routine[data-mood="night"] .home-routine__analysis-head strong,
-.home-routine[data-mood="night"] .home-routine__product-name,
-.home-routine[data-mood="night"] .home-routine__result h3,
-.home-routine[data-mood="night"] .home-routine__step-head h3{
-  color:#f4ece1 !important;
-}
-.home-routine[data-mood="night"] .home-routine__preset.is-active strong,
-.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"] strong,
-.home-routine[data-mood="night"] .home-routine__preset[data-active] strong,
-.home-routine[data-mood="night"] .home-routine__option.is-active span,
-.home-routine[data-mood="night"] .home-routine__option.is-active strong{
-  color:#1f2730 !important;
-}
-.home-routine[data-mood="night"] .home-routine__preset small,
-.home-routine[data-mood="night"] .home-routine__option small,
-.home-routine[data-mood="night"] .home-routine__lede,
-.home-routine[data-mood="night"] .home-routine__step-head p,
-.home-routine[data-mood="night"] .home-routine__analysis-card p,
-.home-routine[data-mood="night"] .home-routine__product-meta,
-.home-routine[data-mood="night"] .home-routine__product-reason,
-.home-routine[data-mood="night"] .home-routine__note{
-  color:rgba(244,236,225,.70) !important;
-}
-.home-routine[data-mood="night"] .home-routine__preset.is-active small,
-.home-routine[data-mood="night"] .home-routine__preset[aria-pressed="true"] small,
-.home-routine[data-mood="night"] .home-routine__preset[data-active] small,
-.home-routine[data-mood="night"] .home-routine__option.is-active small{
-  color:rgba(31,39,48,.68) !important;
-}
-.home-routine[data-mood="night"] .home-routine__badge,
-.home-routine[data-mood="night"] .home-routine__hero-points span,
-.home-routine[data-mood="night"] .home-routine__trust-row span,
-.home-routine[data-mood="night"] .home-routine__analysis-tags span,
-.home-routine[data-mood="night"] .home-routine__analysis-badge,
-.home-routine[data-mood="night"] .home-routine__result-link{
-  background:rgba(244,236,225,.07) !important;
-  border-color:rgba(244,236,225,.14) !important;
-  color:rgba(244,236,225,.72) !important;
-}
-.home-routine[data-mood="night"] .home-routine__mood{
-  background:rgba(244,236,225,.06) !important;
-  border-color:rgba(244,236,225,.14) !important;
-}
-.home-routine[data-mood="night"] .home-routine__mood-btn{color:rgba(244,236,225,.68) !important;}
-.home-routine[data-mood="night"] .home-routine__mood-btn.is-active{
-  background:#f4ece1 !important;
-  color:#1f2730 !important;
-}
-.home-routine[data-mood="night"] .home-routine__preset-icon,
-.home-routine[data-mood="night"] .home-routine__step-no,
-.home-routine[data-mood="night"] .home-routine__product-media{
-  background:rgba(244,236,225,.08) !important;
-  border-color:rgba(244,236,225,.14) !important;
-  color:#d8a384 !important;
+.home-routine[data-mood="night"] .home-routine__product-card:hover{
+  border-color:rgba(216,177,132,.34) !important;
+  box-shadow:0 28px 72px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08) !important;
 }
