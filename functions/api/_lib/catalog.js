@@ -1,4 +1,6 @@
-import productSource from '../../../products.json' with { type: 'json' };
+const productSource = await fetch(
+  new URL('../../../products.json', import.meta.url)
+).then(res => res.json());
 
 function toArray(value) {
   if (Array.isArray(value)) return value.filter(Boolean);
