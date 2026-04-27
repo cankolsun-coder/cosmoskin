@@ -146,9 +146,13 @@ function normalizeCheckoutAddress(address = {}) {
   const line = address.line || address.address_line || address.address || address.addressLine || '';
   const postal = address.postal || address.postal_code || address.postalCode || '';
   const title = address.title || address.label || 'Adresim';
-  const fullName = address.name || address.full_name || address.fullName || '';
+  const firstName = address.first_name || address.firstName || '';
+  const lastName = address.last_name || address.lastName || '';
+  const fullName = address.name || address.full_name || address.fullName || [firstName, lastName].filter(Boolean).join(' ');
   return {
     title: String(title || 'Adresim').trim(),
+    firstName: String(firstName || '').trim(),
+    lastName: String(lastName || '').trim(),
     name: String(fullName || '').trim(),
     phone: String(address.phone || address.phone_number || '').trim(),
     line: String(line || '').trim(),
@@ -183,7 +187,9 @@ function fillCheckoutAddress(address, { overwrite = true } = {}) {
   const form = document.getElementById('checkoutForm');
   if (!form) return;
   const normalized = normalizeCheckoutAddress(address);
-  const { firstName, lastName } = splitCheckoutFullName(normalized.name);
+  const fallbackName = splitCheckoutFullName(normalized.name);
+  const firstName = normalized.firstName || fallbackName.firstName;
+  const lastName = normalized.lastName || fallbackName.lastName;
 
   setCheckoutInputValue(form, 'first_name', firstName, { overwrite: overwrite && Boolean(firstName) });
   setCheckoutInputValue(form, 'last_name', lastName, { overwrite: overwrite && Boolean(lastName) });

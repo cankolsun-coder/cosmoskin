@@ -102,7 +102,7 @@
     .addr-name{font-weight:600;font-size:14px;color:#1a1510;margin:0 0 8px;}
     .addr-detail{font-size:13px;color:#6b5f50;line-height:1.7;margin:0;}
     .addr-actions{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
-    .addr-btn{border:none;background:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:#9a8e82;padding:0;}
+    .addr-btn{border:none;background:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:#9a8e82;padding:0;position:relative;z-index:2;}
     .addr-btn:hover{color:#1a1510;}
     .addr-btn.danger:hover{color:#8a3b2f;}
     .addr-add{border:1px dashed var(--line-strong);border-radius:18px;padding:28px;text-align:center;cursor:pointer;transition:background .2s,border-color .2s;background:transparent;}
@@ -407,7 +407,7 @@
       <div class="acc-panel">
         <div class="acc-panel-head">
           <div><h2>Adres Bilgilerim</h2><p>Teslimat adresleriniz</p></div>
-          <button class="btn btn-primary" onclick="openAddressModal()" style="font-size:11px;padding:10px 20px;">+ Yeni Adres</button>
+          <button class="btn btn-primary" onclick="openAddressModal()" type="button" style="font-size:11px;padding:10px 20px;">+ Yeni Adres</button>
         </div>
         <div class="acc-panel-body"><div class="addr-grid" id="addressGrid"><div class="addr-add" onclick="openAddressModal()"><div class="addr-add-icon">+</div><p>Yeni adres ekleyin</p></div></div></div>
       </div>
@@ -529,8 +529,9 @@
     <button class="addr-modal-close" onclick="closeAddressModal()">✕</button>
     <h3 id="addrModalTitle">Yeni Adres Ekle</h3>
     <div class="prof-grid">
-      <div class="prof-field"><label class="prof-label">Ad Soyad</label><input class="prof-input" id="addrName" type="text" placeholder="Teslimat alıcısı"></div>
-      <div class="prof-field"><label class="prof-label">Telefon</label><input class="prof-input" id="addrPhone" type="tel" placeholder="+90 5xx xxx xx xx"></div>
+      <div class="prof-field"><label class="prof-label">Ad</label><input class="prof-input" id="addrFirstName" type="text" autocomplete="given-name" placeholder="Ad"></div>
+      <div class="prof-field"><label class="prof-label">Soyad</label><input class="prof-input" id="addrLastName" type="text" autocomplete="family-name" placeholder="Soyad"></div>
+      <div class="prof-field"><label class="prof-label">Telefon</label><input class="prof-input" id="addrPhone" type="tel" autocomplete="tel" placeholder="+90 5xx xxx xx xx"></div>
       <div class="prof-field full"><label class="prof-label">Adres Başlığı</label><input class="prof-input" id="addrTitle" type="text" placeholder="Ev, İş..."></div>
       <div class="prof-field full"><label class="prof-label">Açık Adres</label><input class="prof-input" id="addrLine" type="text" placeholder="Sokak, mahalle, bina no, kat, daire"></div>
       <div class="prof-field"><label class="prof-label">İl</label><input class="prof-input" id="addrCity" type="text" placeholder="İstanbul"></div>
@@ -1329,57 +1330,224 @@ async function sendReminderTest(type = 'routine'){
   }
 }
 
+function escapeAccountHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function splitAddressName(addr = {}) {
+  const first = (addr.first_name || addr.firstName || '').trim();
+  const last = (addr.last_name || addr.lastName || '').trim();
+  if (first || last) return { firstName: first, lastName: last };
+  const parts = String(addr.name || addr.full_name || addr.fullName || '').trim().split(/\s+/).filter(Boolean);
+  return { firstName: parts.shift() || '', lastName: parts.join(' ') };
+}
+
+function normalizeAccountAddress(addr = {}, index = 0) {
+  const nameParts = splitAddressName(addr);
+  const title = String(addr.title || addr.label || 'Adresim').trim();
+  const line = String(addr.line || addr.address_line || addr.addressLine || addr.address || '').trim();
+  const postal = String(addr.postal || addr.postal_code || addr.postalCode || '').trim();
+  const city = String(addr.city || '').trim();
+  const district = String(addr.district || '').trim();
+  const phone = String(addr.phone || addr.phone_number || addr.phoneNumber || '').trim();
+  return {
+    ...addr,
+    id: addr.id || `addr-${Date.now()}-${index}`,
+    title,
+    first_name: nameParts.firstName,
+    last_name: nameParts.lastName,
+    firstName: nameParts.firstName,
+    lastName: nameParts.lastName,
+    name: [nameParts.firstName, nameParts.lastName].filter(Boolean).join(' ').trim(),
+    full_name: [nameParts.firstName, nameParts.lastName].filter(Boolean).join(' ').trim(),
+    line,
+    address_line: line,
+    city,
+    district,
+    postal,
+    postal_code: postal,
+    phone,
+    isDefault: Boolean(addr.isDefault || addr.is_default || addr.default),
+    is_default: Boolean(addr.isDefault || addr.is_default || addr.default)
+  };
+}
+
+function normalizeAllAccountAddresses() {
+  _addresses = Array.isArray(_addresses) ? _addresses.map(normalizeAccountAddress) : [];
+  if (_addresses.length && !_addresses.some(a => a.isDefault)) {
+    _addresses[0].isDefault = true;
+    _addresses[0].is_default = true;
+  }
+}
+
+async function persistAddresses() {
+  normalizeAllAccountAddresses();
+  const { error } = await _client.auth.updateUser({ data: { addresses: _addresses } });
+  if (error) throw error;
+  if (_session?.user) _session.user.user_metadata = { ...(_session.user.user_metadata || {}), addresses: _addresses };
+}
+
 function renderAddresses() {
-  const grid=document.getElementById('addressGrid');
-  const cards=_addresses.map((addr,i)=>`<div class="addr-card ${addr.isDefault?'default':''}">
-    ${addr.isDefault?'<div class="addr-default-badge">✓ Varsayılan</div>':''}
-    <p class="addr-name">${addr.title||'Adresim'}</p>
-    <p class="addr-detail">${addr.name}<br>${addr.line}<br>${addr.district?addr.district+' / ':''}${addr.city}${addr.postal?' '+addr.postal:''}</p>
-    ${addr.phone?`<p class="addr-detail" style="margin-top:4px;">${addr.phone}</p>`:''}
-    <div class="addr-actions">
-      <button class="addr-btn" onclick="editAddress(${i})">Düzenle</button>
-      ${!addr.isDefault?`<button class="addr-btn" onclick="setDefaultAddress(${i})">Varsayılan Yap</button>`:''}
-      <button class="addr-btn danger" onclick="deleteAddress(${i})">Sil</button>
-    </div>
-  </div>`).join('');
-  grid.innerHTML=cards+`<div class="addr-add" onclick="openAddressModal()"><div class="addr-add-icon">+</div><p>Yeni adres ekleyin</p></div>`;
+  normalizeAllAccountAddresses();
+  const grid = document.getElementById('addressGrid');
+  if (!grid) return;
+  const cards = _addresses.map((addr, i) => {
+    const fullName = [addr.first_name, addr.last_name].filter(Boolean).join(' ').trim() || addr.name || 'Teslimat alıcısı';
+    const location = [addr.district, addr.city].filter(Boolean).join(' / ');
+    const postal = addr.postal ? ` ${addr.postal}` : '';
+    return `<div class="addr-card ${addr.isDefault ? 'default' : ''}" data-address-index="${i}">
+      ${addr.isDefault ? '<div class="addr-default-badge">✓ Varsayılan</div>' : ''}
+      <p class="addr-name">${escapeAccountHtml(addr.title || 'Adresim')}</p>
+      <p class="addr-detail">${escapeAccountHtml(fullName)}<br>${escapeAccountHtml(addr.line || '')}<br>${escapeAccountHtml(location + postal)}</p>
+      ${addr.phone ? `<p class="addr-detail" style="margin-top:4px;">${escapeAccountHtml(addr.phone)}</p>` : ''}
+      <div class="addr-actions">
+        <button class="addr-btn" type="button" data-address-action="edit" data-index="${i}">Düzenle</button>
+        ${!addr.isDefault ? `<button class="addr-btn" type="button" data-address-action="default" data-index="${i}">Varsayılan Yap</button>` : ''}
+        <button class="addr-btn danger" type="button" data-address-action="delete" data-index="${i}">Sil</button>
+      </div>
+    </div>`;
+  }).join('');
+  grid.innerHTML = cards + `<div class="addr-add" role="button" tabindex="0" data-address-action="add"><div class="addr-add-icon">+</div><p>Yeni adres ekleyin</p></div>`;
 }
 
-function openAddressModal(editIndex=null) {
-  document.getElementById('addrModalTitle').textContent=editIndex!==null?'Adresi Düzenle':'Yeni Adres Ekle';
-  document.getElementById('addressModal').dataset.editIndex=editIndex!==null?editIndex:'';
-  if(editIndex!==null){const a=_addresses[editIndex];document.getElementById('addrName').value=a.name||'';document.getElementById('addrPhone').value=a.phone||'';document.getElementById('addrTitle').value=a.title||'';document.getElementById('addrLine').value=a.line||'';document.getElementById('addrCity').value=a.city||'';document.getElementById('addrDistrict').value=a.district||'';document.getElementById('addrPostal').value=a.postal||'';document.getElementById('addrDefault').checked=!!a.isDefault;}
-  else{['addrName','addrPhone','addrTitle','addrLine','addrCity','addrDistrict','addrPostal'].forEach(id=>document.getElementById(id).value='');document.getElementById('addrDefault').checked=false;}
-  document.getElementById('addrStatus').textContent='';
-  document.getElementById('addressModal').classList.add('open');
+function openAddressModal(editIndex = null) {
+  const modal = document.getElementById('addressModal');
+  if (!modal) return;
+  const isEdit = editIndex !== null && editIndex !== '' && !Number.isNaN(Number(editIndex));
+  document.getElementById('addrModalTitle').textContent = isEdit ? 'Adresi Düzenle' : 'Yeni Adres Ekle';
+  modal.dataset.editIndex = isEdit ? String(editIndex) : '';
+  if (isEdit) {
+    const a = normalizeAccountAddress(_addresses[Number(editIndex)] || {});
+    document.getElementById('addrFirstName').value = a.first_name || '';
+    document.getElementById('addrLastName').value = a.last_name || '';
+    document.getElementById('addrPhone').value = a.phone || '';
+    document.getElementById('addrTitle').value = a.title || '';
+    document.getElementById('addrLine').value = a.line || '';
+    document.getElementById('addrCity').value = a.city || '';
+    document.getElementById('addrDistrict').value = a.district || '';
+    document.getElementById('addrPostal').value = a.postal || '';
+    document.getElementById('addrDefault').checked = !!a.isDefault;
+  } else {
+    ['addrFirstName','addrLastName','addrPhone','addrTitle','addrLine','addrCity','addrDistrict','addrPostal'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('addrDefault').checked = !_addresses.length;
+  }
+  const status = document.getElementById('addrStatus');
+  if (status) { status.textContent = ''; status.style.color = ''; }
+  modal.classList.add('open');
 }
 
-function closeAddressModal(){document.getElementById('addressModal').classList.remove('open');}
+function closeAddressModal(){
+  const modal = document.getElementById('addressModal');
+  if (modal) modal.classList.remove('open');
+}
 
 async function saveAddress() {
-  const status=document.getElementById('addrStatus');
-  const name=document.getElementById('addrName').value.trim();
-  const line=document.getElementById('addrLine').value.trim();
-  const city=document.getElementById('addrCity').value.trim();
-  if(!name||!line||!city){status.textContent='Ad Soyad, Açık Adres ve İl zorunludur.';status.style.color='#c0392b';return;}
-  const newAddr={name,line,city,phone:document.getElementById('addrPhone').value.trim(),title:document.getElementById('addrTitle').value.trim()||'Adresim',district:document.getElementById('addrDistrict').value.trim(),postal:document.getElementById('addrPostal').value.trim(),isDefault:document.getElementById('addrDefault').checked};
-  const editIndex=document.getElementById('addressModal').dataset.editIndex;
-  if(newAddr.isDefault) _addresses.forEach(a=>a.isDefault=false);
-  if(editIndex!==''){_addresses[parseInt(editIndex)]=newAddr;}else{if(!_addresses.length)newAddr.isDefault=true;_addresses.push(newAddr);}
-  try{const{error}=await _client.auth.updateUser({data:{addresses:_addresses}});if(error)throw error;renderAddresses();closeAddressModal();}
-  catch(e){status.textContent=e.message||'Kayıt hatası.';status.style.color='#c0392b';}
+  const status = document.getElementById('addrStatus');
+  const firstName = document.getElementById('addrFirstName').value.trim();
+  const lastName = document.getElementById('addrLastName').value.trim();
+  const line = document.getElementById('addrLine').value.trim();
+  const city = document.getElementById('addrCity').value.trim();
+  const district = document.getElementById('addrDistrict').value.trim();
+  const postal = document.getElementById('addrPostal').value.trim();
+  const phone = document.getElementById('addrPhone').value.trim();
+  const title = document.getElementById('addrTitle').value.trim() || 'Adresim';
+  if (!firstName || !lastName || !line || !city) {
+    status.textContent = 'Ad, soyad, açık adres ve il zorunludur.';
+    status.style.color = '#c0392b';
+    return;
+  }
+  const editIndex = document.getElementById('addressModal').dataset.editIndex;
+  const wantsDefault = document.getElementById('addrDefault').checked || !_addresses.length;
+  const newAddr = normalizeAccountAddress({
+    id: editIndex !== '' && _addresses[Number(editIndex)]?.id ? _addresses[Number(editIndex)].id : `addr-${Date.now()}`,
+    title,
+    first_name: firstName,
+    last_name: lastName,
+    name: [firstName, lastName].join(' '),
+    full_name: [firstName, lastName].join(' '),
+    line,
+    address_line: line,
+    city,
+    district,
+    postal,
+    postal_code: postal,
+    phone,
+    isDefault: wantsDefault,
+    is_default: wantsDefault
+  });
+  if (wantsDefault) _addresses.forEach(a => { a.isDefault = false; a.is_default = false; });
+  if (editIndex !== '') _addresses[Number(editIndex)] = newAddr;
+  else _addresses.push(newAddr);
+  try {
+    status.textContent = 'Adres kaydediliyor…';
+    status.style.color = '#8a6e47';
+    await persistAddresses();
+    renderAddresses();
+    closeAddressModal();
+  } catch (e) {
+    status.textContent = e.message || 'Adres kaydedilemedi.';
+    status.style.color = '#c0392b';
+  }
 }
 
 async function deleteAddress(i) {
-  if(!confirm('Bu adresi silmek istediğinizden emin misiniz?'))return;
-  _addresses.splice(i,1);
-  if(_addresses.length&&!_addresses.some(a=>a.isDefault))_addresses[0].isDefault=true;
-  await _client.auth.updateUser({data:{addresses:_addresses}});
-  renderAddresses();
+  const index = Number(i);
+  if (Number.isNaN(index) || !_addresses[index]) return;
+  if (!confirm('Bu adresi silmek istediğinizden emin misiniz?')) return;
+  _addresses.splice(index, 1);
+  if (_addresses.length && !_addresses.some(a => a.isDefault)) {
+    _addresses[0].isDefault = true;
+    _addresses[0].is_default = true;
+  }
+  try {
+    await persistAddresses();
+    renderAddresses();
+  } catch (e) {
+    alert(e.message || 'Adres silinemedi.');
+  }
 }
 
-async function setDefaultAddress(i){_addresses.forEach((a,idx)=>a.isDefault=idx===i);await _client.auth.updateUser({data:{addresses:_addresses}});renderAddresses();}
-function editAddress(i){openAddressModal(i);}
+async function setDefaultAddress(i) {
+  const index = Number(i);
+  if (Number.isNaN(index) || !_addresses[index]) return;
+  _addresses.forEach((a, idx) => { a.isDefault = idx === index; a.is_default = idx === index; });
+  try {
+    await persistAddresses();
+    renderAddresses();
+  } catch (e) {
+    alert(e.message || 'Varsayılan adres değiştirilemedi.');
+  }
+}
+
+function editAddress(i){ openAddressModal(Number(i)); }
+
+if (!window.__cosmoskinAddressActionsBound) {
+  window.__cosmoskinAddressActionsBound = true;
+  document.addEventListener('click', function(event) {
+    const trigger = event.target.closest('[data-address-action]');
+    if (!trigger) return;
+    const action = trigger.dataset.addressAction;
+    const index = trigger.dataset.index;
+    if (action === 'add') openAddressModal();
+    if (action === 'edit') editAddress(index);
+    if (action === 'default') setDefaultAddress(index);
+    if (action === 'delete') deleteAddress(index);
+  });
+  document.addEventListener('keydown', function(event) {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-address-action="add"]')) {
+      event.preventDefault();
+      openAddressModal();
+    }
+  });
+}
 
 function renderFavorites(){
   const favs = getFavoriteItems();
