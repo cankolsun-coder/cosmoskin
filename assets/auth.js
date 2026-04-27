@@ -132,6 +132,128 @@ function getUserFullName(user) {
   };
 }
 
+
+function escapeCheckoutHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function normalizeCheckoutAddress(address = {}) {
+  const line = address.line || address.address_line || address.address || address.addressLine || '';
+  const postal = address.postal || address.postal_code || address.postalCode || '';
+  const title = address.title || address.label || 'Adresim';
+  const fullName = address.name || address.full_name || address.fullName || '';
+  return {
+    title: String(title || 'Adresim').trim(),
+    name: String(fullName || '').trim(),
+    phone: String(address.phone || address.phone_number || '').trim(),
+    line: String(line || '').trim(),
+    city: String(address.city || '').trim(),
+    district: String(address.district || '').trim(),
+    postal: String(postal || '').trim(),
+    isDefault: Boolean(address.isDefault || address.is_default || address.default)
+  };
+}
+
+function setCheckoutInputValue(form, name, value, { overwrite = false } = {}) {
+  const input = form?.querySelector(`[name="${name}"]`);
+  if (!input) return;
+  const safeValue = String(value || '').trim();
+  if (!safeValue) return;
+  if (overwrite || !String(input.value || '').trim()) {
+    input.value = safeValue;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+}
+
+function splitCheckoutFullName(fullName = '') {
+  const parts = String(fullName || '').trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: parts.shift() || '',
+    lastName: parts.join(' ')
+  };
+}
+
+function fillCheckoutAddress(address, { overwrite = true } = {}) {
+  const form = document.getElementById('checkoutForm');
+  if (!form) return;
+  const normalized = normalizeCheckoutAddress(address);
+  const { firstName, lastName } = splitCheckoutFullName(normalized.name);
+
+  setCheckoutInputValue(form, 'first_name', firstName, { overwrite: overwrite && Boolean(firstName) });
+  setCheckoutInputValue(form, 'last_name', lastName, { overwrite: overwrite && Boolean(lastName) });
+  setCheckoutInputValue(form, 'phone', normalized.phone, { overwrite });
+  setCheckoutInputValue(form, 'city', normalized.city, { overwrite });
+  setCheckoutInputValue(form, 'district', normalized.district, { overwrite });
+  setCheckoutInputValue(form, 'postal_code', normalized.postal, { overwrite });
+  setCheckoutInputValue(form, 'address', normalized.line, { overwrite });
+
+  const cards = document.querySelectorAll('.saved-address-card');
+  cards.forEach((card) => card.classList.toggle('is-selected', card.dataset.addressKey === normalized.__key));
+}
+
+function renderCheckoutSavedAddresses(user) {
+  const field = document.getElementById('savedAddressField');
+  const list = document.getElementById('savedAddressList');
+  if (!field || !list) return;
+
+  const metadata = user?.user_metadata || {};
+  const rawAddresses = Array.isArray(metadata.addresses) ? metadata.addresses : [];
+  const addresses = rawAddresses.map((address, index) => ({
+    ...normalizeCheckoutAddress(address),
+    __key: `checkout-address-${index}`
+  })).filter((address) => address.line || address.city || address.district || address.phone || address.name);
+
+  field.hidden = false;
+
+  if (!user) {
+    field.hidden = true;
+    list.innerHTML = '';
+    return;
+  }
+
+  if (!addresses.length) {
+    list.innerHTML = `
+      <div class="saved-address-empty">
+        <strong>Kayıtlı adres bulunamadı</strong>
+        <span>Hesabım &gt; Adres Bilgilerim alanından adres ekleyebilir veya aşağıdaki formu manuel doldurabilirsin.</span>
+      </div>
+    `;
+    return;
+  }
+
+  addresses.sort((a, b) => Number(b.isDefault) - Number(a.isDefault));
+  list.innerHTML = addresses.map((address) => {
+    const location = [address.district, address.city].filter(Boolean).join(' / ');
+    const detail = [address.line, location, address.postal].filter(Boolean).join(' · ');
+    return `
+      <button type="button" class="saved-address-card${address.isDefault ? ' is-default' : ''}" data-address-key="${escapeCheckoutHtml(address.__key)}">
+        <span class="saved-address-card__top">
+          <strong>${escapeCheckoutHtml(address.title)}</strong>
+          ${address.isDefault ? '<em>Varsayılan</em>' : ''}
+        </span>
+        ${address.name ? `<span class="saved-address-card__name">${escapeCheckoutHtml(address.name)}</span>` : ''}
+        <span class="saved-address-card__detail">${escapeCheckoutHtml(detail || 'Adres detayı eksik')}</span>
+        ${address.phone ? `<span class="saved-address-card__phone">${escapeCheckoutHtml(address.phone)}</span>` : ''}
+      </button>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.saved-address-card').forEach((card) => {
+    const address = addresses.find((item) => item.__key === card.dataset.addressKey);
+    if (!address) return;
+    card.addEventListener('click', () => fillCheckoutAddress(address, { overwrite: true }));
+  });
+
+  const defaultAddress = addresses.find((address) => address.isDefault) || addresses[0];
+  if (defaultAddress) fillCheckoutAddress(defaultAddress, { overwrite: false });
+}
+
 function setCheckoutGateVisibility(user) {
   const gate = document.getElementById('checkoutAuthGate');
   const form = document.getElementById('checkoutForm');
@@ -160,9 +282,9 @@ function setCheckoutGateVisibility(user) {
     form?.setAttribute('data-authenticated', 'true');
 
     if (savedAddressField) {
-      // Kullanıcı giriş yaptıysa kayıtlı adres alanı gösterilebilir; adres yoksa iç liste boş kalır.
       savedAddressField.hidden = false;
     }
+    renderCheckoutSavedAddresses(user);
 
     if (emailInput && !emailInput.value) emailInput.value = user.email || '';
     if (firstNameInput && !firstNameInput.value && firstName) firstNameInput.value = firstName;
@@ -181,6 +303,7 @@ function setCheckoutGateVisibility(user) {
 
     form?.classList.remove('is-authenticated-checkout');
     form?.setAttribute('data-authenticated', 'false');
+    renderCheckoutSavedAddresses(null);
   }
 }
 
