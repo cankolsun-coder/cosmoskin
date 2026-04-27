@@ -8948,3 +8948,23 @@ body::before{
   .editor-pick__more:hover svg,
   .discovery__more:hover svg{ transform: none !important; }
 }
+
+/* Dropdown hover fallback fix — restores desktop Kategoriler / Markalar mega menu */
+@media (hover: hover) and (min-width: 769px){
+  .categories-wrap,
+  .brands-wrap{
+    position: relative;
+    z-index: 60;
+  }
+  .mega{
+    z-index: 999;
+  }
+  .categories-wrap:hover .mega,
+  .categories-wrap:focus-within .mega,
+  .brands-wrap:hover .mega,
+  .brands-wrap:focus-within .mega{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+}
