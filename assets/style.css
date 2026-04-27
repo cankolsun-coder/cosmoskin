@@ -8036,3 +8036,171 @@ body::before{
     transform: none !important;
   }
 }
+
+/* Phase 4 — Shared UI standardization */
+:root{
+  --shell-header-height: 88px;
+  --shared-card-radius: 24px;
+}
+.header{
+  min-height: var(--shell-header-height);
+}
+.nav-shell{
+  align-items: center;
+  gap: 18px;
+}
+.header-tools{
+  gap: 10px;
+}
+.mobile-nav{
+  padding: 20px 22px 30px;
+}
+.footer .payment-logos{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.footer .payment-logo{
+  width: 88px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(26, 21, 16, .08);
+  background: rgba(255, 255, 255, .94);
+}
+.footer .payment-logo--amex{
+  width: 100px;
+}
+.footer .payment-logo svg{
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.product-card,
+.collection-page .product-card{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: var(--shared-card-radius) !important;
+  overflow: hidden;
+}
+.product-media-wrap{
+  position: relative;
+}
+.product-media{
+  display: block;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #f7f1ea;
+}
+.product-media img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.product-body{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  min-height: 0;
+}
+.product-body h3{
+  margin: 0;
+  min-height: 2.9em;
+}
+.brandline{
+  letter-spacing: .16em;
+}
+.price-row{
+  margin-top: auto;
+  align-items: flex-end;
+  gap: 16px;
+}
+.favorite-btn{
+  top: 14px !important;
+  right: 14px !important;
+  width: 42px;
+  height: 42px;
+}
+.product-card .btn.btn-primary{
+  min-height: 44px;
+  justify-content: center;
+}
+.product-card-extra{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.favorites-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+.favorites-grid .product-card{
+  height: 100%;
+}
+.favorite-toast{
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%) translateY(16px);
+  background: #1a1510;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .18);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity .22s ease, transform .22s ease;
+}
+.favorite-toast.show{
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media (max-width: 960px){
+  .header{
+    min-height: 80px;
+  }
+  .footer-trustbar{
+    gap: 16px;
+  }
+}
+@media (max-width: 640px){
+  .product-grid,
+  .favorites-grid{
+    gap: 14px;
+  }
+  .product-body{
+    padding: 18px;
+  }
+  .favorite-btn{
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px;
+    height: 38px;
+  }
+  .footer .payment-logos{
+    gap: 10px;
+  }
+  .footer .payment-logo{
+    width: 78px;
+    height: 36px;
+    padding: 7px 10px;
+  }
+  .footer .payment-logo--amex{
+    width: 92px;
+  }
+  .mobile-nav{
+    padding: 18px 20px 28px;
+  }
+}

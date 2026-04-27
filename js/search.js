@@ -4,6 +4,8 @@
  */
 'use strict';
 
+window.__COSMOSKIN_SEARCH_BOUND = true;
+
 const CosmoSearch = (() => {
 
   const DEBOUNCE_MS = 160;
@@ -195,10 +197,12 @@ const CosmoSearch = (() => {
   }
 
   function _bindForm(form) {
+    if (form.dataset.cosmoskinSearchBound === 'true') return;
     const input     = form.querySelector('.site-search-input');
     const resultsEl = form.querySelector('.site-search-results');
     const clearBtn  = form.querySelector('.site-search-clear');
     if (!input || !resultsEl) return;
+    form.dataset.cosmoskinSearchBound = 'true';
 
     input.addEventListener('input', async function() {
       clearTimeout(_timer);
@@ -243,7 +247,6 @@ const CosmoSearch = (() => {
 
   function init() {
     document.querySelectorAll('.site-search-form').forEach(_bindForm);
-    window.__COSMOSKIN_SEARCH_BOUND = true;
     _loadProducts().catch(function(){});
   }
 

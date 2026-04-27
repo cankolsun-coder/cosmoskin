@@ -23,8 +23,19 @@
   }
 
   function buildCard(p) {
+    if (typeof window.COSMOSKIN_RENDER_PRODUCT_CARD === 'function') {
+      return window.COSMOSKIN_RENDER_PRODUCT_CARD(p, {
+        description: p.description || '',
+        filterTokens: []
+          .concat(Array.isArray(p.concernSlugs) ? p.concernSlugs : [])
+          .concat([p.categorySlug, p.brandSlug].filter(Boolean))
+      });
+    }
     return [
-      '<article class="product-card">',
+      '<article class="product-card" data-filter-item="' + esc([
+        p.categorySlug,
+        p.brandSlug
+      ].concat(Array.isArray(p.concernSlugs) ? p.concernSlugs : []).filter(Boolean).join(' ')) + '">',
         '<div class="product-media-wrap">',
           '<a class="product-media" href="' + esc(p.url) + '">',
             '<img alt="' + esc(p.name) + '" src="' + esc(p.image) + '" loading="lazy" width="400" height="400"/>',

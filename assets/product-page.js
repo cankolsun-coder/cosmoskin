@@ -43,7 +43,35 @@ const Reviews = (() => {
 
   const LABELS = {1:'Hayal kırıklığı',2:'Beklentinin altında',3:'İdare eder',4:'Oldukça memnunum',5:'Mükemmel, kesinlikle öneririm'};
 
+  function cleanupLegacyReviewMarkup() {
+    if (!reviewSection) return;
+
+    document.querySelectorAll('[data-cs-reviews]').forEach((legacyHost) => {
+      const legacySection = legacyHost.closest('section');
+      const previousSection = legacySection?.previousElementSibling;
+      const previousHeading = previousSection?.querySelector('h2')?.textContent?.trim();
+
+      if (previousHeading === 'Müşteri Yorumları' && !previousSection.querySelector('[data-cs-reviews]')) {
+        previousSection.remove();
+      }
+
+      legacySection?.remove();
+    });
+  }
+
+  function cleanupLegacyPdpBlocks() {
+    document.querySelectorAll('.pdp-faq').forEach((section) => section.remove());
+    document.querySelectorAll('.pdp-tab-panel ul, .pdp-tab-panel ol').forEach((list) => {
+      if (!list.children.length && !list.textContent.trim()) list.remove();
+    });
+    document.querySelectorAll('.pdp-tab-panel p').forEach((paragraph) => {
+      if (!paragraph.textContent.trim()) paragraph.remove();
+    });
+  }
+
   async function init() {
+    cleanupLegacyPdpBlocks();
+    cleanupLegacyReviewMarkup();
     await waitForSupabase();
     const sb = window.cosmoskinSupabase;
     if (sb) {

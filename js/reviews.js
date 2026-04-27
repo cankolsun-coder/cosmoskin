@@ -12,10 +12,28 @@
 
 'use strict';
 
-const CosmoReviews = (() => {
-  if (typeof window !== 'undefined' && window.Reviews && document.getElementById('reviewsSection')) {
-    return window.Reviews;
+function bridgeLegacyReviews() {
+  if (typeof window === 'undefined') return null;
+  if (!window.Reviews || !document.getElementById('reviewsSection')) return null;
+
+  window.CosmoReviews = window.Reviews;
+  window.COSMOSKIN_LEGACY_REVIEW_SYSTEM = {
+    deprecated: true,
+    activeSystem: 'window.Reviews',
+    source: '/assets/product-page.js'
+  };
+
+  if (!window.__COSMOSKIN_LEGACY_REVIEWS_NOTICE__) {
+    window.__COSMOSKIN_LEGACY_REVIEWS_NOTICE__ = true;
+    console.info('[Reviews] /js/reviews.js is deprecated on product pages. Using window.Reviews from /assets/product-page.js.');
   }
+
+  return window.Reviews;
+}
+
+const CosmoReviews = (() => {
+  const activeReviews = bridgeLegacyReviews();
+  if (activeReviews) return activeReviews;
 
   /* ── Sabitler ──────────────────────────────────────────── */
   const BUCKET       = 'review-images';
