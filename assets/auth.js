@@ -122,6 +122,62 @@ function emitAuthState(user = null) {
   }
 }
 
+
+function getUserFullName(user) {
+  const firstName = user?.user_metadata?.first_name || user?.user_metadata?.firstName || '';
+  const lastName = user?.user_metadata?.last_name || user?.user_metadata?.lastName || '';
+  return {
+    firstName: String(firstName || '').trim(),
+    lastName: String(lastName || '').trim()
+  };
+}
+
+function setCheckoutGateVisibility(user) {
+  const gate = document.getElementById('checkoutAuthGate');
+  const form = document.getElementById('checkoutForm');
+  const emailInput = form?.querySelector('input[name="email"]');
+  const firstNameInput = form?.querySelector('input[name="first_name"]');
+  const lastNameInput = form?.querySelector('input[name="last_name"]');
+
+  if (!gate && !form) return;
+
+  if (user) {
+    const { firstName, lastName } = getUserFullName(user);
+
+    gate?.setAttribute('hidden', '');
+    gate?.classList.add('is-hidden');
+    gate?.setAttribute('aria-hidden', 'true');
+
+    form?.classList.add('is-authenticated-checkout');
+    form?.setAttribute('data-authenticated', 'true');
+
+    if (emailInput && !emailInput.value) emailInput.value = user.email || '';
+    if (firstNameInput && !firstNameInput.value && firstName) firstNameInput.value = firstName;
+    if (lastNameInput && !lastNameInput.value && lastName) lastNameInput.value = lastName;
+  } else {
+    gate?.removeAttribute('hidden');
+    gate?.classList.remove('is-hidden');
+    gate?.setAttribute('aria-hidden', 'false');
+
+    form?.classList.remove('is-authenticated-checkout');
+    form?.setAttribute('data-authenticated', 'false');
+  }
+}
+
+async function syncCheckoutAuthState() {
+  if (!document.getElementById('checkoutForm') && !document.getElementById('checkoutAuthGate')) return;
+
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+    setCheckoutGateVisibility(user || null);
+  } catch (error) {
+    console.warn('syncCheckoutAuthState warning:', error);
+    setCheckoutGateVisibility(null);
+  }
+}
+
 function closeAccountDrawer() {
   const drawer = document.getElementById('accountDrawer');
   const backdrop = document.getElementById('backdrop');
@@ -442,25 +498,232 @@ bindOpenAuthButtons();
 bindPasswordToggles();
 bindPasswordMeter();
 
+
 // -----------------------------
-// Register
+// Checkout validation UX (Phase 2)
+// -----------------------------
+const CHECKOUT_FIELD_RULES = {
+  first_name: { label: 'Ad', validate: (value) => String(value || '').trim().length >= 2 || 'Ad alanı en az 2 karakter olmalı.' },
+  last_name: { label: 'Soyad', validate: (value) => String(value || '').trim().length >= 2 || 'Soyad alanı en az 2 karakter olmalı.' },
+  email: { label: 'E-posta', validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(value || '').trim()) || 'Geçerli bir e-posta adresi gir.' },
+  phone: { label: 'Telefon', validate: (value) => isValidTurkishPhone(value) || 'Telefon numarası +90 5xx xxx xx xx formatında olmalı.' },
+  identity_number: { label: 'T.C. Kimlik No', validate: (value) => isValidTurkishIdentityNumber(value) || 'Geçerli bir 11 haneli T.C. kimlik numarası gir.' },
+  city: { label: 'İl', validate: (value) => String(value || '').trim().length >= 2 || 'İl alanını doldur.' },
+  district: { label: 'İlçe', validate: (value) => String(value || '').trim().length >= 2 || 'İlçe alanını doldur.' },
+  postal_code: { label: 'Posta Kodu', validate: (value) => /^\d{5}$/.test(onlyDigits(value)) || 'Posta kodu 5 haneli olmalı.' },
+  address: { label: 'Adres', validate: (value) => String(value || '').trim().length >= 10 || 'Adres alanı en az 10 karakter olmalı.' },
+  sales_terms: { label: 'Mesafeli Satış', validate: (_value, input) => input?.checked || 'Ön bilgilendirme ve mesafeli satış koşullarını onaylamalısın.' },
+  kvkk_terms: { label: 'KVKK', validate: (_value, input) => input?.checked || 'KVKK aydınlatma metni bilgilendirmesini onaylamalısın.' }
+};
+
+function onlyDigits(value) {
+  return String(value || '').replace(/\D/g, '');
+}
+
+function normalizeTurkishPhoneDigits(value) {
+  let digits = onlyDigits(value);
+  if (digits.startsWith('0090')) digits = digits.slice(4);
+  if (digits.startsWith('90')) digits = digits.slice(2);
+  if (digits.startsWith('0')) digits = digits.slice(1);
+  return digits.slice(0, 10);
+}
+
+function formatTurkishPhone(value) {
+  const digits = normalizeTurkishPhoneDigits(value);
+  if (!digits) return '';
+  const p1 = digits.slice(0, 3);
+  const p2 = digits.slice(3, 6);
+  const p3 = digits.slice(6, 8);
+  const p4 = digits.slice(8, 10);
+  return ['+90', p1, p2, p3, p4].filter(Boolean).join(' ');
+}
+
+function isValidTurkishPhone(value) {
+  const digits = normalizeTurkishPhoneDigits(value);
+  return /^5\d{9}$/.test(digits);
+}
+
+function normalizeTurkishPhoneForSubmit(value) {
+  const digits = normalizeTurkishPhoneDigits(value);
+  return digits ? `+90${digits}` : '';
+}
+
+function isValidTurkishIdentityNumber(value) {
+  const digits = onlyDigits(value);
+  if (!/^\d{11}$/.test(digits)) return false;
+  if (digits[0] === '0') return false;
+  const numbers = digits.split('').map(Number);
+  const oddSum = numbers[0] + numbers[2] + numbers[4] + numbers[6] + numbers[8];
+  const evenSum = numbers[1] + numbers[3] + numbers[5] + numbers[7];
+  const tenth = ((oddSum * 7) - evenSum) % 10;
+  const eleventh = numbers.slice(0, 10).reduce((sum, n) => sum + n, 0) % 10;
+  return numbers[9] === tenth && numbers[10] === eleventh;
+}
+
+function injectCheckoutValidationStyles() {
+  if (document.getElementById('checkoutValidationStyles')) return;
+  const style = document.createElement('style');
+  style.id = 'checkoutValidationStyles';
+  style.textContent = `
+    #checkoutForm .field { position: relative; }
+    #checkoutForm .field-error { display:none; margin-top:7px; font-size:12px; line-height:1.45; color:#b42318; }
+    #checkoutForm .field.has-error .field-error { display:block; }
+    #checkoutForm .field.has-error input,
+    #checkoutForm .field.has-error textarea,
+    #checkoutForm .field.has-error select { border-color:rgba(180,35,24,.7); box-shadow:0 0 0 3px rgba(180,35,24,.08); }
+    #checkoutForm .field.is-valid input,
+    #checkoutForm .field.is-valid textarea,
+    #checkoutForm .field.is-valid select { border-color:rgba(31,122,79,.45); }
+  `;
+  document.head.appendChild(style);
+}
+
+function getFieldWrapper(input) {
+  return input?.closest('.field') || input?.closest('label')?.parentElement || null;
+}
+
+function ensureFieldError(input) {
+  if (!input) return null;
+  const wrapper = getFieldWrapper(input);
+  if (!wrapper) return null;
+  let error = wrapper.querySelector(`.field-error[data-for="${input.name}"]`);
+  if (!error) {
+    error = document.createElement('div');
+    error.className = 'field-error';
+    error.dataset.for = input.name;
+    error.id = `checkout-error-${input.name}`;
+    error.setAttribute('aria-live', 'polite');
+    const line = input.closest('.checkline');
+    if (line) line.insertAdjacentElement('afterend', error);
+    else input.insertAdjacentElement('afterend', error);
+  }
+  return error;
+}
+
+function setCheckoutFieldError(input, message = '') {
+  if (!input) return;
+  const wrapper = getFieldWrapper(input);
+  const error = ensureFieldError(input);
+  if (!wrapper || !error) return;
+  if (message) {
+    wrapper.classList.add('has-error');
+    wrapper.classList.remove('is-valid');
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('aria-describedby', error.id);
+    error.textContent = message;
+  } else {
+    wrapper.classList.remove('has-error');
+    if (String(input.value || '').trim() || input.checked) wrapper.classList.add('is-valid');
+    input.removeAttribute('aria-invalid');
+    input.removeAttribute('aria-describedby');
+    error.textContent = '';
+  }
+}
+
+function validateCheckoutField(input, silent = false) {
+  if (!input?.name || !CHECKOUT_FIELD_RULES[input.name]) return true;
+  const result = CHECKOUT_FIELD_RULES[input.name].validate(input.value, input);
+  const valid = result === true;
+  if (!silent || !valid) setCheckoutFieldError(input, valid ? '' : result);
+  return valid;
+}
+
+function setCheckoutStatus(message = '', isError = false) {
+  const status = document.getElementById('checkoutStatus');
+  if (!status) return;
+  status.textContent = message;
+  status.style.color = isError ? '#b42318' : '#1f7a4f';
+  status.style.display = message ? 'block' : 'none';
+  status.setAttribute('role', isError ? 'alert' : 'status');
+}
+
+function normalizeCheckoutValues(form) {
+  const phoneInput = form?.querySelector('[name="phone"]');
+  const identityInput = form?.querySelector('[name="identity_number"]');
+  const postalInput = form?.querySelector('[name="postal_code"]');
+  const emailInput = form?.querySelector('[name="email"]');
+  if (phoneInput && isValidTurkishPhone(phoneInput.value)) phoneInput.value = formatTurkishPhone(phoneInput.value);
+  if (identityInput) identityInput.value = onlyDigits(identityInput.value).slice(0, 11);
+  if (postalInput) postalInput.value = onlyDigits(postalInput.value).slice(0, 5);
+  if (emailInput) emailInput.value = normalizeEmail(emailInput.value);
+}
+
+function validateCheckoutForm(form, focusFirstInvalid = true) {
+  if (!form) return true;
+  normalizeCheckoutValues(form);
+  const inputs = Object.keys(CHECKOUT_FIELD_RULES).map((name) => form.querySelector(`[name="${name}"]`)).filter(Boolean);
+  const invalidInputs = inputs.filter((input) => !validateCheckoutField(input));
+  if (invalidInputs.length) {
+    setCheckoutStatus('Lütfen kırmızı işaretli alanları kontrol et.', true);
+    if (focusFirstInvalid) {
+      invalidInputs[0].focus({ preventScroll: true });
+      invalidInputs[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return false;
+  }
+  setCheckoutStatus('', false);
+  return true;
+}
+
+function bindCheckoutValidation() {
+  const form = document.getElementById('checkoutForm');
+  if (!form || form.dataset.phase2ValidationBound === 'true') return;
+  form.dataset.phase2ValidationBound = 'true';
+  injectCheckoutValidationStyles();
+
+  const phoneInput = form.querySelector('[name="phone"]');
+  const identityInput = form.querySelector('[name="identity_number"]');
+  const postalInput = form.querySelector('[name="postal_code"]');
+
+  phoneInput?.setAttribute('inputmode', 'tel');
+  phoneInput?.setAttribute('maxlength', '17');
+  phoneInput?.setAttribute('placeholder', '+90 5xx xxx xx xx');
+  phoneInput?.addEventListener('input', () => {
+    phoneInput.value = formatTurkishPhone(phoneInput.value);
+    validateCheckoutField(phoneInput, true);
+  });
+
+  identityInput?.setAttribute('inputmode', 'numeric');
+  identityInput?.setAttribute('maxlength', '11');
+  identityInput?.addEventListener('input', () => {
+    identityInput.value = onlyDigits(identityInput.value).slice(0, 11);
+    validateCheckoutField(identityInput, true);
+  });
+
+  postalInput?.setAttribute('inputmode', 'numeric');
+  postalInput?.setAttribute('maxlength', '5');
+  postalInput?.addEventListener('input', () => {
+    postalInput.value = onlyDigits(postalInput.value).slice(0, 5);
+    validateCheckoutField(postalInput, true);
+  });
+
+  Object.keys(CHECKOUT_FIELD_RULES).forEach((name) => {
+    const input = form.querySelector(`[name="${name}"]`);
+    if (!input) return;
+    ensureFieldError(input);
+    input.addEventListener('blur', () => validateCheckoutField(input));
+    input.addEventListener('change', () => validateCheckoutField(input, true));
+  });
+
+  form.addEventListener('submit', (event) => {
+    if (!validateCheckoutForm(form)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      return false;
+    }
+    const phoneInput = form.querySelector('[name="phone"]');
+    if (phoneInput) phoneInput.dataset.normalizedPhone = normalizeTurkishPhoneForSubmit(phoneInput.value);
+    setCheckoutStatus('Bilgiler kontrol edildi. Güvenli ödeme başlatılıyor...', false);
+    return true;
+  }, true);
+}
+
+document.addEventListener('DOMContentLoaded', bindCheckoutValidation);
+
 // -----------------------------
 // Register
 // -----------------------------
 const registerForm = document.getElementById('registerForm');
-
-// Mirror of /functions/api/auth/register.js — kept in sync intentionally.
-// If a rule changes here, update the server file too.
-const PASSWORD_RULES = [
-  { code: 'length', test: (p) => p.length >= 8,         message: 'Şifre en az 8 karakter olmalı.' },
-  { code: 'upper',  test: (p) => /[A-ZÇĞİÖŞÜ]/.test(p), message: 'Şifre en az 1 büyük harf içermeli.' },
-  { code: 'lower',  test: (p) => /[a-zçğıöşü]/.test(p), message: 'Şifre en az 1 küçük harf içermeli.' },
-  { code: 'number', test: (p) => /\d/.test(p),          message: 'Şifre en az 1 rakam içermeli.' },
-];
-
-function firstFailingPasswordRule(pw) {
-  return PASSWORD_RULES.find((rule) => !rule.test(pw)) || null;
-}
 
 registerForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -480,89 +743,57 @@ registerForm?.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Frontend rule check — must match the server. Block submit on any failure.
-  const failingRule = firstFailingPasswordRule(password);
-  if (failingRule) {
-    setStatus(failingRule.message, true, 'registerStatus');
+  if (password.length < 8) {
+    setStatus('Şifre en az 8 karakter olmalı.', true, 'registerStatus');
     setLoading(submitBtn, false);
-    document.getElementById('registerPassword')?.focus();
     return;
   }
 
   try {
-    // Send to server — it enforces the same rules and proxies to Supabase.
-    // This guarantees rules can't be bypassed by tampering with this file.
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-        first_name: firstName,
-        last_name: lastName
-      })
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: getRedirectTo(),
+        data: {
+          first_name: firstName,
+          last_name: lastName
+        }
+      }
     });
 
-    let body = null;
-    try { body = await response.json(); } catch { body = null; }
+    if (error) throw error;
 
-    if (!response.ok || !body?.ok) {
-      const code = body?.code || '';
-      const serverMsg = body?.error || '';
-      if (code === 'email_exists') {
-        setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
-      } else if (['length', 'upper', 'lower', 'number', 'invalid_email', 'missing_name'].includes(code)) {
-        setStatus(serverMsg || 'Form bilgilerini kontrol edin.', true, 'registerStatus');
-      } else if (code === 'server_misconfig') {
-        setStatus('Kayıt servisi şu an aktif değil. Lütfen kısa süre sonra tekrar dene.', true, 'registerStatus');
-      } else {
-        setStatus(serverMsg || 'Kayıt sırasında bir hata oluştu. Lütfen tekrar dene.', true, 'registerStatus');
-      }
+    if (data?.user?.identities?.length === 0) {
+      setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
+      setLoading(submitBtn, false);
       return;
     }
 
-    // Success path. Two cases:
-    //   (a) requiresEmailConfirmation === true  → Supabase project has email
-    //       confirmation on. Tell the user to check their inbox.
-    //   (b) requiresEmailConfirmation === false → server returned a session.
-    //       Hydrate the local Supabase client so the user is signed in
-    //       immediately (used by the checkout register-and-continue flow).
-    if (body.session?.access_token && body.session?.refresh_token) {
-      try {
-        await supabase.auth.setSession({
-          access_token: body.session.access_token,
-          refresh_token: body.session.refresh_token
-        });
-      } catch (sessionError) {
-        console.warn('setSession after register failed:', sessionError);
-      }
-      setStatus('Kayıt başarılı. Hoş geldin!', false, 'registerStatus');
-      // Notify the rest of the app so checkout can hide its auth gate, etc.
-      document.dispatchEvent(new CustomEvent('cosmoskin:auth-state', {
-        detail: { state: 'SIGNED_IN', source: 'register' }
-      }));
-      document.dispatchEvent(new CustomEvent('cosmoskin:auth-refresh-requested', {
-        detail: { source: 'register' }
-      }));
-      // Close the modal so the user can continue (e.g. checkout) without
-      // an extra click. Login does the same after a successful sign-in.
-      try {
-        await refreshAccountUI();
-        closeAccountModal();
-        closeAccountDrawer();
-      } catch (closeError) {
-        console.warn('post-register modal close failed:', closeError);
-      }
-    } else {
-      setStatus('Kayıt başarılı. Lütfen e-postanı kontrol et.', false, 'registerStatus');
-    }
-
+    setStatus('Kayıt başarılı. Lütfen e-postanı kontrol et.', false, 'registerStatus');
     track('sign_up', { email_domain: email.split('@')[1] || '' });
     registerForm.reset();
     bindPasswordMeter();
   } catch (error) {
     console.error('Register error:', error);
-    setStatus('Sunucuya ulaşılamadı. Bağlantıyı kontrol edip tekrar dene.', true, 'registerStatus');
+
+    const msg = String(error?.message || '').toLowerCase();
+
+    if (
+      msg.includes('already') ||
+      msg.includes('exists') ||
+      msg.includes('duplicate') ||
+      msg.includes('registered') ||
+      msg.includes('database error saving new user')
+    ) {
+      setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
+    } else if (msg.includes('password')) {
+      setStatus('Şifre kriterleri sağlanmadı. Lütfen daha güçlü bir şifre dene.', true, 'registerStatus');
+    } else if (msg.includes('rate limit')) {
+      setStatus('Çok fazla deneme yapıldı. Lütfen biraz sonra tekrar dene.', true, 'registerStatus');
+    } else {
+      setStatus('Kayıt sırasında bir hata oluştu. Lütfen tekrar dene.', true, 'registerStatus');
+    }
   } finally {
     setLoading(submitBtn, false);
   }
@@ -601,6 +832,7 @@ loginForm?.addEventListener('submit', async (e) => {
     track('login', { email_domain: email.split('@')[1] || '' });
 
     await refreshAccountUI();
+    await syncCheckoutAuthState();
     closeAccountModal();
     closeAccountDrawer();
 
@@ -644,7 +876,11 @@ loginForm?.addEventListener('submit', async (e) => {
 supabase.auth.onAuthStateChange(async (_event, session) => {
   const user = session?.user || null;
   renderAccountState(user);
+  setCheckoutGateVisibility(user);
   emitAuthState(user);
 });
 
-refreshAccountUI();
+document.addEventListener('DOMContentLoaded', syncCheckoutAuthState);
+document.addEventListener('cosmoskin:auth-refresh-requested', syncCheckoutAuthState);
+
+refreshAccountUI().then(syncCheckoutAuthState);

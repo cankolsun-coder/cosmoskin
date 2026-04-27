@@ -1,7 +1,171 @@
 <!DOCTYPE html>
 
-<html lang="tr"><head><title>Ödeme | Cosmoskin</title><meta content="Cosmoskin sipariş özeti ve teslimat bilgileri ekranı." name="description"/><link href="https://www.cosmoskin.com.tr/checkout.html" rel="canonical"/><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="#f2ece4" name="theme-color"/><meta content="index, follow" name="robots"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="/favicon.png" rel="icon" sizes="32x32" type="image/png"/><link href="/apple-touch-icon.png" rel="apple-touch-icon"/><link href="/favicon.ico" rel="shortcut icon"/><link href="/site.webmanifest" rel="manifest"/><link href="/assets/style.css?v=20260418f" rel="stylesheet"/><link rel="stylesheet" href="/assets/mobile.css?v=20260425f"/>
-</head><body><div class="progress" id="progress"></div><div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
+<html lang="tr"><head><title>Ödeme | Cosmoskin</title><meta content="Cosmoskin sipariş özeti ve teslimat bilgileri ekranı." name="description"/><link href="https://www.cosmoskin.com.tr/checkout.html" rel="canonical"/><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="#f2ece4" name="theme-color"/><meta content="index, follow" name="robots"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="/favicon.png" rel="icon" sizes="32x32" type="image/png"/><link href="/apple-touch-icon.png" rel="apple-touch-icon"/><link href="/favicon.ico" rel="shortcut icon"/><link href="/site.webmanifest" rel="manifest"/><link href="/assets/style.css?v=20260418f" rel="stylesheet"/><link rel="stylesheet" href="/assets/mobile-system.css?v=20260424"/>
+
+<style id="cosmoskinCheckoutPremiumStyles">
+  :root{
+    --cs-ink:#15110d;
+    --cs-muted:#776c61;
+    --cs-soft:#f7f1ea;
+    --cs-soft-2:#efe6dc;
+    --cs-line:rgba(38,28,20,.12);
+    --cs-line-strong:rgba(38,28,20,.2);
+    --cs-card:rgba(255,252,247,.82);
+    --cs-card-solid:#fffaf3;
+    --cs-shadow:0 24px 80px rgba(30,22,16,.12);
+    --cs-radius:28px;
+  }
+  body.checkout-premium-page{
+    background:
+      radial-gradient(circle at 8% 14%, rgba(255,255,255,.86) 0 10%, transparent 27%),
+      radial-gradient(circle at 88% 4%, rgba(213,190,164,.28) 0 16%, transparent 32%),
+      linear-gradient(180deg,#fbf7f1 0%,#f3ebe1 42%,#fbf8f4 100%);
+  }
+  .checkout-premium-shell{position:relative;overflow:hidden;isolation:isolate;}
+  .checkout-premium-shell:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(255,255,255,.55),transparent 36%,rgba(207,181,151,.22));pointer-events:none;z-index:-2;}
+  .checkout-premium-shell:after{content:"";position:absolute;right:-10vw;top:86px;width:38vw;height:38vw;border-radius:50%;background:radial-gradient(circle,rgba(192,160,126,.18),transparent 62%);filter:blur(6px);z-index:-1;}
+  .checkout-hero-premium{padding:70px 0 34px;}
+  .checkout-hero-card{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(310px,.65fr);gap:34px;align-items:stretch;padding:34px;border:1px solid var(--cs-line);border-radius:36px;background:linear-gradient(135deg,rgba(255,252,247,.9),rgba(243,232,219,.7));box-shadow:var(--cs-shadow);overflow:hidden;backdrop-filter:blur(18px);}
+  .checkout-hero-card:before{content:"";position:absolute;inset:1px;border-radius:35px;border:1px solid rgba(255,255,255,.58);pointer-events:none;}
+  .checkout-hero-copy{position:relative;z-index:1;max-width:760px;}
+  .checkout-eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;padding:9px 13px;border-radius:999px;border:1px solid rgba(35,27,20,.12);background:rgba(255,255,255,.54);font:700 11px/1 Plus Jakarta Sans,system-ui,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#6e5f50;}
+  .checkout-eyebrow:before{content:"";width:7px;height:7px;border-radius:999px;background:#201915;box-shadow:0 0 0 5px rgba(32,25,21,.08);}
+  .checkout-hero-copy h1{margin:0;max-width:720px;color:var(--cs-ink);font-family:Cormorant Garamond,serif;font-size:clamp(42px,6vw,76px);font-weight:400;line-height:.92;letter-spacing:-.045em;}
+  .checkout-hero-copy p{margin:18px 0 0;max-width:610px;color:var(--cs-muted);font-size:15px;line-height:1.75;}
+  .checkout-stepper{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:30px;max-width:680px;}
+  .checkout-step{display:flex;align-items:center;gap:10px;padding:13px 12px;border-radius:18px;border:1px solid rgba(35,27,20,.1);background:rgba(255,255,255,.55);color:#62564b;font-size:12px;font-weight:700;}
+  .checkout-step span{display:grid;place-items:center;width:25px;height:25px;border-radius:999px;background:#17120f;color:#fff;font-size:11px;box-shadow:0 8px 18px rgba(24,18,14,.15);}
+  .checkout-hero-panel{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;min-height:245px;padding:24px;border-radius:28px;background:linear-gradient(145deg,rgba(26,20,16,.92),rgba(66,51,40,.82));color:#fff;overflow:hidden;box-shadow:0 22px 60px rgba(32,24,18,.22);}
+  .checkout-hero-panel:before{content:"";position:absolute;inset:auto -52px -70px auto;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.2),transparent 62%);}
+  .checkout-hero-panel small{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.64);}
+  .checkout-hero-panel strong{display:block;margin-top:16px;font-family:Cormorant Garamond,serif;font-weight:400;font-size:34px;line-height:1;letter-spacing:-.03em;}
+  .checkout-hero-panel p{margin:14px 0 0;color:rgba(255,255,255,.72);font-size:13px;line-height:1.65;}
+  .checkout-hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;}
+  .checkout-hero-badges span{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);font-size:11px;color:rgba(255,255,255,.82);}
+  .checkout-section-premium{padding:18px 0 82px;}
+  .checkout-layout.checkout-layout--premium{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:28px;align-items:start;}
+  .checkout-main-card{border-radius:34px;border:1px solid var(--cs-line);background:var(--cs-card);box-shadow:0 22px 70px rgba(33,24,16,.1);backdrop-filter:blur(18px);overflow:hidden;}
+  .checkout-card-head{display:flex;justify-content:space-between;gap:22px;align-items:flex-start;padding:28px 30px 20px;border-bottom:1px solid var(--cs-line);background:linear-gradient(135deg,rgba(255,255,255,.62),rgba(244,234,222,.44));}
+  .checkout-card-head h2{margin:0;color:var(--cs-ink);font-family:Cormorant Garamond,serif;font-size:34px;font-weight:400;letter-spacing:-.035em;}
+  .checkout-card-head p{margin:8px 0 0;max-width:520px;color:var(--cs-muted);font-size:13px;line-height:1.65;}
+  .checkout-secure-pill{display:inline-flex;align-items:center;gap:9px;white-space:nowrap;padding:10px 13px;border:1px solid rgba(31,122,79,.18);border-radius:999px;background:rgba(236,248,241,.72);color:#286143;font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .checkout-secure-pill svg{width:15px;height:15px;stroke:currentColor;}
+  .checkout-auth-gate.checkout-auth-gate--premium{margin:26px 30px 0;padding:22px;border-radius:26px;border:1px solid rgba(35,27,20,.1);background:linear-gradient(135deg,rgba(255,255,255,.68),rgba(238,225,210,.58));box-shadow:inset 0 1px 0 rgba(255,255,255,.5);display:flex;justify-content:space-between;align-items:center;gap:18px;}
+  .checkout-auth-gate--premium h3{margin:6px 0 6px;color:#19130f;font-size:20px;letter-spacing:-.03em;}
+  .checkout-auth-gate--premium p{margin:0;color:#786b60;font-size:13px;line-height:1.55;}
+  .checkout-auth-gate__actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+  .checkout-auth-gate__actions .btn{min-width:118px;}
+  #checkoutForm.checkout-form-premium{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:28px 30px 32px;}
+  .checkout-form-section{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:4px;padding:24px;border-radius:28px;border:1px solid rgba(35,27,20,.09);background:rgba(255,255,255,.45);}
+  .checkout-form-section:first-of-type{margin-top:0;}
+  .checkout-form-section__head{grid-column:1/-1;display:flex;align-items:flex-start;gap:14px;margin-bottom:2px;}
+  .checkout-section-index{display:grid;place-items:center;flex:0 0 auto;width:34px;height:34px;border-radius:999px;background:#18120f;color:#fff;font-weight:800;font-size:12px;box-shadow:0 12px 28px rgba(24,18,14,.14);}
+  .checkout-form-section__head h3{margin:0;color:var(--cs-ink);font-size:18px;letter-spacing:-.03em;}
+  .checkout-form-section__head p{margin:4px 0 0;color:var(--cs-muted);font-size:12px;line-height:1.55;}
+  #checkoutForm .field{margin:0;}
+  #checkoutForm .field label:not(.checkline){display:block;margin:0 0 8px;color:#4e443b;font-size:12px;font-weight:800;letter-spacing:.055em;text-transform:uppercase;}
+  #checkoutForm input,#checkoutForm textarea,#checkoutForm select{width:100%;min-height:48px;border:1px solid rgba(35,27,20,.13);border-radius:17px;background:rgba(255,255,255,.82);color:#18120f;padding:0 15px;font:500 14px/1.2 Plus Jakarta Sans,system-ui,sans-serif;transition:border-color .18s ease,box-shadow .18s ease,background .18s ease,transform .18s ease;}
+  #checkoutForm textarea{min-height:112px;padding:14px 15px;resize:vertical;line-height:1.55;}
+  #checkoutForm select{appearance:auto;}
+  #checkoutForm input:focus,#checkoutForm textarea:focus,#checkoutForm select:focus{outline:none;border-color:rgba(24,18,14,.38);background:#fff;box-shadow:0 0 0 4px rgba(32,24,18,.075);}
+  #checkoutForm .field-help{margin-top:7px;color:#8a7e73;font-size:11px;line-height:1.45;}
+  .checkout-method-card{width:100%;min-height:74px;text-align:left;border:1px solid rgba(24,18,14,.14);border-radius:22px;background:linear-gradient(135deg,#201812,#443326);color:#fff;padding:18px 20px;box-shadow:0 18px 42px rgba(24,18,14,.15);cursor:pointer;}
+  .checkout-method-card strong{display:block;font-size:14px;margin-bottom:5px;}
+  .checkout-method-card span{display:block;color:rgba(255,255,255,.72);font-size:12px;line-height:1.5;}
+  .checkout-trust-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+  .checkout-trust-card{position:relative;min-height:110px;padding:16px;border-radius:22px;border:1px solid rgba(35,27,20,.1);background:rgba(255,255,255,.55);overflow:hidden;}
+  .checkout-trust-card:before{content:"";display:block;width:24px;height:24px;margin-bottom:13px;border-radius:999px;background:radial-gradient(circle at 35% 35%,#fff,#d8c7b6 45%,#2a211b 46%);box-shadow:0 10px 26px rgba(39,30,23,.12);}
+  .checkout-trust-card strong{display:block;color:#201812;font-size:13px;margin-bottom:6px;}
+  .checkout-trust-card span{display:block;color:#776b60;font-size:11px;line-height:1.55;}
+  .checkout-consent{padding:18px;border-radius:24px;border:1px solid rgba(35,27,20,.1);background:rgba(255,255,255,.52);}
+  .checkout-consent .checkline{display:flex;align-items:flex-start;gap:10px;color:#5f554c;font-size:12px;line-height:1.55;margin:0 0 12px;}
+  .checkout-consent .checkline:last-child{margin-bottom:0;}
+  .checkout-consent input[type=checkbox]{width:17px;min-height:17px;height:17px;margin-top:2px;accent-color:#1a130f;}
+  #checkoutSubmit{width:100%;min-height:56px;border-radius:999px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 18px 40px rgba(24,18,14,.18);}
+  #checkoutStatus{margin-top:12px;}
+  .checkout-summary.checkout-summary--premium{position:sticky;top:102px;display:grid;gap:16px;}
+  .summary-card.summary-card--premium{border-radius:30px;border:1px solid rgba(35,27,20,.12);background:linear-gradient(180deg,rgba(255,252,247,.94),rgba(248,239,229,.9));box-shadow:0 22px 70px rgba(33,24,16,.12);overflow:hidden;backdrop-filter:blur(16px);}
+  .summary-premium-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 22px 16px;border-bottom:1px solid rgba(35,27,20,.09);}
+  .summary-premium-head h3{margin:0;color:var(--cs-ink);font-family:Cormorant Garamond,serif;font-size:30px;font-weight:400;letter-spacing:-.035em;}
+  .summary-chip{padding:7px 10px;border-radius:999px;background:#18120f;color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
+  #checkoutItems{padding:4px 22px 12px;}
+  .summary-card--premium .sum-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:0;padding:13px 22px;border-top:1px solid rgba(35,27,20,.08);color:#6b5f55;font-size:13px;}
+  .summary-card--premium .sum-row strong{color:#201812;font-size:14px;}
+  .summary-card--premium .sum-row.total{margin:10px 14px 14px;padding:18px;border-radius:22px;border-top:0;background:#18120f;color:rgba(255,255,255,.78);}
+  .summary-card--premium .sum-row.total strong{color:#fff;font-size:22px;letter-spacing:-.03em;}
+  .checkout-mini-progress{padding:0 22px 20px;}
+  .checkout-mini-progress__bar{height:7px;border-radius:999px;background:rgba(35,27,20,.1);overflow:hidden;}
+  .checkout-mini-progress__bar span{display:block;width:62%;height:100%;border-radius:999px;background:linear-gradient(90deg,#1b1410,#b49a7f);}
+  .checkout-mini-progress p{margin:10px 0 0;color:#796d62;font-size:11px;line-height:1.5;}
+  .checkout-info-list.checkout-info-list--premium{list-style:none;margin:0;padding:18px 20px 20px;display:grid;gap:11px;}
+  .checkout-info-list--premium li{position:relative;padding-left:26px;color:#665b51;font-size:12px;line-height:1.55;}
+  .checkout-info-list--premium li:before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border-radius:999px;background:#1c1511;box-shadow:inset 0 0 0 5px #d9c8b6;}
+  .checkout-summary-toggle{display:none;width:100%;align-items:center;justify-content:space-between;border:1px solid rgba(35,27,20,.12);border-radius:20px;background:#1a130f;color:#fff;padding:14px 16px;font-weight:800;letter-spacing:.03em;}
+  .checkout-summary-toggle span{font-size:12px;color:rgba(255,255,255,.7);font-weight:700;}
+  .checkout-empty-state{display:none;margin:16px 22px 22px;padding:20px;border-radius:24px;background:rgba(255,255,255,.58);border:1px dashed rgba(35,27,20,.18);text-align:center;color:#70655b;font-size:13px;line-height:1.6;}
+  .checkout-empty-state a{display:inline-flex;margin-top:12px;color:#18120f;font-weight:800;text-decoration:underline;text-underline-offset:4px;}
+  @media (max-width: 1024px){
+    .checkout-hero-card{grid-template-columns:1fr;padding:26px;}
+    .checkout-layout.checkout-layout--premium{grid-template-columns:1fr;}
+    .checkout-summary.checkout-summary--premium{position:relative;top:auto;}
+  }
+  @media (max-width: 760px){
+    .checkout-hero-premium{padding:34px 0 18px;}
+    .checkout-hero-card{border-radius:28px;padding:22px;}
+    .checkout-stepper{grid-template-columns:1fr;}
+    .checkout-hero-panel{min-height:auto;}
+    .checkout-section-premium{padding-bottom:48px;}
+    .checkout-card-head{display:block;padding:22px 20px 16px;}
+    .checkout-secure-pill{margin-top:14px;}
+    .checkout-auth-gate.checkout-auth-gate--premium{margin:20px 18px 0;display:block;}
+    .checkout-auth-gate__actions{margin-top:16px;justify-content:stretch;}
+    .checkout-auth-gate__actions .btn{flex:1;}
+    #checkoutForm.checkout-form-premium{grid-template-columns:1fr;padding:20px 18px 24px;gap:14px;}
+    .checkout-form-section{grid-template-columns:1fr;padding:18px;border-radius:24px;gap:14px;}
+    .checkout-trust-grid{grid-template-columns:1fr;}
+    .checkout-summary-toggle{display:flex;}
+    .checkout-summary.is-collapsed .summary-card{display:none;}
+    .checkout-summary.is-collapsed .summary-card:first-of-type{display:block;}
+    .checkout-summary.is-collapsed #checkoutItems,.checkout-summary.is-collapsed .sum-row:not(.total),.checkout-summary.is-collapsed .checkout-mini-progress,.checkout-summary.is-collapsed .summary-premium-head{display:none;}
+    .checkout-summary.is-collapsed .sum-row.total{margin:0;border-radius:20px;}
+  }
+</style>
+
+<style id="cosmoskinCheckoutPhase4Styles">
+  .checkout-summary{position:sticky;top:112px;}
+  .checkout-summary .summary-card--premium{overflow:hidden;}
+  .checkout-summary-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 22px 14px;padding:12px 14px;border:1px solid rgba(35,27,20,.08);border-radius:18px;background:rgba(255,255,255,.58);color:#6f6257;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
+  .checkout-summary-toolbar a{color:#17120f;text-decoration:none;border-bottom:1px solid rgba(23,18,15,.24);}
+  .checkout-item-card{display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;align-items:start;padding:16px 0;border-top:1px solid rgba(35,27,20,.09);}
+  .checkout-item-card:first-child{border-top:0;padding-top:0;}
+  .checkout-item-media{position:relative;display:grid;place-items:center;width:72px;height:86px;border-radius:22px;background:linear-gradient(145deg,#fffaf4,#eadfD3);border:1px solid rgba(35,27,20,.08);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.7);}
+  .checkout-item-media img{max-width:86%;max-height:86%;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(30,22,16,.12));}
+  .checkout-item-media span{font-family:Cormorant Garamond,serif;font-size:26px;color:#9b8d80;}
+  .checkout-item-main{min-width:0;}
+  .checkout-item-brand{display:block;margin-bottom:5px;color:#8a7a6c;font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;}
+  .checkout-item-name{display:block;color:#18120f;font-size:13px;font-weight:800;line-height:1.35;letter-spacing:-.015em;}
+  .checkout-item-meta{margin-top:5px;color:#817469;font-size:11px;line-height:1.45;}
+  .checkout-item-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;}
+  .checkout-qty-control{display:inline-flex;align-items:center;gap:2px;padding:4px;border:1px solid rgba(35,27,20,.11);border-radius:999px;background:rgba(255,255,255,.72);}
+  .checkout-qty-control button{display:grid;place-items:center;width:27px;height:27px;border:0;border-radius:999px;background:transparent;color:#18120f;font-size:16px;line-height:1;cursor:pointer;transition:background .16s ease,transform .16s ease;}
+  .checkout-qty-control button:hover{background:rgba(24,18,14,.07);}
+  .checkout-qty-control button:active{transform:scale(.94);}
+  .checkout-qty-control strong{min-width:24px;text-align:center;color:#18120f;font-size:12px;}
+  .checkout-item-price{text-align:right;white-space:nowrap;color:#18120f;font-size:13px;font-weight:900;}
+  .checkout-item-unit{display:block;margin-top:3px;color:#8a7d72;font-size:10px;font-weight:700;}
+  .checkout-remove-btn{margin-top:9px;border:0;background:transparent;padding:0;color:#8c5b4b;font-size:11px;font-weight:800;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+  .checkout-free-shipping-note{margin:0 22px 18px;padding:14px 15px;border-radius:20px;border:1px solid rgba(35,27,20,.08);background:linear-gradient(135deg,rgba(255,255,255,.74),rgba(239,229,217,.52));color:#675b51;font-size:12px;line-height:1.5;}
+  .checkout-free-shipping-note strong{color:#17120f;}
+  .checkout-mini-progress__bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#1a130f,#8d7157);transition:width .24s ease;}
+  .checkout-empty-state{padding:30px 24px!important;border-radius:24px;background:rgba(255,255,255,.62);border:1px dashed rgba(35,27,20,.18);color:#71665d;}
+  .checkout-summary-empty .sum-row:not(.total),.checkout-summary-empty .checkout-mini-progress,.checkout-summary-empty .checkout-free-shipping-note{display:none;}
+  .checkout-disabled-note{margin-top:12px;color:#8c5b4b;font-size:12px;font-weight:700;}
+  #checkoutSubmit:disabled{opacity:.48;cursor:not-allowed;filter:grayscale(.15);}
+  @media (max-width: 980px){.checkout-summary{position:relative;top:auto;}.checkout-item-card{grid-template-columns:64px minmax(0,1fr);}.checkout-item-media{width:64px;height:78px;}}
+  @media (max-width: 560px){.checkout-summary-toolbar,.checkout-free-shipping-note{margin-left:16px;margin-right:16px;}#checkoutItems{padding-left:16px!important;padding-right:16px!important;}.checkout-item-foot{align-items:flex-start;}.checkout-qty-control button{width:31px;height:31px;}.checkout-item-price{font-size:12px;}}
+</style>
+
+</head><body class="checkout-premium-page"><div class="progress" id="progress"></div><div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
 <header class="header">
 <a aria-label="Cosmoskin anasayfa" class="brand" href="/index.html">
 <img alt="Cosmoskin logo" class="brand-logo" src="/assets/logo-mark.png"/>
@@ -65,57 +229,367 @@
 <a href="/index.html#brands">Markalar</a>
 <a href="/collections/routine.html">Rutinler</a>
 <a href="/contact.html">Destek Merkezi</a>
-</div><main><section class="page-hero"><div class="container narrow"><p class="kicker">Ödeme</p><h1>Ödeme ve teslimat bilgileri</h1><p>Sipariş özetiniz, dahil olan KDV ve kargo bilgileriyle birlikte aşağıda net şekilde gösterilir.</p></div></section><section class="section"><div class="container checkout-layout"><div class="form-card"><div class="checkout-auth-gate" id="checkoutAuthGate"><div><span class="routine-kicker">Hızlı ödeme için üyelik</span><h3>Hesabınla daha hızlı ilerle, misafir olarak da öde</h3><p>Kayıtlı adreslerini kullanmak için giriş yapabilirsin; dilersen misafir ödeme ile devam edebilirsin.</p></div><div class="checkout-auth-gate__actions"><button class="btn btn-primary" data-auth-tab="loginPanel" data-open-auth="" type="button">Giriş Yap</button><button class="btn btn-secondary" data-auth-tab="registerPanel" data-open-auth="" type="button">Kayıt Ol</button></div></div><form class="form-grid" id="checkoutForm"><div class="field full saved-addresses" hidden="" id="savedAddressField"><label>Kayıtlı Adreslerim</label><div class="saved-address-list" id="savedAddressList"></div><div class="account-mini">Kayıtlı bir adres seçtiğinizde alanlar otomatik doldurulur.</div></div><div class="field"><label>Ad</label><input autocomplete="given-name" name="first_name" required=""/></div><div class="field"><label>Soyad</label><input autocomplete="family-name" name="last_name" required=""/></div><div class="field full"><label>E-posta</label><input autocomplete="email" name="email" required="" type="email"/></div><div class="field"><label>Telefon</label><input autocomplete="tel" name="phone" placeholder="+90 5xx xxx xx xx" required=""/></div><div class="field"><label>T.C. Kimlik No</label><input autocomplete="off" inputmode="numeric" maxlength="11" minlength="11" name="identity_number" pattern="[0-9]{11}" required=""/><div class="field-help">Ödeme ve fatura doğrulama adımı için 11 haneli bilgi olarak istenir.</div></div><div class="field"><label>İl</label><input autocomplete="address-level1" name="city" required=""/></div><div class="field"><label>İlçe</label><input autocomplete="address-level2" name="district" required=""/></div><div class="field"><label>Posta Kodu</label><input autocomplete="postal-code" name="postal_code" required=""/></div><div class="field"><label>Fatura Tipi</label><select name="invoice_type"><option>Bireysel</option><option>Kurumsal</option></select></div><div class="field full"><label>Adres</label><textarea autocomplete="street-address" name="address" required=""></textarea></div><div class="field full"><label>Teslimat Notu</label><input name="cargo_note"/></div><div class="field full checkout-methods"><label>Ödeme Yöntemi</label><div class="checkout-method-grid"><button class="checkout-method-card is-active" type="button"><strong>Kart ile Güvenli Ödeme</strong><span>iyzico altyapısı üzerinden güvenli yönlendirme</span></button></div></div><div class="field full checkout-trust" id="checkoutTrustBlock"><div class="checkout-trust-grid"><div class="checkout-trust-card"><strong>Güvenli ödeme</strong><span>Ödeme iyzico yönlendirmesiyle güvenli sayfada tamamlanır.</span></div><div class="checkout-trust-card"><strong>Şeffaf toplam</strong><span>KDV ve kargo tutarı ödeme öncesinde net olarak gösterilir.</span></div><div class="checkout-trust-card"><strong>Yasal bilgilendirme</strong><span>Ön bilgilendirme, mesafeli satış ve iade koşulları ödeme öncesinde erişilebilir durumdadır.</span></div></div></div><div class="field full checkout-consent"><label class="checkline"><input name="sales_terms" required="" type="checkbox"/> <span><a href="/on-bilgilendirme.html" rel="noopener" target="_blank">Ön Bilgilendirme Formu</a> ve <a href="/mesafeli-satis.html" rel="noopener" target="_blank">Mesafeli Satış Sözleşmesi</a> koşullarını okudum.</span></label><label class="checkline"><input name="kvkk_terms" required="" type="checkbox"/> <span><button class="inline-link open-legal" type="button">KVKK Aydınlatma Metni</button> kapsamında bilgilendirildim.</span></label><label class="checkline"><input name="marketing_optin" type="checkbox"/> <span>Kampanya ve ürün bilgilendirmelerini e-posta ile almak istiyorum.</span></label></div><input id="orderSummaryField" name="order_summary" type="hidden"/><div class="field full"><button class="btn btn-primary" id="checkoutSubmit" type="submit">Güvenli Ödemeye Geç</button><div class="form-status" id="checkoutStatus"></div></div></form></div><aside class="checkout-summary"><div class="summary-card"><h3>Sipariş Özeti</h3><div id="checkoutItems"></div><div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="checkoutSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="checkoutVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="checkoutShipping">₺0</strong></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="checkoutTotal">₺0</strong></div></div><div class="summary-card" id="checkoutInfoPanel"><h3>Ödeme öncesi kısa notlar</h3><ul class="checkout-info-list"><li>Ürün fiyatları KDV dahildir.</li><li>2.500 TL ve üzeri siparişlerde kargo ücretsizdir.</li><li>İade ve teslimat koşullarına footer ve ödeme adımından erişebilirsin.</li></ul></div></aside></div></section></main><footer class="footer">
-  <div class="container footer-grid">
-    <div>
-      <a class="brand footer-brandlock" href="/index.html"><img class="brand-logo" src="/assets/logo-mark-light.png" alt="Cosmoskin logo"><span class="brand-word">COSMOSKIN</span></a>
-      <p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p>
-    </div>
-    <div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
-    <div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
-    <div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat &amp; Kargo</a><a href="/iade-degisim.html">İade &amp; Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
-    <div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" target="_blank" rel="noopener">Instagram</a><span>İstanbul, Türkiye</span></div>
-  </div>
-  <div class="container footer-trustbar">
-    <div class="footer-payment-block">
-      <span class="footer-meta-label">Ödeme Yöntemleri</span>
-      <div class="payment-logos" aria-label="Desteklenen ödeme yöntemleri">
-        <span class="payment-logo payment-logo--visa" aria-label="Visa">
-          <svg viewBox="0 0 96 34" role="img" aria-hidden="true"><path d="M18.6 25.8 22.7 8h6.5l-4.1 17.8h-6.5Zm30.9-17.4a15.5 15.5 0 0 0-5.8-1c-6.4 0-10.9 3.2-10.9 7.8 0 3.4 3.2 5.3 5.7 6.4 2.6 1.2 3.4 1.9 3.4 3 0 1.7-2.1 2.4-4 2.4-2.7 0-4.2-.4-6.4-1.3l-.9-.4-.9 5.6a21.8 21.8 0 0 0 7.6 1.3c6.8 0 11.2-3.2 11.3-8.2 0-2.7-1.7-4.9-5.4-6.5-2.3-1.1-3.7-1.8-3.7-3 0-1 .9-2.1 3.1-2.1a11 11 0 0 1 4.8.9l.6.3.9-5.2Zm8.6 11 2.6-6.9 1.5 6.9h-4.1Zm8 6.4h6l-5.3-17.8h-5.5a3 3 0 0 0-2.8 1.8l-7.1 16h6.8l1-2.8h8.3l.6 2.8ZM13.2 8 6.8 20.1 6.1 16.6A14.1 14.1 0 0 0 .3 9.2l5.9 22.3h6.9L23.3 8h-6.8Z" fill="#1A1F71"></path><path d="M6.5 8.1h10.8c-.5-.1-1-.1-1.6-.1-3.6 0-7 2-8.6 5.2L6.5 8.1Z" fill="#F7B600"></path></svg>
-        </span>
-        <span class="payment-logo" aria-label="Mastercard">
-          <svg viewBox="0 0 84 56" role="img" aria-hidden="true"><circle cx="31" cy="28" r="16.5" fill="#EB001B"></circle><circle cx="53" cy="28" r="16.5" fill="#F79E1B"></circle><path d="M42 13.5a16.5 16.5 0 0 0 0 29 16.5 16.5 0 0 0 0-29Z" fill="#FF5F00"></path></svg>
-        </span>
-        <span class="payment-logo payment-logo--amex" aria-label="American Express">
-          <svg viewBox="0 0 94 56" role="img" aria-hidden="true"><rect x="6" y="8" width="82" height="40" rx="8" fill="#006FCF"></rect><path d="M22 19h10.8l1.7 3.8L36.1 19H72v18H36.1l-1.7-3.7-1.6 3.7H22V19Zm3.5 2.9v11.2h4.6v-2.3h3.4l1 2.3h5l-5.1-11.2h-4.9l-4.9 11.2h3.9l1-2.3h2.2v2.3h4.2V21.9h-10.4Zm6.7 5.7 1.2-2.8 1.2 2.8h-2.4Zm8.6-5.7v11.2h9.8v-2.8h-5.7v-1.4h5.6v-2.7h-5.6v-1.4h5.7v-2.9h-9.8Zm11.4 0v11.2h4.1v-6.5l2.9 6.5h2.8l2.9-6.5v6.5H69V21.9h-5.4l-2.7 5.9-2.6-5.9h-5.1Zm18.6 0v11.2H80v-2.8h-5.7v-1.4h5.5v-2.7h-5.5v-1.4H80v-2.9h-9.2Z" fill="#fff"></path></svg>
-        </span>
+</div><main class="checkout-premium-shell">
+<section class="checkout-hero-premium">
+  <div class="container">
+    <div class="checkout-hero-card">
+      <div class="checkout-hero-copy">
+        <span class="checkout-eyebrow">Güvenli ödeme</span>
+        <h1>Sade, hızlı ve güven veren ödeme deneyimi.</h1>
+        <p>Sipariş özetiniz, teslimat bilgileriniz ve yasal onaylarınız tek ekranda net şekilde düzenlenir. Üyelikle ilerleyebilir veya misafir ödeme akışını kullanabilirsiniz.</p>
+        <div class="checkout-stepper" aria-label="Ödeme adımları">
+          <div class="checkout-step"><span>01</span> İletişim</div>
+          <div class="checkout-step"><span>02</span> Teslimat</div>
+          <div class="checkout-step"><span>03</span> Güvenli ödeme</div>
+        </div>
       </div>
-      <p class="footer-meta-copy">Visa, Mastercard ve American Express ile güvenli ödeme deneyimi.</p>
-    </div>
-    <div class="footer-security-block">
-      <span class="footer-meta-label">Güvenlik &amp; Sipariş Detayları</span>
-      <div class="footer-badges">
-        <span>256-bit SSL koruması</span>
-        <span>Güvenli sanal POS</span>
-        <span>KDV dahil fiyatlandırma</span>
-        <span>Sipariş e-posta bilgilendirmesi</span>
-        <span>Teslimat &amp; iade sayfaları</span>
-        <span>Mesafeli satış &amp; ön bilgilendirme</span>
-      </div>
-      <p class="footer-meta-copy">Ödeme adımında bilgileriniz şifreli bağlantı üzerinden işlenir; sipariş, teslimat ve iade akışı yasal metinlerle birlikte açık şekilde sunulur.</p>
+      <aside class="checkout-hero-panel" aria-label="Cosmoskin güvenli ödeme bilgisi">
+        <div>
+          <small>COSMOSKIN CHECKOUT</small>
+          <strong>KDV dahil fiyat, şeffaf toplam.</strong>
+          <p>2.500 TL üzeri ücretsiz kargo, güvenli ödeme yönlendirmesi ve sipariş sonrası e-posta bilgilendirmesi.</p>
+        </div>
+        <div class="checkout-hero-badges">
+          <span>SSL koruması</span>
+          <span>iyzico altyapısı</span>
+          <span>Yasal metinler hazır</span>
+        </div>
+      </aside>
     </div>
   </div>
-  <div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div>
+</section>
+<section class="checkout-section-premium">
+  <div class="container checkout-layout checkout-layout--premium">
+    <div class="form-card checkout-main-card">
+      <div class="checkout-card-head">
+        <div>
+          <span class="checkout-eyebrow">Ödeme bilgileri</span>
+          <h2>Teslimat ve fatura</h2>
+          <p>Bilgilerinizi eksiksiz girin. Zorunlu alanlar ödeme oluşturulmadan önce kontrol edilir.</p>
+        </div>
+        <div class="checkout-secure-pill" aria-label="Güvenli bağlantı">
+          <svg fill="none" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M6.5 11h11a1.5 1.5 0 0 1 1.5 1.5v6A1.5 1.5 0 0 1 17.5 20h-11A1.5 1.5 0 0 1 5 18.5v-6A1.5 1.5 0 0 1 6.5 11Z" stroke-width="1.8" stroke-linecap="round"/></svg>
+          SSL güvenli
+        </div>
+      </div>
+      <div class="checkout-auth-gate checkout-auth-gate--premium" id="checkoutAuthGate">
+        <div><span class="routine-kicker">Hızlı ödeme için üyelik</span><h3>Hesabınla daha hızlı ilerle</h3><p>Kayıtlı adreslerini kullanmak için giriş yapabilir veya misafir ödeme ile devam edebilirsin.</p></div>
+        <div class="checkout-auth-gate__actions"><button class="btn btn-primary" data-auth-tab="loginPanel" data-open-auth="" type="button">Giriş Yap</button><button class="btn btn-secondary" data-auth-tab="registerPanel" data-open-auth="" type="button">Kayıt Ol</button></div>
+      </div>
+      <form class="form-grid checkout-form-premium" id="checkoutForm">
+        <div class="field full saved-addresses" hidden="" id="savedAddressField"><label>Kayıtlı Adreslerim</label><div class="saved-address-list" id="savedAddressList"></div><div class="account-mini">Kayıtlı bir adres seçtiğinizde alanlar otomatik doldurulur.</div></div>
+        <section class="checkout-form-section" aria-labelledby="checkoutContactTitle">
+          <div class="checkout-form-section__head"><span class="checkout-section-index">01</span><div><h3 id="checkoutContactTitle">İletişim bilgileri</h3><p>Sipariş ve teslimat bildirimleri için kullanılacak temel bilgiler.</p></div></div>
+          <div class="field"><label>Ad</label><input autocomplete="given-name" name="first_name" required=""/></div>
+          <div class="field"><label>Soyad</label><input autocomplete="family-name" name="last_name" required=""/></div>
+          <div class="field full"><label>E-posta</label><input autocomplete="email" name="email" required="" type="email"/></div>
+          <div class="field"><label>Telefon</label><input autocomplete="tel" name="phone" inputmode="tel" maxlength="17" placeholder="+90 5xx xxx xx xx" required=""/></div>
+          <div class="field"><label>T.C. Kimlik No</label><input autocomplete="off" inputmode="numeric" maxlength="11" minlength="11" name="identity_number" pattern="[0-9]{11}" required=""/><div class="field-help">Ödeme ve fatura doğrulama adımı için 11 haneli bilgi olarak istenir.</div></div>
+        </section>
+        <section class="checkout-form-section" aria-labelledby="checkoutDeliveryTitle">
+          <div class="checkout-form-section__head"><span class="checkout-section-index">02</span><div><h3 id="checkoutDeliveryTitle">Teslimat adresi</h3><p>Kargo sürecinde gecikme yaşanmaması için adresi açık ve net yazın.</p></div></div>
+          <div class="field"><label>İl</label><input autocomplete="address-level1" name="city" required=""/></div>
+          <div class="field"><label>İlçe</label><input autocomplete="address-level2" name="district" required=""/></div>
+          <div class="field"><label>Posta Kodu</label><input autocomplete="postal-code" name="postal_code" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" required=""/></div>
+          <div class="field"><label>Fatura Tipi</label><select name="invoice_type"><option>Bireysel</option><option>Kurumsal</option></select></div>
+          <div class="field full"><label>Adres</label><textarea autocomplete="street-address" name="address" required=""></textarea></div>
+          <div class="field full"><label>Teslimat Notu</label><input name="cargo_note" placeholder="Opsiyonel: bina girişi, teslimat tercihi veya kısa not"/></div>
+        </section>
+        <section class="checkout-form-section" aria-labelledby="checkoutPaymentTitle">
+          <div class="checkout-form-section__head"><span class="checkout-section-index">03</span><div><h3 id="checkoutPaymentTitle">Ödeme ve onay</h3><p>Ödeme, güvenli ödeme sayfasına yönlendirilerek tamamlanır.</p></div></div>
+          <div class="field full checkout-methods"><label>Ödeme Yöntemi</label><div class="checkout-method-grid"><button class="checkout-method-card is-active" type="button"><strong>Kart ile Güvenli Ödeme</strong><span>iyzico altyapısı üzerinden güvenli yönlendirme</span></button></div></div>
+          <div class="field full checkout-trust" id="checkoutTrustBlock"><div class="checkout-trust-grid"><div class="checkout-trust-card"><strong>Güvenli ödeme</strong><span>Ödeme iyzico yönlendirmesiyle güvenli sayfada tamamlanır.</span></div><div class="checkout-trust-card"><strong>Şeffaf toplam</strong><span>KDV ve kargo tutarı ödeme öncesinde net olarak gösterilir.</span></div><div class="checkout-trust-card"><strong>Yasal bilgilendirme</strong><span>Ön bilgilendirme, mesafeli satış ve iade koşulları ödeme öncesinde erişilebilir durumdadır.</span></div></div></div>
+          <div class="field full checkout-consent"><label class="checkline"><input name="sales_terms" required="" type="checkbox"/> <span><a href="/on-bilgilendirme.html" rel="noopener" target="_blank">Ön Bilgilendirme Formu</a> ve <a href="/mesafeli-satis.html" rel="noopener" target="_blank">Mesafeli Satış Sözleşmesi</a> koşullarını okudum.</span></label><label class="checkline"><input name="kvkk_terms" required="" type="checkbox"/> <span><button class="inline-link open-legal" type="button">KVKK Aydınlatma Metni</button> kapsamında bilgilendirildim.</span></label><label class="checkline"><input name="marketing_optin" type="checkbox"/> <span>Kampanya ve ürün bilgilendirmelerini e-posta ile almak istiyorum.</span></label></div>
+        </section>
+        <input id="orderSummaryField" name="order_summary" type="hidden"/>
+        <div class="field full"><button class="btn btn-primary" id="checkoutSubmit" type="submit">Güvenli Ödemeye Geç</button><div class="form-status" id="checkoutStatus"></div></div>
+      </form>
+    </div>
+    <aside class="checkout-summary checkout-summary--premium" id="checkoutPremiumSummary">
+      <button class="checkout-summary-toggle" type="button" id="checkoutSummaryToggle">Sipariş Özeti <span>Göster / Gizle</span></button>
+      <div class="summary-card summary-card--premium"><div class="summary-premium-head"><h3>Sipariş Özeti</h3><span class="summary-chip">KDV dahil</span></div><div id="checkoutItems"></div><div class="checkout-empty-state" id="checkoutEmptyState">Sepetinizde ürün görünmüyor.<br/><a href="/index.html#collections">Ürünleri keşfet</a></div><div class="sum-row"><span>Ürün Toplamı</span><strong id="checkoutSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="checkoutVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="checkoutShipping">₺0</strong></div><div class="checkout-mini-progress"><div class="checkout-mini-progress__bar"><span></span></div><p>2.500 TL ve üzeri siparişlerde kargo ücretsizdir.</p></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="checkoutTotal">₺0</strong></div></div>
+      <div class="summary-card summary-card--premium" id="checkoutInfoPanel"><div class="summary-premium-head"><h3>Kısa notlar</h3><span class="summary-chip">Güvenli</span></div><ul class="checkout-info-list checkout-info-list--premium"><li>Ürün fiyatları KDV dahildir.</li><li>2.500 TL ve üzeri siparişlerde kargo ücretsizdir.</li><li>İade ve teslimat koşullarına footer ve ödeme adımından erişebilirsin.</li></ul></div>
+    </aside>
+  </div>
+</section>
+</main><footer class="footer">
+<div class="container footer-grid">
+<div>
+<a class="brand footer-brandlock" href="/index.html"><img alt="Cosmoskin logo" class="brand-logo" src="/assets/logo-mark-light.png"/><span class="brand-word">COSMOSKIN</span></a>
+<p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p>
+</div>
+<div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
+<div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
+<div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat &amp; Kargo</a><a href="/iade-degisim.html">İade &amp; Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
+<div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" rel="noopener" target="_blank">Instagram</a><span>İstanbul, Türkiye</span></div>
+</div>
+<div class="container footer-trustbar">
+<div class="footer-payment-block">
+<span class="footer-meta-label">Ödeme Yöntemleri</span>
+<div aria-label="Desteklenen ödeme yöntemleri" class="payment-logos">
+<span aria-label="Mastercard" class="payment-logo">
+<svg aria-hidden="true" role="img" viewbox="0 0 84 56"><circle cx="31" cy="28" fill="#EB001B" r="16.5"></circle><circle cx="53" cy="28" fill="#F79E1B" r="16.5"></circle><path d="M42 13.5a16.5 16.5 0 0 0 0 29 16.5 16.5 0 0 0 0-29Z" fill="#FF5F00"></path></svg>
+</span>
+<span aria-label="Visa" class="payment-logo payment-logo--visa">
+<svg aria-hidden="true" role="img" viewbox="0 0 96 34"><path d="M18.6 25.8 22.7 8h6.5l-4.1 17.8h-6.5Zm30.9-17.4a15.5 15.5 0 0 0-5.8-1c-6.4 0-10.9 3.2-10.9 7.8 0 3.4 3.2 5.3 5.7 6.4 2.6 1.2 3.4 1.9 3.4 3 0 1.7-2.1 2.4-4 2.4-2.7 0-4.2-.4-6.4-1.3l-.9-.4-.9 5.6a21.8 21.8 0 0 0 7.6 1.3c6.8 0 11.2-3.2 11.3-8.2 0-2.7-1.7-4.9-5.4-6.5-2.3-1.1-3.7-1.8-3.7-3 0-1 .9-2.1 3.1-2.1a11 11 0 0 1 4.8.9l.6.3.9-5.2Zm8.6 11 2.6-6.9 1.5 6.9h-4.1Zm8 6.4h6l-5.3-17.8h-5.5a3 3 0 0 0-2.8 1.8l-7.1 16h6.8l1-2.8h8.3l.6 2.8ZM13.2 8 6.8 20.1 6.1 16.6A14.1 14.1 0 0 0 .3 9.2l5.9 22.3h6.9L23.3 8h-6.8Z" fill="#1A1F71"></path><path d="M6.5 8.1h10.8c-.5-.1-1-.1-1.6-.1-3.6 0-7 2-8.6 5.2L6.5 8.1Z" fill="#F7B600"></path></svg>
+</span>
+<span aria-label="American Express" class="payment-logo payment-logo--amex">
+<svg aria-hidden="true" role="img" viewbox="0 0 94 56"><rect fill="#006FCF" height="40" rx="8" width="82" x="6" y="8"></rect><path d="M22 19h10.8l1.7 3.8L36.1 19H72v18H36.1l-1.7-3.7-1.6 3.7H22V19Zm3.5 2.9v11.2h4.6v-2.3h3.4l1 2.3h5l-5.1-11.2h-4.9l-4.9 11.2h3.9l1-2.3h2.2v2.3h4.2V21.9h-10.4Zm6.7 5.7 1.2-2.8 1.2 2.8h-2.4Zm8.6-5.7v11.2h9.8v-2.8h-5.7v-1.4h5.6v-2.7h-5.6v-1.4h5.7v-2.9h-9.8Zm11.4 0v11.2h4.1v-6.5l2.9 6.5h2.8l2.9-6.5v6.5H69V21.9h-5.4l-2.7 5.9-2.6-5.9h-5.1Zm18.6 0v11.2H80v-2.8h-5.7v-1.4h5.5v-2.7h-5.5v-1.4H80v-2.9h-9.2Z" fill="#fff"></path></svg>
+</span>
+</div>
+<p class="footer-meta-copy">Visa, Mastercard ve American Express ile güvenli ödeme deneyimi.</p>
+</div>
+<div class="footer-security-block">
+<span class="footer-meta-label">Güvenlik &amp; Sipariş Detayları</span>
+<div class="footer-badges">
+<span>256-bit SSL koruması</span>
+<span>Güvenli sanal POS</span>
+<span>KDV dahil fiyatlandırma</span>
+<span>Sipariş e-posta bilgilendirmesi</span>
+<span>Teslimat &amp; iade sayfaları</span>
+<span>Mesafeli satış &amp; ön bilgilendirme</span>
+</div>
+<p class="footer-meta-copy">Ödeme adımında bilgileriniz şifreli bağlantı üzerinden işlenir; sipariş, teslimat ve iade akışı yasal metinlerle birlikte açık şekilde sunulur.</p>
+</div>
+</div>
+<div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div>
 </footer>
 <div class="backdrop" id="backdrop"></div>
 <aside class="drawer" id="cartDrawer"><div class="drawer-head"><div class="drawer-title">Sepet</div><button class="icon-close close-any">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-summary"><div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="cartSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="cartVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="cartShipping">₺0</strong></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="cartTotal">₺0</strong></div><div class="shipping-progress" id="shippingProgress"><div class="shipping-progress-bar"><span id="shippingProgressFill"></span></div><div class="shipping-progress-text" id="shippingProgressText">Kargo avantajı hesaplanıyor...</div></div><a class="btn btn-primary" href="/checkout.html">Ödemeye Geç</a><div class="account-mini">2.500 TL ve üzeri siparişlerde kargo ücretsizdir. Tüm fiyatlara KDV dahildir.</div></div></aside>
 <aside class="drawer" id="accountDrawer"><div class="drawer-head"><div class="drawer-title">Hesap</div><button class="icon-close close-any">×</button></div><div class="account-state" id="accountState"></div><div class="account-actions" id="accountActions"><button class="btn btn-primary" data-open-auth="" data-auth-tab="loginPanel">Giriş Yap</button><button class="btn btn-secondary" data-open-auth="" data-auth-tab="registerPanel">Kayıt Ol</button></div><div class="account-mini">Sipariş geçmişinizi, kayıtlı adreslerinizi ve üyelik tercihlerinizi tek ekranda yönetin.</div></aside>
-<div class="modal" id="accountModal"><div class="modal-card"><div class="modal-head"><div><h2>Cosmoskin hesabı</h2><div class="account-mini">Daha hızlı ödeme ve sipariş takibi için hesabınızı oluşturun.</div></div><button class="icon-close close-any">×</button></div><div class="tab-row"><button class="tab-btn active" data-tab="loginPanel">Giriş Yap</button><button class="tab-btn" data-tab="registerPanel">Hesap Oluştur</button></div><div class="tab-panel active" id="loginPanel"><form class="form-grid compact" id="loginForm"><div class="field full"><label>E-posta</label><input id="loginEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="loginPassword" placeholder="Şifreniz" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="loginPassword" type="button">Göster</button></div></div><div class="field full form-inline"><label class="checkline"><input type="checkbox"/> Beni hatırla</label><a data-forgot-password="" href="/auth/reset.html">Şifremi unuttum</a></div><div class="field full"><button class="btn btn-primary" type="submit">Giriş Yap</button><div class="form-status" id="loginStatus"></div></div></form></div><div class="tab-panel" id="registerPanel"><form class="form-grid compact" id="registerForm"><div class="field"><label>Ad</label><input id="registerFirstName" required="" type="text"/></div><div class="field"><label>Soyad</label><input id="registerLastName" required="" type="text"/></div><div class="field full"><label>E-posta</label><input id="registerEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="registerPassword" minlength="8" placeholder="En az 8 karakter" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="registerPassword" type="button">Göster</button></div><div aria-hidden="true" class="password-meter" id="passwordMeter"><div class="password-meter-bar"><span id="passwordMeterFill"></span></div><div class="password-meter-meta"><span id="passwordStrengthText">Şifre güvenliği</span></div></div><ul class="password-rules" id="passwordRules"><li data-rule="length">En az 8 karakter</li><li data-rule="upper">En az 1 büyük harf</li><li data-rule="lower">En az 1 küçük harf</li><li data-rule="number">En az 1 rakam</li></ul></div><div class="field full"><label class="checkline"><input required="" type="checkbox"/> Kampanya ve sipariş bilgilendirmelerini kabul ediyorum.</label></div><div class="field full"><button class="btn btn-primary" type="submit">Hesap Oluştur</button><div class="form-status" id="registerStatus"></div></div></form></div></div></div>
+<div class="modal" id="accountModal"><div class="modal-card"><div class="modal-head"><div><h2>Cosmoskin hesabı</h2><div class="account-mini">Daha hızlı ödeme ve sipariş takibi için hesabınızı oluşturun.</div></div><button class="icon-close close-any">×</button></div><div class="tab-row"><button class="tab-btn active" data-tab="loginPanel">Giriş Yap</button><button class="tab-btn" data-tab="registerPanel">Hesap Oluştur</button></div><div class="tab-panel active" id="loginPanel"><form class="form-grid compact" id="loginForm"><div class="field full"><label>E-posta</label><input id="loginEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><input id="loginPassword" placeholder="Şifreniz" required="" type="password"/></div><div class="field full form-inline"><label class="checkline"><input type="checkbox"/> Beni hatırla</label><a data-forgot-password="" href="/auth/reset.html">Şifremi unuttum</a></div><div class="field full"><button class="btn btn-primary" type="submit">Giriş Yap</button><div class="form-status" id="loginStatus"></div></div></form></div><div class="tab-panel" id="registerPanel"><form class="form-grid compact" id="registerForm"><div class="field"><label>Ad</label><input id="registerFirstName" required="" type="text"/></div><div class="field"><label>Soyad</label><input id="registerLastName" required="" type="text"/></div><div class="field full"><label>E-posta</label><input id="registerEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><input id="registerPassword" minlength="8" placeholder="En az 8 karakter" required="" type="password"/></div><div class="field full"><label class="checkline"><input required="" type="checkbox"/> Kampanya ve sipariş bilgilendirmelerini kabul ediyorum.</label></div><div class="field full"><button class="btn btn-primary" type="submit">Hesap Oluştur</button><div class="form-status" id="registerStatus"></div></div></form></div></div></div>
 <div class="modal" id="cookiePreferences"><div class="modal-card"><div class="modal-head"><div><h2>Çerez tercihleri</h2><div class="account-mini">Zorunlu çerezler sepet, güvenlik ve oturum işlevleri için her zaman aktiftir.</div></div><button class="icon-close close-any">×</button></div><div class="account-state stack"><strong>Zorunlu çerezler</strong><div class="account-mini">Temel site işlevleri ve güvenlik için kullanılır.</div></div><div class="account-state stack"><div class="switch-row"><div><strong>Analitik çerezler</strong><div class="account-mini">Anonim kullanım verileri ile deneyimi iyileştirmemize yardımcı olur.</div></div><label class="checkline"><input id="prefAnalytics" type="checkbox"/> Etkinleştir</label></div></div><div class="modal-actions"><button class="btn btn-primary" id="cookieSavePrefs">Tercihleri Kaydet</button><button class="btn btn-secondary close-any">Kapat</button></div></div></div>
 <div class="modal" id="legalModal"><div class="modal-card"><div class="modal-head"><div><h2>KVKK Aydınlatma Metni</h2><div class="account-mini">Kişisel verileriniz 6698 sayılı KVKK kapsamında işlenir.</div></div><button class="icon-close close-any">×</button></div><div class="legal-copy"><p><strong>Veri sorumlusu:</strong> Cosmoskin, üyelik, sipariş, iletişim ve destek süreçleri kapsamında veri sorumlusu olarak hareket eder.</p><p><strong>İşlenen veriler:</strong> İletişim bilgileri, sipariş içeriği, teslimat verileri, destek formu kayıtları ve teknik kullanım verileri.</p><p><strong>İşleme amaçları:</strong> Sipariş yönetimi, üyelik işlemleri, kargo süreçleri, müşteri desteği, mevzuat uyumu ve hizmet geliştirme.</p><p><strong>Başvuru:</strong> Tüm veri talepleriniz için <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a> adresine ulaşabilirsiniz.</p></div></div></div>
 <div class="cookie" id="cookieBanner"><div class="cookie-card"><p>Bu site, temel alışveriş işlevleri için zorunlu çerezleri kullanır. Analitik çerezleri etkinleştirerek deneyimin gelişmesine katkı sağlayabilirsiniz.</p><div class="cookie-actions"><button class="btn btn-secondary" id="cookieCustomize">Tercihleri Yönet</button><button class="btn btn-secondary" id="cookieAcceptEssential">Sadece Zorunlu</button><button class="btn btn-primary" id="cookieAcceptAll">Kabul Et</button></div></div></div>
+
+<script id="cosmoskinCheckoutPremiumScript">
+(function(){
+  function initPremiumCheckout(){
+    var summary = document.getElementById('checkoutPremiumSummary');
+    var toggle = document.getElementById('checkoutSummaryToggle');
+    var items = document.getElementById('checkoutItems');
+    var empty = document.getElementById('checkoutEmptyState');
+    if (summary && toggle && !toggle.dataset.phase4Bound) {
+      toggle.dataset.phase4Bound = 'true';
+      toggle.addEventListener('click', function(){ summary.classList.toggle('is-collapsed'); });
+      if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) summary.classList.add('is-collapsed');
+    }
+    function syncEmptyState(){
+      if (!items || !empty) return;
+      var visibleText = (items.textContent || '').replace(/\s+/g,'').trim();
+      var hasRows = items.children.length > 0 && visibleText.length > 0;
+      empty.style.display = hasRows ? 'none' : 'block';
+      if (summary) summary.classList.toggle('checkout-summary-empty', !hasRows);
+    }
+    syncEmptyState();
+    if (items && window.MutationObserver && !items.dataset.phase4Observed) {
+      items.dataset.phase4Observed = 'true';
+      new MutationObserver(syncEmptyState).observe(items,{childList:true,subtree:true,characterData:true});
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPremiumCheckout); else initPremiumCheckout();
+})();
+</script>
+
 <script src="/assets/products-data.js?v=20260424a"></script>
-<script src="/assets/site-config.js?v=20260418a"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/app.js?v=20260418b"></script><script src="/assets/auth.js?v=20260418d" type="module"></script><script src="/assets/commerce.js?v=20260418d"></script><script src="/assets/mobile-enhancements.js?v=20260421final"></script>
+<script src="/assets/site-config.js?v=20260418a"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/app.js?v=20260418b"></script><script src="/assets/auth.js?v=20260427phase5" type="module"></script><script src="/assets/commerce.js?v=20260418d"></script>
+<script id="cosmoskinCheckoutPhase4Script">
+(function(){
+  'use strict';
+
+  var CART_KEYS = ['cosmoskinCart','cosmoskin_cart','COSMOSKIN_CART','cart','cartItems','shoppingCart'];
+  var FREE_SHIPPING_LIMIT = 2500;
+  var DEFAULT_SHIPPING = 79.90;
+
+  function qs(id){ return document.getElementById(id); }
+  function money(value){
+    var amount = Number(value || 0);
+    return new Intl.NumberFormat('tr-TR',{ style:'currency', currency:'TRY', maximumFractionDigits: amount % 1 ? 2 : 0 }).format(amount);
+  }
+  function num(value){
+    if (typeof value === 'number') return value;
+    if (!value) return 0;
+    var cleaned = String(value).replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',', '.');
+    return Number(cleaned) || 0;
+  }
+  function safeJson(raw){
+    try { return raw ? JSON.parse(raw) : null; } catch(error){ return null; }
+  }
+  function getProducts(){
+    var sources = [window.PRODUCTS, window.products, window.COSMOSKIN_PRODUCTS, window.cosmoskinProducts, window.PRODUCTS_DATA, window.productsData];
+    for (var i=0;i<sources.length;i++) {
+      if (Array.isArray(sources[i])) return sources[i];
+      if (sources[i] && Array.isArray(sources[i].products)) return sources[i].products;
+    }
+    return [];
+  }
+  function findProduct(item){
+    var products = getProducts();
+    var keys = [item.id,item.product_id,item.productId,item.slug,item.handle,item.sku].filter(Boolean).map(String);
+    return products.find(function(product){
+      return keys.some(function(key){
+        return [product.id,product.product_id,product.productId,product.slug,product.handle,product.sku].filter(Boolean).map(String).includes(key);
+      });
+    }) || null;
+  }
+  function resolveImage(item, product){
+    return item.image || item.img || item.image_url || item.imageUrl || item.thumbnail || item.photo || (product && (product.image || product.img || product.image_url || product.imageUrl || product.thumbnail));
+  }
+  function normalizeItem(raw, index){
+    if (!raw || typeof raw !== 'object') return null;
+    var product = findProduct(raw) || {};
+    var qty = Math.max(1, parseInt(raw.qty || raw.quantity || raw.count || raw.adet || 1, 10) || 1);
+    var price = num(raw.price || raw.unit_price || raw.unitPrice || raw.sale_price || raw.salePrice || product.price || product.unit_price || 0);
+    var name = raw.name || raw.title || raw.product_name || raw.productName || product.name || product.title || 'COSMOSKIN ürünü';
+    var brand = raw.brand || raw.vendor || product.brand || product.vendor || 'COSMOSKIN';
+    var id = raw.id || raw.product_id || raw.productId || raw.slug || product.id || product.slug || ('item-' + index);
+    return { original: raw, index:index, id:String(id), name:name, brand:brand, qty:qty, price:price, image:resolveImage(raw, product), size: raw.size || raw.variant || raw.ml || product.size || product.variant || '' };
+  }
+  function extractItems(data){
+    if (Array.isArray(data)) return data;
+    if (!data || typeof data !== 'object') return [];
+    return data.items || data.cart || data.products || data.lines || data.data || [];
+  }
+  function readCart(){
+    for (var i=0;i<CART_KEYS.length;i++) {
+      var key = CART_KEYS[i];
+      var raw = localStorage.getItem(key);
+      var parsed = safeJson(raw);
+      var items = extractItems(parsed).map(normalizeItem).filter(Boolean);
+      if (items.length) return { key:key, data:parsed, items:items, found:true };
+      if (raw) return { key:key, data:parsed, items:[], found:true };
+    }
+    return { key:CART_KEYS[0], data:[], items:[], found:false };
+  }
+  function saveCart(cart){
+    var data = cart.data;
+    var plainItems = cart.items.map(function(item){
+      var next = Object.assign({}, item.original || {});
+      next.id = next.id || item.id;
+      next.name = next.name || item.name;
+      next.brand = next.brand || item.brand;
+      next.price = item.price;
+      next.quantity = item.qty;
+      next.qty = item.qty;
+      if (item.image) next.image = item.image;
+      return next;
+    });
+    if (Array.isArray(data)) data = plainItems;
+    else if (data && typeof data === 'object') {
+      if (Array.isArray(data.items)) data.items = plainItems;
+      else if (Array.isArray(data.cart)) data.cart = plainItems;
+      else if (Array.isArray(data.products)) data.products = plainItems;
+      else data.items = plainItems;
+    } else data = plainItems;
+    localStorage.setItem(cart.key, JSON.stringify(data));
+    window.dispatchEvent(new CustomEvent('cosmoskin:cart:updated',{ detail:{ items:plainItems } }));
+    window.dispatchEvent(new Event('storage'));
+  }
+  function calculate(items){
+    var subtotal = items.reduce(function(total,item){ return total + (item.price * item.qty); }, 0);
+    var shipping = subtotal > 0 && subtotal < FREE_SHIPPING_LIMIT ? DEFAULT_SHIPPING : 0;
+    var total = subtotal + shipping;
+    var vat = subtotal - (subtotal / 1.20);
+    return { subtotal:subtotal, shipping:shipping, total:total, vat:vat, remaining:Math.max(0, FREE_SHIPPING_LIMIT - subtotal), progress:Math.min(100, Math.round((subtotal / FREE_SHIPPING_LIMIT) * 100)) };
+  }
+  function setText(id, value){ var el = qs(id); if (el) el.textContent = value; }
+  function updateHiddenSummary(items, totals){
+    var field = qs('orderSummaryField');
+    if (!field) return;
+    field.value = JSON.stringify({
+      items: items.map(function(item){ return { id:item.id, name:item.name, brand:item.brand, quantity:item.qty, unit_price:item.price, line_total:item.price * item.qty }; }),
+      subtotal: totals.subtotal, vat: totals.vat, shipping: totals.shipping, total: totals.total
+    });
+  }
+  function updateSubmitState(hasItems){
+    var btn = qs('checkoutSubmit');
+    if (!btn) return;
+    btn.disabled = !hasItems;
+    var note = document.querySelector('.checkout-disabled-note');
+    if (!note) {
+      note = document.createElement('div');
+      note.className = 'checkout-disabled-note';
+      note.textContent = 'Ödemeye geçebilmek için sepetine en az bir ürün eklemelisin.';
+      btn.insertAdjacentElement('afterend', note);
+    }
+    note.hidden = hasItems;
+  }
+  function render(){
+    var mount = qs('checkoutItems');
+    var empty = qs('checkoutEmptyState');
+    var summary = qs('checkoutPremiumSummary');
+    if (!mount) return;
+    var cart = readCart();
+    var items = cart.items;
+    var totals = calculate(items);
+    var hasItems = items.length > 0;
+    var existingText = (mount.textContent || '').replace(/\s+/g,'').trim();
+    if (!cart.found && !hasItems && mount.children.length > 0 && existingText.length > 0) {
+      updateSubmitState(true);
+      return;
+    }
+
+    if (hasItems) {
+      mount.innerHTML = '<div class="checkout-summary-toolbar"><span>'+ items.length +' ürün</span><a href="/index.html#collections">Alışverişe devam et</a></div>' + items.map(function(item){
+        var image = item.image ? '<img src="'+ String(item.image).replace(/"/g,'&quot;') +'" alt="'+ String(item.name).replace(/"/g,'&quot;') +'" loading="lazy">' : '<span>CS</span>';
+        var meta = item.size ? '<div class="checkout-item-meta">'+ item.size +'</div>' : '<div class="checkout-item-meta">KDV dahil birim fiyat: '+ money(item.price) +'</div>';
+        return '<article class="checkout-item-card" data-cart-index="'+ item.index +'">' +
+          '<div class="checkout-item-media">'+ image +'</div>' +
+          '<div class="checkout-item-main"><span class="checkout-item-brand">'+ item.brand +'</span><strong class="checkout-item-name">'+ item.name +'</strong>'+ meta +
+          '<div class="checkout-item-foot"><div><div class="checkout-qty-control" aria-label="Ürün adedi"><button type="button" data-cart-action="decrease" aria-label="Adedi azalt">−</button><strong>'+ item.qty +'</strong><button type="button" data-cart-action="increase" aria-label="Adedi artır">+</button></div><button type="button" class="checkout-remove-btn" data-cart-action="remove">Sepetten çıkar</button></div>' +
+          '<div class="checkout-item-price">'+ money(item.price * item.qty) +'<span class="checkout-item-unit">'+ item.qty +' adet</span></div></div></div></article>';
+      }).join('');
+    } else {
+      mount.innerHTML = '';
+    }
+
+    if (empty) empty.style.display = hasItems ? 'none' : 'block';
+    if (summary) summary.classList.toggle('checkout-summary-empty', !hasItems);
+    setText('checkoutSubtotal', money(totals.subtotal));
+    setText('checkoutVat', money(totals.vat));
+    setText('checkoutShipping', totals.shipping ? money(totals.shipping) : 'Ücretsiz');
+    setText('checkoutTotal', money(totals.total));
+    var bar = document.querySelector('.checkout-mini-progress__bar span');
+    if (bar) bar.style.width = totals.progress + '%';
+    var oldNote = document.querySelector('.checkout-free-shipping-note');
+    if (oldNote) oldNote.remove();
+    if (hasItems) {
+      var note = document.createElement('div');
+      note.className = 'checkout-free-shipping-note';
+      note.innerHTML = totals.remaining > 0 ? '<strong>'+ money(totals.remaining) +'</strong> daha ekle, kargo ücretsiz olsun.' : '<strong>Kargo ücretsiz.</strong> Siparişin ücretsiz kargo limitini geçti.';
+      var totalRow = document.querySelector('.summary-card--premium .sum-row.total');
+      if (totalRow) totalRow.insertAdjacentElement('beforebegin', note);
+    }
+    updateHiddenSummary(items, totals);
+    updateSubmitState(hasItems);
+  }
+  function bind(){
+    var mount = qs('checkoutItems');
+    if (!mount || mount.dataset.phase4Bound) return;
+    mount.dataset.phase4Bound = 'true';
+    mount.addEventListener('click', function(event){
+      var actionButton = event.target.closest('[data-cart-action]');
+      if (!actionButton) return;
+      var card = event.target.closest('[data-cart-index]');
+      if (!card) return;
+      var index = parseInt(card.getAttribute('data-cart-index'), 10);
+      var cart = readCart();
+      var item = cart.items.find(function(row){ return row.index === index; });
+      if (!item) return;
+      var action = actionButton.getAttribute('data-cart-action');
+      if (action === 'increase') item.qty += 1;
+      if (action === 'decrease') item.qty = Math.max(1, item.qty - 1);
+      if (action === 'remove') cart.items = cart.items.filter(function(row){ return row.index !== index; });
+      saveCart(cart);
+      render();
+    });
+  }
+  function init(){ bind(); render(); setTimeout(render, 250); setTimeout(render, 900); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.addEventListener('storage', function(){ setTimeout(render, 0); });
+})();
+</script>
+<script src="/assets/mobile-enhancements.js?v=20260421final"></script>
 <script src="/js/search.js?v=20260424"></script>
-<script src="/assets/mobile.js?v=20260425f"></script>
+<script src="/assets/bottom-nav.js?v=20260424"></script>
 </body></html>
