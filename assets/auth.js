@@ -135,6 +135,7 @@ function getUserFullName(user) {
 function setCheckoutGateVisibility(user) {
   const gate = document.getElementById('checkoutAuthGate');
   const form = document.getElementById('checkoutForm');
+  const savedAddressField = document.getElementById('savedAddressField');
   const emailInput = form?.querySelector('input[name="email"]');
   const firstNameInput = form?.querySelector('input[name="first_name"]');
   const lastNameInput = form?.querySelector('input[name="last_name"]');
@@ -144,20 +145,39 @@ function setCheckoutGateVisibility(user) {
   if (user) {
     const { firstName, lastName } = getUserFullName(user);
 
-    gate?.setAttribute('hidden', '');
-    gate?.classList.add('is-hidden');
-    gate?.setAttribute('aria-hidden', 'true');
+    document.body.classList.add('user-is-authenticated');
+
+    if (gate) {
+      gate.setAttribute('hidden', '');
+      gate.classList.add('is-hidden');
+      gate.setAttribute('aria-hidden', 'true');
+      gate.style.display = 'none';
+      gate.style.visibility = 'hidden';
+      gate.style.pointerEvents = 'none';
+    }
 
     form?.classList.add('is-authenticated-checkout');
     form?.setAttribute('data-authenticated', 'true');
+
+    if (savedAddressField) {
+      // Kullanıcı giriş yaptıysa kayıtlı adres alanı gösterilebilir; adres yoksa iç liste boş kalır.
+      savedAddressField.hidden = false;
+    }
 
     if (emailInput && !emailInput.value) emailInput.value = user.email || '';
     if (firstNameInput && !firstNameInput.value && firstName) firstNameInput.value = firstName;
     if (lastNameInput && !lastNameInput.value && lastName) lastNameInput.value = lastName;
   } else {
-    gate?.removeAttribute('hidden');
-    gate?.classList.remove('is-hidden');
-    gate?.setAttribute('aria-hidden', 'false');
+    document.body.classList.remove('user-is-authenticated');
+
+    if (gate) {
+      gate.removeAttribute('hidden');
+      gate.classList.remove('is-hidden');
+      gate.setAttribute('aria-hidden', 'false');
+      gate.style.display = '';
+      gate.style.visibility = '';
+      gate.style.pointerEvents = '';
+    }
 
     form?.classList.remove('is-authenticated-checkout');
     form?.setAttribute('data-authenticated', 'false');
@@ -168,10 +188,24 @@ async function syncCheckoutAuthState() {
   if (!document.getElementById('checkoutForm') && !document.getElementById('checkoutAuthGate')) return;
 
   try {
+    // Checkout UI için önce lokal Supabase session okunur. getUser bazı network/cookie durumlarında gecikebilir;
+    // session varsa gate'i hemen kapatmak doğru davranıştır.
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (session?.user) {
+      setCheckoutGateVisibility(session.user);
+      emitAuthState(session.user);
+      return;
+    }
+
     const {
       data: { user }
     } = await supabase.auth.getUser();
+
     setCheckoutGateVisibility(user || null);
+    emitAuthState(user || null);
   } catch (error) {
     console.warn('syncCheckoutAuthState warning:', error);
     setCheckoutGateVisibility(null);
@@ -833,6 +867,8 @@ loginForm?.addEventListener('submit', async (e) => {
 
     await refreshAccountUI();
     await syncCheckoutAuthState();
+    setTimeout(syncCheckoutAuthState, 150);
+    setTimeout(syncCheckoutAuthState, 600);
     closeAccountModal();
     closeAccountDrawer();
 
@@ -880,7 +916,13 @@ supabase.auth.onAuthStateChange(async (_event, session) => {
   emitAuthState(user);
 });
 
-document.addEventListener('DOMContentLoaded', syncCheckoutAuthState);
+document.addEventListener('DOMContentLoaded', () => {
+  syncCheckoutAuthState();
+  setTimeout(syncCheckoutAuthState, 150);
+  setTimeout(syncCheckoutAuthState, 600);
+});
 document.addEventListener('cosmoskin:auth-refresh-requested', syncCheckoutAuthState);
+window.addEventListener('storage', syncCheckoutAuthState);
 
 refreshAccountUI().then(syncCheckoutAuthState);
+setTimeout(syncCheckoutAuthState, 1000);

@@ -55,6 +55,11 @@
   .checkout-auth-gate--premium p{margin:0;color:#786b60;font-size:13px;line-height:1.55;}
   .checkout-auth-gate__actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
   .checkout-auth-gate__actions .btn{min-width:118px;}
+
+  /* Phase 5B: checkout auth gate must disappear immediately after login */
+  #checkoutAuthGate[hidden],
+  #checkoutAuthGate.is-hidden,
+  body.user-is-authenticated #checkoutAuthGate{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;}
   #checkoutForm.checkout-form-premium{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;padding:28px 30px 32px;}
   .checkout-form-section{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:4px;padding:24px;border-radius:28px;border:1px solid rgba(35,27,20,.09);background:rgba(255,255,255,.45);}
   .checkout-form-section:first-of-type{margin-top:0;}
@@ -129,6 +134,132 @@
     .checkout-summary.is-collapsed #checkoutItems,.checkout-summary.is-collapsed .sum-row:not(.total),.checkout-summary.is-collapsed .checkout-mini-progress,.checkout-summary.is-collapsed .summary-premium-head{display:none;}
     .checkout-summary.is-collapsed .sum-row.total{margin:0;border-radius:20px;}
   }
+
+
+/* Phase 5C UI Hotfix: payment method contrast + consent checkbox sizing */
+#checkoutForm .checkout-method-card,
+.checkout-method-card{
+  position:relative!important;
+  width:100%!important;
+  min-height:84px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  text-align:left!important;
+  border-radius:22px!important;
+  padding:20px 22px!important;
+  cursor:pointer!important;
+  border:1px solid rgba(24,18,14,.12)!important;
+  background:#fffaf4!important;
+  color:#1b1511!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 14px 34px rgba(31,23,17,.08)!important;
+  overflow:hidden!important;
+}
+#checkoutForm .checkout-method-card.is-active,
+.checkout-method-card.is-active{
+  background:linear-gradient(135deg,#0d0b09 0%,#19130f 52%,#302218 100%)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.12)!important;
+  box-shadow:0 22px 54px rgba(24,18,14,.26),inset 0 0 0 1px rgba(255,255,255,.06)!important;
+}
+#checkoutForm .checkout-method-card.is-active:before,
+.checkout-method-card.is-active:before{
+  content:"";
+  position:absolute;
+  right:-34px;
+  bottom:-54px;
+  width:170px;
+  height:170px;
+  border-radius:999px;
+  background:radial-gradient(circle,rgba(255,255,255,.16),transparent 62%);
+  pointer-events:none;
+}
+#checkoutForm .checkout-method-card strong,
+.checkout-method-card strong{
+  position:relative;
+  z-index:1;
+  display:block!important;
+  color:inherit!important;
+  font-weight:800!important;
+  font-size:14px!important;
+  letter-spacing:-.01em!important;
+  margin:0 0 7px!important;
+}
+#checkoutForm .checkout-method-card span,
+.checkout-method-card span{
+  position:relative;
+  z-index:1;
+  display:block!important;
+  color:rgba(27,21,17,.66)!important;
+  font-size:12px!important;
+  line-height:1.5!important;
+}
+#checkoutForm .checkout-method-card.is-active span,
+.checkout-method-card.is-active span{
+  color:rgba(255,255,255,.74)!important;
+}
+#checkoutForm .checkout-consent{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:12px!important;
+  padding:18px!important;
+  border-radius:24px!important;
+  border:1px solid rgba(35,27,20,.10)!important;
+  background:rgba(255,255,255,.58)!important;
+}
+#checkoutForm .checkout-consent .checkline{
+  display:grid!important;
+  grid-template-columns:18px minmax(0,1fr)!important;
+  align-items:start!important;
+  column-gap:12px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#5f554c!important;
+  font-size:12px!important;
+  line-height:1.55!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+}
+#checkoutForm .checkout-consent input[type="checkbox"],
+#checkoutForm .form-inline input[type="checkbox"],
+#checkoutForm input[type="checkbox"]{
+  appearance:auto!important;
+  -webkit-appearance:checkbox!important;
+  box-sizing:border-box!important;
+  flex:0 0 auto!important;
+  width:16px!important;
+  min-width:16px!important;
+  max-width:16px!important;
+  height:16px!important;
+  min-height:16px!important;
+  max-height:16px!important;
+  margin:2px 0 0!important;
+  padding:0!important;
+  border-radius:4px!important;
+  transform:none!important;
+  accent-color:#15110d!important;
+  box-shadow:none!important;
+}
+#checkoutForm .checkout-consent .checkline span{
+  display:block!important;
+  min-width:0!important;
+}
+#checkoutForm .checkout-consent .inline-link{
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#1d1712!important;
+  font:inherit!important;
+  font-weight:800!important;
+  text-decoration:underline!important;
+  text-underline-offset:3px!important;
+}
+#checkoutForm .checkout-consent .checkline:has(input:invalid){
+  color:#b8493f!important;
+}
+
 </style>
 
 <style id="cosmoskinCheckoutPhase4Styles">
@@ -165,6 +296,10 @@
   @media (max-width: 560px){.checkout-summary-toolbar,.checkout-free-shipping-note{margin-left:16px;margin-right:16px;}#checkoutItems{padding-left:16px!important;padding-right:16px!important;}.checkout-item-foot{align-items:flex-start;}.checkout-qty-control button{width:31px;height:31px;}.checkout-item-price{font-size:12px;}}
 </style>
 
+{STYLE}
+<style id="cosmoskinCheckoutPhase6Styles">
+#checkoutSubmit{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;overflow:hidden;}#checkoutSubmit .checkout-submit-loader{display:none;width:17px;height:17px;border-radius:999px;border:2px solid rgba(255,255,255,.32);border-top-color:#fff;animation:checkoutSpin .78s linear infinite;}#checkoutSubmit.is-processing{pointer-events:none;filter:none!important;opacity:1!important;}#checkoutSubmit.is-processing .checkout-submit-loader{display:inline-block;}#checkoutSubmit.is-processing .checkout-submit-label{opacity:.88;}@keyframes checkoutSpin{to{transform:rotate(360deg);}}#checkoutStatus{min-height:0;border-radius:18px;font-size:12px;font-weight:750;line-height:1.55;transition:all .2s ease;}#checkoutStatus:not(:empty){padding:13px 15px;border:1px solid rgba(35,27,20,.10);background:rgba(255,255,255,.7);color:#5f554c;}#checkoutStatus.is-error{border-color:rgba(184,73,63,.22);background:rgba(184,73,63,.08);color:#a43d35;}#checkoutStatus.is-success{border-color:rgba(58,116,83,.22);background:rgba(58,116,83,.08);color:#2e6747;}#checkoutStatus.is-loading{border-color:rgba(24,18,14,.13);background:linear-gradient(135deg,rgba(24,18,14,.07),rgba(255,255,255,.72));color:#2a211b;}.checkout-final-review{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px;}.checkout-final-review__item{padding:13px 14px;border:1px solid rgba(35,27,20,.09);border-radius:18px;background:rgba(255,255,255,.58);color:#6b5f55;font-size:11px;font-weight:750;line-height:1.35;}.checkout-final-review__item strong{display:block;margin-bottom:4px;color:#17120f;font-size:12px;}.checkout-sticky-paybar{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:70;padding:10px;border:1px solid rgba(255,255,255,.16);border-radius:24px;background:rgba(16,12,10,.92);box-shadow:0 18px 54px rgba(0,0,0,.28);backdrop-filter:blur(18px);}.checkout-sticky-paybar__inner{display:flex;align-items:center;justify-content:space-between;gap:12px;}.checkout-sticky-paybar__meta{display:grid;gap:2px;min-width:0;padding-left:6px;color:rgba(255,255,255,.65);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}.checkout-sticky-paybar__meta strong{color:#fff;font-size:15px;letter-spacing:0;text-transform:none;}.checkout-sticky-paybar__btn{border:0;border-radius:999px;padding:13px 18px;background:#fff;color:#14100d;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;cursor:pointer;}.checkout-sticky-paybar.is-hidden{display:none!important;}.checkout-field-focus{box-shadow:0 0 0 4px rgba(184,73,63,.08)!important;border-color:rgba(184,73,63,.35)!important;}@media (max-width:860px){body.checkout-premium-page{padding-bottom:88px;}.checkout-sticky-paybar{display:block;}.checkout-final-review{grid-template-columns:1fr;}}
+</style>
 </head><body class="checkout-premium-page"><div class="progress" id="progress"></div><div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
 <header class="header">
 <a aria-label="Cosmoskin anasayfa" class="brand" href="/index.html">
@@ -302,7 +437,7 @@
           <div class="field full checkout-consent"><label class="checkline"><input name="sales_terms" required="" type="checkbox"/> <span><a href="/on-bilgilendirme.html" rel="noopener" target="_blank">Ön Bilgilendirme Formu</a> ve <a href="/mesafeli-satis.html" rel="noopener" target="_blank">Mesafeli Satış Sözleşmesi</a> koşullarını okudum.</span></label><label class="checkline"><input name="kvkk_terms" required="" type="checkbox"/> <span><button class="inline-link open-legal" type="button">KVKK Aydınlatma Metni</button> kapsamında bilgilendirildim.</span></label><label class="checkline"><input name="marketing_optin" type="checkbox"/> <span>Kampanya ve ürün bilgilendirmelerini e-posta ile almak istiyorum.</span></label></div>
         </section>
         <input id="orderSummaryField" name="order_summary" type="hidden"/>
-        <div class="field full"><button class="btn btn-primary" id="checkoutSubmit" type="submit">Güvenli Ödemeye Geç</button><div class="form-status" id="checkoutStatus"></div></div>
+        <div class="field full"><button class="btn btn-primary" id="checkoutSubmit" type="submit"><span class="checkout-submit-label">Güvenli Ödemeye Geç</span><span class="checkout-submit-loader" aria-hidden="true"></span></button><div class="form-status" id="checkoutStatus" role="status" aria-live="polite"></div></div>
       </form>
     </div>
     <aside class="checkout-summary checkout-summary--premium" id="checkoutPremiumSummary">
@@ -391,8 +526,34 @@
 })();
 </script>
 
+
+<script id="cosmoskinCheckoutUiHotfixScript">
+(function(){
+  function initPaymentCards(){
+    document.querySelectorAll('.checkout-method-card').forEach(function(card){
+      if(card.dataset.uiHotfixBound === 'true') return;
+      card.dataset.uiHotfixBound = 'true';
+      card.addEventListener('click', function(){
+        document.querySelectorAll('.checkout-method-card').forEach(function(item){ item.classList.remove('is-active'); });
+        card.classList.add('is-active');
+      });
+    });
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initPaymentCards);
+  } else {
+    initPaymentCards();
+  }
+})();
+</script>
+<div class="checkout-sticky-paybar is-hidden" id="checkoutStickyPaybar" aria-hidden="true">
+  <div class="checkout-sticky-paybar__inner">
+    <div class="checkout-sticky-paybar__meta"><span>Ödenecek toplam</span><strong id="checkoutStickyTotal">₺0</strong></div>
+    <button class="checkout-sticky-paybar__btn" id="checkoutStickySubmit" type="button">Ödemeye Geç</button>
+  </div>
+</div>
 <script src="/assets/products-data.js?v=20260424a"></script>
-<script src="/assets/site-config.js?v=20260418a"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/app.js?v=20260418b"></script><script src="/assets/auth.js?v=20260427phase5" type="module"></script><script src="/assets/commerce.js?v=20260418d"></script>
+<script src="/assets/site-config.js?v=20260418a"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/assets/app.js?v=20260418b"></script><script src="/assets/auth.js?v=20260427phase6" type="module"></script><script src="/assets/commerce.js?v=20260418d"></script>
 <script id="cosmoskinCheckoutPhase4Script">
 (function(){
   'use strict';
@@ -589,7 +750,147 @@
   window.addEventListener('storage', function(){ setTimeout(render, 0); });
 })();
 </script>
+<script id="cosmoskinCheckoutPhase6Script">
+(function(){
+  'use strict';
+  function qs(sel, root){ return (root || document).querySelector(sel); }
+  function qsa(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function setStatus(type, message){
+    var status = document.getElementById('checkoutStatus');
+    if (!status) return;
+    status.classList.remove('is-error','is-success','is-loading');
+    if (type) status.classList.add('is-' + type);
+    status.textContent = message || '';
+  }
+  function setProcessing(active){
+    var btn = document.getElementById('checkoutSubmit');
+    if (!btn) return;
+    var label = btn.querySelector('.checkout-submit-label') || btn;
+    if (active) {
+      btn.dataset.originalText = btn.dataset.originalText || label.textContent.trim();
+      btn.classList.add('is-processing');
+      btn.disabled = true;
+      label.textContent = 'Güvenli ödeme hazırlanıyor';
+      setStatus('loading','Sipariş bilgileri kontrol ediliyor. Güvenli ödeme sayfasına yönlendirileceksin.');
+    } else {
+      btn.classList.remove('is-processing');
+      if (btn.dataset.originalText) label.textContent = btn.dataset.originalText;
+      if (!document.querySelector('.checkout-disabled-note:not([hidden])')) btn.disabled = false;
+    }
+  }
+  function ensureFinalReview(){
+    var consent = qs('#checkoutForm .checkout-consent');
+    if (!consent || document.getElementById('checkoutFinalReview')) return;
+    var wrap = document.createElement('div');
+    wrap.id = 'checkoutFinalReview';
+    wrap.className = 'checkout-final-review field full';
+    wrap.innerHTML = '<div class="checkout-final-review__item"><strong>SSL güvenli</strong>Ödeme bilgileri şifreli bağlantı üzerinden işlenir.</div><div class="checkout-final-review__item"><strong>Net toplam</strong>KDV ve kargo tutarı ödeme öncesi gösterilir.</div><div class="checkout-final-review__item"><strong>Yasal onay</strong>Sözleşme ve KVKK onayları kayıt altına alınır.</div>';
+    consent.insertAdjacentElement('beforebegin', wrap);
+  }
+  function firstInvalidField(form){ return qsa('input, textarea, select', form).find(function(field){ return !field.checkValidity(); }); }
+  function bindSubmitGuard(){
+    var form = document.getElementById('checkoutForm');
+    var btn = document.getElementById('checkoutSubmit');
+    if (!form || !btn || form.dataset.phase6Bound === 'true') return;
+    form.dataset.phase6Bound = 'true';
+    form.addEventListener('submit', function(event){
+      var invalid = firstInvalidField(form);
+      if (invalid) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        setProcessing(false);
+        setStatus('error','Lütfen kırmızıyla işaretlenen zorunlu alanları kontrol et.');
+        invalid.classList.add('checkout-field-focus');
+        invalid.scrollIntoView({ behavior:'smooth', block:'center' });
+        setTimeout(function(){ invalid.classList.remove('checkout-field-focus'); }, 1600);
+        return;
+      }
+      setProcessing(true);
+      window.setTimeout(function(){
+        var stillHere = document.body.contains(btn) && btn.classList.contains('is-processing');
+        if (stillHere) {
+          setProcessing(false);
+          setStatus('error','Ödeme yönlendirmesi tamamlanamadıysa bağlantını ve zorunlu alanları kontrol edip tekrar dene.');
+        }
+      }, 12000);
+    }, true);
+  }
+  function updateSticky(){
+    var bar = document.getElementById('checkoutStickyPaybar');
+    var total = document.getElementById('checkoutTotal');
+    var stickyTotal = document.getElementById('checkoutStickyTotal');
+    var submit = document.getElementById('checkoutSubmit');
+    if (!bar || !total || !stickyTotal || !submit) return;
+    stickyTotal.textContent = total.textContent || '₺0';
+    var disabled = submit.disabled && !submit.classList.contains('is-processing');
+    bar.classList.toggle('is-hidden', disabled);
+    bar.setAttribute('aria-hidden', disabled ? 'true' : 'false');
+  }
+  function bindSticky(){
+    var sticky = document.getElementById('checkoutStickySubmit');
+    if (!sticky || sticky.dataset.phase6Bound === 'true') return;
+    sticky.dataset.phase6Bound = 'true';
+    sticky.addEventListener('click', function(){ var submit = document.getElementById('checkoutSubmit'); if (submit) { submit.scrollIntoView({ behavior:'smooth', block:'center' }); submit.click(); } });
+    var observer = new MutationObserver(updateSticky);
+    ['checkoutTotal','checkoutSubmit'].forEach(function(id){ var el = document.getElementById(id); if (el) observer.observe(el, { attributes:true, childList:true, subtree:true }); });
+    window.addEventListener('storage', function(){ setTimeout(updateSticky, 80); });
+    document.addEventListener('cosmoskin:cart:updated', function(){ setTimeout(updateSticky, 80); });
+  }
+  function init(){ ensureFinalReview(); bindSubmitGuard(); bindSticky(); updateSticky(); setTimeout(updateSticky, 300); setTimeout(updateSticky, 1100); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
 <script src="/assets/mobile-enhancements.js?v=20260421final"></script>
 <script src="/js/search.js?v=20260424"></script>
 <script src="/assets/bottom-nav.js?v=20260424"></script>
+<script type="module">
+(function(){
+  const fillCheckoutUser = (user) => {
+    const gate = document.getElementById('checkoutAuthGate');
+    const form = document.getElementById('checkoutForm');
+    if (!gate && !form) return;
+    if (user) {
+      document.body.classList.add('user-is-authenticated');
+      gate?.setAttribute('hidden', '');
+      gate?.classList.add('is-hidden');
+      gate?.setAttribute('aria-hidden', 'true');
+      gate && (gate.style.display = 'none');
+      form?.setAttribute('data-authenticated', 'true');
+      form?.classList.add('is-authenticated-checkout');
+      const email = form?.querySelector('input[name="email"]');
+      const firstName = form?.querySelector('input[name="first_name"]');
+      const lastName = form?.querySelector('input[name="last_name"]');
+      const meta = user.user_metadata || {};
+      if (email && !email.value) email.value = user.email || '';
+      if (firstName && !firstName.value) firstName.value = meta.first_name || meta.firstName || '';
+      if (lastName && !lastName.value) lastName.value = meta.last_name || meta.lastName || '';
+    } else {
+      document.body.classList.remove('user-is-authenticated');
+      gate?.removeAttribute('hidden');
+      gate?.classList.remove('is-hidden');
+      gate?.setAttribute('aria-hidden', 'false');
+      gate && (gate.style.display = '');
+      form?.setAttribute('data-authenticated', 'false');
+      form?.classList.remove('is-authenticated-checkout');
+    }
+  };
+  const sync = async () => {
+    const client = window.cosmoskinSupabase;
+    if (!client?.auth) return false;
+    try {
+      const { data } = await client.auth.getSession();
+      fillCheckoutUser(data?.session?.user || null);
+      return true;
+    } catch (e) {
+      console.warn('checkout auth fallback sync warning:', e);
+      return false;
+    }
+  };
+  document.addEventListener('cosmoskin:auth-state', (event) => fillCheckoutUser(event.detail?.user || null));
+  document.addEventListener('cosmoskin:auth-refresh-requested', sync);
+  window.addEventListener('storage', sync);
+  [0, 150, 500, 1200].forEach((ms) => setTimeout(sync, ms));
+})();
+</script>
+
 </body></html>
