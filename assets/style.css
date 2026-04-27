@@ -8036,3 +8036,52 @@ body::before{
     transform: none !important;
   }
 }
+
+/* ============================================================
+   MEGA MENU HOVER/CLICK STABILITY FIX
+   Keeps Kategoriler and Markalar dropdowns open while moving
+   from the trigger to the panel; also provides CSS hover fallback.
+   ============================================================ */
+.categories-wrap,
+.brands-wrap{
+  position: relative;
+}
+
+.categories-wrap::after,
+.brands-wrap::after{
+  content: '';
+  position: absolute;
+  left: -24px;
+  right: -24px;
+  top: 100%;
+  height: 20px;
+  display: none;
+  z-index: 1;
+}
+
+.categories-wrap.open::after,
+.brands-wrap.open::after,
+.categories-wrap:hover::after,
+.brands-wrap:hover::after,
+.categories-wrap:focus-within::after,
+.brands-wrap:focus-within::after{
+  display: block;
+}
+
+.categories-wrap > .mega,
+.brands-wrap > .mega{
+  z-index: 2;
+}
+
+@media (hover: hover) and (pointer: fine){
+  .categories-wrap:hover > .mega,
+  .brands-wrap:hover > .mega,
+  .categories-wrap:focus-within > .mega,
+  .brands-wrap:focus-within > .mega,
+  .categories-wrap.open > .mega,
+  .brands-wrap.open > .mega{
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+}

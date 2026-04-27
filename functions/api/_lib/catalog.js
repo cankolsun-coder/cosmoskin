@@ -1,4 +1,4 @@
-import productSource from '../../../products.json' with { type: 'json' };
+import productSource from '../../../products.json' assert { type: 'json' };
 
 function toArray(value) {
   if (Array.isArray(value)) return value.filter(Boolean);
