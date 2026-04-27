@@ -124,3 +124,32 @@
   .home-routine__preset small{font-size:11px;line-height:1.45;}
   .home-routine__preset-icon{width:34px;height:34px;}
 }
+
+.home-routine[data-mood="night"] {
+  background: linear-gradient(180deg, #1f2730 0%, #2c2520 100%) !important;
+  color: #f4ece1 !important;
+}
+
+.home-routine[data-mood="night"] h2,
+.home-routine[data-mood="night"] h3,
+.home-routine[data-mood="night"] strong,
+.home-routine[data-mood="night"] .home-routine__product-name,
+.home-routine[data-mood="night"] .home-routine__analysis-head strong {
+  color: #f4ece1 !important;
+}
+
+.home-routine[data-mood="night"] p,
+.home-routine[data-mood="night"] small,
+.home-routine[data-mood="night"] .home-routine__lede,
+.home-routine[data-mood="night"] .home-routine__product-meta,
+.home-routine[data-mood="night"] .home-routine__product-reason {
+  color: rgba(244, 236, 225, .72) !important;
+}
+
+.home-routine[data-mood="night"] .glass-panel,
+.home-routine[data-mood="night"] .home-routine__hero-art,
+.home-routine[data-mood="night"] .home-routine__analysis-card,
+.home-routine[data-mood="night"] .home-routine__product-card {
+  background: rgba(244, 236, 225, .06) !important;
+  border-color: rgba(244, 236, 225, .14) !important;
+}
