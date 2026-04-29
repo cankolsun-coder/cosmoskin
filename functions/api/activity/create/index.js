@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { createAccountActivity } from '../../../_lib/activity.js';
+import { createAccountActivity } from '../../_lib/activity.js';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
