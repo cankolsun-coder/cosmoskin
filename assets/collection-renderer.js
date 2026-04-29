@@ -54,7 +54,7 @@
               '<div class="price-note">KDV dahil</div>',
             '</div>',
             '<button class="btn btn-primary"',
-              ' data-add-cart=""',
+              ' data-action="add-to-cart"',
               ' data-id="' + esc(p.id) + '"',
               ' data-slug="' + esc(p.slug || p.id) + '"',
               ' data-name="' + esc(p.name) + '"',

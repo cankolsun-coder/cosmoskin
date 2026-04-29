@@ -19,7 +19,11 @@
  * relevant fields through to the client as JSON.
  */
 
-import { json } from '../_lib/response.js';
+function json(data, init = {}) {
+  const headers = new Headers(init.headers || {});
+  headers.set('Content-Type', 'application/json; charset=utf-8');
+  return new Response(JSON.stringify(data), { ...init, headers });
+}
 
 const PASSWORD_RULES = [
   { code: 'length', test: (p) => p.length >= 8,                                message: 'Şifre en az 8 karakter olmalı.' },

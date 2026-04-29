@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <title>COSMOSKIN | Sepetim</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="/assets/site-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/account-api.js"></script>
+  <style>
+    :root{--bg:#fbfaf7;--panel:#fffdfb;--line:#e7ddd3;--soft:#f4ece5;--text:#171412;--muted:#756b63;--serif:'Cormorant Garamond',serif;--sans:'Inter',sans-serif}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:var(--sans);background:radial-gradient(circle at top right,rgba(238,221,203,.55),transparent 34%),var(--bg);color:var(--text)}
+    a{text-decoration:none;color:inherit}
+    .app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+    .side{padding:28px 24px;border-right:1px solid var(--line);background:rgba(255,253,250,.72)}
+    .brand{font-family:var(--serif);letter-spacing:.18em;font-size:22px;font-weight:600;margin-bottom:26px;display:block}
+    .nav a{display:block;padding:10px 12px;border-radius:12px;color:#6e665f;font-size:13px}
+    .nav a:hover,.nav a.active{background:#f1e8df;color:#111}
+    .main{padding:28px}
+    .hero{border:1px solid var(--line);border-radius:24px;background:linear-gradient(135deg,#fffdfb,#f8f1e9);padding:32px;margin-bottom:24px}
+    h1{font-family:var(--serif);font-weight:500;font-size:48px;letter-spacing:-.035em;margin:0 0 8px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;gap:16px}
+    .card{border:1px solid var(--line);border-radius:20px;background:#fffdfb;padding:18px;box-shadow:0 14px 35px rgba(34,25,18,.045)}
+    .btn{height:40px;border:0;border-radius:12px;background:#111;color:#fff;font-weight:600;padding:0 14px;cursor:pointer}
+    .btn.soft{background:var(--soft);color:#5f554d}
+    .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#111;color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transition:.2s}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+    @media(max-width:900px){.app{grid-template-columns:1fr}.side{display:none}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <a class="brand" href="/">COSMOSKIN</a>
+      <nav class="nav">
+        <a href="/account/profile.html">Genel Bakış</a>
+        <a href="/account/orders.html">Siparişlerim</a>
+        <a href="/account/routines.html">Rutinlerim</a>
+        <a href="/account/rewards.html">Puanlarım</a>
+        <a href="/account/personal-offers.html">Kişisel Teklifler</a>
+        <a href="/account/activity.html">Bildirimler</a>
+        <a href="/cart.html" class="active">Sepet</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <section class="hero">
+        <h1>Sepetin</h1>
+        <p class="muted">Ürünlerini kontrol et ve güvenli ödeme adımına geç.</p>
+      </section>
+      <section class="grid">
+        <div id="cartItems"></div>
+        <article class="card">
+          <h2>Özet</h2>
+          <p id="total"></p>
+          <button class="btn" id="checkout" data-action="checkout">Güvenli Ödemeye Geç</button>
+        </article>
+      </section>
+    </main>
+  </div>
+  <div class="toast"></div>
+  <script>
+  (async () => {
+    const storageKey = 'cosmoskin_cart';
+    const fmt = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
+    const cartItems = document.getElementById('cartItems');
+    const total = document.getElementById('total');
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function readLocalCart() {
+      try { return JSON.parse(localStorage.getItem(storageKey) || '[]') || []; }
+      catch { return []; }
+    }
+
+    function writeLocalCart(items) {
+      localStorage.setItem(storageKey, JSON.stringify(items));
+      window.dispatchEvent(new CustomEvent('cosmoskin:cart-updated'));
+    }
+
+    function localCart() {
+      const items = readLocalCart().map((item) => ({
+        id: item.id || item.slug,
+        name: item.name || item.product_name || 'Ürün',
+        product_name: item.name || item.product_name || 'Ürün',
+        image: item.image || item.image_url || '/assets/logo-mark.png',
+        quantity: Number(item.qty || item.quantity || 1),
+        price: Number(item.price || item.unit_price || 0),
+        source: 'localStorage'
+      }));
+      return {
+        items,
+        total: items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0),
+        source: 'localStorage'
+      };
+    }
+
+    function normalizeApiCart(payload) {
+      const cart = payload?.data || payload || {};
+      return {
+        ...cart,
+        items: Array.isArray(cart.items) ? cart.items : [],
+        total: Number(cart.total || cart.subtotal || 0),
+        source: cart.source || 'api'
+      };
+    }
+
+    async function loadCart() {
+      const apiCart = await fetch('/api/cart')
+        .then((response) => response.json())
+        .then(normalizeApiCart)
+        .catch(() => ({ items: [], total: 0, source: 'api-error' }));
+      return apiCart.items.length ? apiCart : localCart();
+    }
+
+    function render(cart) {
+      cartItems.innerHTML = (cart.items || []).length
+        ? cart.items.map((item) => {
+          const itemId = item.cart_item_id || item.id || item.product_id || item.slug || '';
+          const source = item.source || cart.source || 'supabase';
+          const quantity = Number(item.quantity || item.qty || 1);
+          return `<article class="card"><img src="${escapeHTML(item.image || item.image_url || '/assets/logo-mark.png')}" alt="" style="width:70px;height:80px;object-fit:contain"> <b>${escapeHTML(item.name || item.product_name || 'Ürün')}</b> · ${quantity} adet <button class="btn soft" data-action="remove-cart-item" data-source="${escapeHTML(source)}" data-id="${escapeHTML(itemId)}">Kaldır</button></article>`;
+        }).join('')
+        : '<article class="card">Sepetin boş.</article>';
+      total.textContent = 'Toplam: ' + fmt.format(cart.total || 0);
+    }
+
+    let cart = await loadCart();
+    render(cart);
+
+    cartItems.addEventListener('click', async (event) => {
+      const button = event.target.closest('[data-action="remove-cart-item"]');
+      if (!button) return;
+      const itemId = button.dataset.id;
+      if (button.dataset.source === 'localStorage') {
+        writeLocalCart(readLocalCart().filter((item) => String(item.id || item.slug) !== String(itemId)));
+        cart = localCart();
+        render(cart);
+        return;
+      }
+      await fetch('/api/cart/remove', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item_id: itemId })
+      }).catch(() => null);
+      cart = await loadCart();
+      render(cart);
+    });
+
+    document.querySelector('[data-action="checkout"]')?.addEventListener('click', () => {
+      location.href = '/checkout.html';
+    });
+  })();
+  </script>
+  <div id="footer"></div>
+  <script>
+  fetch('/components/footer.html')
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById('footer').innerHTML = html;
+  });
+  </script>
+</body>
+</html>

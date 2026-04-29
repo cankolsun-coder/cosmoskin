@@ -8,5 +8,13 @@
 </head>
 <body>
 <p>Yorum yönetim paneli yeni adresinde: <a href="/admin/reviews/">/admin/reviews/</a></p>
+<div id="footer"></div>
+<script>
+fetch('/components/footer.html')
+.then(res => res.text())
+.then(html => {
+  document.getElementById('footer').innerHTML = html;
+});
+</script>
 </body>
 </html>

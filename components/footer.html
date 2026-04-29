@@ -1,0 +1,83 @@
+<style>
+  #footer{width:100%}
+  .footer{position:relative;overflow:hidden;background:#0d0d0d;color:#ede6dc;padding:36px 28px 44px}
+  .footer::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(212,184,138,.08),transparent 36%);pointer-events:none}
+  .footer-grid{position:relative;display:grid;max-width:1180px;margin:0 auto;grid-template-columns:1.35fr repeat(6,1fr);gap:18px;padding:32px;border-radius:32px;border:1px solid rgba(237,230,220,.1);background:transparent;box-shadow:none}
+  .footer-col{display:grid;align-content:start;gap:10px}
+  .footer-brandlock{display:inline-flex;align-items:center;gap:10px;margin-bottom:10px;text-decoration:none;color:#ede6dc}
+  .footer .brand-logo{width:30px;height:30px;object-fit:contain}
+  .footer .brand-word{font-family:Georgia,serif;font-size:19px;letter-spacing:.18em;color:#ede6dc}
+  .footer-copy{max-width:360px;margin:18px 0 0;font-size:13px;line-height:1.8;color:#ede6dc;opacity:.78}
+  .footer-col h5{margin:0 0 4px;font:600 10px/1.2 Inter,Arial,sans-serif;letter-spacing:.26em;text-transform:uppercase;color:#c8a96a}
+  .footer-col a{font:400 13px/1.45 Inter,Arial,sans-serif;color:#ede6dc;text-decoration:none;opacity:.82;transition:opacity .2s ease,color .2s ease}
+  .footer-col a:hover{opacity:1;color:#fff}
+  .footer-social{display:inline-flex;align-items:center;gap:8px}
+  .footer-social svg{width:15px;height:15px;stroke-width:1.7;flex:0 0 auto}
+  .footer-payments{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .footer-payments img{width:42px;height:26px;object-fit:contain;border-radius:5px;background:#fff;padding:4px;box-shadow:none}
+  .footer-bottom{position:relative;max-width:1180px;margin:16px auto 0;display:flex;justify-content:space-between;gap:12px;color:#ede6dc;font-size:11px;font-weight:500;letter-spacing:.08em;border-top:1px solid rgba(237,230,220,.1);padding:16px 6px 0}
+  @media(max-width:960px){.footer-grid{grid-template-columns:1fr 1fr}.footer-grid>:first-child{grid-column:1/-1}}
+  @media(max-width:640px){.footer{padding:28px 12px 36px}.footer-grid{grid-template-columns:1fr;padding:24px}.footer-bottom{flex-direction:column}}
+</style>
+<footer class="footer">
+  <div class="container footer-grid">
+    <div class="footer-col">
+      <a class="brand footer-brandlock" href="/index.html">
+        <img class="brand-logo" src="/assets/logo-mark-light.png" alt="Cosmoskin logo">
+        <span class="brand-word">COSMOSKIN</span>
+      </a>
+      <p class="footer-copy">Cildine iyi gelen, sana iyi hissettiren Kore cilt bakım ürünlerini senin için seçiyoruz.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Categories</h5>
+      <a href="/collections/cleanse.html">Temizleyiciler</a>
+      <a href="/collections/hydrate.html">Tonik &amp; Essence</a>
+      <a href="/collections/treat.html">Serumlar</a>
+      <a href="/collections/care.html">Nemlendiriciler</a>
+      <a href="/collections/protect.html">Güneş Bakımı</a>
+    </div>
+    <div class="footer-col">
+      <h5>Routines</h5>
+      <a href="/collections/routine.html">Akıllı Rutin Seçimi</a>
+      <a href="/collections/routine.html#day-routine">Gündüz Rutini</a>
+      <a href="/collections/routine.html#night-routine">Akşam Rutini</a>
+      <a href="/collections/routine.html#barrier-routine">Bariyer Rutini</a>
+    </div>
+    <div class="footer-col">
+      <h5>Support</h5>
+      <a href="/contact.html">Destek Merkezi</a>
+      <a href="/teslimat-kargo.html">Kargo &amp; Teslimat</a>
+      <a href="/iade-degisim.html">İade &amp; Değişim</a>
+      <a href="/mesafeli-satis.html">Mesafeli Satış</a>
+      <a href="/on-bilgilendirme.html">Ön Bilgilendirme</a>
+    </div>
+    <div class="footer-col">
+      <h5>Account</h5>
+      <a href="/account/profile.html">Hesap Özeti</a>
+      <a href="/account/orders.html">Siparişlerim</a>
+      <a href="/account/routines.html">Rutinlerim</a>
+      <a href="/account/rewards.html">Puanlarım</a>
+      <a href="/account/activity.html">Bildirimlerim</a>
+    </div>
+    <div class="footer-col">
+      <h5>Social</h5>
+      <a class="footer-social" href="https://www.instagram.com/cosmoskin" target="_blank" rel="noopener" aria-label="COSMOSKIN Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <rect x="4" y="4" width="16" height="16" rx="5"></rect>
+          <circle cx="12" cy="12" r="3.5"></circle>
+          <path d="M17.2 6.8h.01"></path>
+        </svg>
+        Instagram
+      </a>
+    </div>
+    <div class="footer-col">
+      <h5>Ödeme Yöntemleri</h5>
+      <div class="footer-payments" aria-label="Ödeme yöntemleri">
+        <img src="/assets/payment/visa.svg" alt="Visa">
+        <img src="/assets/payment/mastercard.svg" alt="Mastercard">
+        <img src="/assets/payment/amex.svg" alt="American Express">
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div>
+</footer>

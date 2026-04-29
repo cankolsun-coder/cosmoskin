@@ -88,5 +88,13 @@
   })();
   </script>
 <script src="/assets/mobile.js?v=20260425f"></script>
+<div id="footer"></div>
+<script>
+fetch('/components/footer.html')
+.then(res => res.text())
+.then(html => {
+  document.getElementById('footer').innerHTML = html;
+});
+</script>
 </body>
 </html>

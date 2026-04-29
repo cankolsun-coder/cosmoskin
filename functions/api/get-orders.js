@@ -1,23 +1,110 @@
-import { getUserFromAccessToken, selectRows } from './_lib/supabase.js';
-import { json } from './_lib/response.js';
-import { getCatalogProductByHandle, getCatalogProductByName } from './_lib/catalog.js';
+import { createClient } from '@supabase/supabase-js';
+
+function getSupabase(context) {
+  const env = context?.env || {};
+  if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Supabase yapılandırması eksik.');
+  return createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
+async function getUserFromAccessToken(context, accessToken) {
+  if (!accessToken) return null;
+  const supabase = getSupabase(context);
+  const { data, error } = await supabase.auth.getUser(accessToken);
+  if (error) return null;
+  return data?.user || null;
+}
+
+function applyFilter(query, key, value) {
+  const raw = String(value || '');
+  if (raw.startsWith('eq.')) return query.eq(key, raw.slice(3));
+  if (raw.startsWith('in.(') && raw.endsWith(')')) return query.in(key, raw.slice(4, -1).split(',').map((item) => item.replace(/^"|"$/g, '')).filter(Boolean));
+  if (raw.startsWith('gt.')) return query.gt(key, raw.slice(3));
+  if (raw.startsWith('lt.')) return query.lt(key, raw.slice(3));
+  return query.eq(key, raw);
+}
+
+async function selectRows(context, table, params = {}) {
+  const supabase = getSupabase(context);
+  let query = supabase.from(table).select(params.select || '*');
+  for (const [key, value] of Object.entries(params)) {
+    if (['select', 'order', 'limit'].includes(key) || value === undefined || value === null || value === '') continue;
+    query = applyFilter(query, key, value);
+  }
+  if (params.order) {
+    String(params.order).split(',').forEach((part) => {
+      const [column, direction] = part.trim().split('.');
+      if (column) query = query.order(column, { ascending: direction !== 'desc' });
+    });
+  }
+  if (params.limit) query = query.limit(Number(params.limit));
+  const { data, error } = await query;
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
+async function insertRow(context, table, payload) {
+  const supabase = getSupabase(context);
+  const { data, error } = await supabase.from(table).insert(payload).select('*').single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+async function insertRows(context, table, rows) {
+  if (!Array.isArray(rows) || !rows.length) return true;
+  const supabase = getSupabase(context);
+  const { error } = await supabase.from(table).insert(rows);
+  if (error) throw new Error(error.message);
+  return true;
+}
+
+async function updateRows(context, table, filters, payload) {
+  const supabase = getSupabase(context);
+  let query = supabase.from(table).update(payload);
+  for (const [key, value] of Object.entries(filters || {})) query = query.eq(key, value);
+  const { error } = await query;
+  if (error) throw new Error(error.message);
+  return true;
+}
+
+function json(data, init = {}) {
+  const headers = new Headers(init.headers || {});
+  headers.set('Content-Type', 'application/json; charset=utf-8');
+  return new Response(JSON.stringify(data), { ...init, headers });
+}
+
+const productSource = {"products":[{"slug":"anua-heartleaf-77-soothing-toner","name":"Heartleaf 77% Soothing Toner","brand":"Anua","category":"Tonik & Essence","price":849,"volume":"250 ml","image":"/assets/img/products/anua/anua-heartleaf-77-soothing-toner-card.webp","url":"/products/anua-heartleaf-77-soothing-toner.html","keywords":["anua","heartleaf","soothing toner","tonik","hassas","yatıştırıcı","centella","nem","doğal","kore"],"aliases":["anua-heartleaf-toner"]},{"slug":"anua-heartleaf-pore-control-cleansing-oil","name":"Heartleaf Pore Control Cleansing Oil","brand":"Anua","category":"Temizleyiciler","price":849,"volume":"200 ml","image":"/assets/img/products/anua/anua-heartleaf-pore-control-cleansing-oil-card.webp","url":"/products/anua-heartleaf-pore-control-cleansing-oil.html","keywords":["anua","heartleaf","cleansing oil","temizleyici","gözenek","yağ bazlı","makyaj","temizleme"],"aliases":["anua-cleansing-oil"]},{"slug":"beauty-of-joseon-relief-sun-spf50","name":"Relief Sun: Rice + Probiotics SPF 50+ PA++++","brand":"Beauty of Joseon","category":"Güneş Koruyucular","price":899,"volume":"50 ml","image":"/assets/img/products/beauty-of-joseon/beauty-of-joseon-relief-sun-spf50-card.webp","url":"/products/beauty-of-joseon-relief-sun-spf50.html","keywords":["beauty of joseon","relief sun","spf50","güneş koruyucu","pirinç","probiyotik","spf","pa++++","günlük","kore spf"],"aliases":["boj-relief","beauty-of-joseon-relief-sun-spf50-pa"]},{"slug":"beauty-of-joseon-glow-serum-propolis-niacinamide","name":"Glow Serum: Propolis + Niacinamide","brand":"Beauty of Joseon","category":"Serum & Ampul","price":879,"volume":"30 ml","image":"/assets/img/products/beauty-of-joseon/beauty-of-joseon-glow-serum-propolis-niacinamide-card.webp","url":"/products/beauty-of-joseon-glow-serum-propolis-niacinamide.html","keywords":["beauty of joseon","glow serum","propolis","niacinamide","ışıltı","ton eşitsizliği","serum","niasinamid","boj"],"aliases":["boj-glow","beauty-of-joseon-glow-serum"]},{"slug":"beauty-of-joseon-glow-deep-serum","name":"Glow Deep Serum: Rice + Arbutin","brand":"Beauty of Joseon","category":"Serum & Ampul","price":949,"volume":"30 ml","image":"/assets/img/products/beauty-of-joseon/beauty-of-joseon-glow-deep-serum-card.webp","url":"/products/beauty-of-joseon-glow-deep-serum.html","keywords":["beauty of joseon","glow deep serum","arbutin","pirinç","leke","ışıltı","serum","boj","aydınlatıcı"],"aliases":["boj-glow-deep"]},{"slug":"beauty-of-joseon-dynasty-cream","name":"Dynasty Cream","brand":"Beauty of Joseon","category":"Nemlendiriciler","price":999,"volume":"50 ml","image":"/assets/img/products/beauty-of-joseon/beauty-of-joseon-dynasty-cream-card.webp","url":"/products/beauty-of-joseon-dynasty-cream.html","keywords":["beauty of joseon","dynasty cream","nem","krem","bariyer","boj","gece kremi"],"aliases":["boj-dynasty"]},{"slug":"beauty-of-joseon-green-plum-refreshing-cleanser","name":"Green Plum Refreshing Cleanser","brand":"Beauty of Joseon","category":"Temizleyiciler","price":729,"volume":"170 ml","image":"/assets/img/products/beauty-of-joseon/beauty-of-joseon-green-plum-refreshing-cleanser-card.webp","url":"/products/beauty-of-joseon-green-plum-refreshing-cleanser.html","keywords":["beauty of joseon","green plum","cleanser","yeşil erik","temizleyici","köpük","günlük","boj"],"aliases":["boj-green-plum"]},{"slug":"by-wishtrend-pure-vitamin-c-21-5-serum","name":"Pure Vitamin C 21.5% Advanced Serum","brand":"By Wishtrend","category":"Serum & Ampul","price":1149,"volume":"30 ml","image":"/assets/img/products/by-wishtrend/by-wishtrend-pure-vitamin-c-21-5-serum-card.webp","url":"/products/by-wishtrend-pure-vitamin-c-21-5-serum.html","keywords":["by wishtrend","vitamin c","serum","c vitamini","aydınlatıcı","leke","antioksidan"],"aliases":["bywishtrend-vitc"]},{"slug":"cosrx-advanced-snail-96-mucin-essence","name":"Advanced Snail 96 Mucin Power Essence","brand":"COSRX","category":"Tonik & Essence","price":979,"volume":"100 ml","image":"/assets/img/products/cosrx/cosrx-advanced-snail-96-mucin-essence-card.webp","url":"/products/cosrx-advanced-snail-96-mucin-essence.html","keywords":["cosrx","snail","mucin","essence","salyangoz","bariyer","nem","essans"],"aliases":["cosrx-snail"]},{"slug":"cosrx-the-vitamin-c-23-serum","name":"The Vitamin C 23 Serum","brand":"COSRX","category":"Serum & Ampul","price":999,"volume":"20 g","image":"/assets/img/products/cosrx/vitamin-c-23-serum-card.png","url":"/products/cosrx-the-vitamin-c-23-serum.html","keywords":["cosrx","vitamin c 23","serum","c vitamini","leke","ton","aydınlatıcı","antioksidan"],"aliases":["cosrx-vitc"]},{"slug":"cosrx-acne-pimple-master-patch","name":"Acne Pimple Master Patch","brand":"COSRX","category":"Maskeler","price":449,"volume":"24 adet","image":"/assets/img/products/cosrx/cosrx-acne-pimple-master-patch-card.webp","url":"/products/cosrx-acne-pimple-master-patch.html","keywords":["cosrx","acne patch","pimple","sivilce bandı","akne","gözenek","nokta tedavi"],"aliases":["cosrx-patch"],"concernSlugs":["blemish"]},{"slug":"cosrx-aha-bha-clarifying-treatment-toner","name":"AHA/BHA Clarifying Treatment Toner","brand":"COSRX","category":"Tonik & Essence","price":879,"volume":"150 ml","image":"/assets/img/products/cosrx/cosrx-aha-bha-clarifying-treatment-toner-card.webp","url":"/products/cosrx-aha-bha-clarifying-treatment-toner.html","keywords":["cosrx","aha","bha","toner","tonik","asit","gözenek","akne","arındırıcı"],"aliases":["cosrx-aha-bha"],"concernSlugs":["blemish"]},{"slug":"cosrx-low-ph-good-morning-gel-cleanser","name":"Low pH Good Morning Gel Cleanser","brand":"COSRX","category":"Temizleyiciler","price":749,"volume":"150 ml","image":"/assets/img/products/cosrx/cosrx-low-ph-good-morning-gel-cleanser-card.webp","url":"/products/cosrx-low-ph-good-morning-gel-cleanser.html","keywords":["cosrx","low ph","gel cleanser","jel temizleyici","düşük ph","sabah","günlük"],"aliases":["cosrx-morning"]},{"slug":"cosrx-salicylic-acid-daily-gentle-cleanser","name":"Salicylic Acid Daily Gentle Cleanser","brand":"COSRX","category":"Temizleyiciler","price":769,"volume":"150 ml","image":"/assets/img/products/cosrx/cosrx-salicylic-acid-daily-gentle-cleanser-card.webp","url":"/products/cosrx-salicylic-acid-daily-gentle-cleanser.html","keywords":["cosrx","salicylic acid","cleanser","salisilik asit","temizleyici","akne","günlük"],"aliases":["cosrx-salicylic"],"concernSlugs":["blemish"]},{"slug":"cosrx-oil-free-ultra-moisturizing-lotion","name":"Oil-Free Ultra Moisturizing Lotion","brand":"COSRX","category":"Nemlendiriciler","price":849,"volume":"100 ml","image":"/assets/img/products/cosrx/cosrx-oil-free-ultra-moisturizing-lotion-card.webp","url":"/products/cosrx-oil-free-ultra-moisturizing-lotion.html","keywords":["cosrx","oil free","moisturizing","nemlendirici","yağsız","lotion","hafif"],"aliases":["cosrx-lotion"]},{"slug":"dr-jart-ceramidin-cream","name":"Ceramidin Cream","brand":"Dr. Jart+","category":"Nemlendiriciler","price":1249,"volume":"50 ml","image":"/assets/img/products/dr-jart/dr-jart-ceramidin-cream-card.webp","url":"/products/dr-jart-ceramidin-cream.html","keywords":["dr jart","ceramidin","cream","seramid","krem","bariyer","nem","onarıcı"],"aliases":["drjart-ceramidin"]},{"slug":"goodal-green-tangerine-vitamin-c-serum","name":"Green Tangerine Vita C Dark Spot Serum","brand":"Goodal","category":"Serum & Ampul","price":1099,"volume":"30 ml","image":"/assets/img/products/goodal/goodal-green-tangerine-vitamin-c-serum-card.webp","url":"/products/goodal-green-tangerine-vitamin-c-serum.html","keywords":["goodal","green tangerine","vitamin c","yeşil mandalin","c vitamini","serum","aydınlatıcı","leke"],"aliases":["goodal-vitc"]},{"slug":"im-from-rice-toner","name":"Rice Toner","brand":"I'm From","category":"Tonik & Essence","price":899,"volume":"150 ml","image":"/assets/img/products/im-from/im-from-rice-toner-card.webp","url":"/products/im-from-rice-toner.html","keywords":["im from","rice toner","pirinç tonik","nem","parlak","tonik","kore"],"aliases":["imfrom-rice"]},{"slug":"innisfree-super-volcanic-clay-mask","name":"Super Volcanic Clay Mask 2X","brand":"Innisfree","category":"Maskeler","price":649,"volume":"100 ml","image":"/assets/img/products/innisfree/innisfree-super-volcanic-clay-mask-card.webp","url":"/products/innisfree-super-volcanic-clay-mask.html","keywords":["innisfree","volcanic clay","kil maskesi","gözenek","arındırıcı","maske","volkanik kil"],"aliases":["innisfree-clay"],"concernSlugs":["blemish"]},{"slug":"isntree-hyaluronic-acid-watery-sun-gel","name":"Hyaluronic Acid Watery Sun Gel SPF 50+ PA++++","brand":"Isntree","category":"Güneş Koruyucular","price":879,"volume":"50 ml","image":"/assets/img/products/isntree/isntree-hyaluronic-acid-watery-sun-gel-card.webp","url":"/products/isntree-hyaluronic-acid-watery-sun-gel.html","keywords":["isntree","hyaluronic acid","sun gel","hyalüronik asit","güneş","spf","jel","hafif"],"aliases":["isntree-sun"]},{"slug":"laneige-water-sleeping-mask","name":"Water Sleeping Mask","brand":"Laneige","category":"Maskeler","price":1199,"volume":"70 ml","image":"/assets/img/products/laneige/laneige-water-sleeping-mask-card.webp","url":"/products/laneige-water-sleeping-mask.html","keywords":["laneige","water sleeping mask","uyku maskesi","gece","nem","maske","hydration"],"aliases":["laneige-sleeping"]},{"slug":"medicube-zero-pore-pad","name":"Zero Pore Pad","brand":"Medicube","category":"Tonik & Essence","price":849,"volume":"70 adet","image":"/assets/img/products/medicube/medicube-zero-pore-pad-card.webp","url":"/products/medicube-zero-pore-pad.html","keywords":["medicube","zero pore pad","gözenek pedi","aha","bha","toner pad","gözenek"],"aliases":["medicube-pad"],"concernSlugs":["blemish"]},{"slug":"medicube-collagen-night-wrapping-mask","name":"Collagen Night Wrapping Mask","brand":"Medicube","category":"Maskeler","price":849,"volume":"100 ml","image":"/assets/img/products/medicube/medicube-collagen-night-wrapping-mask-card.webp","url":"/products/medicube-collagen-night-wrapping-mask.html","keywords":["medicube","collagen","night mask","kolajen","gece maskesi","sarma","sıkılaştırıcı"],"aliases":["medicube-mask"],"concernSlugs":["blemish"]},{"slug":"mediheal-nmf-aquaring-sheet-mask","name":"NMF Aquaring Ampoule Mask","brand":"Mediheal","category":"Maskeler","price":549,"volume":"1 adet","image":"/assets/img/products/mediheal/mediheal-nmf-aquaring-sheet-mask-card.webp","url":"/products/mediheal-nmf-aquaring-sheet-mask.html","keywords":["mediheal","nmf","aquaring","sheet mask","yaprak maske","nem","hydration"],"aliases":["mediheal-nmf"]},{"slug":"round-lab-1025-dokdo-cleanser","name":"1025 Dokdo Cleanser","brand":"Round Lab","category":"Temizleyiciler","price":729,"volume":"150 ml","image":"/assets/img/products/round-lab/round-lab-1025-dokdo-cleanser-card.webp","url":"/products/round-lab-1025-dokdo-cleanser.html","keywords":["round lab","dokdo cleanser","deniz suyu","temizleyici","nazik","köpük","günlük"],"aliases":["roundlab-cleanser"]},{"slug":"round-lab-dokdo-toner","name":"Dokdo Toner","brand":"Round Lab","category":"Tonik & Essence","price":799,"volume":"200 ml","image":"/assets/img/products/round-lab/round-lab-dokdo-toner-card.webp","url":"/products/round-lab-dokdo-toner.html","keywords":["round lab","dokdo toner","deniz suyu","tonik","nem","mineral","hassas"],"aliases":["roundlab-toner"]},{"slug":"round-lab-birch-juice-sunscreen","name":"Birch Juice Moisturizing Sunscreen SPF 50+ PA++++","brand":"Round Lab","category":"Güneş Koruyucular","price":849,"volume":"50 ml","image":"/assets/img/products/round-lab/round-lab-birch-juice-sunscreen-card.webp","url":"/products/round-lab-birch-juice-sunscreen.html","keywords":["round lab","birch juice","sunscreen","huş suyu","güneş","spf","hafif"],"aliases":["roundlab-birch"]},{"slug":"round-lab-soybean-nourishing-cream","name":"Soybean Nourishing Cream","brand":"Round Lab","category":"Nemlendiriciler","price":1049,"volume":"80 ml","image":"/assets/img/products/round-lab/soybean-nourishing-cream-card.png","url":"/products/round-lab-soybean-nourishing-cream.html","keywords":["round lab","soybean","nourishing cream","soya","besleyici krem","seramid","nem"],"aliases":["roundlab-soy"]},{"slug":"skin1004-madagascar-centella-ampoule","name":"Madagascar Centella Ampoule","brand":"SKIN1004","category":"Serum & Ampul","price":869,"volume":"55 ml","image":"/assets/img/products/skin1004/skin1004-madagascar-centella-ampoule-card.webp","url":"/products/skin1004-madagascar-centella-ampoule.html","keywords":["skin1004","centella","ampoule","amfül","ampul","yatıştırıcı","hassas","centella asiatica"],"aliases":["skin1004-ampoule"]},{"slug":"skin1004-centella-toning-toner","name":"Madagascar Centella Tone Brightening Toner","brand":"SKIN1004","category":"Tonik & Essence","price":829,"volume":"210 ml","image":"/assets/img/products/skin1004/skin1004-centella-toning-toner-card.webp","url":"/products/skin1004-centella-toning-toner.html","keywords":["skin1004","centella toner","tonik","centella asiatica","yatıştırıcı","nem"],"aliases":["skin1004-toner"]},{"slug":"skin1004-hyalu-cica-water-fit-sun-serum","name":"Hyalu-Cica Water-Fit Sun Serum SPF 50+ PA++++","brand":"SKIN1004","category":"Güneş Koruyucular","price":899,"volume":"50 ml","image":"/assets/img/products/skin1004/skin1004-hyalu-cica-water-fit-sun-serum-card.webp","url":"/products/skin1004-hyalu-cica-water-fit-sun-serum.html","keywords":["skin1004","hyalu cica","sun serum","güneş serumu","spf","centella","hyalüronik"],"aliases":["skin1004-sun"]},{"slug":"some-by-mi-aha-bha-miracle-toner","name":"AHA BHA PHA 30 Days Miracle Toner","brand":"Some By Mi","category":"Tonik & Essence","price":799,"volume":"150 ml","image":"/assets/img/products/some-by-mi/some-by-mi-aha-bha-miracle-toner-card.webp","url":"/products/some-by-mi-aha-bha-miracle-toner.html","keywords":["some by mi","aha bha","miracle toner","asit tonik","gözenek","akne","arındırıcı"],"aliases":["some-by-mi-toner"],"concernSlugs":["blemish"]},{"slug":"torriden-dive-in-hyaluronic-acid-serum","name":"DIVE-IN Low Molecular Hyaluronic Acid Serum","brand":"Torriden","category":"Serum & Ampul","price":949,"volume":"50 ml","image":"/assets/img/products/torriden/torriden-dive-in-hyaluronic-acid-serum-card.webp","url":"/products/torriden-dive-in-hyaluronic-acid-serum.html","keywords":["torriden","dive-in","hyaluronic acid","serum","hyalüronik asit","nem","katmanlı"],"aliases":["torriden-divein-serum","torriden-dive-in-serum"]},{"slug":"torriden-solid-in-ceramide-cream","name":"SOLID-IN Ceramide Cream","brand":"Torriden","category":"Nemlendiriciler","price":1099,"volume":"70 ml","image":"/assets/img/products/torriden/torriden-solid-in-ceramide-cream-card.webp","url":"/products/torriden-solid-in-ceramide-cream.html","keywords":["torriden","solid-in","ceramide cream","seramid","krem","bariyer","nem"],"aliases":["torriden-ceramide"]},{"slug":"torriden-dive-in-watery-moisture-sun-cream","name":"DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++","brand":"Torriden","category":"Güneş Koruyucular","price":939,"volume":"60 ml","image":"/assets/img/products/torriden/watery-moisture-sun-cream-card.png","url":"/products/torriden-dive-in-watery-moisture-sun-cream.html","keywords":["torriden","watery moisture sun","spf50","güneş","hafif","hyalüronik","spf","kore spf"],"aliases":["torriden-sun","torriden-watery-sun","torriden-dive-in-watery-sun-serum"]}]};
+
+function catalogArray(value) { return Array.isArray(value) ? value.filter(Boolean) : []; }
+function catalogSlug(value) {
+  const raw = String(value || '').trim();
+  const match = raw.match(/\/products\/([^.?#/]+)\.html(?:[?#].*)?$/i);
+  return match ? match[1] : raw;
+}
+function catalogText(value) { return String(value || '').trim().toLocaleLowerCase('tr-TR'); }
+function catalogProduct(product) {
+  const slug = catalogSlug(product?.slug || product?.id || product?.url || '');
+  if (!slug) return null;
+  return { id: slug, slug, name: String(product.name || '').trim(), brand: String(product.brand || '').trim(), price: Number(product.price || 0), image: String(product.image || '').trim(), url: String(product.url || ('/products/' + slug + '.html')).trim(), category: String(product.category || '').trim(), aliases: catalogArray(product.aliases).map((alias) => String(alias || '').trim()).filter(Boolean) };
+}
+const catalogProducts = catalogArray(productSource.products).map(catalogProduct).filter(Boolean);
+const catalogByName = Object.create(null);
+const catalog = Object.create(null);
+for (const product of catalogProducts) {
+  catalogByName[catalogText(product.name)] = product;
+  [product.id, product.slug].concat(product.aliases || []).filter(Boolean).forEach((handle) => { catalog[catalogSlug(handle)] = product; });
+}
+function getCatalogProductByHandle(handle) {
+  if (!handle) return null;
+  if (typeof handle === 'object') return getCatalogProductByHandle(handle.slug || handle.id || handle.url || '');
+  return catalog[catalogSlug(handle)] || null;
+}
+function getCatalogProductByName(name) { return catalogByName[catalogText(name)] || null; }
+function resolveCatalogProduct(reference) { return getCatalogProductByHandle(reference) || getCatalogProductByName(reference); }
 
 function resolveOrderItem(item = {}) {
-  const product =
-    getCatalogProductByHandle(item.product_slug || item.product_id || '') ||
-    getCatalogProductByName(item.product_name || '');
-
+  const product = getCatalogProductByHandle(item.product_slug || item.product_id || '') || getCatalogProductByName(item.product_name || '');
   const productSlug = product?.slug || item.product_slug || item.product_id || null;
-
-  return {
-    ...item,
-    product_id: product?.id || item.product_id || productSlug,
-    product_slug: productSlug,
-    product_name: product?.name || item.product_name || 'Ürün',
-    brand: product?.brand || item.brand || 'Cosmoskin',
-    image: product?.image || item.image || '',
-    product_url: product?.url || (productSlug ? `/products/${productSlug}.html` : '')
-  };
+  return { ...item, product_id: product?.id || item.product_id || productSlug, product_slug: productSlug, product_name: product?.name || item.product_name || 'Ürün', brand: product?.brand || item.brand || 'Cosmoskin', image: product?.image || item.image || '', product_url: product?.url || (productSlug ? '/products/' + productSlug + '.html' : '') };
 }
 
 export async function onRequestGet(context) {
@@ -25,37 +112,15 @@ export async function onRequestGet(context) {
     const authHeader = context.request.headers.get('authorization') || '';
     const token = authHeader.replace(/^Bearer\s+/i, '');
     if (!token) return json({ ok: false, error: 'Oturum gerekli.' }, { status: 401 });
-
     const user = await getUserFromAccessToken(context, token);
     if (!user) return json({ ok: false, error: 'Geçersiz oturum.' }, { status: 401 });
-
-    const orders = await selectRows(context, 'orders', {
-      select: 'id,order_number,status,total_amount,created_at',
-      user_id: `eq.${user.id}`,
-      order: 'created_at.desc'
-    });
-
-    const ids = Array.isArray(orders) ? orders.map(order => order.id).filter(Boolean) : [];
+    const orders = await selectRows(context, 'orders', { select: 'id,order_number,status,total_amount,created_at', user_id: 'eq.' + user.id, order: 'created_at.desc' });
+    const ids = Array.isArray(orders) ? orders.map((order) => order.id).filter(Boolean) : [];
     let items = [];
-    if (ids.length) {
-      items = await selectRows(context, 'order_items', {
-        select: 'order_id,product_id,product_slug,product_name,brand,image,quantity,line_total',
-        order_id: `in.(${ids.join(',')})`
-      });
-    }
-
+    if (ids.length) items = await selectRows(context, 'order_items', { select: 'order_id,product_id,product_slug,product_name,brand,image,quantity,line_total', order_id: 'in.(' + ids.join(',') + ')' });
     const grouped = new Map();
-    for (const item of items || []) {
-      const list = grouped.get(item.order_id) || [];
-      list.push(item);
-      grouped.set(item.order_id, list);
-    }
-
-    const data = (orders || []).map(order => ({
-      ...order,
-      order_items: (grouped.get(order.id) || []).map(resolveOrderItem)
-    }));
-
+    for (const item of items || []) { const list = grouped.get(item.order_id) || []; list.push(item); grouped.set(item.order_id, list); }
+    const data = (orders || []).map((order) => ({ ...order, order_items: (grouped.get(order.id) || []).map(resolveOrderItem) }));
     return json({ ok: true, orders: data });
   } catch (error) {
     return json({ ok: false, error: error.message || 'Siparişler alınamadı.' }, { status: 500 });

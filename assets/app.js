@@ -160,7 +160,7 @@
 
     const media = card.querySelector('.product-media');
     const image = media?.querySelector('img') || card.querySelector('img');
-    const cartBtn = card.querySelector('[data-add-cart]');
+    const cartBtn = card.querySelector('[data-action="add-to-cart"]');
     const favoriteBtn = card.querySelector('.favorite-btn');
     const titleLink = card.querySelector('h3 a, .product-name a');
     const titleHeading = titleLink ? null : card.querySelector('h3, .product-name');
@@ -250,7 +250,7 @@
     });
     if (!product.id) return;
 
-    root.querySelectorAll('.pdp-actions [data-add-cart], #mobileStickyAddBtn[data-add-cart]').forEach((button) => {
+    root.querySelectorAll('.pdp-actions [data-action="add-to-cart"], #mobileStickyAddBtn[data-action="add-to-cart"]').forEach((button) => {
       setCartButtonData(button, product);
     });
     root.querySelectorAll('.pdp-fav-btn').forEach((button) => {
@@ -271,7 +271,7 @@
 
   function syncProductBindings(root = document) {
     root.querySelectorAll('.product-card').forEach(syncProductCard);
-    root.querySelectorAll('[data-add-bundle]').forEach(syncBundleButton);
+    root.querySelectorAll('[data-action="add-bundle"]').forEach(syncBundleButton);
     if (root === document) syncPdpState(root);
   }
 
@@ -764,7 +764,7 @@ function broadcastFavoritesChange() {
     root.querySelectorAll('.product-card').forEach((card) => {
       const media = card.querySelector('.product-media');
       const mediaWrap = card.querySelector('.product-media-wrap');
-      const cartBtn = card.querySelector('[data-add-cart]');
+      const cartBtn = card.querySelector('[data-action="add-to-cart"]');
       if (!media || !cartBtn || card.querySelector('.favorite-btn')) return;
       const product = getProductDataFromButton(cartBtn);
       if (!product?.id) return;
@@ -799,7 +799,7 @@ function broadcastFavoritesChange() {
             image: button.dataset.image,
             url: button.dataset.url || button.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname
           } : null;
-          const cardCartBtn = button.closest('.product-card')?.querySelector('[data-add-cart]');
+          const cardCartBtn = button.closest('.product-card')?.querySelector('[data-action="add-to-cart"]');
           toggleFavorite(explicit?.id ? explicit : getProductDataFromButton(cardCartBtn));
         });
       }
@@ -887,7 +887,7 @@ function broadcastFavoritesChange() {
   }
 
   function bindCartButtons(root = document) {
-    root.querySelectorAll('[data-add-cart]').forEach((btn) => {
+    root.querySelectorAll('[data-action="add-to-cart"]').forEach((btn) => {
       if (btn.dataset.cartBound) return;
       btn.dataset.cartBound = 'true';
       btn.addEventListener('click', () => {
@@ -1335,7 +1335,7 @@ function broadcastFavoritesChange() {
 
   function getCollectionProductData(card) {
     const media = card.querySelector('.product-media');
-    const cartBtn = card.querySelector('[data-add-cart]');
+    const cartBtn = card.querySelector('[data-action="add-to-cart"]');
     const title = card.querySelector('h3');
     const desc = card.querySelector('.product-body p');
     const brand = card.querySelector('.brandline');
@@ -1409,7 +1409,7 @@ function broadcastFavoritesChange() {
                 <div class="price-note">${escapeHtml(product.meta || 'KDV dahil')}</div>
               </div>
               <div class="collection-detail-actions">
-                <button class="btn btn-primary" type="button" data-detail-add-cart>Sepete Ekle</button>
+                <button class="btn btn-primary" type="button" data-action="detail-add-to-cart">Sepete Ekle</button>
                 <button class="collection-detail-favorite ${favoriteActive ? 'active' : ''} favorite-btn" type="button" aria-label="${favoriteActive ? 'Favorilerden çıkar' : 'Favorilere ekle'}" aria-pressed="${favoriteActive ? 'true' : 'false'}" data-favorite-id="${escapeHtml(product.id)}" data-name="${escapeHtml(product.name)}" data-brand="${escapeHtml(product.brand)}" data-price="${escapeHtml(product.price)}" data-image="${escapeHtml(product.image)}" data-url="${escapeHtml(product.url)}">${favoriteHeartIcon(favoriteActive)}</button>
               </div>
             </div>
@@ -1448,7 +1448,7 @@ function broadcastFavoritesChange() {
         setProductQueryParam('');
       });
 
-      detailShell.querySelector('[data-detail-add-cart]')?.addEventListener('click', () => {
+      detailShell.querySelector('[data-action="detail-add-to-cart"]')?.addEventListener('click', () => {
         const item = {
           id: product.id,
           name: product.name,
@@ -1492,7 +1492,7 @@ function broadcastFavoritesChange() {
       });
 
       card.addEventListener('click', (event) => {
-        if (event.target.closest('button') || event.target.closest('.favorite-btn') || event.target.closest('[data-add-cart]')) return;
+        if (event.target.closest('button') || event.target.closest('.favorite-btn') || event.target.closest('[data-action="add-to-cart"]')) return;
         if (event.target.closest('.product-media') || event.target.closest('h3') || event.target.closest('.product-body')) {
           renderDetail(getCollectionProductData(card));
         }

@@ -35,7 +35,7 @@
   }
 
   document.addEventListener('click', function(event){
-    const button = event.target.closest('[data-add-bundle]');
+    const button = event.target.closest('[data-action="add-bundle"]');
     if (!button) return;
     event.preventDefault();
     addBundle(button);

@@ -91,6 +91,22 @@ export async function updateRows(context, table, filters, payload) {
   return true;
 }
 
+export async function deleteRows(context, table, filters) {
+  const { url } = getEnv(context);
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters || {})) {
+    qs.set(key, `eq.${value}`);
+  }
+  const response = await fetch(`${url}/rest/v1/${table}?${qs.toString()}`, {
+    method: 'DELETE',
+    headers: adminHeaders(context, {
+      Prefer: 'return=minimal'
+    })
+  });
+  await parseSupabaseResponse(response);
+  return true;
+}
+
 export async function selectRows(context, table, params = {}) {
   const { url } = getEnv(context);
   const qs = new URLSearchParams();

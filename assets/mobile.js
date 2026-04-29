@@ -390,7 +390,7 @@ function buildBottomNav(){
 
 /* ── ADD-TO-CART BUTTON SVG INJECT ── */
 function patchCartButtons(){
-  qsa('[data-add-cart]').forEach(function(btn){
+  qsa('[data-action="add-to-cart"]').forEach(function(btn){
     /* Replace text label with bag icon */
     if(!btn.querySelector('svg') && btn.closest('.price-row')){
       btn.innerHTML = SVG.bag.replace('stroke-width="1.7"','stroke-width="1.8"');
@@ -400,7 +400,7 @@ function patchCartButtons(){
 
   /* Intercept cart add to show toast */
   document.addEventListener('click', function(e){
-    var btn = e.target.closest('[data-add-cart]');
+    var btn = e.target.closest('[data-action="add-to-cart"]');
     if(!btn) return;
     var name = btn.dataset.name || 'Ürün';
     /* Short success flash on button */
