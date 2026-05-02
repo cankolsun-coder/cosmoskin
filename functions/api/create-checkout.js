@@ -1,4 +1,4 @@
-import { getUserFromAccessToken, insertRow, insertRows } from './_lib/supabase.js';
+import { getUserFromAccessToken, insertRow, insertRows, updateRows, selectRows } from './_lib/supabase.js';
 import { iyzicoRequest } from './_lib/iyzico.js';
 import { catalog } from './_lib/catalog.js';
 import { json } from './_lib/response.js';
@@ -174,6 +174,64 @@ function calculateTotals(cart) {
   return { subtotal, shipping, vat, total };
 }
 
+async function validateInventory(context, cart) {
+  const slugs = cart.map((item) => item.product_slug || item.product_id).filter(Boolean);
+  if (!slugs.length) return;
+  const rows = await selectRows(context, 'inventory', {
+    select: 'product_slug,stock_qty,reserved_qty,status',
+    product_slug: `in.(${slugs.join(',')})`
+  }).catch(() => []);
+  const map = new Map((rows || []).map((row) => [row.product_slug, row]));
+  for (const item of cart) {
+    const inv = map.get(item.product_slug || item.product_id);
+    if (!inv) continue;
+    if (String(inv.status || 'active') !== 'active') {
+      throw new CheckoutError(`${item.product_name} şu anda satışta değil.`, 409, 'PRODUCT_NOT_ACTIVE');
+    }
+    const available = Number(inv.stock_qty || 0) - Number(inv.reserved_qty || 0);
+    if (available < Number(item.quantity || 1)) {
+      throw new CheckoutError(`${item.product_name} için yeterli stok yok.`, 409, 'INSUFFICIENT_STOCK');
+    }
+  }
+}
+
+async function applyCoupon(context, cart, subtotal, couponCode) {
+  const code = String(couponCode || '').trim().toUpperCase();
+  if (!code) return { code: null, discount: 0, label: null };
+  const rows = await selectRows(context, 'coupons', {
+    select: '*',
+    code: `eq.${code}`,
+    is_active: 'eq.true',
+    limit: '1'
+  }).catch(() => []);
+  const coupon = rows?.[0];
+  if (!coupon) throw new CheckoutError('Kupon kodu geçersiz veya pasif.', 400, 'INVALID_COUPON');
+  const now = Date.now();
+  if (coupon.starts_at && new Date(coupon.starts_at).getTime() > now) throw new CheckoutError('Kupon henüz aktif değil.', 400, 'COUPON_NOT_STARTED');
+  if (coupon.ends_at && new Date(coupon.ends_at).getTime() < now) throw new CheckoutError('Kupon süresi dolmuş.', 400, 'COUPON_EXPIRED');
+  if (Number(coupon.min_subtotal || 0) > subtotal) throw new CheckoutError(`Bu kupon için minimum sepet tutarı ₺${Number(coupon.min_subtotal).toFixed(0)}.`, 400, 'COUPON_MIN_SUBTOTAL');
+  let discount = 0;
+  const couponType = coupon.discount_type || coupon.type;
+  const couponValue = coupon.discount_value ?? coupon.value;
+  const couponMax = coupon.max_discount_amount ?? coupon.max_discount;
+  if (couponType === 'percent') discount = subtotal * (Number(couponValue || 0) / 100);
+  else if (couponType === 'free_shipping') discount = 0;
+  else discount = Number(couponValue || 0);
+  if (couponMax) discount = Math.min(discount, Number(couponMax));
+  discount = Math.max(0, Math.min(subtotal, normalizeMoney(discount)));
+  return { code, discount, label: couponType === 'percent' ? `%${Number(couponValue || 0)} indirim` : (couponType === 'free_shipping' ? 'Ücretsiz kargo' : `₺${discount.toFixed(0)} indirim`) };
+}
+
+function calculateTotalsWithCoupon(cart, coupon) {
+  const subtotal = normalizeMoney(cart.reduce((sum, item) => sum + item.line_total, 0));
+  const discount = normalizeMoney(coupon?.discount || 0);
+  const discountedSubtotal = normalizeMoney(Math.max(0, subtotal - discount));
+  const shipping = discountedSubtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_FEE;
+  const vat = normalizeMoney((discountedSubtotal * VAT_RATE) / (1 + VAT_RATE));
+  const total = normalizeMoney(discountedSubtotal + shipping);
+  return { subtotal, discount, shipping, vat, total };
+}
+
 function createOrderNumber() {
   const random = Math.random().toString(36).slice(2, 6).toUpperCase();
   return `CS-${Date.now()}-${random}`;
@@ -189,14 +247,38 @@ function getClientIp(request) {
     || '127.0.0.1';
 }
 
-function buildIyzicoBasketItems(cart, shipping) {
-  const items = cart.map((item) => ({
-    id: item.product_id,
-    name: item.product_name,
-    category1: 'Skincare',
-    itemType: 'PHYSICAL',
-    price: item.line_total.toFixed(2)
-  }));
+function getUserAgent(request) {
+  return clampText(request.headers.get('user-agent') || '', 240) || null;
+}
+
+function serializeError(error) {
+  return {
+    name: error?.name || 'Error',
+    message: error?.message || 'Unknown error',
+    code: error?.code || null
+  };
+}
+
+function buildIyzicoBasketItems(cart, shipping, discount = 0) {
+  const subtotal = normalizeMoney(cart.reduce((sum, item) => sum + item.line_total, 0));
+  let allocatedDiscount = 0;
+  const items = cart.map((item, index) => {
+    let itemDiscount = 0;
+    if (discount > 0 && subtotal > 0) {
+      itemDiscount = index === cart.length - 1
+        ? normalizeMoney(discount - allocatedDiscount)
+        : normalizeMoney(discount * (item.line_total / subtotal));
+      allocatedDiscount = normalizeMoney(allocatedDiscount + itemDiscount);
+    }
+    const price = normalizeMoney(Math.max(0.01, item.line_total - itemDiscount));
+    return {
+      id: item.product_id,
+      name: item.product_name,
+      category1: 'Skincare',
+      itemType: 'PHYSICAL',
+      price: price.toFixed(2)
+    };
+  });
 
   if (shipping > 0) {
     items.push({
@@ -238,7 +320,10 @@ export async function onRequestPost(context) {
     const user = accessToken ? await getUserFromAccessToken(context, accessToken) : null;
     if (accessToken && !user) throw new CheckoutError('Oturum süresi dolmuş. Lütfen tekrar giriş yap.', 401, 'INVALID_SESSION');
 
-    const totals = calculateTotals(cart);
+    await validateInventory(context, cart);
+    const baseTotals = calculateTotals(cart);
+    const coupon = await applyCoupon(context, cart, baseTotals.subtotal, payload.coupon_code || payload.couponCode);
+    const totals = calculateTotalsWithCoupon(cart, coupon);
     const orderNumber = createOrderNumber();
     const order = await insertRow(context, 'orders', {
       user_id: user?.id || null,
@@ -246,9 +331,11 @@ export async function onRequestPost(context) {
       status: 'pending_payment',
       currency: 'TRY',
       subtotal_amount: totals.subtotal,
+      discount_amount: totals.discount || 0,
       vat_amount: totals.vat,
       shipping_amount: totals.shipping,
       total_amount: totals.total,
+      coupon_code: coupon.code || null,
       customer_email: customer.email,
       customer_first_name: customer.first_name,
       customer_last_name: customer.last_name,
@@ -259,57 +346,93 @@ export async function onRequestPost(context) {
       district: customer.district,
       postal_code: customer.postal_code,
       address_line: customer.address,
-      cargo_note: customer.cargo_note || null
+      cargo_note: customer.cargo_note || null,
+      ip_address: getClientIp(context.request),
+      user_agent: getUserAgent(context.request),
+      metadata: { source: 'checkout', cart_line_count: cart.length, coupon: coupon.code || null, coupon_label: coupon.label || null }
     });
 
     await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: order.id })));
+    await insertRow(context, 'order_status_events', {
+      order_id: order.id,
+      status: 'pending_payment',
+      source: 'system',
+      message: 'Sipariş oluşturuldu, ödeme bekleniyor.',
+      metadata: { order_number: orderNumber }
+    });
 
     const callbackUrl = `${getPublicSiteUrl(context.env)}/api/iyzico-callback`;
     const ip = getClientIp(context.request);
     const buyerName = `${customer.first_name} ${customer.last_name}`.trim();
-    const basketItems = buildIyzicoBasketItems(cart, totals.shipping);
+    const basketItems = buildIyzicoBasketItems(cart, totals.shipping, totals.discount || 0);
 
-    const iyzicoRes = await iyzicoRequest('/payment/iyzipos/checkoutform/initialize/auth/ecom', context.env, {
-      locale: 'tr',
-      conversationId: order.id,
-      price: totals.total.toFixed(2),
-      paidPrice: totals.total.toFixed(2),
-      currency: 'TRY',
-      basketId: order.id,
-      paymentGroup: 'PRODUCT',
-      callbackUrl,
-      enabledInstallments: [1, 2, 3],
-      buyer: {
-        id: user?.id || `guest-${order.id}`,
-        name: customer.first_name,
-        surname: customer.last_name,
-        gsmNumber: customer.phone,
-        email: customer.email,
-        identityNumber: customer.identity_number,
-        lastLoginDate: iyzicoDate(),
-        registrationDate: iyzicoDate(user?.created_at),
-        registrationAddress: customer.address,
-        ip,
-        city: customer.city,
-        country: 'Turkey',
-        zipCode: customer.postal_code
-      },
-      shippingAddress: {
-        contactName: buyerName,
-        city: customer.city,
-        country: 'Turkey',
-        address: customer.address,
-        zipCode: customer.postal_code
-      },
-      billingAddress: {
-        contactName: buyerName,
-        city: customer.city,
-        country: 'Turkey',
-        address: customer.address,
-        zipCode: customer.postal_code
-      },
-      basketItems
-    });
+    let iyzicoRes = null;
+    try {
+      iyzicoRes = await iyzicoRequest('/payment/iyzipos/checkoutform/initialize/auth/ecom', context.env, {
+        locale: 'tr',
+        conversationId: order.id,
+        price: totals.total.toFixed(2),
+        paidPrice: totals.total.toFixed(2),
+        currency: 'TRY',
+        basketId: order.id,
+        paymentGroup: 'PRODUCT',
+        callbackUrl,
+        enabledInstallments: [1, 2, 3],
+        buyer: {
+          id: user?.id || `guest-${order.id}`,
+          name: customer.first_name,
+          surname: customer.last_name,
+          gsmNumber: customer.phone,
+          email: customer.email,
+          identityNumber: customer.identity_number,
+          lastLoginDate: iyzicoDate(),
+          registrationDate: iyzicoDate(user?.created_at),
+          registrationAddress: customer.address,
+          ip,
+          city: customer.city,
+          country: 'Turkey',
+          zipCode: customer.postal_code
+        },
+        shippingAddress: {
+          contactName: buyerName,
+          city: customer.city,
+          country: 'Turkey',
+          address: customer.address,
+          zipCode: customer.postal_code
+        },
+        billingAddress: {
+          contactName: buyerName,
+          city: customer.city,
+          country: 'Turkey',
+          address: customer.address,
+          zipCode: customer.postal_code
+        },
+        basketItems
+      });
+    } catch (paymentError) {
+      await insertRow(context, 'payments', {
+        order_id: order.id,
+        provider: 'iyzico',
+        status: 'initialize_failed',
+        amount: totals.total,
+        currency: 'TRY',
+        conversation_id: order.id,
+        raw_initialize_response: { error: serializeError(paymentError) }
+      });
+      await updateRows(context, 'orders', { id: order.id }, {
+        status: 'payment_failed',
+        payment_status: 'failed',
+        metadata: { source: 'checkout', cart_line_count: cart.length, payment_initialize_error: serializeError(paymentError) }
+      });
+      await insertRow(context, 'order_status_events', {
+        order_id: order.id,
+        status: 'payment_failed',
+        source: 'payment',
+        message: 'iyzico ödeme formu başlatılamadı.',
+        metadata: { error: serializeError(paymentError) }
+      });
+      throw new CheckoutError(paymentError.message || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar dene.', 502, 'PAYMENT_INITIALIZE_FAILED');
+    }
 
     const paymentStatus = String(iyzicoRes?.status || '').toLowerCase();
     const paymentSucceeded = paymentStatus === 'success' && (iyzicoRes.token || iyzicoRes.paymentPageUrl || iyzicoRes.checkoutFormContent);
@@ -319,14 +442,37 @@ export async function onRequestPost(context) {
       provider: 'iyzico',
       status: paymentSucceeded ? 'initiated' : 'initialize_failed',
       amount: totals.total,
+      currency: 'TRY',
       conversation_id: order.id,
       provider_token: iyzicoRes?.token || null,
       raw_initialize_response: iyzicoRes || null
     });
 
     if (!paymentSucceeded) {
+      await updateRows(context, 'orders', { id: order.id }, {
+        status: 'payment_failed',
+        payment_status: 'failed'
+      });
+      await insertRow(context, 'order_status_events', {
+        order_id: order.id,
+        status: 'payment_failed',
+        source: 'payment',
+        message: 'iyzico ödeme formu olumlu yanıt dönmedi.',
+        metadata: { iyzico_status: iyzicoRes?.status || null, error_message: iyzicoRes?.errorMessage || null }
+      });
       throw new CheckoutError(iyzicoRes?.errorMessage || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar dene.', 502, 'PAYMENT_INITIALIZE_FAILED');
     }
+
+    await updateRows(context, 'orders', { id: order.id }, {
+      payment_status: 'initiated'
+    });
+    await insertRow(context, 'order_status_events', {
+      order_id: order.id,
+      status: 'payment_initiated',
+      source: 'payment',
+      message: 'iyzico güvenli ödeme formu başlatıldı.',
+      metadata: { provider: 'iyzico', token: iyzicoRes.token || null }
+    });
 
     return json({
       ok: true,

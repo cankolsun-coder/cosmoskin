@@ -11,6 +11,27 @@
     checkoutStatus.style.color = isError ? '#8a3b2f' : '#5d554e';
   }
 
+
+  function mountIyzicoCheckoutForm(html) {
+    if (!html) return false;
+    let host = document.getElementById('iyzipay-checkout-form');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'iyzipay-checkout-form';
+      host.className = 'responsive';
+      form.insertAdjacentElement('afterend', host);
+    }
+    host.innerHTML = html;
+    host.querySelectorAll('script').forEach((oldScript) => {
+      const script = document.createElement('script');
+      Array.from(oldScript.attributes || []).forEach((attr) => script.setAttribute(attr.name, attr.value));
+      script.text = oldScript.textContent || '';
+      oldScript.replaceWith(script);
+    });
+    host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return true;
+  }
+
   function getCart() {
     try {
       return JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
@@ -161,7 +182,12 @@
         return;
       }
 
-      throw new Error('iyzico ödeme sayfası URL bilgisi alınamadı.');
+      if (data.checkoutFormContent && mountIyzicoCheckoutForm(data.checkoutFormContent)) {
+        setStatus('Güvenli ödeme formu hazırlandı. Ödemeyi sayfa üzerindeki iyzico formundan tamamlayabilirsin.', false);
+        return;
+      }
+
+      throw new Error('iyzico ödeme sayfası veya ödeme formu bilgisi alınamadı.');
     } catch (err) {
       setStatus(err.message || 'Ödeme başlatılamadı.', true);
       checkoutSubmit?.removeAttribute('disabled');

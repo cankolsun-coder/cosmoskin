@@ -1,5 +1,5 @@
 import { json } from '../_lib/response.js';
-import { getUserFromAccessToken } from '../_lib/supabase.js';
+import { getUserFromAccessToken, deleteStorageObject } from '../_lib/supabase.js';
 import {
   getCatalogProductByHandle,
   getCatalogProductByName,
@@ -7,7 +7,7 @@ import {
 } from '../_lib/catalog.js';
 
 const REVIEW_SELECT =
-  'id,product_slug,user_id,user_display_name,user_email,title,body,rating,helpful_count,approved,is_edited,created_at,updated_at';
+  'id,product_slug,user_id,user_display_name,user_email,title,body,rating,helpful_count,approved,status,verified_purchase,order_id,is_edited,created_at,updated_at';
 const REVIEW_SELECT_WITH_IMAGES =
   `${REVIEW_SELECT},review_images(id,public_url,status,width,height,created_at)`;
 
@@ -148,6 +148,7 @@ function mapImage(image) {
     width: image.width || null,
     height: image.height || null,
     created_at: image.created_at || null,
+    storage_path: image.storage_path || null,
     source: 'review_images',
     table: 'review_images',
     field: 'public_url',
@@ -156,6 +157,7 @@ function mapImage(image) {
 }
 
 function reviewStatus(review) {
+  if (review?.status) return review.status;
   return review?.approved ? 'approved' : 'pending';
 }
 
@@ -169,7 +171,7 @@ function mapReview(review, options = {}) {
   const productUrl = product?.url || (productSlug ? `/products/${productSlug}.html` : '');
   const rawImages = Array.isArray(review?.review_images) ? review.review_images : [];
   const images = rawImages
-    .filter((image) => !options.publicOnly || image.status === 'approved')
+    .filter((image) => !options.publicOnly || (image.status || 'pending') === 'approved')
     .map(mapImage);
 
   return {
@@ -178,8 +180,10 @@ function mapReview(review, options = {}) {
     body: review.body || '',
     rating: Number(review.rating || 0),
     helpful_count: Number(review.helpful_count || 0),
-    approved: !!review.approved,
+    approved: (options.status || reviewStatus(review)) === 'approved',
     status: options.status || reviewStatus(review),
+    verified_purchase: review.verified_purchase !== false,
+    order_id: review.order_id || null,
     is_edited: !!review.is_edited,
     created_at: review.created_at || null,
     updated_at: review.updated_at || null,
@@ -213,7 +217,7 @@ function mapReview(review, options = {}) {
 }
 
 function buildSummary(reviews = []) {
-  const approved = (reviews || []).filter((review) => review.approved);
+  const approved = (reviews || []).filter((review) => reviewStatus(review) === 'approved');
   const count = approved.length;
   const stars = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
 
@@ -348,7 +352,7 @@ async function hasPurchasedProduct(context, userId, product) {
   const orders = await selectRows(context, 'orders', {
     select: 'id',
     user_id: `eq.${userId}`,
-    status: 'in.(paid,confirmed)',
+    status: 'in.(paid,preparing,shipped,delivered,partially_refunded)',
     limit: '200'
   });
 
@@ -385,7 +389,7 @@ async function handlePublicList(context) {
   const rows = await selectRows(context, 'reviews', {
     select: REVIEW_SELECT_WITH_IMAGES,
     product_slug: `eq.${product.slug}`,
-    approved: 'eq.true',
+    status: 'eq.approved',
     order: 'created_at.desc'
   });
 
@@ -397,6 +401,7 @@ async function handlePublicList(context) {
   let userReview = null;
   let helpfulIds = [];
 
+  let hasPurchased = false;
   if (user?.id) {
     const ownRows = await selectRows(context, 'reviews', {
       select: REVIEW_SELECT_WITH_IMAGES,
@@ -406,6 +411,12 @@ async function handlePublicList(context) {
     });
     if (Array.isArray(ownRows) && ownRows[0]) {
       userReview = mapReview(ownRows[0], { product });
+    }
+
+    try {
+      hasPurchased = await hasPurchasedProduct(context, user.id, product);
+    } catch {
+      hasPurchased = false;
     }
 
     const reviewIds = approvedReviews.map((review) => review.id).filter(Boolean);
@@ -425,7 +436,9 @@ async function handlePublicList(context) {
     summary: buildSummary(rows || []),
     reviews: approvedReviews,
     user_review: userReview,
-    helpful_ids: helpfulIds
+    helpful_ids: helpfulIds,
+    has_purchased: hasPurchased,
+    can_review: !!user?.id && (hasPurchased || !!userReview)
   });
 }
 
@@ -473,7 +486,9 @@ async function handleCreateReview(context) {
     title: payload.title,
     body: payload.body,
     rating: payload.rating,
+    status: 'pending',
     approved: false,
+    verified_purchase: true,
     is_edited: false
   });
 
@@ -511,6 +526,7 @@ async function handleUpdateReview(context, reviewId) {
     title: payload.title,
     body: payload.body,
     rating: payload.rating,
+    status: 'pending',
     approved: false,
     is_edited: true
   }, 'return=minimal');
@@ -631,17 +647,12 @@ async function handleAdminReviewUpdate(context, reviewId) {
     return json({ ok: false, error: 'Yorum bulunamadi.' }, { status: 404 });
   }
 
-  if (nextStatus === 'rejected') {
-    await deleteRows(context, 'reviews', { id: reviewId });
-    return json({
-      ok: true,
-      deleted: true,
-      review: mapReview(existing, { status: 'rejected' })
-    });
-  }
-
   await updateRows(context, 'reviews', { id: reviewId }, {
-    approved: nextStatus === 'approved'
+    status: nextStatus,
+    approved: nextStatus === 'approved',
+    moderation_note: payload.note || payload.moderation_note || null,
+    moderated_at: new Date().toISOString(),
+    moderated_by: context.request.headers.get('x-admin-email') || 'admin'
   }, 'return=minimal');
 
   const refreshed = await getReviewById(context, reviewId);
@@ -675,11 +686,14 @@ async function handleAdminImageUpdate(context, reviewId, imageId) {
   }
 
   await updateRows(context, 'review_images', { id: imageId, review_id: reviewId }, {
-    status: nextStatus
+    status: nextStatus,
+    moderation_note: payload.note || payload.moderation_note || null,
+    moderated_at: new Date().toISOString(),
+    moderated_by: context.request.headers.get('x-admin-email') || 'admin'
   }, 'return=minimal');
 
   const rows = await selectRows(context, 'review_images', {
-    select: 'id,public_url,status,width,height,created_at',
+    select: 'id,public_url,storage_path,status,width,height,created_at',
     id: `eq.${imageId}`,
     review_id: `eq.${reviewId}`,
     limit: '1'
@@ -694,8 +708,18 @@ async function handleAdminImageUpdate(context, reviewId, imageId) {
 async function handleAdminImageDelete(context, reviewId, imageId) {
   const authError = requireAdmin(context);
   if (authError) return authError;
+  const rows = await selectRows(context, 'review_images', {
+    select: 'id,storage_path,public_url',
+    id: `eq.${imageId}`,
+    review_id: `eq.${reviewId}`,
+    limit: '1'
+  });
+  const image = rows?.[0] || null;
+  if (image?.storage_path) {
+    await deleteStorageObject(context, 'review-images', image.storage_path).catch(() => null);
+  }
   await deleteRows(context, 'review_images', { id: imageId, review_id: reviewId });
-  return json({ ok: true, deleted: true });
+  return json({ ok: true, deleted: true, storage_deleted: !!image?.storage_path });
 }
 
 export async function onRequest(context) {

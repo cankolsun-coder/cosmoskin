@@ -1,0 +1,9 @@
+(function(){
+  const $=s=>document.querySelector(s); let token='';
+  function msg(t){const el=$('#couponAdminStatus'); if(el) el.textContent=t||'';}
+  async function api(method,body){const res=await fetch('/api/admin/coupons',{method,headers:{'Content-Type':'application/json','x-admin-token':token},body:body?JSON.stringify(body):undefined}); const data=await res.json().catch(()=>({})); if(!res.ok||!data.ok) throw new Error(data.error||'İşlem başarısız.'); return data;}
+  function row(c){return `<tr><td><strong>${c.code}</strong><br><small>${c.title||''}</small></td><td>${c.type}</td><td>${Number(c.value||0)}</td><td>${Number(c.min_subtotal||0)} TL</td><td>${c.is_active?'Aktif':'Pasif'}</td><td><button type="button" data-toggle="${c.id}" data-active="${c.is_active?'0':'1'}">${c.is_active?'Pasifleştir':'Aktifleştir'}</button></td></tr>`}
+  async function load(){token=$('#couponAdminToken')?.value||token; if(!token) return msg('Admin token gerekli.'); msg('Yükleniyor…'); try{const data=await api('GET'); $('#couponRows').innerHTML=(data.coupons||[]).map(row).join('')||'<tr><td colspan="6">Kupon yok.</td></tr>'; msg('');}catch(e){msg(e.message)}}
+  async function create(){token=$('#couponAdminToken')?.value||token; const body={code:$('#couponCode').value,title:$('#couponTitle').value,type:$('#couponType').value,value:Number($('#couponValue').value||0),min_subtotal:Number($('#couponMin').value||0),max_discount:$('#couponMax').value?Number($('#couponMax').value):null,is_active:true}; try{await api('POST',body); msg('Kupon oluşturuldu.'); load();}catch(e){msg(e.message)}}
+  document.addEventListener('click',async e=>{if(e.target.id==='couponLoad') load(); if(e.target.id==='couponCreate') create(); const b=e.target.closest('[data-toggle]'); if(b){try{await api('PATCH',{id:b.dataset.toggle,is_active:b.dataset.active==='1'}); load();}catch(err){msg(err.message)}}});
+})();

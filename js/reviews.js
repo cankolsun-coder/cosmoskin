@@ -1,805 +1,245 @@
-/**
- * COSMOSKIN — Reviews System
- * /js/reviews.js
- *
- * Bağımlılıklar:
- *   - window.cosmoskinSupabase  (assets/auth.js tarafından set edilir)
- *   - window.COSMOSKIN_CONFIG   (assets/site-config.js)
- *
- * Her ürün sayfasında şu element gereklidir:
- *   <section id="reviewsSection" data-product-slug="SLUG"></section>
- */
+(function(){
+  'use strict';
+  const CFG=window.COSMOSKIN_CONFIG||{};
+  const API=(CFG.apiBase||'/api').replace(/\/$/,'');
+  const BUCKET='review-images';
+  const MAX_FILES=5;
+  const MAX_MB=2;
+  const LABELS={1:'Hayal kırıklığı',2:'Beklentinin altında',3:'İdare eder',4:'Oldukça memnunum',5:'Mükemmel, kesinlikle öneririm'};
+  const $=(s,p=document)=>p.querySelector(s);
+  const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
+  let section, slug='', sb=null, session=null, reviews=[], filtered=[], userReview=null, canReview=false, page=0, rating=0, files=[], lightboxImages=[], lightboxIndex=0, helped=new Set();
+  const PER=5;
 
-'use strict';
+  const esc=(s)=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const fmtDate=(value)=>{try{return new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(value));}catch{return '';}};
 
-const CosmoReviews = (() => {
-  if (typeof window !== 'undefined' && window.Reviews && document.getElementById('reviewsSection')) {
-    return window.Reviews;
-  }
-
-  /* ── Sabitler ──────────────────────────────────────────── */
-  const BUCKET       = 'review-images';
-  const MAX_FILE_MB  = 2;
-  const MAX_FILES    = 5;
-  const PER_PAGE     = 6;
-  const RATE_LIMIT_S = 30; // saniye (istemci tarafı yumuşak limit)
-
-  const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp'];
-  const RATING_LABELS = {
-    1: 'Hayal kırıklığı yarattı',
-    2: 'Beklentinin altında kaldı',
-    3: 'İdare eder',
-    4: 'Oldukça memnunum',
-    5: 'Mükemmel, kesinlikle öneririm',
-  };
-
-  /* ── Durum ─────────────────────────────────────────────── */
-  let _sb           = null;   // Supabase client
-  let _session      = null;   // mevcut oturum
-  let _slug         = '';     // ürün slug
-  let _hasPurchased = false;  // satın alma doğrulaması
-  let _userReview   = null;   // bu kullanıcının yorumu
-  let _allReviews   = [];
-  let _filtered     = [];
-  let _page         = 0;
-  let _rating       = 0;
-  let _files        = [];     // { file, objectUrl }
-  let _lbImgs       = [];
-  let _lbIdx        = 0;
-  let _helpedSet    = new Set();
-  let _lastSubmit   = 0;      // rate limit timestamp
-
-  /* ── XSS koruması ─────────────────────────────────────── */
-  function esc(str) {
-    return String(str ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#x27;');
-  }
-
-  /* ── Supabase hazır olana kadar bekle ─────────────────── */
-  function waitForSb(ms = 4000) {
-    return new Promise(resolve => {
-      if (window.cosmoskinSupabase) return resolve(window.cosmoskinSupabase);
-      const deadline = Date.now() + ms;
-      const id = setInterval(() => {
-        if (window.cosmoskinSupabase || Date.now() > deadline) {
-          clearInterval(id);
-          resolve(window.cosmoskinSupabase || null);
-        }
-      }, 60);
+  async function waitForSb(ms=3500){
+    if(window.cosmoskinSupabase) return window.cosmoskinSupabase;
+    const start=Date.now();
+    return await new Promise(resolve=>{
+      const id=setInterval(()=>{
+        if(window.cosmoskinSupabase || Date.now()-start>ms){clearInterval(id);resolve(window.cosmoskinSupabase||null);}
+      },80);
     });
   }
-
-  /* ── init ──────────────────────────────────────────────── */
-  async function init() {
-    const section = document.getElementById('reviewsSection');
-    if (!section) return;
-
-    _slug = section.dataset.productSlug || '';
-    if (!_slug) {
-      console.warn('[Reviews] data-product-slug eksik.');
-      return;
-    }
-
-    _sb = await waitForSb();
-    if (_sb) {
-      const { data: { session } } = await _sb.auth.getSession();
-      _session = session;
-      if (_session) await _checkPurchase();
-    }
-
-    await _loadReviews();
-    _renderWriteBtn();
-    _bindCharCounters();
-
-    // Auth değişikliklerini dinle
-    document.addEventListener('cosmoskin:auth-state', async () => {
-      if (!_sb) return;
-      const { data: { session } } = await _sb.auth.getSession();
-      _session = session;
-      _hasPurchased = false;
-      if (_session) await _checkPurchase();
-      _renderWriteBtn();
-    });
+  async function refreshSession(){
+    sb=await waitForSb();
+    if(!sb){session=null;return;}
+    try{const res=await sb.auth.getSession();session=res?.data?.session||null;}catch{session=null;}
   }
+  function authHeaders(){return session?.access_token ? {Authorization:`Bearer ${session.access_token}`} : {};}
 
-  /* ── Satın alma doğrulama ──────────────────────────────── */
-  async function _checkPurchase() {
-    if (!_sb || !_session) { _hasPurchased = false; return; }
-    try {
-      // Supabase RPC fonksiyonunu kullan (reviews.sql'de tanımlı)
-      const { data, error } = await _sb.rpc('check_purchase', {
-        p_user_id: _session.user.id,
-        p_product_slug: _slug,
-      });
-      if (error) throw error;
-      _hasPurchased = !!data;
-    } catch (err) {
-      console.warn('[Reviews] purchase check failed:', err.message);
-      _hasPurchased = false;
+  async function load(){
+    const list=$('#rvList');
+    if(list) list.innerHTML='<div class="pdp5-review-skeleton"></div><div class="pdp5-review-skeleton"></div>';
+    await refreshSession();
+    try{
+      const res=await fetch(`${API}/reviews?product_slug=${encodeURIComponent(slug)}`,{headers:authHeaders()});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(data.error||'Yorumlar yüklenemedi.');
+      reviews=Array.isArray(data.reviews)?data.reviews:[];
+      filtered=[...reviews];
+      userReview=data.user_review||null;
+      canReview=!!data.can_review;
+      helped=new Set(Array.isArray(data.helpful_ids)?data.helpful_ids:[]);
+      renderSummary(data.summary);
+      renderWriteArea();
+      renderFilters();
+      renderList(true);
+    }catch(error){
+      if(list) list.innerHTML=`<div class="pdp5-empty">Yorumlar şu anda yüklenemedi. Lütfen sayfayı yenileyin.</div>`;
+      renderWriteArea();
     }
   }
 
-  /* ── Yorum yazma butonu ────────────────────────────────── */
-  function _renderWriteBtn() {
-    const wrap = document.getElementById('rvWriteWrap');
-    if (!wrap) return;
-
-    if (_session && _hasPurchased) {
-      wrap.innerHTML = `
-        <button class="btn btn-primary" onclick="CosmoReviews.openModal()" style="min-height:52px;gap:10px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <path d="M12 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>
-            <path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"/>
-          </svg>
-          ${_userReview ? 'Yorumunuzu Düzenleyin' : 'Yorum Yaz'}
-        </button>`;
-    } else {
-      wrap.innerHTML = '';
-    }
-  }
-
-  /* ── Yorumları yükle ───────────────────────────────────── */
-  async function _loadReviews() {
-    const list = document.getElementById('rvList');
-    if (!list) return;
-
-    try {
-      // Supabase'den doğrudan çek (API route yerine Supabase client)
-      if (_sb) {
-        await _loadFromSupabase();
-      } else {
-        // Fallback: API route
-        await _loadFromApi();
-      }
-    } catch (err) {
-      list.innerHTML = `<div class="pdp-reviews-empty">
-        <p style="color:var(--muted)">Yorumlar yüklenemedi. Sayfayı yenileyin.</p>
-      </div>`;
-      console.error('[Reviews] load error:', err);
-    }
-  }
-
-  async function _loadFromSupabase() {
-    // 1. Yorumları çek (approved=true)
-    const { data: reviews, error: revErr } = await _sb
-      .from('reviews')
-      .select('*')
-      .eq('product_slug', _slug)
-      .eq('approved', true)
-      .order('created_at', { ascending: false });
-
-    if (revErr) throw revErr;
-
-    // 2. Her yorum için görselleri çek
-    const reviewIds = (reviews || []).map(r => r.id);
-    let imageMap = {};
-    if (reviewIds.length) {
-      const { data: images } = await _sb
-        .from('review_images')
-        .select('review_id, public_url, status, width, height')
-        .in('review_id', reviewIds)
-        .eq('status', 'approved');
-      (images || []).forEach(img => {
-        if (!imageMap[img.review_id]) imageMap[img.review_id] = [];
-        imageMap[img.review_id].push(img);
-      });
-    }
-
-    // 3. Kullanıcının kendi yorumunu bul (approved olmasa bile)
-    if (_session) {
-      const { data: own } = await _sb
-        .from('reviews')
-        .select('*')
-        .eq('product_slug', _slug)
-        .eq('user_id', _session.user.id)
-        .maybeSingle();
-      _userReview = own || null;
-    }
-
-    // 4. Helpful set
-    if (_session && reviewIds.length) {
-      const { data: helped } = await _sb
-        .from('review_helpful')
-        .select('review_id')
-        .eq('user_id', _session.user.id)
-        .in('review_id', reviewIds);
-      _helpedSet = new Set((helped || []).map(h => h.review_id));
-    }
-
-    _allReviews = (reviews || []).map(r => ({
-      ...r,
-      review_images: imageMap[r.id] || [],
-    }));
-    _filtered = [..._allReviews];
-
-    _renderSummary();
-    _renderList(true);
-
-    if (_allReviews.length > 0) {
-      const fr = document.getElementById('rvFilterRow');
-      if (fr) fr.style.display = 'flex';
-    }
-  }
-
-  async function _loadFromApi() {
-    const cfg = window.COSMOSKIN_CONFIG || {};
-    const api = cfg.apiBase || '/api';
-    const res  = await fetch(`${api}/reviews?product_slug=${encodeURIComponent(_slug)}`);
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    _allReviews = data.reviews || [];
-    _filtered   = [..._allReviews];
-    _userReview = _session
-      ? (_allReviews.find(r => r.user_id === _session.user.id) || null)
-      : null;
-    _renderSummaryFromData(data.summary);
-    _renderList(true);
-  }
-
-  /* ── Özet render ───────────────────────────────────────── */
-  function _renderSummary() {
-    const approved = _allReviews;
-    const count    = approved.length;
-    const avg      = count
-      ? approved.reduce((s, r) => s + r.rating, 0) / count
-      : 0;
-
-    const stars = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-    approved.forEach(r => { stars[r.rating] = (stars[r.rating] || 0) + 1; });
-
-    _renderSummaryFromData({
-      avg_rating:     avg.toFixed(1),
-      approved_count: count,
-      five_star:  stars[5],
-      four_star:  stars[4],
-      three_star: stars[3],
-      two_star:   stars[2],
-      one_star:   stars[1],
-    });
-  }
-
-  function _renderSummaryFromData(s) {
-    const score = parseFloat(s?.avg_rating || 0);
-    const count = parseInt(s?.approved_count || 0);
-    const total = count || 1;
-
-    const bigScore = document.getElementById('rvScoreBig');
-    if (bigScore) bigScore.textContent = count ? score.toFixed(1) : '—';
-
-    const starsRow = document.getElementById('rvStarsRow');
-    if (starsRow) {
-      starsRow.innerHTML = [1,2,3,4,5].map(n =>
-        `<span class="pdp-star ${score >= n ? 'on' : ''}" aria-hidden="true">★</span>`
-      ).join('');
-      starsRow.setAttribute('aria-label', `${score.toFixed(1)} üzerinden 5 yıldız`);
-    }
-
-    const countEl = document.getElementById('rvCount');
-    if (countEl) {
-      countEl.textContent = count
-        ? `${count} değerlendirme`
-        : 'Henüz değerlendirme yok';
-    }
-
-    const hist = document.getElementById('rvHistogram');
-    if (hist) {
-      const stars = {
-        5: s?.five_star  || 0,
-        4: s?.four_star  || 0,
-        3: s?.three_star || 0,
-        2: s?.two_star   || 0,
-        1: s?.one_star   || 0,
-      };
-      hist.innerHTML = [5,4,3,2,1].map(n => {
-        const pct = Math.round((stars[n] / total) * 100);
-        return `
-          <div class="pdp-hist-row">
-            <span class="pdp-hist-label">${n}</span>
-            <div class="pdp-hist-track" role="progressbar"
-                 aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"
-                 aria-label="${n} yıldız: ${stars[n]} yorum">
-              <div class="pdp-hist-fill" style="width:${pct}%"></div>
-            </div>
-            <span class="pdp-hist-num">${stars[n]}</span>
-          </div>`;
+  function renderSummary(summary){
+    const count=Number(summary?.approved_count ?? reviews.length ?? 0);
+    const avg=count ? Number(summary?.avg_rating || (reviews.reduce((s,r)=>s+Number(r.rating||0),0)/count)).toFixed(1) : '—';
+    $('#rvScoreBig') && ($('#rvScoreBig').textContent=avg);
+    $('#rvCount') && ($('#rvCount').textContent=count ? `${count} doğrulanmış yorum` : 'Henüz yorum yok');
+    $('#rvStarsRow') && ($('#rvStarsRow').innerHTML=stars(avg==='—'?0:Number(avg)));
+    const hist=$('#rvHistogram');
+    if(hist){
+      const starCounts={5:Number(summary?.five_star||0),4:Number(summary?.four_star||0),3:Number(summary?.three_star||0),2:Number(summary?.two_star||0),1:Number(summary?.one_star||0)};
+      hist.innerHTML=[5,4,3,2,1].map(st=>{
+        const c=starCounts[st]||0; const pct=count?Math.round((c/count)*100):0;
+        return `<div class="pdp5-hbar"><span>${st} yıldız</span><div class="pdp5-hbar-track"><div class="pdp5-hbar-fill" style="width:${pct}%"></div></div><span>${c}</span></div>`;
       }).join('');
     }
+    document.dispatchEvent(new CustomEvent('cosmoskin:reviews-summary',{detail:{avg,count}}));
   }
-
-  /* ── Liste render ──────────────────────────────────────── */
-  function _renderList(reset = false) {
-    if (reset) _page = 0;
-    const list = document.getElementById('rvList');
-    if (!list) return;
-
-    const chunk = _filtered.slice(0, (_page + 1) * PER_PAGE);
-
-    if (!_filtered.length) {
-      list.innerHTML = `
-        <div class="pdp-reviews-empty">
-          <div class="empty-icon">✦</div>
-          <h3>Henüz değerlendirme yok</h3>
-          <p>Bu ürünü deneyenler arasında ilk siz olabilirsiniz.</p>
-        </div>`;
-      _el('rvMoreWrap', el => el.style.display = 'none');
-      return;
-    }
-
-    list.innerHTML = chunk.map(_renderCard).join('');
-    _el('rvMoreWrap', el => {
-      el.style.display = _filtered.length > chunk.length ? 'block' : 'none';
-    });
+  function stars(avg){
+    const n=Math.round(Number(avg||0));
+    return '★★★★★'.split('').map((s,i)=>`<span style="opacity:${i<n?1:.22}">★</span>`).join('');
   }
-
-  function _renderCard(r) {
-    const initials = (r.user_display_name || 'M').charAt(0).toUpperCase();
-    const name     = esc(r.user_display_name || 'Doğrulanmış Müşteri');
-    const date     = new Date(r.created_at).toLocaleDateString('tr-TR', {
-      day: 'numeric', month: 'long', year: 'numeric',
-    });
-    const stars = [1,2,3,4,5].map(n =>
-      `<span class="pdp-rc-star ${n <= r.rating ? 'on' : ''}" aria-hidden="true">★</span>`
-    ).join('');
-
-    const images = (r.review_images || []).filter(i => i.status === 'approved');
-    const imgHtml = images.length
-      ? `<div class="pdp-rc-images">${images.map((img, i) =>
-          `<img class="pdp-rc-thumb" src="${esc(img.public_url)}"
-                alt="Yorum görseli ${i + 1}" loading="lazy"
-                width="${img.width || 80}" height="${img.height || 80}"
-                onclick="CosmoReviews.openLightbox(${JSON.stringify(images.map(x => x.public_url)).replace(/"/g, '&quot;')}, ${i})">`
-        ).join('')}</div>`
-      : '';
-
-    const voted = _helpedSet.has(r.id);
-    const isOwn = _session?.user?.id === r.user_id;
-
-    return `
-      <article class="pdp-review-card" id="rvc-${r.id}">
-        <div class="pdp-rc-top">
-          <div class="pdp-rc-meta">
-            <div class="pdp-rc-avatar" aria-hidden="true">${initials}</div>
-            <div class="pdp-rc-user">
-              <span class="pdp-rc-name">${name}</span>
-              <span class="pdp-rc-date"><time datetime="${r.created_at}">${date}</time></span>
-            </div>
-          </div>
-          <div class="pdp-rc-right">
-            <div class="pdp-rc-stars" aria-label="${r.rating} yıldız">${stars}</div>
-            <span class="pdp-verified">
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2.5" aria-hidden="true">
-                <path d="M20 6 9 17l-5-5"/>
-              </svg>
-              Satın Aldı
-            </span>
-          </div>
-        </div>
-        <h3 class="pdp-rc-title">${esc(r.title)}</h3>
-        <p class="pdp-rc-body">${esc(r.body)}</p>
-        ${imgHtml}
-        ${r.is_edited ? '<span class="pdp-rc-edited">(Düzenlendi)</span>' : ''}
-        <div class="pdp-rc-footer">
-          <button class="pdp-helpful-btn ${voted ? 'voted' : ''}"
-                  onclick="CosmoReviews.toggleHelpful('${r.id}', this)"
-                  aria-pressed="${voted}"
-                  aria-label="Faydalı bul (${r.helpful_count || 0})">
-            <svg width="12" height="12" viewBox="0 0 24 24"
-                 fill="${voted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"
-                 aria-hidden="true">
-              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14Z"/>
-              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
-            </svg>
-            Faydalı (${r.helpful_count || 0})
-          </button>
-          ${isOwn
-            ? `<button class="pdp-helpful-btn" onclick="CosmoReviews.openModal(true)">Düzenle</button>`
-            : ''}
-        </div>
-      </article>`;
-  }
-
-  /* ── Filtrele ──────────────────────────────────────────── */
-  function filter(type, btn) {
-    document.querySelectorAll('.pdp-filter-btn').forEach(b => b.classList.remove('active'));
-    btn?.classList.add('active');
-
-    if (type === 'all')      _filtered = [..._allReviews];
-    else if (type === 'photo') {
-      _filtered = _allReviews.filter(r =>
-        (r.review_images || []).some(i => i.status === 'approved')
-      );
+  function renderWriteArea(){
+    const wrap=$('#rvWriteWrap'); if(!wrap) return;
+    if(canReview){
+      wrap.innerHTML=`<button type="button" class="btn btn-primary" data-review-open>${userReview?'Yorumu Düzenle':'Yorum Yaz'}</button>`;
+    } else if(session){
+      wrap.innerHTML='<span class="pdp5-empty" style="display:inline-flex;padding:10px 14px;border-radius:999px">Yorum yazmak için ürünü satın almış olmalısın.</span>';
     } else {
-      _filtered = _allReviews.filter(r => r.rating === parseInt(type, 10));
+      wrap.innerHTML='<a class="btn btn-secondary" href="/auth/login.html?returnTo='+encodeURIComponent(location.pathname+location.search+'#reviewsSection')+'">Giriş Yap</a>';
     }
-    _renderList(true);
+  }
+  function renderFilters(){
+    const row=$('#rvFilterRow'); if(!row) return;
+    row.hidden = reviews.length===0;
+  }
+  function renderList(reset=false){
+    const list=$('#rvList'); if(!list) return;
+    if(reset){page=0;list.innerHTML='';}
+    if(!filtered.length){list.innerHTML='<div class="pdp5-empty">Bu ürün için henüz onaylanmış yorum yok.</div>'; $('#rvMoreWrap')&&($('#rvMoreWrap').hidden=true); return;}
+    const next=filtered.slice(0,(page+1)*PER);
+    list.innerHTML=next.map(card).join('');
+    const more=$('#rvMoreWrap'); if(more) more.hidden=next.length>=filtered.length;
+  }
+  function initials(name){return String(name||'Müşteri').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toLocaleUpperCase('tr-TR')||'M';}
+  function card(r){
+    const name=esc(r.user_display_name||r.user?.name||'Doğrulanmış Müşteri');
+    const imgs=(r.images||r.review_images||[]).filter(img=>(img.status||'approved')==='approved');
+    const photoHtml=imgs.length?`<div class="pdp5-review-photos">${imgs.map((img,i)=>`<button type="button" data-lightbox-index="${i}" data-lightbox-review="${esc(r.id)}"><img src="${esc(img.public_url||img.url)}" alt="Yorum görseli" loading="lazy" /></button>`).join('')}</div>`:'';
+    const own=session?.user?.id && session.user.id===r.user_id;
+    const voted=helped.has(r.id);
+    return `<article class="pdp5-review-card" data-review-id="${esc(r.id)}">
+      <div class="pdp5-review-card__top"><div class="pdp5-review-user"><div class="pdp5-avatar">${esc(initials(name))}</div><div><strong>${name}</strong><span>${fmtDate(r.created_at)}</span>${r.verified_purchase!==false?'<div class="pdp5-verified">✓ Satın Aldı</div>':''}</div></div><div class="pdp5-review-rating">${stars(r.rating)}</div></div>
+      <h3>${esc(r.title||'Ürün deneyimi')}</h3><p>${esc(r.body||'')}</p>${photoHtml}
+      <div class="pdp5-review-actions"><button type="button" class="pdp5-helpful ${voted?'is-active':''}" data-helpful="${esc(r.id)}">Faydalı (${Number(r.helpful_count||0)})</button>${own?'<button type="button" class="pdp5-helpful" data-review-edit>Düzenle</button>':''}</div>
+    </article>`;
   }
 
-  function loadMore() {
-    _page++;
-    _renderList(false);
+  function setFilter(type, btn){
+    $$('.pdp5-filter').forEach(b=>b.classList.toggle('is-active',b===btn));
+    if(type==='all') filtered=[...reviews];
+    else if(type==='photo') filtered=reviews.filter(r=>(r.images||r.review_images||[]).some(img=>(img.status||'approved')==='approved'));
+    else filtered=reviews.filter(r=>Number(r.rating)===Number(type));
+    renderList(true);
   }
-
-  /* ── Modal ─────────────────────────────────────────────── */
-  function openModal(isEdit = false) {
-    const overlay = document.getElementById('rvModalOverlay');
-    if (!overlay) return;
-
-    if (isEdit && _userReview) {
-      _el('rvTitleInput', el => {
-        el.value = _userReview.title || '';
-        _el('rvTitleCount', c => c.textContent = `${el.value.length} / 100`);
-      });
-      _el('rvBodyInput', el => {
-        el.value = _userReview.body || '';
-        _el('rvBodyCount', c => c.textContent = `${el.value.length} / 2000`);
-      });
-      setRating(_userReview.rating || 0);
-    } else {
-      // Formu sıfırla
-      _el('rvTitleInput', el => el.value = '');
-      _el('rvBodyInput',  el => el.value = '');
-      _el('rvTitleCount', el => el.textContent = '0 / 100');
-      _el('rvBodyCount',  el => el.textContent = '0 / 2000');
-      setRating(0);
-      _files = [];
-      _el('rvPreviewRow', el => el.innerHTML = '');
-    }
-
-    overlay.classList.add('show');
-    document.body.classList.add('modal-open');
-    _setStatus('');
+  function setRating(value){
+    rating=Number(value||0);
+    $$('#rvStarPicker [data-rating]').forEach(btn=>btn.classList.toggle('is-active',Number(btn.dataset.rating)<=rating));
+    $('#rvRatingLabel') && ($('#rvRatingLabel').textContent=LABELS[rating]||'');
   }
-
-  function closeModal() {
-    document.getElementById('rvModalOverlay')?.classList.remove('show');
-    document.body.classList.remove('modal-open');
-    _setStatus('');
+  function openModal(edit=false){
+    const modal=$('#rvModalOverlay'); if(!modal) return;
+    modal.hidden=false; document.body.classList.add('modal-open');
+    $('#rvFormStatus') && ($('#rvFormStatus').textContent='');
+    const title=$('#rvTitleInput'), body=$('#rvBodyInput'); files=[]; renderPreviews();
+    if(edit && userReview){
+      if(title) title.value=userReview.title||''; if(body) body.value=userReview.body||''; setRating(userReview.rating||0);
+    } else { if(title) title.value=''; if(body) body.value=''; setRating(0); }
+    countChars();
   }
-
-  /* ── Puan seçici ───────────────────────────────────────── */
-  function setRating(val) {
-    _rating = val;
-    document.querySelectorAll('.pdp-star-pick').forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.val, 10) <= val);
+  function closeModal(){const modal=$('#rvModalOverlay'); if(modal) modal.hidden=true; document.body.classList.remove('modal-open');}
+  function countChars(){
+    const t=$('#rvTitleInput'), b=$('#rvBodyInput');
+    $('#rvTitleCount') && ($('#rvTitleCount').textContent=`${(t?.value||'').length} / 100`);
+    $('#rvBodyCount') && ($('#rvBodyCount').textContent=`${(b?.value||'').length} / 2000`);
+  }
+  function setStatus(msg,type=''){const el=$('#rvFormStatus'); if(el){el.textContent=msg;el.className=`pdp5-form-status ${type}`;}}
+  function handleFiles(fileList){
+    Array.from(fileList||[]).slice(0,MAX_FILES-files.length).forEach(file=>{
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setStatus('Sadece JPG, PNG veya WEBP yükleyebilirsin.','error');return;}
+      if(file.size>MAX_MB*1024*1024){setStatus(`Görsel ${MAX_MB} MB sınırını aşıyor.`,'error');return;}
+      files.push({file,url:URL.createObjectURL(file)});
     });
-    _el('rvRatingLabel', el => el.textContent = RATING_LABELS[val] || '');
+    renderPreviews();
   }
-
-  /* ── Dosya yükleme ─────────────────────────────────────── */
-  function handleFiles(files) {
-    const remaining = MAX_FILES - _files.length;
-    Array.from(files).slice(0, remaining).forEach(f => {
-      if (!ALLOWED_MIME.includes(f.type)) {
-        _setStatus(`"${f.name}" desteklenmiyor. JPG, PNG veya WEBP yükleyin.`, 'error');
-        return;
-      }
-      if (f.size > MAX_FILE_MB * 1024 * 1024) {
-        _setStatus(`"${f.name}" ${MAX_FILE_MB} MB sınırını aşıyor.`, 'error');
-        return;
-      }
-      _files.push({ file: f, objectUrl: URL.createObjectURL(f) });
-    });
-    _renderPreviews();
+  function renderPreviews(){
+    const row=$('#rvPreviewRow'); if(!row) return;
+    row.innerHTML=files.map((item,i)=>`<div class="pdp5-preview-item"><img src="${item.url}" alt="Önizleme"/><button type="button" data-remove-file="${i}">×</button></div>`).join('');
   }
-
-  function _renderPreviews() {
-    const row = document.getElementById('rvPreviewRow');
-    if (!row) return;
-    row.innerHTML = _files.map((item, i) => `
-      <div class="pdp-prev-item">
-        <img class="pdp-prev-img" src="${item.objectUrl}" alt="Yorum görseli önizleme" loading="lazy">
-        <button class="pdp-prev-del" onclick="CosmoReviews.removeFile(${i})"
-                aria-label="Görseli kaldır" type="button">×</button>
-      </div>`).join('');
-  }
-
-  function removeFile(i) {
-    if (_files[i]) URL.revokeObjectURL(_files[i].objectUrl);
-    _files.splice(i, 1);
-    _renderPreviews();
-  }
-
-  function onDragOver(e)  { e.preventDefault(); document.getElementById('rvUploadZone')?.classList.add('drag-on'); }
-  function onDragLeave()  { document.getElementById('rvUploadZone')?.classList.remove('drag-on'); }
-  function onDrop(e)      { e.preventDefault(); onDragLeave(); handleFiles(e.dataTransfer.files); }
-
-  /* ── Görsel sıkıştırma ─────────────────────────────────── */
-  function _compress(file) {
-    return new Promise(resolve => {
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        let { width, height } = img;
-        const max = 1200;
-        if (width > max || height > max) {
-          const r = Math.min(max / width, max / height);
-          width  = Math.round(width * r);
-          height = Math.round(height * r);
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width  = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        canvas.toBlob(blob => resolve({ blob, width, height }), 'image/webp', 0.82);
-      };
-      img.src = url;
+  async function compress(file){
+    return await new Promise(resolve=>{
+      const img=new Image(); const url=URL.createObjectURL(file);
+      img.onload=()=>{URL.revokeObjectURL(url);let w=img.width,h=img.height;const max=1400;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(blob=>resolve({blob,width:w,height:h}),'image/webp',.84);};
+      img.onerror=()=>resolve(null); img.src=url;
     });
   }
-
-  /* ── Supabase Storage'a yükle ──────────────────────────── */
-  async function _uploadImages(reviewId) {
-    if (!_sb || !_files.length || !_session) return [];
-    const results = [];
-
-    for (let i = 0; i < _files.length; i++) {
-      try {
-        const { blob, width, height } = await _compress(_files[i].file);
-        const path = `${_session.user.id}/${reviewId}/${Date.now()}-${i}.webp`;
-
-        const { error: upErr } = await _sb.storage
-          .from(BUCKET)
-          .upload(path, blob, { contentType: 'image/webp', upsert: false });
-
-        if (upErr) { console.warn('[Reviews] upload error:', upErr.message); continue; }
-
-        const { data: { publicUrl } } = _sb.storage.from(BUCKET).getPublicUrl(path);
-
-        // review_images tablosuna kaydet (pending olarak başlar, admin onaylar)
-        await _sb.from('review_images').insert({
-          review_id:    reviewId,
-          storage_path: path,
-          public_url:   publicUrl,
-          status:       'pending',
-          width,
-          height,
-        });
-
-        results.push({ storagePath: path, publicUrl, width, height });
-      } catch (err) {
-        console.warn('[Reviews] image processing error:', err);
-      }
+  async function uploadImages(reviewId){
+    if(!sb||!session||!files.length) return [];
+    const uploaded=[];
+    for(let i=0;i<files.length;i++){
+      const packed=await compress(files[i].file); if(!packed?.blob) continue;
+      const path=`${session.user.id}/${reviewId||'new'}/${Date.now()}-${i}.webp`;
+      const {error}=await sb.storage.from(BUCKET).upload(path,packed.blob,{contentType:'image/webp',upsert:false});
+      if(error) continue;
+      const {data}=sb.storage.from(BUCKET).getPublicUrl(path);
+      uploaded.push({storagePath:path,publicUrl:data.publicUrl,width:packed.width,height:packed.height});
     }
-    return results;
+    return uploaded;
   }
-
-  /* ── Yorum gönder ──────────────────────────────────────── */
-  async function submit() {
-    if (!_session) return _setStatus('Lütfen giriş yapın.', 'error');
-    if (!_hasPurchased) return _setStatus('Yalnızca satın alınan ürünler için yorum yazılabilir.', 'error');
-
-    // Rate limit (istemci tarafı)
-    const now = Date.now();
-    if (now - _lastSubmit < RATE_LIMIT_S * 1000) {
-      const wait = Math.ceil((RATE_LIMIT_S * 1000 - (now - _lastSubmit)) / 1000);
-      return _setStatus(`Lütfen ${wait} saniye bekleyin.`, 'error');
-    }
-
-    const title = _el('rvTitleInput')?.value.trim() || '';
-    const body  = _el('rvBodyInput')?.value.trim()  || '';
-
-    if (!_rating)         return _setStatus('Lütfen puan seçin.', 'error');
-    if (title.length < 3) return _setStatus('Başlık en az 3 karakter olmalı.', 'error');
-    if (body.length < 10) return _setStatus('Yorum en az 10 karakter olmalı.', 'error');
-
-    const submitBtn   = document.getElementById('rvSubmitBtn');
-    const submitLabel = document.getElementById('rvSubmitLabel');
-    if (submitBtn) submitBtn.disabled = true;
-    if (submitLabel) submitLabel.textContent = 'Gönderiliyor…';
-    _setStatus('');
-
-    try {
-      const isEdit = !!_userReview;
-
-      if (isEdit) {
-        // Güncelle
-        const { error } = await _sb
-          .from('reviews')
-          .update({
-            title,
-            body,
-            rating:    _rating,
-            is_edited: true,
-            approved:  false, // düzenleme sonrası tekrar onay bekler
-          })
-          .eq('id', _userReview.id)
-          .eq('user_id', _session.user.id);
-
-        if (error) throw error;
-
-        if (_files.length) {
-          if (submitLabel) submitLabel.textContent = 'Görseller yükleniyor…';
-          await _uploadImages(_userReview.id);
-        }
-      } else {
-        // Yeni yorum
-        const profile = await _getProfile();
-        const { data, error } = await _sb
-          .from('reviews')
-          .insert({
-            product_slug:      _slug,
-            user_id:           _session.user.id,
-            user_display_name: profile.display_name || _session.user.email?.split('@')[0] || 'Kullanıcı',
-            user_email:        _session.user.email,
-            title,
-            body,
-            rating:   _rating,
-            approved: false, // admin onayı bekler
-          })
-          .select('id')
-          .single();
-
-        if (error) throw error;
-
-        if (_files.length && data?.id) {
-          if (submitLabel) submitLabel.textContent = 'Görseller yükleniyor…';
-          await _uploadImages(data.id);
-        }
+  async function submit(e){
+    e.preventDefault();
+    if(!session){setStatus('Yorum yazmak için giriş yapmalısın.','error');return;}
+    if(!canReview){setStatus('Yalnızca satın aldığın ürünler için yorum yazabilirsin.','error');return;}
+    const title=$('#rvTitleInput')?.value.trim()||''; const body=$('#rvBodyInput')?.value.trim()||'';
+    if(!rating) return setStatus('Lütfen puan seç.','error');
+    if(title.length<3) return setStatus('Başlık en az 3 karakter olmalı.','error');
+    if(body.length<10) return setStatus('Yorum en az 10 karakter olmalı.','error');
+    const btn=$('#rvSubmitBtn'), label=$('#rvSubmitLabel'); if(btn) btn.disabled=true; if(label) label.textContent='Gönderiliyor…'; setStatus('');
+    try{
+      const isEdit=!!userReview;
+      let uploaded=[];
+      if(isEdit && files.length){ if(label) label.textContent='Görseller yükleniyor…'; uploaded=await uploadImages(userReview.id); }
+      const res=await fetch(`${API}/reviews${isEdit?`/${userReview.id}`:''}`,{method:isEdit?'PATCH':'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({product_slug:slug,title,body,rating,images:uploaded})});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(data.error||'Yorum gönderilemedi.');
+      if(!isEdit && files.length && data.review_id){
+        if(label) label.textContent='Görseller yükleniyor…';
+        const imgs=await uploadImages(data.review_id);
+        if(imgs.length){await fetch(`${API}/reviews/images`,{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({review_id:data.review_id,images:imgs})});}
       }
-
-      _lastSubmit = Date.now();
-
-      // Başarı ekranı
-      const box = document.querySelector('.pdp-modal-box');
-      if (box) {
-        box.innerHTML = `
-          <div style="text-align:center;padding:32px 0">
-            <div style="width:64px;height:64px;border-radius:50%;background:#edf7f1;border:1px solid rgba(31,122,79,.2);
-                        display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px">✓</div>
-            <h2 style="font-family:var(--serif);font-size:28px;font-weight:400;margin:0 0 10px;color:var(--text)">
-              Teşekkür Ederiz
-            </h2>
-            <p style="color:var(--muted);font-size:14px;line-height:1.7;margin:0 0 24px">
-              Yorumunuz incelemeye alındı.<br>Onay sonrası ürün sayfasında görünecektir.
-            </p>
-            <button class="btn btn-secondary" onclick="CosmoReviews.closeModal()">Kapat</button>
-          </div>`;
-      }
-
-    } catch (err) {
-      const msg = err.code === '23505'
-        ? 'Bu ürün için zaten bir yorum yazdınız.'
-        : (err.message || 'Bir hata oluştu. Tekrar deneyin.');
-      _setStatus(msg, 'error');
-    } finally {
-      if (submitBtn) submitBtn.disabled = false;
-      if (submitLabel) submitLabel.textContent = 'Yorumu Gönder';
-    }
+      setStatus('Yorumun incelemeye alındı. Onaylandıktan sonra yayınlanacak.','success');
+      setTimeout(()=>{closeModal();load();},900);
+    }catch(error){setStatus(error.message||'Bağlantı hatası.','error');}
+    finally{if(btn) btn.disabled=false;if(label) label.textContent='Yorumu Gönder';}
   }
-
-  /* ── Kullanıcı profili ─────────────────────────────────── */
-  async function _getProfile() {
-    if (!_sb || !_session) return {};
-    try {
-      const { data } = await _sb
-        .from('user_profiles')
-        .select('display_name, first_name, last_name')
-        .eq('user_id', _session.user.id)
-        .maybeSingle();
-      if (data) {
-        const dn = data.display_name
-          || [data.first_name, data.last_name].filter(Boolean).join(' ')
-          || '';
-        return { display_name: dn };
-      }
-    } catch { /* sessizce geç */ }
-    return {};
+  async function toggleHelpful(id,btn){
+    if(!session){setStatus('Yorumu faydalı işaretlemek için giriş yapmalısın.','error'); return;}
+    const voted=helped.has(id);
+    try{
+      const res=await fetch(`${API}/reviews/helpful`,{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({review_id:id,action:voted?'remove':'add'})});
+      if(!res.ok) return;
+      if(voted) helped.delete(id); else helped.add(id);
+      const r=reviews.find(x=>x.id===id); if(r) r.helpful_count=Math.max(0,Number(r.helpful_count||0)+(voted?-1:1));
+      renderList(true);
+    }catch{}
   }
-
-  /* ── Faydalı oy ────────────────────────────────────────── */
-  async function toggleHelpful(reviewId, btn) {
-    if (!_session || !_sb) return;
-    const voted = _helpedSet.has(reviewId);
-
-    try {
-      if (voted) {
-        await _sb.from('review_helpful')
-          .delete()
-          .eq('review_id', reviewId)
-          .eq('user_id', _session.user.id);
-        _helpedSet.delete(reviewId);
-      } else {
-        await _sb.from('review_helpful')
-          .insert({ review_id: reviewId, user_id: _session.user.id });
-        _helpedSet.add(reviewId);
-      }
-
-      // Yerel sayacı güncelle
-      const r = _allReviews.find(x => x.id === reviewId);
-      if (r) {
-        r.helpful_count = Math.max(0, (r.helpful_count || 0) + (voted ? -1 : 1));
-        const card = document.getElementById(`rvc-${reviewId}`);
-        if (card) card.outerHTML = _renderCard(r);
-      }
-    } catch (err) {
-      console.warn('[Reviews] helpful error:', err.message);
-    }
+  function openLightboxFor(reviewId,index){
+    const r=reviews.find(x=>String(x.id)===String(reviewId));
+    lightboxImages=(r?.images||r?.review_images||[]).filter(img=>(img.status||'approved')==='approved').map(img=>img.public_url||img.url);
+    lightboxIndex=Number(index)||0; const box=$('#rvLightbox'), img=$('#rvLbImg'); if(!box||!img||!lightboxImages.length) return;
+    img.src=lightboxImages[lightboxIndex]; box.hidden=false;
   }
+  function closeLightbox(){const box=$('#rvLightbox'); if(box) box.hidden=true;}
+  function navLightbox(delta){if(!lightboxImages.length)return;lightboxIndex=(lightboxIndex+delta+lightboxImages.length)%lightboxImages.length;$('#rvLbImg')&&($('#rvLbImg').src=lightboxImages[lightboxIndex]);}
 
-  /* ── Lightbox ──────────────────────────────────────────── */
-  function openLightbox(images, idx) {
-    if (typeof images === 'string') {
-      try { images = JSON.parse(images.replace(/&quot;/g, '"')); } catch { images = []; }
-    }
-    _lbImgs = images;
-    _lbIdx  = Math.max(0, Math.min(idx, images.length - 1));
-    const lb = document.getElementById('rvLightbox');
-    const img = document.getElementById('rvLbImg');
-    if (!lb || !img) return;
-    img.src = _lbImgs[_lbIdx];
-    lb.classList.add('show');
-    document.body.style.overflow = 'hidden';
+  function bind(){
+    document.addEventListener('click',(e)=>{
+      const open=e.target.closest('[data-review-open]'); if(open) return openModal(!!userReview);
+      const close=e.target.closest('[data-review-close]'); if(close) return closeModal();
+      const filter=e.target.closest('[data-review-filter]'); if(filter) return setFilter(filter.dataset.reviewFilter,filter);
+      const more=e.target.closest('[data-review-more]'); if(more){page++;return renderList(false);}
+      const helpful=e.target.closest('[data-helpful]'); if(helpful) return toggleHelpful(helpful.dataset.helpful,helpful);
+      const edit=e.target.closest('[data-review-edit]'); if(edit) return openModal(true);
+      const photo=e.target.closest('[data-review-photo]'); if(photo) return $('#rvPhotoInput')?.click();
+      const rm=e.target.closest('[data-remove-file]'); if(rm){const i=Number(rm.dataset.removeFile); if(files[i]) URL.revokeObjectURL(files[i].url); files.splice(i,1); return renderPreviews();}
+      const ph=e.target.closest('[data-lightbox-index]'); if(ph) return openLightboxFor(ph.dataset.lightboxReview,ph.dataset.lightboxIndex);
+      if(e.target.closest('[data-lightbox-close]')) return closeLightbox();
+      if(e.target.closest('[data-lightbox-prev]')) return navLightbox(-1);
+      if(e.target.closest('[data-lightbox-next]')) return navLightbox(1);
+    });
+    $('#rvForm')?.addEventListener('submit',submit);
+    $('#rvTitleInput')?.addEventListener('input',countChars); $('#rvBodyInput')?.addEventListener('input',countChars);
+    $('#rvPhotoInput')?.addEventListener('change',(e)=>handleFiles(e.target.files));
+    $$('#rvStarPicker [data-rating]').forEach(btn=>btn.addEventListener('click',()=>setRating(btn.dataset.rating)));
+    const up=$('#rvUploadZone'); if(up){['dragenter','dragover'].forEach(n=>up.addEventListener(n,e=>{e.preventDefault();up.classList.add('is-drag');}));['dragleave','drop'].forEach(n=>up.addEventListener(n,e=>{e.preventDefault();up.classList.remove('is-drag');}));up.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));}
+    document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){closeModal();closeLightbox();} if(!$('#rvLightbox')?.hidden){if(e.key==='ArrowLeft')navLightbox(-1);if(e.key==='ArrowRight')navLightbox(1);}});
+    document.addEventListener('cosmoskin:auth-state',()=>load());
   }
-
-  function closeLightbox() {
-    document.getElementById('rvLightbox')?.classList.remove('show');
-    document.body.style.overflow = '';
-  }
-
-  function lbNav(dir, e) {
-    e?.stopPropagation();
-    _lbIdx = (_lbIdx + dir + _lbImgs.length) % _lbImgs.length;
-    const img = document.getElementById('rvLbImg');
-    if (img) img.src = _lbImgs[_lbIdx];
-  }
-
-  /* ── Char counter ──────────────────────────────────────── */
-  function _bindCharCounters() {
-    _el('rvTitleInput', el => el.addEventListener('input', () => {
-      _el('rvTitleCount', c => c.textContent = `${el.value.length} / 100`);
-    }));
-    _el('rvBodyInput', el => el.addEventListener('input', () => {
-      _el('rvBodyCount', c => c.textContent = `${el.value.length} / 2000`);
-    }));
-  }
-
-  /* ── Yardımcılar ───────────────────────────────────────── */
-  function _setStatus(msg, type = '') {
-    const el = document.getElementById('rvFormStatus');
-    if (!el) return;
-    el.textContent  = msg;
-    el.className    = `pdp-form-status ${type}`;
-    el.setAttribute('role', msg ? 'alert' : 'status');
-  }
-
-  function _el(id, fn) {
-    const el = document.getElementById(id);
-    if (fn && el) fn(el);
-    return el;
-  }
-
-  /* ── Klavye ────────────────────────────────────────────── */
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeModal(); closeLightbox(); }
-    const lb = document.getElementById('rvLightbox');
-    if (lb?.classList.contains('show')) {
-      if (e.key === 'ArrowLeft')  lbNav(-1);
-      if (e.key === 'ArrowRight') lbNav(1);
-    }
-  });
-
-  /* ── DOMContentLoaded ──────────────────────────────────── */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-  /* ── Public API ────────────────────────────────────────── */
-  return {
-    filter, loadMore,
-    openModal, closeModal, setRating,
-    handleFiles, removeFile, onDragOver, onDragLeave, onDrop,
-    submit, toggleHelpful,
-    openLightbox, closeLightbox, lbNav,
-  };
-
+  async function init(){section=$('#reviewsSection'); if(!section) return; slug=section.dataset.productSlug||''; bind(); await load();}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+  window.CosmoReviews={reload:load,openModal,closeModal};
 })();
-
-// Global erişim için (HTML onclick="" attribute'larından çağrılır)
-window.CosmoReviews = CosmoReviews;

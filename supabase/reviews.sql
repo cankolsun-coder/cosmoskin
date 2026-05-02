@@ -187,7 +187,7 @@ BEGIN
     FROM orders o
     JOIN order_items oi ON oi.order_id = o.id
     WHERE o.user_id       = p_user_id
-      AND o.status        = 'paid'
+      AND o.status IN ('paid','preparing','shipped','delivered','partially_refunded')
       AND oi.product_slug = p_product_slug
   ) INTO v_found;
 
@@ -200,7 +200,7 @@ BEGIN
     JOIN order_items oi ON oi.order_id = o.id
     JOIN product_id_to_slug m ON m.product_id = oi.product_id
     WHERE o.user_id      = p_user_id
-      AND o.status       = 'paid'
+      AND o.status IN ('paid','preparing','shipped','delivered','partially_refunded')
       AND m.product_slug = p_product_slug
   ) INTO v_found;
 

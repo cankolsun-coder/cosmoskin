@@ -102,3 +102,42 @@ export async function selectRows(context, table, params = {}) {
   });
   return await parseSupabaseResponse(response);
 }
+
+
+export async function deleteRows(context, table, filters) {
+  const { url } = getEnv(context);
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters || {})) {
+    if (value !== undefined && value !== null && value !== '') qs.set(key, `eq.${value}`);
+  }
+  const response = await fetch(`${url}/rest/v1/${table}?${qs.toString()}`, {
+    method: 'DELETE',
+    headers: adminHeaders(context, { Prefer: 'return=minimal' })
+  });
+  await parseSupabaseResponse(response);
+  return true;
+}
+
+
+export async function rpc(context, functionName, payload = {}) {
+  const { url } = getEnv(context);
+  const response = await fetch(`${url}/rest/v1/rpc/${functionName}`, {
+    method: 'POST',
+    headers: adminHeaders(context, {
+      'Content-Type': 'application/json'
+    }),
+    body: JSON.stringify(payload)
+  });
+  return await parseSupabaseResponse(response);
+}
+
+export async function deleteStorageObject(context, bucket, objectPath) {
+  if (!bucket || !objectPath) return false;
+  const { url } = getEnv(context);
+  const response = await fetch(`${url}/storage/v1/object/${encodeURIComponent(bucket)}/${String(objectPath).split('/').map(encodeURIComponent).join('/')}`, {
+    method: 'DELETE',
+    headers: adminHeaders(context)
+  });
+  await parseSupabaseResponse(response);
+  return true;
+}

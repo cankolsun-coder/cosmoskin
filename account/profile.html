@@ -1,1622 +1,188 @@
 <!DOCTYPE html>
+
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hesabım | Cosmoskin</title>
-  <meta name="robots" content="noindex">
-  <link rel="icon" href="/favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/style.css?v=20260418f">
-  <style>
-    .acc-layout{display:grid;grid-template-columns:280px 1fr;gap:28px;align-items:start;padding:40px 0 80px;}
-    .acc-sidebar{position:sticky;top:28px;display:grid;gap:14px;}
-    .acc-avatar-card{background:#fffdf9;border:1px solid var(--line);border-radius:24px;padding:28px 24px;text-align:center;box-shadow:var(--shadow-soft);}
-    .acc-avatar{width:76px;height:76px;border-radius:50%;background:linear-gradient(135deg,#e8ddd0,#d4c8b8);display:inline-flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:#6b5f50;margin-bottom:14px;border:2px solid rgba(184,155,114,.3);}
-    .acc-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:#1a1510;margin:0 0 4px;}
-    .acc-email-tag{font-size:12px;color:#9a8e82;margin:0 0 16px;word-break:break-all;}
-    .acc-tier{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:#f4ece3;border:1px solid rgba(184,155,114,.3);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:#8a6e47;}
-    .acc-nav{background:#fffdf9;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-soft);}
-    .acc-nav-item{display:flex;align-items:center;gap:12px;padding:14px 18px;font-size:13px;font-weight:500;color:#5a4f43;cursor:pointer;border-bottom:1px solid var(--line);transition:background .18s,color .18s;border:none;background:none;width:100%;text-align:left;}
-    .acc-nav-item:last-child{border-bottom:none;}
-    .acc-nav-item:hover{background:#f8f2ea;color:#1a1510;}
-    .acc-nav-item.active{background:#1a1510;color:#fff;}
-    .acc-nav-item.active .acc-nav-icon{color:#d4b88a;}
-    .acc-nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
-    .acc-nav-label{flex:1;}
-    .acc-nav-badge{padding:2px 8px;border-radius:999px;font-size:10px;}
-    .acc-nav-item.active .acc-nav-badge{background:rgba(255,255,255,.15);color:#fff;}
-    .acc-nav-item:not(.active) .acc-nav-badge{background:#f4ece3;color:#8a6e47;}
-    .acc-logout{display:flex;align-items:center;gap:8px;padding:12px 18px;border-radius:14px;border:1px solid var(--line-strong);background:transparent;color:#8a3b2f;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;width:100%;justify-content:center;transition:background .2s,border-color .2s;}
-    .acc-logout:hover{background:#fdf0ee;border-color:rgba(138,59,47,.3);}
-    .acc-main{display:grid;gap:20px;}
-    .acc-panel{background:#fffdf9;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:var(--shadow-soft);}
-    .acc-panel-head{padding:22px 28px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;}
-    .acc-panel-head h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;margin:0;color:#1a1510;}
-    .acc-panel-head p{font-size:13px;color:#9a8e82;margin:4px 0 0;}
-    .acc-panel-body{padding:28px;}
-    .acc-stats{display:grid;grid-template-columns:repeat(3,1fr);}
-    .acc-stat{padding:22px 24px;text-align:center;border-right:1px solid var(--line);}
-    .acc-stat:last-child{border-right:none;}
-    .acc-stat-val{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;color:#1a1510;display:block;line-height:1;}
-    .acc-stat-lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;color:#b89b72;margin-top:6px;display:block;}
-    .prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-    .prof-field{display:grid;gap:7px;}
-    .prof-field.full{grid-column:1/-1;}
-    .prof-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#b89b72;}
-    .prof-input{padding:13px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
-    .prof-input:focus{border-color:#1a1510;box-shadow:0 0 0 3px rgba(26,21,16,.06);}
-    .prof-input:read-only{background:#f8f3ed;color:#9a8e82;cursor:default;}
-    .prof-select{padding:13px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;width:100%;appearance:none;}
-    .prof-actions{display:flex;gap:10px;margin-top:20px;}
-    .prof-status{font-size:13px;min-height:18px;margin-top:8px;}
-    .order-empty{text-align:center;padding:52px 24px;color:#9a8e82;}
-    .order-empty-icon{font-size:44px;margin-bottom:16px;opacity:.45;}
-    .order-empty h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#1a1510;margin:0 0 8px;}
-    .order-item-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:14px;}
-    .order-item-card:last-child{margin-bottom:0;}
-    .order-item-head{background:#f8f3ed;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
-    .order-num{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:#6b5f50;}
-    .order-date-small{font-size:12px;color:#9a8e82;}
-    .order-status{padding:4px 12px;border-radius:999px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;}
-    .order-status.confirmed{background:#edf7f1;color:#1f7a4f;}
-    .order-status.pending{background:#fef9ec;color:#9a7c20;}
-    .order-status.cancelled{background:#fdf0ee;color:#8a3b2f;}
-    .order-item-body{padding:16px 20px;display:grid;gap:6px;}
-    .order-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#5a4f43;}
-    .order-row strong{color:#1a1510;font-weight:600;}
-    .order-products{margin-top:10px;padding-top:12px;border-top:1px solid var(--line);}
-    .order-product-line{display:flex;justify-content:space-between;font-size:12px;color:#7a6e62;padding:4px 0;}
-    .order-product-line--rich{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;}
-    .order-product-link{display:flex;align-items:center;gap:12px;min-width:0;color:inherit;text-decoration:none;}
-    .order-product-link:hover .order-product-title{color:#1a1510;}
-    .order-product-thumb{width:52px;height:52px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#f8f2ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .order-product-thumb img{width:100%;height:100%;object-fit:cover;}
-    .order-product-copy{display:grid;gap:3px;min-width:0;}
-    .order-product-brand{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#b89b72;font-weight:700;}
-    .order-product-title{font-size:13px;color:#5a4f43;font-weight:600;line-height:1.4;}
-    .order-product-qty{font-size:11px;color:#9a8e82;}
-    .order-product-total{font-size:12px;color:#1a1510;font-weight:600;white-space:nowrap;}
-    .fav-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
-    .fav-card{border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;background:#fffdf9;}
-    .fav-img{aspect-ratio:1/1;background:linear-gradient(180deg,#f9f3eb,#ece2d6);display:flex;align-items:center;justify-content:center;font-size:40px;color:#c9b99a;}
-    .fav-img a{display:flex;width:100%;height:100%;}
-    .fav-body{padding:14px 16px;display:flex;flex-direction:column;gap:8px;}
-    .fav-brand{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#b89b72;font-weight:600;}
-    .fav-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:#1a1510;margin:0;}
-    .fav-name a{color:inherit;text-decoration:none;}
-    .fav-price{font-family:'Cormorant Garamond',serif;font-size:22px;color:#1a1510;}
-    .fav-actions{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
-    .fav-actions .btn{min-width:132px;justify-content:center;}
-    .fav-remove{margin-left:auto;}
-    .fav-remove{border:none;background:none;color:#9a8e82;font-size:11px;cursor:pointer;padding:0;letter-spacing:.1em;text-transform:uppercase;}
-    .fav-remove:hover{color:#8a3b2f;}
-    .fav-empty{text-align:center;padding:52px 24px;color:#9a8e82;}
-    .fav-empty h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:#1a1510;margin:0 0 8px;}
-    .addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .addr-card{border:1px solid var(--line);border-radius:18px;padding:18px 20px;background:#fffdf9;}
-    .addr-card.default{border-color:rgba(184,155,114,.5);background:#fdf8f2;}
-    .addr-default-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;background:#f4ece3;border:1px solid rgba(184,155,114,.3);font-size:9px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:#8a6e47;margin-bottom:10px;}
-    .addr-name{font-weight:600;font-size:14px;color:#1a1510;margin:0 0 8px;}
-    .addr-detail{font-size:13px;color:#6b5f50;line-height:1.7;margin:0;}
-    .addr-actions{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
-    .addr-btn{border:none;background:none;font-size:11px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;color:#9a8e82;padding:0;position:relative;z-index:2;}
-    .addr-btn:hover{color:#1a1510;}
-    .addr-btn.danger:hover{color:#8a3b2f;}
-    .addr-add{border:1px dashed var(--line-strong);border-radius:18px;padding:28px;text-align:center;cursor:pointer;transition:background .2s,border-color .2s;background:transparent;}
-    .addr-add:hover{background:#f8f3ed;border-color:rgba(184,155,114,.5);}
-    .addr-add-icon{font-size:28px;color:#c9b99a;margin-bottom:10px;}
-    .addr-add p{font-size:13px;color:#9a8e82;margin:0;}
-    .addr-modal-overlay{position:fixed;inset:0;background:rgba(19,14,10,.4);backdrop-filter:blur(6px);z-index:400;display:none;align-items:center;justify-content:center;padding:20px;}
-    .addr-modal-overlay.open{display:flex;}
-    .addr-modal{background:#fffdf9;border-radius:24px;border:1px solid var(--line);box-shadow:0 32px 80px rgba(19,14,10,.12);width:min(580px,100%);max-height:90vh;overflow-y:auto;padding:32px;position:relative;}
-    .addr-modal h3{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;margin:0 0 24px;color:#1a1510;}
-    .addr-modal-close{position:absolute;top:20px;right:20px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-strong);background:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
-    .pref-item{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px 0;border-bottom:1px solid var(--line);}
-    .pref-item:last-child{border-bottom:none;}
-    .pref-info strong{display:block;font-size:14px;font-weight:600;color:#1a1510;margin-bottom:4px;}
-    .pref-info span{font-size:13px;color:#9a8e82;line-height:1.6;}
-    .toggle{position:relative;width:48px;height:26px;flex-shrink:0;}
-    .toggle input{opacity:0;width:0;height:0;}
-    .toggle-slider{position:absolute;inset:0;background:#ddd4c6;border-radius:999px;cursor:pointer;transition:.3s;}
-    .toggle-slider::before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.15);}
-    .toggle input:checked + .toggle-slider{background:#1a1510;}
-    .toggle input:checked + .toggle-slider::before{transform:translateX(22px);}
-    .sec-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0;border-bottom:1px solid var(--line);}
-    .sec-item:last-child{border-bottom:none;}
-    .sec-info strong{display:block;font-size:14px;font-weight:600;color:#1a1510;margin-bottom:3px;}
-    .sec-info span{font-size:13px;color:#9a8e82;}
-    .tab-content{display:none;}
-
-    .routine-shell{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);gap:18px;align-items:start;}
-    .routine-card{border:1px solid var(--line);border-radius:20px;background:linear-gradient(180deg,#fffdf9 0%,#fcf7f1 100%);padding:22px;display:grid;gap:18px;}
-    .routine-card--overview{min-height:100%;}
-    .routine-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;}
-    .routine-kicker{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:#b89b72;display:block;margin-bottom:8px;}
-    .routine-card-head h3{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:#1a1510;margin:0;}
-    .routine-card-head p{font-size:13px;line-height:1.7;color:#7d7063;margin:6px 0 0;max-width:520px;}
-    .routine-pill{display:inline-flex;align-items:center;justify-content:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(184,155,114,.35);background:#f7efe6;color:#8a6e47;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;white-space:nowrap;}
-    .routine-fields{display:grid;gap:16px;}
-    .routine-field{display:grid;gap:10px;}
-    .routine-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#b89b72;}
-    .routine-chip-group{display:flex;flex-wrap:wrap;gap:10px;}
-    .routine-chip{appearance:none;border:1px solid var(--line-strong);background:#fffdf9;color:#5a4f43;border-radius:999px;padding:11px 16px;font-size:12px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:border-color .2s,background .2s,color .2s,transform .2s,box-shadow .2s;}
-    .routine-chip:hover{border-color:rgba(184,155,114,.55);background:#fbf4ec;transform:translateY(-1px);}
-    .routine-chip.is-selected{background:#1a1510;border-color:#1a1510;color:#fff;box-shadow:0 14px 30px rgba(26,21,16,.12);}
-    .routine-chip[data-type='concern'].is-selected{background:#f4ece3;border-color:rgba(184,155,114,.5);color:#1a1510;}
-    .routine-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-    .routine-save-note{font-size:12px;color:#9a8e82;min-height:18px;}
-    .routine-save-note.is-success{color:#1f7a4f;}
-    .routine-save-note.is-error{color:#8a3b2f;}
-    .routine-stages{display:grid;gap:14px;}
-    .routine-stage{border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px;display:grid;gap:12px;}
-    .routine-stage-head{display:flex;align-items:center;justify-content:space-between;gap:12px;}
-    .routine-stage-head h4{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#1a1510;margin:0;}
-    .routine-stage-head span{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#b89b72;font-weight:700;}
-    .routine-step-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
-    .routine-step{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line);}
-    .routine-step:first-child{border-top:none;padding-top:0;}
-    .routine-step-num{width:30px;height:30px;border-radius:50%;background:#f6ede3;border:1px solid rgba(184,155,114,.35);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#8a6e47;}
-    .routine-step-title{font-size:14px;font-weight:600;color:#1a1510;margin:0 0 4px;}
-    .routine-step-copy{font-size:12px;line-height:1.65;color:#7d7063;margin:0;}
-    .routine-step-copy strong{color:#1a1510;font-weight:600;}
-    .routine-helper{font-size:12px;line-height:1.7;color:#7d7063;margin:0;}
-    .routine-summary{display:grid;gap:12px;}
-    .routine-summary-card{border:1px solid var(--line);border-radius:18px;background:#fff;padding:18px;display:grid;gap:14px;}
-    .routine-summary-card h4{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#1a1510;margin:0;}
-    .routine-bought-list,.routine-reco-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
-    .routine-bought-item,.routine-reco-item{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;font-size:13px;color:#5a4f43;}
-    .routine-bought-item strong,.routine-reco-item strong{font-weight:600;color:#1a1510;}
-    .routine-reco-copy{display:grid;gap:4px;}
-    .routine-reco-copy span{font-size:11px;line-height:1.6;color:#8e8174;}
-    .routine-empty{padding:18px;border:1px dashed var(--line-strong);border-radius:18px;background:#fffdf9;font-size:13px;line-height:1.8;color:#7d7063;}
-    .reminder-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;}
-    .reminder-card{border:1px solid var(--line);border-radius:18px;background:#fff;padding:20px;display:grid;gap:14px;}
-    .reminder-card h3,.reminder-card h4{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:400;color:#1a1510;margin:0;}
-    .reminder-card p{font-size:13px;line-height:1.75;color:#7d7063;margin:0;}
-    .reminder-kicker{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#b89b72;font-weight:700;}
-    .reminder-status-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;}
-    .reminder-status-item{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#5a4f43;border-top:1px solid var(--line);padding-top:10px;}
-    .reminder-status-item:first-child{border-top:none;padding-top:0;}
-    .reminder-status-item strong{display:block;color:#1a1510;font-size:14px;font-weight:600;margin-bottom:4px;}
-    .reminder-date{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8a6e47;font-weight:700;white-space:nowrap;}
-    .reminder-select{padding:13px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;cursor:pointer;width:100%;appearance:none;}
-    .reminder-inline{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-    .reminder-note{font-size:12px;color:#9a8e82;line-height:1.75;min-height:18px;}
-    .reminder-note.is-success{color:#1f7a4f;}
-    .reminder-note.is-error{color:#8a3b2f;}
-    .segment-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .segment-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;}
-    .segment-pill{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:#f4ece3;border:1px solid rgba(184,155,114,.26);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a6e47;font-weight:700;}
-    .segment-meta{display:grid;gap:10px;}
-    .segment-meta-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding-top:10px;font-size:13px;color:#5a4f43;}
-    .segment-meta-row:first-child{border-top:none;padding-top:0;}
-    .segment-meta-row strong{color:#1a1510;font-weight:600;}
-    @media(max-width:960px){.segment-grid{grid-template-columns:1fr;}}
-    @media(max-width:960px){.reminder-grid{grid-template-columns:1fr;}}
-    @media(max-width:640px){.reminder-inline{grid-template-columns:1fr;}}
-    @media(max-width:960px){.routine-shell{grid-template-columns:1fr;}}
-    @media(max-width:640px){.routine-card,.routine-summary-card,.routine-stage{padding:18px;}.routine-card-head h3{font-size:24px;}.routine-chip-group{gap:8px;}.routine-chip{width:100%;justify-content:center;}}
-
-    .tab-content.active{display:grid;gap:20px;}
-    @media(max-width:960px){.acc-layout{grid-template-columns:1fr;}.acc-sidebar{position:static;}.acc-stats{grid-template-columns:1fr 1fr;}.acc-stat:nth-child(2){border-right:none;}.acc-stat:nth-child(3){grid-column:1/-1;border-top:1px solid var(--line);}.addr-grid,.fav-grid{grid-template-columns:1fr;}}
-    @media(max-width:640px){.prof-grid{grid-template-columns:1fr;}.prof-field.full{grid-column:1;}}
-  
-    .routine-card-head p,.routine-summary-card .routine-empty,.routine-step-list .routine-empty{font-size:13px;line-height:1.65;color:#766a5e;}
-    .routine-kicker{display:inline-flex;align-items:center;gap:8px}
-    .routine-kicker::before{content:"";width:8px;height:8px;border-radius:50%;background:#c8a183;box-shadow:0 0 0 4px rgba(200,161,131,.14)}
-    .routine-stage-head h4,.routine-summary-card h4{display:flex;align-items:center;gap:10px}
-    .routine-stage-head h4::before,.routine-summary-card h4::before{content:"✦";font-size:12px;color:#8b5b4f}
-    .routine-step-list li,.routine-reco-list li,.routine-bought-list li{font-size:13px;line-height:1.7}
-    .sec-item .btn.btn-secondary{min-width:110px;justify-content:center}
-
-</style>
-<link rel="stylesheet" href="/assets/mobile.css?v=20260425f"/>
-</head>
-<body>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hesabım | COSMOSKIN</title>
+<meta content="noindex" name="robots"/>
+<link href="/favicon.png" rel="icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/style.css?v=20260502p3" rel="stylesheet"/>
+<link href="/assets/phase6-commerce.css?v=20260502final" rel="stylesheet"/></head>
+<body class="account-page">
 <div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
-<header class="header" style="top:38px;">
-  <a class="brand" href="/index.html"><img class="brand-logo" src="/assets/logo-mark.png" alt="Cosmoskin"><span class="brand-word">COSMOSKIN</span></a>
-  <nav><ul class="nav">
-    <li><a href="/index.html#featured">Öne Çıkanlar</a></li>
-    <li><a href="/collections/routine.html">Rutinler</a></li>
-    <li><a href="/contact.html">Destek</a></li>
-  </ul></nav>
-  <div class="header-tools"><a class="btn btn-secondary" href="/index.html" style="font-size:11px;padding:10px 18px;">Alışverişe Dön</a></div>
+<header class="header account-header" style="top:38px;">
+<a class="brand" href="/index.html"><img alt="Cosmoskin" class="brand-logo" src="/assets/logo-mark.png"/><span class="brand-word">COSMOSKIN</span></a>
+<nav aria-label="Hesap navigasyonu"><ul class="nav">
+<li><a href="/index.html#featured">Öne Çıkanlar</a></li>
+<li><a href="/collections/routine.html">Rutinler</a></li>
+<li><a href="/contact.html">Destek</a></li>
+</ul></nav>
+<div class="header-tools"><a class="btn btn-secondary" href="/index.html" style="font-size:11px;padding:10px 18px;">Alışverişe Dön</a><a aria-label="Favoriler" class="tool-btn" data-favorites-link="true" href="/account/profile.html#favorites"><svg fill="none" viewbox="0 0 24 24"><path d="M12.1 20.3 4.9 13.4a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8l-7.2 6.9a.6.6 0 0 1-.8 0Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path></svg></a></div>
 </header>
-
-<main><div class="container"><div class="acc-layout">
-
-  <!-- SIDEBAR -->
-  <aside class="acc-sidebar">
-    <div class="acc-avatar-card">
-      <div class="acc-avatar" id="accAvatar">?</div>
-      <h2 class="acc-name" id="accName">Yükleniyor…</h2>
-      <p class="acc-email-tag" id="accEmail">—</p>
-      <span class="acc-tier">✦ Cosmoskin Üyesi</span>
-    </div>
-    <nav class="acc-nav">
-      <button class="acc-nav-item active" data-tab="overview" onclick="switchTab('overview',this)"><span class="acc-nav-icon">◈</span><span class="acc-nav-label">Genel Bakış</span></button>
-      <button class="acc-nav-item" data-tab="orders" onclick="switchTab('orders',this)"><span class="acc-nav-icon">◻</span><span class="acc-nav-label">Siparişlerim</span><span class="acc-nav-badge" id="orderBadge">—</span></button>
-      <button class="acc-nav-item" data-tab="favorites" onclick="switchTab('favorites',this)"><span class="acc-nav-icon">♡</span><span class="acc-nav-label">Favorilerim</span><span class="acc-nav-badge" id="favoriteBadge">0</span></button>
-      <button class="acc-nav-item" data-tab="profile" onclick="switchTab('profile',this)"><span class="acc-nav-icon">◯</span><span class="acc-nav-label">Kişisel Bilgilerim</span></button>
-      <button class="acc-nav-item" data-tab="addresses" onclick="switchTab('addresses',this)"><span class="acc-nav-icon">◇</span><span class="acc-nav-label">Adres Bilgilerim</span></button>
-      <button class="acc-nav-item" data-tab="communication" onclick="switchTab('communication',this)"><span class="acc-nav-icon">◎</span><span class="acc-nav-label">İletişim Tercihlerim</span></button>
-      <button class="acc-nav-item" data-tab="security" onclick="switchTab('security',this)"><span class="acc-nav-icon">△</span><span class="acc-nav-label">Güvenlik</span></button>
-    </nav>
-    <button class="acc-logout" id="logoutBtn">↩ Çıkış Yap</button>
-  </aside>
-
-  <!-- MAIN -->
-  <div class="acc-main">
-
-    <!-- OVERVIEW -->
-    <div class="tab-content active" id="tab-overview">
-      <div class="acc-panel">
-        <div class="acc-stats">
-          <div class="acc-stat"><span class="acc-stat-val" id="statOrders">—</span><span class="acc-stat-lbl">Sipariş</span></div>
-          <div class="acc-stat"><span class="acc-stat-val" id="statSpend">—</span><span class="acc-stat-lbl">Toplam Harcama</span></div>
-          <div class="acc-stat"><span class="acc-stat-val" id="statSince">—</span><span class="acc-stat-lbl">Üye Yılı</span></div>
-        </div>
-      </div>
-      <div class="acc-panel">
-        <div class="acc-panel-head">
-          <div><h2>Rutinim</h2><p>Satın aldığınız ürünler ve cilt tercihlerinizle şekillenen bakım akışı</p></div>
-          <span class="routine-pill" id="routineStatusPill">Kişisel Akış</span>
-        </div>
-        <div class="acc-panel-body">
-          <div class="routine-shell">
-            <section class="routine-card routine-card--overview">
-              <div class="routine-card-head">
-                <div>
-                  <span class="routine-kicker">Genel Bakış</span>
-                  <h3>Rutinini kişiselleştir</h3>
-                  <p>Önceliklerini seç. Sipariş geçmişindeki ürünlerle sabah ve akşam için daha net bir kullanım sırası oluşturalım.</p>
-                </div>
-              </div>
-              <div class="routine-fields">
-                <div class="routine-field">
-                  <span class="routine-label">Cilt Tipi</span>
-                  <div class="routine-chip-group" id="skinTypeGroup">
-                    <button type="button" class="routine-chip" data-type="skin" data-value="dry">Kuru</button>
-                    <button type="button" class="routine-chip" data-type="skin" data-value="oily">Yağlı</button>
-                    <button type="button" class="routine-chip" data-type="skin" data-value="combination">Karma</button>
-                    <button type="button" class="routine-chip" data-type="skin" data-value="sensitive">Hassas</button>
-                    <button type="button" class="routine-chip" data-type="skin" data-value="normal">Normal</button>
-                  </div>
-                </div>
-                <div class="routine-field">
-                  <span class="routine-label">Cilt Öncelikleri</span>
-                  <div class="routine-chip-group" id="skinConcernGroup">
-                    <button type="button" class="routine-chip" data-type="concern" data-value="dehydration">Nemsizlik</button>
-                    <button type="button" class="routine-chip" data-type="concern" data-value="sensitivity">Hassasiyet</button>
-                    <button type="button" class="routine-chip" data-type="concern" data-value="tone">Leke görünümü</button>
-                    <button type="button" class="routine-chip" data-type="concern" data-value="glow">Donuk görünüm</button>
-                    <button type="button" class="routine-chip" data-type="concern" data-value="barrier">Bariyer desteği</button>
-                    <button type="button" class="routine-chip" data-type="concern" data-value="clarity">Akne eğilimi</button>
-                  </div>
-                </div>
-              </div>
-              <div class="routine-actions">
-                <button class="btn btn-primary" id="saveRoutineProfileBtn" type="button" style="font-size:11px;padding:12px 28px;">Rutini Kaydet</button>
-                <span class="routine-save-note" id="routineSaveNote">Seçimlerin kaydedildiğinde öneriler buna göre güncellenir.</span>
-              </div>
-            </section>
-            <aside class="routine-summary">
-              <section class="routine-summary-card">
-                <div>
-                  <span class="routine-kicker">Siparişlerinden</span>
-                  <h4>Rutinine giren ürünler</h4>
-                </div>
-                <ul class="routine-bought-list" id="routineBoughtList">
-                  <li class="routine-empty">Sipariş geçmişin okunduğunda burada rutine eklenen ürünlerin listesi görünecek.</li>
-                </ul>
-              </section>
-              <section class="routine-summary-card">
-                <div>
-                  <span class="routine-kicker">Rutini Tamamla</span>
-                  <h4>Bir sonraki mantıklı adım</h4>
-                </div>
-                <ul class="routine-reco-list" id="routineRecommendations">
-                  <li class="routine-empty">İlk öneriler satın aldığın ürünlere göre burada görünecek.</li>
-                </ul>
-              </section>
-            </aside>
-          </div>
-          <div class="routine-stages" style="margin-top:18px;">
-            <section class="routine-stage">
-              <div class="routine-stage-head"><h4>Sabah Rutini</h4><span>Morning</span></div>
-              <ol class="routine-step-list" id="routineMorningList">
-                <li class="routine-empty">Sabah akışı hazırlanıyor…</li>
-              </ol>
-            </section>
-            <section class="routine-stage">
-              <div class="routine-stage-head"><h4>Akşam Rutini</h4><span>Evening</span></div>
-              <ol class="routine-step-list" id="routineEveningList">
-                <li class="routine-empty">Akşam akışı hazırlanıyor…</li>
-              </ol>
-            </section>
-          </div>
-        </div>
-      </div>
-      <div class="acc-panel">
-        <div class="acc-panel-head">
-          <div><h2>Son Siparişler</h2><p>En son 3 siparişiniz</p></div>
-          <button class="btn btn-secondary" onclick="switchTab('orders',document.querySelector('[data-tab=orders]'))" style="font-size:11px;padding:10px 16px;">Tümünü Gör</button>
-        </div>
-        <div class="acc-panel-body"><div id="recentOrders"><p style="text-align:center;padding:16px 0;color:#9a8e82;font-size:13px;">Yükleniyor…</p></div></div>
-      </div>
-      <div class="acc-panel">
-        <div class="acc-panel-head"><div><h2>Hızlı Bağlantılar</h2></div></div>
-        <div class="acc-panel-body" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <a href="/collections/routine.html" class="collection-card" style="padding:18px 20px;"><span>Rutinler</span><strong style="font-size:20px;">Rutin Seçkisi</strong><p>Size özel öneri</p></a>
-          <a href="/contact.html" class="collection-card" style="padding:18px 20px;"><span>Destek</span><strong style="font-size:20px;">Yardım Merkezi</strong><p>Soru & iade</p></a>
-        </div>
-      </div>
-    </div>
-
-    <!-- ORDERS -->
-    <div class="tab-content" id="tab-orders">
-      <div class="acc-panel">
-        <div class="acc-panel-head"><div><h2>Siparişlerim</h2><p>Tüm siparişleriniz</p></div></div>
-        <div class="acc-panel-body"><div id="allOrders"><p style="text-align:center;padding:16px 0;color:#9a8e82;font-size:13px;">Yükleniyor…</p></div></div>
-      </div>
-    </div>
-
-    <!-- FAVORITES -->
-    <div class="tab-content" id="tab-favorites">
-      <div class="acc-panel">
-        <div class="acc-panel-head"><div><h2>Favorilerim</h2><p>Kaydettiğiniz ürünler</p></div></div>
-        <div class="acc-panel-body">
-          <div id="favoritesContainer">
-            <div class="fav-empty">
-              <div style="font-size:44px;margin-bottom:16px;opacity:.45;">♡</div>
-              <h3>Favori ürününüz yok</h3>
-              <p style="font-size:13px;color:#9a8e82;margin:0 0 20px;">Beğendiğiniz ürünleri favorilere ekleyerek buradan takip edebilirsiniz.</p>
-              <a class="btn btn-primary" href="/index.html" style="display:inline-flex;">Ürünleri Keşfet</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- PERSONAL INFO -->
-    <div class="tab-content" id="tab-profile">
-      <div class="acc-panel">
-        <div class="acc-panel-head"><div><h2>Kişisel Bilgilerim</h2><p>Bilgilerinizi güncelleyin</p></div></div>
-        <div class="acc-panel-body">
-          <div class="prof-grid">
-            <div class="prof-field"><label class="prof-label">Ad</label><input class="prof-input" id="profFirstName" type="text" placeholder="Adınız"></div>
-            <div class="prof-field"><label class="prof-label">Soyad</label><input class="prof-input" id="profLastName" type="text" placeholder="Soyadınız"></div>
-            <div class="prof-field"><label class="prof-label">Telefon</label><input class="prof-input" id="profPhone" type="tel" placeholder="+90 5xx xxx xx xx"></div>
-            <div class="prof-field"><label class="prof-label">Doğum Tarihi</label><input class="prof-input" id="profBirthdate" type="date"></div>
-            <div class="prof-field full"><label class="prof-label">E-posta</label><input class="prof-input" id="profEmail" type="email" readonly></div>
-            <div class="prof-field full"><label class="prof-label">Cinsiyet</label><select class="prof-input prof-select" id="profGender"><option value="">Belirtmek istemiyorum</option><option value="female">Kadın</option><option value="male">Erkek</option><option value="other">Diğer</option></select></div>
-            <div class="prof-field full"><label class="prof-label">Üyelik Tarihi</label><input class="prof-input" id="profSince" type="text" readonly></div>
-          </div>
-          <div class="prof-actions"><button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()" style="font-size:11px;padding:12px 28px;">Değişiklikleri Kaydet</button></div>
-          <div class="prof-status" id="profileStatus"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ADDRESSES -->
-    <div class="tab-content" id="tab-addresses">
-      <div class="acc-panel">
-        <div class="acc-panel-head">
-          <div><h2>Adres Bilgilerim</h2><p>Teslimat adresleriniz</p></div>
-          <button class="btn btn-primary" onclick="openAddressModal()" type="button" style="font-size:11px;padding:10px 20px;">+ Yeni Adres</button>
-        </div>
-        <div class="acc-panel-body"><div class="addr-grid" id="addressGrid"><div class="addr-add" onclick="openAddressModal()"><div class="addr-add-icon">+</div><p>Yeni adres ekleyin</p></div></div></div>
-      </div>
-    </div>
-
-    <!-- COMMUNICATION -->
-    <div class="tab-content" id="tab-communication">
-      <div class="acc-panel">
-        <div class="acc-panel-head"><div><h2>İletişim Tercihlerim</h2><p>Bildirim, rutin hatırlatma ve yeniden sipariş ayarları</p></div></div>
-        <div class="acc-panel-body" style="display:grid;gap:18px;">
-          <div class="pref-item"><div class="pref-info"><strong>Sipariş Bildirimleri</strong><span>Sipariş durumu, kargo takibi ve teslimat güncellemeleri</span></div><label class="toggle"><input type="checkbox" id="prefOrders" checked onchange="savePref('orders',this.checked)"><span class="toggle-slider"></span></label></div>
-          <div class="pref-item"><div class="pref-info"><strong>Kampanya ve İndirimler</strong><span>Özel indirimler, sezonsal kampanyalar ve fırsatlar</span></div><label class="toggle"><input type="checkbox" id="prefCampaigns" onchange="savePref('campaigns',this.checked)"><span class="toggle-slider"></span></label></div>
-          <div class="pref-item"><div class="pref-info"><strong>Yeni Ürün Duyuruları</strong><span>Yeni koleksiyon ve ürün lansmanlarından haberdar olun</span></div><label class="toggle"><input type="checkbox" id="prefNewProducts" onchange="savePref('newProducts',this.checked)"><span class="toggle-slider"></span></label></div>
-          <div class="pref-item"><div class="pref-info"><strong>Cilt Bakımı İpuçları</strong><span>Uzman önerileri, rutin rehberleri ve içerik bülteni</span></div><label class="toggle"><input type="checkbox" id="prefTips" onchange="savePref('tips',this.checked)"><span class="toggle-slider"></span></label></div>
-          <div class="pref-item"><div class="pref-info"><strong>SMS Bildirimleri</strong><span>Kargo takibi ve önemli güncellemeler için SMS</span></div><label class="toggle"><input type="checkbox" id="prefSms" onchange="savePref('sms',this.checked)"><span class="toggle-slider"></span></label></div>
-
-          <div class="reminder-grid">
-            <section class="reminder-card">
-              <div>
-                <span class="reminder-kicker">Hatırlatma Merkezi</span>
-                <h3>Rutin ve yeniden sipariş akışı</h3>
-                <p>Satın aldığın ürünlere ve seçtiğin sıklığa göre gönderilecek e-posta akışını buradan yönetebilirsin.</p>
-              </div>
-              <div class="pref-item"><div class="pref-info"><strong>Rutin Hatırlatmaları</strong><span>Sabah / akşam akışını düzenli hatırlatır</span></div><label class="toggle"><input type="checkbox" id="prefRoutineReminders" onchange="saveReminderPref('routineEmails',this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="pref-item"><div class="pref-info"><strong>Yeniden Sipariş Önerileri</strong><span>Kullanım süresine göre ürün yenileme zamanı yaklaştığında haber verir</span></div><label class="toggle"><input type="checkbox" id="prefRestockReminders" onchange="saveReminderPref('restockEmails',this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="pref-item"><div class="pref-info"><strong>Ürün Azalıyor Uyarıları</strong><span>Yaklaşan bitiş tarihi için daha erken haber gönderir</span></div><label class="toggle"><input type="checkbox" id="prefLowStockAlerts" onchange="saveReminderPref('lowStockAlerts',this.checked)"><span class="toggle-slider"></span></label></div>
-              <div class="reminder-inline">
-                <div class="prof-field">
-                  <label class="prof-label">Hatırlatma Sıklığı</label>
-                  <select class="reminder-select" id="reminderCadenceSelect" onchange="saveReminderPref('cadenceDays',Number(this.value))">
-                    <option value="7">Her 7 günde</option>
-                    <option value="14">Her 14 günde</option>
-                    <option value="21">Her 21 günde</option>
-                    <option value="30">Her 30 günde</option>
-                  </select>
-                </div>
-                <div class="prof-field">
-                  <label class="prof-label">Ürün Bitiş Tahmini</label>
-                  <select class="reminder-select" id="depletionWindowSelect" onchange="saveReminderPref('depletionLeadDays',Number(this.value))">
-                    <option value="3">3 gün önce</option>
-                    <option value="5">5 gün önce</option>
-                    <option value="7">7 gün önce</option>
-                    <option value="10">10 gün önce</option>
-                  </select>
-                </div>
-              </div>
-              <div class="routine-actions">
-                <button class="btn btn-secondary" type="button" id="sendRoutineTestBtn" onclick="sendReminderTest('routine')" style="font-size:11px;padding:12px 20px;">Test rutin e-postası</button>
-                <button class="btn btn-secondary" type="button" id="sendRestockTestBtn" onclick="sendReminderTest('restock')" style="font-size:11px;padding:12px 20px;">Test yeniden sipariş e-postası</button>
-              </div>
-              <div class="reminder-note" id="reminderStatusNote">Tercihlerin otomatik kaydedilir. Test e-postası mevcut hesap adresine gönderilir.</div>
-            </section>
-            <aside class="reminder-card">
-              <div>
-                <span class="reminder-kicker">Takvim</span>
-                <h4>Bir sonraki temas</h4>
-                <p>Son sipariş tarihine ve ürün tiplerine göre öngörülen yaklaşan hatırlatma adımları.</p>
-              </div>
-              <ul class="reminder-status-list" id="reminderTimelineList">
-                <li class="routine-empty">Siparişler yüklendiğinde burada ilk tahmini tarihleri göreceksin.</li>
-              </ul>
-            </aside>
-          </div>
-          <div class="segment-grid">
-            <section class="reminder-card">
-              <div>
-                <span class="reminder-kicker">CRM Segmentleri</span>
-                <h4>Checkout sonrası Brevo senkronu</h4>
-                <p>Ödenmiş siparişlerden sonra müşteri listeleri, kategori ilgileri ve yüksek sepet segmenti otomatik güncellenir.</p>
-              </div>
-              <ul class="segment-list" id="brevoSegmentList">
-                <li class="segment-pill">Henüz senkron yok</li>
-              </ul>
-              <div class="segment-meta" id="brevoSegmentMeta">
-                <div class="segment-meta-row"><span>Durum</span><strong id="brevoSyncState">Hazır</strong></div>
-                <div class="segment-meta-row"><span>Brevo listeleri</span><strong id="brevoListState">—</strong></div>
-              </div>
-              <div class="routine-actions">
-                <button class="btn btn-secondary" type="button" id="syncBrevoBtn" onclick="syncBrevoProfile()" style="font-size:11px;padding:12px 20px;">Şimdi Senkronize Et</button>
-              </div>
-            </section>
-            <aside class="reminder-card">
-              <div>
-                <span class="reminder-kicker">Liste Mantığı</span>
-                <h4>Aktif CRM kuralları</h4>
-                <p>Bu alan, ödenmiş siparişlerde çalışacak segment mantığını görünür tutar.</p>
-              </div>
-              <ul class="reminder-status-list">
-                <li class="reminder-status-item"><div><strong>Temel müşteri listesi</strong><span>Her ödenmiş sipariş sonrası güncellenir.</span></div><span class="reminder-date">CUSTOMER</span></li>
-                <li class="reminder-status-item"><div><strong>Kategori ilgisi</strong><span>Cleanse, hydrate, treat, care ve protect ürünlerine göre ayrılır.</span></div><span class="reminder-date">CATEGORY</span></li>
-                <li class="reminder-status-item"><div><strong>Yüksek sepet</strong><span>2.500 TL ve üzeri siparişlerde high-value segmenti atanır.</span></div><span class="reminder-date">AOV</span></li>
-              </ul>
-            </aside>
-          </div>
-          <p style="font-size:12px;color:#9a8e82;line-height:1.7;">Not: Zorunlu ticari bildirimler (sipariş onayı vb.) bu ayarlardan etkilenmez. Otomatik segmentleme için sunucuda <strong>BREVO_API_KEY</strong>, <strong>CONTACT_FROM_EMAIL</strong> ve kullanmak istediğin Brevo listeleri için <strong>BREVO_LIST_..._ID</strong> env değişkenleri tanımlanmalıdır.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECURITY -->
-    <div class="tab-content" id="tab-security">
-      <div class="acc-panel">
-        <div class="acc-panel-head"><div><h2>Güvenlik</h2><p>Şifre ve hesap güvenliği</p></div></div>
-        <div class="acc-panel-body">
-          <div class="sec-item"><div class="sec-info"><strong>Şifre</strong><span>Hesabınızı güvende tutmak için düzenli olarak şifrenizi değiştirin</span></div><a href="/auth/reset.html" class="btn btn-secondary" style="font-size:11px;padding:10px 18px;white-space:nowrap;">Şifre Değiştir</a></div>
-          <div class="sec-item"><div class="sec-info"><strong>E-posta Bildirimleri</strong><span>Hesap güvenliği bildirimleri</span></div><span style="font-size:12px;color:#1f7a4f;font-weight:600;letter-spacing:.1em;text-transform:uppercase;">Aktif</span></div>
-          <div class="sec-item"><div class="sec-info"><strong>Aktif Oturumlar</strong><span>Şu an 1 cihazda oturum açık</span></div><button class="btn btn-secondary" onclick="handleSignOut()" style="font-size:11px;padding:10px 18px;">Çıkış Yap</button></div>
-          <div class="sec-item"><div class="sec-info"><strong>Hesap Silme</strong><span>Hesabınızı ve tüm verilerinizi kalıcı olarak silebilirsiniz</span></div><button type="button" id="openDeleteAccountModal" class="btn btn-secondary" style="font-size:11px;padding:10px 18px;color:#8a3b2f;border-color:rgba(138,59,47,.3);">Sil</button></div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div></div></div></main>
-
-<!-- Address Modal -->
-<div class="addr-modal-overlay" id="addressModal">
-  <div class="addr-modal">
-    <button class="addr-modal-close" onclick="closeAddressModal()">✕</button>
-    <h3 id="addrModalTitle">Yeni Adres Ekle</h3>
-    <div class="prof-grid">
-      <div class="prof-field"><label class="prof-label">Ad</label><input class="prof-input" id="addrFirstName" type="text" autocomplete="given-name" placeholder="Ad"></div>
-      <div class="prof-field"><label class="prof-label">Soyad</label><input class="prof-input" id="addrLastName" type="text" autocomplete="family-name" placeholder="Soyad"></div>
-      <div class="prof-field"><label class="prof-label">Telefon</label><input class="prof-input" id="addrPhone" type="tel" autocomplete="tel" placeholder="+90 5xx xxx xx xx"></div>
-      <div class="prof-field full"><label class="prof-label">Adres Başlığı</label><input class="prof-input" id="addrTitle" type="text" placeholder="Ev, İş..."></div>
-      <div class="prof-field full"><label class="prof-label">Açık Adres</label><input class="prof-input" id="addrLine" type="text" placeholder="Sokak, mahalle, bina no, kat, daire"></div>
-      <div class="prof-field"><label class="prof-label">İl</label><input class="prof-input" id="addrCity" type="text" placeholder="İstanbul"></div>
-      <div class="prof-field"><label class="prof-label">İlçe</label><input class="prof-input" id="addrDistrict" type="text" placeholder="Kadıköy"></div>
-      <div class="prof-field"><label class="prof-label">Posta Kodu</label><input class="prof-input" id="addrPostal" type="text" placeholder="34700"></div>
-      <div class="prof-field" style="align-self:end;padding-bottom:4px;"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="addrDefault" style="width:16px;height:16px;accent-color:#1a1510;"><span style="font-size:13px;color:#5a4f43;">Varsayılan adres olarak ayarla</span></label></div>
-    </div>
-    <div class="prof-actions" style="margin-top:24px;">
-      <button class="btn btn-primary" onclick="saveAddress()" style="font-size:11px;padding:12px 28px;">Adresi Kaydet</button>
-      <button class="btn btn-secondary" onclick="closeAddressModal()" style="font-size:11px;padding:12px 24px;">İptal</button>
-    </div>
-    <div class="prof-status" id="addrStatus"></div>
-  </div>
+<main class="cs-account-shell" data-state="loading" id="accountApp">
+<section aria-labelledby="accountTitle" class="cs-account-hero container">
+<div>
+<span class="section-kicker">Hesabım</span>
+<h1 id="accountTitle">Cilt bakım alışverişini tek yerden yönet.</h1>
+<p id="accountSubtitle">Sipariş, favori, adres, bildirim ve cilt profilini gerçek verilerle takip et.</p>
 </div>
-
+<div aria-live="polite" class="cs-account-hero-card">
+<span class="cs-hero-label">Üyelik Seviyesi</span>
+<strong id="heroTier">Yükleniyor</strong>
+<div class="cs-tier-progress"><span id="tierProgress" style="width:0%"></span></div>
+<small id="heroTierHint">Hesap verilerin hazırlanıyor.</small>
+</div>
+</section>
+<div class="cs-account-loading container" id="accountLoading">
+<div class="cs-loading-card"><span></span><strong>Hesap verileri yükleniyor</strong><p>Oturum, siparişler, favoriler ve adresler kontrol ediliyor.</p></div>
+</div>
+<section class="cs-account-layout container" hidden="" id="accountLayout">
+<aside aria-label="Hesap menüsü" class="cs-account-sidebar">
+<div class="cs-profile-card">
+<div class="cs-profile-avatar" id="accountAvatar">CS</div>
+<strong id="accountName">COSMOSKIN Üyesi</strong>
+<span id="accountEmail">—</span>
+<small id="accountMemberSince">Üyelik bilgisi yükleniyor</small>
+</div>
+<nav class="cs-account-nav" id="accountNav">
+<button class="is-active" data-tab="overview" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Genel Bakış</button>
+<button data-tab="orders" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Siparişlerim <em id="ordersBadge">0</em></button>
+<button data-tab="favorites" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Favorilerim <em id="favoritesBadge">0</em></button>
+<button data-tab="addresses" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Adreslerim <em id="addressesBadge">0</em></button>
+<button data-tab="skin" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Cilt Profilim</button>
+<button data-tab="notifications" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Bildirimler <em id="notificationsBadge">0</em></button>
+<button data-tab="security" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Güvenlik</button>
+<button data-tab="settings" type="button"><span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M4 12h16M12 4v16"></path></svg></span>Hesap Bilgilerim</button>
+</nav>
+<button class="cs-logout" id="logoutBtn" type="button">Çıkış Yap</button>
+</aside>
+<div class="cs-account-content">
+<section class="cs-panel is-active" data-panel="overview">
+<div class="cs-panel-head"><div><span>Özet</span><h2>Hesap Genel Bakış</h2></div><a class="btn btn-secondary" href="/collections/routine.html">Rutinlere Git</a><a class="btn btn-secondary" href="/account/returns.html">İade Taleplerim</a></div>
+<div class="cs-stat-grid" id="statGrid"></div>
+<div class="cs-overview-grid">
+<article class="cs-card cs-card-large"><div class="cs-card-head"><span>Son Sipariş</span><button data-switch-tab="orders" type="button">Tüm Siparişler</button></div><div id="latestOrderSlot"></div></article>
+<article class="cs-card"><div class="cs-card-head"><span>Cilt Rutini</span><button data-switch-tab="skin" type="button">Güncelle</button></div><div id="routineSlot"></div></article>
+<article class="cs-card"><div class="cs-card-head"><span>Favori Ürünler</span><button data-switch-tab="favorites" type="button">Gözden Geçir</button></div><div id="favoritePreviewSlot"></div></article>
+</div>
+</section>
+<section class="cs-panel" data-panel="orders">
+<div class="cs-panel-head"><div><span>Operasyon</span><h2>Siparişlerim</h2><p>Sipariş durumunu, kargo bilgisini ve ürün detaylarını takip et.</p></div><select class="cs-select" id="orderFilter"><option value="all">Tüm siparişler</option><option value="active">Aktif siparişler</option><option value="delivered">Teslim edilenler</option><option value="problem">İptal / ödeme hatası</option></select></div>
+<div class="cs-order-list" id="ordersList"></div>
+</section>
+<section class="cs-panel" data-panel="favorites">
+<div class="cs-panel-head"><div><span>Alışveriş Listesi</span><h2>Favorilerim</h2><p>Favorilerini sepete ekle, stok ve fiyat kontrolü için ürün sayfasını aç.</p></div><a class="btn btn-primary" href="/collections/routine.html">Ürün Keşfet</a></div>
+<div class="cs-fav-grid" id="favoritesGrid"></div>
+</section>
+<section class="cs-panel" data-panel="addresses">
+<div class="cs-panel-head"><div><span>Teslimat</span><h2>Adreslerim</h2><p>Checkout sırasında kullanılacak teslimat ve fatura adreslerini yönet.</p></div><button class="btn btn-primary" id="addAddressBtn" type="button">Yeni Adres Ekle</button></div>
+<div class="cs-address-grid" id="addressesGrid"></div>
+</section>
+<section class="cs-panel" data-panel="skin">
+<div class="cs-panel-head"><div><span>Kişiselleştirme</span><h2>Cilt Profilim</h2><p>Cilt tipini ve hedeflerini kaydet; öneriler hesabına göre şekillensin.</p></div><button class="btn btn-primary" id="saveSkinBtn" type="button">Cilt Profilini Kaydet</button></div>
+<form class="cs-form" id="skinForm">
+<label><span>Cilt Tipi</span><select class="cs-input" name="skin_type"><option value="">Seçiniz</option><option>Normal Cilt</option><option>Kuru Cilt</option><option>Karma Cilt</option><option>Yağlı Cilt</option><option>Hassas Cilt</option></select></label>
+<label><span>Rutin Hedefi</span><select class="cs-input" name="routine_goal"><option value="">Seçiniz</option><option>Bariyer desteği</option><option>Yoğun nem</option><option>Işıltı ve ton eşitliği</option><option>Gözenek ve sebum dengesi</option><option>Hassasiyet yatıştırma</option></select></label>
+<fieldset class="cs-checks"><legend>Cilt Endişeleri</legend><label><input name="skin_concerns" type="checkbox" value="Nemsizlik"/> Nemsizlik</label><label><input name="skin_concerns" type="checkbox" value="Bariyer Desteği"/> Bariyer Desteği</label><label><input name="skin_concerns" type="checkbox" value="Leke Görünümü"/> Leke Görünümü</label><label><input name="skin_concerns" type="checkbox" value="Gözenek &amp; Sebum"/> Gözenek &amp; Sebum</label><label><input name="skin_concerns" type="checkbox" value="Hassasiyet &amp; Kızarıklık"/> Hassasiyet &amp; Kızarıklık</label></fieldset>
+<fieldset class="cs-checks"><legend>İletişim Tercihleri</legend><label><input name="routineEmails" type="checkbox"/> Rutin hatırlatma e-postaları</label><label><input name="restockEmails" type="checkbox"/> Yeniden sipariş hatırlatmaları</label><label><input name="lowStockAlerts" type="checkbox"/> Favori ürün stok bildirimleri</label></fieldset>
+</form>
+<div class="cs-recommendation-strip" id="recommendationSlot"></div>
+</section>
+<section class="cs-panel" data-panel="notifications">
+<div class="cs-panel-head"><div><span>Bildirim Merkezi</span><h2>Bildirimlerim</h2><p>Sipariş, kargo, favori ve rutin bildirimlerini takip et.</p></div><button class="btn btn-secondary" id="markAllNotificationsBtn" type="button">Tümünü Okundu Yap</button></div>
+<div class="cs-notification-list" id="notificationsList"></div>
+</section>
+<section class="cs-panel" data-panel="security">
+<div class="cs-panel-head"><div><span>Güvenlik</span><h2>Şifre ve Oturum</h2><p>Hesabını korumak için güçlü bir şifre kullan.</p></div></div>
+<form class="cs-form cs-form-narrow" id="passwordForm">
+<label><span>Yeni Şifre</span><input autocomplete="new-password" class="cs-input" name="password" placeholder="En az 8 karakter" type="password"/></label>
+<label><span>Yeni Şifre Tekrar</span><input autocomplete="new-password" class="cs-input" name="password_confirm" placeholder="Şifreyi tekrar yaz" type="password"/></label>
+<button class="btn btn-primary" type="submit">Şifreyi Güncelle</button>
+</form>
+<div class="cs-danger-zone"><div><strong>Hesap silme talebi</strong><p>Kalıcı silme işlemi manuel destek onayı ile yürütülür.</p></div><a class="btn btn-secondary" href="mailto:destek@cosmoskin.com.tr?subject=Hesab%C4%B1m%C4%B1%20Sil&amp;body=Hesab%C4%B1m%C4%B1n%20kal%C4%B1c%C4%B1%20olarak%20silinmesini%20istiyorum.">Talep Oluştur</a></div>
+</section>
+<section class="cs-panel" data-panel="settings">
+<div class="cs-panel-head"><div><span>Profil</span><h2>Hesap Bilgilerim</h2><p>Ad, soyad, telefon ve iletişim bilgilerini güncelle.</p></div><button class="btn btn-primary" id="saveProfileBtn" type="button">Bilgileri Kaydet</button></div>
+<form class="cs-form" id="profileForm">
+<label><span>Ad</span><input autocomplete="given-name" class="cs-input" name="first_name"/></label>
+<label><span>Soyad</span><input autocomplete="family-name" class="cs-input" name="last_name"/></label>
+<label><span>E-posta</span><input class="cs-input" name="email" readonly="" type="email"/></label>
+<label><span>Telefon</span><input autocomplete="tel" class="cs-input" name="phone" placeholder="05xx xxx xx xx"/></label>
+</form>
+</section>
+</div>
+</section>
+</main>
+<div aria-hidden="true" class="cs-modal" id="addressModal">
+<div aria-labelledby="addressModalTitle" aria-modal="true" class="cs-modal-card" role="dialog">
+<div class="cs-modal-head"><div><span>Adres</span><h2 id="addressModalTitle">Yeni Adres</h2></div><button aria-label="Kapat" class="cs-modal-close" id="closeAddressModal" type="button">×</button></div>
+<form class="cs-form" id="addressForm">
+<input name="id" type="hidden"/>
+<label><span>Adres Başlığı</span><input class="cs-input" name="title" placeholder="Ev, İş, Fatura"/></label>
+<label><span>Adres Tipi</span><select class="cs-input" name="address_type"><option value="shipping">Teslimat</option><option value="billing">Fatura</option><option value="both">Teslimat + Fatura</option></select></label>
+<label><span>Ad</span><input class="cs-input" name="first_name" required=""/></label>
+<label><span>Soyad</span><input class="cs-input" name="last_name" required=""/></label>
+<label><span>Telefon</span><input class="cs-input" name="phone" required=""/></label>
+<label><span>İl</span><input class="cs-input" name="city" required=""/></label>
+<label><span>İlçe</span><input class="cs-input" name="district" required=""/></label>
+<label><span>Posta Kodu</span><input class="cs-input" name="postal_code"/></label>
+<label class="full"><span>Açık Adres</span><textarea class="cs-input" name="address_line" required="" rows="4"></textarea></label>
+<label class="cs-check"><input name="is_default" type="checkbox"/> Varsayılan adres yap</label>
+<div class="cs-modal-actions"><button class="btn btn-secondary" id="cancelAddressBtn" type="button">Vazgeç</button><button class="btn btn-primary" type="submit">Adresi Kaydet</button></div>
+</form>
+</div>
+</div>
+<div aria-live="polite" class="cs-toast" id="accountToast" role="status"></div>
 <footer class="footer">
-  <div class="container footer-grid">
-    <div>
-      <a class="brand footer-brandlock" href="/index.html"><img class="brand-logo" src="/assets/logo-mark-light.png" alt="Cosmoskin logo"><span class="brand-word">COSMOSKIN</span></a>
-      <p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p>
-    </div>
-    <div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
-    <div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
-    <div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat &amp; Kargo</a><a href="/iade-degisim.html">İade &amp; Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
-    <div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" target="_blank" rel="noopener">Instagram</a><span>İstanbul, Türkiye</span></div>
-  </div>
-  <div class="container footer-trustbar">
-    <div class="footer-payment-block">
-      <span class="footer-meta-label">Ödeme Yöntemleri</span>
-      <div class="payment-logos" aria-label="Desteklenen ödeme yöntemleri">
-        <span class="payment-logo payment-logo--visa" aria-label="Visa">
-          <svg viewBox="0 0 96 34" role="img" aria-hidden="true"><path d="M18.6 25.8 22.7 8h6.5l-4.1 17.8h-6.5Zm30.9-17.4a15.5 15.5 0 0 0-5.8-1c-6.4 0-10.9 3.2-10.9 7.8 0 3.4 3.2 5.3 5.7 6.4 2.6 1.2 3.4 1.9 3.4 3 0 1.7-2.1 2.4-4 2.4-2.7 0-4.2-.4-6.4-1.3l-.9-.4-.9 5.6a21.8 21.8 0 0 0 7.6 1.3c6.8 0 11.2-3.2 11.3-8.2 0-2.7-1.7-4.9-5.4-6.5-2.3-1.1-3.7-1.8-3.7-3 0-1 .9-2.1 3.1-2.1a11 11 0 0 1 4.8.9l.6.3.9-5.2Zm8.6 11 2.6-6.9 1.5 6.9h-4.1Zm8 6.4h6l-5.3-17.8h-5.5a3 3 0 0 0-2.8 1.8l-7.1 16h6.8l1-2.8h8.3l.6 2.8ZM13.2 8 6.8 20.1 6.1 16.6A14.1 14.1 0 0 0 .3 9.2l5.9 22.3h6.9L23.3 8h-6.8Z" fill="#1A1F71"></path><path d="M6.5 8.1h10.8c-.5-.1-1-.1-1.6-.1-3.6 0-7 2-8.6 5.2L6.5 8.1Z" fill="#F7B600"></path></svg>
-        </span>
-        <span class="payment-logo" aria-label="Mastercard">
-          <svg viewBox="0 0 84 56" role="img" aria-hidden="true"><circle cx="31" cy="28" r="16.5" fill="#EB001B"></circle><circle cx="53" cy="28" r="16.5" fill="#F79E1B"></circle><path d="M42 13.5a16.5 16.5 0 0 0 0 29 16.5 16.5 0 0 0 0-29Z" fill="#FF5F00"></path></svg>
-        </span>
-        <span class="payment-logo payment-logo--amex" aria-label="American Express">
-          <svg viewBox="0 0 94 56" role="img" aria-hidden="true"><rect x="6" y="8" width="82" height="40" rx="8" fill="#006FCF"></rect><path d="M22 19h10.8l1.7 3.8L36.1 19H72v18H36.1l-1.7-3.7-1.6 3.7H22V19Zm3.5 2.9v11.2h4.6v-2.3h3.4l1 2.3h5l-5.1-11.2h-4.9l-4.9 11.2h3.9l1-2.3h2.2v2.3h4.2V21.9h-10.4Zm6.7 5.7 1.2-2.8 1.2 2.8h-2.4Zm8.6-5.7v11.2h9.8v-2.8h-5.7v-1.4h5.6v-2.7h-5.6v-1.4h5.7v-2.9h-9.8Zm11.4 0v11.2h4.1v-6.5l2.9 6.5h2.8l2.9-6.5v6.5H69V21.9h-5.4l-2.7 5.9-2.6-5.9h-5.1Zm18.6 0v11.2H80v-2.8h-5.7v-1.4h5.5v-2.7h-5.5v-1.4H80v-2.9h-9.2Z" fill="#fff"></path></svg>
-        </span>
-      </div>
-      <p class="footer-meta-copy">Visa, Mastercard ve American Express ile güvenli ödeme deneyimi.</p>
-    </div>
-    <div class="footer-security-block">
-      <span class="footer-meta-label">Güvenlik &amp; Sipariş Detayları</span>
-      <div class="footer-badges">
-        <span>256-bit SSL koruması</span>
-        <span>Güvenli sanal POS</span>
-        <span>KDV dahil fiyatlandırma</span>
-        <span>Sipariş e-posta bilgilendirmesi</span>
-        <span>Teslimat &amp; iade sayfaları</span>
-        <span>Mesafeli satış &amp; ön bilgilendirme</span>
-      </div>
-      <p class="footer-meta-copy">Ödeme adımında bilgileriniz şifreli bağlantı üzerinden işlenir; sipariş, teslimat ve iade akışı yasal metinlerle birlikte açık şekilde sunulur.</p>
-    </div>
-  </div>
-  <div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div>
+<div class="container footer-grid">
+<div>
+<a class="brand footer-brandlock" href="/index.html"><img alt="Cosmoskin logo" class="brand-logo" src="/assets/logo-mark-light.png"/><span class="brand-word">COSMOSKIN</span></a>
+<p class="footer-copy">Cosmoskin, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p>
+</div>
+<div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
+<div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
+<div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat &amp; Kargo</a><a href="/iade-degisim.html">İade &amp; Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
+<div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" rel="noopener" target="_blank">Instagram</a><span>İstanbul, Türkiye</span></div>
+</div>
+<div class="container footer-trustbar">
+<div class="footer-payment-block">
+<span class="footer-meta-label">Ödeme Yöntemleri</span>
+<div aria-label="Desteklenen ödeme yöntemleri" class="payment-logos">
+<span aria-label="Visa" class="payment-logo payment-logo--visa">
+<svg aria-hidden="true" role="img" viewbox="0 0 96 34"><path d="M18.6 25.8 22.7 8h6.5l-4.1 17.8h-6.5Zm30.9-17.4a15.5 15.5 0 0 0-5.8-1c-6.4 0-10.9 3.2-10.9 7.8 0 3.4 3.2 5.3 5.7 6.4 2.6 1.2 3.4 1.9 3.4 3 0 1.7-2.1 2.4-4 2.4-2.7 0-4.2-.4-6.4-1.3l-.9-.4-.9 5.6a21.8 21.8 0 0 0 7.6 1.3c6.8 0 11.2-3.2 11.3-8.2 0-2.7-1.7-4.9-5.4-6.5-2.3-1.1-3.7-1.8-3.7-3 0-1 .9-2.1 3.1-2.1a11 11 0 0 1 4.8.9l.6.3.9-5.2Zm8.6 11 2.6-6.9 1.5 6.9h-4.1Zm8 6.4h6l-5.3-17.8h-5.5a3 3 0 0 0-2.8 1.8l-7.1 16h6.8l1-2.8h8.3l.6 2.8ZM13.2 8 6.8 20.1 6.1 16.6A14.1 14.1 0 0 0 .3 9.2l5.9 22.3h6.9L23.3 8h-6.8Z" fill="#1A1F71"></path><path d="M6.5 8.1h10.8c-.5-.1-1-.1-1.6-.1-3.6 0-7 2-8.6 5.2L6.5 8.1Z" fill="#F7B600"></path></svg>
+</span>
+<span aria-label="Mastercard" class="payment-logo">
+<svg aria-hidden="true" role="img" viewbox="0 0 84 56"><circle cx="31" cy="28" fill="#EB001B" r="16.5"></circle><circle cx="53" cy="28" fill="#F79E1B" r="16.5"></circle><path d="M42 13.5a16.5 16.5 0 0 0 0 29 16.5 16.5 0 0 0 0-29Z" fill="#FF5F00"></path></svg>
+</span>
+<span aria-label="American Express" class="payment-logo payment-logo--amex">
+<svg aria-hidden="true" role="img" viewbox="0 0 94 56"><rect fill="#006FCF" height="40" rx="8" width="82" x="6" y="8"></rect><path d="M22 19h10.8l1.7 3.8L36.1 19H72v18H36.1l-1.7-3.7-1.6 3.7H22V19Zm3.5 2.9v11.2h4.6v-2.3h3.4l1 2.3h5l-5.1-11.2h-4.9l-4.9 11.2h3.9l1-2.3h2.2v2.3h4.2V21.9h-10.4Zm6.7 5.7 1.2-2.8 1.2 2.8h-2.4Zm8.6-5.7v11.2h9.8v-2.8h-5.7v-1.4h5.6v-2.7h-5.6v-1.4h5.7v-2.9h-9.8Zm11.4 0v11.2h4.1v-6.5l2.9 6.5h2.8l2.9-6.5v6.5H69V21.9h-5.4l-2.7 5.9-2.6-5.9h-5.1Zm18.6 0v11.2H80v-2.8h-5.7v-1.4h5.5v-2.7h-5.5v-1.4H80v-2.9h-9.2Z" fill="#fff"></path></svg>
+</span>
+</div>
+<p class="footer-meta-copy">Visa, Mastercard ve American Express ile güvenli ödeme deneyimi.</p>
+</div>
+<div class="footer-security-block">
+<span class="footer-meta-label">Güvenlik &amp; Sipariş Detayları</span>
+<div class="footer-badges">
+<span>256-bit SSL koruması</span>
+<span>Güvenli sanal POS</span>
+<span>KDV dahil fiyatlandırma</span>
+<span>Sipariş e-posta bilgilendirmesi</span>
+<span>Teslimat &amp; iade sayfaları</span>
+<span>Mesafeli satış &amp; ön bilgilendirme</span>
+</div>
+<p class="footer-meta-copy">Ödeme adımında bilgileriniz şifreli bağlantı üzerinden işlenir; sipariş, teslimat ve iade akışı yasal metinlerle birlikte açık şekilde sunulur.</p>
+</div>
+</div>
+<div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div>
 </footer>
-
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-let _client, _session, _addresses = [], _latestOrders = [];
-const ROUTINE_SKIN_KEY = 'cosmoskin_skin_type';
-const ROUTINE_CONCERNS_KEY = 'cosmoskin_skin_concerns';
-const ROUTINE_CATEGORY_COPY = {
-  cleanser: { usageTime:['morning','evening'], recommendationCopy:'Nazik temizleme ile rutine temiz bir başlangıç sağlar.' },
-  essence: { usageTime:['morning','evening'], recommendationCopy:'Temizleme sonrası esnek bir ara katman oluşturur.' },
-  serum: { usageTime:['morning','evening'], recommendationCopy:'Nem desteğini güçlendiren katman olarak çalışır.' },
-  treatment: { usageTime:['morning','evening'], recommendationCopy:'Hedef odaklı bakım katmanı olarak iyi eşleşir.' },
-  moisturizer: { usageTime:['morning','evening'], recommendationCopy:'Serum sonrası nemi ciltte tutmaya yardımcı olur.' },
-  sunscreen: { usageTime:['morning'], recommendationCopy:'Sabah rutininin son adımını tamamlar.' }
-};
-const CATEGORY_META = {
-  cleanser: { title:'Temizleme', description:'Cildi nazikçe arındırarak sonraki adımlar için dengeli bir zemin hazırlar.' },
-  essence: { title:'Essence', description:'Temizleme sonrası hafif destek katmanı olarak cildi serum adımına hazırlar.' },
-  serum: { title:'Serum', description:'Temizleme sonrasında aktif bakım sağlayan ana katmandır.' },
-  treatment: { title:'Bakım Serumu', description:'Hedef odaklı bakım için serum veya krem öncesi katmanda kullanılır.' },
-  moisturizer: { title:'Nemlendirici', description:'Serum adımını kilitleyerek konforu ve bariyer hissini destekler.' },
-  sunscreen: { title:'Koruma', description:'Sabah rutininin son adımında günlük korumayı tamamlar.' }
-};
-
-(async function(){
-  const cfg = window.COSMOSKIN_CONFIG || {};
-  _client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
-  });
-
-  const { data:{ session } } = await _client.auth.getSession();
-  if (!session) { window.location.replace('/index.html?openAuth=login'); return; }
-  _session = session;
-  await hydrateFavoritesFromAccount();
-
-  const user = session.user;
-  const meta = user.user_metadata || {};
-  const firstName = meta.first_name || meta.firstName || '';
-  const lastName  = meta.last_name  || meta.lastName  || '';
-  const fullName  = [firstName, lastName].filter(Boolean).join(' ') || 'Üyemiz';
-  const initials  = [firstName[0], lastName[0]].filter(Boolean).join('').toUpperCase() || user.email[0].toUpperCase();
-  const since     = new Date(user.created_at).toLocaleDateString('tr-TR', {year:'numeric',month:'long'});
-
-  document.getElementById('accAvatar').textContent = initials;
-  document.getElementById('accName').textContent   = fullName;
-  document.getElementById('accEmail').textContent  = user.email;
-  document.getElementById('statSince').textContent = new Date(user.created_at).getFullYear();
-  document.getElementById('profFirstName').value   = firstName;
-  document.getElementById('profLastName').value    = lastName;
-  document.getElementById('profEmail').value       = user.email;
-  document.getElementById('profSince').value       = since + ' itibarıyla üye';
-  if (meta.phone) document.getElementById('profPhone').value = meta.phone;
-  if (meta.birthdate) document.getElementById('profBirthdate').value = meta.birthdate;
-  if (meta.gender) document.getElementById('profGender').value = meta.gender;
-
-  const prefs = meta.comm_prefs || {};
-  if (prefs.orders !== false) document.getElementById('prefOrders').checked = true;
-  if (prefs.campaigns) document.getElementById('prefCampaigns').checked = true;
-  if (prefs.newProducts) document.getElementById('prefNewProducts').checked = true;
-  if (prefs.tips) document.getElementById('prefTips').checked = true;
-  if (prefs.sms) document.getElementById('prefSms').checked = true;
-  initReminderPreferences(meta);
-  renderBrevoPreview([], []);
-
-  _addresses = meta.addresses || [];
-  renderAddresses();
-  hydrateFavoritesFromAccount();
-  renderFavorites();
-  document.getElementById('logoutBtn').addEventListener('click', handleSignOut);
-  initRoutineProfile(meta);
-  bindRoutineControls();
-  loadOrders();
-
-  const urlTab = new URLSearchParams(window.location.search).get('tab');
-  if (urlTab) { const btn = document.querySelector(`[data-tab="${urlTab}"]`); if (btn) switchTab(urlTab, btn); }
-})();
-
-
-function getFavoriteItems(){
-  try {
-    const current = JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]');
-    if (Array.isArray(current)) return uniqueFavorites(current);
-    if (current && typeof current === 'object') return uniqueFavorites(Object.values(current));
-  } catch(e) {}
-  try {
-    const legacy = JSON.parse(localStorage.getItem('cosmoskin_favorites_v1') || '{}');
-    if (Array.isArray(legacy)) return uniqueFavorites(legacy);
-    if (legacy && typeof legacy === 'object') return uniqueFavorites(Object.values(legacy));
-  } catch(e) {}
-  return [];
-}
-
-function setFavoriteItems(favs){
-  const next = uniqueFavorites(favs);
-  localStorage.setItem('cosmoskin_favorites', JSON.stringify(next));
-  localStorage.removeItem('cosmoskin_favorites_v1');
-  window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: next } }));
-}
-
-function normalizeText(value){
-  return String(value || '').trim().toLocaleLowerCase('tr-TR');
-}
-
-function getProductHelpers(){
-  return window.COSMOSKIN_PRODUCT_HELPERS || {};
-}
-
-function resolveAccountProduct(item = {}){
-  const helpers = getProductHelpers();
-  const getByHandle = typeof helpers.getProductByHandle === 'function'
-    ? helpers.getProductByHandle.bind(helpers)
-    : null;
-  const fallbackProducts = Array.isArray(window.COSMOSKIN_PRODUCTS) ? window.COSMOSKIN_PRODUCTS : [];
-  const raw = item && typeof item === 'object' ? item : { id: item };
-  const product =
-    (getByHandle && getByHandle(raw.slug || raw.id || raw.product_slug || raw.product_id || raw.url || '')) ||
-    fallbackProducts.find((entry) => (
-      normalizeText(entry?.name || '') === normalizeText(raw.name || raw.product_name || '')
-    )) ||
-    null;
-  const slug = product?.slug || raw.slug || raw.product_slug || raw.product_id || raw.id || '';
-  const price = Number(product?.price ?? raw.price ?? 0);
-  return {
-    id: product?.id || slug,
-    slug: product?.slug || slug,
-    name: product?.name || raw.name || raw.product_name || 'Ürün',
-    brand: product?.brand || raw.brand || 'Cosmoskin',
-    price: Number.isFinite(price) ? price : 0,
-    image: product?.image || raw.image || '',
-    url: product?.url || raw.product_url || raw.url || (slug ? `/products/${slug}.html` : '')
-  };
-}
-
-function normalizeFavoriteItem(item){
-  const product = resolveAccountProduct(item);
-  if(!product.id) return null;
-  return {
-    id: product.id,
-    slug: product.slug,
-    name: product.name,
-    brand: product.brand,
-    price: product.price,
-    image: product.image,
-    url: product.url
-  };
-}
-
-function uniqueFavorites(items = []){
-  const map = new Map();
-  items.forEach((item) => {
-    const normalized = normalizeFavoriteItem(item);
-    if(normalized && !map.has(String(normalized.id))) map.set(String(normalized.id), normalized);
-  });
-  return Array.from(map.values());
-}
-
-async function syncFavoriteItemsToAccount(favs){
-  if(!_client || !_session?.user) return;
-  const metadata = _session.user.user_metadata || {};
-  const { error } = await _client.auth.updateUser({ data: { ...metadata, favorites: favs } });
-  if(error) throw error;
-  const { data:{ user } } = await _client.auth.getUser();
-  if(user){
-    _session = { ..._session, user };
-  }
-}
-
-async function hydrateFavoritesFromAccount(){
-  const localFavs = uniqueFavorites(getFavoriteItems());
-  const remoteFavs = Array.isArray(_session?.user?.user_metadata?.favorites) ? uniqueFavorites(_session.user.user_metadata.favorites) : [];
-  const resolvedFavs = localFavs.length ? localFavs : remoteFavs;
-  setFavoriteItems(resolvedFavs);
-  if(_client && _session?.user){
-    try{
-      const remoteIds = JSON.stringify(remoteFavs.map((item) => item.id).sort());
-      const resolvedIds = JSON.stringify(resolvedFavs.map((item) => item.id).sort());
-      if(remoteIds !== resolvedIds){
-        await syncFavoriteItemsToAccount(resolvedFavs);
-      }
-    }catch(e){
-      console.error('Favori senkronizasyon hatası:', e);
-    }
-  }
-}
-
-window.addEventListener('storage', (event) => {
-  if(event.key === 'cosmoskin_favorites') renderFavorites();
-});
-window.addEventListener('cosmoskin:favorites-updated', () => renderFavorites());
-
-function showToast(message){
-  let toast = document.querySelector('.favorite-toast');
-  if(!toast){
-    toast = document.createElement('div');
-    toast.className = 'favorite-toast show';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = message;
-  toast.classList.add('show');
-  clearTimeout(showToast._timer);
-  showToast._timer = setTimeout(() => toast.classList.remove('show'), 1800);
-}
-
-async function handleSignOut() {
-  await _client.auth.signOut();
-  window.location.replace('/index.html');
-}
-
-
-async function loadOrders() {
-  const cfg = window.COSMOSKIN_CONFIG || {};
-  try {
-    const res = await fetch(`${cfg.apiBase||'/api'}/get-orders`, { headers:{ Authorization:`Bearer ${_session.access_token}` } });
-    const data = await res.json();
-    const orders = data.orders || [];
-    _latestOrders = orders;
-    const total = orders.reduce((s,o)=>s+(o.total_amount||0),0);
-    document.getElementById('statOrders').textContent = orders.length;
-    document.getElementById('statSpend').textContent  = orders.length ? new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(total) : '₺0';
-    document.getElementById('orderBadge').textContent = orders.length;
-
-    function renderOrder(o) {
-      const statusMap={paid:'Onaylandı',confirmed:'Onaylandı',pending_payment:'Ödeme Bekleniyor',pending:'Beklemede',payment_failed:'Ödeme Başarısız',failed:'Başarısız',cancelled:'İptal'};
-      const statusCls={paid:'confirmed',confirmed:'confirmed',pending_payment:'pending',pending:'pending',payment_failed:'cancelled',failed:'cancelled',cancelled:'cancelled'};
-      const st=o.status||'pending';
-      const items=(o.order_items||[]).map((i) => {
-        const product = resolveAccountProduct(i);
-        const productLabel = [product.brand, product.name].filter(Boolean).join(' ');
-        const mediaInner = `${product.image ? `<span class="order-product-thumb"><img src="${product.image}" alt="${product.name || 'Ürün'}"></span>` : `<span class="order-product-thumb">◈</span>`}<span class="order-product-copy"><span class="order-product-brand">${product.brand || 'Cosmoskin'}</span><span class="order-product-title">${product.name || productLabel || 'Ürün'}</span><span class="order-product-qty">Adet: ${Number(i.quantity || 0) || 1}</span></span>`;
-        const media = product.url
-          ? `<a class="order-product-link" href="${product.url}">${mediaInner}</a>`
-          : `<span class="order-product-link">${mediaInner}</span>`;
-        return `<div class="order-product-line order-product-line--rich">${media}<span class="order-product-total">${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(i.line_total||0)}</span></div>`;
-      }).join('');
-      return `<div class="order-item-card"><div class="order-item-head"><span class="order-num">Sipariş #${o.order_number||o.id.slice(-6).toUpperCase()}</span><div style="display:flex;align-items:center;gap:10px;"><span class="order-date-small">${new Date(o.created_at).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</span><span class="order-status ${statusCls[st]||'pending'}">${statusMap[st]||st}</span></div></div><div class="order-item-body"><div class="order-row"><span>Toplam</span><strong>${new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(o.total_amount||0)}</strong></div>${items?`<div class="order-products">${items}</div>`:''}</div></div>`;
-    }
-
-    const emptyHtml=`<div class="order-empty"><div style="font-size:44px;margin-bottom:16px;opacity:.45;">◻</div><h3>Henüz siparişiniz yok</h3><p style="font-size:13px;color:#9a8e82;margin:0 0 20px;">İlk siparişinizi vermek için alışverişe başlayın.</p><a class="btn btn-primary" href="/index.html" style="display:inline-flex;">Alışverişe Başla</a></div>`;
-    document.getElementById('recentOrders').innerHTML = orders.length ? orders.slice(0,3).map(renderOrder).join('') : emptyHtml;
-    document.getElementById('allOrders').innerHTML    = orders.length ? orders.map(renderOrder).join('') : emptyHtml;
-    renderRoutineFromOrders(orders);
-    renderReminderTimeline(orders);
-  } catch(e) {
-    const err='<p style="color:#8a3b2f;font-size:13px;">Siparişler yüklenemedi.</p>';
-    document.getElementById('recentOrders').innerHTML=err;
-    document.getElementById('allOrders').innerHTML=err;
-    document.getElementById('statOrders').textContent='0';
-    document.getElementById('statSpend').textContent='₺0';
-    renderRoutineFromOrders([]);
-    renderReminderTimeline([]);
-  }
-}
-
-function getRoutineState(){
-  const meta = _session?.user?.user_metadata || {};
-  let skinType = meta.skin_type || localStorage.getItem(ROUTINE_SKIN_KEY) || '';
-  let concerns = [];
-  if (Array.isArray(meta.skin_concerns) && meta.skin_concerns.length) concerns = meta.skin_concerns;
-  else {
-    try { concerns = JSON.parse(localStorage.getItem(ROUTINE_CONCERNS_KEY) || '[]'); } catch(e) { concerns = []; }
-  }
-  return { skinType, concerns: Array.isArray(concerns) ? concerns : [] };
-}
-
-function initRoutineProfile(meta = {}){
-  const state = getRoutineState();
-  setRoutineSelections(state.skinType, state.concerns);
-}
-
-function bindRoutineControls(){
-  document.querySelectorAll('#skinTypeGroup .routine-chip').forEach((chip) => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('#skinTypeGroup .routine-chip').forEach((btn) => btn.classList.remove('is-selected'));
-      chip.classList.add('is-selected');
-      updateRoutineStatusCopy('Seçim değişti. Kaydettiğinde rutin akışı buna göre güncellenecek.');
-    });
-  });
-  document.querySelectorAll('#skinConcernGroup .routine-chip').forEach((chip) => {
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('is-selected');
-      updateRoutineStatusCopy('Önceliklerin güncellendi. Kaydettiğinde yeni öneriler oluşturulacak.');
-    });
-  });
-  document.getElementById('saveRoutineProfileBtn')?.addEventListener('click', saveRoutinePreferences);
-}
-
-function setRoutineSelections(skinType = '', concerns = []){
-  document.querySelectorAll('#skinTypeGroup .routine-chip').forEach((chip) => {
-    chip.classList.toggle('is-selected', chip.dataset.value === skinType);
-  });
-  const concernSet = new Set(concerns || []);
-  document.querySelectorAll('#skinConcernGroup .routine-chip').forEach((chip) => {
-    chip.classList.toggle('is-selected', concernSet.has(chip.dataset.value));
-  });
-}
-
-function getSelectedRoutinePreferences(){
-  const skinType = document.querySelector('#skinTypeGroup .routine-chip.is-selected')?.dataset.value || '';
-  const concerns = Array.from(document.querySelectorAll('#skinConcernGroup .routine-chip.is-selected')).map((chip) => chip.dataset.value);
-  return { skinType, concerns };
-}
-
-function updateRoutineStatusCopy(message, type = ''){
-  const note = document.getElementById('routineSaveNote');
-  if(!note) return;
-  note.textContent = message || '';
-  note.classList.remove('is-success','is-error');
-  if(type) note.classList.add(type === 'error' ? 'is-error' : 'is-success');
-}
-
-async function saveRoutinePreferences(){
-  const btn = document.getElementById('saveRoutineProfileBtn');
-  const { skinType, concerns } = getSelectedRoutinePreferences();
-  localStorage.setItem(ROUTINE_SKIN_KEY, skinType);
-  localStorage.setItem(ROUTINE_CONCERNS_KEY, JSON.stringify(concerns));
-  btn.disabled = true;
-  const original = btn.textContent;
-  btn.textContent = 'Kaydediliyor…';
-  try {
-    if(_client && _session?.user){
-      const metadata = _session.user.user_metadata || {};
-      const { error } = await _client.auth.updateUser({ data: { ...metadata, skin_type: skinType, skin_concerns: concerns } });
-      if(error) throw error;
-      const { data:{ user } } = await _client.auth.getUser();
-      if(user) _session = { ..._session, user };
-    }
-    updateRoutineStatusCopy('Rutin tercihlerin kaydedildi. Öneriler güncellendi.', 'success');
-    await loadOrders();
-  } catch(e){
-    updateRoutineStatusCopy(e.message || 'Rutin tercihleri kaydedilemedi.', 'error');
-  }
-  btn.disabled = false;
-  btn.textContent = original;
-}
-
-function slugifyText(value=''){
-  return String(value || '').toLowerCase().replace(/ı/g,'i').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ö/g,'o').replace(/ç/g,'c').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
-}
-
-function getCatalogProductForAccount(item = {}){
-  const helpers = window.COSMOSKIN_PRODUCT_HELPERS || {};
-  const byHandle = typeof helpers.getProductByHandle === 'function' ? helpers.getProductByHandle.bind(helpers) : null;
-  const bySlug = typeof helpers.getProductBySlug === 'function' ? helpers.getProductBySlug.bind(helpers) : null;
-  const candidates = [
-    item.product_slug,
-    item.product_id,
-    item.slug,
-    item.id,
-    item.url,
-    slugifyText(item.product_name || '')
-  ].filter(Boolean);
-
-  for(const candidate of candidates){
-    const product = (byHandle && byHandle(candidate)) || (bySlug && bySlug(candidate));
-    if(product) return product;
-  }
-
-  const fallbackProducts = Array.isArray(window.COSMOSKIN_PRODUCTS) ? window.COSMOSKIN_PRODUCTS : [];
-  const targetName = String(item.product_name || '').trim().toLowerCase();
-  return fallbackProducts.find((product) => (
-    product.slug && candidates.includes(product.slug)
-  ) || (
-    targetName && String(product.name || '').trim().toLowerCase() === targetName
-  )) || null;
-}
-
-function inferCatalogRoutineMeta(product = {}){
-  const combined = `${product.brand || ''} ${product.name || ''}`.toLowerCase();
-  if(product.category === 'Temizleyiciler'){
-    return { ...ROUTINE_CATEGORY_COPY.cleanser, category:'cleanser' };
-  }
-  if(product.category === 'Güneş Koruyucular'){
-    return { ...ROUTINE_CATEGORY_COPY.sunscreen, category:'sunscreen' };
-  }
-  if(product.category === 'Nemlendiriciler'){
-    return { ...ROUTINE_CATEGORY_COPY.moisturizer, category:'moisturizer' };
-  }
-  if(product.category === 'Tonik & Essence'){
-    const category = /essence|mucin|snail/.test(combined) ? 'essence' : 'serum';
-    return { ...ROUTINE_CATEGORY_COPY[category], category };
-  }
-  if(product.category === 'Serum & Ampul'){
-    const category = /vitamin|glow|arbutin|niacinamide|spot|tone|clarifying/.test(combined) ? 'treatment' : 'serum';
-    return { ...ROUTINE_CATEGORY_COPY[category], category };
-  }
-  if(product.category === 'Maskeler'){
-    return { ...ROUTINE_CATEGORY_COPY.treatment, category:'treatment' };
-  }
-  return { ...ROUTINE_CATEGORY_COPY.serum, category:'serum' };
-}
-
-function inferItemMeta(item = {}){
-  const product = getCatalogProductForAccount(item);
-  if(product){
-    const meta = inferCatalogRoutineMeta(product);
-    return { ...meta, display: product.name, key: product.slug, product };
-  }
-  const sourceId = item.product_slug || item.product_id || slugifyText(item.product_name || '');
-  const combined = `${item.brand || ''} ${item.product_name || ''}`.toLowerCase();
-  if(/cleanser|temizleyici|cleanse|dokdo/.test(combined)) return { category:'cleanser', usageTime:['morning','evening'], display:item.product_name, recommendationCopy:'Rutinin ilk adımında kullanılır.' , key: sourceId};
-  if(/sun|spf|gunes|relief/.test(combined)) return { category:'sunscreen', usageTime:['morning'], display:item.product_name, recommendationCopy:'Sabah rutininin son adımını tamamlar.', key: sourceId};
-  if(/cream|moist|nemlendir|soybean/.test(combined)) return { category:'moisturizer', usageTime:['morning','evening'], display:item.product_name, recommendationCopy:'Bakım adımını konforlu şekilde kilitler.', key: sourceId};
-  if(/essence|mucin|snail/.test(combined)) return { category:'essence', usageTime:['morning','evening'], display:item.product_name, recommendationCopy:'Serum öncesi destekleyici katman oluşturur.', key: sourceId};
-  if(/vitamin|glow|treat|serum/.test(combined)) return { category:'treatment', usageTime:['morning','evening'], display:item.product_name, recommendationCopy:'Hedef odaklı bakım katmanı olarak çalışır.', key: sourceId};
-  return { category:'serum', usageTime:['morning','evening'], display:item.product_name || 'Ürün', recommendationCopy:'Rutinde esnek bir ara bakım adımı olarak kullanılabilir.', key: sourceId };
-}
-
-function concernDescription(concerns = []){
-  const map = {
-    dehydration:'nem desteğini güçlendirecek katmanlar',
-    sensitivity:'daha yumuşak geçişli adımlar',
-    tone:'aydınlık görünüm odağı',
-    glow:'ışıltı destekli akış',
-    barrier:'bariyer konforunu koruyan sıra',
-    clarity:'dengeleyici bakım kurgusu'
-  };
-  const labels = concerns.map((item) => map[item]).filter(Boolean);
-  if(!labels.length) return 'Daha dengeli ve anlaşılır bir kullanım sırası oluşturduk.';
-  return `${labels.slice(0,2).join(' ve ')} için düzenlenmiş bir akış hazırlandı.`;
-}
-
-function buildRoutinePlan(orders = []){
-  const flatItems = orders.flatMap((order) => order.order_items || []);
-  const deduped = new Map();
-  flatItems.forEach((item) => {
-    const meta = inferItemMeta(item);
-    const key = meta.key || slugifyText(item.product_name || '');
-    if(!deduped.has(key)) deduped.set(key, { ...item, meta });
-  });
-  const purchased = Array.from(deduped.values());
-  const categoryMap = new Map();
-  purchased.forEach((item) => {
-    const category = item.meta.category;
-    if(!categoryMap.has(category)) categoryMap.set(category, item);
-  });
-  const orderSequence = ['cleanser','essence','serum','treatment','moisturizer','sunscreen'];
-  const morning = [];
-  const evening = [];
-  orderSequence.forEach((category) => {
-    const item = categoryMap.get(category);
-    if(!item) return;
-    const usageTime = item.meta.usageTime || ['morning','evening'];
-    const detail = CATEGORY_META[category] || CATEGORY_META.serum;
-    if(usageTime.includes('morning')) morning.push({ title: detail.title, product: item.meta.display || item.product_name, copy: detail.description });
-    if(usageTime.includes('evening') && category !== 'sunscreen') evening.push({ title: detail.title, product: item.meta.display || item.product_name, copy: detail.description });
-  });
-  const recommendations = [];
-  const concerns = getRoutineState().concerns;
-  if(!categoryMap.has('cleanser')) recommendations.push({ title:'Nazik temizleyici ekle', copy:'Rutinin açılış adımını temiz bir bazla başlatmak için bir temizleyici eklemek mantıklı olur.' });
-  if((categoryMap.has('serum') || categoryMap.has('treatment') || categoryMap.has('essence')) && !categoryMap.has('moisturizer')) recommendations.push({ title:'Nemlendirici ile kilitle', copy:'Serum sonrası nemi tutmak ve konforu dengelemek için bir krem adımı ekle.' });
-  if((categoryMap.has('serum') || categoryMap.has('treatment') || categoryMap.has('moisturizer') || categoryMap.has('essence')) && !categoryMap.has('sunscreen')) recommendations.push({ title:'Sabah SPF ile tamamla', copy:'Gündüz rutininde koruma adımı eksik. SPF içeren bir ürün son adım olarak eklenmeli.' });
-  if(concerns.includes('barrier') && !categoryMap.has('moisturizer')) recommendations.push({ title:'Bariyer desteği odaklı krem', copy:'Bariyer odağı seçildiği için akşam tarafında daha besleyici bir krem iyi eşleşir.' });
-  if(concerns.includes('dehydration') && !categoryMap.has('essence')) recommendations.push({ title:'Ek nem katmanı düşün', copy:'Nemsizlik önceliği için temizleme sonrası hafif bir essence veya ampul iyi bir ara basamak olur.' });
-  if(concerns.includes('tone') && !categoryMap.has('treatment')) recommendations.push({ title:'Ton eşitleyici bakım ekle', copy:'Leke görünümü odağı için hedefe yönelik bir bakım serumu rutini güçlendirebilir.' });
-  return { purchased, morning, evening, recommendations: recommendations.slice(0,3) };
-}
-
-function renderRoutineFromOrders(orders = []){
-  const { skinType, concerns } = getRoutineState();
-  const plan = buildRoutinePlan(orders);
-  renderRoutinePurchased(plan.purchased);
-  renderRoutineStage('routineMorningList', plan.morning, 'Sabah için seçilen ürünlerle sade bir başlangıç kuruldu.');
-  renderRoutineStage('routineEveningList', plan.evening, 'Akşam tarafında bakım katmanları daha onarıcı bir sırada gösterildi.');
-  renderRoutineRecommendations(plan.recommendations, plan.purchased.length === 0);
-  const pill = document.getElementById('routineStatusPill');
-  if(pill){
-    const labels = [];
-    if(skinType) labels.push(getSkinTypeLabel(skinType));
-    if(concerns.length) labels.push(`${concerns.length} öncelik`);
-    pill.textContent = labels.length ? labels.join(' · ') : 'Kişisel Akış';
-  }
-  if(!plan.purchased.length){
-    updateRoutineStatusCopy('İlk siparişinden sonra otomatik rutin adımları burada daha zengin hale gelecek.');
-  } else {
-    updateRoutineStatusCopy(concernDescription(concerns));
-  }
-}
-
-function renderRoutinePurchased(items = []){
-  const target = document.getElementById('routineBoughtList');
-  if(!target) return;
-  if(!items.length){
-    target.innerHTML = '<li class="routine-empty">Henüz siparişe bağlı bir ürün görünmüyor. İlk alışverişinden sonra ürünlerin burada otomatik sıralanacak.</li>';
-    return;
-  }
-  target.innerHTML = items.map((item) => `<li class="routine-bought-item"><span><strong>${item.meta.display || item.product_name}</strong><br><span style="font-size:11px;color:#8e8174;">${(CATEGORY_META[item.meta.category]||CATEGORY_META.serum).title}</span></span><span>${item.quantity ? `×${item.quantity}` : ''}</span></li>`).join('');
-}
-
-function renderRoutineStage(targetId, steps = [], emptyCopy = ''){
-  const target = document.getElementById(targetId);
-  if(!target) return;
-  if(!steps.length){
-    target.innerHTML = `<li class="routine-empty">${emptyCopy}</li>`;
-    return;
-  }
-  target.innerHTML = steps.map((step, index) => `<li class="routine-step"><span class="routine-step-num">${index + 1}</span><div><p class="routine-step-title">${step.title} · <strong>${step.product}</strong></p><p class="routine-step-copy">${step.copy}</p></div></li>`).join('');
-}
-
-function renderRoutineRecommendations(recommendations = [], isEmpty = false){
-  const target = document.getElementById('routineRecommendations');
-  if(!target) return;
-  if(isEmpty){
-    target.innerHTML = '<li class="routine-empty">Sipariş geçmişi oluştukça burada tamamlama önerileri ve birlikte kullanılması mantıklı adımlar görünecek.</li>';
-    return;
-  }
-  if(!recommendations.length){
-    target.innerHTML = '<li class="routine-empty">Şu anki siparişlerin temel bir rutin kuruyor. Sonraki aşamada bunu ürün öneri kartlarına da bağlayabiliriz.</li>';
-    return;
-  }
-  target.innerHTML = recommendations.map((item) => `<li class="routine-reco-item"><div class="routine-reco-copy"><strong>${item.title}</strong><span>${item.copy}</span></div></li>`).join('');
-}
-
-function getSkinTypeLabel(value){
-  const map = { dry:'Kuru', oily:'Yağlı', combination:'Karma', sensitive:'Hassas', normal:'Normal' };
-  return map[value] || 'Cilt Tipi';
-}
-
-async function saveProfile() {
-  const btn=document.getElementById('saveProfileBtn'), status=document.getElementById('profileStatus');
-  const fn=document.getElementById('profFirstName').value.trim();
-  const ln=document.getElementById('profLastName').value.trim();
-  if(!fn){status.textContent='Ad alanı boş bırakılamaz.';status.style.color='#c0392b';return;}
-  btn.disabled=true; btn.textContent='Kaydediliyor…';
-  try {
-    const {error}=await _client.auth.updateUser({data:{first_name:fn,last_name:ln,phone:document.getElementById('profPhone').value.trim(),birthdate:document.getElementById('profBirthdate').value,gender:document.getElementById('profGender').value}});
-    if(error) throw error;
-    status.textContent='Profiliniz güncellendi.'; status.style.color='#1f7a4f';
-    document.getElementById('accName').textContent=[fn,ln].filter(Boolean).join(' ');
-    document.getElementById('accAvatar').textContent=[fn[0],ln[0]].filter(Boolean).join('').toUpperCase();
-  } catch(e){status.textContent=e.message||'Hata oluştu.';status.style.color='#c0392b';}
-  btn.disabled=false; btn.textContent='Değişiklikleri Kaydet';
-}
-
-function getReminderPrefs(){
-  const meta = _session?.user?.user_metadata || {};
-  return {
-    routineEmails: meta.routine_reminders?.routineEmails !== false,
-    restockEmails: !!meta.routine_reminders?.restockEmails,
-    lowStockAlerts: !!meta.routine_reminders?.lowStockAlerts,
-    cadenceDays: Number(meta.routine_reminders?.cadenceDays || 14),
-    depletionLeadDays: Number(meta.routine_reminders?.depletionLeadDays || 5)
-  };
-}
-
-function initReminderPreferences(meta = {}){
-  const prefs = {
-    routineEmails: meta.routine_reminders?.routineEmails !== false,
-    restockEmails: !!meta.routine_reminders?.restockEmails,
-    lowStockAlerts: !!meta.routine_reminders?.lowStockAlerts,
-    cadenceDays: Number(meta.routine_reminders?.cadenceDays || 14),
-    depletionLeadDays: Number(meta.routine_reminders?.depletionLeadDays || 5)
-  };
-  const map = {
-    prefRoutineReminders: prefs.routineEmails,
-    prefRestockReminders: prefs.restockEmails,
-    prefLowStockAlerts: prefs.lowStockAlerts
-  };
-  Object.entries(map).forEach(([id,val]) => {
-    const el = document.getElementById(id);
-    if (el) el.checked = !!val;
-  });
-  const cadence = document.getElementById('reminderCadenceSelect');
-  const depletion = document.getElementById('depletionWindowSelect');
-  if (cadence) cadence.value = String(prefs.cadenceDays);
-  if (depletion) depletion.value = String(prefs.depletionLeadDays);
-}
-
-function setReminderStatus(message, type=''){
-  const note = document.getElementById('reminderStatusNote');
-  if(!note) return;
-  note.textContent = message || '';
-  note.classList.remove('is-success','is-error');
-  if(type) note.classList.add(type === 'error' ? 'is-error' : 'is-success');
-}
-
-function renderBrevoPreview(segments = [], listIds = []){
-  const list = document.getElementById('brevoSegmentList');
-  const syncState = document.getElementById('brevoSyncState');
-  const listState = document.getElementById('brevoListState');
-  if(list){
-    if(!segments.length) list.innerHTML = '<li class="segment-pill">Henüz senkron yok</li>';
-    else list.innerHTML = segments.map((segment) => `<li class="segment-pill">${segment.replaceAll('_',' ')}</li>`).join('');
-  }
-  if(syncState) syncState.textContent = segments.length ? 'Son senkron hazır' : 'Hazır';
-  if(listState) listState.textContent = listIds.length ? `${listIds.length} liste` : 'Liste env bekleniyor';
-}
-
-async function syncBrevoProfile(){
-  const btn = document.getElementById('syncBrevoBtn');
-  const original = btn?.textContent || '';
-  try {
-    if(!_session?.access_token) throw new Error('Oturum bulunamadı.');
-    if(btn){ btn.disabled = true; btn.textContent = 'Senkronize ediliyor…'; }
-    const cfg = window.COSMOSKIN_CONFIG || {};
-    const response = await fetch(`${cfg.apiBase || '/api'}/brevo-sync`, {
-      method:'POST',
-      headers:{ 'content-type':'application/json', Authorization:`Bearer ${_session.access_token}` },
-      body: JSON.stringify({ accessToken:_session.access_token })
-    });
-    const data = await response.json().catch(() => ({}));
-    if(!response.ok || !data.ok) throw new Error(data.error || 'Brevo senkronizasyonu tamamlanamadı.');
-    renderBrevoPreview(data.segments || [], data.listIds || []);
-    setReminderStatus('Brevo segmentleri güncellendi.', 'success');
-  } catch (e) {
-    setReminderStatus(e.message || 'Brevo senkronizasyonu tamamlanamadı.', 'error');
-  } finally {
-    if(btn){ btn.disabled = false; btn.textContent = original; }
-  }
-}
-
-async function persistUserMetadata(patch = {}){
-  if(!_client || !_session?.user) return;
-  const metadata = _session.user.user_metadata || {};
-  const next = { ...metadata, ...patch };
-  const { error } = await _client.auth.updateUser({ data: next });
-  if(error) throw error;
-  const { data:{ user } } = await _client.auth.getUser();
-  if(user) _session = { ..._session, user };
-}
-
-async function savePref(key, value) {
-  try {
-    const meta=_session.user.user_metadata||{};
-    const prefs={...(meta.comm_prefs||{})};
-    prefs[key]=value;
-    await persistUserMetadata({ comm_prefs:prefs });
-  } catch(e){console.error(e);}
-}
-
-async function saveReminderPref(key, value){
-  try {
-    const meta = _session.user.user_metadata || {};
-    const prefs = { ...(meta.routine_reminders || {}) };
-    prefs[key] = value;
-    await persistUserMetadata({ routine_reminders: prefs });
-    setReminderStatus('Hatırlatma tercihlerin güncellendi.', 'success');
-    renderReminderTimeline(_latestOrders);
-  } catch (e) {
-    console.error(e);
-    setReminderStatus(e.message || 'Hatırlatma tercihleri kaydedilemedi.', 'error');
-  }
-}
-
-function addDaysLabel(date, days){
-  const dt = new Date(date);
-  dt.setDate(dt.getDate() + Number(days || 0));
-  return dt.toLocaleDateString('tr-TR', { day:'numeric', month:'long' });
-}
-
-function estimateReminderItems(orders = []){
-  const prefs = getReminderPrefs();
-  if(!orders.length) return [];
-  const latest = [...orders].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0];
-  const items = (latest.order_items || []).map((item) => ({...item, meta: inferItemMeta(item)}));
-  const categoryDays = { cleanser:30, essence:35, serum:30, treatment:28, moisturizer:40, sunscreen:25 };
-  const reminders = [];
-  if (prefs.routineEmails) {
-    reminders.push({
-      title:'Rutin kontrolü',
-      copy:'Sabah ve akşam akışını tazelemek için bir hatırlatma planlandı.',
-      date:addDaysLabel(latest.created_at, prefs.cadenceDays)
-    });
-  }
-  if ((prefs.restockEmails || prefs.lowStockAlerts) && items.length) {
-    const earliest = items.map((item) => {
-      const baseDays = categoryDays[item.meta.category] || 30;
-      const qty = Math.max(1, Number(item.quantity || 1));
-      return {
-        item,
-        days: Math.max(7, baseDays * qty - Number(prefs.depletionLeadDays || 5))
-      };
-    }).sort((a,b) => a.days - b.days)[0];
-    if (earliest) {
-      reminders.push({
-        title:'Yeniden sipariş önerisi',
-        copy:`${earliest.item.product_name || earliest.item.meta.display} için kullanım süresine göre yaklaşan bir yenileme penceresi hesaplandı.`,
-        date:addDaysLabel(latest.created_at, earliest.days)
-      });
-    }
-  }
-  if (!reminders.length) {
-    reminders.push({
-      title:'Hatırlatmalar kapalı',
-      copy:'Rutin ve yeniden sipariş e-postalarını aktif ettiğinde burada öngörülen tarihler görünür.',
-      date:'—'
-    });
-  }
-  return reminders.slice(0, 3);
-}
-
-function renderReminderTimeline(orders = []){
-  const target = document.getElementById('reminderTimelineList');
-  if(!target) return;
-  const timeline = estimateReminderItems(orders);
-  if(!timeline.length){
-    target.innerHTML = '<li class="routine-empty">Sipariş geçmişi oluştukça burada yaklaşan hatırlatma tarihleri yer alacak.</li>';
-    return;
-  }
-  target.innerHTML = timeline.map((item) => `<li class="reminder-status-item"><div><strong>${item.title}</strong><span>${item.copy}</span></div><span class="reminder-date">${item.date}</span></li>`).join('');
-}
-
-async function sendReminderTest(type = 'routine'){
-  const btnId = type === 'restock' ? 'sendRestockTestBtn' : 'sendRoutineTestBtn';
-  const btn = document.getElementById(btnId);
-  const original = btn?.textContent || '';
-  const user = _session?.user;
-  if(!user?.email){
-    setReminderStatus('Test e-postası için oturum bilgisi bulunamadı.', 'error');
-    return;
-  }
-  const prefs = getReminderPrefs();
-  const highlights = type === 'restock'
-    ? estimateReminderItems(_latestOrders).filter((item) => /sipariş/i.test(item.title)).map((item) => `${item.title}: ${item.copy}`)
-    : ['Sabah temizleme adımını gözden geçir.', 'Akşam bakım sırasını yenile.', 'Eksik SPF veya nemlendirici varsa rutini tamamla.'];
-  try {
-    if(btn){ btn.disabled = true; btn.textContent = 'Gönderiliyor…'; }
-    const cfg = window.COSMOSKIN_CONFIG || {};
-    const response = await fetch(`${cfg.apiBase||'/api'}/routine-reminders`, {
-      method:'POST',
-      headers:{ 'content-type':'application/json' },
-      body: JSON.stringify({
-        action:'test',
-        type,
-        email:user.email,
-        name:[user.user_metadata?.first_name, user.user_metadata?.last_name].filter(Boolean).join(' '),
-        cadenceDays:prefs.cadenceDays,
-        nextDate: estimateReminderItems(_latestOrders)[0]?.date || '',
-        highlights
-      })
-    });
-    const data = await response.json().catch(() => ({}));
-    if(!response.ok || !data.ok) throw new Error(data.error || 'Test e-postası gönderilemedi.');
-    setReminderStatus(type === 'restock' ? 'Yeniden sipariş test e-postası gönderildi.' : 'Rutin test e-postası gönderildi.', 'success');
-  } catch (e) {
-    setReminderStatus(e.message || 'Test e-postası gönderilemedi.', 'error');
-  } finally {
-    if(btn){ btn.disabled = false; btn.textContent = original; }
-  }
-}
-
-function escapeAccountHtml(value) {
-  return String(value == null ? '' : value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function splitAddressName(addr = {}) {
-  const first = (addr.first_name || addr.firstName || '').trim();
-  const last = (addr.last_name || addr.lastName || '').trim();
-  if (first || last) return { firstName: first, lastName: last };
-  const parts = String(addr.name || addr.full_name || addr.fullName || '').trim().split(/\s+/).filter(Boolean);
-  return { firstName: parts.shift() || '', lastName: parts.join(' ') };
-}
-
-function normalizeAccountAddress(addr = {}, index = 0) {
-  const nameParts = splitAddressName(addr);
-  const title = String(addr.title || addr.label || 'Adresim').trim();
-  const line = String(addr.line || addr.address_line || addr.addressLine || addr.address || '').trim();
-  const postal = String(addr.postal || addr.postal_code || addr.postalCode || '').trim();
-  const city = String(addr.city || '').trim();
-  const district = String(addr.district || '').trim();
-  const phone = String(addr.phone || addr.phone_number || addr.phoneNumber || '').trim();
-  return {
-    ...addr,
-    id: addr.id || `addr-${Date.now()}-${index}`,
-    title,
-    first_name: nameParts.firstName,
-    last_name: nameParts.lastName,
-    firstName: nameParts.firstName,
-    lastName: nameParts.lastName,
-    name: [nameParts.firstName, nameParts.lastName].filter(Boolean).join(' ').trim(),
-    full_name: [nameParts.firstName, nameParts.lastName].filter(Boolean).join(' ').trim(),
-    line,
-    address_line: line,
-    city,
-    district,
-    postal,
-    postal_code: postal,
-    phone,
-    isDefault: Boolean(addr.isDefault || addr.is_default || addr.default),
-    is_default: Boolean(addr.isDefault || addr.is_default || addr.default)
-  };
-}
-
-function normalizeAllAccountAddresses() {
-  _addresses = Array.isArray(_addresses) ? _addresses.map(normalizeAccountAddress) : [];
-  if (_addresses.length && !_addresses.some(a => a.isDefault)) {
-    _addresses[0].isDefault = true;
-    _addresses[0].is_default = true;
-  }
-}
-
-async function persistAddresses() {
-  normalizeAllAccountAddresses();
-  const { error } = await _client.auth.updateUser({ data: { addresses: _addresses } });
-  if (error) throw error;
-  if (_session?.user) _session.user.user_metadata = { ...(_session.user.user_metadata || {}), addresses: _addresses };
-}
-
-function renderAddresses() {
-  normalizeAllAccountAddresses();
-  const grid = document.getElementById('addressGrid');
-  if (!grid) return;
-  const cards = _addresses.map((addr, i) => {
-    const fullName = [addr.first_name, addr.last_name].filter(Boolean).join(' ').trim() || addr.name || 'Teslimat alıcısı';
-    const location = [addr.district, addr.city].filter(Boolean).join(' / ');
-    const postal = addr.postal ? ` ${addr.postal}` : '';
-    return `<div class="addr-card ${addr.isDefault ? 'default' : ''}" data-address-index="${i}">
-      ${addr.isDefault ? '<div class="addr-default-badge">✓ Varsayılan</div>' : ''}
-      <p class="addr-name">${escapeAccountHtml(addr.title || 'Adresim')}</p>
-      <p class="addr-detail">${escapeAccountHtml(fullName)}<br>${escapeAccountHtml(addr.line || '')}<br>${escapeAccountHtml(location + postal)}</p>
-      ${addr.phone ? `<p class="addr-detail" style="margin-top:4px;">${escapeAccountHtml(addr.phone)}</p>` : ''}
-      <div class="addr-actions">
-        <button class="addr-btn" type="button" data-address-action="edit" data-index="${i}">Düzenle</button>
-        ${!addr.isDefault ? `<button class="addr-btn" type="button" data-address-action="default" data-index="${i}">Varsayılan Yap</button>` : ''}
-        <button class="addr-btn danger" type="button" data-address-action="delete" data-index="${i}">Sil</button>
-      </div>
-    </div>`;
-  }).join('');
-  grid.innerHTML = cards + `<div class="addr-add" role="button" tabindex="0" data-address-action="add"><div class="addr-add-icon">+</div><p>Yeni adres ekleyin</p></div>`;
-}
-
-function openAddressModal(editIndex = null) {
-  const modal = document.getElementById('addressModal');
-  if (!modal) return;
-  const isEdit = editIndex !== null && editIndex !== '' && !Number.isNaN(Number(editIndex));
-  document.getElementById('addrModalTitle').textContent = isEdit ? 'Adresi Düzenle' : 'Yeni Adres Ekle';
-  modal.dataset.editIndex = isEdit ? String(editIndex) : '';
-  if (isEdit) {
-    const a = normalizeAccountAddress(_addresses[Number(editIndex)] || {});
-    document.getElementById('addrFirstName').value = a.first_name || '';
-    document.getElementById('addrLastName').value = a.last_name || '';
-    document.getElementById('addrPhone').value = a.phone || '';
-    document.getElementById('addrTitle').value = a.title || '';
-    document.getElementById('addrLine').value = a.line || '';
-    document.getElementById('addrCity').value = a.city || '';
-    document.getElementById('addrDistrict').value = a.district || '';
-    document.getElementById('addrPostal').value = a.postal || '';
-    document.getElementById('addrDefault').checked = !!a.isDefault;
-  } else {
-    ['addrFirstName','addrLastName','addrPhone','addrTitle','addrLine','addrCity','addrDistrict','addrPostal'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
-    document.getElementById('addrDefault').checked = !_addresses.length;
-  }
-  const status = document.getElementById('addrStatus');
-  if (status) { status.textContent = ''; status.style.color = ''; }
-  modal.classList.add('open');
-}
-
-function closeAddressModal(){
-  const modal = document.getElementById('addressModal');
-  if (modal) modal.classList.remove('open');
-}
-
-async function saveAddress() {
-  const status = document.getElementById('addrStatus');
-  const firstName = document.getElementById('addrFirstName').value.trim();
-  const lastName = document.getElementById('addrLastName').value.trim();
-  const line = document.getElementById('addrLine').value.trim();
-  const city = document.getElementById('addrCity').value.trim();
-  const district = document.getElementById('addrDistrict').value.trim();
-  const postal = document.getElementById('addrPostal').value.trim();
-  const phone = document.getElementById('addrPhone').value.trim();
-  const title = document.getElementById('addrTitle').value.trim() || 'Adresim';
-  if (!firstName || !lastName || !line || !city) {
-    status.textContent = 'Ad, soyad, açık adres ve il zorunludur.';
-    status.style.color = '#c0392b';
-    return;
-  }
-  const editIndex = document.getElementById('addressModal').dataset.editIndex;
-  const wantsDefault = document.getElementById('addrDefault').checked || !_addresses.length;
-  const newAddr = normalizeAccountAddress({
-    id: editIndex !== '' && _addresses[Number(editIndex)]?.id ? _addresses[Number(editIndex)].id : `addr-${Date.now()}`,
-    title,
-    first_name: firstName,
-    last_name: lastName,
-    name: [firstName, lastName].join(' '),
-    full_name: [firstName, lastName].join(' '),
-    line,
-    address_line: line,
-    city,
-    district,
-    postal,
-    postal_code: postal,
-    phone,
-    isDefault: wantsDefault,
-    is_default: wantsDefault
-  });
-  if (wantsDefault) _addresses.forEach(a => { a.isDefault = false; a.is_default = false; });
-  if (editIndex !== '') _addresses[Number(editIndex)] = newAddr;
-  else _addresses.push(newAddr);
-  try {
-    status.textContent = 'Adres kaydediliyor…';
-    status.style.color = '#8a6e47';
-    await persistAddresses();
-    renderAddresses();
-    closeAddressModal();
-  } catch (e) {
-    status.textContent = e.message || 'Adres kaydedilemedi.';
-    status.style.color = '#c0392b';
-  }
-}
-
-async function deleteAddress(i) {
-  const index = Number(i);
-  if (Number.isNaN(index) || !_addresses[index]) return;
-  if (!confirm('Bu adresi silmek istediğinizden emin misiniz?')) return;
-  _addresses.splice(index, 1);
-  if (_addresses.length && !_addresses.some(a => a.isDefault)) {
-    _addresses[0].isDefault = true;
-    _addresses[0].is_default = true;
-  }
-  try {
-    await persistAddresses();
-    renderAddresses();
-  } catch (e) {
-    alert(e.message || 'Adres silinemedi.');
-  }
-}
-
-async function setDefaultAddress(i) {
-  const index = Number(i);
-  if (Number.isNaN(index) || !_addresses[index]) return;
-  _addresses.forEach((a, idx) => { a.isDefault = idx === index; a.is_default = idx === index; });
-  try {
-    await persistAddresses();
-    renderAddresses();
-  } catch (e) {
-    alert(e.message || 'Varsayılan adres değiştirilemedi.');
-  }
-}
-
-function editAddress(i){ openAddressModal(Number(i)); }
-
-if (!window.__cosmoskinAddressActionsBound) {
-  window.__cosmoskinAddressActionsBound = true;
-  document.addEventListener('click', function(event) {
-    const trigger = event.target.closest('[data-address-action]');
-    if (!trigger) return;
-    const action = trigger.dataset.addressAction;
-    const index = trigger.dataset.index;
-    if (action === 'add') openAddressModal();
-    if (action === 'edit') editAddress(index);
-    if (action === 'default') setDefaultAddress(index);
-    if (action === 'delete') deleteAddress(index);
-  });
-  document.addEventListener('keydown', function(event) {
-    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-address-action="add"]')) {
-      event.preventDefault();
-      openAddressModal();
-    }
-  });
-}
-
-function renderFavorites(){
-  const favs = getFavoriteItems();
-  const target = document.getElementById('favoritesContainer');
-  const badge = document.getElementById('favoriteBadge');
-  if (badge) badge.textContent = favs.length;
-  if (!favs.length) {
-    target.innerHTML = `<div class="fav-empty"><div style="font-size:44px;margin-bottom:16px;opacity:.45;">♡</div><h3>Favori ürününüz yok</h3><p style="font-size:13px;color:#9a8e82;margin:0 0 20px;">Beğendiğiniz ürünleri favorilere ekleyerek buradan takip edebilirsiniz.</p><a class="btn btn-primary" href="/index.html" style="display:inline-flex;">Ürünleri Keşfet</a></div>`;
-    return;
-  }
-  target.innerHTML = `<div class="fav-grid">${favs.map((f, i) => `
-    <div class="fav-card">
-      <div class="fav-img">${f.url ? `<a href="${f.url}">${f.image ? `<img src="${f.image}" alt="${f.name || 'Ürün'}" style="width:100%;height:100%;object-fit:cover;">` : '◈'}</a>` : (f.image ? `<img src="${f.image}" alt="${f.name || 'Ürün'}" style="width:100%;height:100%;object-fit:cover;">` : '◈')}</div>
-      <div class="fav-body">
-        <span class="fav-brand">${f.brand || 'Cosmoskin'}</span>
-        <h3 class="fav-name">${f.url ? `<a href="${f.url}">${f.name || 'Ürün'}</a>` : (f.name || 'Ürün')}</h3>
-        ${f.price ? `<span class="fav-price">${new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(f.price)}</span>` : ''}
-        <div class="fav-actions">
-          <button class="btn btn-primary" onclick="moveFavoriteToCart(${i})" style="font-size:10px;padding:8px 16px;">SEPETE EKLE</button>
-          ${f.url ? `<a href="${f.url}" class="btn btn-secondary" style="font-size:10px;padding:8px 16px;">İncele</a>` : ''}
-          <button class="fav-remove" onclick="removeFavorite('${f.id}')">Favorilerden Çıkar</button>
-        </div>
-      </div>
-    </div>`).join('')}</div>`;
-}
-
-async function removeFavorite(productId){
-  const favs = getFavoriteItems().filter((item) => item.id !== productId);
-  setFavoriteItems(favs);
-  try {
-    await syncFavoriteItemsToAccount(favs);
-  } catch (e) {
-    console.error('Favori kaldırma hatası:', e);
-  }
-  renderFavorites();
-}
-
-function moveFavoriteToCart(i){
-  const favs = getFavoriteItems();
-  const item = normalizeFavoriteItem(favs[i]);
-  if (!item) return;
-  const cart = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
-  const found = cart.find((entry) => entry.id === item.id);
-  if (found) found.qty += 1;
-  else cart.push({ id: item.id, slug: item.slug, name: item.name, brand: item.brand, price: Number(item.price || 0), image: item.image, url: item.url, qty: 1 });
-  localStorage.setItem('cosmoskin_cart', JSON.stringify(cart));
-  // Notify the rest of the app (cart drawer, header count, etc.) so they
-  // re-read from localStorage. Without this dispatch, the cart count badge
-  // stays stale until the next page navigation.
-  window.dispatchEvent(new CustomEvent('cosmoskin:cart-updated', {
-    detail: { source: 'favorites-add-to-cart', cart }
-  }));
-  showToast('Ürün sepetinize eklendi.');
-}
-
-function switchTab(name,el){
-  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.acc-nav-item').forEach(b=>b.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  if(el)el.classList.add('active');
-}
-
-document.getElementById('addressModal').addEventListener('click',function(e){if(e.target===this)closeAddressModal();});
-</script>
-<div class="modal" id="deleteAccountModal"><div class="modal-card"><div class="modal-head"><div><h2>Hesabı sil</h2><div class="account-mini">Bu işlem kalıcıdır. Onaylamak için aşağıya <strong>HESABIMI SIL</strong> yazın.</div></div><button class="icon-close" type="button" onclick="closeDeleteAccountModal()">×</button></div><div class="field full"><label>Onay metni</label><input id="deleteAccountConfirmInput" type="text" placeholder="HESABIMI SIL"></div><div class="form-status" id="deleteAccountStatus"></div><div class="modal-actions"><button class="btn btn-secondary" type="button" onclick="closeDeleteAccountModal()">Vazgeç</button><button class="btn btn-primary" id="confirmDeleteAccountBtn" type="button" style="background:#8a4f43;border-color:#8a4f43;">Hesabımı Sil</button></div></div></div><script>
-function openDeleteAccountModal(){document.getElementById('deleteAccountModal').classList.add('open');}
-function closeDeleteAccountModal(){document.getElementById('deleteAccountModal').classList.remove('open');document.getElementById('deleteAccountStatus').textContent='';}
-document.getElementById('openDeleteAccountModal')?.addEventListener('click',openDeleteAccountModal);
-document.getElementById('confirmDeleteAccountBtn')?.addEventListener('click',function(){const value=(document.getElementById('deleteAccountConfirmInput')?.value||'').trim().toUpperCase();const status=document.getElementById('deleteAccountStatus');if(value!=='HESABIMI SIL'){status.textContent='Devam etmek için HESABIMI SIL yazın.';status.style.color='#8a3b2f';return;}window.location.href='mailto:destek@cosmoskin.com.tr?subject=Hesab%C4%B1m%C4%B1%20Sil&body=Hesab%C4%B1m%C4%B1n%20kal%C4%B1c%C4%B1%20olarak%20silinmesini%20istiyorum.';});
-</script><script src="/assets/mobile.js?v=20260425f"></script>
-</body>
+<script src="/assets/account-dashboard.js?v=20260502p3"></script>
+<script src="/assets/mobile.js?v=20260425f"></script>
+<script defer="" src="/assets/phase6-commerce.js?v=20260502final"></script></body>
 </html>
