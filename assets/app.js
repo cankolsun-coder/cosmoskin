@@ -335,6 +335,19 @@
     document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: event.detail || {} }));
   });
 
+
+  document.querySelectorAll('[data-favorites-link]').forEach((link) => {
+    if (link.dataset.favoritesGuardBound) return;
+    link.dataset.favoritesGuardBound = 'true';
+    link.addEventListener('click', async (event) => {
+      event.preventDefault();
+      const allowed = await ensureFavoriteAuth('Favorilerinizi görüntülemek için önce giriş yapmalısınız.');
+      if (allowed) {
+        window.location.href = link.getAttribute('href') || '/account/profile.html#favorites';
+      }
+    });
+  });
+
   $('#mobileToggle')?.addEventListener('click', () => {
     const isOpen = mobileNav?.classList.toggle('open');
     backdrop?.classList.toggle('show', !!isOpen);
@@ -483,7 +496,7 @@
     }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 6);
   }
 
-  function renderSearchResults(container, results) {
+  function renderSearchResults(container, results, query = '') {
     if (!container) return;
     if (!results.length) {
       container.innerHTML = '<div class="site-search-empty"><strong>Sonuç bulunamadı.</strong><span>Farklı bir ürün, kategori, içerik veya marka deneyin.</span><a class="site-search-empty__link" href="/collections/routine.html">Rutinleri incele</a></div>';
@@ -499,7 +512,7 @@
           <span class="site-search-result__meta">${item.meta || ''}</span>
         </div>
         <span class="site-search-result__arrow" aria-hidden="true">→</span>
-      </a>`).join('') + '<a class="site-search-results__all" href="/collections/routine.html">Tüm rutinleri görüntüle</a>';
+      </a>`).join('') + '<a class="site-search-results__all" href="/search.html?q=' + encodeURIComponent(query || '') + '">Tüm ürünleri gör</a>';
     container.hidden = false;
   }
 
@@ -518,7 +531,7 @@
           resultsBox.innerHTML = '';
           return;
         }
-        renderSearchResults(resultsBox, findSearchMatches(input.value));
+        renderSearchResults(resultsBox, findSearchMatches(input.value), input.value);
       };
 
       input.addEventListener('input', sync);
@@ -570,6 +583,7 @@
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
     renderCart();
     renderCheckout();
+    window.dispatchEvent(new CustomEvent('cosmoskin:cart-updated', { detail: { cart: state.cart.slice() } }));
   }
 
   function normalizeFavoriteItem(item) {
@@ -734,10 +748,30 @@ function broadcastFavoritesChange() {
     return state.favorites.some((item) => item.id === id);
   }
 
-  function toggleFavorite(item) {
+
+  async function ensureFavoriteAuth(message = 'Favoriye ürün eklemek için önce giriş yapmalısınız.') {
+    const client = window.cosmoskinSupabase;
+    if (!client?.auth?.getUser) return true;
+    try {
+      const { data: { user } } = await client.auth.getUser();
+      if (user) return true;
+    } catch (error) {
+      console.warn('favorite auth check failed:', error);
+    }
+    showFavoriteToast(message);
+    document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
+    return false;
+  }
+
+  async function toggleFavorite(item) {
     const normalized = normalizeFavoriteItem(item);
     if (!normalized?.id) return;
-    if (isFavorite(normalized.id)) {
+    const alreadyFavorite = isFavorite(normalized.id);
+    if (!alreadyFavorite) {
+      const allowed = await ensureFavoriteAuth();
+      if (!allowed) return;
+    }
+    if (alreadyFavorite) {
       state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
       showFavoriteToast('Favorilerden çıkarıldı');
     } else {
@@ -775,10 +809,10 @@ function broadcastFavoritesChange() {
       button.setAttribute('title', 'Favorilere ekle');
       setFavoriteButtonData(button, product);
       button.innerHTML = favoriteHeartIcon(false);
-      button.addEventListener('click', (event) => {
+      button.addEventListener('click', async (event) => {
         event.preventDefault();
         event.stopPropagation();
-        toggleFavorite(getProductDataFromButton(cartBtn));
+        await toggleFavorite(getProductDataFromButton(cartBtn));
       });
       (mediaWrap || card).appendChild(button);
     });
@@ -788,7 +822,7 @@ function broadcastFavoritesChange() {
     root.querySelectorAll('.favorite-btn').forEach((button) => {
       if (!button.dataset.favoriteBound) {
         button.dataset.favoriteBound = 'true';
-        button.addEventListener('click', (event) => {
+        button.addEventListener('click', async (event) => {
           event.preventDefault();
           event.stopPropagation();
           const explicit = button.dataset.favoriteId ? {
@@ -800,7 +834,7 @@ function broadcastFavoritesChange() {
             url: button.dataset.url || button.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname
           } : null;
           const cardCartBtn = button.closest('.product-card')?.querySelector('[data-add-cart]');
-          toggleFavorite(explicit?.id ? explicit : getProductDataFromButton(cardCartBtn));
+          await toggleFavorite(explicit?.id ? explicit : getProductDataFromButton(cardCartBtn));
         });
       }
       const active = isFavorite(button.dataset.favoriteId);

@@ -8,7 +8,7 @@
   const LABELS={1:'Hayal kırıklığı',2:'Beklentinin altında',3:'İdare eder',4:'Oldukça memnunum',5:'Mükemmel, kesinlikle öneririm'};
   const $=(s,p=document)=>p.querySelector(s);
   const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
-  let section, slug='', sb=null, session=null, reviews=[], filtered=[], userReview=null, canReview=false, page=0, rating=0, files=[], lightboxImages=[], lightboxIndex=0, helped=new Set();
+  let section, slug='', sb=null, session=null, reviews=[], filtered=[], userReview=null, canReview=false, dataHasPurchased=false, page=0, rating=0, files=[], lightboxImages=[], lightboxIndex=0, helped=new Set();
   const PER=5;
 
   const esc=(s)=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
@@ -42,6 +42,7 @@
       filtered=[...reviews];
       userReview=data.user_review||null;
       canReview=!!data.can_review;
+      dataHasPurchased=!!data.has_purchased;
       helped=new Set(Array.isArray(data.helpful_ids)?data.helpful_ids:[]);
       renderSummary(data.summary);
       renderWriteArea();
@@ -67,7 +68,7 @@
         return `<div class="pdp5-hbar"><span>${st} yıldız</span><div class="pdp5-hbar-track"><div class="pdp5-hbar-fill" style="width:${pct}%"></div></div><span>${c}</span></div>`;
       }).join('');
     }
-    document.dispatchEvent(new CustomEvent('cosmoskin:reviews-summary',{detail:{avg,count}}));
+    document.dispatchEvent(new CustomEvent('cosmoskin:reviews-summary',{detail:{avg: avg==='—'?0:Number(avg), count, canReview, hasPurchased: !!dataHasPurchased}}));
   }
   function stars(avg){
     const n=Math.round(Number(avg||0));
@@ -238,6 +239,22 @@
     const up=$('#rvUploadZone'); if(up){['dragenter','dragover'].forEach(n=>up.addEventListener(n,e=>{e.preventDefault();up.classList.add('is-drag');}));['dragleave','drop'].forEach(n=>up.addEventListener(n,e=>{e.preventDefault();up.classList.remove('is-drag');}));up.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));}
     document.addEventListener('keydown',(e)=>{if(e.key==='Escape'){closeModal();closeLightbox();} if(!$('#rvLightbox')?.hidden){if(e.key==='ArrowLeft')navLightbox(-1);if(e.key==='ArrowRight')navLightbox(1);}});
     document.addEventListener('cosmoskin:auth-state',()=>load());
+    document.addEventListener('cosmoskin:pdp-rating-intent',(event)=>{
+      const value=Number(event.detail?.rating||0);
+      if(!value) return;
+      if(!session){
+        document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal',{detail:{tab:'loginPanel'}}));
+        return;
+      }
+      if(!canReview){
+        const msg=document.querySelector('#rvFormStatus');
+        if(msg){msg.textContent='Puan vermek için bu ürünü hesabınla satın almış olmalısın.';msg.className='pdp5-form-status error';}
+        section?.scrollIntoView({behavior:'smooth',block:'start'});
+        return;
+      }
+      openModal(!!userReview);
+      setTimeout(()=>setRating(value),0);
+    });
   }
   async function init(){section=$('#reviewsSection'); if(!section) return; slug=section.dataset.productSlug||''; bind(); await load();}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();

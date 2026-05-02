@@ -15,9 +15,9 @@
 <link href="/apple-touch-icon.png" rel="apple-touch-icon"/>
 <link href="/favicon.ico" rel="shortcut icon"/>
 <link href="/site.webmanifest" rel="manifest"/>
-<link href="/assets/style.css?v=20260421b" rel="stylesheet"/>
-<link href="/assets/mobile.css?v=20260425f" rel="stylesheet"/>
-<link href="/assets/phase6-commerce.css?v=20260502final" rel="stylesheet"/></head>
+<link href="/assets/style.css?v=20260503-fav-cart-pdp" rel="stylesheet"/>
+<link href="/assets/mobile.css?v=20260425f" rel="stylesheet"/><link href="/assets/phase6-commerce.css?v=20260503-phase63" rel="stylesheet"/>
+</head>
 <body>
 <div class="progress" id="progress"></div>
 <div class="announcement">
@@ -117,8 +117,8 @@
 </aside>
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
-<script src="/assets/auth.js?v=20260418d" type="module"></script>
-<script src="/assets/app.js?v=20260418b"></script>
+<script src="/assets/auth.js?v=20260503-phase62" type="module"></script>
+<script src="/assets/app.js?v=20260503-phase62"></script><script defer="True" src="/assets/phase6-commerce.js?v=20260503-phase63"></script>
 <script src="/assets/commerce.js?v=20260418d"></script>
 <script src="/assets/mobile-enhancements.js?v=20260421final"></script>
 <script>
@@ -175,7 +175,8 @@
   }
 
   function buildCard(p) {
-    var url = p.url || ('/products/' + (p.id||p.slug) + '.html');
+    var slug = p.slug || p.id || '';
+    var url = p.url || ('/products/' + slug + '.html');
     var img = p.image || '';
     var price = p.price || 0;
     var formattedPrice = typeof window.COSMOSKIN_FORMAT_PRICE === 'function'
@@ -193,8 +194,8 @@
         '<a href="' + esc(url) + '"><h3>' + esc(p.name) + '</h3></a>' +
         '<div class="price-row">' +
           '<div><div class="price">' + esc(formattedPrice) + '</div><div class="price-note">KDV dahil</div></div>' +
-          '<button class="btn btn-primary" data-add-cart="" data-id="' + esc(p.id||p.slug) + '"' +
-            ' data-slug="' + esc(p.slug||p.id) + '"' +
+          '<button class="btn btn-primary" data-add-cart="" data-id="' + esc(slug) + '"' +
+            ' data-slug="' + esc(slug) + '"' +
             ' data-name="' + esc(p.name) + '" data-brand="' + esc(p.brand) + '"' +
             ' data-price="' + esc(String(price)) + '" data-image="' + esc(img) + '"' +
             ' data-url="' + esc(url) + '">Sepete Ekle</button>' +
@@ -234,7 +235,8 @@
     grid.innerHTML = results.map(buildCard).join('');
 
     /* Re-init cart buttons */
-    if (typeof window.initCartButtons === 'function') window.initCartButtons();
+    if (typeof window.initCartButtons === 'function') window.initCartButtons(grid);
+    if (typeof window.initFavoriteButtons === 'function') window.initFavoriteButtons(grid);
   }
 
   function loadProducts() {
@@ -358,5 +360,5 @@
 </div>
 <div class="footer-bottom"><span>© 2026 Cosmoskin</span><span>Seçilmiş K-Beauty</span></div>
 </footer>
-<script defer="" src="/assets/phase6-commerce.js?v=20260502final"></script></body>
+</body>
 </html>

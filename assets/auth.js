@@ -39,13 +39,36 @@ function track(eventName, payload = {}) {
   }
 }
 
+function showAuthNotice(message = '') {
+  if (!message) return;
+  let toast = document.querySelector('.cosmoskin-auth-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'cosmoskin-auth-toast';
+    toast.setAttribute('role', 'status');
+    toast.setAttribute('aria-live', 'polite');
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('is-visible');
+  clearTimeout(showAuthNotice._timer);
+  showAuthNotice._timer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
+}
+
 function setStatus(message = '', isError = false, targetId = 'registerStatus') {
   const el = document.getElementById(targetId);
   if (!el) return;
 
   el.textContent = message;
-  el.style.color = isError ? '#c0392b' : '#1f7a4f';
-  el.style.display = message ? 'block' : 'none';
+  el.classList.add('cosmoskin-auth-status');
+  el.classList.toggle('is-error', !!isError);
+  el.classList.toggle('is-visible', !!message);
+  el.style.color = '';
+  el.style.display = '';
+
+  if (message && !isError && /başar/i.test(message)) {
+    showAuthNotice(message);
+  }
 }
 
 function clearStatuses() {
