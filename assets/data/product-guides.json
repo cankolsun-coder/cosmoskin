@@ -1,0 +1,24 @@
+{
+  "torriden-dive-in-hyaluronic-acid-serum": {
+    "title": "DIVE-IN Low Molecular Hyaluronic Acid Serum kimler için uygun?",
+    "brand": "Torriden",
+    "category": "Serum & Ampul",
+    "size": "50 ml",
+    "price": "₺949",
+    "idealSkinTypes": [
+      "Tüm cilt tipleri",
+      "Susuz cilt",
+      "Hassas cilt"
+    ],
+    "benefits": [
+      "Yoğun nem",
+      "Dolgun görünüm",
+      "Bariyer desteği"
+    ],
+    "images": {
+      "hero": "/assets/img/guide/torriden/torriden-water-droplets.webp",
+      "ingredients": "/assets/img/guide/torriden/hyaluronic-ingredient-visual.png",
+      "texture": "/assets/img/guide/torriden/torriden-aqua-reflection.webp"
+    }
+  }
+}
