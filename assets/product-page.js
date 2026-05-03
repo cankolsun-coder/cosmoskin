@@ -96,53 +96,74 @@
     try{const {data:{user}}=await client.auth.getUser();return !!user;}catch{return false;}
   }
 
+  function buildRatingStars(avg){
+    const safe=Math.max(0, Math.min(5, Number(avg||0)));
+    return [1,2,3,4,5].map((n)=>{
+      const fill=Math.max(0, Math.min(100, (safe-(n-1))*100));
+      return `<span class="pdp5-star" style="--fill:${fill}%" aria-hidden="true">★</span>`;
+    }).join('');
+  }
+
   function bindTopRating(){
     const link=$('.pdp5-rating-link');
     const starWrap=$('.pdp5-stars');
     if(!link||!starWrap||starWrap.dataset.topRatingBound==='true') return;
     starWrap.dataset.topRatingBound='true';
-    link.removeAttribute('href');
-    link.removeAttribute('data-scroll-reviews');
-    link.setAttribute('role','group');
-    link.setAttribute('aria-label','Ürün puanı ver');
-    starWrap.innerHTML=[1,2,3,4,5].map(n=>`<button class="pdp5-top-star" type="button" data-rating="${n}" aria-label="${n} yıldız ver">☆</button>`).join('');
-    renderTopRatingStars(0);
+    link.setAttribute('aria-label','Ürün puanını ve yorumlarını görüntüle');
+    starWrap.innerHTML=buildRatingStars(0);
     const micro=$('#pdp5RatingMicro');
-    if(micro) micro.textContent='0.0';
-    $$('.pdp5-top-star',starWrap).forEach((btn)=>{
-      btn.addEventListener('mouseenter',()=>{topRatingState.hover=Number(btn.dataset.rating);renderTopRatingStars(topRatingState.hover);});
-      btn.addEventListener('focus',()=>{topRatingState.hover=Number(btn.dataset.rating);renderTopRatingStars(topRatingState.hover);});
-      btn.addEventListener('click',async(event)=>{
-        event.preventDefault();event.stopPropagation();
-        const value=Number(btn.dataset.rating||0);
-        topRatingState.selected=value;
-        renderTopRatingStars(value);
-        const loggedIn=await userIsLoggedIn();
-        if(!loggedIn){
-          showPdpNotice('Puan vermek için önce giriş yapmalısın.');
-          document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal',{detail:{tab:'loginPanel'}}));
-          return;
-        }
-        if(!topRatingState.canReview){
-          showPdpNotice('Puan vermek için bu ürünü hesabınla satın almış olmalısın.');
-        }
-        document.dispatchEvent(new CustomEvent('cosmoskin:pdp-rating-intent',{detail:{rating:value}}));
-      });
-    });
-    starWrap.addEventListener('mouseleave',()=>renderTopRatingStars(topRatingState.selected||0));
+    if(micro){
+      micro.textContent='0.0';
+      micro.setAttribute('title','Henüz doğrulanmış puan yok');
+    }
+  }
+
+  function updateProductSchemaAggregateRating(avg,count){
+    const safeAvg=Number(avg||0);
+    const safeCount=Number(count||0);
+    const scripts=Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+    for(const script of scripts){
+      let data;
+      try{data=JSON.parse(script.textContent||'{}');}catch{continue;}
+      const graph=Array.isArray(data['@graph']) ? data['@graph'] : [data];
+      const product=graph.find((node)=>node && node['@type']==='Product');
+      if(!product) continue;
+      if(safeCount>0 && safeAvg>0){
+        product.aggregateRating={
+          '@type':'AggregateRating',
+          ratingValue: Number(safeAvg.toFixed(1)),
+          reviewCount: safeCount
+        };
+      }else{
+        delete product.aggregateRating;
+      }
+      script.textContent=JSON.stringify(data);
+      return;
+    }
   }
 
   function syncRatingMicro(){
     document.addEventListener('cosmoskin:reviews-summary',(event)=>{
       const el=$('#pdp5RatingMicro');
+      const starWrap=$('.pdp5-stars');
+      const link=$('.pdp5-rating-link');
       const s=event.detail || {};
       topRatingState.avg=Number(s.avg||0);
       topRatingState.count=Number(s.count||0);
       topRatingState.canReview=!!s.canReview;
       topRatingState.hasPurchased=!!s.hasPurchased;
-      if(!el) return;
-      el.textContent = topRatingState.count>0 ? topRatingState.avg.toFixed(1) : '0.0';
-      el.setAttribute('title', topRatingState.count>0 ? `${topRatingState.count} doğrulanmış yorum ortalaması` : 'Henüz doğrulanmış puan yok');
+      if(starWrap) starWrap.innerHTML=buildRatingStars(topRatingState.avg);
+      if(el){
+        el.textContent = topRatingState.count>0 ? topRatingState.avg.toFixed(1) : '0.0';
+        el.setAttribute('title', topRatingState.count>0 ? `${topRatingState.count} doğrulanmış yorum ortalaması` : 'Henüz doğrulanmış puan yok');
+      }
+      updateProductSchemaAggregateRating(topRatingState.avg, topRatingState.count);
+      if(link){
+        const label = topRatingState.count>0
+          ? `${topRatingState.avg.toFixed(1)} puan, ${topRatingState.count} doğrulanmış yorum. Yorumlara git.`
+          : 'Henüz doğrulanmış yorum yok. Yorumlar bölümüne git.';
+        link.setAttribute('aria-label', label);
+      }
     });
   }
 

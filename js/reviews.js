@@ -71,8 +71,11 @@
     document.dispatchEvent(new CustomEvent('cosmoskin:reviews-summary',{detail:{avg: avg==='—'?0:Number(avg), count, canReview, hasPurchased: !!dataHasPurchased}}));
   }
   function stars(avg){
-    const n=Math.round(Number(avg||0));
-    return '★★★★★'.split('').map((s,i)=>`<span style="opacity:${i<n?1:.22}">★</span>`).join('');
+    const safe=Math.max(0,Math.min(5,Number(avg||0)));
+    return [1,2,3,4,5].map((n)=>{
+      const fill=Math.max(0,Math.min(100,(safe-(n-1))*100));
+      return `<span class="pdp5-star" style="--fill:${fill}%" aria-hidden="true">★</span>`;
+    }).join('');
   }
   function renderWriteArea(){
     const wrap=$('#rvWriteWrap'); if(!wrap) return;
