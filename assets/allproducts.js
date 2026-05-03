@@ -152,12 +152,22 @@
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(value || 0));
   }
 
-  function hashNumber(input, min, max) {
-    var str = String(input || 'cosmoskin');
-    var hash = 0;
-    for (var i = 0; i < str.length; i += 1) hash = ((hash << 5) - hash) + str.charCodeAt(i);
-    var range = max - min + 1;
-    return min + (Math.abs(hash) % range);
+  function readNumber(value) {
+    var number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  function getInitialReviewStats(product) {
+    var count = readNumber(product.reviewCount || product.review_count || product.reviewsCount || product.reviews_count || product.approved_count);
+    var rating = readNumber(product.rating || product.avgRating || product.avg_rating || product.ratingValue || product.rating_value);
+    if (count > 0 && rating > 0) {
+      return { rating: Math.round(Math.min(5, Math.max(0, rating)) * 10) / 10, reviewCount: Math.round(count), hasReviewSummary: true };
+    }
+    return { rating: 0, reviewCount: 0, hasReviewSummary: false };
+  }
+
+  function hasReviewStats(product) {
+    return !!(product && product.hasReviewSummary && Number(product.reviewCount) > 0 && Number(product.rating) > 0);
   }
 
   function includesAny(haystack, needles) {
@@ -233,9 +243,10 @@
     var textures = deriveTextures(product, fullText);
     var ingredients = deriveIngredients(fullText);
     var features = deriveFeatures(product, fullText);
-    var ratingTenths = hashNumber(product.slug, 46, 49);
-    var rating = ratingTenths / 10;
-    var reviews = hashNumber(product.slug + product.brand, 146, 2312);
+    var reviewStats = getInitialReviewStats(product);
+    var safeSlug = product.slug || slugify(product.name);
+    var safeId = product.id || safeSlug;
+    var safeUrl = product.url || ('/products/' + safeSlug + '.html');
     var badge = '';
     if (features.indexOf('best-seller') !== -1) badge = 'En Çok Satan';
     else if (features.indexOf('new') !== -1) badge = 'Yeni';
@@ -250,6 +261,9 @@
     if (chips.length < 2 && textures[0] && labelMaps.texture.get(textures[0])) chips.push(labelMaps.texture.get(textures[0]));
 
     return Object.assign({}, product, {
+      id: safeId,
+      slug: safeSlug,
+      url: safeUrl,
       categoryKey: categoryKey,
       brandKey: brandKey,
       concernKeys: concerns,
@@ -257,12 +271,13 @@
       ingredientKeys: ingredients,
       featureKeys: features,
       badge: badge,
-      rating: rating,
-      reviewCount: reviews,
+      rating: reviewStats.rating,
+      reviewCount: reviewStats.reviewCount,
+      hasReviewSummary: reviewStats.hasReviewSummary,
       description: makeDescription(product, concerns),
       chips: chips.slice(0, 3),
       searchText: fullText + ' ' + concerns.join(' ') + ' ' + textures.join(' ') + ' ' + ingredients.join(' ') + ' ' + features.join(' '),
-      sortScore: (features.indexOf('best-seller') !== -1 ? 1000 : 0) + (features.indexOf('editor-pick') !== -1 ? 500 : 0) + reviews
+      sortScore: (features.indexOf('best-seller') !== -1 ? 1000 : 0) + (features.indexOf('editor-pick') !== -1 ? 500 : 0) + (features.indexOf('new') !== -1 ? 250 : 0)
     });
   }
 
@@ -451,9 +466,9 @@
   function sortProducts(products) {
     var sorted = products.slice();
     switch (state.filters.sort) {
-      case 'best': sorted.sort(function (a, b) { return Number(b.featureKeys.indexOf('best-seller') !== -1) - Number(a.featureKeys.indexOf('best-seller') !== -1) || b.sortScore - a.sortScore; }); break;
+      case 'best': sorted.sort(function (a, b) { return Number(b.featureKeys.indexOf('best-seller') !== -1) - Number(a.featureKeys.indexOf('best-seller') !== -1) || b.sortScore - a.sortScore || a.name.localeCompare(b.name, 'tr'); }); break;
       case 'new': sorted.sort(function (a, b) { return Number(b.featureKeys.indexOf('new') !== -1) - Number(a.featureKeys.indexOf('new') !== -1) || a.name.localeCompare(b.name, 'tr'); }); break;
-      case 'rating': sorted.sort(function (a, b) { return b.rating - a.rating || b.reviewCount - a.reviewCount; }); break;
+      case 'rating': sorted.sort(function (a, b) { return Number(hasReviewStats(b)) - Number(hasReviewStats(a)) || b.rating - a.rating || b.reviewCount - a.reviewCount || a.name.localeCompare(b.name, 'tr'); }); break;
       case 'price-asc': sorted.sort(function (a, b) { return a.price - b.price; }); break;
       case 'price-desc': sorted.sort(function (a, b) { return b.price - a.price; }); break;
       case 'name-asc': sorted.sort(function (a, b) { return a.name.localeCompare(b.name, 'tr'); }); break;
@@ -465,6 +480,9 @@
   function cardHtml(product) {
     var badge = product.badge ? '<span class="cs-ap-card-badge">' + esc(product.badge) + '</span>' : '<span class="cs-ap-card-badge">' + esc(product.brand) + '</span>';
     var chips = product.chips.length ? product.chips : [product.category];
+    var ratingHtml = hasReviewStats(product)
+      ? '<div class="cs-ap-rating" aria-label="' + esc(product.rating.toFixed(1) + ' puan, ' + product.reviewCount + ' yorum') + '"><span class="star">★</span><strong>' + esc(product.rating.toFixed(1)) + '</strong><span>· ' + esc(product.reviewCount.toLocaleString('tr-TR')) + ' yorum</span></div>'
+      : '';
     return '<article class="product-card cs-catalog-card" data-product-id="' + esc(product.id) + '" data-brand="' + esc(product.brand) + '">' +
       '<div class="product-media-wrap">' +
         '<a class="product-media" href="' + esc(product.url) + '" aria-label="' + esc(product.name) + '">' +
@@ -476,7 +494,7 @@
         '<div class="brandline">' + esc(product.brand) + '</div>' +
         '<a href="' + esc(product.url) + '"><h3>' + esc(product.name) + '</h3></a>' +
         '<p>' + esc(product.description) + '</p>' +
-        '<div class="cs-ap-rating"><span class="star">★</span><strong>' + esc(product.rating.toFixed(1)) + '</strong><span>· ' + esc(product.reviewCount.toLocaleString('tr-TR')) + ' yorum</span></div>' +
+        ratingHtml +
         '<div class="pills">' + chips.slice(0, 3).map(function (chip) { return '<span class="pill">' + esc(chip) + '</span>'; }).join('') + '</div>' +
         '<div class="meta-note">' + esc(product.volume || product.category) + ' · ' + esc(product.category) + '</div>' +
         '<div class="price-row"><div><div class="price">' + esc(formatPrice(product.price)) + '</div><div class="price-note">KDV dahil</div></div>' +
@@ -705,6 +723,79 @@
     });
   }
 
+  function applyReviewSummary(product, summary) {
+    var count = readNumber(summary && (summary.approved_count || summary.total_count || summary.reviewCount || summary.review_count));
+    var avg = readNumber(summary && (summary.avg_rating || summary.avgRating || summary.rating));
+    if (count > 0 && avg > 0) {
+      product.rating = Math.round(Math.min(5, Math.max(0, avg)) * 10) / 10;
+      product.reviewCount = Math.round(count);
+      product.hasReviewSummary = true;
+    } else {
+      product.rating = 0;
+      product.reviewCount = 0;
+      product.hasReviewSummary = false;
+    }
+  }
+
+  function reviewCacheKey(slug) {
+    return 'cosmoskin_review_summary_' + slug;
+  }
+
+  function readCachedReviewSummary(slug) {
+    try {
+      var raw = sessionStorage.getItem(reviewCacheKey(slug));
+      if (!raw) return null;
+      var cached = JSON.parse(raw);
+      if (!cached || Date.now() - Number(cached.ts || 0) > 5 * 60 * 1000) return null;
+      return cached.summary || null;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  function writeCachedReviewSummary(slug, summary) {
+    try {
+      sessionStorage.setItem(reviewCacheKey(slug), JSON.stringify({ ts: Date.now(), summary: summary || {} }));
+    } catch (_error) {
+      /* Storage can be unavailable in private browsing; the catalogue still works without cache. */
+    }
+  }
+
+  async function fetchReviewSummary(product) {
+    if (!product || !product.slug || typeof fetch !== 'function') return null;
+    var cached = readCachedReviewSummary(product.slug);
+    if (cached) return cached;
+    var apiBase = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
+    try {
+      var response = await fetch(apiBase + '/reviews?product_slug=' + encodeURIComponent(product.slug), { credentials: 'same-origin' });
+      if (!response.ok) return null;
+      var data = await response.json().catch(function () { return {}; });
+      var summary = data && data.summary ? data.summary : null;
+      writeCachedReviewSummary(product.slug, summary || {});
+      return summary;
+    } catch (_error) {
+      return null;
+    }
+  }
+
+  async function hydrateReviewSummaries() {
+    var products = state.products.filter(function (product) { return product && product.slug; });
+    var index = 0;
+    var changed = false;
+    async function worker() {
+      while (index < products.length) {
+        var product = products[index++];
+        var summary = await fetchReviewSummary(product);
+        var before = product.rating + ':' + product.reviewCount + ':' + product.hasReviewSummary;
+        applyReviewSummary(product, summary || {});
+        var after = product.rating + ':' + product.reviewCount + ':' + product.hasReviewSummary;
+        if (before !== after) changed = true;
+      }
+    }
+    await Promise.all([worker(), worker(), worker(), worker()]);
+    if (changed) render();
+  }
+
   function init(rawProducts) {
     var products = (rawProducts || window.COSMOSKIN_PRODUCTS || []).filter(Boolean).map(enhanceProduct);
     state.products = products;
@@ -717,6 +808,7 @@
     bindEvents();
     syncInputsFromState();
     render();
+    hydrateReviewSummaries();
   }
 
   var ready = window.COSMOSKIN_PRODUCTS_READY || Promise.resolve(window.COSMOSKIN_PRODUCTS || []);
