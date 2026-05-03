@@ -308,17 +308,120 @@
     }).join('');
   }
 
+  function orderItemCount(order) {
+    return (order.order_items || []).reduce(function (sum, item) {
+      return sum + (Number(item.quantity || 0) || 1);
+    }, 0);
+  }
+
+  function getPrimaryShipment(order) {
+    var shipments = Array.isArray(order?.shipments) ? order.shipments.slice() : [];
+    if (order?.latest_shipment) shipments.unshift(order.latest_shipment);
+    return shipments.filter(Boolean).sort(function (a, b) {
+      return new Date(b.updated_at || b.created_at || b.shipped_at || 0) - new Date(a.updated_at || a.created_at || a.shipped_at || 0);
+    })[0] || {};
+  }
+
+  function getShipmentLabel(shipment) {
+    if (!shipment || !shipment.status) return 'Kargo hazırlanıyor';
+    return shipmentLabels[shipment.status] || shipment.status;
+  }
+
+  function getPaymentLabel(status) {
+    var labels = {
+      pending: 'Beklemede',
+      initiated: 'Başlatıldı',
+      paid: 'Ödendi',
+      failed: 'Başarısız',
+      refunded: 'İade edildi',
+      partially_refunded: 'Kısmi iade'
+    };
+    return labels[status] || status || '—';
+  }
+
+  function getFulfillmentLabel(status) {
+    var labels = {
+      not_started: 'Hazırlık bekliyor',
+      preparing: 'Hazırlanıyor',
+      packed: 'Paketlendi',
+      shipped: 'Kargoda',
+      delivered: 'Teslim edildi',
+      cancelled: 'İptal edildi',
+      returned: 'İade sürecinde'
+    };
+    return labels[status] || status || '—';
+  }
+
+  function getOrderProgress(order) {
+    var shipment = getPrimaryShipment(order);
+    var status = String(order?.status || '').toLowerCase();
+    var payment = String(order?.payment_status || '').toLowerCase();
+    var fulfillment = String(order?.fulfillment_status || '').toLowerCase();
+    var ship = String(shipment?.status || '').toLowerCase();
+    var cancelled = ['cancelled', 'payment_failed', 'failed', 'refunded', 'partially_refunded'].includes(status) || ['cancelled', 'returned'].includes(fulfillment) || ['cancelled', 'returned'].includes(ship);
+    var current = 0;
+    if (['paid', 'preparing', 'shipped', 'delivered'].includes(status) || ['paid'].includes(payment) || order?.paid_at) current = 1;
+    if (['preparing', 'shipped', 'delivered'].includes(status) || ['preparing', 'packed'].includes(fulfillment)) current = 2;
+    if (['shipped', 'delivered'].includes(status) || ['shipped'].includes(fulfillment) || ship === 'shipped' || shipment?.tracking_number || order?.fulfilled_at) current = 3;
+    if (status === 'delivered' || fulfillment === 'delivered' || ship === 'delivered' || order?.delivered_at || shipment?.delivered_at) current = 4;
+    return [
+      { key: 'received', label: 'Sipariş alındı', date: order?.created_at },
+      { key: 'paid', label: 'Ödeme onaylandı', date: order?.paid_at, muted: current < 1 },
+      { key: 'preparing', label: 'Hazırlanıyor', date: order?.fulfilled_at && current >= 2 ? order.fulfilled_at : '', muted: current < 2 },
+      { key: 'shipped', label: 'Kargoda', date: shipment?.shipped_at || order?.fulfilled_at, muted: current < 3 },
+      { key: 'delivered', label: 'Teslim edildi', date: shipment?.delivered_at || order?.delivered_at, muted: current < 4 }
+    ].map(function (step, index) {
+      return Object.assign({}, step, {
+        done: !cancelled && index <= current,
+        current: !cancelled && index === current,
+        problem: cancelled && index === current
+      });
+    });
+  }
+
+  function renderOrderProgress(order, compact) {
+    var steps = getOrderProgress(order);
+    return '<div class="cs-order-progress ' + (compact ? 'is-compact' : '') + '">' + steps.map(function (step) {
+      return '<div class="cs-order-step ' + (step.done ? 'is-done ' : '') + (step.current ? 'is-current ' : '') + (step.problem ? 'is-problem ' : '') + (step.muted ? 'is-muted' : '') + '"><span></span><strong>' + escapeHtml(step.label) + '</strong>' + (!compact && step.date ? '<small>' + escapeHtml(formatDate(step.date, true)) + '</small>' : '') + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function renderOrderEvents(order) {
+    var events = Array.isArray(order?.status_events) ? order.status_events.slice() : [];
+    if (!events.length) {
+      var shipment = getPrimaryShipment(order);
+      events = [
+        { status: 'received', message: 'Siparişiniz COSMOSKIN operasyon akışına alındı.', created_at: order?.created_at },
+        order?.paid_at ? { status: 'paid', message: 'Ödeme onayı tamamlandı.', created_at: order.paid_at } : null,
+        shipment?.tracking_number ? { status: 'shipped', message: (shipment.carrier ? shipment.carrier + ' ile ' : '') + 'kargo takip numarası oluşturuldu.', created_at: shipment.shipped_at || shipment.created_at } : null,
+        order?.delivered_at || shipment?.delivered_at ? { status: 'delivered', message: 'Sipariş teslim edildi.', created_at: order.delivered_at || shipment.delivered_at } : null
+      ].filter(Boolean);
+    }
+    return events.slice(-5).map(function (event) {
+      return '<div class="cs-timeline-item"><strong>' + escapeHtml(statusLabels[event.status] || shipmentLabels[event.status] || event.status || 'Durum') + '</strong><time>' + escapeHtml(formatDate(event.created_at, true)) + '</time>' + (event.message ? '<p>' + escapeHtml(event.message) + '</p>' : '') + '</div>';
+    }).join('');
+  }
+
+  function renderOrderItem(item, compact) {
+    var url = item.product_url || (item.product_slug ? '/products/' + item.product_slug + '.html' : '#');
+    var image = item.image ? '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.product_name) + '" loading="lazy">' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14v11H5zM8 8a4 4 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+    var unit = Number(item.unit_price || 0) ? '<small>Birim: ' + escapeHtml(formatMoney(item.unit_price)) + '</small>' : '';
+    return '<a class="cs-order-product" href="' + escapeHtml(url) + '"><span class="cs-order-thumb">' + image + '</span><span class="cs-order-product-copy"><span>' + escapeHtml(item.brand || 'COSMOSKIN') + '</span><strong>' + escapeHtml(item.product_name || 'Ürün') + '</strong><small>Adet: ' + escapeHtml(item.quantity || 1) + '</small>' + (!compact ? unit : '') + '</span><b class="cs-order-total">' + escapeHtml(formatMoney(item.line_total || 0)) + '</b></a>';
+  }
+
   function renderOrderCard(order, compact) {
-    var shipment = order.latest_shipment || (order.shipments || [])[0] || {};
-    var items = (order.order_items || []).map(function (item) {
-      var url = item.product_url || (item.product_slug ? '/products/' + item.product_slug + '.html' : '#');
-      var image = item.image ? '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.product_name) + '" loading="lazy">' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14v11H5zM8 8a4 4 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
-      return '<a class="cs-order-product" href="' + escapeHtml(url) + '"><span class="cs-order-thumb">' + image + '</span><span><span>' + escapeHtml(item.brand || 'COSMOSKIN') + '</span><strong>' + escapeHtml(item.product_name || 'Ürün') + '</strong><small>Adet: ' + escapeHtml(item.quantity || 1) + '</small></span><b class="cs-order-total">' + escapeHtml(formatMoney(item.line_total || 0)) + '</b></a>';
-    }).join('');
-    var events = (order.status_events || []).slice(-4).map(function (event) {
-      return '<div class="cs-timeline-item"><strong>' + escapeHtml(statusLabels[event.status] || event.status || 'Durum') + '</strong>' + escapeHtml(formatDate(event.created_at, true)) + (event.message ? '<br>' + escapeHtml(event.message) : '') + '</div>';
-    }).join('');
-    return '<article class="cs-order-card"><div class="cs-order-card-head"><div><small>Sipariş No</small><strong>' + escapeHtml(order.order_number || order.id) + '</strong><time>' + escapeHtml(formatDate(order.created_at, true)) + '</time></div><span class="cs-status-pill ' + escapeHtml(order.status || '') + '">' + escapeHtml(statusLabels[order.status] || order.status || 'İşleniyor') + '</span></div><div class="cs-order-body"><div class="cs-order-items">' + (items || '<p class="account-mini">Ürün detayı bulunamadı.</p>') + '</div><aside class="cs-order-side"><div><span>Toplam</span><strong>' + escapeHtml(formatMoney(order.total_amount || 0)) + '</strong></div><div><span>Ödeme</span><strong>' + escapeHtml(order.payment_status || '—') + '</strong></div><div><span>Kargo</span><strong>' + escapeHtml(shipmentLabels[shipment.status] || shipment.status || 'Bekliyor') + '</strong></div>' + (shipment.tracking_number ? '<div><span>Takip No</span><strong>' + escapeHtml(shipment.tracking_number) + '</strong></div>' : '') + (shipment.tracking_url ? '<a class="cs-mini-btn" href="' + escapeHtml(shipment.tracking_url) + '" target="_blank" rel="noopener">Kargo Takip</a>' : '') + (!compact ? '<button class="cs-mini-btn" type="button" data-repeat-order="' + escapeHtml(order.id) + '">Tekrar Sipariş Ver</button>' : '') + '<div class="cs-timeline">' + events + '</div></aside></div></article>';
+    var shipment = getPrimaryShipment(order);
+    var items = (order.order_items || []).slice(0, compact ? 2 : 99).map(function (item) { return renderOrderItem(item, compact); }).join('');
+    var hiddenCount = Math.max(0, (order.order_items || []).length - (compact ? 2 : 99));
+    var detailHref = '/account/order-detail.html?id=' + encodeURIComponent(order.id || order.order_number || '');
+    var statusClass = order.status || order.fulfillment_status || shipment.status || '';
+    var address = [order.district, order.city].filter(Boolean).join(' / ');
+    var events = renderOrderEvents(order);
+    return '<article class="cs-order-card cs-order-card--rich ' + (compact ? 'is-compact' : '') + '">' +
+      '<div class="cs-order-card-head"><div><small>Sipariş No</small><strong>' + escapeHtml(order.order_number || order.id) + '</strong><time>' + escapeHtml(formatDate(order.created_at, true)) + '</time></div><div class="cs-order-head-actions"><span class="cs-status-pill ' + escapeHtml(statusClass) + '">' + escapeHtml(statusLabels[order.status] || getFulfillmentLabel(order.fulfillment_status) || 'İşleniyor') + '</span><a class="cs-mini-btn" href="' + escapeHtml(detailHref) + '">Detayı Gör</a></div></div>' +
+      renderOrderProgress(order, compact) +
+      '<div class="cs-order-body"><div class="cs-order-items">' + (items || '<p class="account-mini">Ürün detayı bulunamadı.</p>') + (hiddenCount ? '<p class="account-mini">+' + hiddenCount + ' ürün daha sipariş detayında.</p>' : '') + '</div>' +
+      '<aside class="cs-order-side"><div><span>Ürün</span><strong>' + escapeHtml(orderItemCount(order)) + ' adet</strong></div><div><span>Toplam</span><strong>' + escapeHtml(formatMoney(order.total_amount || 0)) + '</strong></div><div><span>Ödeme</span><strong>' + escapeHtml(getPaymentLabel(order.payment_status)) + '</strong></div><div><span>Kargo</span><strong>' + escapeHtml(getShipmentLabel(shipment)) + '</strong></div>' + (address ? '<div><span>Teslimat</span><strong>' + escapeHtml(address) + '</strong></div>' : '') + (shipment.carrier ? '<div><span>Firma</span><strong>' + escapeHtml(shipment.carrier) + '</strong></div>' : '') + (shipment.tracking_number ? '<div><span>Takip No</span><strong>' + escapeHtml(shipment.tracking_number) + '</strong></div>' : '') + '<div class="cs-order-actions">' + (shipment.tracking_url ? '<a class="cs-mini-btn dark" href="' + escapeHtml(shipment.tracking_url) + '" target="_blank" rel="noopener">Kargoyu Takip Et</a>' : '') + '<a class="cs-mini-btn" href="' + escapeHtml(detailHref) + '">Sipariş Detayı</a>' + (!compact ? '<button class="cs-mini-btn" type="button" data-repeat-order="' + escapeHtml(order.id) + '">Tekrar Sipariş Ver</button>' : '') + '</div>' + (!compact ? '<div class="cs-timeline">' + events + '</div>' : '') + '</aside></div></article>';
   }
 
   function renderOrders() {
@@ -326,9 +429,18 @@
     if (!list) return;
     var orders = (state.summary?.orders || []).slice();
     var filter = $('#orderFilter')?.value || 'all';
-    if (filter === 'active') orders = orders.filter(function (order) { return ['paid', 'preparing', 'shipped'].includes(order.status); });
-    if (filter === 'delivered') orders = orders.filter(function (order) { return order.status === 'delivered'; });
-    if (filter === 'problem') orders = orders.filter(function (order) { return ['cancelled', 'payment_failed', 'refunded', 'partially_refunded'].includes(order.status); });
+    if (filter === 'active') orders = orders.filter(function (order) {
+      var shipment = getPrimaryShipment(order);
+      return ['paid', 'preparing', 'shipped'].includes(order.status) || ['preparing', 'packed', 'shipped'].includes(order.fulfillment_status) || ['preparing', 'packed', 'shipped'].includes(shipment.status);
+    });
+    if (filter === 'delivered') orders = orders.filter(function (order) {
+      var shipment = getPrimaryShipment(order);
+      return order.status === 'delivered' || order.fulfillment_status === 'delivered' || shipment.status === 'delivered';
+    });
+    if (filter === 'problem') orders = orders.filter(function (order) {
+      var shipment = getPrimaryShipment(order);
+      return ['cancelled', 'payment_failed', 'failed', 'refunded', 'partially_refunded'].includes(order.status) || ['cancelled', 'returned'].includes(order.fulfillment_status) || ['cancelled', 'returned'].includes(shipment.status);
+    });
     if (!orders.length) {
       list.innerHTML = emptyState('Sipariş bulunamadı', 'Bu filtrede gösterilecek sipariş yok.', 'Ürünleri İncele', '/collections/routine.html');
       return;
