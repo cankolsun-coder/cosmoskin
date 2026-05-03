@@ -50,6 +50,7 @@
       renderList(true);
     }catch(error){
       if(list) list.innerHTML=`<div class="pdp5-empty">Yorumlar şu anda yüklenemedi. Lütfen sayfayı yenileyin.</div>`;
+      document.dispatchEvent(new CustomEvent('cosmoskin:reviews-summary',{detail:{avg:0,count:0,canReview:false,hasPurchased:false}}));
       renderWriteArea();
     }
   }
@@ -74,7 +75,7 @@
     const safe=Math.max(0,Math.min(5,Number(avg||0)));
     return [1,2,3,4,5].map((n)=>{
       const fill=Math.max(0,Math.min(100,(safe-(n-1))*100));
-      return `<span class="pdp5-star" style="--fill:${fill}%" aria-hidden="true">★</span>`;
+      return `<span class="pdp5-star" style="--fill:${fill}%" aria-hidden="true"><span class="pdp5-star__base">★</span><span class="pdp5-star__fill">★</span></span>`;
     }).join('');
   }
   function renderWriteArea(){

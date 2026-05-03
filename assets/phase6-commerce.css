@@ -221,6 +221,15 @@ html,body{max-width:100%;overflow-x:clip}
 .pdp5-top-star.is-filled{color:#b08a5e;text-shadow:0 6px 18px rgba(176,138,94,.2)}
 .pdp5-top-star:hover{transform:translateY(-1px) scale(1.05)}
 #pdp5RatingMicro{display:inline-flex;align-items:center;min-height:30px;padding:0 10px;border-radius:999px;background:#f7f1ea;border:1px solid rgba(176,138,94,.18);font-size:12px;font-weight:800;color:#4d4036}
+.pdp5-rating-link{cursor:pointer !important;text-decoration:none !important}
+.pdp5-rating-link:hover #pdp5RatingMicro{border-color:rgba(176,138,94,.34);background:#fffaf4}
+.pdp5-rating-link.is-empty .pdp5-stars{display:none !important}
+.pdp5-rating-link.is-empty #pdp5RatingMicro{background:rgba(255,255,255,.62);border-color:rgba(22,18,14,.1);color:#776c63;font-weight:700}
+.pdp5-rating-link.is-rated #pdp5RatingMicro{background:#f7f1ea;border-color:rgba(176,138,94,.22);color:#4d4036}
+.pdp5-star{position:relative;display:inline-grid;place-items:center;width:18px;height:18px;line-height:1;flex:0 0 18px}
+.pdp5-star__base,.pdp5-star__fill{grid-area:1/1;font-size:19px;line-height:1}
+.pdp5-star__base{color:#ded6cd}
+.pdp5-star__fill{color:#b08a5e;position:absolute;left:0;top:0;width:var(--fill,0%);overflow:hidden;white-space:nowrap}
 
 /* ============================================================
    Phase 6.3 targeted correction pass — header, bestseller grid, cart consistency
