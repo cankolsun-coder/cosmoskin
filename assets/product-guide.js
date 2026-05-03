@@ -1,21 +1,26 @@
-(function(){
-  const root = document.querySelector('.product-guide-v2');
-  if(!root) return;
-  const links = Array.from(root.querySelectorAll('.pgv2-step[href^="#"]'));
-  const sections = Array.from(root.querySelectorAll('[data-guide-step]'));
-  if(!links.length || !sections.length) return;
-  links.forEach(link => {
-    link.addEventListener('click', function(e){
-      const target = document.querySelector(this.getAttribute('href'));
-      if(!target) return;
-      e.preventDefault();
-      target.scrollIntoView({behavior:'smooth', block:'start'});
+(function () {
+  'use strict';
+
+  function loadImage(src, onload) {
+    if (!src) return;
+    var img = new Image();
+    img.onload = function () { onload(src); };
+    img.src = src;
+  }
+
+  document.querySelectorAll('.cs-guide').forEach(function (guide) {
+    var bg = guide.querySelector('.cs-guide-hero__bg[data-guide-bg]');
+    if (bg) {
+      loadImage(bg.getAttribute('data-guide-bg'), function (src) {
+        bg.style.backgroundImage = 'url("' + src + '")';
+      });
+    }
+
+    guide.querySelectorAll('img[data-guide-src]').forEach(function (img) {
+      var customSrc = img.getAttribute('data-guide-src');
+      loadImage(customSrc, function (src) {
+        img.src = src;
+      });
     });
   });
-  const activate = (id) => { links.forEach(link => link.classList.toggle('is-active', link.getAttribute('href') === '#' + id)); };
-  const observer = new IntersectionObserver((entries) => {
-    const visible = entries.filter(entry => entry.isIntersecting).sort((a,b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top));
-    if(visible[0]) activate(visible[0].target.id);
-  }, {rootMargin:'-22% 0px -55% 0px', threshold:[0.15,0.3,0.5]});
-  sections.forEach(section => observer.observe(section));
 })();
