@@ -1,0 +1,459 @@
+/* COSMOSKIN — Premium Bestsellers module */
+.bestsellers-premium{
+  --cs-ink:#0f0d0b;
+  --cs-muted:#5f5650;
+  --cs-line:rgba(34,25,18,.13);
+  --cs-soft:#f8f3eb;
+  --cs-card:#fffaf4;
+  --cs-gold:#a8783e;
+  --cs-shadow:0 24px 70px rgba(48,34,22,.10);
+  background:
+    radial-gradient(circle at 12% 20%, rgba(172,127,72,.10), transparent 28%),
+    linear-gradient(180deg,#fffaf4 0%,#f7efe5 100%);
+  border-top:1px solid rgba(24,18,14,.07);
+  border-bottom:1px solid rgba(24,18,14,.08);
+  overflow:hidden;
+}
+.bestsellers-premium *{box-sizing:border-box}
+.bestsellers-premium .container{max-width:1380px}
+.bestseller-hero{
+  display:grid;
+  grid-template-columns:minmax(0,1.02fr) minmax(420px,.98fr);
+  gap:52px;
+  align-items:end;
+  margin-bottom:26px;
+  padding-top:4px;
+}
+.bestseller-kicker{
+  margin:0 0 10px;
+  color:var(--cs-gold);
+  font:700 13px/1.1 "Plus Jakarta Sans",system-ui,sans-serif;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.bestseller-title{
+  max-width:610px;
+  margin:0;
+  color:var(--cs-ink);
+  font-family:"Cormorant Garamond",Georgia,serif;
+  font-weight:400;
+  letter-spacing:-.035em;
+  line-height:.96;
+  font-size:clamp(3.2rem,5.2vw,5.65rem);
+}
+.bestseller-intro{
+  max-width:660px;
+  margin:0 0 25px;
+  color:#3f3833;
+  font:500 17px/1.75 "Cormorant Garamond",Georgia,serif;
+  letter-spacing:.01em;
+}
+.bestseller-benefits{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;
+  border-top:1px solid var(--cs-line);
+  border-bottom:1px solid var(--cs-line);
+}
+.bestseller-benefit{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-height:76px;
+  padding:15px 20px;
+  color:#3c332d;
+  font:700 13px/1.45 "Plus Jakarta Sans",system-ui,sans-serif;
+}
+.bestseller-benefit + .bestseller-benefit{border-left:1px solid var(--cs-line)}
+.bestseller-benefit svg{width:30px;height:30px;flex:0 0 auto;color:var(--cs-gold);stroke-width:1.55}
+.bestseller-shell{border-top:1px solid var(--cs-line);padding-top:22px}
+.bestseller-tabs{
+  display:flex;
+  gap:22px;
+  overflow-x:auto;
+  padding:0 0 22px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.bestseller-tabs::-webkit-scrollbar{display:none}
+.bestseller-tab{
+  flex:0 0 auto;
+  min-width:140px;
+  height:43px;
+  border:1px solid rgba(45,34,25,.16);
+  border-radius:999px;
+  background:rgba(255,253,248,.70);
+  color:#2b2521;
+  font:800 13px/1 "Plus Jakarta Sans",system-ui,sans-serif;
+  letter-spacing:.01em;
+  cursor:pointer;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65);
+  transition:transform .25s ease, background .25s ease, color .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.bestseller-tab:hover{transform:translateY(-1px);border-color:rgba(168,120,62,.35);box-shadow:0 10px 26px rgba(72,47,29,.08)}
+.bestseller-tab.is-active{background:#070707;color:#fff;border-color:#070707;box-shadow:0 13px 28px rgba(0,0,0,.18)}
+.bestseller-layout{
+  display:grid;
+  grid-template-columns:minmax(365px,470px) minmax(0,1fr);
+  gap:16px;
+  align-items:stretch;
+}
+.bestseller-featured{
+  position:relative;
+  min-height:590px;
+  border:1px solid rgba(48,34,20,.12);
+  border-radius:24px;
+  overflow:hidden;
+  background:#fff8ee;
+  box-shadow:var(--cs-shadow);
+  isolation:isolate;
+}
+.bestseller-featured::before{
+  content:"";
+  position:absolute;inset:0;
+  background:var(--editorial-bg) center/cover no-repeat;
+  transform:scale(1.012);
+  z-index:0;
+  transition:opacity .32s ease, transform .5s ease;
+}
+.bestseller-featured::after{
+  content:"";
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(255,250,244,.82),rgba(255,250,244,.30) 44%,rgba(255,250,244,.72)), radial-gradient(circle at 35% 82%,rgba(126,82,33,.12),transparent 32%);
+  z-index:1;
+  pointer-events:none;
+}
+.bestseller-featured__content{position:relative;z-index:2;display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:100%;padding:24px}
+.bestseller-featured__badge{
+  justify-self:start;
+  display:inline-flex;align-items:center;gap:8px;
+  min-height:31px;padding:0 13px;border-radius:10px;
+  background:rgba(255,248,238,.88);border:1px solid rgba(168,120,62,.20);color:#8b642f;
+  font:800 12px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;
+}
+.bestseller-featured__badge svg{width:14px;height:14px;fill:currentColor}
+.bestseller-featured__stage{position:relative;min-height:360px;margin-top:10px}
+.bestseller-featured__image{
+  position:absolute;left:6%;bottom:2%;width:min(56%,255px);height:auto;max-height:350px;object-fit:contain;
+  filter:drop-shadow(0 30px 34px rgba(80,55,35,.20));
+  transform:translate3d(0,0,0);
+  transition:transform .45s ease, opacity .24s ease;
+}
+.bestseller-featured:hover .bestseller-featured__image{transform:translate3d(0,-4px,0) scale(1.015)}
+.bestseller-featured__copy{
+  position:absolute;right:0;top:14%;width:55%;max-width:250px;
+  padding:18px 18px 17px;border-radius:18px;
+  background:rgba(255,252,247,.74);border:1px solid rgba(55,40,27,.10);
+  backdrop-filter:blur(10px);
+  box-shadow:0 18px 42px rgba(54,35,22,.10);
+}
+.bestseller-featured__brand{display:block;margin:0 0 12px;color:#5a4533;font:800 11px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.22em;text-transform:uppercase}
+.bestseller-featured__copy h3{margin:0 0 12px;color:#16120f;font-family:"Cormorant Garamond",Georgia,serif;font-size:25px;line-height:1.02;font-weight:500;letter-spacing:-.02em}
+.bestseller-featured__copy p{margin:0;color:#4b423b;font:600 13px/1.62 "Plus Jakarta Sans",system-ui,sans-serif}
+.bestseller-featured__footer{display:grid;gap:15px;padding-top:8px}
+.bestseller-tags{display:flex;flex-wrap:wrap;gap:8px}
+.bestseller-tag{display:inline-flex;align-items:center;min-height:25px;padding:0 10px;border-radius:999px;background:rgba(255,249,241,.74);border:1px solid rgba(97,71,45,.16);color:#6b4f32;font:800 10px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.bestseller-meta-row{display:flex;align-items:end;justify-content:space-between;gap:16px}
+.bestseller-rating{display:flex;align-items:center;gap:7px;color:#16120f;font:700 12px/1 "Plus Jakarta Sans",system-ui,sans-serif;text-decoration:none}
+.bestseller-rating__stars{letter-spacing:.06em;color:#111;font-size:13px}
+.bestseller-rating span:last-child{color:#6c625a;font-weight:600}
+.bestseller-price{color:#111;font:700 25px/1 "Cormorant Garamond",Georgia,serif;letter-spacing:-.02em}
+.bestseller-tax{margin-top:4px;color:#756a61;font:700 11px/1 "Plus Jakarta Sans",system-ui,sans-serif}
+.bestseller-actions{display:grid;grid-template-columns:1fr;gap:11px}
+.bestseller-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;height:47px;border-radius:999px;
+  border:1px solid #080808;background:#080808;color:#fff;text-decoration:none;text-transform:uppercase;
+  font:800 12px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.11em;cursor:pointer;
+  transition:transform .25s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+}
+.bestseller-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px rgba(0,0,0,.17)}
+.bestseller-btn--secondary{background:rgba(255,250,244,.74);color:#14100d;border-color:rgba(28,20,14,.30)}
+.bestseller-btn--secondary:hover{background:#fff;color:#080808}
+.bestseller-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;opacity:1;transform:translateY(0);transition:opacity .24s ease, transform .24s ease}
+.bestseller-shell.is-switching .bestseller-grid,.bestseller-shell.is-switching .bestseller-featured__content{opacity:.35;transform:translateY(4px)}
+.bestseller-card{
+  min-width:0;min-height:289px;display:grid;grid-template-rows:auto 1fr;
+  border:1px solid rgba(48,34,20,.12);border-radius:15px;overflow:hidden;background:rgba(255,253,249,.82);
+  box-shadow:0 12px 34px rgba(48,34,20,.06);transition:transform .24s ease, box-shadow .24s ease, border-color .24s ease;
+}
+.bestseller-card:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(45,31,20,.11);border-color:rgba(168,120,62,.22)}
+.bestseller-card .product-media-wrap{position:relative;min-height:130px;background:linear-gradient(180deg,#fff,#f8f1e9)}
+.bestseller-card .product-media{display:flex;align-items:center;justify-content:center;height:130px;padding:15px;text-decoration:none}
+.bestseller-card img{width:100%;height:105px;object-fit:contain;filter:drop-shadow(0 15px 18px rgba(40,28,20,.10));transition:transform .28s ease}
+.bestseller-card:hover img{transform:scale(1.035)}
+.bestseller-card .favorite-btn,.bestseller-card__favorite{
+  position:absolute;right:10px;top:10px;width:31px;height:31px;border:1px solid rgba(34,24,18,.16);border-radius:50%;background:rgba(255,255,255,.78);display:grid;place-items:center;cursor:pointer;color:#221b16;z-index:3;
+}
+.bestseller-card .favorite-btn svg{width:17px;height:17px;stroke:currentColor;fill:none}
+.bestseller-card .favorite-btn.active svg,.bestseller-card .favorite-btn.is-active svg{fill:#111}
+.bestseller-card__body{display:grid;grid-template-rows:auto auto auto auto 1fr auto;gap:8px;padding:12px 13px 12px;min-width:0}
+.bestseller-card .brandline{color:#5f4c3d;font:900 10px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.15em;text-transform:uppercase}
+.bestseller-card h3{margin:0;color:#171310;font-family:"Cormorant Garamond",Georgia,serif;font-size:17px;line-height:1.06;font-weight:600;letter-spacing:-.015em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px}
+.bestseller-card a{text-decoration:none;color:inherit}
+.bestseller-card__tags{display:flex;gap:5px;flex-wrap:wrap;min-height:23px;overflow:hidden}
+.bestseller-card__tags .bestseller-tag{font-size:9px;min-height:21px;padding:0 7px;background:#fffaf4}
+.bestseller-card__bottom{display:flex;align-items:end;justify-content:space-between;gap:9px;margin-top:1px}
+.bestseller-card__bottom .price{color:#111;font:700 21px/1 "Cormorant Garamond",Georgia,serif;letter-spacing:-.02em}
+.bestseller-card__bottom .bestseller-tax{font-size:9px;margin-top:3px}
+.bestseller-card .bestseller-btn{height:34px;min-width:106px;padding:0 12px;font-size:9px;letter-spacing:.10em;box-shadow:none}
+.bestseller-card .bestseller-btn svg,.bestseller-btn svg{width:14px;height:14px;stroke:currentColor;fill:none}
+.bestseller-footer-cta{display:flex;justify-content:center;padding:23px 0 0}
+.bestseller-all-link{
+  min-width:min(100%,430px);height:52px;border-radius:999px;border:1px solid rgba(74,51,33,.35);
+  display:inline-flex;align-items:center;justify-content:center;gap:26px;text-decoration:none;color:#38291d;background:rgba(255,252,247,.65);
+  font:900 12px/1 "Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;transition:background .25s ease,transform .25s ease,box-shadow .25s ease;
+}
+.bestseller-all-link:hover{background:#fff;transform:translateY(-1px);box-shadow:0 14px 30px rgba(67,46,30,.10)}
+.bestseller-all-link svg{width:24px;height:24px;stroke:currentColor;fill:none}
+@media (max-width:1180px){
+  .bestseller-hero{grid-template-columns:1fr;gap:22px;align-items:start}
+  .bestseller-layout{grid-template-columns:1fr}
+  .bestseller-featured{min-height:520px}
+  .bestseller-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:820px){
+  .bestsellers-premium{overflow:hidden}
+  .bestseller-title{font-size:clamp(2.65rem,12vw,4.1rem)}
+  .bestseller-benefits{grid-template-columns:1fr;border-bottom:0}
+  .bestseller-benefit+.bestseller-benefit{border-left:0;border-top:1px solid var(--cs-line)}
+  .bestseller-tabs{gap:10px;margin-inline:-18px;padding-inline:18px}
+  .bestseller-tab{min-width:max-content;padding:0 19px}
+  .bestseller-featured{min-height:590px;border-radius:20px}
+  .bestseller-featured__content{padding:18px}
+  .bestseller-featured__stage{min-height:405px}
+  .bestseller-featured__image{left:2%;bottom:0;width:56%;max-height:360px}
+  .bestseller-featured__copy{right:0;top:7%;width:60%;padding:15px}
+  .bestseller-featured__copy h3{font-size:22px}
+  .bestseller-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .bestseller-card{min-height:286px}
+  .bestseller-card .product-media,.bestseller-card .product-media-wrap{height:auto;min-height:122px}
+}
+@media (max-width:540px){
+  .bestsellers-premium .container{padding-inline:16px}
+  .bestseller-hero{gap:18px;margin-bottom:20px}
+  .bestseller-intro{font-size:15px;line-height:1.65}
+  .bestseller-benefit{padding:13px 0;min-height:58px}
+  .bestseller-layout{gap:13px}
+  .bestseller-featured{min-height:560px}
+  .bestseller-featured__copy{width:66%;top:9%}
+  .bestseller-featured__image{width:58%;left:-1%}
+  .bestseller-actions{grid-template-columns:1fr}
+  .bestseller-meta-row{align-items:start;flex-direction:column;gap:10px}
+  .bestseller-card__body{padding:11px 10px}
+  .bestseller-card h3{font-size:15px;min-height:34px}
+  .bestseller-card__tags .bestseller-tag:nth-child(n+3){display:none}
+  .bestseller-card .bestseller-btn{min-width:88px;font-size:8px;padding:0 9px}
+  .bestseller-all-link{height:49px;gap:16px}
+}
+
+
+/* ===== Bestseller refinements v2 ===== */
+.bestseller-featured{
+  background:#fcf7f0;
+}
+.bestseller-featured::before{
+  background:var(--editorial-bg) center center/cover no-repeat;
+  transform:scale(1.02);
+  opacity:1;
+}
+.bestseller-featured::after{
+  background:
+    linear-gradient(92deg, rgba(255,251,246,.54) 0%, rgba(255,251,246,.22) 34%, rgba(255,251,246,.42) 58%, rgba(255,251,246,.62) 100%),
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+}
+.bestseller-featured__content{
+  position:relative;
+  z-index:2;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  height:100%;
+  padding:24px;
+}
+.bestseller-featured__stage{
+  position:relative;
+  min-height:360px;
+  margin-top:10px;
+  overflow:hidden;
+}
+.bestseller-featured__plinth{
+  position:absolute;
+  left:5%;
+  right:39%;
+  bottom:4%;
+  height:70px;
+  border-radius:999px;
+  background:radial-gradient(circle at 50% 48%, rgba(232,214,192,.96) 0%, rgba(221,196,168,.88) 45%, rgba(189,155,121,.18) 78%, rgba(189,155,121,0) 100%);
+  filter:blur(0.4px);
+  z-index:0;
+}
+.bestseller-featured__image{
+  position:absolute;
+  left:29%;
+  bottom:6%;
+  width:min(48%,248px);
+  height:auto;
+  max-height:330px;
+  object-fit:contain;
+  object-position:center center;
+  display:block;
+  margin:0 auto;
+  filter:drop-shadow(0 26px 28px rgba(80,55,35,.20));
+  transform:translate3d(-50%,0,0);
+  transition:transform .45s ease, opacity .24s ease;
+  z-index:1;
+}
+.bestseller-featured:hover .bestseller-featured__image{
+  transform:translate3d(-50%,-4px,0) scale(1.015);
+}
+.bestseller-featured__copy{
+  position:absolute;
+  right:2px;
+  top:13%;
+  width:52%;
+  max-width:250px;
+  padding:18px 18px 17px;
+  border-radius:18px;
+  background:rgba(255,252,247,.62);
+  border:1px solid rgba(55,40,27,.08);
+  backdrop-filter:blur(11px);
+  box-shadow:0 18px 42px rgba(54,35,22,.10);
+}
+.bestseller-featured__footer{
+  display:grid;
+  gap:15px;
+  padding-top:8px;
+}
+.bestseller-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:11px;
+}
+.bestseller-actions > .bestseller-btn,
+.bestseller-actions > a.bestseller-btn{
+  width:100%;
+  min-width:0;
+  height:47px;
+}
+.bestseller-btn--secondary{
+  background:rgba(255,250,244,.85);
+  color:#14100d;
+  border-color:rgba(28,20,14,.30);
+}
+
+.bestseller-rating{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#16120f;
+  font:700 12px/1 "Plus Jakarta Sans",system-ui,sans-serif;
+  text-decoration:none;
+  min-height:18px;
+}
+.bestseller-rating__stars{
+  display:inline-flex;
+  align-items:center;
+  gap:1px;
+}
+.bestseller-rating-star{
+  position:relative;
+  display:inline-grid;
+  place-items:center;
+  width:11px;
+  height:11px;
+  line-height:1;
+}
+.bestseller-rating-star__base,
+.bestseller-rating-star__fill{
+  grid-area:1/1;
+  font-size:11px;
+}
+.bestseller-rating-star__base{ color:#d9cbb8; }
+.bestseller-rating-star__fill{
+  color:#111;
+  width:var(--fill, 0%);
+  overflow:hidden;
+  white-space:nowrap;
+}
+.bestseller-rating span:last-child{color:#6c625a;font-weight:600}
+
+.bestseller-grid{
+  align-items:stretch;
+}
+.bestseller-card{
+  min-height:292px;
+}
+.bestseller-card .product-media-wrap{
+  position:relative;
+  min-height:138px;
+  background:linear-gradient(180deg,#fffdf9,#f8f2eb);
+  overflow:hidden;
+}
+.bestseller-card .product-media{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:138px;
+  padding:16px;
+  background:transparent;
+  text-decoration:none;
+}
+.bestseller-card img{
+  display:block;
+  width:auto;
+  max-width:100%;
+  height:108px;
+  object-fit:contain;
+  object-position:center center;
+  margin:0 auto;
+  filter:drop-shadow(0 15px 18px rgba(40,28,20,.10));
+  transition:transform .28s ease;
+}
+.bestseller-card__body{
+  display:grid;
+  grid-template-rows:auto auto auto auto 1fr auto;
+  gap:8px;
+  padding:12px 13px 12px;
+  min-width:0;
+}
+.bestseller-card .bestseller-btn{
+  height:34px;
+  min-width:112px;
+  padding:0 12px;
+  font-size:9px;
+  letter-spacing:.10em;
+  box-shadow:none;
+}
+
+@media (max-width: 820px){
+  .bestseller-featured__plinth{
+    left:3%;
+    right:42%;
+  }
+  .bestseller-featured__image{
+    left:26%;
+    width:52%;
+    max-height:345px;
+  }
+  .bestseller-featured__copy{
+    right:0;
+    top:7%;
+    width:58%;
+    padding:15px;
+  }
+}
+@media (max-width: 540px){
+  .bestseller-featured__plinth{
+    left:1%;
+    right:36%;
+    bottom:7%;
+  }
+  .bestseller-featured__image{
+    left:27%;
+    width:55%;
+    bottom:8%;
+  }
+  .bestseller-featured__copy{
+    width:62%;
+  }
+}

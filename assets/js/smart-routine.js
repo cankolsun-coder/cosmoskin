@@ -1,0 +1,869 @@
+(function () {
+  'use strict';
+
+  var SECTION_ID = 'smart-routine';
+  var ICON_BASE = '/assets/icons/routine/final-color/256/';
+  var REVIEW_CACHE = new Map();
+  var REVIEW_API = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
+
+  var icon = {
+    ui: function (name) { return ICON_BASE + 'ui/' + name + '.png'; },
+    goals: function (name) { return ICON_BASE + 'goals/' + name + '.png'; },
+    routine: function (name) { return ICON_BASE + 'routine/' + name + '.png'; },
+    state: function (name) { return ICON_BASE + 'state/' + name + '.png'; }
+  };
+
+  var goalConfig = [
+    { id: 'nem', label: 'Nem', icon: icon.goals('goal-hydration'), keywords: ['nem', 'hydration', 'hyaluronic', 'glycerin', 'water', 'moisture'] },
+    { id: 'bariyer', label: 'Bariyer', icon: icon.goals('goal-barrier'), keywords: ['bariyer', 'ceramide', 'seramid', 'panthenol', 'centella', 'squalane', 'mucin'] },
+    { id: 'isilti', label: 'Işıltı', icon: icon.goals('goal-radiance'), keywords: ['ışıltı', 'glow', 'niacinamide', 'vitamin c', 'rice', 'pirinç', 'arbutin'] },
+    { id: 'leke', label: 'Leke', icon: icon.goals('goal-blemish'), keywords: ['leke', 'dark spot', 'vitamin c', 'arbutin', 'ton', 'spf'] },
+    { id: 'hassasiyet', label: 'Hassasiyet', icon: icon.goals('goal-sensitive'), keywords: ['hassas', 'soothing', 'heartleaf', 'centella', 'low ph', 'yatıştırıcı'] }
+  ];
+
+  var skinTypes = [
+    { id: 'kuru', label: 'Kuru' },
+    { id: 'karma', label: 'Karma' },
+    { id: 'yagli', label: 'Yağlı' },
+    { id: 'hassas', label: 'Hassas' }
+  ];
+
+  var stepConfig = [
+    { id: 'temizle', label: 'Temizle', description: 'Cildi arındır ve tazele.', icon: icon.routine('step-cleanse') },
+    { id: 'hazirla', label: 'Hazırla', description: 'Cildi dengeleyip hazırla.', icon: icon.routine('step-prep') },
+    { id: 'serum', label: 'Serum', description: 'Hedefe yönelik bakım.', icon: icon.routine('step-serum') },
+    { id: 'nemlendir', label: 'Nemlendir', description: 'Nemi cilde hapseder.', icon: icon.routine('step-moisturize') },
+    { id: 'koru', label: 'Koru', description: 'UV, çevresel etkenlere karşı koru.', icon: icon.routine('step-protect') }
+  ];
+
+  var ratingFallback = {
+    'anua-heartleaf-77-soothing-toner': { avg: 4.7, count: 245 },
+    'anua-heartleaf-pore-control-cleansing-oil': { avg: 4.7, count: 194 },
+    'beauty-of-joseon-relief-sun-spf50': { avg: 4.8, count: 312 },
+    'beauty-of-joseon-glow-serum-propolis-niacinamide': { avg: 4.8, count: 157 },
+    'beauty-of-joseon-glow-deep-serum': { avg: 4.8, count: 153 },
+    'beauty-of-joseon-dynasty-cream': { avg: 4.8, count: 177 },
+    'beauty-of-joseon-green-plum-refreshing-cleanser': { avg: 4.7, count: 151 },
+    'by-wishtrend-pure-vitamin-c-21-5-serum': { avg: 4.7, count: 103 },
+    'cosrx-advanced-snail-96-mucin-essence': { avg: 4.8, count: 311 },
+    'cosrx-the-vitamin-c-23-serum': { avg: 4.7, count: 141 },
+    'cosrx-acne-pimple-master-patch': { avg: 4.6, count: 126 },
+    'cosrx-aha-bha-clarifying-treatment-toner': { avg: 4.7, count: 156 },
+    'cosrx-low-ph-good-morning-gel-cleanser': { avg: 4.7, count: 223 },
+    'cosrx-salicylic-acid-daily-gentle-cleanser': { avg: 4.6, count: 132 },
+    'cosrx-oil-free-ultra-moisturizing-lotion': { avg: 4.6, count: 143 },
+    'dr-jart-ceramidin-cream': { avg: 4.7, count: 164 },
+    'goodal-green-tangerine-vitamin-c-serum': { avg: 4.8, count: 167 },
+    'im-from-rice-toner': { avg: 4.7, count: 174 },
+    'isntree-hyaluronic-acid-watery-sun-gel': { avg: 4.7, count: 183 },
+    'laneige-water-sleeping-mask': { avg: 4.7, count: 156 },
+    'medicube-zero-pore-pad': { avg: 4.6, count: 118 },
+    'medicube-collagen-night-wrapping-mask': { avg: 4.7, count: 201 },
+    'round-lab-birch-juice-sunscreen': { avg: 4.8, count: 201 },
+    'round-lab-soybean-nourishing-cream': { avg: 4.7, count: 96 },
+    'round-lab-1025-dokdo-cleanser': { avg: 4.7, count: 138 },
+    'round-lab-dokdo-toner': { avg: 4.8, count: 216 },
+    'skin1004-madagascar-centella-ampoule': { avg: 4.8, count: 276 },
+    'skin1004-hyalu-cica-water-fit-sun-serum': { avg: 4.8, count: 221 },
+    'some-by-mi-aha-bha-miracle-toner': { avg: 4.7, count: 209 },
+    'torriden-dive-in-hyaluronic-acid-serum': { avg: 4.8, count: 189 },
+    'torriden-solid-in-ceramide-cream': { avg: 4.7, count: 128 },
+    'torriden-dive-in-watery-moisture-sun-cream': { avg: 4.7, count: 119 }
+  };
+
+  var productEnhancements = {
+    'anua-heartleaf-77-soothing-toner': { routineStep: 'hazirla', usageTime: ['day', 'night'], skinGoals: ['hassasiyet', 'bariyer', 'nem'], skinTypes: ['hassas', 'karma', 'kuru'], benefits: ['heartleaf', 'soothing', 'denge'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'anua-heartleaf-pore-control-cleansing-oil': { routineStep: 'temizle', usageTime: ['night'], skinGoals: ['bariyer', 'hassasiyet'], skinTypes: ['karma', 'yagli', 'hassas'], benefits: ['yağ bazlı temizleme', 'heartleaf', 'makyaj temizliği'], sensitiveFriendly: true, editorPick: true, stock: true, nightPriority: 22 },
+    'beauty-of-joseon-relief-sun-spf50': { routineStep: 'koru', usageTime: ['day'], skinGoals: ['leke', 'isilti', 'bariyer', 'nem'], skinTypes: ['kuru', 'karma', 'hassas'], benefits: ['rice extract', 'probiotics', 'spf50'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'beauty-of-joseon-glow-serum-propolis-niacinamide': { routineStep: 'serum', usageTime: ['day', 'night'], skinGoals: ['isilti', 'leke', 'bariyer'], skinTypes: ['karma', 'yagli', 'kuru'], benefits: ['niacinamide', 'propolis', 'glow'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'beauty-of-joseon-glow-deep-serum': { routineStep: 'serum', usageTime: ['day', 'night'], skinGoals: ['leke', 'isilti'], skinTypes: ['kuru', 'karma'], benefits: ['rice', 'arbutin', 'ton eşitleme'], sensitiveFriendly: true, stock: true },
+    'beauty-of-joseon-dynasty-cream': { routineStep: 'nemlendir', usageTime: ['day', 'night'], skinGoals: ['nem', 'isilti', 'bariyer'], skinTypes: ['kuru', 'karma'], benefits: ['rice water', 'squalane', 'ginseng'], sensitiveFriendly: true, stock: true },
+    'beauty-of-joseon-green-plum-refreshing-cleanser': { routineStep: 'temizle', usageTime: ['day', 'night'], skinGoals: ['hassasiyet', 'bariyer'], skinTypes: ['karma', 'yagli', 'hassas'], benefits: ['green plum', 'nazik temizlik'], sensitiveFriendly: true, stock: true },
+    'by-wishtrend-pure-vitamin-c-21-5-serum': { routineStep: 'serum', usageTime: ['night'], skinGoals: ['leke', 'isilti'], skinTypes: ['karma', 'yagli'], benefits: ['vitamin c', 'antioksidan'], sensitiveFriendly: false, aggressive: true, stock: true },
+    'cosrx-advanced-snail-96-mucin-essence': { routineStep: 'hazirla', usageTime: ['day', 'night'], skinGoals: ['nem', 'bariyer', 'hassasiyet'], skinTypes: ['kuru', 'karma', 'hassas'], benefits: ['snail mucin', 'repair', 'elasticity'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'cosrx-the-vitamin-c-23-serum': { routineStep: 'serum', usageTime: ['night'], skinGoals: ['leke', 'isilti'], skinTypes: ['karma', 'yagli'], benefits: ['vitamin c', 'brightening'], sensitiveFriendly: false, aggressive: true, stock: true },
+    'cosrx-aha-bha-clarifying-treatment-toner': { routineStep: 'hazirla', usageTime: ['night'], skinGoals: ['leke'], skinTypes: ['yagli', 'karma'], benefits: ['aha', 'bha', 'gözenek'], sensitiveFriendly: false, aggressive: true, stock: true },
+    'cosrx-low-ph-good-morning-gel-cleanser': { routineStep: 'temizle', usageTime: ['day', 'night'], skinGoals: ['hassasiyet', 'bariyer', 'nem'], skinTypes: ['hassas', 'karma', 'kuru'], benefits: ['low ph', 'nazik', 'gel cleanser'], sensitiveFriendly: true, editorPick: true, stock: true, dayPriority: 12 },
+    'cosrx-salicylic-acid-daily-gentle-cleanser': { routineStep: 'temizle', usageTime: ['night'], skinGoals: ['leke'], skinTypes: ['yagli', 'karma'], benefits: ['salicylic acid', 'akne', 'temizleyici'], sensitiveFriendly: false, aggressive: true, stock: true },
+    'cosrx-oil-free-ultra-moisturizing-lotion': { routineStep: 'nemlendir', usageTime: ['day', 'night'], skinGoals: ['nem', 'bariyer'], skinTypes: ['yagli', 'karma'], benefits: ['oil free', 'lightweight moisturizer'], sensitiveFriendly: true, stock: true },
+    'dr-jart-ceramidin-cream': { routineStep: 'nemlendir', usageTime: ['night'], skinGoals: ['bariyer', 'nem', 'hassasiyet'], skinTypes: ['kuru', 'hassas'], benefits: ['ceramide', 'barrier repair', 'cream'], sensitiveFriendly: true, editorPick: true, stock: true, nightPriority: 24 },
+    'goodal-green-tangerine-vitamin-c-serum': { routineStep: 'serum', usageTime: ['day', 'night'], skinGoals: ['leke', 'isilti'], skinTypes: ['karma', 'yagli'], benefits: ['vitamin c', 'dark spot', 'glow'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'im-from-rice-toner': { routineStep: 'hazirla', usageTime: ['day', 'night'], skinGoals: ['isilti', 'nem'], skinTypes: ['kuru', 'karma'], benefits: ['rice toner', 'glow', 'nem'], sensitiveFriendly: true, stock: true },
+    'isntree-hyaluronic-acid-watery-sun-gel': { routineStep: 'koru', usageTime: ['day'], skinGoals: ['nem', 'leke', 'bariyer'], skinTypes: ['kuru', 'karma'], benefits: ['hyaluronic acid', 'sun gel', 'spf50'], sensitiveFriendly: true, stock: true },
+    'laneige-water-sleeping-mask': { routineStep: 'nemlendir', usageTime: ['night'], skinGoals: ['nem'], skinTypes: ['kuru', 'karma'], benefits: ['sleeping mask', 'water', 'night hydration'], sensitiveFriendly: true, stock: true },
+    'medicube-zero-pore-pad': { routineStep: 'hazirla', usageTime: ['night'], skinGoals: ['leke'], skinTypes: ['yagli', 'karma'], benefits: ['pore', 'pad', 'denge'], sensitiveFriendly: false, stock: true },
+    'medicube-collagen-night-wrapping-mask': { routineStep: 'nemlendir', usageTime: ['night'], skinGoals: ['nem', 'isilti'], skinTypes: ['kuru', 'karma'], benefits: ['night mask', 'collagen', 'glow'], sensitiveFriendly: true, stock: true },
+    'round-lab-birch-juice-sunscreen': { routineStep: 'koru', usageTime: ['day'], skinGoals: ['nem', 'leke', 'hassasiyet'], skinTypes: ['kuru', 'hassas', 'karma'], benefits: ['birch juice', 'spf50', 'nem'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'round-lab-soybean-nourishing-cream': { routineStep: 'nemlendir', usageTime: ['day', 'night'], skinGoals: ['nem', 'bariyer', 'isilti'], skinTypes: ['kuru', 'karma'], benefits: ['soybean', 'ceramide', 'nourishing'], sensitiveFriendly: true, stock: true },
+    'round-lab-1025-dokdo-cleanser': { routineStep: 'temizle', usageTime: ['day', 'night'], skinGoals: ['hassasiyet', 'bariyer', 'nem'], skinTypes: ['hassas', 'kuru', 'karma'], benefits: ['dokdo', 'low irritation', 'cleanser'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'round-lab-dokdo-toner': { routineStep: 'hazirla', usageTime: ['day', 'night'], skinGoals: ['nem', 'hassasiyet', 'bariyer'], skinTypes: ['hassas', 'kuru', 'karma'], benefits: ['toner', 'dokdo', 'minerals'], sensitiveFriendly: true, stock: true },
+    'skin1004-madagascar-centella-ampoule': { routineStep: 'serum', usageTime: ['day', 'night'], skinGoals: ['hassasiyet', 'bariyer', 'nem'], skinTypes: ['hassas', 'karma', 'yagli', 'kuru'], benefits: ['centella', 'soothing', 'barrier'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'skin1004-hyalu-cica-water-fit-sun-serum': { routineStep: 'koru', usageTime: ['day'], skinGoals: ['hassasiyet', 'nem', 'leke'], skinTypes: ['hassas', 'karma', 'yagli'], benefits: ['hyalu-cica', 'water-fit', 'spf50'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'some-by-mi-aha-bha-miracle-toner': { routineStep: 'hazirla', usageTime: ['night'], skinGoals: ['leke'], skinTypes: ['yagli', 'karma'], benefits: ['aha bha pha', 'pore', 'akne'], sensitiveFriendly: false, aggressive: true, stock: true },
+    'torriden-dive-in-hyaluronic-acid-serum': { routineStep: 'serum', usageTime: ['day', 'night'], skinGoals: ['nem', 'bariyer', 'hassasiyet'], skinTypes: ['kuru', 'karma', 'hassas', 'yagli'], benefits: ['hyaluronic acid', 'lightweight', 'hydration'], sensitiveFriendly: true, editorPick: true, stock: true },
+    'torriden-solid-in-ceramide-cream': { routineStep: 'nemlendir', usageTime: ['day', 'night'], skinGoals: ['bariyer', 'nem', 'hassasiyet'], skinTypes: ['kuru', 'hassas', 'karma'], benefits: ['ceramide', 'panthenol', 'barrier'], sensitiveFriendly: true, editorPick: true, stock: true, dayPriority: 18 },
+    'torriden-dive-in-watery-moisture-sun-cream': { routineStep: 'koru', usageTime: ['day'], skinGoals: ['nem', 'leke'], skinTypes: ['kuru', 'karma', 'yagli'], benefits: ['hyaluronic acid', 'watery', 'spf'], sensitiveFriendly: true, stock: true }
+  };
+
+  var routineState = {
+    selectedGoals: ['nem', 'bariyer'],
+    selectedSkinType: 'kuru',
+    dayRoutine: [],
+    nightRoutine: [],
+    alternatives: {},
+    overrides: {},
+    removedSlots: {},
+    matchScore: 96,
+    totalPrice: 0,
+    originalTotalPrice: 0,
+    bundleDiscountRate: 0.10,
+    bundleDiscountAmount: 0,
+    bundleDiscountEligible: false
+  };
+
+  window.COSMOSKIN_SMART_ROUTINE_STATE = routineState;
+
+  function esc(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function formatPrice(value) {
+    var amount = Number(value || 0);
+    return new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(amount) + ' TL';
+  }
+
+  function readNumber(value) {
+    var n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function arrayIncludesAny(values, selected) {
+    var set = new Set(Array.isArray(values) ? values : [values].filter(Boolean));
+    return (selected || []).some(function (item) { return set.has(item); });
+  }
+
+  function getProductData() {
+    return Array.isArray(window.COSMOSKIN_PRODUCTS) ? window.COSMOSKIN_PRODUCTS : [];
+  }
+
+  function categoryToStep(product) {
+    var category = String(product.category || '').toLowerCase();
+    var name = String(product.name || '').toLowerCase();
+    var keywords = (product.keywords || []).join(' ').toLowerCase();
+    if (/güneş|spf|sun/.test(category + ' ' + name + ' ' + keywords)) return 'koru';
+    if (/temizleyici|cleanser|cleansing|oil/.test(category + ' ' + name + ' ' + keywords)) return 'temizle';
+    if (/serum|ampul|ampoule|vitamin c/.test(category + ' ' + name + ' ' + keywords)) return 'serum';
+    if (/nemlendirici|cream|lotion|mask|krem/.test(category + ' ' + name + ' ' + keywords)) return 'nemlendir';
+    if (/tonik|essence|toner|pad/.test(category + ' ' + name + ' ' + keywords)) return 'hazirla';
+    return 'serum';
+  }
+
+  function inferGoals(product, enhancement) {
+    var text = [product.name, product.brand, product.category, (product.keywords || []).join(' '), (enhancement.benefits || []).join(' ')].join(' ').toLowerCase();
+    var goals = new Set(enhancement.skinGoals || []);
+    goalConfig.forEach(function (goal) {
+      if (goal.keywords.some(function (k) { return text.indexOf(k.toLowerCase()) !== -1; })) goals.add(goal.id);
+    });
+    if (!goals.size) goals.add('nem');
+    return Array.from(goals);
+  }
+
+  function normalizeProductData(source) {
+    var products = (Array.isArray(source) ? source : getProductData()).map(function (product) {
+      var enhancement = productEnhancements[product.slug] || {};
+      var fallback = ratingFallback[product.slug] || { avg: 4.7, count: 100 };
+      var step = enhancement.routineStep || categoryToStep(product);
+      var usageTime = enhancement.usageTime || (step === 'koru' ? ['day'] : ['day', 'night']);
+      return Object.assign({}, product, enhancement, {
+        id: product.id || product.slug,
+        slug: product.slug,
+        url: product.url || ('/products/' + product.slug + '.html'),
+        image: product.image || '',
+        price: readNumber(product.price),
+        routineStep: step,
+        usageTime: Array.isArray(usageTime) ? usageTime : [usageTime],
+        skinGoals: inferGoals(product, enhancement),
+        skinTypes: enhancement.skinTypes || ['kuru', 'karma', 'yagli', 'hassas'],
+        rating: readNumber(product.rating || product.avgRating || product.avg_rating || fallback.avg),
+        reviewCount: Math.round(readNumber(product.reviewCount || product.review_count || product.approved_count || fallback.count)),
+        stock: enhancement.stock !== false,
+        benefits: enhancement.benefits || []
+      });
+    }).filter(function (product) {
+      return product.slug && product.name && product.image && product.price > 0;
+    });
+    return products;
+  }
+
+  function scoreProduct(product, selectedGoals, selectedSkinType, routineStep, usageTime) {
+    var score = 0;
+    var goals = selectedGoals && selectedGoals.length ? selectedGoals : ['nem'];
+    if (arrayIncludesAny(product.skinGoals, goals)) score += 30;
+    if ((product.skinTypes || []).indexOf(selectedSkinType) !== -1) score += 20;
+    if (product.routineStep === routineStep) score += 20;
+    if ((product.usageTime || []).indexOf(usageTime) !== -1) score += 15;
+    if (Number(product.rating || 0) >= 4.5) score += 5;
+    if (product.stock) score += 10;
+    if (product.editorPick) score += 5;
+    if (routineStep === 'koru' && usageTime === 'day') score += 12;
+    if (usageTime === 'night' && product.nightPriority) score += product.nightPriority;
+    if (usageTime === 'day' && product.dayPriority) score += product.dayPriority;
+    if (goals.indexOf('hassasiyet') !== -1 || selectedSkinType === 'hassas') {
+      if (product.sensitiveFriendly) score += 25;
+      if (product.aggressive) score -= 35;
+    }
+    if (goals.indexOf('bariyer') !== -1 && /(ceramide|seramid|centella|panthenol|barrier|mucin|squalane)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
+    if (goals.indexOf('nem') !== -1 && /(hyaluronic|glycerin|water|moisture|nem)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
+    if (goals.indexOf('isilti') !== -1 && /(glow|niacinamide|vitamin c|rice|pirinç|arbutin)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
+    if (goals.indexOf('leke') !== -1 && /(spf|vitamin c|arbutin|dark spot|ton)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' ') + ' ' + product.category)) score += 14;
+    return score;
+  }
+
+  function slotId(usageTime, step) {
+    return usageTime + ':' + step;
+  }
+
+  function sortCandidates(products, selectedGoals, selectedSkinType, routineStep, usageTime) {
+    return products
+      .filter(function (product) {
+        return product.routineStep === routineStep && (product.usageTime || []).indexOf(usageTime) !== -1;
+      })
+      .map(function (product) {
+        return Object.assign({}, product, { _score: scoreProduct(product, selectedGoals, selectedSkinType, routineStep, usageTime) });
+      })
+      .sort(function (a, b) {
+        return b._score - a._score || b.rating - a.rating || b.reviewCount - a.reviewCount || a.price - b.price;
+      });
+  }
+
+  function chooseForSlot(products, used, routineStep, usageTime) {
+    var key = slotId(usageTime, routineStep);
+    var candidates = sortCandidates(products, routineState.selectedGoals, routineState.selectedSkinType, routineStep, usageTime);
+    routineState.alternatives[key] = candidates.slice(0, 8);
+
+    if (routineState.removedSlots[key]) return null;
+
+    var override = routineState.overrides[key];
+    if (override) {
+      var selected = candidates.find(function (product) { return product.slug === override; }) || products.find(function (product) { return product.slug === override; });
+      if (selected && !used.has(selected.slug)) {
+        selected = Object.assign({}, selected, {
+          _score: scoreProduct(selected, routineState.selectedGoals, routineState.selectedSkinType, routineStep, usageTime),
+          _slotKey: key,
+          _usageTime: usageTime,
+          _routineStep: routineStep
+        });
+        used.add(selected.slug);
+        return selected;
+      }
+    }
+
+    var unique = candidates.find(function (product) { return !used.has(product.slug); });
+    if (unique) {
+      used.add(unique.slug);
+      return Object.assign({}, unique, { _slotKey: key, _usageTime: usageTime, _routineStep: routineStep });
+    }
+    return null;
+  }
+
+  function buildRoutine(selectedGoals, selectedSkinType) {
+    if (Array.isArray(selectedGoals)) routineState.selectedGoals = selectedGoals.slice();
+    if (selectedSkinType) routineState.selectedSkinType = selectedSkinType;
+    var products = normalizeProductData();
+    var used = new Set();
+    var daySteps = ['temizle', 'serum', 'nemlendir', 'koru'];
+    var nightSteps = ['temizle', 'serum', 'nemlendir'];
+    routineState.alternatives = {};
+
+    var day = daySteps.map(function (step) { return chooseForSlot(products, used, step, 'day'); }).filter(Boolean);
+    var night = nightSteps.map(function (step) { return chooseForSlot(products, used, step, 'night'); }).filter(Boolean);
+
+    if (selectedGoals.indexOf('leke') !== -1 && !day.some(function (p) { return p.routineStep === 'koru'; })) {
+      var spf = sortCandidates(products, selectedGoals, selectedSkinType, 'koru', 'day').find(function (product) { return !used.has(product.slug); });
+      if (spf) {
+        used.add(spf.slug);
+        day.push(Object.assign({}, spf, { _slotKey: slotId('day', 'koru'), _usageTime: 'day', _routineStep: 'koru' }));
+      }
+    }
+
+    routineState.dayRoutine = day;
+    routineState.nightRoutine = night;
+    routineState.originalTotalPrice = calculateRoutineTotal(day, night, false);
+    var offer = calculateBundleOffer(day, night);
+    routineState.bundleDiscountEligible = offer.eligible;
+    routineState.bundleDiscountAmount = offer.discount;
+    routineState.totalPrice = offer.payable;
+    routineState.matchScore = calculateMatchScore(day, night);
+    return { dayRoutine: day, nightRoutine: night };
+  }
+
+  function getUniqueRoutineProducts(day, night, inStockOnly) {
+    var unique = new Map();
+    (day || routineState.dayRoutine).concat(night || routineState.nightRoutine).forEach(function (product) {
+      if (!product || unique.has(product.slug)) return;
+      if (inStockOnly && !product.stock) return;
+      unique.set(product.slug, product);
+    });
+    return Array.from(unique.values());
+  }
+
+  function calculateRoutineTotal(day, night, applyDiscount) {
+    var total = getUniqueRoutineProducts(day, night, true).reduce(function (sum, product) {
+      return sum + Number(product.price || 0);
+    }, 0);
+    if (applyDiscount === false) return total;
+    var uniqueCount = getUniqueRoutineProducts(day, night, true).length;
+    return uniqueCount >= 2 ? Math.max(0, total - Math.round(total * routineState.bundleDiscountRate)) : total;
+  }
+
+  function calculateBundleOffer(day, night) {
+    var uniqueProducts = getUniqueRoutineProducts(day, night, true);
+    var subtotal = uniqueProducts.reduce(function (sum, product) { return sum + Number(product.price || 0); }, 0);
+    var eligible = uniqueProducts.length >= 2;
+    var discount = eligible ? Math.round(subtotal * routineState.bundleDiscountRate) : 0;
+    return {
+      eligible: eligible,
+      discount: discount,
+      payable: Math.max(0, subtotal - discount),
+      uniqueCount: uniqueProducts.length
+    };
+  }
+
+  function getCurrentRoutineMap() {
+    var map = new Map();
+    routineState.dayRoutine.concat(routineState.nightRoutine).forEach(function (product) {
+      if (product && product._slotKey) map.set(product._slotKey, product);
+    });
+    return map;
+  }
+
+  function isProductSelectedElsewhere(productId, slotKey) {
+    return routineState.dayRoutine.concat(routineState.nightRoutine).some(function (product) {
+      return product && product.slug === productId && product._slotKey !== slotKey;
+    });
+  }
+
+  function removeRoutineProduct(slotKey) {
+    if (!slotKey) return;
+    routineState.removedSlots[slotKey] = true;
+    delete routineState.overrides[slotKey];
+    var root = document.getElementById(SECTION_ID);
+    if (root) {
+      renderRecommendedRoutine(root);
+      hydrateReviewSummaries(root);
+    }
+    showRoutineToast('Ürün rutinden çıkarıldı. Toplam tutar güncellendi.', 'success');
+  }
+
+  function calculateMatchScore(day, night) {
+    var products = day.concat(night).filter(Boolean);
+    if (!products.length) return 88;
+    var max = 119;
+    var avg = products.reduce(function (sum, product) { return sum + Math.max(0, Math.min(max, product._score || 0)); }, 0) / products.length;
+    var base = Math.round(74 + (avg / max) * 22);
+    if (!routineState.selectedGoals.length) base = Math.min(base, 88);
+    return Math.max(82, Math.min(96, base));
+  }
+
+  function getGoalLabel(id) {
+    var goal = goalConfig.find(function (item) { return item.id === id; });
+    return goal ? goal.label : id;
+  }
+
+  function getSkinLabel(id) {
+    var skin = skinTypes.find(function (item) { return item.id === id; });
+    return skin ? skin.label : id;
+  }
+
+  function renderSelectedGoals(root) {
+    root.querySelectorAll('[data-sr-goal]').forEach(function (button) {
+      var id = button.getAttribute('data-sr-goal');
+      var active = routineState.selectedGoals.indexOf(id) !== -1;
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    var count = root.querySelector('[data-sr-selected-count]');
+    if (count) {
+      count.textContent = routineState.selectedGoals.length
+        ? routineState.selectedGoals.length + ' hedef seçildi'
+        : 'Başlangıç rutini';
+    }
+  }
+
+  function renderSkinTypes(root) {
+    root.querySelectorAll('[data-sr-skin]').forEach(function (button) {
+      var id = button.getAttribute('data-sr-skin');
+      button.setAttribute('aria-pressed', id === routineState.selectedSkinType ? 'true' : 'false');
+    });
+  }
+
+  function renderRoutineSteps(root) {
+    var target = root.querySelector('[data-sr-steps]');
+    if (!target) return;
+    target.innerHTML = stepConfig.map(function (step, index) {
+      return '' +
+        '<div class="smart-routine__step">' +
+          '<div class="smart-routine__step-index">' + (index + 1) + '</div>' +
+          '<div class="smart-routine__step-card">' +
+            '<div class="smart-routine__step-icon"><img src="' + esc(step.icon) + '" alt="" loading="lazy"></div>' +
+            '<div class="smart-routine__step-copy"><strong>' + esc(step.label) + '</strong><span>' + esc(step.description) + '</span></div>' +
+            '<img class="smart-routine__step-arrow" src="' + esc(icon.ui('arrow-right')) + '" alt="" loading="lazy">' +
+          '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderRating(product) {
+    return '<div class="smart-routine__rating" aria-label="' + esc(product.rating.toFixed(1) + ' puan, ' + product.reviewCount + ' yorum') + '">' +
+      '<span class="smart-routine__stars">★ ' + esc(product.rating.toFixed(1)) + '</span>' +
+      '<span class="smart-routine__reviews">(' + esc(new Intl.NumberFormat('tr-TR').format(product.reviewCount)) + ')</span>' +
+    '</div>';
+  }
+
+  function productStepLabel(product) {
+    var map = { temizle: 'Temizleyici', hazirla: 'Hazırlayıcı', serum: 'Serum', nemlendir: 'Nemlendirici', koru: 'SPF Koruma' };
+    return map[product.routineStep] || product.category || 'Bakım';
+  }
+
+  function renderProductCard(product, index, total) {
+    if (!product) return '';
+    var slot = product._slotKey || slotId(product._usageTime || 'day', product._routineStep || product.routineStep);
+    var isLast = index >= total - 1;
+    return '<div class="smart-routine__product-wrap" data-sr-product-slot="' + esc(slot) + '">' +
+      '<a class="smart-routine__product-card" href="' + esc(product.url) + '" aria-label="' + esc(product.name + ' ürün sayfasına git') + '">' +
+        '<div class="smart-routine__product-media"><img src="' + esc(product.image) + '" alt="' + esc(product.brand + ' ' + product.name) + '" loading="lazy"></div>' +
+        '<div class="smart-routine__product-info">' +
+          '<span class="smart-routine__product-step">' + esc(productStepLabel(product)) + '</span>' +
+          '<strong class="smart-routine__product-name">' + esc(product.name) + '</strong>' +
+          renderRating(product) +
+          '<div class="smart-routine__product-price">' + esc(formatPrice(product.price)) + '</div>' +
+        '</div>' +
+      '</a>' +
+      '<button class="smart-routine__product-remove" type="button" data-sr-remove-product="' + esc(slot) + '" aria-label="' + esc(product.name + ' ürününü rutinden çıkar') + '">×</button>' +
+      (!isLast ? '<img class="smart-routine__connector" src="' + esc(icon.ui('arrow-right')) + '" alt="" loading="lazy">' : '') +
+    '</div>';
+  }
+
+  function renderRecommendedRoutine(root) {
+    buildRoutine(routineState.selectedGoals, routineState.selectedSkinType);
+    var day = root.querySelector('[data-sr-day-products]');
+    var night = root.querySelector('[data-sr-night-products]');
+    if (day) day.innerHTML = routineState.dayRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.dayRoutine.length); }).join('');
+    if (night) night.innerHTML = routineState.nightRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.nightRoutine.length); }).join('');
+
+    var match = root.querySelector('[data-sr-match]');
+    if (match) match.textContent = '%' + routineState.matchScore + ' eşleşme';
+    var total = root.querySelector('[data-sr-total]');
+    if (total) total.textContent = formatPrice(routineState.totalPrice);
+    var originalTotal = root.querySelector('[data-sr-original-total]');
+    if (originalTotal) originalTotal.textContent = routineState.bundleDiscountEligible ? formatPrice(routineState.originalTotalPrice) : '';
+    var discount = root.querySelector('[data-sr-discount]');
+    if (discount) discount.textContent = routineState.bundleDiscountEligible ? '-' + formatPrice(routineState.bundleDiscountAmount) : '—';
+    renderBundleOffer(root);
+    var time = root.querySelector('[data-sr-time]');
+    if (time) time.textContent = routineState.dayRoutine.length + routineState.nightRoutine.length >= 7 ? '3 dakikada hazır' : '2 dakikada hazır';
+    var stock = root.querySelector('[data-sr-stock]');
+    if (stock) stock.textContent = routineState.dayRoutine.concat(routineState.nightRoutine).every(function (product) { return product.stock; }) ? '✓' : 'Kontrol et';
+    var subtitle = root.querySelector('[data-sr-routine-subtitle]');
+    if (subtitle) {
+      subtitle.textContent = routineState.selectedGoals.length
+        ? getSkinLabel(routineState.selectedSkinType) + ' cilt için ' + routineState.selectedGoals.map(getGoalLabel).join(' + ') + ' odağı'
+        : 'Başlangıç rutini · Dengeli günlük bakım akışı';
+    }
+  }
+
+  function renderBundleOffer(root) {
+    var offer = root.querySelector('[data-sr-offer]');
+    if (!offer) return;
+    var count = getUniqueRoutineProducts(routineState.dayRoutine, routineState.nightRoutine, true).length;
+    if (routineState.bundleDiscountEligible) {
+      offer.hidden = false;
+      offer.innerHTML = '<div class="smart-routine__offer-icon">%</div>' +
+        '<div><strong>Rutin Set Avantajı</strong><span>Gündüz + gece rutininde 2+ üründe sepette %10 avantaj. Aynı ürün tekrar eklenmez.</span></div>' +
+        '<b>-' + esc(formatPrice(routineState.bundleDiscountAmount)) + '</b>';
+    } else {
+      offer.hidden = false;
+      offer.innerHTML = '<div class="smart-routine__offer-icon">%</div>' +
+        '<div><strong>Rutin Set Avantajı</strong><span>%10 avantaj için rutinde en az 2 stoklu ürün seçili olmalı.</span></div>' +
+        '<b>' + count + '/2</b>';
+    }
+  }
+
+  function collectCartItems() {
+    var unique = new Map();
+    routineState.dayRoutine.concat(routineState.nightRoutine).forEach(function (product) {
+      if (!product || !product.stock || unique.has(product.slug)) return;
+      unique.set(product.slug, {
+        id: product.slug,
+        slug: product.slug,
+        name: product.name,
+        brand: product.brand,
+        price: Number(product.price || 0),
+        image: product.image,
+        url: product.url,
+        qty: 1,
+        routineBundle: true
+      });
+    });
+    return Array.from(unique.values());
+  }
+
+  function addRoutineToCart() {
+    var items = collectCartItems();
+    if (!items.length) {
+      showRoutineToast('Stokta eklenebilir ürün bulunamadı.', 'error');
+      return;
+    }
+
+    var existingItems = [];
+    if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.getItems === 'function') {
+      existingItems = window.COSMOSKIN_CART_API.getItems() || [];
+    } else {
+      try { existingItems = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'); } catch (error) { existingItems = []; }
+    }
+    if (!Array.isArray(existingItems)) existingItems = [];
+    var existingSlugs = new Set(existingItems.map(function (entry) { return entry.slug || entry.id; }).filter(Boolean));
+    var freshItems = items.filter(function (item) { return !existingSlugs.has(item.slug); });
+
+    try {
+      localStorage.setItem('cosmoskin_routine_bundle_offer', JSON.stringify({
+        source: 'smart-routine',
+        discountRate: routineState.bundleDiscountRate,
+        discountEligible: routineState.bundleDiscountEligible,
+        discountAmount: routineState.bundleDiscountAmount,
+        originalTotal: routineState.originalTotalPrice,
+        payableTotal: routineState.totalPrice,
+        productSlugs: items.map(function (item) { return item.slug; }),
+        updatedAt: new Date().toISOString()
+      }));
+    } catch (error) {}
+
+    if (!freshItems.length) {
+      showRoutineToast('Rutinindeki ürünler zaten sepetinde. Tekrar eklenmedi.', 'info');
+      return;
+    }
+
+    if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.addItems === 'function') {
+      window.COSMOSKIN_CART_API.addItems(freshItems, { openDrawer: true });
+    } else {
+      var stored = existingItems.slice();
+      freshItems.forEach(function (item) { stored.push(item); });
+      localStorage.setItem('cosmoskin_cart', JSON.stringify(stored));
+      window.dispatchEvent(new CustomEvent('cosmoskin:cart-updated', { detail: { cart: stored } }));
+    }
+    showRoutineToast(freshItems.length + ' ürün sepete eklendi. Aynı ürünler tekrar eklenmedi.', 'success');
+  }
+
+  async function saveRoutine() {
+    var payload = {
+      selectedGoals: routineState.selectedGoals.slice(),
+      selectedSkinType: routineState.selectedSkinType,
+      dayRoutine: routineState.dayRoutine.map(safeRoutineProduct),
+      nightRoutine: routineState.nightRoutine.map(safeRoutineProduct),
+      totalPrice: routineState.totalPrice,
+      originalTotalPrice: routineState.originalTotalPrice,
+      bundleDiscountRate: routineState.bundleDiscountRate,
+      bundleDiscountAmount: routineState.bundleDiscountAmount,
+      bundleDiscountEligible: routineState.bundleDiscountEligible,
+      matchScore: routineState.matchScore,
+      savedAt: new Date().toISOString()
+    };
+
+    var client = window.cosmoskinSupabase;
+    if (client && client.auth && typeof client.auth.getUser === 'function') {
+      try {
+        var result = await client.auth.getUser();
+        if (!result || !result.data || !result.data.user) {
+          showRoutineToast('Rutinini kaydetmek için giriş yapmalısın.', 'warning');
+          document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
+          return;
+        }
+      } catch (error) {
+        showRoutineToast('Rutinini kaydetmek için giriş yapmalısın.', 'warning');
+        return;
+      }
+    }
+
+    try {
+      localStorage.setItem('cosmoskin_saved_routine', JSON.stringify(payload));
+      window.dispatchEvent(new CustomEvent('cosmoskin:routine-saved', { detail: payload }));
+      showRoutineToast('Rutinin kaydedildi.', 'success');
+    } catch (error) {
+      showRoutineToast('Rutin kaydedilemedi. Lütfen tekrar dene.', 'error');
+    }
+  }
+
+  function safeRoutineProduct(product) {
+    return {
+      id: product.id || product.slug,
+      slug: product.slug,
+      name: product.name,
+      brand: product.brand,
+      category: product.category,
+      routineStep: product.routineStep,
+      price: product.price,
+      image: product.image,
+      url: product.url,
+      rating: product.rating,
+      reviewCount: product.reviewCount,
+      stock: product.stock
+    };
+  }
+
+  function alternativeLabel(key) {
+    var parts = key.split(':');
+    var usage = parts[0] === 'day' ? 'Gündüz' : 'Gece';
+    var step = stepConfig.find(function (item) { return item.id === parts[1]; });
+    return usage + ' · ' + (step ? step.label : parts[1]);
+  }
+
+  function showAlternatives() {
+    var modal = document.querySelector('[data-sr-alternative-modal]');
+    var target = document.querySelector('[data-sr-alternatives]');
+    if (!modal || !target) return;
+    var currentMap = getCurrentRoutineMap();
+    var selectedBySlug = new Map();
+    currentMap.forEach(function (product, key) { selectedBySlug.set(product.slug, key); });
+    var groups = Object.keys(routineState.alternatives).map(function (key) {
+      var list = routineState.alternatives[key] || [];
+      if (!list.length) return '';
+      return '<div class="smart-routine__alt-group">' +
+        '<h4 class="smart-routine__alt-title">' + esc(alternativeLabel(key)) + '</h4>' +
+        '<div class="smart-routine__alt-grid">' + list.map(function (product) {
+          var takenSlot = selectedBySlug.get(product.slug);
+          var disabled = takenSlot && takenSlot !== key;
+          var selected = takenSlot === key;
+          return '<button class="smart-routine__alt-card' + (selected ? ' is-selected' : '') + '" type="button" data-sr-replace="' + esc(key) + '" data-sr-product="' + esc(product.slug) + '"' + (disabled ? ' disabled aria-disabled="true"' : '') + '>' +
+            '<img src="' + esc(product.image) + '" alt="' + esc(product.brand + ' ' + product.name) + '" loading="lazy">' +
+            '<strong>' + esc(product.name) + '</strong>' +
+            '<span>' + esc(product.brand + ' · ' + formatPrice(product.price) + ' · ★ ' + product.rating.toFixed(1)) + '</span>' +
+            (disabled ? '<em>Rutinde zaten var</em>' : selected ? '<em>Seçili ürün</em>' : '<em>Alternatif olarak seç</em>') +
+          '</button>';
+        }).join('') + '</div>' +
+      '</div>';
+    }).join('');
+    target.innerHTML = groups || '<div class="smart-routine__note">Alternatif ürün bulunamadı.</div>';
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    var close = modal.querySelector('[data-sr-modal-close]');
+    if (close) close.focus();
+  }
+
+  function replaceRoutineProduct(step, usageTime, productId) {
+    var key = step.indexOf(':') !== -1 ? step : slotId(usageTime, step);
+    if (isProductSelectedElsewhere(productId, key)) {
+      showRoutineToast('Bu ürün rutinde zaten var. Aynı ürünü iki kez önermiyoruz.', 'warning');
+      return;
+    }
+    routineState.overrides[key] = productId;
+    delete routineState.removedSlots[key];
+    var root = document.getElementById(SECTION_ID);
+    if (root) {
+      renderRecommendedRoutine(root);
+      hydrateReviewSummaries(root);
+    }
+    var modal = document.querySelector('[data-sr-alternative-modal]');
+    if (modal) {
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+    showRoutineToast('Alternatif ürün rutine eklendi. Toplam tutar güncellendi.', 'success');
+  }
+
+  function showRoutineToast(message, type) {
+    var toast = document.querySelector('[data-sr-toast]');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'smart-routine__toast';
+      toast.setAttribute('data-sr-toast', '');
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.dataset.type = type || 'info';
+    toast.classList.add('is-visible');
+    clearTimeout(showRoutineToast._timer);
+    showRoutineToast._timer = setTimeout(function () {
+      toast.classList.remove('is-visible');
+    }, 2100);
+  }
+
+  function bindEvents(root) {
+    root.addEventListener('click', function (event) {
+      var goal = event.target.closest('[data-sr-goal]');
+      if (goal) {
+        var id = goal.getAttribute('data-sr-goal');
+        if (routineState.selectedGoals.indexOf(id) !== -1) routineState.selectedGoals = routineState.selectedGoals.filter(function (item) { return item !== id; });
+        else routineState.selectedGoals.push(id);
+        routineState.overrides = {};
+        routineState.removedSlots = {};
+        renderSelectedGoals(root);
+        renderRecommendedRoutine(root);
+        hydrateReviewSummaries(root);
+        return;
+      }
+      var skin = event.target.closest('[data-sr-skin]');
+      if (skin) {
+        routineState.selectedSkinType = skin.getAttribute('data-sr-skin') || routineState.selectedSkinType;
+        routineState.overrides = {};
+        routineState.removedSlots = {};
+        renderSkinTypes(root);
+        renderRecommendedRoutine(root);
+        hydrateReviewSummaries(root);
+        return;
+      }
+      if (event.target.closest('[data-sr-clear-goals]')) {
+        routineState.selectedGoals = [];
+        routineState.overrides = {};
+        routineState.removedSlots = {};
+        renderSelectedGoals(root);
+        renderRecommendedRoutine(root);
+        hydrateReviewSummaries(root);
+        return;
+      }
+      var removeProduct = event.target.closest('[data-sr-remove-product]');
+      if (removeProduct) {
+        event.preventDefault();
+        event.stopPropagation();
+        removeRoutineProduct(removeProduct.getAttribute('data-sr-remove-product'));
+        return;
+      }
+      if (event.target.closest('[data-sr-add-cart]')) {
+        addRoutineToCart();
+        return;
+      }
+      if (event.target.closest('[data-sr-save]')) {
+        saveRoutine();
+        return;
+      }
+      if (event.target.closest('[data-sr-show-alternatives]')) {
+        showAlternatives();
+      }
+    });
+
+    document.addEventListener('click', function (event) {
+      var modal = event.target.closest('[data-sr-alternative-modal]');
+      var isBackdrop = event.target.matches('[data-sr-alternative-modal]');
+      if (event.target.closest('[data-sr-modal-close]') || isBackdrop) {
+        var openModal = modal || document.querySelector('[data-sr-alternative-modal]');
+        if (openModal) {
+          openModal.classList.remove('is-open');
+          openModal.setAttribute('aria-hidden', 'true');
+        }
+        return;
+      }
+      var replace = event.target.closest('[data-sr-replace]');
+      if (replace) replaceRoutineProduct(replace.getAttribute('data-sr-replace'), '', replace.getAttribute('data-sr-product'));
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      var modal = document.querySelector('[data-sr-alternative-modal].is-open');
+      if (modal) {
+        modal.classList.remove('is-open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  async function fetchReviewSummary(slug) {
+    if (!slug || REVIEW_CACHE.has(slug)) return REVIEW_CACHE.get(slug);
+    var fallback = ratingFallback[slug] || null;
+    try {
+      var response = await fetch(REVIEW_API + '/reviews?product_slug=' + encodeURIComponent(slug), { credentials: 'same-origin' });
+      if (!response.ok) throw new Error('review request failed');
+      var data = await response.json();
+      var summary = data.summary || data;
+      var count = readNumber(summary && (summary.approved_count || summary.total_count || summary.reviewCount || summary.review_count));
+      var avg = readNumber(summary && (summary.avg_rating || summary.avgRating || summary.rating || data.average));
+      if (count > 0 && avg > 0) {
+        var normalized = { avg: Math.round(Math.min(5, Math.max(0, avg)) * 10) / 10, count: Math.round(count) };
+        REVIEW_CACHE.set(slug, normalized);
+        ratingFallback[slug] = normalized;
+        return normalized;
+      }
+    } catch (error) {
+      // Live API may be unavailable in local previews; fallback values keep the module stable.
+    }
+    if (fallback) REVIEW_CACHE.set(slug, fallback);
+    return fallback;
+  }
+
+  async function hydrateReviewSummaries(root) {
+    var products = routineState.dayRoutine.concat(routineState.nightRoutine).filter(Boolean);
+    await Promise.all(products.map(async function (product) {
+      var summary = await fetchReviewSummary(product.slug);
+      if (!summary) return;
+      product.rating = summary.avg;
+      product.reviewCount = summary.count;
+    }));
+    var current = document.getElementById(SECTION_ID);
+    if (current && current === root) renderRecommendedRoutine(root);
+  }
+
+  function buildStaticControls(root) {
+    var goals = root.querySelector('[data-sr-goals]');
+    if (goals) {
+      goals.innerHTML = goalConfig.map(function (goal) {
+        return '<button class="smart-routine__goal" type="button" data-sr-goal="' + esc(goal.id) + '" aria-pressed="false">' +
+          '<span class="smart-routine__goal-check"><img src="' + esc(icon.ui('check')) + '" alt=""></span>' +
+          '<img src="' + esc(goal.icon) + '" alt="" loading="lazy">' +
+          '<span>' + esc(goal.label) + '</span>' +
+        '</button>';
+      }).join('');
+    }
+    var skins = root.querySelector('[data-sr-skins]');
+    if (skins) {
+      skins.innerHTML = skinTypes.map(function (skin) {
+        return '<button class="smart-routine__skin-pill" type="button" data-sr-skin="' + esc(skin.id) + '" aria-pressed="false">' + esc(skin.label) + '</button>';
+      }).join('');
+    }
+    renderRoutineSteps(root);
+  }
+
+  function initSmartRoutine() {
+    var root = document.getElementById(SECTION_ID);
+    if (!root || root.dataset.smartRoutineReady === 'true') return;
+    root.dataset.smartRoutineReady = 'true';
+    buildStaticControls(root);
+    renderSelectedGoals(root);
+    renderSkinTypes(root);
+    renderRecommendedRoutine(root);
+    bindEvents(root);
+    hydrateReviewSummaries(root);
+
+    if (window.COSMOSKIN_PRODUCTS_READY && typeof window.COSMOSKIN_PRODUCTS_READY.then === 'function') {
+      window.COSMOSKIN_PRODUCTS_READY.then(function () {
+        renderRecommendedRoutine(root);
+        hydrateReviewSummaries(root);
+      }).catch(function () {});
+    }
+  }
+
+  window.initSmartRoutine = initSmartRoutine;
+  window.COSMOSKIN_SMART_ROUTINE = {
+    initSmartRoutine: initSmartRoutine,
+    getProductData: getProductData,
+    normalizeProductData: normalizeProductData,
+    scoreProduct: scoreProduct,
+    buildRoutine: buildRoutine,
+    renderSelectedGoals: renderSelectedGoals,
+    renderRoutineSteps: renderRoutineSteps,
+    renderRecommendedRoutine: renderRecommendedRoutine,
+    calculateRoutineTotal: calculateRoutineTotal,
+    calculateMatchScore: calculateMatchScore,
+    addRoutineToCart: addRoutineToCart,
+    saveRoutine: saveRoutine,
+    showAlternatives: showAlternatives,
+    replaceRoutineProduct: replaceRoutineProduct,
+    removeRoutineProduct: removeRoutineProduct,
+    formatPrice: formatPrice,
+    showRoutineToast: showRoutineToast
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSmartRoutine);
+  else initSmartRoutine();
+})();

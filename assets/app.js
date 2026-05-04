@@ -92,11 +92,31 @@
     }).format(n);
   }
 
+  function getRoutineBundleDiscount() {
+    let offer = null;
+    try { offer = JSON.parse(localStorage.getItem('cosmoskin_routine_bundle_offer') || 'null'); } catch (error) { offer = null; }
+    const rate = Math.min(0.10, Math.max(0, Number(offer?.discountRate || 0)));
+    const slugs = Array.isArray(offer?.productSlugs) ? offer.productSlugs : [];
+    if (!rate || slugs.length < 2) return 0;
+    const eligible = state.cart.filter((item) => slugs.includes(item.slug || item.id));
+    const uniqueEligible = new Map();
+    eligible.forEach((item) => {
+      const key = item.slug || item.id;
+      if (!uniqueEligible.has(key)) uniqueEligible.set(key, item);
+    });
+    if (uniqueEligible.size < 2) return 0;
+    let basis = 0;
+    uniqueEligible.forEach((item) => { basis += Number(item.price || 0); });
+    return Math.round(basis * rate);
+  }
+
   function totals() {
     const subtotal = state.cart.reduce((s, i) => s + i.price * i.qty, 0);
-    const vat = Math.round(subtotal * VAT / (1 + VAT));
-    const shipping = subtotal >= FREE_SHIPPING || subtotal === 0 ? 0 : SHIPPING_FEE;
-    return { subtotal, vat, shipping, total: subtotal + shipping };
+    const discount = Math.min(subtotal, getRoutineBundleDiscount());
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const vat = Math.round(discountedSubtotal * VAT / (1 + VAT));
+    const shipping = discountedSubtotal >= FREE_SHIPPING || discountedSubtotal === 0 ? 0 : SHIPPING_FEE;
+    return { subtotal, discount, discountedSubtotal, vat, shipping, total: discountedSubtotal + shipping };
   }
 
   function getProductHelpers() {
@@ -877,6 +897,21 @@ function broadcastFavoritesChange() {
 
     const t = totals();
     if (subtotalEl) subtotalEl.textContent = fmt(t.subtotal);
+    let discountRow = $('#cartRoutineDiscount');
+    if (t.discount > 0 && subtotalEl) {
+      if (!discountRow) {
+        discountRow = document.createElement('div');
+        discountRow.className = 'sum-row routine-discount-row';
+        discountRow.id = 'cartRoutineDiscount';
+        discountRow.innerHTML = '<span>Rutin set avantajı</span><strong></strong>';
+        const shippingRow = shippingEl?.closest('.sum-row');
+        if (shippingRow) shippingRow.insertAdjacentElement('beforebegin', discountRow);
+      }
+      discountRow.querySelector('strong').textContent = '-' + fmt(t.discount);
+      discountRow.hidden = false;
+    } else if (discountRow) {
+      discountRow.hidden = true;
+    }
     if (vatEl) vatEl.textContent = fmt(t.vat);
     if (shippingEl) shippingEl.textContent = t.shipping ? fmt(t.shipping) : 'Ücretsiz';
     if (totalEl) totalEl.textContent = fmt(t.total);
