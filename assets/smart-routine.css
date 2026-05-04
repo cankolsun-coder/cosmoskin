@@ -678,3 +678,104 @@
   .smart-routine__alternatives{padding:18px;}
   .smart-routine__alt-grid{grid-template-columns:1fr;}
 }
+
+
+/* ============================================================
+   COSMOSKIN — Smart Routine Alignment Patch / 2026-05-04
+   Fixes: metric-card overflow, baseline drift, action stability.
+   ============================================================ */
+.smart-routine__meta-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  border-radius:18px;
+  background:rgba(255,253,249,.86);
+}
+.smart-routine__meta-item{
+  grid-template-columns:32px minmax(0,1fr);
+  align-items:center;
+  min-height:68px;
+  padding:12px 16px;
+  border-right:0;
+  border-bottom:1px solid var(--sr-line);
+}
+.smart-routine__meta-item:nth-child(odd){border-right:1px solid var(--sr-line);}
+.smart-routine__meta-item:nth-child(n+3){border-bottom:0;}
+.smart-routine__meta-item > div{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-self:stretch;
+}
+.smart-routine__meta-item span{
+  margin:0 0 5px;
+  line-height:1;
+  letter-spacing:.01em;
+}
+.smart-routine__meta-item strong{
+  margin:0;
+  line-height:1.12;
+  letter-spacing:-.018em;
+  white-space:nowrap;
+}
+.smart-routine__meta-item [data-sr-time]{
+  font-size:13px;
+  letter-spacing:-.025em;
+}
+.smart-routine__meta-item [data-sr-stock]{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  min-width:24px;
+  min-height:24px;
+  padding:0 7px;
+  border-radius:999px;
+  background:rgba(124,91,51,.10);
+  color:#6F5030;
+  font-size:12px;
+  line-height:1;
+}
+.smart-routine__actions{
+  align-items:stretch;
+}
+.smart-routine__btn{
+  min-width:0;
+  white-space:nowrap;
+}
+.smart-routine__tertiary{
+  align-items:center;
+}
+
+@media (max-width:860px){
+  .smart-routine__meta-grid{grid-template-columns:1fr;}
+  .smart-routine__meta-item,
+  .smart-routine__meta-item:nth-child(odd){border-right:0;}
+  .smart-routine__meta-item:nth-child(n+3){border-bottom:1px solid var(--sr-line);}
+  .smart-routine__meta-item:last-child{border-bottom:0;}
+}
+@media (max-width:520px){
+  .smart-routine__meta-item{min-height:62px;padding:11px 14px;}
+  .smart-routine__btn{white-space:normal;text-align:center;line-height:1.2;padding:0 14px;}
+}
+
+/* Smart Routine polish: remove default anchor underline and fix avatar trust item spacing. */
+.smart-routine__product-card,
+.smart-routine__product-card:hover,
+.smart-routine__product-card:focus{
+  text-decoration:none;
+}
+.smart-routine__product-card *{
+  text-decoration:none;
+}
+.smart-routine__trust-item{
+  grid-template-columns:minmax(34px,auto) minmax(0,1fr);
+}
+.smart-routine__trust-item:has(.smart-routine__avatars){
+  grid-template-columns:74px minmax(0,1fr);
+}
+.smart-routine__trust-item:has(.smart-routine__avatars) .smart-routine__avatars{
+  min-width:74px;
+}
+
+.smart-routine__trust-item--avatars{grid-template-columns:74px minmax(0,1fr);}
+.smart-routine__trust-item--avatars .smart-routine__avatars{min-width:74px;}
