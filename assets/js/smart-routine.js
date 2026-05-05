@@ -558,6 +558,30 @@
     showRoutineToast(freshItems.length + ' ürün sepete eklendi. Aynı ürünler tekrar eklenmedi.', 'success');
   }
 
+  function resolveRoutineGoalParam() {
+    if (routineState.selectedGoals.indexOf('bariyer') !== -1) return 'bariyer';
+    if (routineState.selectedGoals.indexOf('isilti') !== -1 || routineState.selectedGoals.indexOf('leke') !== -1) return 'isilti';
+    if (routineState.selectedGoals.indexOf('nem') !== -1) return 'nem';
+    if (routineState.dayRoutine.some(function (product) { return product && product.routineStep === 'koru'; })) return 'spf';
+    return 'nem';
+  }
+
+  function viewRoutinePage() {
+    var payload = {
+      selectedGoals: routineState.selectedGoals.slice(),
+      selectedSkinType: routineState.selectedSkinType,
+      dayRoutine: routineState.dayRoutine.map(safeRoutineProduct),
+      nightRoutine: routineState.nightRoutine.map(safeRoutineProduct),
+      uniqueProductSlugs: getUniqueRoutineProducts(routineState.dayRoutine, routineState.nightRoutine, true).map(function (product) { return product.slug; }),
+      totalPrice: routineState.totalPrice,
+      matchScore: routineState.matchScore,
+      source: 'home-smart-routine',
+      updatedAt: new Date().toISOString()
+    };
+    try { localStorage.setItem('cosmoskin_last_routine', JSON.stringify(payload)); } catch (error) {}
+    window.location.href = '/collections/routine.html?goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma') + '#routine-commerce';
+  }
+
   async function saveRoutine() {
     var payload = {
       selectedGoals: routineState.selectedGoals.slice(),
@@ -737,6 +761,10 @@
       }
       if (event.target.closest('[data-sr-save]')) {
         saveRoutine();
+        return;
+      }
+      if (event.target.closest('[data-sr-view-routine]')) {
+        viewRoutinePage();
         return;
       }
       if (event.target.closest('[data-sr-show-alternatives]')) {

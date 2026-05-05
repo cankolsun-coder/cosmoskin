@@ -779,3 +779,25 @@
 
 .smart-routine__trust-item--avatars{grid-template-columns:74px minmax(0,1fr);}
 .smart-routine__trust-item--avatars .smart-routine__avatars{min-width:74px;}
+/* COSMOSKIN 2026-05-05 — bridge home smart routine to routine commerce page */
+.smart-routine__actions{grid-template-columns:1.25fr 1fr 1fr;}
+.smart-routine__btn--view{background:rgba(255,248,239,.92);border-color:rgba(255,248,239,.28);color:#F7EFE5;}
+@media(max-width:980px){.smart-routine__actions{grid-template-columns:1fr;}}
+
+
+/* COSMOSKIN — 2026-05-05 smart routine action alignment polish */
+.smart-routine__actions{grid-template-columns:1.25fr 1fr 1fr;align-items:stretch;}
+.smart-routine__btn{position:relative;justify-content:center;text-align:center;gap:9px;padding-inline:18px;}
+.smart-routine__btn img{flex:0 0 19px;width:19px;height:19px;margin:0;}
+.smart-routine__btn--primary{justify-content:center;}
+.smart-routine__btn--secondary[data-sr-save]{justify-content:center;gap:7px;}
+.smart-routine__btn--secondary[data-sr-save] img{margin-left:1px;}
+.smart-routine__btn--view,
+.smart-routine__btn--view:hover{
+  border-color:rgba(44,26,20,.38)!important;
+  background:linear-gradient(180deg,#2D2018,#120D0A)!important;
+  color:#FFF8EF!important;
+  box-shadow:0 16px 30px rgba(44,26,20,.18);
+}
+.smart-routine__btn--view img{filter:none;}
+@media(max-width:980px){.smart-routine__actions{grid-template-columns:1fr;}}
