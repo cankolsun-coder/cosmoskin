@@ -119,3 +119,93 @@
 @media(max-width:1220px){.cs-account-mainnav{gap:20px}.cs-account-layout{grid-template-columns:280px minmax(0,1fr)!important}.cs-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.cs-overview-grid,.cs-lower-grid{grid-template-columns:1fr!important}.cs-product-mini-row{grid-template-columns:1fr 1fr}.cs-fav-grid,.cs-address-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.cs-benefit-strip__inner span:nth-child(2){display:none}}
 @media(max-width:980px){.account-premium-page .container,.cs-benefit-strip__inner,.cs-account-header__inner{width:calc(100% - 32px)}.cs-account-header{height:auto;padding:14px 0}.cs-account-header__inner{display:grid;grid-template-columns:1fr auto;gap:14px}.cs-account-brand{min-width:0}.cs-account-brand .brand-word{font-size:24px}.cs-account-mainnav{grid-column:1/-1;justify-content:flex-start;overflow:auto;padding-bottom:3px}.cs-account-header__actions{min-width:0}.cs-account-header__actions .cs-pill-btn{display:none}.cs-benefit-strip__inner{justify-content:flex-start;overflow:auto}.cs-benefit-strip__inner span:nth-child(n+3){display:none}.cs-account-top{grid-template-columns:1fr;gap:22px;padding-top:26px}.cs-loyalty-card{min-height:190px}.cs-account-layout{grid-template-columns:1fr!important}.cs-account-sidebar{position:static!important}.cs-account-nav{display:flex!important;overflow:auto!important;scroll-snap-type:x mandatory}.cs-account-nav a{min-width:190px;scroll-snap-align:start;border-bottom:0;border-right:1px solid rgba(42,32,24,.08)}.cs-profile-card{grid-template-columns:54px minmax(0,1fr)}.cs-account-welcome h1{font-size:44px}.cs-order-body{grid-template-columns:1fr!important}.cs-order-side{border-left:0;border-top:1px solid var(--cs-border);padding-left:0;padding-top:14px}.cs-return-grid,.cs-security-grid{grid-template-columns:1fr}.cs-toggle-grid{grid-template-columns:1fr 1fr}.cs-tier-list,.cs-routine-plan-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:720px){.cs-account-welcome h1{font-size:38px}.cs-loyalty-card{padding:24px 22px}.cs-panel-head{display:grid!important;padding:22px!important}.cs-stat-grid{grid-template-columns:1fr!important}.cs-overview-grid,.cs-lower-grid{padding:12px!important;gap:12px}.cs-product-mini-row,.cs-fav-grid,.cs-address-grid{grid-template-columns:1fr;padding:12px}.cs-product-mini{grid-template-columns:86px minmax(0,1fr)}.cs-product-mini__media{height:118px}.cs-quick-grid,.cs-form,.cs-form-compact,.cs-toggle-grid,.cs-tier-list,.cs-routine-plan-grid{grid-template-columns:1fr!important}.cs-order-progress{grid-template-columns:1fr!important;gap:12px}.cs-order-step{grid-template-columns:24px 1fr;column-gap:10px}.cs-order-step:before{left:10px;right:auto;top:22px;bottom:-16px;width:1px;height:auto}.cs-order-step>span{grid-row:1/3}.cs-order-step strong,.cs-order-step small{grid-column:2}.cs-order-product{grid-template-columns:56px minmax(0,1fr)}.cs-order-total{grid-column:2;text-align:left}.cs-truthful-state{grid-template-columns:1fr;padding:22px}.cs-return-eligible{display:grid}.cs-modal-actions{display:grid}.cs-toast{left:16px;right:16px;bottom:16px;max-width:none}.cs-account-brand .brand-word{letter-spacing:.16em}.cs-benefit-strip span{font-size:10px}}
+
+/* === COSMOSKIN account refinement pass — scoped to account content only === */
+:root{--cs-serif:var(--serif);--cs-sans:var(--sans);}
+.cs-account-shell .container{max-width:1360px;width:calc(100% - 64px);margin-left:auto;margin-right:auto;}
+.cs-account-shell{background:radial-gradient(circle at 5% 4%,rgba(176,138,94,.10),transparent 32%),linear-gradient(180deg,#fbf7f0 0%,#f8f3eb 58%,#f3eadf 100%);}
+.cs-account-top{padding-top:44px;}
+.cs-account-sidebar{top:132px!important;}
+
+/* Premium sidebar icon system */
+.cs-account-nav a{min-height:52px!important;padding:0 16px!important;font-family:var(--cs-sans)!important;font-weight:760!important;letter-spacing:.005em!important;}
+.cs-account-nav a [data-icon]::before{content:none!important;display:none!important;}
+.cs-account-nav a .cs-nav-icon{width:34px!important;height:34px!important;flex:0 0 34px!important;border-radius:12px!important;display:grid!important;place-items:center!important;color:#8b6843!important;background:linear-gradient(145deg,#fffdf8 0%,#f2e6d6 100%)!important;border:1px solid rgba(42,32,24,.10)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 8px 18px rgba(40,30,20,.045)!important;}
+.cs-account-nav a .cs-nav-icon svg{width:18px!important;height:18px!important;display:block!important;fill:none!important;stroke:currentColor!important;stroke-width:1.65!important;stroke-linecap:round!important;stroke-linejoin:round!important;}
+.cs-account-nav a.is-active .cs-nav-icon{color:#fff8ef!important;background:linear-gradient(145deg,#bd9160 0%,#8d663c 100%)!important;border-color:rgba(141,102,60,.38)!important;box-shadow:0 10px 24px rgba(141,102,60,.18)!important;}
+.cs-account-nav a:hover .cs-nav-icon{transform:translateY(-1px);}
+.cs-account-nav a em{flex:0 0 auto;margin-left:auto;}
+.cs-help-card{grid-template-columns:42px minmax(0,1fr)!important;gap:12px!important;padding:17px!important;border-radius:20px!important;background:linear-gradient(145deg,rgba(255,253,248,.94),rgba(249,240,229,.88))!important;}
+.cs-help-card .cs-help-icon{grid-row:1/3;width:42px!important;height:42px!important;border-radius:14px!important;display:grid!important;place-items:center!important;color:#8d663c!important;background:radial-gradient(circle at 30% 20%,#fffaf2 0%,#ead8c2 100%)!important;border:1px solid rgba(183,138,85,.22)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 10px 24px rgba(40,30,20,.055)!important;}
+.cs-help-card .cs-help-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;}
+.cs-help-card strong,.cs-help-card small{min-width:0;}
+
+/* Compact order cards: prevent text/button overlap in overview and order list. */
+.cs-order-card-head{align-items:center!important;}
+.cs-order-card-head>div{min-width:0!important;}
+.cs-order-card-head strong,.cs-order-card-head time{overflow-wrap:anywhere;}
+.cs-order-head-actions{max-width:48%;}
+.cs-order-card.is-compact .cs-order-card-head{padding:16px!important;}
+.cs-order-card.is-compact .cs-order-progress{grid-template-columns:repeat(4,minmax(0,1fr))!important;padding:13px 16px!important;}
+.cs-order-card.is-compact .cs-order-step strong{font-size:9.2px!important;letter-spacing:.045em!important;}
+.cs-order-card.is-compact .cs-order-body{grid-template-columns:1fr!important;gap:14px!important;padding:16px!important;}
+.cs-order-card.is-compact .cs-order-side{border-left:0!important;border-top:1px solid var(--cs-border)!important;padding-left:0!important;padding-top:14px!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px 12px!important;}
+.cs-order-card.is-compact .cs-order-side>div:not(.cs-order-actions){display:grid!important;gap:4px!important;justify-content:stretch!important;padding:10px 11px;border:1px solid rgba(42,32,24,.08);border-radius:14px;background:#fffdf8;}
+.cs-order-card.is-compact .cs-order-side strong{text-align:left!important;white-space:normal!important;overflow-wrap:anywhere!important;}
+.cs-order-card.is-compact .cs-order-actions{grid-column:1/-1;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px!important;margin-top:0!important;}
+.cs-order-card.is-compact .cs-order-actions .cs-mini-btn{min-width:0!important;width:100%!important;text-align:center!important;white-space:normal!important;line-height:1.18!important;min-height:38px!important;padding:8px 10px!important;}
+.cs-order-product{min-width:0!important;}
+.cs-order-product-copy{min-width:0!important;}
+.cs-order-product-copy strong{overflow-wrap:anywhere!important;}
+.cs-order-total{white-space:nowrap;}
+.cs-order-actions .cs-mini-btn{white-space:normal;line-height:1.18;}
+
+/* Recommendation/product cards: vertical, stable and premium. */
+.cs-product-mini-row{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;padding:16px!important;}
+.cs-product-mini{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;padding:12px!important;border-radius:18px!important;min-width:0!important;}
+.cs-product-mini>div{min-width:0!important;display:grid;align-content:start;}
+.cs-product-mini__media{height:148px!important;border-radius:15px!important;background:linear-gradient(145deg,#f8efe3,#eee0cf)!important;}
+.cs-product-mini__media img{padding:13px!important;}
+.cs-product-mini small,.cs-fav-body small{font-size:9.5px!important;letter-spacing:.14em!important;}
+.cs-product-mini strong{font-size:13px!important;line-height:1.32!important;min-height:34px;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cs-product-mini p{min-height:30px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cs-product-mini__bottom{display:grid!important;grid-template-columns:1fr minmax(104px,auto) 34px!important;align-items:center!important;gap:8px!important;margin-top:10px!important;}
+.cs-product-mini__bottom b{font-size:14px!important;white-space:nowrap!important;}
+.cs-product-mini__bottom .cs-mini-btn{height:36px!important;min-height:36px!important;border-radius:12px!important;padding:0 12px!important;white-space:nowrap!important;}
+.cs-product-mini__bottom .cs-heart-btn{width:34px!important;height:34px!important;line-height:1!important;display:grid!important;place-items:center!important;}
+.cs-fav-card{display:grid;grid-template-rows:auto 1fr;min-width:0;}
+.cs-fav-body{display:grid;align-content:start;min-width:0;}
+.cs-fav-body h3{min-height:40px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cs-fav-actions .cs-mini-btn{min-height:38px;padding:0 13px;border-radius:12px;}
+
+/* Panels and buttons: a little more refined, consistent with the site skeleton. */
+.cs-panel{border-radius:24px!important;}
+.cs-panel-head{background:linear-gradient(180deg,rgba(255,253,248,.92),rgba(251,246,238,.74))!important;}
+.cs-pill-btn,.cs-mini-btn{font-family:var(--cs-sans)!important;text-transform:uppercase;letter-spacing:.075em!important;}
+.cs-pill-btn{border-radius:999px!important;}
+.cs-pill-btn--dark,.cs-mini-btn.dark{background:linear-gradient(180deg,#17130f,#0b0908)!important;border-color:#11100e!important;color:#fffaf3!important;}
+.cs-mini-btn{border-radius:13px!important;}
+.cs-mini-btn:focus-visible,.cs-pill-btn:focus-visible,.cs-account-nav a:focus-visible{outline:2px solid rgba(183,138,85,.5);outline-offset:3px;}
+.cs-card{border-radius:21px!important;}
+.cs-card-head{padding:19px 18px 0!important;}
+
+@media(max-width:1220px){
+  .cs-product-mini-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .cs-order-card.is-compact .cs-order-side{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .cs-order-card.is-compact .cs-order-actions{grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+@media(max-width:980px){
+  .cs-account-shell .container{width:calc(100% - 32px);}
+  .cs-account-sidebar{top:auto!important;}
+  .cs-account-nav a{min-width:210px!important;}
+}
+@media(max-width:720px){
+  .cs-account-shell .container{width:calc(100% - 24px);}
+  .cs-account-top{padding-top:26px;}
+  .cs-product-mini-row{grid-template-columns:1fr!important;}
+  .cs-product-mini{grid-template-columns:92px minmax(0,1fr)!important;}
+  .cs-product-mini__media{height:118px!important;}
+  .cs-product-mini__bottom{grid-template-columns:1fr 112px 34px!important;}
+  .cs-order-card.is-compact .cs-order-side,.cs-order-card.is-compact .cs-order-actions{grid-template-columns:1fr!important;}
+  .cs-order-head-actions{max-width:100%;justify-content:flex-start;}
+}
