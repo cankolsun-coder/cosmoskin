@@ -466,3 +466,83 @@
     width:62%;
   }
 }
+
+
+/* Tümü tab — Beauty of Joseon Relief Sun editorial campaign visual */
+.bestseller-featured--campaign{
+  background:#f8f0e6;
+}
+.bestseller-featured--campaign::before{
+  background:var(--editorial-bg) center 42%/cover no-repeat;
+  transform:scale(1.004);
+}
+.bestseller-featured--campaign::after{
+  background:
+    linear-gradient(90deg,rgba(250,244,236,.88) 0%,rgba(250,244,236,.68) 27%,rgba(250,244,236,.18) 58%,rgba(250,244,236,.06) 100%),
+    linear-gradient(180deg,rgba(250,244,236,.04) 0%,rgba(250,244,236,.14) 56%,rgba(250,244,236,.84) 100%);
+}
+.bestseller-featured--campaign .bestseller-featured__plinth,
+.bestseller-featured--campaign .bestseller-featured__image{
+  display:none;
+}
+.bestseller-featured--campaign .bestseller-featured__stage{
+  min-height:360px;
+}
+.bestseller-featured--campaign .bestseller-featured__copy{
+  left:0;
+  right:auto;
+  top:18%;
+  width:min(64%,310px);
+  max-width:310px;
+  padding:0;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  backdrop-filter:none;
+}
+.bestseller-featured--campaign .bestseller-featured__brand{
+  color:#5d4a3a;
+}
+.bestseller-featured--campaign .bestseller-featured__copy h3{
+  font-size:clamp(30px,3.2vw,40px);
+  line-height:.98;
+  color:#201914;
+  text-shadow:0 1px 18px rgba(255,248,238,.58);
+}
+.bestseller-featured--campaign .bestseller-featured__copy p{
+  max-width:270px;
+  color:#3f332b;
+  text-shadow:0 1px 18px rgba(255,248,238,.72);
+}
+@media (max-width:820px){
+  .bestseller-featured--campaign::before{background-position:center 36%;}
+  .bestseller-featured--campaign .bestseller-featured__copy{top:12%;width:68%;}
+}
+@media (max-width:540px){
+  .bestseller-featured--campaign .bestseller-featured__copy{top:10%;width:72%;}
+  .bestseller-featured--campaign .bestseller-featured__copy h3{font-size:29px;}
+}
+
+
+/* Bestseller grid favorite icon alignment fix */
+.bestseller-card__favorite{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  line-height:0;
+}
+.bestseller-card__favorite .favorite-btn-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:17px;
+  height:17px;
+  margin:0;
+  flex:0 0 17px;
+}
+.bestseller-card__favorite .favorite-btn-icon svg{
+  display:block;
+  width:17px;
+  height:17px;
+}

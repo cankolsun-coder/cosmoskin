@@ -23,15 +23,17 @@
     tumu: {
       label: 'Tümü',
       featuredProduct: 'beauty-of-joseon-relief-sun-spf50',
-      featuredBackground: 'assets/img/editorial/editorial-first-purchase-bg.webp',
+      featuredBackground: 'assets/img/editorial/beauty-of-joseon-relief-sun-campaign-card.webp',
+      featuredVariant: 'campaign',
       editorOverlayCopy: 'Hafif dokulu, beyaz iz bırakmayan günlük güneş koruyucu. Cildi nemlendirir, korur ve rahatlatır.',
       featuredTags: ['SPF 50+', 'Hafif', 'Günlük Kullanım'],
-      products: ['anua-heartleaf-77-soothing-toner', 'torriden-dive-in-hyaluronic-acid-serum', 'skin1004-madagascar-centella-ampoule', 'dr-jart-ceramidin-cream', 'round-lab-birch-juice-sunscreen', 'cosrx-advanced-snail-96-mucin-essence', 'beauty-of-joseon-glow-serum-propolis-niacinamide', 'anua-heartleaf-pore-control-cleansing-oil']
+      products: ['beauty-of-joseon-relief-sun-spf50', 'torriden-dive-in-hyaluronic-acid-serum', 'skin1004-madagascar-centella-ampoule', 'dr-jart-ceramidin-cream', 'round-lab-birch-juice-sunscreen', 'cosrx-advanced-snail-96-mucin-essence', 'beauty-of-joseon-glow-serum-propolis-niacinamide', 'anua-heartleaf-pore-control-cleansing-oil']
     },
     'nem-bariyer': {
       label: 'Nem & Bariyer',
       featuredProduct: 'torriden-dive-in-hyaluronic-acid-serum',
-      featuredBackground: 'assets/img/editorial/editorial-moisture-barrier-bg.webp',
+      featuredBackground: 'assets/img/editorial/torriden-dive-in-moisture-barrier-campaign-card.webp',
+      featuredVariant: 'campaign',
       editorOverlayCopy: 'Düşük moleküllü hyaluronik asit içeren hafif serum. Cilde yoğun nem verir, daha dolgun ve konforlu bir his bırakır.',
       featuredTags: ['Yoğun Nem', 'Hafif', 'Bariyer'],
       products: ['torriden-dive-in-hyaluronic-acid-serum', 'dr-jart-ceramidin-cream', 'skin1004-madagascar-centella-ampoule', 'cosrx-advanced-snail-96-mucin-essence', 'torriden-solid-in-ceramide-cream', 'cosrx-oil-free-ultra-moisturizing-lotion', 'beauty-of-joseon-dynasty-cream', 'round-lab-soybean-nourishing-cream']
@@ -39,7 +41,8 @@
     'gunes-korumasi': {
       label: 'Güneş Koruması',
       featuredProduct: 'round-lab-birch-juice-sunscreen',
-      featuredBackground: 'assets/img/editorial/editorial-sun-care-bg.webp',
+      featuredBackground: 'assets/img/editorial/round-lab-birch-juice-sunscreen-campaign-card.webp',
+      featuredVariant: 'campaign',
       editorOverlayCopy: 'Günlük kullanıma uygun hafif SPF koruması sunar. Cildi nemlendirirken konforlu ve görünmez bir bitiş sağlar.',
       featuredTags: ['SPF 50+', 'Günlük Koruma', 'Hafif Doku'],
       products: ['round-lab-birch-juice-sunscreen', 'beauty-of-joseon-relief-sun-spf50', 'skin1004-hyalu-cica-water-fit-sun-serum', 'isntree-hyaluronic-acid-watery-sun-gel', 'torriden-dive-in-watery-moisture-sun-cream', 'beauty-of-joseon-relief-sun-spf50', 'round-lab-birch-juice-sunscreen', 'skin1004-hyalu-cica-water-fit-sun-serum']
@@ -47,7 +50,8 @@
     'akne-denge': {
       label: 'Akne & Denge',
       featuredProduct: 'anua-heartleaf-77-soothing-toner',
-      featuredBackground: 'assets/img/editorial/editorial-acne-balance-bg.webp',
+      featuredBackground: 'assets/img/editorial/anua-heartleaf-77-soothing-toner-campaign-card.webp',
+      featuredVariant: 'campaign',
       editorOverlayCopy: 'Heartleaf içeriğiyle cildi yatıştırmaya ve dengelemeye yardımcı olur. Daha sakin, arınmış ve konforlu bir cilt hissi sunar.',
       featuredTags: ['Yatıştırıcı', 'Denge', 'Arındırıcı'],
       products: ['anua-heartleaf-77-soothing-toner', 'anua-heartleaf-pore-control-cleansing-oil', 'cosrx-salicylic-acid-daily-gentle-cleanser', 'cosrx-aha-bha-clarifying-treatment-toner', 'some-by-mi-aha-bha-miracle-toner', 'medicube-zero-pore-pad', 'skin1004-madagascar-centella-ampoule', 'cosrx-low-ph-good-morning-gel-cleanser']
@@ -55,7 +59,8 @@
     isilti: {
       label: 'Işıltı',
       featuredProduct: 'beauty-of-joseon-glow-serum-propolis-niacinamide',
-      featuredBackground: 'assets/img/editorial/editorial-radiance-glow-bg.webp',
+      featuredBackground: 'assets/img/editorial/beauty-of-joseon-glow-serum-campaign-card.webp',
+      featuredVariant: 'campaign',
       editorOverlayCopy: 'Propolis ve niacinamide ile cilde daha canlı ve aydınlık bir görünüm kazandırmaya yardımcı olur. Besleyici yapısıyla sağlıklı bir ışıltı hissi verir.',
       featuredTags: ['Işıltı', 'Besleyici', 'Canlı Görünüm'],
       products: ['beauty-of-joseon-glow-serum-propolis-niacinamide', 'goodal-green-tangerine-vitamin-c-serum', 'cosrx-the-vitamin-c-23-serum', 'beauty-of-joseon-glow-deep-serum', 'im-from-rice-toner', 'beauty-of-joseon-dynasty-cream', 'by-wishtrend-pure-vitamin-c-21-5-serum', 'round-lab-soybean-nourishing-cream']
@@ -63,7 +68,8 @@
     'hassas-cilt': {
       label: 'Hassas Cilt',
       featuredProduct: 'cosrx-low-ph-good-morning-gel-cleanser',
-      featuredBackground: 'assets/img/editorial/editorial-sensitive-skin-bg.webp',
+      featuredBackground: 'assets/img/editorial/cosrx-low-ph-good-morning-gel-cleanser-campaign-card.webp',
+      featuredVariant: 'campaign',
       editorOverlayCopy: 'Düşük pH’lı nazik jel temizleyici. Cildi germeden arındırır, temiz ve dengeli bir his bırakır.',
       featuredTags: ['Hassas Cilt', 'Nazik Temizlik', 'Düşük pH'],
       products: ['cosrx-low-ph-good-morning-gel-cleanser', 'anua-heartleaf-77-soothing-toner', 'skin1004-madagascar-centella-ampoule', 'dr-jart-ceramidin-cream', 'torriden-dive-in-hyaluronic-acid-serum', 'cosrx-advanced-snail-96-mucin-essence', 'round-lab-1025-dokdo-cleanser', 'round-lab-dokdo-toner']
@@ -265,6 +271,9 @@
     shell && shell.classList.add('is-switching');
     window.setTimeout(() => {
       featuredNode.style.setProperty('--editorial-bg', `url('/${tab.featuredBackground.replace(/^\//, '')}')`);
+      const featuredVariant = tab.featuredVariant || 'default';
+      featuredNode.dataset.bestsellerVariant = featuredVariant;
+      featuredNode.classList.toggle('bestseller-featured--campaign', featuredVariant === 'campaign');
       featuredNode.innerHTML = `<div class="bestseller-featured__content" data-product-id="${esc(featured.id || featured.slug)}">
         <span class="bestseller-featured__badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.65 5.37 5.93.86-4.29 4.18 1.01 5.9L12 16.33 6.7 19.1l1.01-5.9-4.29-4.18 5.93-.86L12 2.8Z"></path></svg> Editör Önerisi</span>
         <div class="bestseller-featured__stage">
