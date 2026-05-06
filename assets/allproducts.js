@@ -418,6 +418,14 @@
 
   function setupPrice() {
     var prices = state.products.map(function (p) { return Number(p.price || 0); }).filter(Number.isFinite);
+    if (!prices.length) {
+      state.defaults.minPrice = 0;
+      state.defaults.maxPrice = 0;
+      state.filters.minPrice = 0;
+      state.filters.maxPrice = 0;
+      syncPriceControls();
+      return;
+    }
     var min = Math.floor(Math.min.apply(null, prices) / 10) * 10;
     var max = Math.ceil(Math.max.apply(null, prices) / 10) * 10;
     state.defaults.minPrice = min;

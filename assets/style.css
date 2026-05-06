@@ -8262,3 +8262,43 @@ body::before{
 .checkout-routine-discount strong{color:#7C5B33!important;}
 .routine-discount-row span,
 .checkout-routine-discount span{font-weight:800;}
+
+/* === Cosmoskin critical UI/UX fixes — May 2026 === */
+.home-hero h1 .home-hero__line{display:block;white-space:nowrap;}
+.home-hero h1 em.home-hero__line{font-style:italic;}
+.hero-rating-card--editorial .hero-rating-card__score{margin-top:6px;}
+.hero-rating-card--editorial .hero-rating-card__score strong{font-size:clamp(16px,1.4vw,22px);letter-spacing:-.02em;}
+.hero-rating-card--editorial .hero-rating-card__text{display:block;max-width:360px;line-height:1.5;}
+.smart-routine__trust-item--avatars .smart-routine__avatars{opacity:.9;}
+.routine-selection-note,
+.bestseller-rating--empty{display:inline-flex;align-items:center;gap:5px;width:max-content;max-width:100%;margin:4px 0 8px;padding:7px 10px;border:1px solid rgba(35,27,20,.09);border-radius:999px;background:rgba(255,255,255,.62);color:#74675c;font-size:11px;font-weight:750;line-height:1.25;}
+.bestseller-rating--empty strong{color:#19130f;font-size:11px;}
+.site-search-clear{transition:opacity .18s ease, visibility .18s ease;}
+.site-search-input:placeholder-shown ~ .site-search-clear{opacity:0;visibility:hidden;pointer-events:none;}
+.cart-count.is-empty{display:none!important;}
+.optional-label{margin-left:6px;color:#8a7d70;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
+body.checkout-cart-empty #checkoutForm,
+body.checkout-cart-empty #checkoutAuthGate{display:none!important;}
+body.checkout-cart-empty .checkout-main-card{overflow:visible;}
+body.checkout-cart-empty .checkout-card-head{border-bottom:0;border-radius:34px;}
+body.checkout-cart-empty .checkout-card-head:after{content:"Sepetin boş. Ürünleri keşfederek alışverişe başlayabilirsin.";display:block;margin-top:16px;padding:14px 16px;border:1px solid rgba(35,27,20,.10);border-radius:18px;background:rgba(255,255,255,.62);color:#65584d;font-size:13px;font-weight:650;line-height:1.55;}
+body.checkout-cart-empty .checkout-empty-state{display:block!important;padding:20px;border:1px solid rgba(35,27,20,.10);border-radius:22px;background:rgba(255,255,255,.68);text-align:center;line-height:1.65;}
+body.checkout-cart-empty .checkout-empty-state a{display:inline-flex;margin-top:10px;padding:11px 16px;border-radius:999px;background:#17120f;color:#fff;text-decoration:none;font-size:11px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;}
+.cs-static-product-card .product-media img{object-fit:contain;}
+.collection-empty{grid-column:1/-1;padding:28px;border:1px solid rgba(35,27,20,.10);border-radius:22px;background:rgba(255,255,255,.62);color:#6f6257;text-align:center;}
+@media (max-width:760px){.home-hero h1 .home-hero__line{white-space:normal;}.hero-rating-card--editorial .hero-rating-card__text{max-width:none;}.routine-selection-note,.bestseller-rating--empty{width:100%;justify-content:center;}}
+
+.smart-routine__rating--empty{
+  color:rgba(43,36,32,.58);
+  font-weight:600;
+  letter-spacing:.01em;
+}
+
+.header .site-search-form .site-search-input:placeholder-shown ~ .site-search-clear{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.header .site-search-form .site-search-clear:not(.is-visible){
+  visibility:hidden;
+}

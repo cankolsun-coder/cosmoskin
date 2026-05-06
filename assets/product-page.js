@@ -122,8 +122,8 @@
     starWrap.hidden=true;
     const micro=$('#pdp5RatingMicro');
     if(micro){
-      micro.textContent='Yorumlar yükleniyor';
-      micro.setAttribute('title','Yorum bilgisi yükleniyor');
+      micro.textContent='Henüz yorum yok';
+      micro.setAttribute('title','Bu ürün için henüz onaylanmış yorum yok');
     }
   }
 

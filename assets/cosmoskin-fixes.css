@@ -1,0 +1,486 @@
+/* ============================================================
+   COSMOSKIN — UI FIXES & ENHANCEMENTS (v20260506)
+   - Footer newsletter ("COSMOSKIN Journal")
+   - Refined payment icons (consistent size, contrast, alignment)
+   - Editorial COSMOSKIN edit (numbered editorial entries)
+   - "Seçim Kriterleri" replacement section (replaces #brands grid)
+   - Small homepage polish
+   This file is loaded on every page that has the site footer.
+   ============================================================ */
+
+/* -------- 1. NEWSLETTER (footer-wide) ----------------------- */
+.footer-newsletter{
+  max-width:var(--container, 1240px);
+  margin:0 auto 28px;
+  padding:36px 36px 34px;
+  border-radius:28px;
+  border:1px solid rgba(237,230,220,.12);
+  background:
+    radial-gradient(circle at 14% 18%, rgba(200,169,106,.10), transparent 38%),
+    linear-gradient(180deg, rgba(255,255,255,.025) 0%, rgba(255,255,255,0) 100%);
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:34px;
+  align-items:center;
+}
+.footer-newsletter__copy{min-width:0}
+.footer-newsletter__kicker{
+  margin:0 0 10px;
+  font-size:11px;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:#c8a96a;
+  font-weight:700;
+}
+.footer-newsletter__title{
+  margin:0 0 12px;
+  color:#f7efe6;
+  font-family:"Cormorant Garamond", Georgia, serif;
+  font-weight:400;
+  font-size:clamp(1.85rem, 3.2vw, 2.6rem);
+  line-height:1.05;
+  letter-spacing:-.02em;
+}
+.footer-newsletter__lede{
+  margin:0;
+  color:rgba(237,230,220,.78);
+  font-size:14.5px;
+  line-height:1.7;
+  max-width:48ch;
+}
+.footer-newsletter__form{
+  display:flex;
+  align-items:stretch;
+  gap:10px;
+  min-width:0;
+  flex-wrap:wrap;
+}
+.footer-newsletter__field{
+  flex:1 1 240px;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  height:54px;
+  padding:0 18px;
+  border-radius:999px;
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(237,230,220,.14);
+  transition:border-color .2s ease, background .2s ease;
+}
+.footer-newsletter__field:focus-within{
+  border-color:rgba(200,169,106,.6);
+  background:rgba(255,255,255,.08);
+}
+.footer-newsletter__field input{
+  width:100%;
+  height:100%;
+  border:0;
+  background:transparent;
+  color:#f7efe6;
+  font:600 14px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  outline:none;
+}
+.footer-newsletter__field input::placeholder{
+  color:rgba(237,230,220,.54);
+  font-weight:500;
+}
+.footer-newsletter__btn{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  height:54px;
+  padding:0 26px;
+  border-radius:999px;
+  border:1px solid #fff;
+  background:#fff;
+  color:#0d0d0d;
+  font:800 12px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .22s ease, background .22s ease, color .22s ease, box-shadow .22s ease;
+}
+.footer-newsletter__btn:hover{
+  transform:translateY(-1px);
+  background:#c8a96a;
+  border-color:#c8a96a;
+  color:#0d0d0d;
+  box-shadow:0 14px 30px rgba(200,169,106,.22);
+}
+.footer-newsletter__btn svg{
+  width:14px;
+  height:14px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:2;
+}
+.footer-newsletter__note{
+  margin:14px 0 0;
+  font-size:11.5px;
+  color:rgba(237,230,220,.54);
+  letter-spacing:.02em;
+}
+.footer-newsletter__status{
+  display:none;
+  margin:12px 0 0;
+  font-size:13px;
+  font-weight:600;
+  color:#c8a96a;
+}
+.footer-newsletter__status[data-state="ok"]{display:block;color:#cfe2c0}
+.footer-newsletter__status[data-state="error"]{display:block;color:#f0c4b6}
+
+@media (max-width:820px){
+  .footer-newsletter{
+    grid-template-columns:1fr;
+    padding:28px 24px;
+    gap:22px;
+    border-radius:24px;
+  }
+}
+@media (max-width:540px){
+  .footer-newsletter{
+    margin-left:14px;
+    margin-right:14px;
+    padding:24px 20px;
+  }
+  .footer-newsletter__form{gap:8px}
+  .footer-newsletter__field{flex-basis:100%}
+  .footer-newsletter__btn{flex:1 1 100%; padding:0 20px}
+}
+
+/* -------- 2. PAYMENT ICONS (consistent, premium) ------------ */
+.footer .payment-logos{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.footer .payment-logo{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:60px;
+  height:38px;
+  min-width:60px;
+  padding:0;
+  border-radius:8px;
+  background:#fff;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 4px 12px rgba(0,0,0,.18);
+  overflow:hidden;
+}
+.footer .payment-logo--visa,
+.footer .payment-logo--mastercard,
+.footer .payment-logo--amex,
+.footer .payment-logo--troy{
+  width:60px;
+  min-width:60px;
+}
+.footer .payment-logo svg{
+  display:block;
+  width:42px;
+  height:auto;
+  max-height:24px;
+}
+.footer .payment-logo--mastercard svg{width:34px; height:22px}
+.footer .payment-logo--amex svg{width:42px; height:24px}
+.footer .payment-logo--troy svg{width:38px; height:20px}
+
+@media (max-width:540px){
+  .footer .payment-logo{
+    width:54px;
+    min-width:54px;
+    height:34px;
+  }
+  .footer .payment-logo svg{width:38px; max-height:20px}
+}
+
+/* -------- 3. COSMOSKIN EDIT — Editorial polish -------------- */
+.editorial-phase4{
+  position:relative;
+}
+.editorial-phase4 .container{
+  position:relative;
+}
+.editorial-phase4__grid{
+  align-items:stretch !important;
+  gap:48px !important;
+}
+.editorial-phase4__visual{
+  position:relative;
+  border-radius:30px;
+  overflow:hidden;
+  isolation:isolate;
+}
+.editorial-phase4__visual::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:30px;
+  border:1px solid rgba(22,18,14,.06);
+  pointer-events:none;
+}
+.editorial-phase4__visual img{
+  border-radius:30px !important;
+  aspect-ratio:1/1.05;
+  object-fit:cover;
+}
+.editorial-phase4__content{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:8px 0;
+}
+.editorial-phase4__content .kicker{
+  margin:0 0 14px;
+  font-size:11px;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:#a8783e;
+  font-weight:700;
+}
+.editorial-phase4__content h2{
+  margin:0 0 18px !important;
+  letter-spacing:-.025em !important;
+}
+.editorial-phase4__content > p{
+  max-width:54ch;
+  font-size:15.5px !important;
+  line-height:1.78 !important;
+  color:#5b5048 !important;
+  margin:0 0 26px !important;
+}
+
+/* New numbered editorial entries (replaces pill list) */
+.editorial-phase4__list{
+  list-style:none;
+  padding:0;
+  margin:8px 0 28px !important;
+  display:grid !important;
+  gap:0 !important;
+  border-top:1px solid rgba(22,18,14,.10);
+}
+.editorial-phase4__list li{
+  position:relative;
+  padding:22px 0 22px 64px !important;
+  border:0 !important;
+  border-bottom:1px solid rgba(22,18,14,.10) !important;
+  background:transparent !important;
+  border-radius:0 !important;
+  color:#3a322c !important;
+  line-height:1.65 !important;
+  font-size:15px;
+  counter-increment:editorial-counter;
+}
+.editorial-phase4__list{
+  counter-reset:editorial-counter;
+}
+.editorial-phase4__list li::before{
+  content:counter(editorial-counter, decimal-leading-zero);
+  position:absolute;
+  left:0;
+  top:24px;
+  width:42px;
+  font:800 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing:.18em;
+  color:#a8783e;
+  border-right:1px solid rgba(22,18,14,.14);
+  padding-right:14px;
+  text-align:right;
+}
+.editorial-phase4__list li strong{
+  display:block;
+  margin-bottom:6px;
+  color:#1a1510;
+  font:600 16px/1.3 "Cormorant Garamond", Georgia, serif;
+  font-size:18px;
+  letter-spacing:-.005em;
+}
+.editorial-phase4__list li:last-child{
+  border-bottom:0 !important;
+}
+
+/* CTAs in COSMOSKIN edit */
+.editorial-phase4__content .home-hero__actions{
+  margin-top:8px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+}
+.editorial-phase4__content .btn-primary{
+  min-width:200px;
+}
+
+@media (max-width:1180px){
+  .editorial-phase4__grid{gap:32px !important}
+}
+@media (max-width:820px){
+  .editorial-phase4__visual img{aspect-ratio:4/3}
+  .editorial-phase4__list li{padding-left:50px !important}
+  .editorial-phase4__list li::before{width:34px}
+}
+
+/* -------- 4. SECTION REPLACEMENT — "Seçim Kriterleri" ------- */
+/* Replaces the redundant Markalar grid that sat under COSMOSKIN edit. */
+.selection-criteria{
+  position:relative;
+  padding:84px 0;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(200,169,106,.08), transparent 38%),
+    linear-gradient(180deg, #fbf6ee 0%, #f5ede1 100%);
+  border-top:1px solid rgba(22,18,14,.06);
+  border-bottom:1px solid rgba(22,18,14,.06);
+  overflow:hidden;
+}
+.selection-criteria__head{
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:48px;
+  align-items:end;
+  margin-bottom:34px;
+  padding-bottom:26px;
+  border-bottom:1px solid rgba(22,18,14,.10);
+}
+.selection-criteria__kicker{
+  margin:0 0 14px;
+  font-size:11px;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:#a8783e;
+  font-weight:700;
+}
+.selection-criteria__title{
+  margin:0;
+  color:#1a1510;
+  font-family:"Cormorant Garamond", Georgia, serif;
+  font-weight:400;
+  font-size:clamp(2.1rem, 4vw, 3.3rem);
+  line-height:1;
+  letter-spacing:-.025em;
+  max-width:18ch;
+}
+.selection-criteria__lede{
+  margin:0;
+  color:#5b5048;
+  font-size:15.5px;
+  line-height:1.78;
+  max-width:50ch;
+}
+.selection-criteria__grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:22px;
+}
+.selection-card{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  padding:30px 28px 30px;
+  border-radius:24px;
+  background:#fffdf9;
+  border:1px solid rgba(22,18,14,.07);
+  box-shadow:0 12px 32px rgba(48,34,20,.05);
+  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.selection-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(168,120,62,.22);
+  box-shadow:0 22px 50px rgba(48,34,20,.10);
+}
+.selection-card__icon{
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:linear-gradient(135deg, rgba(200,169,106,.18), rgba(200,169,106,.06));
+  color:#8b642f;
+  margin-bottom:22px;
+}
+.selection-card__icon svg{
+  width:22px;
+  height:22px;
+  stroke:currentColor;
+  fill:none;
+  stroke-width:1.5;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.selection-card__num{
+  font:800 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:#a8783e;
+  margin-bottom:10px;
+}
+.selection-card__title{
+  margin:0 0 12px;
+  color:#1a1510;
+  font-family:"Cormorant Garamond", Georgia, serif;
+  font-weight:500;
+  font-size:24px;
+  line-height:1.1;
+  letter-spacing:-.015em;
+}
+.selection-card__body{
+  margin:0;
+  color:#5b5048;
+  font-size:14px;
+  line-height:1.75;
+  flex:1;
+}
+.selection-card__divider{
+  margin:18px 0 0;
+  width:36px;
+  height:1px;
+  background:rgba(168,120,62,.45);
+}
+.selection-card__meta{
+  margin:14px 0 0;
+  font:700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#7c5a37;
+}
+.selection-criteria__footer{
+  margin-top:36px;
+  padding-top:26px;
+  border-top:1px solid rgba(22,18,14,.10);
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+.selection-criteria__footer p{
+  margin:0;
+  color:#5b5048;
+  font-size:14px;
+  line-height:1.7;
+  max-width:60ch;
+}
+.selection-criteria__footer .btn{
+  flex:0 0 auto;
+}
+
+@media (max-width:1180px){
+  .selection-criteria__grid{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .selection-criteria__head{grid-template-columns:1fr; gap:18px; align-items:start}
+}
+@media (max-width:820px){
+  .selection-criteria{padding:60px 0}
+  .selection-criteria__title{font-size:clamp(1.8rem, 8vw, 2.6rem); max-width:100%}
+  .selection-card{padding:26px 22px}
+  .selection-criteria__footer{flex-direction:column; align-items:flex-start}
+}
+@media (max-width:540px){
+  .selection-criteria__grid{grid-template-columns:1fr}
+}
+
+/* -------- 5. Homepage polish (small refinements) ------------ */
+/* Make sure the ÇOK SATANLAR kicker is not hidden behind the sticky header. */
+.bestsellers-premium{scroll-margin-top:140px}
+#smart-routine,#brands,#faq,.editorial-phase4,.assurance-section{scroll-margin-top:120px}

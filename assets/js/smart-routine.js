@@ -36,40 +36,7 @@
     { id: 'koru', label: 'Koru', description: 'UV, çevresel etkenlere karşı koru.', icon: icon.routine('step-protect') }
   ];
 
-  var ratingFallback = {
-    'anua-heartleaf-77-soothing-toner': { avg: 4.7, count: 245 },
-    'anua-heartleaf-pore-control-cleansing-oil': { avg: 4.7, count: 194 },
-    'beauty-of-joseon-relief-sun-spf50': { avg: 4.8, count: 312 },
-    'beauty-of-joseon-glow-serum-propolis-niacinamide': { avg: 4.8, count: 157 },
-    'beauty-of-joseon-glow-deep-serum': { avg: 4.8, count: 153 },
-    'beauty-of-joseon-dynasty-cream': { avg: 4.8, count: 177 },
-    'beauty-of-joseon-green-plum-refreshing-cleanser': { avg: 4.7, count: 151 },
-    'by-wishtrend-pure-vitamin-c-21-5-serum': { avg: 4.7, count: 103 },
-    'cosrx-advanced-snail-96-mucin-essence': { avg: 4.8, count: 311 },
-    'cosrx-the-vitamin-c-23-serum': { avg: 4.7, count: 141 },
-    'cosrx-acne-pimple-master-patch': { avg: 4.6, count: 126 },
-    'cosrx-aha-bha-clarifying-treatment-toner': { avg: 4.7, count: 156 },
-    'cosrx-low-ph-good-morning-gel-cleanser': { avg: 4.7, count: 223 },
-    'cosrx-salicylic-acid-daily-gentle-cleanser': { avg: 4.6, count: 132 },
-    'cosrx-oil-free-ultra-moisturizing-lotion': { avg: 4.6, count: 143 },
-    'dr-jart-ceramidin-cream': { avg: 4.7, count: 164 },
-    'goodal-green-tangerine-vitamin-c-serum': { avg: 4.8, count: 167 },
-    'im-from-rice-toner': { avg: 4.7, count: 174 },
-    'isntree-hyaluronic-acid-watery-sun-gel': { avg: 4.7, count: 183 },
-    'laneige-water-sleeping-mask': { avg: 4.7, count: 156 },
-    'medicube-zero-pore-pad': { avg: 4.6, count: 118 },
-    'medicube-collagen-night-wrapping-mask': { avg: 4.7, count: 201 },
-    'round-lab-birch-juice-sunscreen': { avg: 4.8, count: 201 },
-    'round-lab-soybean-nourishing-cream': { avg: 4.7, count: 96 },
-    'round-lab-1025-dokdo-cleanser': { avg: 4.7, count: 138 },
-    'round-lab-dokdo-toner': { avg: 4.8, count: 216 },
-    'skin1004-madagascar-centella-ampoule': { avg: 4.8, count: 276 },
-    'skin1004-hyalu-cica-water-fit-sun-serum': { avg: 4.8, count: 221 },
-    'some-by-mi-aha-bha-miracle-toner': { avg: 4.7, count: 209 },
-    'torriden-dive-in-hyaluronic-acid-serum': { avg: 4.8, count: 189 },
-    'torriden-solid-in-ceramide-cream': { avg: 4.7, count: 128 },
-    'torriden-dive-in-watery-moisture-sun-cream': { avg: 4.7, count: 119 }
-  };
+  var ratingFallback = {};
 
   var productEnhancements = {
     'anua-heartleaf-77-soothing-toner': { routineStep: 'hazirla', usageTime: ['day', 'night'], skinGoals: ['hassasiyet', 'bariyer', 'nem'], skinTypes: ['hassas', 'karma', 'kuru'], benefits: ['heartleaf', 'soothing', 'denge'], sensitiveFriendly: true, editorPick: true, stock: true },
@@ -176,7 +143,7 @@
   function normalizeProductData(source) {
     var products = (Array.isArray(source) ? source : getProductData()).map(function (product) {
       var enhancement = productEnhancements[product.slug] || {};
-      var fallback = ratingFallback[product.slug] || { avg: 4.7, count: 100 };
+      var fallback = null;
       var step = enhancement.routineStep || categoryToStep(product);
       var usageTime = enhancement.usageTime || (step === 'koru' ? ['day'] : ['day', 'night']);
       return Object.assign({}, product, enhancement, {
@@ -189,8 +156,8 @@
         usageTime: Array.isArray(usageTime) ? usageTime : [usageTime],
         skinGoals: inferGoals(product, enhancement),
         skinTypes: enhancement.skinTypes || ['kuru', 'karma', 'yagli', 'hassas'],
-        rating: readNumber(product.rating || product.avgRating || product.avg_rating || fallback.avg),
-        reviewCount: Math.round(readNumber(product.reviewCount || product.review_count || product.approved_count || fallback.count)),
+        rating: readNumber(product.rating || product.avgRating || product.avg_rating || (fallback && fallback.avg)),
+        reviewCount: Math.round(readNumber(product.reviewCount || product.review_count || product.approved_count || (fallback && fallback.count))),
         stock: enhancement.stock !== false,
         benefits: enhancement.benefits || []
       });
@@ -418,9 +385,16 @@
   }
 
   function renderRating(product) {
-    return '<div class="smart-routine__rating" aria-label="' + esc(product.rating.toFixed(1) + ' puan, ' + product.reviewCount + ' yorum') + '">' +
-      '<span class="smart-routine__stars">★ ' + esc(product.rating.toFixed(1)) + '</span>' +
-      '<span class="smart-routine__reviews">(' + esc(new Intl.NumberFormat('tr-TR').format(product.reviewCount)) + ')</span>' +
+    var rating = readNumber(product && product.rating);
+    var count = Math.round(readNumber(product && product.reviewCount));
+    if (!(rating > 0 && count > 0)) {
+      // No verified reviews yet — render nothing (collapsed). When a real rating
+      // arrives via product data, the regular rating block below renders.
+      return '';
+    }
+    return '<div class="smart-routine__rating" aria-label="' + esc(rating.toFixed(1) + ' puan, ' + count + ' yorum') + '">' +
+      '<span class="smart-routine__stars">★ ' + esc(rating.toFixed(1)) + '</span>' +
+      '<span class="smart-routine__reviews">(' + esc(new Intl.NumberFormat('tr-TR').format(count)) + ')</span>' +
     '</div>';
   }
 
@@ -664,7 +638,7 @@
           return '<button class="smart-routine__alt-card' + (selected ? ' is-selected' : '') + '" type="button" data-sr-replace="' + esc(key) + '" data-sr-product="' + esc(product.slug) + '"' + (disabled ? ' disabled aria-disabled="true"' : '') + '>' +
             '<img src="' + esc(product.image) + '" alt="' + esc(product.brand + ' ' + product.name) + '" loading="lazy">' +
             '<strong>' + esc(product.name) + '</strong>' +
-            '<span>' + esc(product.brand + ' · ' + formatPrice(product.price) + ' · ★ ' + product.rating.toFixed(1)) + '</span>' +
+            '<span>' + esc(product.brand + ' · ' + formatPrice(product.price) + (product.rating > 0 && product.reviewCount > 0 ? ' · ★ ' + product.rating.toFixed(1) : '')) + '</span>' +
             (disabled ? '<em>Rutinde zaten var</em>' : selected ? '<em>Seçili ürün</em>' : '<em>Alternatif olarak seç</em>') +
           '</button>';
         }).join('') + '</div>' +
@@ -799,7 +773,7 @@
 
   async function fetchReviewSummary(slug) {
     if (!slug || REVIEW_CACHE.has(slug)) return REVIEW_CACHE.get(slug);
-    var fallback = ratingFallback[slug] || null;
+    var fallback = null;
     try {
       var response = await fetch(REVIEW_API + '/reviews?product_slug=' + encodeURIComponent(slug), { credentials: 'same-origin' });
       if (!response.ok) throw new Error('review request failed');
@@ -814,7 +788,7 @@
         return normalized;
       }
     } catch (error) {
-      // Live API may be unavailable in local previews; fallback values keep the module stable.
+      // Live API may be unavailable in local previews; keep ratings empty instead of showing unverifiable social proof.
     }
     if (fallback) REVIEW_CACHE.set(slug, fallback);
     return fallback;

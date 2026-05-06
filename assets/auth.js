@@ -693,7 +693,7 @@ const CHECKOUT_FIELD_RULES = {
   last_name: { label: 'Soyad', validate: (value) => String(value || '').trim().length >= 2 || 'Soyad alanı en az 2 karakter olmalı.' },
   email: { label: 'E-posta', validate: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(value || '').trim()) || 'Geçerli bir e-posta adresi gir.' },
   phone: { label: 'Telefon', validate: (value) => isValidTurkishPhone(value) || 'Telefon numarası +90 5xx xxx xx xx formatında olmalı.' },
-  identity_number: { label: 'T.C. Kimlik No', validate: (value) => isValidTurkishIdentityNumber(value) || 'Geçerli bir 11 haneli T.C. kimlik numarası gir.' },
+  identity_number: { label: 'T.C. Kimlik No', validate: (value) => { const digits = onlyDigits(value); return !digits || isValidTurkishIdentityNumber(digits) || 'Geçerli bir 11 haneli T.C. kimlik numarası gir veya alanı boş bırak.'; } },
   city: { label: 'İl', validate: (value) => String(value || '').trim().length >= 2 || 'İl alanını doldur.' },
   district: { label: 'İlçe', validate: (value) => String(value || '').trim().length >= 2 || 'İlçe alanını doldur.' },
   postal_code: { label: 'Posta Kodu', validate: (value) => /^\d{5}$/.test(onlyDigits(value)) || 'Posta kodu 5 haneli olmalı.' },

@@ -37,7 +37,7 @@ var CATS = [
 ];
 
 var TRUST = [
-  {icon:'truck',  main:'Ücretsiz', sub:'750 TL üzeri'},
+  {icon:'truck',  main:'Ücretsiz', sub:'2.500 TL üzeri'},
   {icon:'speed',  main:'1-2 Gün',  sub:'Hızlı teslimat'},
   {icon:'shield', main:'Orijinal', sub:'%100 garantili'},
   {icon:'rotate', main:'14 Gün',   sub:'Kolay iade'}

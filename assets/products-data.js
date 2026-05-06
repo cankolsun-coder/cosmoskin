@@ -88,7 +88,7 @@
       slug: slug,
       name: String(product.name || '').trim(),
       brand: String(product.brand || '').trim(),
-      brandSlug: product.brandSlug || slugify(product.brand),
+      brandSlug: product.brandSlug || (String(product.brand || '').toLowerCase().indexOf("i'm from") !== -1 ? 'im-from' : slugify(product.brand)),
       category: String(product.category || '').trim(),
       categorySlug: product.categorySlug || CATEGORY_SLUGS[product.category] || slugify(product.category),
       concernSlugs: toArray(product.concernSlugs),

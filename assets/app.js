@@ -1053,6 +1053,9 @@ function broadcastFavoritesChange() {
     if (shipping) shipping.textContent = t.shipping ? fmt(t.shipping) : 'Ücretsiz';
     if (total) total.textContent = fmt(t.total);
 
+    document.body.classList.toggle('checkout-cart-empty', !state.cart.length && !!document.getElementById('checkoutForm'));
+    document.body.classList.toggle('checkout-cart-ready', !!state.cart.length && !!document.getElementById('checkoutForm'));
+
     if (!state.cart.length) {
       itemsWrap.innerHTML = '<div class="account-state"><strong>Sepetiniz boş.</strong><div class="account-mini">Ürün eklediğinizde sipariş özeti burada görünür.</div></div>';
       if (summaryField) summaryField.value = '';

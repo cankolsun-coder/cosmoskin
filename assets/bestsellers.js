@@ -4,36 +4,7 @@
   const section = document.getElementById('bestsellers');
   if (!section) return;
 
-  const ratingFallback = {
-    'anua-heartleaf-77-soothing-toner': { avg: 4.7, count: 245 },
-    'torriden-dive-in-hyaluronic-acid-serum': { avg: 4.8, count: 189 },
-    'skin1004-madagascar-centella-ampoule': { avg: 4.8, count: 276 },
-    'dr-jart-ceramidin-cream': { avg: 4.7, count: 164 },
-    'round-lab-birch-juice-sunscreen': { avg: 4.8, count: 201 },
-    'cosrx-advanced-snail-96-mucin-essence': { avg: 4.8, count: 311 },
-    'beauty-of-joseon-glow-serum-propolis-niacinamide': { avg: 4.8, count: 157 },
-    'anua-heartleaf-pore-control-cleansing-oil': { avg: 4.7, count: 194 },
-    'beauty-of-joseon-relief-sun-spf50': { avg: 4.8, count: 312 },
-    'torriden-solid-in-ceramide-cream': { avg: 4.7, count: 128 },
-    'cosrx-oil-free-ultra-moisturizing-lotion': { avg: 4.6, count: 143 },
-    'beauty-of-joseon-dynasty-cream': { avg: 4.8, count: 177 },
-    'round-lab-soybean-nourishing-cream': { avg: 4.7, count: 96 },
-    'skin1004-hyalu-cica-water-fit-sun-serum': { avg: 4.8, count: 221 },
-    'isntree-hyaluronic-acid-watery-sun-gel': { avg: 4.7, count: 183 },
-    'torriden-dive-in-watery-moisture-sun-cream': { avg: 4.7, count: 119 },
-    'cosrx-salicylic-acid-daily-gentle-cleanser': { avg: 4.6, count: 132 },
-    'cosrx-aha-bha-clarifying-treatment-toner': { avg: 4.7, count: 156 },
-    'some-by-mi-aha-bha-miracle-toner': { avg: 4.7, count: 209 },
-    'medicube-zero-pore-pad': { avg: 4.6, count: 118 },
-    'cosrx-low-ph-good-morning-gel-cleanser': { avg: 4.7, count: 223 },
-    'goodal-green-tangerine-vitamin-c-serum': { avg: 4.8, count: 167 },
-    'cosrx-the-vitamin-c-23-serum': { avg: 4.7, count: 141 },
-    'beauty-of-joseon-glow-deep-serum': { avg: 4.8, count: 153 },
-    'im-from-rice-toner': { avg: 4.7, count: 174 },
-    'by-wishtrend-pure-vitamin-c-21-5-serum': { avg: 4.7, count: 103 },
-    'round-lab-1025-dokdo-cleanser': { avg: 4.7, count: 138 },
-    'round-lab-dokdo-toner': { avg: 4.8, count: 216 }
-  };
+  const ratingFallback = {};
 
   const reviewSummaryCache = new Map();
   const REVIEW_CACHE_TTL = 5 * 60 * 1000;
@@ -181,13 +152,13 @@
   }
 
   function getRating(product) {
-    if (!product) return { avg: 4.8, count: 100 };
+    if (!product) return { avg: 0, count: 0 };
     const slug = product.slug || product.id;
     const live = reviewSummaryCache.has(slug) ? normalizeSummary(reviewSummaryCache.get(slug)) : { avg: 0, count: 0 };
     if (live.count > 0 && live.avg > 0) return live;
     const fromProduct = deriveRatingFromProduct(product);
     if (fromProduct.count > 0 && fromProduct.avg > 0) return fromProduct;
-    return ratingFallback[slug] || { avg: 4.8, count: 100 };
+    return { avg: 0, count: 0 };
   }
 
   function buildStars(avg) {
@@ -213,6 +184,11 @@
   function ratingHtml(product) {
     const rating = getRating(product);
     const slug = esc(product.slug || product.id || '');
+    if (!(rating.count > 0 && rating.avg > 0)) {
+      // No rating yet — render an empty placeholder that holds the same row height
+      // and that hydrateReviewSummaries can later upgrade in place. No filler text.
+      return `<span class="bestseller-rating bestseller-rating--empty" data-rating-slug="${slug}" aria-hidden="true"></span>`;
+    }
     return `<a class="bestseller-rating" data-rating-slug="${slug}" href="${esc(product.url)}#reviewsSection" aria-label="${esc(rating.avg.toFixed(1))} puan, ${esc(formatReviewCount(rating.count))}">${ratingInnerHtml(rating)}</a>`;
   }
 
@@ -233,9 +209,14 @@
         <a href="${esc(product.url)}"><h3>${esc(product.name)}</h3></a>
         ${ratingHtml(product)}
         <div class="bestseller-card__tags">${tagHtml(tags)}</div>
-        <div class="bestseller-card__bottom price-row">
-          <div><div class="price">${esc(formatPrice(product.price))}</div><div class="bestseller-tax price-note">KDV dahil</div></div>
-          <button class="bestseller-btn" type="button" data-add-cart="" data-id="${esc(product.id || product.slug)}" data-slug="${esc(product.slug)}" data-name="${esc(product.name)}" data-brand="${esc(product.brand)}" data-price="${esc(product.price)}" data-image="${esc(product.image)}" data-url="${esc(product.url)}">${bagIcon}<span>Sepete Ekle</span></button>
+        <div class="bestseller-card__price-row">
+          <div class="bestseller-card__price-block">
+            <div class="price">${esc(formatPrice(product.price))}</div>
+            <div class="bestseller-tax price-note">KDV dahil</div>
+          </div>
+        </div>
+        <div class="bestseller-card__cta-row">
+          <button class="bestseller-btn bestseller-btn--full" type="button" data-add-cart="" data-id="${esc(product.id || product.slug)}" data-slug="${esc(product.slug)}" data-name="${esc(product.name)}" data-brand="${esc(product.brand)}" data-price="${esc(product.price)}" data-image="${esc(product.image)}" data-url="${esc(product.url)}">${bagIcon}<span>Sepete Ekle</span></button>
         </div>
       </div>
     </article>`;
@@ -245,8 +226,14 @@
     if (!container || !slug || !rating || !(rating.count > 0 && rating.avg > 0)) return;
     const nodes = container.querySelectorAll(`[data-rating-slug="${slug}"]`);
     nodes.forEach((node) => {
-      node.setAttribute('aria-label', `${rating.avg.toFixed(1)} puan, ${formatReviewCount(rating.count)}`);
-      node.innerHTML = ratingInnerHtml(rating);
+      const href = node.getAttribute('href') || `${(window.COSMOSKIN_PRODUCT_HELPERS?.getProductBySlug?.(slug)?.url) || '#'}#reviewsSection`;
+      const link = document.createElement('a');
+      link.className = node.className.replace('bestseller-rating--empty','').trim();
+      link.setAttribute('data-rating-slug', slug);
+      link.setAttribute('href', href);
+      link.setAttribute('aria-label', `${rating.avg.toFixed(1)} puan, ${formatReviewCount(rating.count)}`);
+      link.innerHTML = ratingInnerHtml(rating);
+      node.replaceWith(link);
     });
   }
 
