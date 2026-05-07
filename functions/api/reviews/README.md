@@ -1,4 +1,4 @@
-# Cosmoskin — Reviews Backend
+# COSMOSKIN — Reviews Backend
 
 Production review system on Cloudflare Pages Functions + D1.
 

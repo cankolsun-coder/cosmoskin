@@ -1,4 +1,4 @@
-# Cosmoskin Akıllı Rutin Seçimi — Güncelleme Raporu
+# COSMOSKIN Akıllı Rutin Seçimi — Güncelleme Raporu
 
 ## Dokunulan dosyalar
 - `index.html`

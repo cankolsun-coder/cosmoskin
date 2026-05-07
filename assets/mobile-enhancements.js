@@ -23,7 +23,7 @@
     'skin1004.html': {eyebrow:'Brand edit', title:'SKIN1004', desc:'Centella odaklı hafif ve yatıştırıcı bakım akışı.', chips:['Centella','Hassas','Calm']},
     'thank-you-farmer.html': {eyebrow:'Brand edit', title:'Thank You Farmer', desc:'Günlük konfor ve bakım hissi veren rafine ürün çizgisi.', chips:['Daily','Comfort','Cream']},
     'blemish.html': {eyebrow:'Concern', title:'Akne eğilimi', desc:'Sebum ve gözenek odağında daha hafif seçimler.', chips:['Akne','Sebum','Gözenek']},
-    'index.html': {eyebrow:'Cosmoskin mobile', title:'Seçilmiş K-beauty', desc:'Ana sayfada hızlı keşif, rafine kartlar ve uygulama hissine yakın gezinme.', chips:['Edit','Premium','Mobile']}
+    'index.html': {eyebrow:'COSMOSKIN mobile', title:'Seçilmiş K-beauty', desc:'Ana sayfada hızlı keşif, rafine kartlar ve uygulama hissine yakın gezinme.', chips:['Edit','Premium','Mobile']}
   };
 
   document.documentElement.classList.add('mobile-master-ready');

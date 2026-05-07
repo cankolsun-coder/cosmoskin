@@ -1,4 +1,4 @@
-# Cosmoskin canlı e-commerce kurulum
+# COSMOSKIN canlı e-commerce kurulum
 
 ## 1) Supabase
 

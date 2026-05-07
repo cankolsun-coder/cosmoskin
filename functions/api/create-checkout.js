@@ -152,7 +152,7 @@ function normalizeCart(rawCart) {
     merged.set(productId, {
       product_id: productId,
       product_slug: product.slug || rawItem.slug || null,
-      product_name: clampText(product.name || rawItem.name || 'Cosmoskin Ürünü', 120),
+      product_name: clampText(product.name || rawItem.name || 'COSMOSKIN Ürünü', 120),
       brand: clampText(product.brand || rawItem.brand || 'COSMOSKIN', 80),
       unit_price: unitPrice,
       quantity,

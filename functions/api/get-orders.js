@@ -14,7 +14,7 @@ function resolveOrderItem(item = {}) {
     product_id: product?.id || item.product_id || productSlug,
     product_slug: productSlug,
     product_name: product?.name || item.product_name || 'Ürün',
-    brand: product?.brand || item.brand || 'Cosmoskin',
+    brand: product?.brand || item.brand || 'COSMOSKIN',
     image: product?.image || item.image || '',
     product_url: product?.url || (productSlug ? `/products/${productSlug}.html` : '')
   };

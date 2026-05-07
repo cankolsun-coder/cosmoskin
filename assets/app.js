@@ -138,7 +138,7 @@
       id: lookup?.id || extractedSlug || String(input.id || '').trim(),
       slug: lookup?.slug || extractedSlug || String(input.slug || input.id || '').trim(),
       name: lookup?.name || input.name || 'Ürün',
-      brand: lookup?.brand || input.brand || 'Cosmoskin',
+      brand: lookup?.brand || input.brand || 'COSMOSKIN',
       price: Number.isFinite(price) ? price : 0,
       image: lookup?.image || input.image || '',
       url: lookup?.url || input.url || (extractedSlug ? `/products/${extractedSlug}.html` : ''),
@@ -1419,7 +1419,7 @@ function broadcastFavoritesChange() {
     return {
       id: cartBtn?.dataset.id || card.dataset.productId || createSlug(title?.textContent || ''),
       name: cartBtn?.dataset.name || title?.textContent?.trim() || 'Ürün',
-      brand: cartBtn?.dataset.brand || brand?.textContent?.trim() || badge?.textContent?.trim() || 'Cosmoskin',
+      brand: cartBtn?.dataset.brand || brand?.textContent?.trim() || badge?.textContent?.trim() || 'COSMOSKIN',
       price: Number(cartBtn?.dataset.price || String(price?.textContent || '0').replace(/[^\d]/g, '')),
       image: cartBtn?.dataset.image || img?.getAttribute('src') || '',
       description: desc?.textContent?.trim() || '',

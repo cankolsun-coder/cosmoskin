@@ -2502,7 +2502,7 @@ button[disabled] { opacity: 0.72; cursor: wait; }
   }
 }
 
-/* Cosmoskin brand asset integration */
+/* COSMOSKIN brand asset integration */
 .footer .brand-logo {
   opacity: .96;
   filter: drop-shadow(0 0 14px rgba(237, 231, 222, 0.08));
@@ -6414,7 +6414,7 @@ body::before{
 
 
 
-/* ===== Cosmoskin mobile refinement layer (2026-04-21) ===== */
+/* ===== COSMOSKIN mobile refinement layer (2026-04-21) ===== */
 .mobile-search-sheet,
 .mobile-bottom-nav,
 .mobile-category-shortcuts,
@@ -7519,7 +7519,7 @@ body::before{
   }
 }
 
-/* === Cosmoskin critical UI/UX fixes — May 2026 === */
+/* === COSMOSKIN critical UI/UX fixes — May 2026 === */
 .home-hero h1 .home-hero__line{display:block;white-space:nowrap;}
 .home-hero h1 em.home-hero__line{font-style:italic;}
 .hero-rating-card--editorial .hero-rating-card__score{margin-top:6px;}

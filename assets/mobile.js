@@ -1,3 +1,14 @@
+(function(){
+  var path = window.location && window.location.pathname || '';
+  var redesignedRoute = /^(?:\/$|\/index\.html$|\/allproducts\.html$|\/search\.html$|\/checkout\.html$|\/collections\/|\/brands\/|\/products\/)/.test(path);
+  var hasRedesign = !!document.querySelector('script[src*="mobile-redesign.js"], link[href*="mobile-redesign.css"]');
+  if (redesignedRoute && hasRedesign) {
+    window.__COSMOSKIN_LEGACY_MOBILE_DISABLED__ = true;
+    return;
+  }
+})();
+if (!window.__COSMOSKIN_LEGACY_MOBILE_DISABLED__) 
+{
 /* COSMOSKIN — Mobile v7 */
 (function(){
 'use strict';
@@ -71,7 +82,7 @@ function buildHeader(){
   var h = el('header','m-header');
   h.innerHTML =
     '<button class="m-header__menu" aria-label="Menü" type="button">' + SVG.menu + '</button>' +
-    '<a class="m-header__logo" href="/index.html" aria-label="Cosmoskin anasayfa">' +
+    '<a class="m-header__logo" href="/index.html" aria-label="COSMOSKIN anasayfa">' +
       '<span class="m-header__wordmark">COSMOSKIN</span>' +
     '</a>' +
     '<div class="m-header__tools">' +
@@ -494,3 +505,5 @@ window.addEventListener('load', function(){
 });
 
 })();
+
+}

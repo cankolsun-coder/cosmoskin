@@ -80,7 +80,7 @@
 }
 
 
-/* Cosmoskin verified rating summary — homepage best sellers */
+/* COSMOSKIN verified rating summary — homepage best sellers */
 .cs-card-rating{display:inline-flex;align-items:center;gap:7px;width:max-content;max-width:100%;margin:10px 0 2px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid rgba(176,138,94,.16);color:#4d4036;text-decoration:none;font-size:11.5px;font-weight:800;line-height:1;transition:background .18s ease,border-color .18s ease,transform .18s ease}
 .cs-card-rating[hidden]{display:none!important}
 .cs-card-rating:hover{background:#fffaf4;border-color:rgba(176,138,94,.3);transform:translateY(-1px)}

@@ -1,4 +1,4 @@
-# Cosmoskin Director Update — Hero + Smart Routine + Routine Commerce
+# COSMOSKIN Director Update — Hero + Smart Routine + Routine Commerce
 
 ## Updated
 - Homepage hero now uses `assets/img/hero/hero-bg-cosmoskin-stone.png` from the provided image.

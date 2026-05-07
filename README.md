@@ -1,2 +1,2 @@
 # cosmoskin
-Cosmoskin - Premium Korean Skincare E-commerce Platform
+COSMOSKIN - Premium Korean Skincare E-commerce Platform
