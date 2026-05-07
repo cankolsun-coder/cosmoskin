@@ -39,9 +39,14 @@
   body.cm-mobile-active .cart-backdrop,
   body.cm-mobile-active footer.site-footer,
   body.cm-mobile-active footer.footer,
-  body.cm-mobile-active .footer { display:none !important; }
+  body.cm-mobile-active .footer,
+  body.cm-mobile-active > .section,
+  body.cm-mobile-active > .faq-section,
+  body.cm-mobile-active > #faq { display:none !important; }
 
-  body.cm-mobile-active main > :not(.cm-mobile-page){ display:none !important; }
+  body.cm-mobile-active main > :not(#cm-mobile-redesign-root){ display:none !important; }
+  body.cm-mobile-active #cm-mobile-redesign-root{ display:block !important; width:100% !important; }
+  body.cm-mobile-active #cm-mobile-redesign-root > .cm-mobile-page{ display:block !important; }
   body.cm-mobile-active main{display:block !important; padding:0 !important; margin:0 !important; max-width:none !important; width:100% !important;}
 
   .cm-mobile-page{
