@@ -801,7 +801,7 @@
       state.client = window.cosmoskinSupabase || window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
       var sessionResult = await state.client.auth.getSession();
       state.session = sessionResult?.data?.session || null;
-      if (!state.session?.access_token) { window.location.href = '/index.html?next=' + encodeURIComponent('/account/profile.html' + window.location.search); return; }
+      if (!state.session?.access_token) { if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) { setLoading(false); return; } window.location.href = '/index.html?next=' + encodeURIComponent('/account/profile.html' + window.location.search); return; }
       var url = new URL(window.location.href);
       state.activeTab = url.searchParams.get('tab') || (window.location.hash || '').replace('#', '') || 'overview';
       bindEvents();
