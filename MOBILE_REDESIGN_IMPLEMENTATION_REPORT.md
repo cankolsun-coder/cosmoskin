@@ -1,61 +1,22 @@
 # COSMOSKIN Mobile Redesign Implementation Report
 
-## Added files
+Bu paket, eklenen referans mobil tasarım panolarındaki ana sayfa, kategori/listeleme, ürün detay, akıllı rutin, sepet/checkout ve hamburger menü düzenlerini mobil gerçek sayfa katmanı olarak uygular.
 
-- `mobile-redesign.html`
-  - Complete six-screen COSMOSKIN mobile redesign showcase.
-  - Preserves the reference presentation language: left editorial panel, centered phone mockup, right annotated callouts.
-
+## Eklenen dosyalar
 - `assets/mobile-redesign.css`
-  - Premium light-theme mobile UI system.
-  - Warm ivory / cream / stone beige palette.
-  - Serif editorial headings and clean sans-serif UI hierarchy.
-  - iPhone-style phone shell, sticky-style mobile header, fixed bottom nav, product cards, category cards, drawers, accordions, routine builder, cart summary and annotations.
-
 - `assets/mobile-redesign.js`
-  - Component-based vanilla frontend prototype.
-  - Uses structured product data with real asset paths from the ZIP.
-  - Implements core interactions:
-    - hamburger drawer open / close
-    - drawer closes via close button and overlay
-    - filter and routine chips toggle selected state
-    - day / night routine segmented control updates label
-    - favorite icons toggle
-    - PDP accordions expand / collapse
-    - quantity steppers work
-    - cart item removal works
-    - cart subtotal / discount / total update visually
-    - bottom navigation active state updates
-    - top info bar can be dismissed
 
-## Asset policy followed
+## Uygulanan kapsam
+- Mobilde light-theme premium COSMOSKIN header, ücretsiz kargo barı, arama/sepet ikonları ve badge yapısı.
+- Ana sayfa mobil hero, güven stripi, marka stripi, hızlı kategori kartları ve çok satan ürün kartları.
+- Kategori/listeleme mobil arama, chip filtreleri, sıralama/filtre butonları ve 2 kolon ürün grid yapısı.
+- PDP mobil ürün hero alanı, fiyat/CTA alanı, adet seçici, teslimat notu, accordion bilgi akışı ve öneri modülü.
+- Akıllı Rutin Seçimi mobil hedef chipleri, cilt tipi, gündüz/gece seçimi, rutin kartı, set avantajı ve CTA hiyerarşisi.
+- Sepet mobil ürün listesi, kupon alanı, sipariş özeti, checkout CTA ve güven stripi.
+- Hamburger menü global navigasyon hub olarak yeniden kurgulandı: kategoriler, markalar, cilt hedefleri, hesap ve destek bağlantıları.
 
-- No fake product images were generated.
-- No remote stock images or external URLs were used.
-- Product images and brand logos are referenced only from existing project paths:
-  - `assets/img/products/...`
-  - `assets/img/brands/...`
-  - `assets/img/hero/...`
-- Product packaging, labels, bottle shapes and proportions are preserved by using the existing real image files.
-
-## Screens included
-
-1. Mobile Homepage
-2. Category / Product Listing Page
-3. Product Detail Page
-4. Smart Routine Selection Page
-5. Cart / Checkout Page
-6. Opened Hamburger Menu
-
-## Notes
-
-- The original site files were not destructively overwritten.
-- The redesign is available as a dedicated production-ready concept page:
-  - `/mobile-redesign.html`
-- Some requested example products were adjusted to the closest available real ZIP asset when the exact product visual was not present. This avoids inventing fake products.
-
-## Validation performed
-
-- JavaScript syntax checked with `node --check assets/mobile-redesign.js`.
-- Asset path scan completed: all referenced `/assets/...` paths exist in the project.
-- No external remote image URLs were introduced.
+## Notlar
+- Desktop tasarım korunur; yeni katman yalnızca `max-width: 768px` altında aktiftir.
+- Ürün ve marka görselleri zip içindeki gerçek asset klasörlerinden kullanılır.
+- Logo her yerde bitişik `COSMOSKIN` olarak korunur.
+- Emoji icon kullanılmadı; tüm ikonlar minimal inline SVG olarak eklendi.
