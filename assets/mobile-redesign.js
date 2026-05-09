@@ -29,7 +29,8 @@
     barrier: { title: 'Bariyer Desteği', subtitle: 'Seramid, nem ve yatıştırma odağındaki bakım seçkisi.', href: '/collections/barrier.html', goal: 'barrier', keywords: ['bariyer', 'ceramide', 'seramid', 'centella', 'cica', 'yatıştırıcı', 'nem'] },
     glow: { title: 'Işıltı', subtitle: 'Daha aydınlık ve canlı görünüm için seçilmiş serum ve bakım ürünleri.', href: '/collections/glow.html', goal: 'glow', keywords: ['ışıltı', 'glow', 'vitamin c', 'niacinamide', 'niasinamid', 'arbutin', 'pirinç', 'leke', 'aydınlatıcı'] },
     sensitivity: { title: 'Hassasiyet', subtitle: 'Yatıştırıcı ve konfor odaklı hassas cilt seçkisi.', href: '/collections/sensitivity.html', goal: 'sensitive', keywords: ['hassas', 'yatıştırıcı', 'soothing', 'centella', 'heartleaf', 'cica', 'bariyer'] },
-    'pore-sebum': { title: 'Gözenek & Sebum', subtitle: 'Arındırma, denge ve gözenek görünümü odağı.', href: '/collections/pore-sebum.html', goal: 'pore', keywords: ['gözenek', 'sebum', 'pore', 'bha', 'aha', 'kil', 'volcanic', 'akne'] }
+    'pore-sebum': { title: 'Gözenek & Sebum', subtitle: 'Arındırma, denge ve gözenek görünümü odağı.', href: '/collections/pore-sebum.html', goal: 'pore', keywords: ['gözenek', 'sebum', 'pore', 'bha', 'aha', 'kil', 'volcanic', 'akne'] },
+    hydration: { title: 'Nem', subtitle: 'Nem bariyerini destekleyen ve cilde konfor veren ürün seçkisi.', href: '/collections/hydration.html', goal: 'hydration', keywords: ['nem', 'hyaluronic', 'hyalüronik', 'moisture', 'moisturizing', 'hydration', 'aquaring', 'water', 'sleeping'] }
   };
 
   var BRAND_LOGOS = ['anua', 'beauty-of-joseon', 'cosrx', 'round-lab', 'skin1004', 'torriden', 'thank-you-farmer', 'innisfree', 'medicube', 'dr-jart', 'isntree', 'mediheal', 'goodal', 'laneige', 'some-by-mi', 'by-wishtrend', 'im-from'];
@@ -524,7 +525,7 @@
     function card(icon, title, href) { return '<a class="cm-menu-card" href="' + href + '">' + svg(icon) + '<span>' + title + '</span></a>'; }
     function link(icon, title, href) { return '<a class="cm-menu-link" href="' + href + '">' + svg(icon) + '<span>' + title + '</span>' + svg('chevron') + '</a>'; }
     var brandLinks = BRAND_LOGOS.map(function (b) { return '<a href="' + brandHref(b) + '"><img src="/assets/img/brands/' + b + '.svg" alt="' + escapeHtml(brandNameFromSlug(b)) + '"><span>' + escapeHtml(brandNameFromSlug(b)) + '</span></a>'; }).join('');
-    return '<div class="cm-menu-dim" data-cm-menu-close aria-hidden="true"></div><aside class="cm-menu-panel" id="cm-mobile-menu" role="dialog" aria-modal="true" aria-label="COSMOSKIN mobil menü" aria-hidden="true"><div class="cm-menu-head"><button class="cm-menu-close" type="button" data-cm-menu-close aria-label="Menüyü kapat">' + svg('close') + '</button><div><div class="cm-menu-logo">COSMOSKIN</div><div class="cm-menu-welcome">' + svg('leaf') + ' Merhaba, güzelliğine iyi bak.</div></div></div><nav class="cm-menu-main" aria-label="Genel navigasyon">' + link('grid', 'Tüm Ürünler', '/allproducts.html') + '<details class="cm-menu-accordion"><summary>' + svg('tag') + '<span>Markalar</span>' + svg('chevron') + '</summary><div class="cm-menu-brand-list">' + brandLinks + '</div></details>' + link('star', 'Çok Satanlar', '/index.html#bestsellers') + link('bottle', 'Rutinler', '/collections/routine.html') + link('shield', 'Destek', '/contact.html') + '</nav><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Hızlı Kategoriler</h3><a href="/allproducts.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('bottle', 'Temizleyiciler', '/collections/cleanse.html') + card('drop', 'Tonik & Essence', '/collections/hydrate.html') + card('sparkle', 'Serum & Ampul', '/collections/treat.html') + card('cube', 'Nemlendiriciler', '/collections/care.html') + card('shield', 'Güneş Koruyucular', '/collections/protect.html') + card('leaf', 'Maskeler', '/collections/masks.html') + '</div></section><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Cilt Hedeflerine Göre Keşif</h3><a href="/collections/routine.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('drop', 'Nem', '/collections/hydrate.html') + card('shield', 'Bariyer', '/collections/barrier.html') + card('sparkle', 'Işıltı', '/collections/glow.html') + card('leaf', 'Akne & Denge', '/collections/acne-balance.html') + card('heart', 'Hassasiyet', '/collections/sensitivity.html') + card('grid', 'Gözenek & Sebum', '/collections/pore-sebum.html') + '</div></section><nav class="cm-service-links" aria-label="Hesap ve destek">' + link('user', 'Hesabım', '/account/profile.html') + link('cube', 'Siparişlerim', '/account/orders.html') + link('heart', 'Favorilerim', '/account/profile.html#favorites') + link('bag', 'Sepetim', '/checkout.html') + link('shield', 'Yardım ve Destek', '/account/profile.html#help') + link('truck', 'İade ve Teslimat', '/account/profile.html#returns') + '</nav></aside>';
+    return '<div class="cm-menu-dim" data-cm-menu-close aria-hidden="true"></div><aside class="cm-menu-panel" id="cm-mobile-menu" role="dialog" aria-modal="true" aria-label="COSMOSKIN mobil menü" aria-hidden="true"><div class="cm-menu-head"><button class="cm-menu-close" type="button" data-cm-menu-close aria-label="Menüyü kapat">' + svg('close') + '</button><div><div class="cm-menu-logo">COSMOSKIN</div><div class="cm-menu-welcome">' + svg('leaf') + ' Merhaba, güzelliğine iyi bak.</div></div></div><nav class="cm-menu-main" aria-label="Genel navigasyon">' + link('grid', 'Tüm Ürünler', '/allproducts.html') + '<details class="cm-menu-accordion"><summary>' + svg('tag') + '<span>Markalar</span>' + svg('chevron') + '</summary><div class="cm-menu-brand-list">' + brandLinks + '</div></details>' + link('star', 'Çok Satanlar', '/index.html#bestsellers') + link('bottle', 'Rutinler', '/collections/routine.html') + link('shield', 'Destek', '/contact.html') + '</nav><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Hızlı Kategoriler</h3><a href="/allproducts.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('bottle', 'Temizleyiciler', '/collections/cleanse.html') + card('drop', 'Tonik & Essence', '/collections/hydrate.html') + card('sparkle', 'Serum & Ampul', '/collections/treat.html') + card('cube', 'Nemlendiriciler', '/collections/care.html') + card('shield', 'Güneş Koruyucular', '/collections/protect.html') + card('leaf', 'Maskeler', '/collections/masks.html') + '</div></section><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Cilt Hedeflerine Göre Keşif</h3><a href="/collections/routine.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('drop', 'Nem', '/collections/hydration.html') + card('shield', 'Bariyer', '/collections/barrier.html') + card('sparkle', 'Işıltı', '/collections/glow.html') + card('leaf', 'Akne & Denge', '/collections/acne-balance.html') + card('heart', 'Hassasiyet', '/collections/sensitivity.html') + card('grid', 'Gözenek & Sebum', '/collections/pore-sebum.html') + '</div></section><nav class="cm-service-links" aria-label="Hesap ve destek">' + link('user', 'Hesabım', '/account/profile.html') + link('cube', 'Siparişlerim', '/account/orders.html') + link('heart', 'Favorilerim', '/account/profile.html#favorites') + link('bag', 'Sepetim', '/checkout.html') + link('shield', 'Yardım ve Destek', '/account/profile.html#help') + link('truck', 'İade ve Teslimat', '/account/profile.html#returns') + '</nav></aside>';
   }
 
   function sheetHtml(kind) {
@@ -552,6 +553,7 @@
 
   function openMenu() {
     document.body.classList.add('cm-menu-open');
+    document.documentElement.classList.add('cm-menu-open');
     var panel = document.querySelector('.cm-menu-panel');
     var button = document.querySelector('[data-cm-menu]');
     if (panel) panel.setAttribute('aria-hidden', 'false');
@@ -562,6 +564,7 @@
 
   function closeMenu() {
     document.body.classList.remove('cm-menu-open');
+    document.documentElement.classList.remove('cm-menu-open');
     var panel = document.querySelector('.cm-menu-panel');
     var button = document.querySelector('[data-cm-menu]');
     if (panel) panel.setAttribute('aria-hidden', 'true');
@@ -646,7 +649,7 @@
     if (drawer) drawer.remove();
     if (sheet) sheet.remove();
     document.body.classList.remove('cm-mobile-active', 'cm-menu-open', 'cm-sheet-open');
-    document.documentElement.classList.remove('cm-mobile-active');
+    document.documentElement.classList.remove('cm-mobile-active', 'cm-menu-open');
     mounted = false;
   }
 
