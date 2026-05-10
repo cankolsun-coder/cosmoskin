@@ -1,8 +1,72 @@
-
 import { selectRows, updateRows, insertRow } from '../_lib/supabase.js';
 import { catalog } from '../_lib/catalog.js';
 import { json } from '../_lib/response.js';
-function assertAdmin(context){const token=context.request.headers.get('x-admin-token')||''; if(!context.env.ADMIN_TOKEN||token!==context.env.ADMIN_TOKEN) throw new Error('Unauthorized');}
-export async function onRequestGet(context){try{assertAdmin(context); const inventory=await selectRows(context,'inventory',{select:'*',order:'product_slug.asc'}).catch(()=>[]); const map=new Map((inventory||[]).map(i=>[i.product_slug,i])); const products=(Array.isArray(catalog)?catalog:Object.values(catalog||{})).map(p=>({...p,inventory:map.get(p.slug)||null})); return json({ok:true,products});}catch(error){return json({ok:false,error:error.message},{status:error.message==='Unauthorized'?401:500});}}
-export async function onRequestPatch(context){try{assertAdmin(context); const body=await context.request.json(); if(!body.product_slug) return json({ok:false,error:'product_slug gerekli.'},{status:400}); const payload={}; ['stock_qty','reserved_qty','low_stock_threshold','status','warehouse_note','sku'].forEach(k=>{if(body[k]!==undefined) payload[k]=body[k];}); payload.updated_at=new Date().toISOString(); await updateRows(context,'inventory',{product_slug:body.product_slug},payload); return json({ok:true});}catch(error){return json({ok:false,error:error.message},{status:error.message==='Unauthorized'?401:500});}}
-export async function onRequestPost(context){try{assertAdmin(context); const body=await context.request.json(); if(!body.product_slug) return json({ok:false,error:'product_slug gerekli.'},{status:400}); const row=await insertRow(context,'inventory',{product_slug:body.product_slug,sku:body.sku||body.product_slug.toUpperCase().replace(/-/g,'_'),stock_qty:Number(body.stock_qty||0),low_stock_threshold:Number(body.low_stock_threshold||5),status:body.status||'active',warehouse_note:body.warehouse_note||null}); return json({ok:true,inventory:row});}catch(error){return json({ok:false,error:error.message},{status:error.message==='Unauthorized'?401:500});}}
+import { assertAdmin, adminError } from '../_lib/admin.js';
+
+function normalizeStatus(status) {
+  if (['active', 'inactive', 'discontinued'].includes(status)) return status;
+  if (['draft', 'archived'].includes(status)) return 'inactive';
+  return 'active';
+}
+
+export async function onRequestGet(context) {
+  try {
+    assertAdmin(context);
+    const inventory = await selectRows(context, 'product_inventory', { select: '*', order: 'product_slug.asc' }).catch(() => []);
+    const map = new Map((inventory || []).map((i) => [i.product_slug, i]));
+    const products = (Array.isArray(catalog) ? catalog : Object.values(catalog || {})).map((p) => {
+      const inv = map.get(p.slug) || null;
+      return {
+        ...p,
+        inventory: inv ? {
+          ...inv,
+          stock_qty: inv.stock_on_hand,
+          reserved_qty: inv.stock_reserved,
+          status: inv.status
+        } : null
+      };
+    });
+    return json({ ok: true, products });
+  } catch (error) {
+    return adminError(error, 'Ürün listesi alınamadı.');
+  }
+}
+
+export async function onRequestPatch(context) {
+  try {
+    assertAdmin(context);
+    const body = await context.request.json();
+    if (!body.product_slug) return json({ ok: false, error: 'product_slug gerekli.' }, { status: 400 });
+    const payload = {};
+    if (body.stock_qty !== undefined || body.stock_on_hand !== undefined) payload.stock_on_hand = Number(body.stock_on_hand ?? body.stock_qty ?? 0);
+    if (body.reserved_qty !== undefined || body.stock_reserved !== undefined) payload.stock_reserved = Number(body.stock_reserved ?? body.reserved_qty ?? 0);
+    if (body.low_stock_threshold !== undefined) payload.low_stock_threshold = Number(body.low_stock_threshold || 5);
+    if (body.status !== undefined) payload.status = normalizeStatus(body.status);
+    if (body.sku !== undefined) payload.sku = String(body.sku || '').trim() || null;
+    payload.updated_at = new Date().toISOString();
+    await updateRows(context, 'product_inventory', { product_slug: body.product_slug }, payload);
+    return json({ ok: true });
+  } catch (error) {
+    return adminError(error, 'Ürün/stok güncellenemedi.');
+  }
+}
+
+export async function onRequestPost(context) {
+  try {
+    assertAdmin(context);
+    const body = await context.request.json();
+    if (!body.product_slug) return json({ ok: false, error: 'product_slug gerekli.' }, { status: 400 });
+    const row = await insertRow(context, 'product_inventory', {
+      product_slug: body.product_slug,
+      sku: body.sku || body.product_slug.toUpperCase().replace(/-/g, '_'),
+      stock_on_hand: Number(body.stock_on_hand ?? body.stock_qty ?? 0),
+      stock_reserved: Number(body.stock_reserved ?? body.reserved_qty ?? 0),
+      low_stock_threshold: Number(body.low_stock_threshold || 5),
+      allow_backorder: Boolean(body.allow_backorder),
+      status: normalizeStatus(body.status || 'active')
+    });
+    return json({ ok: true, inventory: row });
+  } catch (error) {
+    return adminError(error, 'Ürün/stok oluşturulamadı.');
+  }
+}

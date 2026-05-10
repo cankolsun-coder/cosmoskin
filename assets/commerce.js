@@ -168,6 +168,18 @@
     };
 
     try {
+      if (window.COSMOSKIN_STOCK?.checkItems) {
+        const stock = await window.COSMOSKIN_STOCK.checkItems(cart.map((item) => ({
+          product_slug: item.slug || item.id || item.product_id,
+          quantity: item.qty || item.quantity || 1
+        })));
+        if (!stock.can_purchase) {
+          setStatus('Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', true);
+          checkoutSubmit?.removeAttribute('disabled');
+          return;
+        }
+      }
+
       const res = await fetch(`${cfg.apiBase || '/api'}/create-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -110,18 +110,29 @@ async function finalizeCommerceAfterPayment(context, orderId) {
     for (const item of items || []) {
       const slug = item.product_slug || item.product_id;
       if (!slug) continue;
-      const invRows = await selectRows(context, 'inventory', {
-        select: 'product_slug,stock_qty,reserved_qty',
+      const invRows = await selectRows(context, 'product_inventory', {
+        select: 'product_slug,stock_on_hand,stock_reserved',
         product_slug: `eq.${slug}`,
         limit: '1'
       }).catch(() => []);
       const inv = invRows?.[0];
       if (!inv) continue;
       const qty = Math.max(1, Number(item.quantity || 1));
-      await updateRows(context, 'inventory', { product_slug: slug }, {
-        stock_qty: Math.max(0, Number(inv.stock_qty || 0) - qty),
-        reserved_qty: Math.max(0, Number(inv.reserved_qty || 0) - qty),
+      const previous = Number(inv.stock_on_hand || 0);
+      const nextStock = Math.max(0, previous - qty);
+      await updateRows(context, 'product_inventory', { product_slug: slug }, {
+        stock_on_hand: nextStock,
+        stock_reserved: Math.max(0, Number(inv.stock_reserved || 0) - qty),
         updated_at: new Date().toISOString()
+      }).catch(() => null);
+      await insertRow(context, 'inventory_movements', {
+        product_slug: slug,
+        change: -qty,
+        previous_stock_on_hand: previous,
+        new_stock_on_hand: nextStock,
+        reason: 'order_paid',
+        related_order_id: orderId,
+        created_by: 'payment_callback'
       }).catch(() => null);
     }
 

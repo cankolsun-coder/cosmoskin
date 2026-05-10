@@ -177,20 +177,22 @@ function calculateTotals(cart) {
 async function validateInventory(context, cart) {
   const slugs = cart.map((item) => item.product_slug || item.product_id).filter(Boolean);
   if (!slugs.length) return;
-  const rows = await selectRows(context, 'inventory', {
-    select: 'product_slug,stock_qty,reserved_qty,status',
+  const rows = await selectRows(context, 'product_inventory', {
+    select: 'product_slug,stock_on_hand,stock_reserved,allow_backorder,status',
     product_slug: `in.(${slugs.join(',')})`
-  }).catch(() => []);
+  });
   const map = new Map((rows || []).map((row) => [row.product_slug, row]));
   for (const item of cart) {
     const inv = map.get(item.product_slug || item.product_id);
-    if (!inv) continue;
+    if (!inv) {
+      throw new CheckoutError(`${item.product_name} için stok kaydı bulunamadı.`, 409, 'INVENTORY_NOT_FOUND');
+    }
     if (String(inv.status || 'active') !== 'active') {
       throw new CheckoutError(`${item.product_name} şu anda satışta değil.`, 409, 'PRODUCT_NOT_ACTIVE');
     }
-    const available = Number(inv.stock_qty || 0) - Number(inv.reserved_qty || 0);
-    if (available < Number(item.quantity || 1)) {
-      throw new CheckoutError(`${item.product_name} için yeterli stok yok.`, 409, 'INSUFFICIENT_STOCK');
+    const available = Math.max(0, Number(inv.stock_on_hand || 0) - Number(inv.stock_reserved || 0));
+    if (!inv.allow_backorder && available < Number(item.quantity || 1)) {
+      throw new CheckoutError('Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', 409, 'INSUFFICIENT_STOCK');
     }
   }
 }

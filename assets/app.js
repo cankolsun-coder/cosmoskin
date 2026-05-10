@@ -868,9 +868,35 @@ function broadcastFavoritesChange() {
     });
   }
 
+
+  function getStockApi() {
+    return window.COSMOSKIN_STOCK || null;
+  }
+
+  function cartStockCheck(item, nextQty) {
+    const api = getStockApi();
+    if (!api || typeof api.canBuy !== 'function') return { ok: true, unknown: true };
+    return api.canBuy(item.slug || item.id, nextQty || item.qty || 1);
+  }
+
+  function showStockToast(message) {
+    showFavoriteToast(message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.');
+  }
+
   function updateQty(id, delta) {
     state.cart = state.cart
-      .map((item) => item.id === id ? { ...item, qty: item.qty + delta } : item)
+      .map((item) => {
+        if (item.id !== id) return item;
+        const nextQty = item.qty + delta;
+        if (delta > 0) {
+          const stock = cartStockCheck(item, nextQty);
+          if (!stock.ok) {
+            showStockToast(stock.message);
+            return item;
+          }
+        }
+        return { ...item, qty: nextQty };
+      })
       .filter((item) => item.qty > 0);
     persistCart();
   }
@@ -933,22 +959,27 @@ function broadcastFavoritesChange() {
       return;
     }
 
-    target.innerHTML = state.cart.map((item) => `
-      <article class="cart-item">
+    target.innerHTML = state.cart.map((item) => {
+      const stock = cartStockCheck(item, item.qty);
+      const problem = !stock.ok;
+      const limitReached = stock.available_stock !== undefined && Number(stock.available_stock) > 0 && Number(item.qty || 1) >= Number(stock.available_stock);
+      return `
+      <article class="cart-item ${problem ? 'is-stock-problem' : ''}">
         <img src="${item.image}" alt="${item.name}">
         <div>
           <strong>${item.name}</strong>
           <div class="account-mini">${item.brand}</div>
+          ${problem ? `<div class="cart-stock-warning">${stock.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.'}</div>` : (limitReached ? `<div class="cart-stock-warning">Bu ürün için şu anda yalnızca ${stock.available_stock} adet satın alınabilir.</div>` : '')}
           <div class="qty">
             <button type="button" data-dec="${item.id}">−</button>
             <span>${item.qty}</span>
-            <button type="button" data-inc="${item.id}">+</button>
+            <button type="button" data-inc="${item.id}" ${problem || limitReached ? 'disabled aria-disabled="true"' : ''}>+</button>
             <button type="button" data-remove="${item.id}">Sil</button>
           </div>
         </div>
         <strong>${fmt(item.price * item.qty)}</strong>
-      </article>
-    `).join('');
+      </article>`;
+    }).join('');
 
     $$('[data-inc]', target).forEach((btn) => btn.addEventListener('click', () => updateQty(btn.dataset.inc, 1)));
     $$('[data-dec]', target).forEach((btn) => btn.addEventListener('click', () => updateQty(btn.dataset.dec, -1)));
@@ -959,8 +990,8 @@ function broadcastFavoritesChange() {
     root.querySelectorAll('[data-add-cart]').forEach((btn) => {
       if (btn.dataset.cartBound) return;
       btn.dataset.cartBound = 'true';
-      btn.addEventListener('click', () => {
-        addCartItems([{
+      btn.addEventListener('click', async () => {
+        const item = {
           id: btn.dataset.id,
           slug: btn.dataset.slug || btn.dataset.id,
           name: btn.dataset.name,
@@ -969,7 +1000,14 @@ function broadcastFavoritesChange() {
           image: btn.dataset.image,
           url: btn.dataset.url || btn.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname,
           qty: 1
-        }]);
+        };
+        if (window.COSMOSKIN_STOCK?.validateAdd) {
+          btn.disabled = true;
+          const allowed = await window.COSMOSKIN_STOCK.validateAdd(item);
+          btn.disabled = btn.classList.contains('is-stock-disabled');
+          if (!allowed) return;
+        }
+        addCartItems([item]);
       });
     });
   }
@@ -1015,20 +1053,34 @@ function broadcastFavoritesChange() {
 
     if (!normalizedItems.length) return 0;
 
+    let added = 0;
     normalizedItems.forEach((item) => {
       const found = state.cart.find((entry) => entry.id === item.id);
+      const nextQty = (found ? Number(found.qty || 1) : 0) + Number(item.qty || 1);
+      const stock = cartStockCheck(item, nextQty);
+      if (!stock.ok) {
+        showStockToast(stock.message);
+        return;
+      }
       if (found) found.qty += item.qty;
       else state.cart.push(item);
+      added += 1;
     });
 
+    if (!added) return 0;
     persistCart();
     if (options.openDrawer !== false) openDrawer(cartDrawer);
-    return normalizedItems.length;
+    return added;
   }
 
   document.addEventListener('cosmoskin:add-bundle', (event) => {
     const items = event.detail?.items || [];
     addCartItems(items, { openDrawer: true });
+  });
+
+  window.addEventListener('cosmoskin:inventory-updated', () => {
+    renderCart();
+    renderCheckout();
   });
 
   window.COSMOSKIN_CART_API = {

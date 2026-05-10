@@ -46,8 +46,12 @@
     $$('[data-buy-now]').forEach((btn)=>{
       if(btn.dataset.buyBound) return;
       btn.dataset.buyBound='true';
-      btn.addEventListener('click',()=>{
+      btn.addEventListener('click',async ()=>{
         const item=productFromButton(btn);
+        if(window.COSMOSKIN_STOCK?.validateAdd){
+          const allowed=await window.COSMOSKIN_STOCK.validateAdd(item);
+          if(!allowed) return;
+        }
         if(window.COSMOSKIN_CART_API?.addItems){
           window.COSMOSKIN_CART_API.addItems([item],{openDrawer:false});
         } else {
