@@ -11,6 +11,10 @@
   let section, slug='', sb=null, session=null, reviews=[], filtered=[], userReview=null, canReview=false, dataHasPurchased=false, page=0, rating=0, files=[], lightboxImages=[], lightboxIndex=0, helped=new Set();
   const PER=5;
 
+  function isLocalStaticPreview(){
+    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  }
+
   const esc=(s)=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const fmtDate=(value)=>{try{return new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(value));}catch{return '';}};
 
@@ -32,6 +36,11 @@
 
   async function load(){
     const list=$('#rvList');
+    if(isLocalStaticPreview()){
+      reviews=[]; filtered=[]; userReview=null; canReview=false; dataHasPurchased=false;
+      renderSummary({approved_count:0,avg_rating:0}); renderWriteArea(); renderFilters(); renderList(true);
+      return;
+    }
     if(list) list.innerHTML='<div class="pdp5-review-skeleton"></div><div class="pdp5-review-skeleton"></div>';
     await refreshSession();
     try{

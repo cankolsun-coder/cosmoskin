@@ -4,6 +4,11 @@
   const API=(CFG.apiBase||'/api').replace(/\/$/,'');
   const CACHE_TTL=1000*60*10;
 
+  function isLocalStaticPreview() {
+    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  }
+
+
   const esc=(value)=>String(value??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const readNumber=(value)=>{
     const n=Number(value);
@@ -44,6 +49,7 @@
   }
 
   async function fetchSummary(slug){
+    if(isLocalStaticPreview()) return {};
     const cached=readCached(slug);
     if(cached) return cached;
     const res=await fetch(`${API}/reviews?product_slug=${encodeURIComponent(slug)}`,{credentials:'same-origin'});

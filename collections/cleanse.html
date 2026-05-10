@@ -16,7 +16,7 @@
 <link href="/apple-touch-icon.png" rel="apple-touch-icon"/>
 <link href="/favicon.ico" rel="shortcut icon"/>
 <link href="/site.webmanifest" rel="manifest"/>
-<link href="/assets/style.css?v=20260503-fav-cart-pdp" rel="stylesheet"/><link href="/assets/cosmoskin-fixes.css?v=20260506-fixes" rel="stylesheet"/>
+<link href="/assets/style.css?v=20260503-fav-cart-pdp" rel="stylesheet"/><link href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" rel="stylesheet"/>
 <link href="/assets/product-routine.css?v=20260415a" rel="stylesheet"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"ItemList","name":"Temizleyiciler","itemListElement":[{"@type":"ListItem","position":1,"item":{"@type":"Product","name":"Heartleaf Pore Control Cleansing Oil","brand":{"@type":"Brand","name":"Anua"},"offers":{"@type":"Offer","priceCurrency":"TRY","price":"849","availability":"https://schema.org/InStock"}}},{"@type":"ListItem","position":2,"item":{"@type":"Product","name":"Green Plum Refreshing Cleanser","brand":{"@type":"Brand","name":"Beauty of Joseon"},"offers":{"@type":"Offer","priceCurrency":"TRY","price":"729","availability":"https://schema.org/InStock"}}},{"@type":"ListItem","position":3,"item":{"@type":"Product","name":"Low pH Good Morning Gel Cleanser","brand":{"@type":"Brand","name":"COSRX"},"offers":{"@type":"Offer","priceCurrency":"TRY","price":"749","availability":"https://schema.org/InStock"}}},{"@type":"ListItem","position":4,"item":{"@type":"Product","name":"Salicylic Acid Daily Gentle Cleanser","brand":{"@type":"Brand","name":"COSRX"},"offers":{"@type":"Offer","priceCurrency":"TRY","price":"769","availability":"https://schema.org/InStock"}}},{"@type":"ListItem","position":5,"item":{"@type":"Product","name":"1025 Dokdo Cleanser","brand":{"@type":"Brand","name":"Round Lab"},"offers":{"@type":"Offer","priceCurrency":"TRY","price":"729","availability":"https://schema.org/InStock"}}}]}</script>
 <link href="/assets/mobile.css?v=20260425f" rel="stylesheet"/><link href="/assets/phase6-commerce.css?v=20260503-ratingux" rel="stylesheet"/>
@@ -121,9 +121,9 @@
 <div class="footer-newsletter__copy">
 <p class="footer-newsletter__kicker">COSMOSKIN Journal</p>
 <h2 class="footer-newsletter__title" id="csNewsletterTitle">Yeni seçkiler ve bakım notları, ilk senin posta kutunda.</h2>
-<p class="footer-newsletter__lede">Yeni ürün lansmanları, editör seçkileri, sezonluk rutin notları ve özel duyurular için kaydol. İstediğin an ayrılabilirsin.</p>
+<p class="footer-newsletter__lede">COSMOSKIN Journal’dan seçkiler ve rutin notları almak için kaydol.</p>
 </div>
-<form action="#" class="footer-newsletter__form" data-newsletter-form="" method="post" novalidate="">
+<form action="/api/newsletter/subscribe" class="footer-newsletter__form" data-newsletter-form="" data-newsletter-source="footer" method="post" novalidate="">
 <label class="footer-newsletter__field" for="csNewsletterEmail">
 <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%)">E-posta adresi</span>
 <input autocomplete="email" id="csNewsletterEmail" name="email" placeholder="E-posta adresin" required="" type="email"/>
@@ -132,7 +132,7 @@
 <span>Kaydol</span>
 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
 </button>
-<p class="footer-newsletter__note">Aboneliğini KVKK kapsamında her zaman iptal edebilirsin.</p>
+<p class="footer-newsletter__note">KVKK ve yasal bilgilendirme metinlerine footer bağlantılarından ulaşabilirsin. Abonelik tercihini her zaman güncelleyebilirsin.</p>
 <p aria-live="polite" class="footer-newsletter__status" data-newsletter-status=""></p>
 </form>
 </section>
@@ -192,7 +192,7 @@
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/assets/collection-renderer.js?v=20260424"></script>
 <script src="/assets/mobile.js?v=20260425f"></script>
-<script defer src="/assets/cosmoskin-newsletter.js?v=20260506-fixes"></script>
+<script defer src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>
 <script src="/assets/mobile-redesign.js?v=20260510-phase9" defer></script>
 </body>
 </html>

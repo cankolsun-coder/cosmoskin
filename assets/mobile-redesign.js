@@ -95,6 +95,7 @@
       category: String(raw.category || '').trim(),
       categorySlug: raw.categorySlug || slugify(raw.category),
       concernSlugs: Array.isArray(raw.concernSlugs) ? raw.concernSlugs : [],
+      aliases: Array.isArray(raw.aliases) ? raw.aliases.map(function (alias) { return extractSlug(alias); }).filter(Boolean) : [],
       price: Number.isFinite(price) ? price : 0,
       volume: String(raw.volume || '').trim(),
       image: String(raw.image || raw.img || raw.imageUrl || FALLBACK_IMG).trim() || FALLBACK_IMG,
@@ -115,7 +116,9 @@
       var hit = window.COSMOSKIN_PRODUCT_HELPERS.getProductBySlug(slug);
       if (hit) return normalizeProduct(hit);
     }
-    return getProducts().find(function (p) { return p.slug === slug; }) || null;
+    return getProducts().find(function (p) {
+      return p.slug === slug || extractSlug(p.url) === slug || (Array.isArray(p.aliases) && p.aliases.indexOf(slug) !== -1);
+    }) || null;
   }
 
   function productFromLdJson() {
@@ -403,7 +406,7 @@
   }
 
   function footerSection() {
-    return '<footer class="cm-footer"><div class="cm-footer-logo">COSMOSKIN</div><p>Seçilmiş Kore cilt bakım ürünleri. Gereksiz olanı çıkarır, etkili olanı bırakır.</p><form class="cm-newsletter" action="#" data-cm-newsletter><label><span>Haber bülteni</span><input type="email" placeholder="E-posta adresin" aria-label="E-posta adresi"></label><button type="submit">Kaydol</button></form><div class="cm-footer-grid"><a href="/contact.html">Destek</a><a href="/teslimat-kargo.html">Teslimat</a><a href="/iade-degisim.html">İade</a><a href="/allproducts.html">Tüm Ürünler</a></div><div class="cm-footer-legal"><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a></div><div class="cm-payment-row" aria-label="Ödeme yöntemleri"><img src="/assets/img/payments/visa.svg" alt="Visa"><img src="/assets/img/payments/mastercard.svg" alt="Mastercard"><img src="/assets/img/payments/american-express.svg" alt="American Express"><img src="/assets/img/payments/troy.png" alt="Troy"></div></footer>';
+    return '<footer class="cm-footer"><div class="cm-footer-logo">COSMOSKIN</div><p>Seçilmiş Kore cilt bakım ürünleri. Gereksiz olanı çıkarır, etkili olanı bırakır.</p><form class="cm-newsletter" action="/api/newsletter/subscribe" method="post" data-newsletter-form data-newsletter-source="mobile-footer" novalidate><p class="cm-newsletter__microcopy">COSMOSKIN Journal’dan seçkiler ve rutin notları almak için kaydol.</p><label><span>E-posta adresi</span><input type="email" name="email" placeholder="E-posta adresin" autocomplete="email" required aria-label="E-posta adresi"></label><button type="submit"><span>Kaydol</span></button><p class="cm-newsletter__legal">Kayıt olarak COSMOSKIN Journal e-postalarını almayı kabul edersin. KVKK ve abonelik tercihlerine yasal metinlerden ulaşabilirsin.</p><p class="cm-newsletter__status" data-newsletter-status aria-live="polite"></p></form><div class="cm-footer-grid"><a href="/contact.html">Destek</a><a href="/teslimat-kargo.html">Teslimat</a><a href="/iade-degisim.html">İade</a><a href="/allproducts.html">Tüm Ürünler</a></div><div class="cm-footer-legal"><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a></div><div class="cm-payment-row" aria-label="Ödeme yöntemleri"><img src="/assets/img/payments/visa.svg" alt="Visa"><img src="/assets/img/payments/mastercard.svg" alt="Mastercard"><img src="/assets/img/payments/american-express.svg" alt="American Express"><img src="/assets/img/payments/troy.png" alt="Troy"></div></footer>';
   }
 
   function homePage() {
@@ -761,6 +764,16 @@
     if (delegatesBound) return;
     delegatesBound = true;
     document.addEventListener('click', function (event) {
+      var favButton = event.target && event.target.closest && event.target.closest('.favorite-btn');
+      if (favButton && favButton.closest('#' + ROOT_ID)) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        fallbackToggleFavorite(favButton);
+      }
+    }, true);
+
+    document.addEventListener('click', function (event) {
       var target = event.target;
       if (target.closest('[data-cm-menu]')) { event.preventDefault(); openMenu(); return; }
       if (target.closest('[data-cm-menu-close]')) { event.preventDefault(); closeMenu(); return; }
@@ -784,7 +797,7 @@
       var period = target.closest('[data-cm-routine-period]'); if (period) { routineState.period = period.getAttribute('data-cm-routine-period'); remount(); return; }
       if (target.closest('[data-cm-add-routine]')) { var items = currentRoutineProducts().map(function (p) { return { id: p.slug, slug: p.slug, name: p.name, brand: p.brand, price: p.price, image: p.image, url: p.url, qty: 1 }; }); addItemsToCart(items, { toast: 'Rutin sepetinize eklendi.' }); return; }
       if (target.closest('[data-cm-save-routine]')) { localStorage.setItem(STORAGE_ROUTINE, JSON.stringify({ state: routineState, products: currentRoutineProducts().map(function (p) { return p.slug; }), savedAt: new Date().toISOString() })); toast('Rutin kaydedildi.'); return; }
-      var fav = target.closest('.favorite-btn'); if (fav && fav.closest('#' + ROOT_ID)) { fallbackToggleFavorite(fav); return; }
+      var fav = target.closest('.favorite-btn'); if (fav && fav.closest('#' + ROOT_ID)) { event.preventDefault(); event.stopImmediatePropagation(); fallbackToggleFavorite(fav); return; }
       if (target.closest('[data-cm-share]')) { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }).catch(function () {}); else { navigator.clipboard && navigator.clipboard.writeText(window.location.href); toast('Bağlantı kopyalandı.'); } }
       if (target.closest('[data-cm-logout]')) { try { localStorage.removeItem('sb-auth-token'); sessionStorage.clear(); } catch (e) {} toast('Çıkış işlemi başlatıldı.'); window.setTimeout(function () { window.location.href = '/index.html'; }, 350); }
       var accountTabLink = target.closest('[data-cm-account-tab]');
@@ -817,7 +830,6 @@
     });
     document.addEventListener('submit', function (event) {
       if (event.target.matches('[data-cm-coupon-form]')) { event.preventDefault(); var status = event.target.querySelector('[data-cm-coupon-status]'); var input = event.target.querySelector('input[name="coupon"]'); if (status) status.textContent = input && input.value ? 'Kupon ödeme adımında doğrulanacak.' : 'Kupon kodu girilmedi.'; }
-      if (event.target.matches('[data-cm-newsletter]')) { event.preventDefault(); toast('Haber bülteni kaydı alındı.'); }
     });
     document.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') { closeMenu(); closeSheet(); return; }

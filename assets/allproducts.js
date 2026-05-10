@@ -33,6 +33,11 @@
     pricePresets: document.getElementById('csApPricePresets')
   };
 
+
+  function isLocalStaticPreview() {
+    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  }
+
   var state = {
     products: [],
     filtered: [],
@@ -770,7 +775,7 @@
   }
 
   async function fetchReviewSummary(product) {
-    if (!product || !product.slug || typeof fetch !== 'function') return null;
+    if (!product || !product.slug || typeof fetch !== 'function' || isLocalStaticPreview()) return null;
     var cached = readCachedReviewSummary(product.slug);
     if (cached) return cached;
     var apiBase = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');

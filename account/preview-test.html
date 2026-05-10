@@ -10,7 +10,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="/assets/style.css?v=20260503-order-tracking-final" rel="stylesheet"/>
-<link href="/assets/cosmoskin-fixes.css?v=20260506-fixes" rel="stylesheet"/>
+<link href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" rel="stylesheet"/>
 <link href="/assets/phase6-commerce.css?v=20260503-ratingux" rel="stylesheet"/>
 <link href="/assets/account-premium.css?v=20260506-account-premium" rel="stylesheet"/>
 <link href="/assets/mobile-redesign.css?v=20260510-phase9" rel="stylesheet"/>
@@ -209,9 +209,9 @@
 <div class="footer-newsletter__copy">
 <p class="footer-newsletter__kicker">COSMOSKIN Journal</p>
 <h2 class="footer-newsletter__title" id="csNewsletterTitle">Yeni seçkiler ve bakım notları, ilk senin posta kutunda.</h2>
-<p class="footer-newsletter__lede">Yeni ürün lansmanları, editör seçkileri, sezonluk rutin notları ve özel duyurular için kaydol. İstediğin an ayrılabilirsin.</p>
+<p class="footer-newsletter__lede">COSMOSKIN Journal’dan seçkiler ve rutin notları almak için kaydol.</p>
 </div>
-<form action="#" class="footer-newsletter__form" data-newsletter-form="" method="post" novalidate="">
+<form action="/api/newsletter/subscribe" class="footer-newsletter__form" data-newsletter-form="" data-newsletter-source="footer" method="post" novalidate="">
 <label class="footer-newsletter__field" for="csNewsletterEmail">
 <span class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%)">E-posta adresi</span>
 <input autocomplete="email" id="csNewsletterEmail" name="email" placeholder="E-posta adresin" required="" type="email"/>
@@ -220,7 +220,7 @@
 <span>Kaydol</span>
 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
 </button>
-<p class="footer-newsletter__note">Aboneliğini KVKK kapsamında her zaman iptal edebilirsin.</p>
+<p class="footer-newsletter__note">KVKK ve yasal bilgilendirme metinlerine footer bağlantılarından ulaşabilirsin. Abonelik tercihini her zaman güncelleyebilirsin.</p>
 <p aria-live="polite" class="footer-newsletter__status" data-newsletter-status=""></p>
 </form>
 </section>
@@ -273,7 +273,7 @@ window.fetch=async function(url,opts){ const u=String(url); if(u.includes('/api/
 </script>
 <script src="/assets/account-dashboard.js?v=20260506-account-premium"></script>
 <script src="/assets/mobile.js?v=20260425f"></script>
-<script defer="True" src="/assets/phase6-commerce.js?v=20260503-phase63"></script><script defer src="/assets/cosmoskin-newsletter.js?v=20260506-fixes"></script>
+<script defer="True" src="/assets/phase6-commerce.js?v=20260503-phase63"></script><script defer src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>
 <script src="/assets/mobile-redesign.js?v=20260510-phase9" defer></script>
 </body>
 </html>

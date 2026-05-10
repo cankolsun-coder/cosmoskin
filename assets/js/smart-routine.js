@@ -6,6 +6,11 @@
   var REVIEW_CACHE = new Map();
   var REVIEW_API = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
 
+  function isLocalStaticPreview() {
+    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  }
+
+
   var icon = {
     ui: function (name) { return ICON_BASE + 'ui/' + name + '.png'; },
     goals: function (name) { return ICON_BASE + 'goals/' + name + '.png'; },
@@ -772,7 +777,8 @@
   }
 
   async function fetchReviewSummary(slug) {
-    if (!slug || REVIEW_CACHE.has(slug)) return REVIEW_CACHE.get(slug);
+    if (!slug || isLocalStaticPreview()) return null;
+    if (REVIEW_CACHE.has(slug)) return REVIEW_CACHE.get(slug);
     var fallback = null;
     try {
       var response = await fetch(REVIEW_API + '/reviews?product_slug=' + encodeURIComponent(slug), { credentials: 'same-origin' });

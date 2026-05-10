@@ -8,6 +8,7 @@
 var API = '/api/reviews';
 var MAX_PHOTOS = 5;
 var MAX_MB     = 5;
+function isLocalStaticPreview(){ return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol==='file:' || location.hostname==='localhost' || location.hostname==='127.0.0.1'); }
 
 function esc(s){
   return String(s==null?'':s)

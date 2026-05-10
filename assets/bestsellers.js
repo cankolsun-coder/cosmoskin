@@ -10,6 +10,11 @@
   const REVIEW_CACHE_TTL = 5 * 60 * 1000;
   const API_BASE = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
 
+  function isLocalStaticPreview() {
+    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  }
+
+
   const tabProductTags = {
     tumu: ['Yatıştırıcı', 'Denge', 'Hafif', 'Bariyer', 'Günlük'],
     'nem-bariyer': ['Yoğun Nem', 'Bariyer', 'Seramid', 'Hafif', 'Rahatlatıcı', 'Nemlendirici'],
@@ -135,7 +140,7 @@
   }
 
   async function fetchReviewSummary(slug) {
-    if (!slug || typeof fetch !== 'function') return null;
+    if (!slug || typeof fetch !== 'function' || isLocalStaticPreview()) return null;
     if (reviewSummaryCache.has(slug)) return reviewSummaryCache.get(slug);
     const cached = readCachedSummary(slug);
     if (cached) {

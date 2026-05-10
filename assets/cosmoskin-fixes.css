@@ -531,3 +531,8 @@
     padding:6px 9px;
   }
 }
+
+/* Newsletter real submit states */
+.footer-newsletter__btn[disabled]{opacity:.72;cursor:wait;transform:none;box-shadow:none}
+.footer-newsletter__status[data-state="ok"]{display:block;color:#cfe2c0}
+.footer-newsletter__status[data-state="error"]{display:block;color:#f0c4b6}

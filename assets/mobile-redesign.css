@@ -1755,3 +1755,70 @@
   }
 
 }
+
+
+/* FINAL BROWSER QA PATCH — 2026-05-10
+   Prevent fixed mobile bottom navigation from covering CTAs, stabilize sort/filter icons,
+   and keep brand logos readable in the hamburger accordion. */
+@media (max-width: 768px) {
+  body.cm-mobile-active #cm-mobile-redesign-root .cm-mobile-page {
+    box-sizing: border-box !important;
+    min-height: 100dvh !important;
+    padding-bottom: calc(118px + env(safe-area-inset-bottom)) !important;
+  }
+
+  body.cm-mobile-active .cm-bottom-nav {
+    box-sizing: border-box !important;
+    height: calc(72px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: max(7px, env(safe-area-inset-bottom)) !important;
+  }
+
+  body.cm-mobile-active .cm-product-grid,
+  body.cm-mobile-active .cm-cart-list,
+  body.cm-mobile-active .cm-summary,
+  body.cm-mobile-active .cm-routine-shell,
+  body.cm-mobile-active .cm-routine-builder,
+  body.cm-mobile-active .cm-pdp-info,
+  body.cm-mobile-active .cm-account-panel {
+    margin-bottom: calc(32px + env(safe-area-inset-bottom)) !important;
+  }
+
+  body.cm-mobile-active .cm-sort-btn svg,
+  body.cm-mobile-active .cm-filter-btn svg,
+  body.cm-mobile-active .cm-listing-actions svg {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    max-width: 16px !important;
+    flex: 0 0 16px !important;
+    display: inline-block !important;
+    stroke-width: 1.75 !important;
+  }
+
+  body.cm-mobile-active .cm-menu-brand-list img,
+  body.cm-mobile-active .cm-brand-cloud img {
+    width: auto !important;
+    max-width: 74px !important;
+    max-height: 20px !important;
+    object-fit: contain !important;
+    filter: grayscale(1) contrast(.92) opacity(.82) !important;
+  }
+
+  body.cm-mobile-active .cm-menu-brand-list a {
+    overflow: hidden !important;
+  }
+}
+
+/* Final newsletter real API states */
+@media (max-width: 760px) {
+  .cm-newsletter { grid-template-columns: 1fr 88px; align-items: end; }
+  .cm-newsletter__microcopy,
+  .cm-newsletter__legal,
+  .cm-newsletter__status { grid-column: 1 / -1; margin: 0; }
+  .cm-newsletter__microcopy { color: rgba(255,255,255,.72); font: 500 12px/1.6 var(--cm-sans); }
+  .cm-newsletter__legal { color: rgba(255,255,255,.46); font: 500 10.5px/1.55 var(--cm-sans); }
+  .cm-newsletter__status { display: none; font: 700 11.5px/1.55 var(--cm-sans); }
+  .cm-newsletter__status[data-state="ok"] { display: block; color: #d9ead0; }
+  .cm-newsletter__status[data-state="error"] { display: block; color: #f3c5b8; }
+  .cm-newsletter button[disabled] { opacity: .72; cursor: wait; }
+}
