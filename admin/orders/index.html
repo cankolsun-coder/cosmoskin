@@ -4,157 +4,155 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Orders Console · COSMOSKIN Admin</title>
+<title>Sipariş Operasyonları · COSMOSKIN Admin</title>
+<link rel="icon" href="/favicon.png" type="image/png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-orders.css?v=20260510phase1ops" />
-<link href="/assets/mobile-redesign.css?v=20260510-phase9" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/admin-orders.css?v=20260511ops-pro" />
 </head>
 <body>
-<div class="auth-screen" id="loginView">
-  <div class="auth-card">
-    <div class="auth-hero">
-      <span class="kicker">COSMOSKIN Admin</span>
-      <h1 class="auth-title">Sipariş operasyon paneli.</h1>
-      <p class="auth-copy">Siparişleri, ödeme durumunu, kargo takip bilgisini ve müşteri bilgilendirmesini tek güvenli admin akışında yönet.</p>
-    </div>
-    <div class="auth-body">
-      <div class="field">
-        <label for="tokenInput">Admin Token</label>
-        <input id="tokenInput" type="password" placeholder="ADMIN_TOKEN" autocomplete="off" />
-      </div>
-      <button class="primary-btn" id="loginBtn" type="button">Panele Gir</button>
-      <div class="auth-meta">Token localStorage içinde saklanır ve API isteklerinde <code>x-admin-token</code> header'ı olarak kullanılır.</div>
-      <div class="auth-error" id="loginError"></div>
-    </div>
-  </div>
+<div class="cs-admin-auth" id="loginView">
+  <section class="cs-auth-card" aria-labelledby="loginTitle">
+    <p class="cs-kicker">COSMOSKIN Admin</p>
+    <h1 id="loginTitle">Sipariş Operasyonları</h1>
+    <p>Sipariş, ödeme, kargo, fatura, iade ve e-posta akışlarını güvenli admin oturumuyla yönetin.</p>
+    <label for="tokenInput">Admin Token</label>
+    <input id="tokenInput" type="password" autocomplete="off" placeholder="ADMIN_TOKEN" />
+    <button id="loginBtn" class="cs-btn cs-btn-dark" type="button">Panele Gir</button>
+    <p class="cs-auth-note" id="loginError" aria-live="polite">Token yalnızca bu tarayıcı oturumunda saklanır.</p>
+  </section>
 </div>
 
-<div class="app-shell is-hidden" id="appView">
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-      <section class="brand-card">
-        <div class="brand-mark">C</div>
-        <span class="kicker">Order Console</span>
-        <h2 class="brand-title">COSMOSKIN Orders</h2>
-        <p class="brand-copy">Yeni siparişleri, ödeme sonrası hazırlık kuyruğunu, kargo takip bilgilerini ve müşteri bildirimlerini operasyon masasında topla.</p>
-      </section>
-
-      <section class="sidebar-panel">
-        <span class="kicker">Navigation</span>
-        <div class="sidebar-nav" id="sidebarNav">
-          <button class="nav-item is-active" type="button" data-status-nav="all">
-            <span><strong>Tüm Siparişler</strong><br><small>Genel operasyon görünümü</small></span>
-            <span class="nav-count">0</span>
-          </button>
-          <button class="nav-item" type="button" data-status-nav="pending_payment">
-            <span><strong>Ödeme Bekliyor</strong><br><small>Ödeme tamamlamayan sepetler</small></span>
-            <span class="nav-count">0</span>
-          </button>
-          <button class="nav-item" type="button" data-status-nav="paid">
-            <span><strong>Yeni Ödenenler</strong><br><small>Hazırlık kuyruğuna alınacaklar</small></span>
-            <span class="nav-count">0</span>
-          </button>
-          <button class="nav-item" type="button" data-status-nav="preparing">
-            <span><strong>Hazırlanıyor</strong><br><small>Paketleme sürecindeki siparişler</small></span>
-            <span class="nav-count">0</span>
-          </button>
-          <button class="nav-item" type="button" data-status-nav="shipped">
-            <span><strong>Kargoda</strong><br><small>Takip bilgisi girilmiş siparişler</small></span>
-            <span class="nav-count">0</span>
-          </button>
-          <button class="nav-item" type="button" data-status-nav="delivered">
-            <span><strong>Teslim Edildi</strong><br><small>Tamamlanan siparişler</small></span>
-            <span class="nav-count">0</span>
-          </button>
-        </div>
-      </section>
-
-      <section class="sidebar-panel">
-        <span class="kicker">Overview</span>
-        <div class="mini-metrics" id="sidebarMetrics"></div>
-      </section>
-
-      <section class="sidebar-panel">
-        <span class="kicker">Security</span>
-        <p class="sidebar-copy">Admin API endpoint'i <code>ADMIN_TOKEN</code> olmadan yanıt vermez. Token'ı Cloudflare Pages environment variable olarak tanımlaman gerekir.</p>
-      </section>
-    </div>
+<div class="cs-admin-shell is-hidden" id="appView">
+  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
+    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
+    <nav class="cs-sidebar-nav">
+      <a href="/admin/index.html">Dashboard</a>
+      <a href="/admin/inventory.html">Stok</a>
+      <a class="is-active" href="/admin/orders/">Siparişler</a>
+      <a href="/admin/shipments.html">Kargo</a>
+      <a href="/admin/returns.html">İade</a>
+      <a href="/admin/products.html">Ürünler</a>
+      <a href="/admin/customers.html">Müşteriler</a>
+      <a href="/admin/reviews/">Yorumlar</a>
+      <a href="/admin/email-logs.html">E-posta Logları</a>
+      <a href="/admin/invoices.html">Faturalar</a>
+      <a href="/admin/suppliers.html">Tedarikçiler</a>
+      <a href="/admin/compliance.html">Uyumluluk</a>
+      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+      <a href="/admin/admin-users.html">Admin Rolleri</a>
+    </nav>
+    <section class="cs-session-card" aria-label="Güvenlik notu">
+      <strong>Güvenli admin oturumu</strong>
+      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
+    </section>
   </aside>
 
-  <div class="workspace">
-    <header class="topbar">
+  <main class="cs-admin-main">
+    <header class="cs-admin-topbar">
       <div>
-        <span class="kicker">Professional Commerce Desk</span>
-        <h1 class="page-title">Sipariş yönetimi</h1>
-        <p class="topbar-copy">Phase 2 operasyon paneli: sipariş yaşam döngüsü, ödeme/kargo görünümü, fatura kayıtları, iade/refund temeli, email geçmişi ve güvenli yeniden gönderim kontrolleri.</p>
+        <p class="cs-kicker">Operasyon Merkezi</p>
+        <h1>Sipariş Operasyonları</h1>
+        <p>Sipariş, ödeme, kargo, fatura, iade ve e-posta akışlarını tek panelden yönetin.</p>
       </div>
-      <div class="topbar-actions">
-        <span class="token-chip">Token aktif</span>
-        <span class="sync-chip" id="syncChip">Henüz senkron yok</span>
-        <a class="secondary-btn" href="/admin/inventory.html">Inventory</a><a class="secondary-btn" href="/admin/shipments.html">Shipments</a><a class="secondary-btn" href="/admin/returns.html">Returns</a><a class="secondary-btn" href="/admin/email-logs.html">Email Logs</a><a class="secondary-btn" href="/admin/invoices.html">Invoices</a><a class="secondary-btn" href="/admin/reviews/">Yorum Paneli</a>
-        <button class="danger-btn" id="logoutBtn" type="button">Çıkış</button>
+      <div class="cs-admin-actions">
+        <span class="cs-chip cs-chip-secure">Admin oturumu aktif</span>
+        <span class="cs-chip" id="syncChip" aria-live="polite">Henüz senkron yok</span>
+        <button id="refreshBtn" class="cs-btn" type="button">Yenile</button>
+        <button id="logoutBtn" class="cs-btn cs-btn-ghost" type="button">Çıkış</button>
       </div>
     </header>
 
-    <main class="content">
-      <section class="hero">
+    <section class="cs-summary-grid" id="summaryGrid" aria-label="Operasyon özeti"></section>
+
+    <section class="cs-tabs-card" aria-label="Sipariş kategorileri">
+      <div class="cs-primary-tabs" id="primaryTabs" role="tablist" aria-label="Sipariş operasyon sekmeleri"></div>
+    </section>
+
+    <section class="cs-toolbar" aria-label="Sipariş filtreleri">
+      <div class="cs-toolbar-head">
+        <label class="cs-search" for="searchInput">Arama
+          <input id="searchInput" type="search" placeholder="Sipariş no, müşteri, e-posta, takip no veya ürün" autocomplete="off" />
+        </label>
+        <button class="cs-btn cs-filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filtersPanel">Filtreler</button>
+      </div>
+      <div class="cs-filter-panel" id="filtersPanel">
+        <label>Tarih başlangıcı<input id="dateFromFilter" type="date" /></label>
+        <label>Tarih bitişi<input id="dateToFilter" type="date" /></label>
+        <label>Sipariş durumu<select id="orderStatusFilter"></select></label>
+        <label>Ödeme durumu<select id="paymentStatusFilter"></select></label>
+        <label>Operasyon durumu<select id="fulfillmentStatusFilter"></select></label>
+        <label>Kargo firması<input id="carrierFilter" type="search" placeholder="Yurtiçi, Aras..." /></label>
+        <label>Fatura durumu<select id="invoiceStatusFilter"></select></label>
+        <label>İade durumu<select id="returnStatusFilter"></select></label>
+        <label>E-posta durumu<select id="emailStatusFilter"></select></label>
+        <label>Minimum tutar<input id="minTotalFilter" type="number" min="0" step="0.01" placeholder="0" /></label>
+        <label>Maksimum tutar<input id="maxTotalFilter" type="number" min="0" step="0.01" placeholder="0" /></label>
+        <label>Sıralama<select id="sortFilter"></select></label>
+      </div>
+      <div class="cs-toolbar-footer">
+        <p id="resultPill" class="cs-muted" aria-live="polite">0 kayıt</p>
+        <div class="cs-toolbar-buttons">
+          <button id="applyFiltersBtn" class="cs-btn cs-btn-dark" type="button">Filtrele</button>
+          <button id="clearFiltersBtn" class="cs-btn cs-btn-ghost" type="button">Temizle</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="cs-table-card" aria-labelledby="ordersTitle">
+      <div class="cs-section-head">
         <div>
-          <span class="kicker">Operations Snapshot</span>
-          <h2 class="hero-title">Satış sonrası akış artık tek panelde yönetilebilir.</h2>
-          <p class="hero-copy">Ödeme callback'i siparişi oluşturur; admin paneli ise bu siparişi operasyonel olarak takip eder. Durum güncellemeleri hem sipariş geçmişine yazılır hem de seçilirse müşteriye e-posta olarak gönderilir.</p>
+          <h2 id="ordersTitle">Sipariş Listesi</h2>
+          <p>Satır seçimi sipariş detay panelini açar. Mobilde tablo yerine operasyon kartları gösterilir.</p>
         </div>
-        <div class="hero-panel" id="heroPanel"></div>
-      </section>
-
-      <section class="stats-grid" id="statsGrid"></section>
-
-      <section class="toolbar">
-        <div class="toolbar-left">
-          <div class="search-shell">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="11" cy="11" r="7"></circle>
-              <path d="m20 20-3.5-3.5"></path>
-            </svg>
-            <input id="searchInput" type="search" placeholder="Liste içinde ara: müşteri, sipariş no, ürün, şehir..." autocomplete="off" />
-          </div>
-          <div class="filter-grid">
-            <div class="field">
-              <label for="statusFilter">Durum</label>
-              <select id="statusFilter"></select>
-            </div>
-            <div class="field">
-              <label for="emailFilter">E-posta</label>
-              <input id="emailFilter" type="search" placeholder="musteri@email.com" autocomplete="off" />
-            </div>
-            <div class="field">
-              <label for="orderNumberFilter">Sipariş No</label>
-              <input id="orderNumberFilter" type="search" placeholder="CS-..." autocomplete="off" />
-            </div>
-            <div class="field">
-              <label>&nbsp;</label>
-              <button class="primary-btn" id="applyFiltersBtn" type="button">Filtrele</button>
-            </div>
-          </div>
-        </div>
-        <div class="toolbar-right">
-          <span class="meta-pill" id="resultPill">0 kayıt</span>
-          <button class="secondary-btn" id="clearFiltersBtn" type="button">Temizle</button>
-          <button class="secondary-btn" id="refreshBtn" type="button">Yenile</button>
-        </div>
-      </section>
-
-      <section class="orders-layout">
-        <div class="orders-feed" id="ordersFeed"></div>
-        <aside class="drawer" id="orderDrawer"></aside>
-      </section>
-    </main>
-  </div>
+        <button id="loadMoreBtn" class="cs-btn cs-btn-ghost is-hidden" type="button">Daha Fazla Yükle</button>
+      </div>
+      <div class="cs-table-wrap" id="tableWrap">
+        <table class="cs-orders-table">
+          <thead>
+            <tr>
+              <th>Sipariş No</th>
+              <th>Tarih</th>
+              <th>Müşteri</th>
+              <th>Tutar</th>
+              <th>Ödeme</th>
+              <th>Operasyon</th>
+              <th>Kargo</th>
+              <th>Fatura</th>
+              <th>İade</th>
+              <th>Aksiyon</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+      <div class="cs-mobile-orders" id="ordersCards" aria-label="Mobil sipariş listesi"></div>
+      <div class="cs-state-box is-hidden" id="emptyState"></div>
+    </section>
+  </main>
 </div>
 
-<div class="toast-stack" id="toastStack"></div>
-<script src="/assets/admin-orders.js?v=20260510phase1ops" defer></script>
-<script src="/assets/mobile-redesign.js?v=20260510-phase9" defer></script>
+<div class="cs-detail-shell" id="detailShell" aria-hidden="true">
+  <div class="cs-detail-backdrop" data-close-detail></div>
+  <aside class="cs-detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detailTitle" tabindex="-1">
+    <div id="detailContent" class="cs-detail-content"></div>
+  </aside>
+</div>
+
+<div class="cs-confirm" id="confirmModal" aria-hidden="true">
+  <div class="cs-confirm-backdrop" data-confirm-cancel></div>
+  <section class="cs-confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmBody" tabindex="-1">
+    <h2 id="confirmTitle">İşlemi onayla</h2>
+    <p id="confirmBody">Devam etmek istiyor musunuz?</p>
+    <div class="cs-confirm-actions">
+      <button class="cs-btn cs-btn-ghost" type="button" data-confirm-cancel>Vazgeç</button>
+      <button class="cs-btn cs-btn-dark" type="button" data-confirm-accept>Onayla</button>
+    </div>
+  </section>
+</div>
+
+<div class="cs-toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
+<script src="/assets/admin-orders.js?v=20260511ops-pro" defer></script>
 </body>
 </html>
