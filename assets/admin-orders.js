@@ -5,27 +5,60 @@
   var API_BASE = '/api/admin/orders';
   var STATUS_OPTIONS = [
     ['all', 'Tüm durumlar'],
-    ['pending_payment', 'Ödeme Bekliyor'],
-    ['paid', 'Ödendi'],
+    ['pending', 'Sipariş Alındı'],
+    ['confirmed', 'Onaylandı'],
     ['preparing', 'Hazırlanıyor'],
-    ['shipped', 'Kargoda'],
+    ['packed', 'Paketlendi'],
+    ['shipped', 'Kargoya Verildi'],
     ['delivered', 'Teslim Edildi'],
     ['cancelled', 'İptal'],
-    ['payment_failed', 'Ödeme Başarısız'],
+    ['return_requested', 'İade Talebi'],
+    ['returned', 'İade Alındı'],
     ['refunded', 'İade Edildi'],
+    ['pending_payment', 'Ödeme Bekliyor'],
+    ['paid', 'Ödendi'],
+    ['payment_failed', 'Ödeme Başarısız'],
     ['partially_refunded', 'Kısmi İade']
   ];
 
   var STATUS_LABELS = {
-    pending_payment: 'Ödeme Bekliyor',
-    paid: 'Ödendi',
+    pending: 'Sipariş Alındı',
+    confirmed: 'Onaylandı',
     preparing: 'Hazırlanıyor',
-    shipped: 'Kargoda',
+    packed: 'Paketlendi',
+    shipped: 'Kargoya Verildi',
     delivered: 'Teslim Edildi',
     cancelled: 'İptal',
-    payment_failed: 'Ödeme Başarısız',
+    return_requested: 'İade Talebi',
+    returned: 'İade Alındı',
     refunded: 'İade Edildi',
-    partially_refunded: 'Kısmi İade'
+    pending_payment: 'Ödeme Bekliyor',
+    paid: 'Ödendi',
+    payment_failed: 'Ödeme Başarısız',
+    partially_refunded: 'Kısmi İade',
+    authorized: 'Ödeme Yetkilendirildi',
+    initiated: 'Ödeme Başlatıldı',
+    failed: 'Başarısız',
+    unfulfilled: 'Hazırlık Bekliyor',
+    not_started: 'Hazırlık Bekliyor',
+    shipment_created: 'Kargo Bilgisi',
+    shipment_updated: 'Kargo Güncellendi',
+    stock_reserved: 'Stok Rezerve',
+    payment_success: 'Ödeme Başarılı',
+    order_created: 'Sipariş Oluştu'
+  };
+
+  var EMAIL_LABELS = {
+    order_created: 'Sipariş onayı',
+    payment_success: 'Ödeme onayı',
+    payment_failed: 'Ödeme başarısız',
+    shipment_created: 'Kargo e-postası',
+    shipment_updated: 'Kargo güncellemesi',
+    shipment_delivered: 'Teslim bildirimi',
+    restock_alert: 'Stok bildirimi',
+    refund_created: 'İade bildirimi',
+    return_request_received: 'İade talebi',
+    review_request: 'Yorum isteği'
   };
 
   var state = {
@@ -148,15 +181,11 @@
         state.orders = state.orders.map(function (order) { return order.id === data.order.id ? data.order : order; });
         state.selectedId = data.order.id;
       }
-      var notify = data.notification || {};
-      if (payload.notify_customer && notify.sent) {
-        toast('Sipariş güncellendi', 'Müşteri bilgilendirme e-postası gönderildi.', 'success');
-      } else if (payload.notify_customer && notify.reason) {
-        toast('Sipariş güncellendi', 'E-posta atlandı: ' + notify.reason, 'success');
-      } else if (payload.notify_customer && notify.error) {
-        toast('Sipariş güncellendi', 'E-posta gönderilemedi: ' + notify.error, 'error');
+      var notify = data.notification || data.email || {};
+      if (notify && notify.error) {
+        toast('Sipariş güncellendi', data.message || 'Kargo bilgisi kaydedildi ancak e-posta gönderilemedi.', 'error');
       } else {
-        toast('Sipariş güncellendi', 'Durum ve operasyon bilgileri kaydedildi.', 'success');
+        toast('Sipariş güncellendi', data.message || 'Durum ve operasyon bilgileri kaydedildi.', 'success');
       }
       await loadOrders(false);
     } catch (error) {
@@ -164,6 +193,24 @@
     } finally {
       state.saving = false;
       renderDrawer();
+    }
+  }
+
+
+  async function resendEmail(orderId, emailType) {
+    if (!orderId || !emailType) return;
+    try {
+      var response = await fetch(API_BASE + '/' + encodeURIComponent(orderId) + '/emails', {
+        method: 'POST',
+        headers: apiHeaders(),
+        body: JSON.stringify({ email_type: emailType })
+      });
+      var data = await response.json().catch(function () { return {}; });
+      if (!response.ok || !data.ok) throw new Error(data.error || 'E-posta tekrar gönderilemedi.');
+      toast('E-posta işlemi', data.message || 'E-posta tekrar gönderildi.', data.email && data.email.sent ? 'success' : 'error');
+      await loadOrders(false);
+    } catch (error) {
+      toast('E-posta işlemi başarısız', error.message || 'Bilinmeyen hata.', 'error');
     }
   }
 
@@ -184,8 +231,8 @@
     var summary = state.summary || {};
     var cards = [
       ['Toplam Sipariş', summary.total || 0, 'Son 500 kayıt üzerinden operasyon görünümü'],
-      ['Ödenmiş Ciro', money(summary.paidRevenue || 0, 'TRY'), 'Ödendi / hazırlanıyor / kargoda / teslim edildi'],
-      ['Hazırlanacak', Number(summary.paid || 0) + Number(summary.preparing || 0), 'Ödeme sonrası operasyon kuyruğu'],
+      ['Ödenmiş Ciro', money(summary.paidRevenue || 0, 'TRY'), 'Onaylanan / hazırlanıyor / kargoda / teslim edilen'],
+      ['Hazırlanacak', Number(summary.confirmed || 0) + Number(summary.paid || 0) + Number(summary.preparing || 0), 'Ödeme sonrası operasyon kuyruğu'],
       ['Kargo Süreci', Number(summary.shipped || 0) + Number(summary.delivered || 0), 'Kargoda ve teslim edilen siparişler']
     ];
     el.statsGrid.innerHTML = cards.map(function (card) {
@@ -193,17 +240,17 @@
     }).join('');
 
     el.heroPanel.innerHTML = [
-      ['Bekleyen ödeme', summary.pending_payment || 0],
-      ['Kargoya hazır', Number(summary.paid || 0) + Number(summary.preparing || 0)],
+      ['Bekleyen ödeme', Number(summary.pending || 0) + Number(summary.pending_payment || 0)],
+      ['Kargoya hazır', Number(summary.confirmed || 0) + Number(summary.paid || 0) + Number(summary.preparing || 0) + Number(summary.packed || 0)],
       ['Başarısız ödeme', summary.payment_failed || 0]
     ].map(function (row) {
       return '<div class="hero-row"><span>' + esc(row[0]) + '</span><strong>' + esc(row[1]) + '</strong></div>';
     }).join('');
 
     el.sidebarMetrics.innerHTML = [
-      ['Ödeme bekliyor', summary.pending_payment || 0],
-      ['Hazırlanıyor', summary.preparing || 0],
-      ['Kargoda', summary.shipped || 0],
+      ['Sipariş alındı', Number(summary.pending || 0) + Number(summary.pending_payment || 0)],
+      ['Hazırlanıyor', Number(summary.confirmed || 0) + Number(summary.preparing || 0)],
+      ['Paket/Kargo', Number(summary.packed || 0) + Number(summary.shipped || 0)],
       ['Teslim', summary.delivered || 0],
       ['İptal/İade', Number(summary.cancelled || 0) + Number(summary.refunded || 0) + Number(summary.partially_refunded || 0)]
     ].map(function (row) {
@@ -282,19 +329,26 @@
       renderDetailPanel(order, payment, shipment) +
       renderItemsPanel(order) +
       renderTimelinePanel(order) +
+      renderEmailPanel(order) +
       renderUpdatePanel(order, shipment) +
       '</div>';
   }
 
   function renderDetailPanel(order, payment, shipment) {
-    return '<section class="detail-panel"><div class="panel-title"><strong>Müşteri ve ödeme</strong></div><div class="detail-grid">' +
+    var deliveryAddress = [order.address_line, order.district, order.city, order.postal_code].filter(Boolean).join(', ') || '—';
+    var billingAddress = [order.billing_address_line || order.address_line, order.billing_district || order.district, order.billing_city || order.city, order.billing_postal_code || order.postal_code].filter(Boolean).join(', ') || deliveryAddress;
+    return '<section class="detail-panel"><div class="panel-title"><strong>Müşteri, ödeme ve adres</strong></div><div class="detail-grid">' +
       detailCell('Müşteri', ((order.customer_first_name || '') + ' ' + (order.customer_last_name || '')).trim() || '—') +
       detailCell('E-posta', order.customer_email || '—') +
       detailCell('Telefon', order.customer_phone || '—') +
       detailCell('Toplam', money(order.total_amount, order.currency)) +
-      detailCell('Ödeme', payment.status || order.payment_status || '—') +
-      detailCell('Kargo', shipment.status || order.fulfillment_status || '—') +
-      '</div><div class="detail-cell" style="margin-top:10px;"><span>Adres</span><strong>' + esc([order.address_line, order.district, order.city, order.postal_code].filter(Boolean).join(', ') || '—') + '</strong></div>' +
+      detailCell('Sipariş Durumu', statusLabel(order.status)) +
+      detailCell('Ödeme', statusLabel(payment.status || order.payment_status || '—')) +
+      detailCell('Operasyon', statusLabel(order.fulfillment_status || shipment.status || '—')) +
+      detailCell('Kargo', shipment.tracking_number ? ((shipment.carrier || shipment.carrier_name || 'Kargo') + ' · ' + shipment.tracking_number) : statusLabel(shipment.status || order.fulfillment_status || '—')) +
+      '</div><div class="detail-cell" style="margin-top:10px;"><span>Teslimat Adresi</span><strong>' + esc(deliveryAddress) + '</strong></div>' +
+      '<div class="detail-cell" style="margin-top:10px;"><span>Fatura Adresi</span><strong>' + esc(billingAddress) + '</strong></div>' +
+      (shipment.tracking_url ? '<div class="detail-cell" style="margin-top:10px;"><span>Takip Bağlantısı</span><strong><a href="' + esc(shipment.tracking_url) + '" target="_blank" rel="noopener">Kargoyu Takip Et</a></strong></div>' : '') +
       (order.cargo_note ? '<div class="detail-cell" style="margin-top:10px;"><span>Kargo Notu</span><strong>' + esc(order.cargo_note) + '</strong></div>' : '') + '</section>';
   }
 
@@ -315,8 +369,28 @@
     var events = order.status_events || [];
     return '<section class="detail-panel"><div class="panel-title"><strong>Durum geçmişi</strong></div><div class="timeline">' +
       (events.length ? events.map(function (event) {
-        return '<div class="timeline-item"><strong>' + esc(statusLabel(event.status)) + ' · ' + esc(event.source || 'system') + '</strong><span>' + esc(event.message || '') + '</span><span>' + esc(dateTime(event.created_at)) + '</span></div>';
+        var label = statusLabel(event.new_status || event.status || event.event_type);
+        var actor = event.created_by || event.source || 'system';
+        var note = event.note || event.message || '';
+        var transition = event.previous_status && event.new_status ? ' · ' + statusLabel(event.previous_status) + ' → ' + statusLabel(event.new_status) : '';
+        return '<div class="timeline-item"><strong>' + esc(label) + ' · ' + esc(actor) + esc(transition) + '</strong><span>' + esc(note) + '</span><span>' + esc(dateTime(event.created_at)) + '</span></div>';
       }).join('') : '<div class="empty-state">Durum geçmişi henüz yok.</div>') + '</div></section>';
+  }
+
+  function renderEmailPanel(order) {
+    var emails = order.email_events || [];
+    var shipment = getLatestShipment(order);
+    var safeResend = '<div class="email-actions">' +
+      (shipment && order.customer_email ? '<button class="secondary-btn" type="button" data-action="resend-email" data-id="' + esc(order.id) + '" data-email-type="shipment_created">Kargo e-postasını tekrar gönder</button>' : '') +
+      (order.customer_email ? '<button class="secondary-btn" type="button" data-action="resend-email" data-id="' + esc(order.id) + '" data-email-type="payment_success">Ödeme onayını tekrar gönder</button>' : '') +
+      (order.customer_email ? '<button class="secondary-btn" type="button" data-action="resend-email" data-id="' + esc(order.id) + '" data-email-type="order_created">Sipariş onayını tekrar gönder</button>' : '') +
+      '</div>';
+    return '<section class="detail-panel"><div class="panel-title"><strong>E-posta geçmişi</strong><span class="meta-pill">' + esc(emails.length) + ' kayıt</span></div>' + safeResend + '<div class="timeline email-timeline">' +
+      (emails.length ? emails.map(function (event) {
+        var status = event.status || 'pending';
+        var failed = status === 'failed';
+        return '<div class="timeline-item"><strong>' + esc(EMAIL_LABELS[event.email_type] || event.email_type || 'E-posta') + ' · ' + esc(statusLabel(status)) + '</strong><span>' + esc(event.customer_email || '') + (event.provider ? ' · ' + esc(event.provider) : '') + '</span>' + (failed && event.error_message ? '<span>' + esc(event.error_message) + '</span>' : '') + '<span>' + esc(dateTime(event.sent_at || event.created_at)) + '</span></div>';
+      }).join('') : '<div class="empty-state">E-posta kaydı henüz yok.</div>') + '</div></section>';
   }
 
   function renderUpdatePanel(order, shipment) {
@@ -325,12 +399,13 @@
     }).join('');
     return '<section class="detail-panel"><div class="panel-title"><strong>Operasyon güncelle</strong><span class="kbd">PATCH /api/admin/orders</span></div>' +
       '<form class="update-form" id="orderUpdateForm" data-order-id="' + esc(order.id) + '">' +
+      '<div class="field"><label>Hızlı aksiyon</label><select name="action"><option value="">Manuel durum seç</option><option value="mark_payment_paid">Ödemeyi ödendi işaretle</option><option value="mark_preparing">Hazırlanıyor işaretle</option><option value="mark_packed">Paketlendi işaretle</option><option value="mark_shipped">Kargoya verildi işaretle</option><option value="mark_delivered">Teslim edildi işaretle</option><option value="cancel_order">Siparişi iptal et</option></select></div>' +
       '<div class="field"><label>Yeni durum</label><select name="status">' + options + '</select></div>' +
       '<div class="field"><label>Kargo firması</label><input name="carrier" type="text" placeholder="Yurtiçi, MNG, Aras..." value="' + esc(shipment.carrier || '') + '"></div>' +
       '<div class="field"><label>Takip numarası</label><input name="tracking_number" type="text" placeholder="Takip kodu" value="' + esc(shipment.tracking_number || '') + '"></div>' +
       '<div class="field"><label>Takip linki</label><input name="tracking_url" type="url" placeholder="https://..." value="' + esc(shipment.tracking_url || '') + '"></div>' +
-      '<div class="field"><label>Admin mesajı</label><textarea name="message" placeholder="Bu mesaj durum geçmişine yazılır; müşteri bildirimi seçilirse e-postaya da eklenir."></textarea></div>' +
-      '<label class="check-row"><input name="notify_customer" type="checkbox"> Müşteriye bilgilendirme e-postası gönder</label>' +
+      '<div class="field"><label>Admin notu</label><textarea name="message" placeholder="Bu not durum geçmişine yazılır. Kargo bilgisi kaydedilirse müşteri e-postası varsayılan olarak gönderilir."></textarea></div>' +
+      '<label class="check-row"><input name="suppress_customer_email" type="checkbox"> Müşteriye e-posta gönderme</label>' +
       '<div class="form-actions"><span class="meta-pill">' + esc(order.customer_email || '') + '</span><button class="primary-btn" type="submit"' + (state.saving ? ' disabled' : '') + '>' + (state.saving ? 'Kaydediliyor...' : 'Güncelle') + '</button></div>' +
       '</form></section>';
   }
@@ -410,6 +485,11 @@
       renderDrawer();
       if (window.matchMedia('(max-width: 1180px)').matches) el.drawer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+    el.drawer.addEventListener('click', function (event) {
+      var resend = event.target.closest('[data-action="resend-email"]');
+      if (!resend) return;
+      resendEmail(resend.getAttribute('data-id') || '', resend.getAttribute('data-email-type') || 'shipment_created');
+    });
     el.drawer.addEventListener('submit', function (event) {
       var form = event.target.closest('#orderUpdateForm');
       if (!form) return;
@@ -417,12 +497,13 @@
       var data = new FormData(form);
       updateOrder({
         order_id: form.getAttribute('data-order-id'),
+        action: data.get('action'),
         status: data.get('status'),
         carrier: data.get('carrier'),
         tracking_number: data.get('tracking_number'),
         tracking_url: data.get('tracking_url'),
         message: data.get('message'),
-        notify_customer: data.get('notify_customer') === 'on'
+        suppress_customer_email: data.get('suppress_customer_email') === 'on'
       });
     });
   }

@@ -1,6 +1,7 @@
 import { getUserFromAccessToken, insertRow, insertRows, updateRows, selectRows } from './_lib/supabase.js';
 import { iyzicoRequest } from './_lib/iyzico.js';
 import { catalog } from './_lib/catalog.js';
+import { releaseInventoryReservations, reserveInventoryForOrder } from './_lib/inventory.js';
 import { json } from './_lib/response.js';
 
 const VAT_RATE = 0.20;
@@ -330,7 +331,9 @@ export async function onRequestPost(context) {
     const order = await insertRow(context, 'orders', {
       user_id: user?.id || null,
       order_number: orderNumber,
-      status: 'pending_payment',
+      status: 'pending',
+      payment_status: 'pending',
+      fulfillment_status: 'unfulfilled',
       currency: 'TRY',
       subtotal_amount: totals.subtotal,
       discount_amount: totals.discount || 0,
@@ -357,11 +360,54 @@ export async function onRequestPost(context) {
     await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: order.id })));
     await insertRow(context, 'order_status_events', {
       order_id: order.id,
-      status: 'pending_payment',
+      status: 'pending',
+      event_type: 'order_created',
+      previous_status: null,
+      new_status: 'pending',
       source: 'system',
+      created_by: 'system',
       message: 'Sipariş oluşturuldu, ödeme bekleniyor.',
+      note: 'Sipariş oluşturuldu, ödeme bekleniyor.',
       metadata: { order_number: orderNumber }
     });
+
+    let reservations = [];
+    try {
+      reservations = await reserveInventoryForOrder(context, order.id, cart, {
+        minutes: 15,
+        session_id: payload.session_id || payload.sessionId || null,
+        created_by: 'checkout'
+      });
+      await insertRow(context, 'order_status_events', {
+        order_id: order.id,
+        status: 'stock_reserved',
+        event_type: 'stock_reserved',
+        source: 'inventory',
+        created_by: 'system',
+        message: 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
+        note: 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
+        metadata: { reservation_count: reservations.length }
+      }).catch(() => null);
+    } catch (reservationError) {
+      await updateRows(context, 'orders', { id: order.id }, {
+        status: 'cancelled',
+        payment_status: 'failed',
+        fulfillment_status: 'failed',
+        updated_at: new Date().toISOString(),
+        metadata: { source: 'checkout', cart_line_count: cart.length, reservation_error: serializeError(reservationError) }
+      }).catch(() => null);
+      await insertRow(context, 'order_status_events', {
+        order_id: order.id,
+        status: 'stock_reservation_failed',
+        event_type: 'stock_reservation_failed',
+        source: 'inventory',
+        created_by: 'system',
+        message: reservationError.message || 'Stok rezervasyonu oluşturulamadı.',
+        note: reservationError.message || 'Stok rezervasyonu oluşturulamadı.',
+        metadata: { error: serializeError(reservationError) }
+      }).catch(() => null);
+      throw new CheckoutError(reservationError.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', reservationError.status || 409, reservationError.code || 'INSUFFICIENT_STOCK');
+    }
 
     const callbackUrl = `${getPublicSiteUrl(context.env)}/api/iyzico-callback`;
     const ip = getClientIp(context.request);
@@ -421,16 +467,22 @@ export async function onRequestPost(context) {
         conversation_id: order.id,
         raw_initialize_response: { error: serializeError(paymentError) }
       });
+      await releaseInventoryReservations(context, order.id, 'payment_initialize_failed').catch(() => null);
       await updateRows(context, 'orders', { id: order.id }, {
-        status: 'payment_failed',
+        status: 'cancelled',
         payment_status: 'failed',
         metadata: { source: 'checkout', cart_line_count: cart.length, payment_initialize_error: serializeError(paymentError) }
       });
       await insertRow(context, 'order_status_events', {
         order_id: order.id,
         status: 'payment_failed',
+        event_type: 'payment_failed',
+        previous_status: 'pending',
+        new_status: 'cancelled',
         source: 'payment',
+        created_by: 'payment_initialize',
         message: 'iyzico ödeme formu başlatılamadı.',
+        note: 'iyzico ödeme formu başlatılamadı.',
         metadata: { error: serializeError(paymentError) }
       });
       throw new CheckoutError(paymentError.message || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar dene.', 502, 'PAYMENT_INITIALIZE_FAILED');
@@ -452,27 +504,39 @@ export async function onRequestPost(context) {
 
     if (!paymentSucceeded) {
       await updateRows(context, 'orders', { id: order.id }, {
-        status: 'payment_failed',
-        payment_status: 'failed'
+        status: 'cancelled',
+        payment_status: 'failed',
+        fulfillment_status: 'failed'
       });
+      await releaseInventoryReservations(context, order.id, 'payment_initialize_failed').catch(() => null);
       await insertRow(context, 'order_status_events', {
         order_id: order.id,
         status: 'payment_failed',
+        event_type: 'payment_failed',
+        previous_status: 'pending',
+        new_status: 'cancelled',
         source: 'payment',
+        created_by: 'payment_initialize',
         message: 'iyzico ödeme formu olumlu yanıt dönmedi.',
+        note: 'iyzico ödeme formu olumlu yanıt dönmedi.',
         metadata: { iyzico_status: iyzicoRes?.status || null, error_message: iyzicoRes?.errorMessage || null }
       });
       throw new CheckoutError(iyzicoRes?.errorMessage || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar dene.', 502, 'PAYMENT_INITIALIZE_FAILED');
     }
 
     await updateRows(context, 'orders', { id: order.id }, {
-      payment_status: 'initiated'
+      payment_status: 'authorized'
     });
     await insertRow(context, 'order_status_events', {
       order_id: order.id,
-      status: 'payment_initiated',
+      status: 'payment_authorized',
+      event_type: 'payment_authorized',
+      previous_status: 'pending',
+      new_status: 'pending',
       source: 'payment',
-      message: 'iyzico güvenli ödeme formu başlatıldı.',
+      created_by: 'checkout',
+      message: 'iyzico güvenli ödeme formu başlatıldı ve ödeme yetkilendirme sürecine alındı.',
+      note: 'iyzico güvenli ödeme formu başlatıldı ve ödeme yetkilendirme sürecine alındı.',
       metadata: { provider: 'iyzico', token: iyzicoRes.token || null }
     });
 

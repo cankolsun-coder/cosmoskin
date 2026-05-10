@@ -15,9 +15,11 @@
 
   var statusLabels = {
     pending_payment: 'Ödeme Bekleniyor',
-    pending: 'Beklemede',
+    pending: 'Sipariş Alındı',
+    confirmed: 'Ödeme Onaylandı',
     paid: 'Ödeme Alındı',
     preparing: 'Hazırlanıyor',
+    packed: 'Paketlendi',
     shipped: 'Kargoya Verildi',
     delivered: 'Teslim Edildi',
     cancelled: 'İptal Edildi',
@@ -25,6 +27,8 @@
     failed: 'Başarısız',
     refunded: 'İade Edildi',
     partially_refunded: 'Kısmi İade',
+    return_requested: 'İade Talebi',
+    returned: 'İade Alındı',
     requested: 'Talep Alındı',
     under_review: 'İncelemede',
     approved: 'Onaylandı',
@@ -34,6 +38,7 @@
 
   var shipmentLabels = {
     not_started: 'Hazırlık Bekliyor',
+    unfulfilled: 'Hazırlık Bekliyor',
     preparing: 'Hazırlanıyor',
     packed: 'Paketlendi',
     shipped: 'Kargoda',

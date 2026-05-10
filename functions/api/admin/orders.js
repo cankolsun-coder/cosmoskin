@@ -1,13 +1,19 @@
 import { selectRows, updateRows, insertRow } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
-import { sendOrderStatusEmail } from '../_lib/order-email.js';
+import { sendOrderStatusEmail, sendShipmentEmail } from '../_lib/order-email.js';
+import { recordEmailEvent } from '../_lib/email-events.js';
+import { releaseInventoryReservations } from '../_lib/inventory.js';
 
-const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,city,district,postal_code,address_line,cargo_note,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
+const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
 const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
 const SHIPMENT_SELECT = 'id,order_id,status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at';
-const VALID_STATUSES = new Set(['pending_payment','paid','preparing','shipped','delivered','cancelled','payment_failed','refunded','partially_refunded']);
-const VALID_FULFILLMENT = new Set(['not_started','unfulfilled','preparing','packed','shipped','delivered','cancelled','returned']);
+const EVENT_SELECT = 'id,order_id,status,message,source,event_type,previous_status,new_status,note,created_by,created_at,metadata';
+const EMAIL_SELECT = 'id,order_id,customer_email,email_type,provider,status,subject,provider_message_id,error_message,sent_at,created_at,metadata';
+
+const VALID_ORDER_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'packed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned', 'refunded', 'pending_payment', 'paid', 'payment_failed', 'partially_refunded']);
+const VALID_PAYMENT_STATUSES = new Set(['pending', 'authorized', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled', 'initiated', 'initialize_failed']);
+const VALID_FULFILLMENT = new Set(['unfulfilled', 'preparing', 'packed', 'shipped', 'delivered', 'failed', 'returned', 'not_started', 'cancelled']);
 
 function inFilter(values = []) { return `in.(${values.filter(Boolean).join(',')})`; }
 function groupBy(arr = [], key = 'order_id') {
@@ -22,34 +28,53 @@ function groupBy(arr = [], key = 'order_id') {
 function buildSummary(orders = []) {
   return orders.reduce((s, order) => {
     s.total += 1;
-    const statusKey = order.status || 'pending_payment';
+    const statusKey = order.status || 'pending';
     s[statusKey] = (s[statusKey] || 0) + 1;
-    if (['paid','preparing','shipped','delivered'].includes(order.status) || order.payment_status === 'paid') s.paidRevenue += Number(order.total_amount || 0);
+    if (['confirmed', 'paid', 'preparing', 'packed', 'shipped', 'delivered'].includes(order.status) || order.payment_status === 'paid') s.paidRevenue += Number(order.total_amount || 0);
+    if (order.payment_status === 'failed' || order.status === 'payment_failed') s.payment_failed += 1;
     return s;
-  }, { total: 0, paidRevenue: 0, pending_payment: 0, paid: 0, preparing: 0, shipped: 0, delivered: 0, cancelled: 0, payment_failed: 0, refunded: 0, partially_refunded: 0 });
+  }, { total: 0, paidRevenue: 0, pending: 0, pending_payment: 0, confirmed: 0, paid: 0, preparing: 0, packed: 0, shipped: 0, delivered: 0, cancelled: 0, return_requested: 0, returned: 0, refunded: 0, partially_refunded: 0, payment_failed: 0 });
 }
 function safeStatus(value, fallback = null) {
   const status = String(value || '').trim();
-  return VALID_STATUSES.has(status) ? status : fallback;
+  return VALID_ORDER_STATUSES.has(status) ? status : fallback;
+}
+function safePaymentStatus(value, fallback = null) {
+  const status = String(value || '').trim();
+  return VALID_PAYMENT_STATUSES.has(status) ? status : fallback;
 }
 function safeFulfillment(value, fallback = null) {
   const status = String(value || '').trim();
   return VALID_FULFILLMENT.has(status) ? status : fallback;
 }
+function shipmentSubject() { return 'Siparişin kargoya verildi'; }
+function statusFromAction(action) {
+  const map = {
+    mark_payment_paid: { status: 'confirmed', payment_status: 'paid', fulfillment_status: 'preparing' },
+    mark_preparing: { status: 'preparing', fulfillment_status: 'preparing' },
+    mark_packed: { status: 'packed', fulfillment_status: 'packed' },
+    mark_shipped: { status: 'shipped', fulfillment_status: 'shipped' },
+    mark_delivered: { status: 'delivered', fulfillment_status: 'delivered' },
+    cancel_order: { status: 'cancelled', payment_status: 'cancelled', fulfillment_status: 'failed' }
+  };
+  return map[String(action || '')] || null;
+}
 
 async function hydrateOrders(context, orders = []) {
   const ids = orders.map((order) => order.id).filter(Boolean);
   if (!ids.length) return [];
-  const [items, shipments, events, payments] = await Promise.all([
+  const [items, shipments, events, payments, emails] = await Promise.all([
     selectRows(context, 'order_items', { select: ITEM_SELECT, order_id: inFilter(ids), order: 'created_at.asc' }).catch(() => []),
     selectRows(context, 'shipments', { select: SHIPMENT_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
-    selectRows(context, 'order_status_events', { select: 'order_id,status,message,source,created_at', order_id: inFilter(ids), order: 'created_at.asc' }).catch(() => []),
-    selectRows(context, 'payments', { select: 'order_id,provider,status,amount,currency,created_at,updated_at', order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => [])
+    selectRows(context, 'order_status_events', { select: EVENT_SELECT, order_id: inFilter(ids), order: 'created_at.asc' }).catch(() => []),
+    selectRows(context, 'payments', { select: 'order_id,provider,status,amount,currency,provider_payment_id,provider_token,created_at,updated_at', order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
+    selectRows(context, 'email_events', { select: EMAIL_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => [])
   ]);
   const itemMap = groupBy(items);
   const shipmentMap = groupBy((shipments || []).map((s) => ({ ...s, carrier: s.carrier || s.carrier_name || '' })));
   const eventMap = groupBy(events);
   const paymentMap = groupBy(payments);
+  const emailMap = groupBy(emails);
   return orders.map((order) => ({
     ...order,
     order_items: itemMap.get(order.id) || [],
@@ -57,6 +82,7 @@ async function hydrateOrders(context, orders = []) {
     shipments: shipmentMap.get(order.id) || [],
     status_events: eventMap.get(order.id) || [],
     payments: paymentMap.get(order.id) || [],
+    email_events: emailMap.get(order.id) || [],
     item_count: (itemMap.get(order.id) || []).reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   }));
 }
@@ -68,8 +94,90 @@ async function loadOrder(context, id) {
   return (await hydrateOrders(context, [order]))[0] || null;
 }
 
-async function recordEvent(context, orderId, status, message, source = 'admin') {
-  await insertRow(context, 'order_status_events', { order_id: orderId, status, source, message }).catch(() => null);
+async function recordEvent(context, orderId, event = {}) {
+  await insertRow(context, 'order_status_events', {
+    order_id: orderId,
+    status: event.status || event.new_status || event.event_type || 'updated',
+    source: event.source || 'admin',
+    message: event.message || event.note || 'Admin panelinden durum güncellendi.',
+    event_type: event.event_type || event.status || 'status_updated',
+    previous_status: event.previous_status || null,
+    new_status: event.new_status || event.status || null,
+    note: event.note || event.message || null,
+    created_by: event.created_by || 'admin',
+    metadata: event.metadata || null
+  }).catch(() => null);
+}
+
+async function sendAndLogShipmentEmail(context, order, shipment, emailType = 'shipment_created') {
+  const subject = shipmentSubject();
+  if (!order?.customer_email) {
+    await recordEmailEvent(context, { order_id: order?.id || shipment?.order_id || null, customer_email: 'missing@cosmoskin.local', email_type: emailType, status: 'skipped', subject, error_message: 'customer_email_missing', metadata: { internal: true } });
+    return { sent: false, skipped: true, reason: 'customer_email_missing' };
+  }
+  try {
+    const result = await sendShipmentEmail(context.env, { order, shipment });
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: order.customer_email,
+      email_type: emailType,
+      provider: result.provider || (context.env.BREVO_API_KEY ? 'brevo' : null),
+      status: result.sent ? 'sent' : (result.skipped ? 'skipped' : 'failed'),
+      subject,
+      provider_message_id: result.provider_message_id || null,
+      error_message: result.reason || result.error || null,
+      metadata: { shipment_id: shipment.id || null }
+    });
+    return result;
+  } catch (error) {
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: order.customer_email,
+      email_type: emailType,
+      provider: context.env.BREVO_API_KEY ? 'brevo' : null,
+      status: 'failed',
+      subject,
+      error_message: error.message || 'shipment_email_failed',
+      metadata: { shipment_id: shipment.id || null }
+    });
+    return { sent: false, error: 'shipment_email_failed' };
+  }
+}
+
+async function sendAndLogStatusEmail(context, order, status, emailType) {
+  if (!order?.customer_email) return { sent: false, skipped: true, reason: 'customer_email_missing' };
+  const subjectMap = {
+    order_created: `Siparişiniz alındı | ${order.order_number || 'COSMOSKIN'}`,
+    payment_success: `Siparişiniz onaylandı | ${order.order_number || 'COSMOSKIN'}`,
+    payment_failed: `Ödeme işlemi tamamlanamadı | ${order.order_number || 'COSMOSKIN'}`
+  };
+  try {
+    const result = await sendOrderStatusEmail(context.env, { order, status, items: order.order_items || [] });
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: order.customer_email,
+      email_type: emailType,
+      provider: result.provider || (context.env.BREVO_API_KEY ? 'brevo' : null),
+      status: result.sent ? 'sent' : (result.skipped ? 'skipped' : 'failed'),
+      subject: subjectMap[emailType] || 'Sipariş durumunuz güncellendi',
+      provider_message_id: result.provider_message_id || null,
+      error_message: result.reason || result.error || null,
+      metadata: { resend: true }
+    });
+    return result;
+  } catch (error) {
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: order.customer_email,
+      email_type: emailType,
+      provider: context.env.BREVO_API_KEY ? 'brevo' : null,
+      status: 'failed',
+      subject: subjectMap[emailType] || 'Sipariş durumunuz güncellendi',
+      error_message: error.message || 'email_failed',
+      metadata: { resend: true }
+    });
+    return { sent: false, error: 'email_failed' };
+  }
 }
 
 export async function onRequestGet(context) {
@@ -100,22 +208,42 @@ export async function onRequestPatch(context) {
     const body = await readJsonBody(context);
     const id = body.id || body.order_id;
     if (!id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });
+
+    const before = await loadOrder(context, id);
+    if (!before) return json({ ok: false, error: 'Sipariş bulunamadı.' }, { status: 404 });
+
+    const actionPayload = statusFromAction(body.action);
     const payload = {};
-    const status = safeStatus(body.status);
-    const fulfillment = safeFulfillment(body.fulfillment_status);
+    const status = safeStatus(body.status || actionPayload?.status);
+    const paymentStatus = safePaymentStatus(body.payment_status || actionPayload?.payment_status);
+    const fulfillment = safeFulfillment(body.fulfillment_status || actionPayload?.fulfillment_status);
     if (status) payload.status = status;
-    if (body.payment_status) payload.payment_status = String(body.payment_status).trim();
+    if (paymentStatus) payload.payment_status = paymentStatus;
     if (fulfillment) payload.fulfillment_status = fulfillment;
-    if (status === 'shipped' || fulfillment === 'shipped') payload.fulfilled_at = body.shipped_at || new Date().toISOString();
-    if (status === 'delivered' || fulfillment === 'delivered') payload.delivered_at = body.delivered_at || new Date().toISOString();
-    if (status === 'cancelled') payload.cancelled_at = new Date().toISOString();
+    if (paymentStatus === 'paid') payload.paid_at = body.paid_at || before.paid_at || new Date().toISOString();
+    if (status === 'shipped' || fulfillment === 'shipped') payload.fulfilled_at = body.shipped_at || before.fulfilled_at || new Date().toISOString();
+    if (status === 'delivered' || fulfillment === 'delivered') payload.delivered_at = body.delivered_at || before.delivered_at || new Date().toISOString();
+    if (status === 'cancelled') payload.cancelled_at = before.cancelled_at || new Date().toISOString();
+
     if (Object.keys(payload).length) {
       payload.updated_at = new Date().toISOString();
       await updateRows(context, 'orders', { id }, payload);
-      await recordEvent(context, id, status || fulfillment || 'updated', body.message || 'Admin panelinden durum güncellendi.');
+      await recordEvent(context, id, {
+        status: status || fulfillment || paymentStatus || 'updated',
+        event_type: body.action || 'status_updated',
+        previous_status: before.status || null,
+        new_status: status || before.status || null,
+        message: body.message || 'Admin panelinden durum güncellendi.',
+        note: body.message || 'Admin panelinden durum güncellendi.',
+        created_by: 'admin',
+        metadata: { payment_status: paymentStatus || null, fulfillment_status: fulfillment || null }
+      });
+      if (status === 'cancelled' || paymentStatus === 'cancelled') await releaseInventoryReservations(context, id, 'admin_cancelled').catch(() => null);
     }
 
-    let shipmentWarning = null;
+    let shipment = null;
+    let shipmentEmail = null;
+    let shipmentMessage = null;
     if (body.carrier || body.carrier_name || body.tracking_number || body.tracking_url) {
       const shipmentPayload = {
         carrier: body.carrier || body.carrier_name || null,
@@ -127,23 +255,61 @@ export async function onRequestPatch(context) {
         updated_at: new Date().toISOString()
       };
       const existing = await selectRows(context, 'shipments', { select: 'id', order_id: `eq.${id}`, limit: '1' }).catch(() => []);
-      if (existing?.[0]?.id) await updateRows(context, 'shipments', { id: existing[0].id }, shipmentPayload);
-      else await insertRow(context, 'shipments', { order_id: id, ...shipmentPayload });
+      const emailType = existing?.[0]?.id ? 'shipment_updated' : 'shipment_created';
+      if (existing?.[0]?.id) {
+        await updateRows(context, 'shipments', { id: existing[0].id }, shipmentPayload);
+        shipment = { id: existing[0].id, order_id: id, ...shipmentPayload };
+      } else {
+        shipment = await insertRow(context, 'shipments', { order_id: id, ...shipmentPayload });
+      }
       await updateRows(context, 'orders', { id }, { status: 'shipped', fulfillment_status: 'shipped', fulfilled_at: shipmentPayload.shipped_at, updated_at: new Date().toISOString() }).catch(() => null);
-      await recordEvent(context, id, 'shipped', 'Kargo bilgisi admin panelinden girildi.');
-      if (body.notify_customer) {
-        const order = await loadOrder(context, id);
-        try {
-          await sendOrderStatusEmail(context.env, { order, status: 'shipped', shipment: shipmentPayload, items: order?.order_items || [] });
-        } catch (error) {
-          shipmentWarning = 'Kargo bilgisi kaydedildi ancak e-posta gönderilemedi.';
-        }
+      await recordEvent(context, id, {
+        status: 'shipped',
+        event_type: emailType,
+        previous_status: before.status || null,
+        new_status: 'shipped',
+        message: 'Kargo bilgisi kaydedildi.',
+        note: 'Kargo bilgisi kaydedildi.',
+        created_by: 'admin',
+        metadata: { shipment_id: shipment?.id || null, carrier: shipmentPayload.carrier_name, tracking_number: shipmentPayload.tracking_number }
+      });
+      const shouldNotify = body.suppress_customer_email === true ? false : body.notify_customer !== false;
+      if (shouldNotify) {
+        const latestOrder = await loadOrder(context, id);
+        shipmentEmail = await sendAndLogShipmentEmail(context, latestOrder, shipment, emailType);
+        shipmentMessage = shipmentEmail.sent ? 'Kargo bilgisi kaydedildi ve müşteriye e-posta gönderildi.' : (shipmentEmail.skipped ? 'Kargo bilgisi kaydedildi ancak e-posta gönderilemedi.' : 'Kargo bilgisi kaydedildi ancak e-posta gönderilemedi.');
+      } else {
+        shipmentEmail = { sent: false, skipped: true, reason: 'admin_suppressed' };
+        await recordEmailEvent(context, {
+          order_id: id,
+          customer_email: before.customer_email || 'missing@cosmoskin.local',
+          email_type: emailType,
+          provider: null,
+          status: 'skipped',
+          subject: shipmentSubject(),
+          error_message: 'admin_suppressed',
+          metadata: { shipment_id: shipment?.id || null }
+        });
+        shipmentMessage = 'Kargo bilgisi kaydedildi.';
       }
     }
 
     const order = await loadOrder(context, id);
-    return json({ ok: true, order, message: 'Sipariş güncellendi.', warning: shipmentWarning });
+    return json({ ok: true, order, message: shipmentMessage || 'Sipariş güncellendi.', email: shipmentEmail, notification: shipmentEmail });
   } catch (error) {
     return adminError(error, 'Sipariş güncellenemedi.');
   }
+}
+
+export async function resendOrderEmail(context, orderId, emailType) {
+  const order = await loadOrder(context, orderId);
+  if (!order) throw Object.assign(new Error('Sipariş bulunamadı.'), { status: 404 });
+  if (emailType === 'shipment_created' || emailType === 'shipment_updated') {
+    const shipment = order.shipments?.[0];
+    if (!shipment) throw Object.assign(new Error('Kargo bilgisi bulunamadı.'), { status: 400 });
+    return await sendAndLogShipmentEmail(context, order, shipment, 'shipment_created');
+  }
+  if (emailType === 'payment_success') return await sendAndLogStatusEmail(context, order, 'confirmed', 'payment_success');
+  if (emailType === 'order_created') return await sendAndLogStatusEmail(context, order, 'pending', 'order_created');
+  throw Object.assign(new Error('email_type desteklenmiyor.'), { status: 400 });
 }

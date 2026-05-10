@@ -6,7 +6,7 @@ const ACTIVE_STATUS = new Set(['active']);
 const ADMIN_STATUS = new Set(['active', 'inactive', 'discontinued']);
 const MOVEMENT_REASONS = new Set([
   'manual_adjustment', 'supplier_restock', 'order_paid', 'order_cancelled',
-  'return_received', 'damage_loss', 'correction'
+  'return_received', 'damage_loss', 'correction', 'stock_reserved', 'reservation_released'
 ]);
 
 export function normalizeSlug(value = '') {
@@ -244,4 +244,137 @@ export async function notifyRestockAlerts(context, slug) {
     }
   }
   return summary;
+}
+
+
+function reservationExpiry(minutes = 15) {
+  return new Date(Date.now() + Math.max(1, Number(minutes || 15)) * 60 * 1000).toISOString();
+}
+
+export async function reserveInventoryForOrder(context, orderId, cart = [], options = {}) {
+  if (!orderId) throw Object.assign(new Error('order_id gerekli.'), { status: 400 });
+  const normalizedItems = (cart || []).map((item) => ({
+    product_slug: normalizeSlug(item.product_slug || item.slug || item.product_id || item.id),
+    quantity: Math.max(1, Math.floor(Number(item.quantity ?? item.qty ?? 1) || 1)),
+    product_name: item.product_name || item.name || item.product_slug || item.id || 'Ürün'
+  })).filter((item) => item.product_slug && item.quantity > 0);
+  if (!normalizedItems.length) throw Object.assign(new Error('Rezervasyon için ürün bulunamadı.'), { status: 400 });
+
+  const created = [];
+  const expiresAt = options.expires_at || reservationExpiry(options.minutes || 15);
+  for (const item of normalizedItems) {
+    const current = (await getInventoryRows(context, [item.product_slug]))[0];
+    if (!current) throw Object.assign(new Error(`${item.product_name} için stok kaydı bulunamadı.`), { status: 409 });
+    if (current.status !== 'active') throw Object.assign(new Error(`${item.product_name} şu anda satışta değil.`), { status: 409 });
+    if (!current.allow_backorder && current.available_stock < item.quantity) {
+      const message = current.available_stock <= 0
+        ? 'Bu ürün şu anda stokta yok. Favorilerine ekleyerek tekrar geldiğinde haber alabilirsin.'
+        : `Bu ürün için şu anda yalnızca ${current.available_stock} adet satın alınabilir.`;
+      throw Object.assign(new Error(message), { status: 409, code: 'INSUFFICIENT_STOCK', available_stock: current.available_stock, product_slug: item.product_slug });
+    }
+    await updateRows(context, 'product_inventory', { product_slug: item.product_slug }, {
+      stock_reserved: current.stock_reserved + item.quantity,
+      updated_at: new Date().toISOString()
+    });
+    const reservation = await insertRow(context, 'inventory_reservations', {
+      order_id: orderId,
+      session_id: options.session_id || null,
+      product_slug: item.product_slug,
+      quantity: item.quantity,
+      status: 'active',
+      expires_at: expiresAt
+    });
+    await insertRow(context, 'inventory_movements', {
+      product_slug: item.product_slug,
+      change: 0,
+      previous_stock_on_hand: current.stock_on_hand,
+      new_stock_on_hand: current.stock_on_hand,
+      reason: 'stock_reserved',
+      note: `Checkout rezervasyonu: ${item.quantity} adet`,
+      related_order_id: orderId,
+      created_by: options.created_by || 'checkout'
+    }).catch(() => null);
+    created.push(reservation);
+  }
+  return created;
+}
+
+export async function releaseInventoryReservations(context, orderId, reason = 'payment_failed') {
+  if (!orderId) return { released: 0 };
+  const reservations = await selectRows(context, 'inventory_reservations', {
+    select: '*',
+    order_id: `eq.${orderId}`,
+    status: 'eq.active',
+    order: 'created_at.asc'
+  }).catch(() => []);
+  let released = 0;
+  for (const reservation of reservations || []) {
+    const slug = normalizeSlug(reservation.product_slug);
+    const qty = Math.max(1, Number(reservation.quantity || 1));
+    const current = (await getInventoryRows(context, [slug]).catch(() => []))[0];
+    if (current) {
+      await updateRows(context, 'product_inventory', { product_slug: slug }, {
+        stock_reserved: Math.max(0, current.stock_reserved - qty),
+        updated_at: new Date().toISOString()
+      }).catch(() => null);
+      await insertRow(context, 'inventory_movements', {
+        product_slug: slug,
+        change: 0,
+        previous_stock_on_hand: current.stock_on_hand,
+        new_stock_on_hand: current.stock_on_hand,
+        reason: 'reservation_released',
+        note: `Rezervasyon serbest bırakıldı: ${reason}`,
+        related_order_id: orderId,
+        created_by: 'payment_callback'
+      }).catch(() => null);
+    }
+    await updateRows(context, 'inventory_reservations', { id: reservation.id }, {
+      status: 'released',
+      released_at: new Date().toISOString()
+    }).catch(() => null);
+    released += 1;
+  }
+  return { released };
+}
+
+export async function convertInventoryReservations(context, orderId) {
+  if (!orderId) return { converted: 0, deducted: 0 };
+  const reservations = await selectRows(context, 'inventory_reservations', {
+    select: '*',
+    order_id: `eq.${orderId}`,
+    status: 'eq.active',
+    order: 'created_at.asc'
+  }).catch(() => []);
+  let converted = 0;
+  let deducted = 0;
+  for (const reservation of reservations || []) {
+    const slug = normalizeSlug(reservation.product_slug);
+    const qty = Math.max(1, Number(reservation.quantity || 1));
+    const current = (await getInventoryRows(context, [slug]).catch(() => []))[0];
+    if (!current) continue;
+    const previous = current.stock_on_hand;
+    const nextStock = current.allow_backorder ? previous - qty : Math.max(0, previous - qty);
+    await updateRows(context, 'product_inventory', { product_slug: slug }, {
+      stock_on_hand: nextStock,
+      stock_reserved: Math.max(0, current.stock_reserved - qty),
+      updated_at: new Date().toISOString()
+    });
+    await updateRows(context, 'inventory_reservations', { id: reservation.id }, {
+      status: 'converted',
+      released_at: new Date().toISOString()
+    }).catch(() => null);
+    await insertRow(context, 'inventory_movements', {
+      product_slug: slug,
+      change: -qty,
+      previous_stock_on_hand: previous,
+      new_stock_on_hand: nextStock,
+      reason: 'order_paid',
+      note: 'Ödeme onayı sonrası rezervasyon kalıcı stok düşümüne çevrildi.',
+      related_order_id: orderId,
+      created_by: 'payment_callback'
+    }).catch(() => null);
+    converted += 1;
+    deducted += qty;
+  }
+  return { converted, deducted };
 }

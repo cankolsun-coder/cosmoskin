@@ -32,6 +32,16 @@ function getSender(env = {}) {
 }
 
 const STATUS_COPY = {
+  confirmed: {
+    subject: 'Siparişiniz onaylandı',
+    title: 'Siparişiniz onaylandı.',
+    body: 'Ödemeniz başarıyla alındı. Siparişiniz hazırlık sürecine geçti.'
+  },
+  packed: {
+    subject: 'Siparişiniz paketlendi',
+    title: 'Siparişiniz paketlendi.',
+    body: 'Siparişiniz kargoya teslim edilmek üzere paketlendi.'
+  },
   paid: {
     subject: 'Siparişiniz onaylandı',
     title: 'Siparişiniz onaylandı.',
@@ -164,18 +174,30 @@ function buildEmailHtml({ order = {}, status = '', message = '', shipment = {}, 
 </html>`;
 }
 
-export async function sendOrderStatusEmail(env, payload = {}) {
-  const order = payload.order || {};
-  const to = String(order.customer_email || '').trim().toLowerCase();
-  if (!to) return { sent: false, skipped: true, reason: 'customer_email_missing' };
+function buildPlainText({ order = {}, status = '', message = '', shipment = {}, env = {} }) {
+  const copy = STATUS_COPY[status] || {
+    subject: 'Sipariş durumunuz güncellendi',
+    body: 'Siparişiniz için yeni bir durum güncellemesi yapıldı.'
+  };
+  const orderNumber = order.order_number || order.id || '';
+  const lines = [
+    'COSMOSKIN',
+    copy.subject,
+    copy.body,
+    orderNumber ? `Sipariş No: ${orderNumber}` : '',
+    order.total_amount ? `Toplam: ${formatMoney(order.total_amount || 0, order.currency || 'TRY')}` : '',
+    shipment.carrier || shipment.carrier_name ? `Kargo Firması: ${shipment.carrier || shipment.carrier_name}` : '',
+    shipment.tracking_number ? `Takip No: ${shipment.tracking_number}` : '',
+    shipment.tracking_url ? `Takip Bağlantısı: ${shipment.tracking_url}` : '',
+    message ? `Not: ${message}` : '',
+    `Destek: ${env.CONTACT_FROM_EMAIL || 'info@cosmoskin.com.tr'}`
+  ];
+  return lines.filter(Boolean).join('\n');
+}
+
+async function sendBrevoEmail(env, payload = {}) {
+  if (!payload.to) return { sent: false, skipped: true, reason: 'customer_email_missing' };
   if (!env?.BREVO_API_KEY) return { sent: false, skipped: true, reason: 'BREVO_API_KEY_missing' };
-
-  const sender = getSender(env);
-  const status = String(payload.status || order.status || '').trim();
-  const copy = STATUS_COPY[status] || { subject: 'Sipariş durumunuz güncellendi' };
-  const subject = `${copy.subject} | ${order.order_number || 'COSMOSKIN'}`;
-  const htmlContent = buildEmailHtml({ ...payload, status, env });
-
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
@@ -184,14 +206,108 @@ export async function sendOrderStatusEmail(env, payload = {}) {
       accept: 'application/json'
     },
     body: JSON.stringify({
-      sender,
-      to: [{ email: to, name: `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.trim() || to }],
-      subject,
-      htmlContent
+      sender: payload.sender || getSender(env),
+      to: [{ email: payload.to, name: payload.toName || payload.to }],
+      subject: payload.subject,
+      htmlContent: payload.htmlContent,
+      textContent: payload.textContent || payload.plainTextContent || ''
     })
   });
 
   const detail = await response.text();
-  if (!response.ok) throw new Error(`Brevo error ${response.status}: ${detail}`);
-  return { sent: true, detail };
+  let parsed = null;
+  try { parsed = detail ? JSON.parse(detail) : null; } catch { parsed = null; }
+  if (!response.ok) throw new Error(`Brevo error ${response.status}`);
+  return { sent: true, provider: 'brevo', provider_message_id: parsed?.messageId || parsed?.messageIds?.[0] || null, detail: parsed || detail || null };
+}
+
+export async function sendOrderStatusEmail(env, payload = {}) {
+  const order = payload.order || {};
+  const to = String(order.customer_email || '').trim().toLowerCase();
+  if (!to) return { sent: false, skipped: true, reason: 'customer_email_missing' };
+  if (!env?.BREVO_API_KEY) return { sent: false, skipped: true, reason: 'BREVO_API_KEY_missing' };
+
+  const status = String(payload.status || order.status || '').trim();
+  const copy = STATUS_COPY[status] || { subject: 'Sipariş durumunuz güncellendi' };
+  const subject = `${copy.subject} | ${order.order_number || 'COSMOSKIN'}`;
+  const htmlContent = buildEmailHtml({ ...payload, status, env });
+  const textContent = buildPlainText({ ...payload, status, env });
+
+  return await sendBrevoEmail(env, {
+    to,
+    toName: `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.trim() || to,
+    subject,
+    htmlContent,
+    textContent
+  });
+}
+
+function buildShipmentEmailHtml({ order = {}, shipment = {}, env = {} }) {
+  const siteUrl = getSiteUrl(env);
+  const orderNumber = order.order_number || order.id || '';
+  const carrier = shipment.carrier_name || shipment.carrier || '';
+  const trackingNumber = shipment.tracking_number || '';
+  const trackingUrl = shipment.tracking_url || '';
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  return `<!DOCTYPE html>
+<html lang="tr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Siparişin kargoya verildi | COSMOSKIN</title></head>
+<body style="margin:0;padding:0;background:#f5f1ea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#181818;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;visibility:hidden;">COSMOSKIN siparişin kargoya verildi. Kargo durumunu takip bağlantısı üzerinden görüntüleyebilirsin.</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f1ea;margin:0;padding:24px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px;background:#fff;border:1px solid #e7ded2;border-radius:24px;overflow:hidden;">
+        <tr><td style="padding:30px 30px 26px;background:linear-gradient(180deg,#f8f2ea 0%,#efe4d6 100%);border-bottom:1px solid #e9dece;text-align:center;">
+          <a href="${siteUrl}" target="_blank" rel="noopener" style="text-decoration:none;color:#15110f;"><div style="font-size:21px;letter-spacing:4px;text-transform:uppercase;font-weight:750;">COSMOSKIN</div><div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8a7f72;margin-top:8px;">Premium Korean Skincare</div></a>
+        </td></tr>
+        <tr><td style="padding:36px 30px 30px;">
+          <div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#8a7f72;font-weight:800;margin-bottom:12px;">Kargo Güncellemesi</div>
+          <h1 style="margin:0;font-size:31px;line-height:1.16;font-weight:650;color:#15110f;">Siparişin kargoya verildi.</h1>
+          <p style="margin:16px 0 0;font-size:15px;line-height:1.9;color:#4f473f;">COSMOSKIN siparişin kargoya verildi. Kargo durumunu takip bağlantısı üzerinden görüntüleyebilirsin.</p>
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:24px;border-collapse:collapse;background:#fcfaf7;border:1px solid #eee4d9;border-radius:18px;overflow:hidden;">
+            <tr><td style="padding:16px 18px;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:#8a7f72;font-weight:800;border-bottom:1px solid #eee4d9;">Takip Bilgileri</td></tr>
+            ${orderNumber ? `<tr><td style="padding:12px 18px;font-size:14px;color:#4a4038;">Sipariş No: <strong style="color:#15110f;">${escapeHtml(orderNumber)}</strong></td></tr>` : ''}
+            ${carrier ? `<tr><td style="padding:12px 18px;font-size:14px;color:#4a4038;">Kargo Firması: <strong style="color:#15110f;">${escapeHtml(carrier)}</strong></td></tr>` : ''}
+            ${trackingNumber ? `<tr><td style="padding:12px 18px;font-size:14px;color:#4a4038;">Takip No: <strong style="color:#15110f;">${escapeHtml(trackingNumber)}</strong></td></tr>` : ''}
+          </table>
+        </td></tr>
+        <tr><td style="padding:0 30px 34px;text-align:center;">
+          ${trackingUrl ? `<a href="${escapeHtml(trackingUrl)}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 25px;border-radius:999px;background:#15110f;color:#fff;text-decoration:none;font-size:13px;font-weight:800;">Kargoyu Takip Et</a>` : `<a href="${siteUrl}/order-tracking.html" target="_blank" rel="noopener" style="display:inline-block;padding:14px 25px;border-radius:999px;background:#15110f;color:#fff;text-decoration:none;font-size:13px;font-weight:800;">Kargoyu Takip Et</a>`}
+        </td></tr>
+        <tr><td style="padding:20px 28px;background:#faf7f2;border-top:1px solid #eee5da;font-size:12px;line-height:1.8;color:#857a6f;text-align:center;">Soruların için <a href="mailto:${escapeHtml(supportEmail)}" style="color:#15110f;text-decoration:none;">${escapeHtml(supportEmail)}</a> adresinden bize ulaşabilirsin.</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+function buildShipmentPlainText({ order = {}, shipment = {}, env = {} }) {
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  return [
+    'COSMOSKIN',
+    'Siparişin kargoya verildi',
+    'COSMOSKIN siparişin kargoya verildi. Kargo durumunu takip bağlantısı üzerinden görüntüleyebilirsin.',
+    order.order_number || order.id ? `Sipariş No: ${order.order_number || order.id}` : '',
+    shipment.carrier_name || shipment.carrier ? `Kargo Firması: ${shipment.carrier_name || shipment.carrier}` : '',
+    shipment.tracking_number ? `Takip No: ${shipment.tracking_number}` : '',
+    shipment.tracking_url ? `Kargoyu Takip Et: ${shipment.tracking_url}` : '',
+    `Destek: ${supportEmail}`
+  ].filter(Boolean).join('\n');
+}
+
+export async function sendShipmentEmail(env, payload = {}) {
+  const order = payload.order || {};
+  const shipment = payload.shipment || {};
+  const to = String(payload.to || order.customer_email || '').trim().toLowerCase();
+  if (!to) return { sent: false, skipped: true, reason: 'customer_email_missing' };
+  if (!env?.BREVO_API_KEY) return { sent: false, skipped: true, reason: 'BREVO_API_KEY_missing' };
+  const subject = 'Siparişin kargoya verildi';
+  return await sendBrevoEmail(env, {
+    to,
+    toName: `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.trim() || to,
+    subject,
+    htmlContent: buildShipmentEmailHtml({ order, shipment, env }),
+    textContent: buildShipmentPlainText({ order, shipment, env })
+  });
 }

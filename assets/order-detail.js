@@ -5,13 +5,13 @@
   var moneyFmt = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
 
   var statusLabels = {
-    pending_payment: 'Ödeme Bekleniyor', paid: 'Ödeme Alındı', preparing: 'Hazırlanıyor', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', payment_failed: 'Ödeme Başarısız', refunded: 'İade Edildi', partially_refunded: 'Kısmi İade'
+    pending: 'Sipariş Alındı', pending_payment: 'Ödeme Bekleniyor', confirmed: 'Ödeme Onaylandı', paid: 'Ödeme Alındı', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', payment_failed: 'Ödeme Başarısız', refunded: 'İade Edildi', partially_refunded: 'Kısmi İade', return_requested: 'İade Talebi', returned: 'İade Alındı'
   };
   var shipmentLabels = {
     not_started: 'Hazırlık bekliyor', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoda', delivered: 'Teslim edildi', cancelled: 'İptal edildi', returned: 'İade sürecinde'
   };
   var paymentLabels = {
-    pending: 'Beklemede', initiated: 'Başlatıldı', paid: 'Ödendi', failed: 'Başarısız', refunded: 'İade edildi', partially_refunded: 'Kısmi iade'
+    pending: 'Beklemede', authorized: 'Yetkilendirildi', initiated: 'Başlatıldı', paid: 'Ödendi', failed: 'Başarısız', refunded: 'İade edildi', partially_refunded: 'Kısmi iade', cancelled: 'İptal edildi'
   };
 
   function $(selector, root) { return (root || document).querySelector(selector); }
@@ -74,8 +74,8 @@
     var ship = String(shipment.status || '').toLowerCase();
     var cancelled = ['cancelled', 'payment_failed', 'failed', 'refunded', 'partially_refunded'].includes(status) || ['cancelled', 'returned'].includes(fulfillment) || ['cancelled', 'returned'].includes(ship);
     var current = 0;
-    if (['paid', 'preparing', 'shipped', 'delivered'].includes(status) || payment === 'paid' || order.paid_at) current = 1;
-    if (['preparing', 'shipped', 'delivered'].includes(status) || ['preparing', 'packed'].includes(fulfillment)) current = 2;
+    if (['confirmed', 'paid', 'preparing', 'packed', 'shipped', 'delivered'].includes(status) || payment === 'paid' || order.paid_at) current = 1;
+    if (['preparing', 'packed', 'shipped', 'delivered'].includes(status) || ['preparing', 'packed'].includes(fulfillment)) current = 2;
     if (['shipped', 'delivered'].includes(status) || fulfillment === 'shipped' || ship === 'shipped' || shipment.tracking_number || order.fulfilled_at) current = 3;
     if (status === 'delivered' || fulfillment === 'delivered' || ship === 'delivered' || order.delivered_at || shipment.delivered_at) current = 4;
     return [
