@@ -12,6 +12,7 @@
   var mounted = false;
   var delegatesBound = false;
   var resizeTimer = null;
+  var menuFocusTrapped = false;
   var guides = null;
   var currentPdpQty = 1;
   var listingState = { sort: 'featured', category: '', brand: '', query: '' };
@@ -287,7 +288,7 @@
   }
 
   function bottomNav(active) {
-    var items = [['home', 'Ana Sayfa', '/index.html', 'home'], ['grid', 'Ürünler', '/allproducts.html', 'list'], ['heart', 'Favoriler', '/account/profile.html#favorites', 'fav'], ['bag', 'Sepet', '/checkout.html', 'cart'], ['user', 'Hesabım', '/account/profile.html', 'account']];
+    var items = [['home', 'Ana Sayfa', '/index.html', 'home'], ['grid', 'Ürünler', '/allproducts.html', 'list'], ['heart', 'Favoriler', '/account/profile.html?tab=favorites', 'fav'], ['bag', 'Sepet', '/checkout.html', 'cart'], ['user', 'Hesabım', '/account/profile.html', 'account']];
     return '<nav class="cm-bottom-nav" aria-label="Mobil alt navigasyon">' + items.map(function (i) {
       return '<a class="' + (active === i[3] ? 'is-active' : '') + '" href="' + i[2] + '">' + svg(i[0]) + '<span>' + i[1] + '</span>' + (i[3] === 'cart' ? '<span class="cm-badge" data-cm-cart-badge>0</span>' : '') + '</a>';
     }).join('') + '</nav>';
@@ -394,7 +395,7 @@
     var goals = ['Nem', 'Bariyer', 'Işıltı', 'Akne & Denge', 'Hassasiyet', 'Gözenek & Sebum'];
     var skins = ['Kuru', 'Karma', 'Yağlı', 'Hassas'];
     var score = Math.min(98, 86 + routineState.goals.length * 3 + (routineState.skin === 'Hassas' ? 1 : 0));
-    return '<div class="cm-routine-builder ' + (compact ? 'cm-routine-builder--compact' : '') + '" id="routine-commerce"><section class="cm-step-block"><h2>1. Cilt hedefini seç</h2><small>Seçimlere göre ürün önerileri anında güncellenir.</small><div class="cm-select-grid">' + goals.map(function (g) { var selected = routineState.goals.indexOf(g) !== -1; return '<button class="cm-select-chip ' + (selected ? 'is-selected' : '') + '" type="button" data-cm-routine-goal="' + escapeHtml(g) + '" aria-pressed="' + selected + '">' + svg(g === 'Nem' ? 'drop' : g === 'Bariyer' ? 'shield' : 'sparkle') + '<span>' + escapeHtml(g) + '</span></button>'; }).join('') + '</div></section><section class="cm-step-block"><h2>2. Cilt tipini seç</h2><div class="cm-select-grid cm-select-grid--skin">' + skins.map(function (s) { var selected = routineState.skin === s; return '<button class="cm-select-chip ' + (selected ? 'is-selected' : '') + '" type="button" data-cm-routine-skin="' + escapeHtml(s) + '" aria-pressed="' + selected + '">' + escapeHtml(s) + '</button>'; }).join('') + '</div></section><section class="cm-step-block"><h2>3. Rutin zamanı</h2><div class="cm-toggle"><button class="' + (routineState.period === 'day' ? 'is-active' : '') + '" type="button" data-cm-routine-period="day" aria-pressed="' + (routineState.period === 'day') + '">' + svg('sun') + ' Gündüz</button><button class="' + (routineState.period === 'night' ? 'is-active' : '') + '" type="button" data-cm-routine-period="night" aria-pressed="' + (routineState.period === 'night') + '">' + svg('moon') + ' Akşam</button></div></section><section class="cm-routine-card"><div class="cm-routine-card__head"><div><strong>' + escapeHtml(routineState.goals.join(' + ')) + ' Rutini</strong><span>' + escapeHtml(routineState.skin) + ' cilt için seçildi.</span></div><div class="cm-match">%' + score + '</div></div><div class="cm-routine-products">' + items.map(function (p, idx) { return '<a class="cm-routine-step" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '"><b>' + ['Temizleyici', 'Tonik', 'Serum', routineState.period === 'day' ? 'SPF' : 'Nem'][idx] + '</b><span>' + escapeHtml(p.brand) + '</span></a>'; }).join('') + '</div><div class="cm-set-price"><div><small>Set avantaj fiyatı</small><s>' + formatPrice(subtotal) + '</s><b>' + formatPrice(setPrice) + '</b></div><span>Sepette ürün bazında uygulanır</span></div><button class="cm-btn cm-btn--primary cm-btn--wide" type="button" data-cm-add-routine>TÜM RUTİNİ SEPETE EKLE</button><div class="cm-secondary-actions"><button class="cm-btn" type="button" data-cm-save-routine>Rutini Kaydet</button><a class="cm-btn" href="/collections/routine.html#routine-commerce">Rutini Gör</a></div></section></div>';
+    return '<div class="cm-routine-builder ' + (compact ? 'cm-routine-builder--compact' : '') + '" id="routine-commerce"><section class="cm-step-block"><h2>1. Cilt hedefini seç</h2><small>Seçimlere göre ürün önerileri anında güncellenir.</small><div class="cm-select-grid">' + goals.map(function (g) { var selected = routineState.goals.indexOf(g) !== -1; return '<button class="cm-select-chip ' + (selected ? 'is-selected' : '') + '" type="button" data-cm-routine-goal="' + escapeHtml(g) + '" aria-pressed="' + selected + '">' + svg(g === 'Nem' ? 'drop' : g === 'Bariyer' ? 'shield' : 'sparkle') + '<span>' + escapeHtml(g) + '</span></button>'; }).join('') + '</div></section><section class="cm-step-block"><h2>2. Cilt tipini seç</h2><div class="cm-select-grid cm-select-grid--skin">' + skins.map(function (s) { var selected = routineState.skin === s; return '<button class="cm-select-chip ' + (selected ? 'is-selected' : '') + '" type="button" data-cm-routine-skin="' + escapeHtml(s) + '" aria-pressed="' + selected + '">' + escapeHtml(s) + '</button>'; }).join('') + '</div></section><section class="cm-step-block"><h2>3. Rutin zamanı</h2><div class="cm-toggle"><button class="' + (routineState.period === 'day' ? 'is-active' : '') + '" type="button" data-cm-routine-period="day" aria-pressed="' + (routineState.period === 'day') + '">' + svg('sun') + ' Gündüz</button><button class="' + (routineState.period === 'night' ? 'is-active' : '') + '" type="button" data-cm-routine-period="night" aria-pressed="' + (routineState.period === 'night') + '">' + svg('moon') + ' Akşam</button></div></section><section class="cm-routine-card"><div class="cm-routine-card__head"><div><strong>' + escapeHtml(routineState.goals.join(' + ')) + ' Rutini</strong><span>' + escapeHtml(routineState.skin) + ' cilt için seçildi.</span></div><div class="cm-match">%' + score + '</div></div><div class="cm-routine-products">' + items.map(function (p, idx) { return '<a class="cm-routine-step" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '"><b>' + ['Temizleyici', 'Tonik', 'Serum', routineState.period === 'day' ? 'SPF' : 'Nem'][idx] + '</b><span>' + escapeHtml(p.brand) + '</span></a>'; }).join('') + '</div><div class="cm-set-price"><div><small>Set avantaj fiyatı</small><s>' + formatPrice(subtotal) + '</s><b>' + formatPrice(setPrice) + '</b></div><span>Sepette ürün bazında uygulanır</span></div><button class="cm-btn cm-btn--primary cm-btn--wide" type="button" data-cm-add-routine>TÜM RUTİNİ SEPETE EKLE</button><div class="cm-secondary-actions"><button class="cm-btn" type="button" data-cm-save-routine>Rutini Kaydet</button>' + (compact ? '<a class="cm-btn" href="/collections/routine.html">Rutini Gör</a>' : '<a class="cm-btn" href="/allproducts.html">Tüm Ürünleri Gör</a>') + '</div></section></div>';
   }
 
   function editSection() {
@@ -455,12 +456,13 @@
   }
 
   function pdpPage() {
+    currentPdpQty = 1;
     var p = getCurrentProduct();
     var guide = productGuide(p);
     var products = getProducts();
     var recs = products.filter(function (x) { return x.slug !== p.slug && (x.category === p.category || x.brand === p.brand); }).slice(0, 4);
     if (recs.length < 4) recs = recs.concat(products.filter(function (x) { return x.slug !== p.slug && recs.indexOf(x) === -1; }).slice(0, 4 - recs.length));
-    return '<div class="cm-mobile-page cm-mobile-pdp">' + header({ promo: false, back: true }) + '<section class="cm-pdp-hero" aria-label="Ürün görseli"><div class="cm-pdp-float"><button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="' + escapeHtml(p.slug) + '" data-id="' + escapeHtml(p.slug) + '" data-slug="' + escapeHtml(p.slug) + '" data-name="' + escapeHtml(p.name) + '" data-brand="' + escapeHtml(p.brand) + '" data-price="' + escapeHtml(p.price) + '" data-image="' + escapeHtml(p.image) + '" data-url="' + escapeHtml(p.url) + '">' + svg('heart') + '</button><button type="button" data-cm-share aria-label="Paylaş">' + svg('tag') + '</button></div><img class="cm-pdp-product" src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.brand + ' ' + p.name) + '"></section><section class="cm-pdp-info"><span class="cm-pdp-brand">' + escapeHtml(p.brand.toUpperCase()) + '</span><h1>' + escapeHtml(p.name) + '</h1><p>' + escapeHtml(guide.lead || (p.brand + ' ' + p.name + ' COSMOSKIN seçkisinde ' + (p.category || 'cilt bakım') + ' ürünü.')) + '</p><div class="cm-pdp-meta"><span class="cm-rating">Henüz değerlendirme yok</span><span>İlk yorumu sen yap</span></div><div class="cm-pdp-price-line"><b>' + formatPrice(p.price) + '</b><span>' + escapeHtml(p.volume || p.category || '') + '</span></div><div class="cm-qty-cta"><div class="cm-stepper" aria-label="Adet seçici"><button type="button" data-cm-pdp-dec aria-label="Adedi azalt">−</button><span data-cm-pdp-qty>' + currentPdpQty + '</span><button type="button" data-cm-pdp-inc aria-label="Adedi artır">+</button></div><button class="cm-btn cm-btn--primary" data-cm-add-cart="' + escapeHtml(p.slug) + '" data-cm-qty="pdp" type="button">SEPETE EKLE</button></div><div class="cm-delivery-note">' + svg('truck') + ' 2.500 TL ve üzeri alışverişlerde ücretsiz kargo.</div><div class="cm-accordion" aria-label="Ürün bilgileri">' + accordion('star', 'Öne Çıkan Faydalar', guide.benefits.join(', ')) + accordion('drop', 'Nasıl Kullanılır?', guide.usage) + accordion('shield', 'İçerik', guide.ingredients) + accordion('user', 'Kimler İçin Uygun?', guide.suitability) + '</div><div class="cm-section-head"><h2>Birlikte iyi gider</h2></div><div class="cm-reco-row">' + recs.map(miniProduct).join('') + '</div></section>' + bottomNav('list') + '</div>';
+    return '<div class="cm-mobile-page cm-mobile-pdp">' + header({ promo: false, back: true }) + '<section class="cm-pdp-hero" aria-label="Ürün görseli"><div class="cm-pdp-float"><button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="' + escapeHtml(p.slug) + '" data-id="' + escapeHtml(p.slug) + '" data-slug="' + escapeHtml(p.slug) + '" data-name="' + escapeHtml(p.name) + '" data-brand="' + escapeHtml(p.brand) + '" data-price="' + escapeHtml(p.price) + '" data-image="' + escapeHtml(p.image) + '" data-url="' + escapeHtml(p.url) + '">' + svg('heart') + '</button><button type="button" data-cm-share aria-label="Paylaş">' + svg('tag') + '</button></div><img class="cm-pdp-product" src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.brand + ' ' + p.name) + '"></section><section class="cm-pdp-info"><span class="cm-pdp-brand">' + escapeHtml(p.brand.toUpperCase()) + '</span><h1>' + escapeHtml(p.name) + '</h1><p>' + escapeHtml(guide.lead || (p.brand + ' ' + p.name + ' COSMOSKIN seçkisinde ' + (p.category || 'cilt bakım') + ' ürünü.')) + '</p><div class="cm-pdp-meta"><span class="cm-rating">Henüz değerlendirme yok</span><span>İlk yorumu sen yap</span></div><div class="cm-pdp-price-line"><b>' + formatPrice(p.price) + '</b><span>' + escapeHtml(p.volume || p.category || '') + '</span></div><div class="cm-qty-cta"><div class="cm-stepper" aria-label="Adet seçici"><button type="button" data-cm-pdp-dec aria-label="Adedi azalt">−</button><span data-cm-pdp-qty>' + currentPdpQty + '</span><button type="button" data-cm-pdp-inc aria-label="Adedi artır">+</button></div><button class="cm-btn cm-btn--primary" data-cm-add-cart="' + escapeHtml(p.slug) + '" data-cm-qty="pdp" type="button">SEPETE EKLE</button></div><div class="cm-delivery-note">' + svg('truck') + ' 2.500 TL ve üzeri alışverişlerde ücretsiz kargo.</div><div class="cm-accordion" aria-label="Ürün bilgileri">' + accordion('star', 'Öne Çıkan Faydalar', guide.benefits.join(' · ')) + accordion('drop', 'Nasıl Kullanılır?', guide.usage) + accordion('shield', 'İçerik', guide.ingredients) + accordion('user', 'Kimler İçin Uygun?', guide.suitability) + '</div><div class="cm-section-head"><h2>Birlikte iyi gider</h2></div><div class="cm-reco-row">' + recs.map(miniProduct).join('') + '</div></section>' + bottomNav('list') + '</div>';
   }
 
   function routinePage() {
@@ -475,7 +477,7 @@
     var cart = getCart();
     var totals = cartTotals();
     if (!cart.length) return '<div class="cm-empty-state"><strong>Sepetin şu an boş.</strong><span>Seçtiğin ürünler burada görünecek.</span><a class="cm-btn cm-btn--primary" href="/allproducts.html">ALIŞVERİŞE BAŞLA</a></div>';
-    return '<div class="cm-cart-list">' + cart.map(function (item) { return '<article class="cm-cart-row"><a class="cm-cart-row__img" href="' + escapeHtml(item.url) + '"><img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.name) + '"></a><div><h2>' + escapeHtml(item.name) + '</h2><small>' + escapeHtml(item.brand) + '</small><b>' + formatPrice(item.price * item.qty) + '</b><div class="cm-stepper"><button type="button" data-cm-cart-dec="' + escapeHtml(item.slug) + '" aria-label="Adedi azalt">−</button><span>' + item.qty + '</span><button type="button" data-cm-cart-inc="' + escapeHtml(item.slug) + '" aria-label="Adedi artır">+</button></div></div><button class="cm-trash" type="button" data-cm-cart-remove="' + escapeHtml(item.slug) + '" aria-label="Ürünü sepetten çıkar">' + svg('trash') + '</button></article>'; }).join('') + '</div><form class="cm-coupon" data-cm-coupon-form><label>' + svg('tag') + '<input name="coupon" autocomplete="off" placeholder="Kupon kodu"></label><button type="submit">Uygula</button><span class="cm-coupon-status" data-cm-coupon-status></span></form><section class="cm-summary" aria-label="Sipariş özeti"><h2>Sipariş Özeti</h2><div class="cm-summary-row"><span>Ara Toplam</span><b>' + formatPrice(totals.subtotal) + '</b></div><div class="cm-summary-row"><span>Teslimat</span><b>' + (totals.shipping ? formatPrice(totals.shipping) : 'Ücretsiz') + '</b></div><div class="cm-summary-row is-total"><span>Toplam</span><b>' + formatPrice(totals.total) + '</b></div><div class="cm-campaign-note">' + svg('truck') + (totals.subtotal >= 2500 ? ' Ücretsiz kargo avantajı uygulandı.' : ' Ücretsiz kargo için ' + formatPrice(2500 - totals.subtotal) + ' daha ekleyebilirsin.') + '</div><a class="cm-btn cm-btn--primary cm-btn--wide" href="/checkout.html#checkoutForm" style="margin-top:13px">Ödemeye Geç ' + svg('chevron') + '</a></section><section class="cm-cart-trust"><div>' + svg('lock') + 'SSL<br>Güvenli Ödeme</div><div>' + svg('shield') + 'Orijinal<br>Ürün Garantisi</div><div>' + svg('truck') + '1-3 İş Günü<br>Teslimat</div></section>';
+    return '<div class="cm-cart-list">' + cart.map(function (item) { return '<article class="cm-cart-row"><a class="cm-cart-row__img" href="' + escapeHtml(item.url) + '"><img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.name) + '"></a><div><h2>' + escapeHtml(item.name) + '</h2><small>' + escapeHtml(item.brand) + '</small><b>' + formatPrice(item.price * item.qty) + '</b><div class="cm-stepper"><button type="button" data-cm-cart-dec="' + escapeHtml(item.slug) + '" aria-label="Adedi azalt">−</button><span>' + item.qty + '</span><button type="button" data-cm-cart-inc="' + escapeHtml(item.slug) + '" aria-label="Adedi artır">+</button></div></div><button class="cm-trash" type="button" data-cm-cart-remove="' + escapeHtml(item.slug) + '" aria-label="Ürünü sepetten çıkar">' + svg('trash') + '</button></article>'; }).join('') + '</div><form class="cm-coupon" data-cm-coupon-form><label>' + svg('tag') + '<input name="coupon" autocomplete="off" placeholder="Kupon kodu"></label><button type="submit">Uygula</button><span class="cm-coupon-status" data-cm-coupon-status></span></form><section class="cm-summary" aria-label="Sipariş özeti"><h2>Sipariş Özeti</h2><div class="cm-summary-row"><span>Ara Toplam</span><b>' + formatPrice(totals.subtotal) + '</b></div><div class="cm-summary-row"><span>Teslimat</span><b>' + (totals.shipping ? formatPrice(totals.shipping) : 'Ücretsiz') + '</b></div><div class="cm-summary-row is-total"><span>Toplam</span><b>' + formatPrice(totals.total) + '</b></div><div class="cm-campaign-note">' + svg('truck') + (totals.subtotal >= 2500 ? ' Ücretsiz kargo avantajı uygulandı.' : ' Ücretsiz kargo için ' + formatPrice(2500 - totals.subtotal) + ' daha ekleyebilirsin.') + '</div><button class="cm-btn cm-btn--primary cm-btn--wide" type="button" data-cm-proceed-checkout style="margin-top:13px">Ödemeye Geç ' + svg('chevron') + '</button></section><section class="cm-cart-trust"><div>' + svg('lock') + 'SSL<br>Güvenli Ödeme</div><div>' + svg('shield') + 'Orijinal<br>Ürün Garantisi</div><div>' + svg('truck') + '1-3 İş Günü<br>Teslimat</div></section>';
   }
 
   function emptyState(title, body) {
@@ -484,32 +486,124 @@
 
   function activeAccountTab() {
     var path = window.location.pathname;
-    var hash = (window.location.hash || '').replace('#', '');
+    var params = new URLSearchParams(window.location.search);
+    var tab = params.get('tab') || (window.location.hash || '').replace('#', '');
     if (/\/account\/orders\.html$/.test(path)) return 'orders';
     if (/\/account\/returns\.html$/.test(path)) return 'returns';
-    if (hash === 'favorites') return 'favorites';
-    if (hash === 'cart') return 'cart';
-    if (hash === 'help') return 'help';
-    if (hash === 'returns') return 'returns';
+    if (tab === 'orders') return 'orders';
+    if (tab === 'favorites') return 'favorites';
+    if (tab === 'cart') return 'cart';
+    if (tab === 'help') return 'help';
+    if (tab === 'returns') return 'returns';
     return 'overview';
   }
 
   function accountPage() {
     var tab = activeAccountTab();
-    var tabs = [['overview', 'Hesabım', '/account/profile.html'], ['orders', 'Siparişlerim', '/account/orders.html'], ['favorites', 'Favorilerim', '/account/profile.html#favorites'], ['cart', 'Sepetim', '/account/profile.html#cart'], ['help', 'Yardım ve Destek', '/account/profile.html#help'], ['returns', 'İade ve Teslimat', '/account/profile.html#returns']];
-    return '<div class="cm-mobile-page cm-mobile-account">' + header({ promo: false }) + '<section class="cm-account-hero"><div><p class="cm-kicker">COSMOSKIN hesabı</p><h1>Alışverişini tek yerden yönet.</h1><p>Siparişler, favoriler, sepet ve destek akışları kompakt bir mobil panelde.</p></div><span class="cm-account-mark">CS</span></section><nav class="cm-account-tabs" aria-label="Hesap bölümleri">' + tabs.map(function (t) { return '<a class="' + (tab === t[0] ? 'is-active' : '') + '" href="' + t[2] + '">' + escapeHtml(t[1]) + '</a>'; }).join('') + '</nav><div class="cm-account-content">' + accountContent(tab) + '</div><button class="cm-logout" type="button" data-cm-logout>Çıkış Yap</button>' + bottomNav(tab === 'favorites' ? 'fav' : 'account') + '</div>';
+    var tabs = [
+      ['overview', 'Hesabım', '/account/profile.html'],
+      ['orders', 'Siparişlerim', '/account/profile.html?tab=orders'],
+      ['favorites', 'Favorilerim', '/account/profile.html?tab=favorites'],
+      ['cart', 'Sepetim', '/account/profile.html?tab=cart'],
+      ['help', 'Yardım ve Destek', '/account/profile.html?tab=help'],
+      ['returns', 'İade ve Teslimat', '/account/profile.html?tab=returns']
+    ];
+    return '<div class="cm-mobile-page cm-mobile-account">' + header({ promo: false }) +
+      '<section class="cm-account-hero"><div><p class="cm-kicker">COSMOSKIN hesabı</p><h1>Alışverişini tek yerden yönet.</h1><p>Siparişler, favoriler, sepet ve destek akışları kompakt bir mobil panelde.</p></div><span class="cm-account-mark">CS</span></section>' +
+      '<nav class="cm-account-tabs" aria-label="Hesap bölümleri">' +
+      tabs.map(function (t) {
+        var active = tab === t[0];
+        return '<a class="' + (active ? 'is-active' : '') + '" href="' + t[2] + '" aria-current="' + (active ? 'page' : 'false') + '" data-cm-account-tab="' + t[0] + '">' + escapeHtml(t[1]) + '</a>';
+      }).join('') +
+      '</nav><div class="cm-account-content" aria-live="polite" aria-label="Hesap içeriği">' + accountContent(tab) + '</div>' +
+      '<button class="cm-logout" type="button" data-cm-logout>Çıkış Yap</button>' +
+      bottomNav(tab === 'favorites' ? 'fav' : 'account') + '</div>';
   }
 
   function accountContent(tab) {
-    if (tab === 'orders') return '<section class="cm-account-card"><h2>Siparişlerim</h2><p>Aktif sipariş bulunmuyor. Sipariş verdiğinde durum kartları burada listelenir.</p><a class="cm-btn cm-btn--primary" href="/allproducts.html">Alışverişe başla</a></section><section class="cm-account-card cm-info-list"><h3>Sipariş akışı</h3><p>Hazırlanıyor, kargoda ve teslim edildi durumları tek kartta takip edilir.</p></section>';
+    if (tab === 'orders') {
+      return '<section class="cm-account-card">' +
+        '<h2>Siparişlerim</h2>' +
+        '<p>Aktif siparişlerin burada listelenir. Kargo durumu ve teslimat bilgilerini tek ekrandan takip edebilirsin.</p>' +
+        '<div class="cm-empty-state cm-empty-state--inline"><strong>Henüz sipariş yok.</strong><span>İlk siparişini verdikten sonra durum kartları burada görünür.</span></div>' +
+        '<a class="cm-btn cm-btn--primary" style="display:inline-flex;margin-top:12px" href="/allproducts.html">Alışverişe Başla</a>' +
+        '</section>' +
+        '<section class="cm-account-card">' +
+        '<h3>Sipariş takibi</h3>' +
+        '<div class="cm-info-list">' +
+        '<p>Siparişler hazırlık aşaması sonrası kargoya verilir.</p>' +
+        '<p>Kargo numarası ve beklenen teslimat tarihi sipariş kartında gösterilir.</p>' +
+        '<p>İptal ve iade talepleri İade ve Teslimat sekmesinden başlatılabilir.</p>' +
+        '</div>' +
+        '</section>';
+    }
     if (tab === 'favorites') {
       var favs = favoriteList().map(function (f) { return normalizeProduct(f) || getProductBySlug(f.slug || f.id); }).filter(Boolean);
-      return '<section class="cm-account-card"><h2>Favorilerim</h2><p>Beğendiğin ürünleri hızlıca sepete ekleyebilirsin.</p></section>' + (favs.length ? '<div class="cm-product-grid cm-product-grid--compact">' + favs.map(productCard).join('') + '</div>' : emptyState('Henüz favori ürün yok.', 'Ürün kartlarındaki kalp ikonuyla favorilerine ekleyebilirsin.'));
+      var favCount = favs.length;
+      return '<section class="cm-account-card cm-account-card--compact">' +
+        '<h2>Favorilerim</h2>' +
+        '<p>' + (favCount ? favCount + ' ürün favorine eklendi. Sepete eklemek için ürün kartına tıkla.' : 'Beğendiğin ürünleri ürün kartlarındaki kalp ikonuyla ekleyebilirsin.') + '</p>' +
+        '</section>' +
+        (favCount ? '<div class="cm-product-grid cm-product-grid--compact">' + favs.map(productCard).join('') + '</div>' : emptyState('Henüz favori ürün yok.', 'Ürün kartlarındaki kalp ikonuyla favorilerine ekleyebilirsin.'));
     }
     if (tab === 'cart') return cartContentHtml();
-    if (tab === 'help') return '<section class="cm-account-card"><h2>Yardım ve Destek</h2><p>Sipariş, ürün seçimi veya teslimat soruların için destek ekibimize ulaş.</p><a class="cm-support-link" href="mailto:destek@cosmoskin.com.tr">' + svg('mail') + '<span>destek@cosmoskin.com.tr</span></a><a class="cm-support-link" href="/contact.html">' + svg('shield') + '<span>Destek sayfasını aç</span></a></section>';
-    if (tab === 'returns') return '<section class="cm-account-card"><h2>İade ve Teslimat</h2><p>Kullanılmamış ve yeniden satılabilir ürünlerde 14 gün içinde iade talebi oluşturabilirsin.</p><div class="cm-info-list"><p><b>Teslimat:</b> Siparişler hazırlık sonrası kargoya verilir.</p><p><b>İade:</b> Ürün ve ambalaj bütünlüğü korunmalıdır.</p><p><b>Destek:</b> Talep durumunu hesabından takip edebilirsin.</p></div><a class="cm-btn" href="/iade-degisim.html">Detayları Gör</a></section>';
-    return '<section class="cm-account-card"><h2>Hesabım</h2><div class="cm-profile-grid"><div><small>Üyelik</small><strong>Essential</strong></div><div><small>Favoriler</small><strong>' + favoriteList().length + '</strong></div><div><small>Sepet</small><strong>' + cartTotals().count + '</strong></div></div></section><section class="cm-account-card"><h3>Kişisel bilgiler</h3><p>Profil bilgileri, adresler ve bildirim tercihleri masaüstü hesap altyapısıyla aynı veriye bağlı kalacak şekilde korunur.</p><a class="cm-btn" href="/account/profile.html?tab=profile">Bilgileri Yönet</a></section><section class="cm-account-card"><h3>Kayıtlı adresler</h3><p>Varsayılan teslimat adresi ve düzenleme akışları hesap panelinden yönetilir.</p><a class="cm-btn" href="/account/profile.html?tab=addresses">Adresleri Yönet</a></section>';
+    if (tab === 'help') {
+      return '<section class="cm-account-card">' +
+        '<h2>Yardım ve Destek</h2>' +
+        '<p>Sipariş, ürün seçimi veya teslimat konularında destek ekibimize ulaşabilirsin.</p>' +
+        '<a class="cm-support-link" href="mailto:destek@cosmoskin.com.tr">' + svg('mail') + '<span>destek@cosmoskin.com.tr</span></a>' +
+        '<a class="cm-support-link" href="/contact.html">' + svg('shield') + '<span>İletişim formunu aç</span></a>' +
+        '</section>' +
+        '<section class="cm-account-card">' +
+        '<h3>Sık sorulan konular</h3>' +
+        '<div class="cm-help-links">' +
+        '<a href="/teslimat-kargo.html">' + svg('truck') + '<span>Teslimat ve kargo bilgileri</span></a>' +
+        '<a href="/iade-degisim.html">' + svg('cube') + '<span>İade ve değişim koşulları</span></a>' +
+        '<a href="/account/profile.html?tab=returns">' + svg('chevron') + '<span>İade talebi başlat</span></a>' +
+        '</div>' +
+        '</section>';
+    }
+    if (tab === 'returns') {
+      return '<section class="cm-account-card">' +
+        '<h2>İade ve Teslimat</h2>' +
+        '<p>Kullanılmamış ürünlerde teslimattan itibaren 14 gün içinde iade talebi oluşturabilirsin.</p>' +
+        '<a class="cm-btn cm-btn--primary" href="/iade-degisim.html">İade Koşullarını Gör</a>' +
+        '</section>' +
+        '<section class="cm-account-card">' +
+        '<h3>Teslimat bilgileri</h3>' +
+        '<div class="cm-info-list">' +
+        '<p><b>Ücretsiz kargo:</b> 2.500 TL ve üzeri siparişlerde.</p>' +
+        '<p><b>Süre:</b> Hazırlık tamamlandıktan sonra 1–3 iş günü.</p>' +
+        '<p><b>Takip:</b> Kargo numarası e-posta ile iletilir.</p>' +
+        '</div>' +
+        '</section>' +
+        '<section class="cm-account-card">' +
+        '<h3>İade koşulları</h3>' +
+        '<div class="cm-info-list">' +
+        '<p><b>Süre:</b> Teslim tarihinden itibaren 14 gün.</p>' +
+        '<p><b>Durum:</b> Ürün kullanılmamış, ambalajı sağlam olmalıdır.</p>' +
+        '<p><b>Başvuru:</b> <a href="/contact.html">Destek ekibimize yazarak</a> başlatabilirsin.</p>' +
+        '</div>' +
+        '</section>';
+    }
+    return '<section class="cm-account-card">' +
+      '<h2>Hesabım</h2>' +
+      '<div class="cm-profile-grid">' +
+      '<div><small>Üyelik</small><strong>Essential</strong></div>' +
+      '<div><small>Favoriler</small><strong>' + favoriteList().length + '</strong></div>' +
+      '<div><small>Sepette</small><strong>' + cartTotals().count + '</strong></div>' +
+      '</div>' +
+      '</section>' +
+      '<section class="cm-account-card">' +
+      '<h3>Kişisel bilgiler</h3>' +
+      '<p>Ad, e-posta ve bildirim tercihleri masaüstü hesap panelinden yönetilir.</p>' +
+      '<a class="cm-btn" href="/account/profile.html?tab=profile">Profili Düzenle</a>' +
+      '</section>' +
+      '<section class="cm-account-card">' +
+      '<h3>Kayıtlı adresler</h3>' +
+      '<p>Varsayılan teslimat adresi ve düzenleme akışları hesap panelinden yönetilir.</p>' +
+      '<a class="cm-btn" href="/account/profile.html?tab=addresses">Adresleri Yönet</a>' +
+      '</section>';
   }
 
   function supportPage() {
@@ -525,7 +619,7 @@
     function card(icon, title, href) { return '<a class="cm-menu-card" href="' + href + '">' + svg(icon) + '<span>' + title + '</span></a>'; }
     function link(icon, title, href) { return '<a class="cm-menu-link" href="' + href + '">' + svg(icon) + '<span>' + title + '</span>' + svg('chevron') + '</a>'; }
     var brandLinks = BRAND_LOGOS.map(function (b) { return '<a href="' + brandHref(b) + '"><img src="/assets/img/brands/' + b + '.svg" alt="' + escapeHtml(brandNameFromSlug(b)) + '"><span>' + escapeHtml(brandNameFromSlug(b)) + '</span></a>'; }).join('');
-    return '<div class="cm-menu-dim" data-cm-menu-close aria-hidden="true"></div><aside class="cm-menu-panel" id="cm-mobile-menu" role="dialog" aria-modal="true" aria-label="COSMOSKIN mobil menü" aria-hidden="true"><div class="cm-menu-head"><button class="cm-menu-close" type="button" data-cm-menu-close aria-label="Menüyü kapat">' + svg('close') + '</button><div><div class="cm-menu-logo">COSMOSKIN</div><div class="cm-menu-welcome">' + svg('leaf') + ' Merhaba, güzelliğine iyi bak.</div></div></div><nav class="cm-menu-main" aria-label="Genel navigasyon">' + link('grid', 'Tüm Ürünler', '/allproducts.html') + '<details class="cm-menu-accordion"><summary>' + svg('tag') + '<span>Markalar</span>' + svg('chevron') + '</summary><div class="cm-menu-brand-list">' + brandLinks + '</div></details>' + link('star', 'Çok Satanlar', '/index.html#bestsellers') + link('bottle', 'Rutinler', '/collections/routine.html') + link('shield', 'Destek', '/contact.html') + '</nav><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Hızlı Kategoriler</h3><a href="/allproducts.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('bottle', 'Temizleyiciler', '/collections/cleanse.html') + card('drop', 'Tonik & Essence', '/collections/hydrate.html') + card('sparkle', 'Serum & Ampul', '/collections/treat.html') + card('cube', 'Nemlendiriciler', '/collections/care.html') + card('shield', 'Güneş Koruyucular', '/collections/protect.html') + card('leaf', 'Maskeler', '/collections/masks.html') + '</div></section><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Cilt Hedeflerine Göre Keşif</h3><a href="/collections/routine.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('drop', 'Nem', '/collections/hydration.html') + card('shield', 'Bariyer', '/collections/barrier.html') + card('sparkle', 'Işıltı', '/collections/glow.html') + card('leaf', 'Akne & Denge', '/collections/acne-balance.html') + card('heart', 'Hassasiyet', '/collections/sensitivity.html') + card('grid', 'Gözenek & Sebum', '/collections/pore-sebum.html') + '</div></section><nav class="cm-service-links" aria-label="Hesap ve destek">' + link('user', 'Hesabım', '/account/profile.html') + link('cube', 'Siparişlerim', '/account/orders.html') + link('heart', 'Favorilerim', '/account/profile.html#favorites') + link('bag', 'Sepetim', '/checkout.html') + link('shield', 'Yardım ve Destek', '/account/profile.html#help') + link('truck', 'İade ve Teslimat', '/account/profile.html#returns') + '</nav></aside>';
+    return '<div class="cm-menu-dim" data-cm-menu-close aria-hidden="true"></div><aside class="cm-menu-panel" id="cm-mobile-menu" role="dialog" aria-modal="true" aria-label="COSMOSKIN mobil menü" aria-hidden="true"><div class="cm-menu-head"><button class="cm-menu-close" type="button" data-cm-menu-close aria-label="Menüyü kapat">' + svg('close') + '</button><div><div class="cm-menu-logo">COSMOSKIN</div><div class="cm-menu-welcome">' + svg('leaf') + ' Merhaba, güzelliğine iyi bak.</div></div></div><nav class="cm-menu-main" aria-label="Genel navigasyon">' + link('grid', 'Tüm Ürünler', '/allproducts.html') + '<details class="cm-menu-accordion"><summary>' + svg('tag') + '<span>Markalar</span>' + svg('chevron') + '</summary><div class="cm-menu-brand-list">' + brandLinks + '</div></details>' + link('star', 'Çok Satanlar', '/index.html#bestsellers') + link('bottle', 'Rutinler', '/collections/routine.html') + link('shield', 'Destek', '/contact.html') + '</nav><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Hızlı Kategoriler</h3><a href="/allproducts.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('bottle', 'Temizleyiciler', '/collections/cleanse.html') + card('drop', 'Tonik & Essence', '/collections/hydrate.html') + card('sparkle', 'Serum & Ampul', '/collections/treat.html') + card('cube', 'Nemlendiriciler', '/collections/care.html') + card('shield', 'Güneş Koruyucular', '/collections/protect.html') + card('leaf', 'Maskeler', '/collections/masks.html') + '</div></section><section class="cm-menu-section"><div class="cm-menu-section__head"><h3>Cilt Hedeflerine Göre Keşif</h3><a href="/collections/routine.html">Tümünü Gör</a></div><div class="cm-menu-card-grid">' + card('drop', 'Nem', '/collections/hydration.html') + card('shield', 'Bariyer', '/collections/barrier.html') + card('sparkle', 'Işıltı', '/collections/glow.html') + card('leaf', 'Akne & Denge', '/collections/acne-balance.html') + card('heart', 'Hassasiyet', '/collections/sensitivity.html') + card('grid', 'Gözenek & Sebum', '/collections/pore-sebum.html') + '</div></section><nav class="cm-service-links" aria-label="Hesap ve destek">' + link('user', 'Hesabım', '/account/profile.html') + link('cube', 'Siparişlerim', '/account/orders.html') + link('heart', 'Favorilerim', '/account/profile.html?tab=favorites') + link('bag', 'Sepetim', '/checkout.html') + link('shield', 'Yardım ve Destek', '/account/profile.html?tab=help') + link('truck', 'İade ve Teslimat', '/account/profile.html?tab=returns') + '</nav></aside>';
   }
 
   function sheetHtml(kind) {
@@ -554,6 +648,7 @@
   function openMenu() {
     document.body.classList.add('cm-menu-open');
     document.documentElement.classList.add('cm-menu-open');
+    menuFocusTrapped = true;
     var panel = document.querySelector('.cm-menu-panel');
     var button = document.querySelector('[data-cm-menu]');
     if (panel) panel.setAttribute('aria-hidden', 'false');
@@ -565,6 +660,7 @@
   function closeMenu() {
     document.body.classList.remove('cm-menu-open');
     document.documentElement.classList.remove('cm-menu-open');
+    menuFocusTrapped = false;
     var panel = document.querySelector('.cm-menu-panel');
     var button = document.querySelector('[data-cm-menu]');
     if (panel) panel.setAttribute('aria-hidden', 'true');
@@ -650,6 +746,7 @@
     if (sheet) sheet.remove();
     document.body.classList.remove('cm-mobile-active', 'cm-menu-open', 'cm-sheet-open');
     document.documentElement.classList.remove('cm-mobile-active', 'cm-menu-open');
+    menuFocusTrapped = false;
     mounted = false;
   }
 
@@ -690,15 +787,55 @@
       var fav = target.closest('.favorite-btn'); if (fav && fav.closest('#' + ROOT_ID)) { fallbackToggleFavorite(fav); return; }
       if (target.closest('[data-cm-share]')) { if (navigator.share) navigator.share({ title: document.title, url: window.location.href }).catch(function () {}); else { navigator.clipboard && navigator.clipboard.writeText(window.location.href); toast('Bağlantı kopyalandı.'); } }
       if (target.closest('[data-cm-logout]')) { try { localStorage.removeItem('sb-auth-token'); sessionStorage.clear(); } catch (e) {} toast('Çıkış işlemi başlatıldı.'); window.setTimeout(function () { window.location.href = '/index.html'; }, 350); }
+      var accountTabLink = target.closest('[data-cm-account-tab]');
+      if (accountTabLink && getPageType() === 'account') {
+        event.preventDefault();
+        var newTab = accountTabLink.getAttribute('data-cm-account-tab');
+        var tabUrl = newTab === 'overview' ? '/account/profile.html' : '/account/profile.html?tab=' + newTab;
+        history.pushState({ cmTab: newTab }, '', tabUrl);
+        remount();
+        return;
+      }
+      if (target.closest('[data-cm-proceed-checkout]')) {
+        event.preventDefault();
+        if (getPageType() === 'cart') {
+          var root = document.getElementById(ROOT_ID);
+          var drawer = document.getElementById(DRAWER_ID);
+          if (root) root.style.display = 'none';
+          if (drawer) drawer.style.display = 'none';
+          document.documentElement.classList.remove('cm-mobile-active', 'cm-menu-open');
+          document.body.classList.remove('cm-mobile-active', 'cm-menu-open', 'cm-sheet-open');
+          menuFocusTrapped = false;
+          mounted = false;
+          var form = document.getElementById('checkoutForm');
+          if (form) window.setTimeout(function () { form.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+        } else {
+          window.location.href = '/checkout.html';
+        }
+        return;
+      }
     });
     document.addEventListener('submit', function (event) {
       if (event.target.matches('[data-cm-coupon-form]')) { event.preventDefault(); var status = event.target.querySelector('[data-cm-coupon-status]'); var input = event.target.querySelector('input[name="coupon"]'); if (status) status.textContent = input && input.value ? 'Kupon ödeme adımında doğrulanacak.' : 'Kupon kodu girilmedi.'; }
       if (event.target.matches('[data-cm-newsletter]')) { event.preventDefault(); toast('Haber bülteni kaydı alındı.'); }
     });
-    document.addEventListener('keydown', function (event) { if (event.key === 'Escape') { closeMenu(); closeSheet(); } });
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { closeMenu(); closeSheet(); return; }
+      if (event.key === 'Tab' && menuFocusTrapped) {
+        var panel = document.querySelector('.cm-menu-panel');
+        if (!panel) return;
+        var focusable = Array.prototype.slice.call(panel.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter(function (el) { return el.offsetParent !== null; });
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+        if (event.shiftKey) { if (document.activeElement === first) { event.preventDefault(); last.focus(); } }
+        else { if (document.activeElement === last) { event.preventDefault(); first.focus(); } }
+      }
+    });
     window.addEventListener('resize', function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(remount, 120); });
     window.addEventListener('orientationchange', function () { setTimeout(remount, 180); });
     window.addEventListener('hashchange', function () { if (getPageType() === 'account') remount(); });
+    window.addEventListener('popstate', function () { if (getPageType() === 'account') remount(); });
     window.addEventListener('cosmoskin:cart-updated', function () { updateBadges(); if (getPageType() === 'cart') renderCartMobile(); });
     window.addEventListener('storage', function (event) { if (event.key === STORAGE_CART || event.key === STORAGE_FAVORITES) { updateBadges(); syncFallbackFavoriteButtons(document); if (event.key === STORAGE_CART && getPageType() === 'cart') renderCartMobile(); } });
     document.addEventListener('cosmoskin:products-updated', function () { if (mounted) remount(); });
