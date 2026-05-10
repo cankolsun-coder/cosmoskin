@@ -64,6 +64,21 @@
   const mobileNav = $('#mobileNav');
   let megaTimer;
 
+
+  function alignMegaPanel(wrap) {
+    const mega = wrap?.querySelector('.mega');
+    if (!mega || window.innerWidth <= 768) return;
+    mega.style.setProperty('--mega-nudge-x', '0px');
+    requestAnimationFrame(() => {
+      const rect = mega.getBoundingClientRect();
+      const pad = 18;
+      let nudge = 0;
+      if (rect.left < pad) nudge = pad - rect.left;
+      if (rect.right > window.innerWidth - pad) nudge = (window.innerWidth - pad) - rect.right;
+      mega.style.setProperty('--mega-nudge-x', `${Math.round(nudge)}px`);
+    });
+  }
+
   function closeAllMegaMenus(exceptWrap = null) {
     ['.categories-wrap', '.brands-wrap'].forEach((selector) => {
       const wrap = $(selector);
@@ -403,6 +418,7 @@
       closeAllMegaMenus(wrap);
       wrap.classList.add('open');
       trigger?.setAttribute('aria-expanded', 'true');
+      alignMegaPanel(wrap);
     };
     const closeMenu = () => {
       clearTimeout(megaTimer);
@@ -417,6 +433,7 @@
       closeAllMegaMenus(willOpen ? wrap : null);
       wrap.classList.toggle('open', willOpen);
       trigger?.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      if (willOpen) alignMegaPanel(wrap);
     });
     wrap.addEventListener('mouseenter', () => window.innerWidth > 1150 && openMenu());
     wrap.addEventListener('mouseleave', () => window.innerWidth > 1150 && closeMenu());
@@ -424,6 +441,10 @@
 
   bindMegaMenu('.categories-wrap', '.categories-trigger');
   bindMegaMenu('.brands-wrap', '.brands-trigger');
+
+  window.addEventListener('resize', () => {
+    $$('.categories-wrap.open, .brands-wrap.open').forEach((wrap) => alignMegaPanel(wrap));
+  }, { passive: true });
 
 
   document.addEventListener('click', (event) => {

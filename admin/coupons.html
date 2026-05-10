@@ -1,3 +1,68 @@
-<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Admin Kupon Yönetimi | COSMOSKIN</title><link href="/favicon.png" rel="icon" type="image/png"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"><link href="/assets/style.css?v=20260418f" rel="stylesheet"><link href="/assets/phase6-commerce.css?v=20260502final" rel="stylesheet"><link href="/assets/mobile-redesign.css?v=20260510-phase9" rel="stylesheet"/>
-</head><body><main><section class="phase6-admin-shell"><div class="phase6-admin-hero"><p class="phase6-eyebrow">Admin</p><h1>Kupon ve kampanya yönetimi</h1><p>Kupon oluştur, aktif/pasif yap ve checkout doğrulama akışını yönet.</p></div><div class="phase6-form-card"><div class="phase6-two-col"><label class="phase6-field">Admin Token<input id="couponAdminToken" type="password" placeholder="Cloudflare ADMIN_TOKEN"></label><button class="btn btn-primary" id="couponLoad" type="button">Kuponları Yükle</button></div><div class="phase6-coupon-status" id="couponAdminStatus"></div></div><div class="phase6-form-card"><h2>Yeni kupon</h2><div class="phase6-two-col"><label class="phase6-field">Kod<input id="couponCode" placeholder="COSMOSKIN10"></label><label class="phase6-field">Başlık<input id="couponTitle" placeholder="İlk alışveriş indirimi"></label><label class="phase6-field">Tip<select id="couponType"><option value="percent">Yüzde</option><option value="fixed">Sabit TL</option><option value="free_shipping">Ücretsiz kargo</option></select></label><label class="phase6-field">Değer<input id="couponValue" type="number" value="10"></label><label class="phase6-field">Minimum sepet<input id="couponMin" type="number" value="750"></label><label class="phase6-field">Maksimum indirim<input id="couponMax" type="number" value="300"></label></div><button class="btn btn-primary" id="couponCreate" type="button">Kupon Oluştur</button></div><div class="phase6-form-card"><table class="phase6-admin-table"><thead><tr><th>Kod</th><th>Tip</th><th>Değer</th><th>Minimum</th><th>Durum</th><th>Aksiyon</th></tr></thead><tbody id="couponRows"><tr><td colspan="6">Kuponlar yüklenmedi.</td></tr></tbody></table></div></section></main><script src="/assets/admin-coupons.js?v=20260502final"></script><script src="/assets/mobile-redesign.js?v=20260510-phase9" defer></script>
-</body></html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Kuponlar | COSMOSKIN Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511-admin-unified" />
+</head>
+<body class="cs-admin-page" data-admin-page="coupons">
+<div class="cs-admin-shell">
+<aside class="cs-admin-sidebar" aria-label="COSMOSKIN Admin navigasyonu">
+  <a class="cs-admin-brand" href="/admin/"><span>COSMOSKIN</span><small>Admin</small></a>
+  <nav>
+    <a href="/admin/">Panel</a>
+    <a href="/admin/inventory.html">Stok</a>
+    <a href="/admin/orders/">Siparişler</a>
+    <a href="/admin/shipments.html">Kargo</a>
+    <a href="/admin/returns.html">İade</a>
+    <a href="/admin/products.html">Ürünler</a>
+    <a href="/admin/customers.html">Müşteriler</a>
+    <a href="/admin/reviews/">Yorumlar</a>
+    <a href="/admin/email-logs.html">E-posta Logları</a>
+    <a href="/admin/invoices.html">Faturalar</a>
+    <a href="/admin/suppliers.html">Tedarikçiler</a>
+    <a href="/admin/compliance.html">Uyumluluk</a>
+    <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+    <a href="/admin/admin-users.html">Admin Rolleri</a>
+  </nav>
+</aside>
+<main class="cs-admin-main">
+  <header class="cs-admin-topbar">
+    <div>
+      <p class="cs-admin-kicker">Operasyon</p>
+      <h1>Kupon ve Kampanya Yönetimi</h1>
+      <p>Kupon oluşturma, aktifleştirme ve checkout kampanya kontrollerini tek ekrandan yönetin.</p>
+    </div>
+    <a class="cs-admin-ghost" href="/admin/orders/">Siparişlere Git</a>
+  </header>
+  <section class="cs-session-card" aria-label="Admin oturumu">
+    <label>Admin Token<input id="couponAdminToken" type="password" placeholder="Cloudflare ADMIN_TOKEN" autocomplete="off" /></label>
+    <button class="cs-primary-btn" id="couponLoad" type="button">Kuponları Yükle</button>
+    <p id="couponAdminStatus" class="cs-admin-status" aria-live="polite"></p>
+  </section>
+  <section class="cs-table-card">
+    <div class="cs-table-head"><div><p class="cs-admin-kicker">Yeni Kampanya</p><h2>Kupon oluştur</h2></div></div>
+    <div class="cs-admin-form-grid">
+      <label>Kod<input id="couponCode" class="cs-row-input" placeholder="COSMOSKIN10" /></label>
+      <label>Başlık<input id="couponTitle" class="cs-row-input" placeholder="İlk alışveriş indirimi" /></label>
+      <label>Tip<select id="couponType" class="cs-row-select"><option value="percent">Yüzde</option><option value="fixed">Sabit TL</option><option value="free_shipping">Ücretsiz kargo</option></select></label>
+      <label>Değer<input id="couponValue" class="cs-row-input" type="number" value="10" /></label>
+      <label>Minimum sepet<input id="couponMin" class="cs-row-input" type="number" value="750" /></label>
+      <label>Maksimum indirim<input id="couponMax" class="cs-row-input" type="number" value="300" /></label>
+    </div>
+    <button class="cs-primary-btn" id="couponCreate" type="button">Kupon Oluştur</button>
+  </section>
+  <section class="cs-table-card">
+    <div class="cs-table-head"><div><p class="cs-admin-kicker">Kampanyalar</p><h2>Kupon listesi</h2></div></div>
+    <table class="cs-admin-table"><thead><tr><th>Kod</th><th>Tip</th><th>Değer</th><th>Minimum</th><th>Durum</th><th>Aksiyon</th></tr></thead><tbody id="couponRows"><tr><td colspan="6">Kuponlar yüklenmedi.</td></tr></tbody></table>
+  </section>
+</main>
+</div>
+<script src="/assets/admin-coupons.js?v=20260511-admin-unified" defer></script>
+</body>
+</html>

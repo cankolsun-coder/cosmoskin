@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="robots" content="noindex, nofollow" />
-<title>Review Moderation Console · COSMOSKIN Admin</title>
+<title>Yorum Moderasyon Paneli · COSMOSKIN Admin</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -1291,7 +1291,6 @@
     }
   }
 </style>
-<link href="/assets/mobile-redesign.css?v=20260510-phase9" rel="stylesheet"/>
 </head>
 <body>
 
@@ -1299,7 +1298,7 @@
   <div class="auth-card">
     <div class="auth-hero">
       <span class="auth-kicker">COSMOSKIN Admin</span>
-      <h1 class="auth-title">Review moderation, gerçek e-ticaret operasyon standardında.</h1>
+      <h1 class="auth-title">Yorum moderasyonu, gerçek e-ticaret operasyon standardında.</h1>
       <p class="auth-copy">
         Bekleyen yorumları, kullanıcı görsellerini ve ürün bağlarını tek akışta yönetmek için
         admin token ile giriş yapın.
@@ -1318,7 +1317,7 @@
       </div>
       <div class="auth-actions">
         <button class="primary-btn" id="loginBtn" type="button">Giriş Yap</button>
-        <div class="auth-meta">Token localStorage'da saklanır, ekranda veya panelde açıkça gösterilmez.</div>
+        <div class="auth-meta">Token yalnızca bu tarayıcı oturumunda saklanır; ekranda veya panelde açıkça gösterilmez.</div>
       </div>
       <div class="auth-error" id="loginError"></div>
     </div>
@@ -1330,8 +1329,8 @@
     <div class="sidebar-inner">
       <section class="brand-card">
         <div class="brand-mark">C</div>
-        <span class="sidebar-kicker">Moderation Console</span>
-        <h2 class="brand-title">COSMOSKIN Reviews</h2>
+        <span class="sidebar-kicker">Moderasyon Paneli</span>
+        <h2 class="brand-title">COSMOSKIN Yorumlar</h2>
         <p class="brand-copy">
           Ürün yorumları, sipariş bağları ve kullanıcı görselleri tek panelde. Moderasyon kararı
           verdikçe sayaçlar ve liste anlık güncellenir.
@@ -1390,8 +1389,8 @@
   <div class="workspace">
     <header class="topbar">
       <div class="topbar-left">
-        <span class="section-kicker">Professional Moderation Desk</span>
-        <h1 class="topbar-title hero-title">Review moderation dashboard</h1>
+        <span class="section-kicker">Profesyonel Moderasyon Masası</span>
+        <h1 class="topbar-title hero-title">Yorum Moderasyon Paneli</h1>
         <p class="topbar-copy">
           Ürün, kullanıcı, sipariş ve görsel sinyallerini tek kartta toplayan kompakt admin panel.
         </p>
@@ -1407,7 +1406,7 @@
     <main class="content">
       <section class="hero">
         <div>
-          <span class="section-kicker">Operations Snapshot</span>
+          <span class="section-kicker">Operasyon Özeti</span>
           <h2 class="hero-title">Yoğunluğu azaltan, karar hızını artıran moderasyon akışı.</h2>
           <p class="hero-copy">
             Bekleyen yorumları önceleyen, ürün bilgisini otomatik bağlayan ve kullanıcı görsellerini
@@ -1456,7 +1455,7 @@
   <div class="lightbox-dialog">
     <div class="lightbox-top">
       <div>
-        <div class="mini-label">Review Image</div>
+        <div class="mini-label">Yorum Görseli</div>
         <strong id="lightboxTitle">Kullanıcı görseli</strong>
       </div>
       <button class="ghost-btn" id="lightboxClose" type="button">Kapat</button>
@@ -1472,7 +1471,7 @@
 (function () {
   'use strict';
 
-  var TOKEN_KEY = 'cosmoskin_admin_token';
+  var TOKEN_KEY = 'cosmoskin_admin_token_session';
   var API_BASE = '/api/reviews';
   var FILTERS = [
     { key: 'pending', label: 'Bekleyen' },
@@ -1516,15 +1515,15 @@
   var sidebarNav = document.getElementById('sidebarNav');
 
   function getToken() {
-    return localStorage.getItem(TOKEN_KEY) || '';
+    return sessionStorage.getItem(TOKEN_KEY) || '';
   }
 
   function setToken(token) {
-    localStorage.setItem(TOKEN_KEY, token);
+    sessionStorage.setItem(TOKEN_KEY, token);
   }
 
   function clearToken() {
-    localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
   }
 
   function esc(value) {
@@ -1968,7 +1967,7 @@
         '<section class="product-panel">',
           '<div class="product-thumb">' + productImage + '</div>',
           '<div>',
-            '<span class="eyebrow">' + esc(review.product.brand || 'COSMOSKIN Product') + '</span>',
+            '<span class="eyebrow">' + esc(review.product.brand || 'COSMOSKIN Ürünü') + '</span>',
             '<h3 class="product-title">' + esc(review.product.name || 'Ürün bilgisi bağlanamadı') + '</h3>',
           '</div>',
           '<div class="product-meta">',
@@ -2003,7 +2002,7 @@
 
           '<section class="media-section">',
             '<div class="media-toolbar">',
-              '<span class="section-kicker">User Media</span>',
+              '<span class="section-kicker">Kullanıcı Görselleri</span>',
               '<span class="meta-pill">' + esc(review.images.length) + ' görsel</span>',
             '</div>',
             mediaHtml,
@@ -2380,6 +2379,5 @@
   boot();
 })();
 </script>
-<script src="/assets/mobile-redesign.js?v=20260510-phase9" defer></script>
 </body>
 </html>

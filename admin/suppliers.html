@@ -1,14 +1,55 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Tedarikçiler | COSMOSKIN Admin</title><link rel="icon" href="/favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511phase3"></head><body><div class="cs-admin-shell"><aside class="cs-admin-sidebar"><a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a><nav><a href="/admin/index.html">Dashboard</a>
-      <a href="/admin/inventory.html">Inventory</a>
-      <a href="/admin/orders/">Orders</a>
-      <a href="/admin/shipments.html">Shipments</a>
-      <a href="/admin/returns.html">Returns</a>
-      <a href="/admin/products.html">Products</a>
-      <a href="/admin/customers.html">Customers</a>
-      <a href="/admin/reviews/">Reviews</a>
-      <a href="/admin/email-logs.html">Email Logs</a>
-      <a href="/admin/invoices.html">Invoices</a>
-      <a class="is-active" href="/admin/suppliers.html">Suppliers</a>
-      <a href="/admin/compliance.html">Compliance</a>
-      <a href="/admin/legal-settings.html">Legal Settings</a>
-      <a href="/admin/admin-users.html">Admin Roles</a></nav><p>Token tabanlı MVP korunur; production için authenticated admin users + RBAC gereklidir.</p></aside><main class="cs-admin-main"><header class="cs-admin-topbar"><div><p class="cs-kicker">Suppliers</p><h1>Tedarikçi Kayıtları</h1><p>Distribütör, tedarikçi ve lot/SKT operasyonu için temel kayıt ekranı.</p></div></header><section class="cs-toolbar"><label class="cs-search">Admin Token<input data-admin-token type="password" autocomplete="off" placeholder="ADMIN_TOKEN"></label><button id="phase3Load" type="button">Yükle</button><p data-phase3-status aria-live="polite">Tedarikçi bilgileri public tarafta gösterilmez.</p></section><section class="cs-table-card"><form id="phase3SupplierForm" class="cs-adjust-form"><div class="cs-form-grid"><label>Ad<input name="name" required></label><label>E-posta<input name="contact_email" type="email"></label><label>Telefon<input name="contact_phone"></label><label>Web Sitesi<input name="website"></label></div><label>Not<textarea name="notes"></textarea></label><button type="submit">Tedarikçi Ekle</button></form></section><section class="cs-table-card"><div class="cs-table-wrap"><table class="cs-inventory-table"><thead><tr><th>Tedarikçi</th><th>E-posta</th><th>Telefon</th><th>Web</th><th>Güncelleme</th></tr></thead><tbody id="phase3SuppliersBody"><tr><td colspan="5">Liste yüklenmedi.</td></tr></tbody></table></div></section></main></div><div class="cs-drawer" id="phase3Drawer" aria-hidden="true"><div class="cs-drawer-backdrop" data-close-phase3-drawer></div><aside class="cs-drawer-panel" role="dialog" aria-modal="true"><button class="cs-drawer-close" type="button" data-close-phase3-drawer>Kapat</button><div id="phase3DrawerContent"></div></aside></div><script src="/assets/admin-phase3.js?v=20260511phase3" defer></script></body></html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Tedarikçiler · COSMOSKIN Admin</title>
+<link rel="icon" href="/favicon.png" type="image/png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511-admin-unified" />
+</head>
+<body>
+<div class="cs-admin-shell">
+  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
+    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
+    <nav class="cs-sidebar-nav" aria-label="Admin menüsü"><a href="/admin/index.html">Panel</a>
+      <a href="/admin/inventory.html">Stok</a>
+      <a href="/admin/orders/">Siparişler</a>
+      <a href="/admin/shipments.html">Kargo</a>
+      <a href="/admin/returns.html">İade</a>
+      <a href="/admin/products.html">Ürünler</a>
+      <a href="/admin/customers.html">Müşteriler</a>
+      <a href="/admin/reviews/">Yorumlar</a>
+      <a href="/admin/email-logs.html">E-posta Logları</a>
+      <a href="/admin/invoices.html">Faturalar</a>
+      <a class="is-active" href="/admin/suppliers.html">Tedarikçiler</a>
+      <a href="/admin/compliance.html">Uyumluluk</a>
+      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+      <a href="/admin/admin-users.html">Admin Rolleri</a></nav>
+    <section class="cs-session-card" aria-label="Güvenlik notu">
+      <strong>Güvenli admin oturumu</strong>
+      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
+    </section>
+  </aside>
+  <main class="cs-admin-main">
+    <header class="cs-admin-topbar">
+      <div>
+        <p class="cs-kicker">Tedarikçi Operasyonu</p>
+        <h1>Tedarikçiler</h1>
+        <p>Distribütör, tedarikçi ve lot/SKT operasyonu için kayıtları yönetin.</p>
+      </div>
+      
+    </header>
+    <section class="cs-toolbar"><label class="cs-search">Admin Token<input data-admin-token type="password" autocomplete="off" placeholder="ADMIN_TOKEN" /></label><div class="cs-filter-row"><button id="phase3Load" class="cs-btn cs-btn-dark" type="button">Yükle</button></div><p data-phase3-status aria-live="polite">Tedarikçi bilgileri public tarafta gösterilmez.</p></section>
+    <section class="cs-table-card"><div class="cs-section-head"><div><h2>Yeni Tedarikçi</h2><p>Distribütör ve satın alma operasyonu için temel kayıt.</p></div></div><form id="phase3SupplierForm" class="cs-adjust-form"><div class="cs-form-grid"><label>Ad<input name="name" required /></label><label>E-posta<input name="contact_email" type="email" /></label><label>Telefon<input name="contact_phone" /></label><label>Web Sitesi<input name="website" /></label></div><label>Not<textarea name="notes"></textarea></label><button class="cs-btn cs-btn-dark" type="submit">Tedarikçi Ekle</button></form></section>
+    <section class="cs-table-card"><div class="cs-table-wrap"><table class="cs-inventory-table"><thead><tr><th>Tedarikçi</th><th>E-posta</th><th>Telefon</th><th>Web</th><th>Güncelleme</th></tr></thead><tbody id="phase3SuppliersBody"><tr><td colspan="5">Liste yüklenmedi.</td></tr></tbody></table></div></section>
+<div class="cs-drawer" id="phase3Drawer" aria-hidden="true"><div class="cs-drawer-backdrop" data-close-phase3-drawer></div><aside class="cs-drawer-panel" role="dialog" aria-modal="true"><button class="cs-drawer-close" type="button" data-close-phase3-drawer>Kapat</button><div id="phase3DrawerContent"></div></aside></div>
+<script src="/assets/admin-phase3.js?v=20260511-admin-unified" defer></script>
+  </main>
+</div>
+<div class="cs-toast-stack" id="inventoryToasts" aria-live="polite"></div>
+</body>
+</html>

@@ -928,3 +928,28 @@
   #homeHeroTitle > span.home-hero__line{gap:.1em; white-space:nowrap !important;}
   #homeHeroTitle > em.home-hero__line .home-hero__script{letter-spacing:-.006em;}
 }
+
+/* ============================================================
+   Desktop hero Işıltın. shimmer aligned with mobile gold word
+   ============================================================ */
+#homeHeroTitle > span.home-hero__line .home-hero__shine-word,
+.home-hero__shine-word{
+  color:#b58a45 !important;
+  background:linear-gradient(100deg,#9a7439 0%,#d6b16d 38%,#fff3c8 50%,#b58a45 62%,#85622d 100%) !important;
+  background-size:220% 100% !important;
+  background-position:0% 50% !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  -webkit-text-fill-color:transparent !important;
+  filter:drop-shadow(0 7px 18px rgba(181,138,69,.14)) !important;
+  animation:csDesktopGoldShimmer 4.8s ease-in-out infinite !important;
+}
+#homeHeroTitle > span.home-hero__line .home-hero__shine-word::before,
+#homeHeroTitle > span.home-hero__line .home-hero__shine-word::after,
+.home-hero__shine-word::before,
+.home-hero__shine-word::after{display:none !important;content:none !important;animation:none !important;}
+@keyframes csDesktopGoldShimmer{0%,72%,100%{background-position:0% 50%;}36%{background-position:100% 50%;}}
+@media (prefers-reduced-motion: reduce){
+  #homeHeroTitle > span.home-hero__line .home-hero__shine-word,
+  .home-hero__shine-word{animation:none !important;background:#b58a45 !important;-webkit-background-clip:text !important;background-clip:text !important;-webkit-text-fill-color:transparent !important;filter:none !important;}
+}

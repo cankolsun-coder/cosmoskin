@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var TOKEN_KEY = 'cosmoskin_admin_token';
+  var TOKEN_KEY = 'cosmoskin_admin_token_session';
   var OLD_TOKEN_KEY = 'cosmoskin_admin_token';
   var API_ORDERS = '/api/admin/orders';
 

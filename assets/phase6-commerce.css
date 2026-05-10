@@ -523,3 +523,54 @@ html,body{max-width:100%;overflow-x:clip}
   #cartDrawer .cart-item{grid-template-columns:56px minmax(0,1fr) auto !important}
   #cartDrawer .phase6-rec-card{grid-template-columns:52px minmax(0,1fr) 70px !important}
 }
+
+/* ============================================================
+   COSMOSKIN premium mega dropdown viewport clamp — 2026-05-11
+   ============================================================ */
+.header .categories-wrap,
+.header .brands-wrap{position:relative !important;}
+.header .categories-wrap::after,
+.header .brands-wrap::after{content:"";position:absolute;left:-28px;right:-28px;top:100%;height:28px;display:none;z-index:49;}
+.header .categories-wrap:hover::after,
+.header .brands-wrap:hover::after,
+.header .categories-wrap:focus-within::after,
+.header .brands-wrap:focus-within::after,
+.header .categories-wrap.open::after,
+.header .brands-wrap.open::after{display:block;}
+.header .mega,
+.header .mega--categories,
+.header .brands-mega{
+  left:50% !important;
+  right:auto !important;
+  box-sizing:border-box !important;
+  width:min(900px,calc(100vw - 40px)) !important;
+  max-width:calc(100vw - 40px) !important;
+  transform:translateX(calc(-50% + var(--mega-nudge-x, 0px))) translateY(14px) !important;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 340ms ease, transform 460ms cubic-bezier(.22,1,.36,1) !important;
+  will-change:transform,opacity;
+  z-index:50 !important;
+}
+.header .mega--categories{grid-template-columns:repeat(4,minmax(0,1fr)) !important;}
+.header .brands-mega{grid-template-columns:1.05fr 1.05fr .95fr .9fr !important;}
+@media (hover:hover) and (pointer:fine){
+  .header .categories-wrap:hover > .mega,
+  .header .categories-wrap:focus-within > .mega,
+  .header .categories-wrap.open > .mega,
+  .header .brands-wrap:hover > .mega,
+  .header .brands-wrap:focus-within > .mega,
+  .header .brands-wrap.open > .mega{
+    opacity:1 !important;
+    pointer-events:auto !important;
+    transform:translateX(calc(-50% + var(--mega-nudge-x, 0px))) translateY(0) !important;
+  }
+}
+.header .categories-wrap.open > .mega,
+.header .brands-wrap.open > .mega{opacity:1 !important;pointer-events:auto !important;transform:translateX(calc(-50% + var(--mega-nudge-x, 0px))) translateY(0) !important;}
+@media(max-width:1180px){
+  .header .mega--categories,
+  .header .brands-mega{width:min(92vw,calc(100vw - 32px)) !important;max-width:calc(100vw - 32px) !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;max-height:calc(100vh - 118px) !important;overflow:auto !important;}
+}
+@media(max-width:720px){.header .mega--categories,.header .brands-mega{grid-template-columns:1fr !important;}}
+@media (prefers-reduced-motion: reduce){.header .mega,.header .mega--categories,.header .brands-mega{transition:none !important;}}

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260510ops" />
+<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511-admin-unified" />
 </head>
 <body>
 <div class="cs-admin-auth" id="inventoryLogin">
@@ -24,29 +24,32 @@
 </div>
 
 <div class="cs-admin-shell is-hidden" id="inventoryApp">
-  <aside class="cs-admin-sidebar">
+  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
     <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
-    <nav><a href="/admin/index.html">Dashboard</a>
-      <a class="is-active" href="/admin/inventory.html">Inventory</a>
-      <a href="/admin/orders/">Orders</a>
-      <a href="/admin/shipments.html">Shipments</a>
-      <a href="/admin/returns.html">Returns</a>
-      <a href="/admin/products.html">Products</a>
-      <a href="/admin/customers.html">Customers</a>
-      <a href="/admin/reviews/">Reviews</a>
-      <a href="/admin/email-logs.html">Email Logs</a>
-      <a href="/admin/invoices.html">Invoices</a>
-      <a href="/admin/suppliers.html">Suppliers</a>
-      <a href="/admin/compliance.html">Compliance</a>
-      <a href="/admin/legal-settings.html">Legal Settings</a>
-      <a href="/admin/admin-users.html">Admin Roles</a></nav>
-    <p>Admin endpointleri <code>x-admin-token</code> ile korunur. Canlı ortamda token Cloudflare environment variable olarak tanımlanmalıdır.</p>
+    <nav class="cs-sidebar-nav" aria-label="Admin menüsü"><a href="/admin/index.html">Panel</a>
+      <a class="is-active" href="/admin/inventory.html">Stok</a>
+      <a href="/admin/orders/">Siparişler</a>
+      <a href="/admin/shipments.html">Kargo</a>
+      <a href="/admin/returns.html">İade</a>
+      <a href="/admin/products.html">Ürünler</a>
+      <a href="/admin/customers.html">Müşteriler</a>
+      <a href="/admin/reviews/">Yorumlar</a>
+      <a href="/admin/email-logs.html">E-posta Logları</a>
+      <a href="/admin/invoices.html">Faturalar</a>
+      <a href="/admin/suppliers.html">Tedarikçiler</a>
+      <a href="/admin/compliance.html">Uyumluluk</a>
+      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+      <a href="/admin/admin-users.html">Admin Rolleri</a></nav>
+    <section class="cs-session-card" aria-label="Güvenlik notu">
+      <strong>Güvenli admin oturumu</strong>
+      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
+    </section>
   </aside>
 
   <main class="cs-admin-main">
     <header class="cs-admin-topbar">
       <div>
-        <p class="cs-kicker">Operations</p>
+        <p class="cs-kicker">Operasyon</p>
         <h1>Stok Yönetimi</h1>
         <p>Dinamik stok Supabase üzerinden okunur; HTML içindeki ürün verisi sadece katalog bilgisi olarak kalır.</p>
       </div>
@@ -57,10 +60,10 @@
     </header>
 
     <section class="cs-summary-grid" id="inventorySummary">
-      <article><span>Total products</span><strong>0</strong></article>
-      <article><span>In stock</span><strong>0</strong></article>
-      <article><span>Low stock</span><strong>0</strong></article>
-      <article><span>Out of stock</span><strong>0</strong></article>
+      <article><span>Toplam ürün</span><strong>0</strong></article>
+      <article><span>Stokta</span><strong>0</strong></article>
+      <article><span>Düşük stok</span><strong>0</strong></article>
+      <article><span>Stokta yok</span><strong>0</strong></article>
     </section>
 
     <section class="cs-toolbar">
@@ -107,6 +110,6 @@
 </div>
 
 <div class="cs-toast-stack" id="inventoryToasts"></div>
-<script src="/assets/admin-inventory.js?v=20260510ops" defer></script>
+<script src="/assets/admin-inventory.js?v=20260511-admin-unified" defer></script>
 </body>
 </html>
