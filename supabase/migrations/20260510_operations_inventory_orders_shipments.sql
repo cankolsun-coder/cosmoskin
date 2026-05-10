@@ -81,7 +81,7 @@ BEGIN
 END $$;
 
 -- Ensure every current catalog slug has an inventory row, without inventing positive stock.
-INSERT INTO product_inventory (product_slug, sku, stock_on_hand, low_stock_threshold, status) VALUES
+INSERT INTO product_inventory (product_slug, sku) VALUES
   ('anua-heartleaf-77-soothing-toner', 'ANUA_HEARTLEAF_77_SOOTHING_TONER'),
   ('anua-heartleaf-pore-control-cleansing-oil', 'ANUA_HEARTLEAF_PORE_CONTROL_CLEANSING_OIL'),
   ('beauty-of-joseon-relief-sun-spf50', 'BEAUTY_OF_JOSEON_RELIEF_SUN_SPF50'),

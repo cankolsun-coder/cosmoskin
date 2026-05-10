@@ -64,8 +64,9 @@
         <a href="/account/profile.html?tab=favorites" data-tab="favorites"><span class="cs-nav-icon" data-icon="heart"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 20.2 5.2 13.8a4.4 4.4 0 0 1 6.2-6.2l.6.6.6-.6a4.4 4.4 0 0 1 6.2 6.2L12 20.2Z"/></svg></span>Favorilerim <em id="favoritesBadge">0</em></a>
         <a href="/account/profile.html?tab=addresses" data-tab="addresses"><span class="cs-nav-icon" data-icon="pin"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6.6-5.8 6.6-11a6.6 6.6 0 0 0-13.2 0C5.4 15.2 12 21 12 21Z"/><path d="M12 12.1a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2Z"/></svg></span>Adreslerim <em id="addressesBadge">0</em></a>
         <a href="/account/profile.html?tab=payments" data-tab="payments"><span class="cs-nav-icon" data-icon="card"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 6.8h16v10.4H4V6.8Z"/><path d="M4 10h16M7.2 14.4h4.2"/></svg></span>Ödeme Yöntemlerim</a>
+        <a href="/account/profile.html?tab=invoices" data-tab="invoices"><span class="cs-nav-icon" data-icon="card"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3.8h12v16.4l-2-1.1-2 1.1-2-1.1-2 1.1-2-1.1-2 1.1V3.8Z"/><path d="M8.5 8h7M8.5 12h7M8.5 15h4"/></svg></span>Faturalarım</a>
         <a href="/account/profile.html?tab=returns" data-tab="returns"><span class="cs-nav-icon" data-icon="return"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9.2 7.2 4.8 11.6 9.2 16"/><path d="M5.2 11.6h9.2a4.8 4.8 0 1 1 0 9.6h-1.3"/></svg></span>İadeler & Talepler <em id="returnsBadge">0</em></a>
-        <a href="/account/profile.html?tab=notifications" data-tab="notifications"><span class="cs-nav-icon" data-icon="bell"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 10a6 6 0 1 0-12 0c0 4.8-1.8 6.2-1.8 6.2h15.6S18 14.8 18 10Z"/><path d="M10 19.2h4"/></svg></span>Bildirimlerim <em id="notificationsBadge">0</em></a>
+        <a href="/account/profile.html?tab=notifications" data-tab="notifications"><span class="cs-nav-icon" data-icon="bell"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 10a6 6 0 1 0-12 0c0 4.8-1.8 6.2-1.8 6.2h15.6S18 14.8 18 10Z"/><path d="M10 19.2h4"/></svg></span>İletişim İzinlerim <em id="notificationsBadge">0</em></a>
         <a href="/account/profile.html?tab=skin" data-tab="skin"><span class="cs-nav-icon" data-icon="drop"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4.2s5.7 6.7 5.7 10.2a5.7 5.7 0 0 1-11.4 0C6.3 10.9 12 4.2 12 4.2Z"/><path d="M9.4 15.1a2.7 2.7 0 0 0 2.6 2.1"/></svg></span>Cilt Profilim</a>
         <a href="/account/profile.html?tab=security" data-tab="security"><span class="cs-nav-icon" data-icon="shield"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3.8 19 7v5.5c0 4.3-2.9 6.8-7 7.9-4.1-1.1-7-3.6-7-7.9V7l7-3.2Z"/><path d="m8.8 12.2 2.1 2.1 4.5-4.8"/></svg></span>Güvenlik Ayarları</a>
       </nav>
@@ -108,13 +109,18 @@
         <div class="cs-payment-slot" id="paymentsSlot"></div>
       </section>
 
+      <section class="cs-panel" data-panel="invoices" aria-labelledby="invoicesHeading">
+        <div class="cs-panel-head"><div><span>FATURALAR</span><h2 id="invoicesHeading">Faturalarım</h2><p>Fatura bağlantıları yalnızca fatura kaydı ve PDF bağlantısı oluştuğunda gösterilir.</p></div></div>
+        <div class="cs-return-grid" id="invoicesSlot"></div>
+      </section>
+
       <section class="cs-panel" data-panel="returns" aria-labelledby="returnsHeading">
         <div class="cs-panel-head"><div><span>İADELER</span><h2 id="returnsHeading">İadeler &amp; Talepler</h2><p>Uygun siparişler için iade talebi başlatabilir, mevcut taleplerini takip edebilirsin.</p></div></div>
         <div class="cs-return-grid" id="returnsSlot"></div>
       </section>
 
       <section class="cs-panel" data-panel="notifications" aria-labelledby="notificationsHeading">
-        <div class="cs-panel-head"><div><span>BİLDİRİM MERKEZİ</span><h2 id="notificationsHeading">Bildirimlerim</h2><p>Sipariş, kargo, kampanya ve rutin bildirimlerini yönet.</p></div><button class="cs-pill-btn" id="markAllNotificationsBtn" type="button">TÜMÜNÜ OKUNDU YAP</button></div>
+        <div class="cs-panel-head"><div><span>İLETİŞİM İZİNLERİ</span><h2 id="notificationsHeading">İletişim İzinlerim &amp; Stok Bildirimlerim</h2><p>Sipariş, kargo, kampanya, stok ve rutin bildirim tercihlerini yönet.</p></div><button class="cs-pill-btn" id="markAllNotificationsBtn" type="button">TÜMÜNÜ OKUNDU YAP</button></div>
         <div class="cs-preferences-card"><form id="notificationPrefsForm" class="cs-toggle-grid" aria-label="Bildirim tercihleri">
           <label><input name="orderUpdates" type="checkbox"/> <span>Sipariş güncellemeleri</span></label>
           <label><input name="campaignEmails" type="checkbox"/> <span>Kampanya e-postaları</span></label>
@@ -142,7 +148,7 @@
         <div class="cs-security-grid">
           <article class="cs-card"><div class="cs-card-head"><span>PROFİL &amp; İLETİŞİM</span><button class="cs-mini-btn" id="saveProfileBtn" type="button">Kaydet</button></div><form class="cs-form cs-form-compact" id="profileForm"><label><span>Ad</span><input autocomplete="given-name" class="cs-input" name="first_name"/></label><label><span>Soyad</span><input autocomplete="family-name" class="cs-input" name="last_name"/></label><label><span>E-posta</span><input class="cs-input" name="email" readonly type="email"/></label><label><span>Telefon</span><input autocomplete="tel" class="cs-input" name="phone" placeholder="05xx xxx xx xx"/></label></form></article>
           <article class="cs-card"><div class="cs-card-head"><span>ŞİFRE</span></div><form class="cs-form cs-form-compact" id="passwordForm"><label class="full"><span>Yeni Şifre</span><input autocomplete="new-password" class="cs-input" name="password" placeholder="En az 8 karakter" type="password"/></label><label class="full"><span>Yeni Şifre Tekrar</span><input autocomplete="new-password" class="cs-input" name="password_confirm" placeholder="Şifreyi tekrar yaz" type="password"/></label><p class="cs-form-note full">Şifre en az 8 karakter, 1 büyük harf, 1 küçük harf ve 1 rakam içermeli.</p><button class="cs-pill-btn cs-pill-btn--dark full" type="submit">ŞİFREYİ GÜNCELLE</button></form></article>
-          <article class="cs-card cs-card-full"><div class="cs-card-head"><span>GİZLİLİK &amp; OTURUM</span></div><div class="cs-security-actions"><a class="cs-mini-btn" href="/mesafeli-satis.html">Yasal Metinler</a><a class="cs-mini-btn" href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="cs-mini-btn danger" id="logoutInlineBtn" type="button">Bu Oturumdan Çıkış Yap</button></div></article>
+          <article class="cs-card cs-card-full"><div class="cs-card-head"><span>GİZLİLİK &amp; OTURUM</span></div><div class="cs-security-actions"><a class="cs-mini-btn" href="/legal/mesafeli-satis-sozlesmesi.html">Yasal Metinler</a><a class="cs-mini-btn" href="/legal/on-bilgilendirme-formu.html">Ön Bilgilendirme</a><a class="cs-mini-btn danger" href="mailto:destek@cosmoskin.com.tr?subject=Hesap%20Silme%20Talebi">Hesap Silme Talebi</a><button class="cs-mini-btn danger" id="logoutInlineBtn" type="button">Bu Oturumdan Çıkış Yap</button></div></article>
         </div>
       </section>
 
@@ -181,7 +187,7 @@
     <form class="cs-form" id="returnForm">
       <input name="order_id" type="hidden"/>
       <label class="full"><span>Sipariş</span><input class="cs-input" name="order_number" readonly/></label>
-      <label class="full"><span>İade Nedeni</span><select class="cs-input" name="reason" required><option value="">Seçiniz</option><option>Vazgeçtim</option><option>Ürün beklentimi karşılamadı</option><option>Yanlış ürün gönderildi</option><option>Hasarlı ürün teslim edildi</option><option>Diğer</option></select></label>
+      <label class="full"><span>İade Nedeni</span><select class="cs-input" name="reason" required><option value="">Seçiniz</option><option>Yanlış ürün gönderildi</option><option>Ürün hasarlı geldi</option><option>Siparişimden vazgeçtim</option><option>Diğer</option></select></label>
       <label class="full"><span>Not</span><textarea class="cs-input" name="note" rows="4" placeholder="Talebinizle ilgili ek bilgi yazabilirsiniz."></textarea></label>
       <div class="cs-modal-actions full"><button class="cs-pill-btn" id="cancelReturnBtn" type="button">VAZGEÇ</button><button class="cs-pill-btn cs-pill-btn--dark" type="submit">TALEBİ OLUŞTUR</button></div>
     </form>
@@ -216,7 +222,7 @@
 </div>
 <div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
 <div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
-<div class="footer-col"><h5>Yasal</h5><a href="/teslimat-kargo.html">Teslimat &amp; Kargo</a><a href="/iade-degisim.html">İade &amp; Değişim</a><a href="/mesafeli-satis.html">Mesafeli Satış</a><a href="/on-bilgilendirme.html">Ön Bilgilendirme</a><button class="open-legal">KVKK Aydınlatma Metni</button><button id="openCookiePrefs">Çerez Tercihleri</button><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
+<div class="footer-col"><h5>Yasal</h5><a href="/legal/teslimat-ve-kargo.html">Teslimat &amp; Kargo</a><a href="/legal/iade-ve-cayma-politikasi.html">İade &amp; Cayma</a><a href="/legal/mesafeli-satis-sozlesmesi.html">Mesafeli Satış</a><a href="/legal/on-bilgilendirme-formu.html">Ön Bilgilendirme</a><a href="/legal/kvkk-aydinlatma-metni.html">KVKK Aydınlatma</a><a href="/legal/cerez-politikasi.html">Çerez Politikası</a><a href="/legal/ticari-elektronik-ileti-izni.html">Ticari İleti İzni</a><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
 <div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" rel="noopener" target="_blank">Instagram</a><span>İstanbul, Türkiye</span></div>
 </div>
 <div class="container footer-trustbar">

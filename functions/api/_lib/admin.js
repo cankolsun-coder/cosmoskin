@@ -1,5 +1,19 @@
 import { json } from './response.js';
 
+const adminAuthBuckets = new Map();
+function rateKey(context) {
+  const h = context?.request?.headers || new Headers();
+  return h.get('CF-Connecting-IP') || h.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown-ip';
+}
+function assertAdminAttemptLimit(context) {
+  const key = rateKey(context);
+  const now = Date.now();
+  const current = adminAuthBuckets.get(key) || { count: 0, resetAt: now + 10 * 60 * 1000 };
+  if (current.resetAt <= now) { adminAuthBuckets.set(key, { count: 1, resetAt: now + 10 * 60 * 1000 }); return; }
+  current.count += 1; adminAuthBuckets.set(key, current);
+  if (current.count > 40) throw new AdminAuthError('Too many attempts');
+}
+
 export class AdminAuthError extends Error {
   constructor(message = 'Unauthorized') {
     super(message);
@@ -9,6 +23,7 @@ export class AdminAuthError extends Error {
 }
 
 export function assertAdmin(context) {
+  assertAdminAttemptLimit(context);
   const expected = context?.env?.ADMIN_TOKEN || '';
   const supplied = context?.request?.headers?.get('x-admin-token') || '';
   if (!expected || supplied !== expected) throw new AdminAuthError();

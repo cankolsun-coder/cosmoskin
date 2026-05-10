@@ -58,7 +58,7 @@ export async function onRequestGet(context) {
     const [ordersRaw, addresses, favorites, dbNotifications] = await Promise.all([
       selectRows(context, 'orders', {
         select: 'id,order_number,status,payment_status,fulfillment_status,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,city,district,postal_code,address_line,cargo_note,created_at,updated_at,paid_at,fulfilled_at,delivered_at',
-        user_id: `eq.${user.id}`,
+        or: `(user_id.eq.${user.id},customer_email.eq.${String(user.email || '').toLowerCase()})`,
         order: 'created_at.desc',
         limit: '12'
       }).catch(() => []),
@@ -84,16 +84,18 @@ export async function onRequestGet(context) {
     let orderItems = [];
     let shipments = [];
     let events = [];
+    let invoices = [];
+    let returns = [];
     if (ids.length) {
       const inFilter = buildInFilter(ids);
-      [orderItems, shipments, events] = await Promise.all([
+      [orderItems, shipments, events, invoices, returns] = await Promise.all([
         selectRows(context, 'order_items', {
           select: 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total',
           order_id: inFilter,
           order: 'created_at.asc'
         }).catch(() => []),
         selectRows(context, 'shipments', {
-          select: 'order_id,status,carrier,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at',
+          select: 'order_id,status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at',
           order_id: inFilter,
           order: 'created_at.desc'
         }).catch(() => []),
@@ -101,6 +103,16 @@ export async function onRequestGet(context) {
           select: 'order_id,status,message,source,created_at',
           order_id: inFilter,
           order: 'created_at.asc'
+        }).catch(() => []),
+        selectRows(context, 'invoice_records', {
+          select: 'id,order_id,invoice_type,invoice_status,invoice_number,provider,pdf_url,issued_at,created_at',
+          order_id: inFilter,
+          order: 'created_at.desc'
+        }).catch(() => []),
+        selectRows(context, 'return_requests', {
+          select: 'id,order_id,reason,status,refund_status,customer_note,admin_note,created_at,updated_at',
+          order_id: inFilter,
+          order: 'created_at.desc'
         }).catch(() => [])
       ]);
     }
@@ -108,11 +120,15 @@ export async function onRequestGet(context) {
     const groupedItems = groupByOrderId(orderItems);
     const groupedShipments = groupByOrderId(shipments);
     const groupedEvents = groupByOrderId(events);
+    const groupedInvoices = groupByOrderId(invoices);
+    const groupedReturns = groupByOrderId(returns);
     const orders = (ordersRaw || []).map((order) => normalizeOrder({
       ...order,
       order_items: groupedItems.get(order.id) || [],
       shipments: groupedShipments.get(order.id) || [],
-      status_events: groupedEvents.get(order.id) || []
+      status_events: groupedEvents.get(order.id) || [],
+      invoices: groupedInvoices.get(order.id) || [],
+      return_requests: groupedReturns.get(order.id) || []
     }));
 
     const paidOrders = orders.filter((order) => ['paid', 'preparing', 'shipped', 'delivered'].includes(order.status));

@@ -1,19 +1,24 @@
 import { selectRows, updateRows, insertRow } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
-import { sendOrderStatusEmail, sendShipmentEmail } from '../_lib/order-email.js';
+import { sendOrderStatusEmail, sendShipmentEmail, sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { releaseInventoryReservations } from '../_lib/inventory.js';
 
 const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
 const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
 const SHIPMENT_SELECT = 'id,order_id,status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at';
+const INVOICE_SELECT = 'id,order_id,invoice_type,invoice_status,invoice_number,provider,provider_reference,pdf_url,issued_at,error_message,created_at,updated_at';
+const RETURN_SELECT = 'id,order_id,customer_email,reason,status,customer_note,admin_note,refund_status,created_at,updated_at';
+const REFUND_SELECT = 'id,order_id,return_request_id,amount,currency,status,provider,provider_reference,error_message,created_at,updated_at,completed_at';
+const SHIPMENT_EVENT_SELECT = 'id,shipment_id,order_id,event_type,status,note,occurred_at,metadata';
 const EVENT_SELECT = 'id,order_id,status,message,source,event_type,previous_status,new_status,note,created_by,created_at,metadata';
 const EMAIL_SELECT = 'id,order_id,customer_email,email_type,provider,status,subject,provider_message_id,error_message,sent_at,created_at,metadata';
 
 const VALID_ORDER_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'packed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned', 'refunded', 'pending_payment', 'paid', 'payment_failed', 'partially_refunded']);
 const VALID_PAYMENT_STATUSES = new Set(['pending', 'authorized', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled', 'initiated', 'initialize_failed']);
 const VALID_FULFILLMENT = new Set(['unfulfilled', 'preparing', 'packed', 'shipped', 'delivered', 'failed', 'returned', 'not_started', 'cancelled']);
+const CARRIER_NAMES = new Set(['Yurtiçi Kargo','Aras Kargo','MNG Kargo','Sürat Kargo','Hepsijet','Kolay Gelsin','UPS','DHL','Other']);
 
 function inFilter(values = []) { return `in.(${values.filter(Boolean).join(',')})`; }
 function groupBy(arr = [], key = 'order_id') {
@@ -59,22 +64,54 @@ function statusFromAction(action) {
   };
   return map[String(action || '')] || null;
 }
+function buildTrackingUrl(carrier, number, manual) {
+  const cleanManual = String(manual || '').trim();
+  if (cleanManual) return cleanManual;
+  const n = encodeURIComponent(String(number || '').trim());
+  if (!n) return null;
+  if (carrier === 'Yurtiçi Kargo') return `https://www.yurticikargo.com/tr/online-servisler/gonderi-sorgula?code=${n}`;
+  if (carrier === 'Aras Kargo') return `https://www.araskargo.com.tr/tracking?code=${n}`;
+  if (carrier === 'UPS') return `https://www.ups.com/track?tracknum=${n}`;
+  if (carrier === 'DHL') return `https://www.dhl.com/tr-tr/home/tracking.html?tracking-id=${n}`;
+  return null;
+}
+
+async function recordShipmentEvent(context, shipment, event = {}) {
+  if (!shipment?.id && !shipment?.order_id) return null;
+  return await insertRow(context, 'shipment_events', {
+    shipment_id: shipment.id || null,
+    order_id: shipment.order_id || event.order_id || null,
+    event_type: event.event_type || 'shipment_updated',
+    status: event.status || shipment.status || null,
+    note: event.note || null,
+    metadata: event.metadata || null
+  }).catch(() => null);
+}
+
 
 async function hydrateOrders(context, orders = []) {
   const ids = orders.map((order) => order.id).filter(Boolean);
   if (!ids.length) return [];
-  const [items, shipments, events, payments, emails] = await Promise.all([
+  const [items, shipments, events, payments, emails, invoices, returns, refunds, shipmentEvents] = await Promise.all([
     selectRows(context, 'order_items', { select: ITEM_SELECT, order_id: inFilter(ids), order: 'created_at.asc' }).catch(() => []),
     selectRows(context, 'shipments', { select: SHIPMENT_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
     selectRows(context, 'order_status_events', { select: EVENT_SELECT, order_id: inFilter(ids), order: 'created_at.asc' }).catch(() => []),
     selectRows(context, 'payments', { select: 'order_id,provider,status,amount,currency,provider_payment_id,provider_token,created_at,updated_at', order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
-    selectRows(context, 'email_events', { select: EMAIL_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => [])
+    selectRows(context, 'email_events', { select: EMAIL_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
+    selectRows(context, 'invoice_records', { select: INVOICE_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
+    selectRows(context, 'return_requests', { select: RETURN_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
+    selectRows(context, 'refund_records', { select: REFUND_SELECT, order_id: inFilter(ids), order: 'created_at.desc' }).catch(() => []),
+    selectRows(context, 'shipment_events', { select: SHIPMENT_EVENT_SELECT, order_id: inFilter(ids), order: 'occurred_at.desc' }).catch(() => [])
   ]);
   const itemMap = groupBy(items);
   const shipmentMap = groupBy((shipments || []).map((s) => ({ ...s, carrier: s.carrier || s.carrier_name || '' })));
   const eventMap = groupBy(events);
   const paymentMap = groupBy(payments);
   const emailMap = groupBy(emails);
+  const invoiceMap = groupBy(invoices);
+  const returnMap = groupBy(returns);
+  const refundMap = groupBy(refunds);
+  const shipmentEventMap = groupBy(shipmentEvents);
   return orders.map((order) => ({
     ...order,
     order_items: itemMap.get(order.id) || [],
@@ -83,6 +120,10 @@ async function hydrateOrders(context, orders = []) {
     status_events: eventMap.get(order.id) || [],
     payments: paymentMap.get(order.id) || [],
     email_events: emailMap.get(order.id) || [],
+    invoices: invoiceMap.get(order.id) || [],
+    return_requests: returnMap.get(order.id) || [],
+    refunds: refundMap.get(order.id) || [],
+    shipment_events: shipmentEventMap.get(order.id) || [],
     item_count: (itemMap.get(order.id) || []).reduce((sum, item) => sum + Number(item.quantity || 1), 0)
   }));
 }
@@ -180,6 +221,38 @@ async function sendAndLogStatusEmail(context, order, status, emailType) {
   }
 }
 
+
+async function sendAndLogCommerceEmail(context, order, emailType, note = '') {
+  if (!order?.customer_email) return { sent: false, skipped: true, reason: 'customer_email_missing' };
+  try {
+    const result = await sendCommerceTransactionalEmail(context.env, { order, type: emailType, note });
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: order.customer_email,
+      email_type: emailType,
+      provider: result.provider || (context.env.BREVO_API_KEY ? 'brevo' : null),
+      status: result.sent ? 'sent' : (result.skipped ? 'skipped' : 'failed'),
+      subject: getCommerceEmailSubject(emailType),
+      provider_message_id: result.provider_message_id || null,
+      error_message: result.reason || result.error || null,
+      metadata: { source: 'admin_orders' }
+    });
+    return result;
+  } catch (error) {
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: order.customer_email,
+      email_type: emailType,
+      provider: context.env.BREVO_API_KEY ? 'brevo' : null,
+      status: 'failed',
+      subject: getCommerceEmailSubject(emailType),
+      error_message: error.message || 'email_failed',
+      metadata: { source: 'admin_orders' }
+    });
+    return { sent: false, error: 'email_failed' };
+  }
+}
+
 export async function onRequestGet(context) {
   try {
     assertAdmin(context);
@@ -249,7 +322,7 @@ export async function onRequestPatch(context) {
         carrier: body.carrier || body.carrier_name || null,
         carrier_name: body.carrier_name || body.carrier || null,
         tracking_number: body.tracking_number || null,
-        tracking_url: body.tracking_url || null,
+        tracking_url: buildTrackingUrl(body.carrier_name || body.carrier || '', body.tracking_number || '', body.tracking_url || ''),
         status: body.shipment_status || 'shipped',
         shipped_at: body.shipped_at || new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -273,6 +346,7 @@ export async function onRequestPatch(context) {
         created_by: 'admin',
         metadata: { shipment_id: shipment?.id || null, carrier: shipmentPayload.carrier_name, tracking_number: shipmentPayload.tracking_number }
       });
+      await recordShipmentEvent(context, shipment, { event_type: emailType, status: shipmentPayload.status, note: body.message || 'Kargo bilgisi kaydedildi.', metadata: { carrier: shipmentPayload.carrier_name, tracking_number: shipmentPayload.tracking_number } });
       const shouldNotify = body.suppress_customer_email === true ? false : body.notify_customer !== false;
       if (shouldNotify) {
         const latestOrder = await loadOrder(context, id);
@@ -294,8 +368,21 @@ export async function onRequestPatch(context) {
       }
     }
 
+    let deliveredEmail = null;
+    if ((body.action === 'mark_delivered' || status === 'delivered' || fulfillment === 'delivered') && !shipment) {
+      const latestShipments = await selectRows(context, 'shipments', { select: '*', order_id: `eq.${id}`, order: 'created_at.desc', limit: '1' }).catch(() => []);
+      const latestShipment = latestShipments?.[0] || null;
+      if (latestShipment?.id) {
+        const deliveredAt = body.delivered_at || new Date().toISOString();
+        await updateRows(context, 'shipments', { id: latestShipment.id }, { status: 'delivered', delivered_at: deliveredAt, updated_at: deliveredAt }).catch(() => null);
+        await recordShipmentEvent(context, { ...latestShipment, status: 'delivered', delivered_at: deliveredAt }, { event_type: 'shipment_delivered', status: 'delivered', note: body.message || 'Kargo teslim edildi olarak işaretlendi.' });
+      }
+      const latestOrder = await loadOrder(context, id);
+      deliveredEmail = await sendAndLogCommerceEmail(context, latestOrder, 'shipment_delivered', body.message || '');
+    }
+
     const order = await loadOrder(context, id);
-    return json({ ok: true, order, message: shipmentMessage || 'Sipariş güncellendi.', email: shipmentEmail, notification: shipmentEmail });
+    return json({ ok: true, order, message: shipmentMessage || (deliveredEmail ? (deliveredEmail.sent ? 'Sipariş teslim edildi ve müşteriye e-posta gönderildi.' : 'Sipariş teslim edildi ancak e-posta gönderilemedi.') : 'Sipariş güncellendi.'), email: shipmentEmail || deliveredEmail, notification: shipmentEmail || deliveredEmail });
   } catch (error) {
     return adminError(error, 'Sipariş güncellenemedi.');
   }
@@ -309,6 +396,7 @@ export async function resendOrderEmail(context, orderId, emailType) {
     if (!shipment) throw Object.assign(new Error('Kargo bilgisi bulunamadı.'), { status: 400 });
     return await sendAndLogShipmentEmail(context, order, shipment, 'shipment_created');
   }
+  if (emailType === 'shipment_delivered') return await sendAndLogCommerceEmail(context, order, 'shipment_delivered');
   if (emailType === 'payment_success') return await sendAndLogStatusEmail(context, order, 'confirmed', 'payment_success');
   if (emailType === 'order_created') return await sendAndLogStatusEmail(context, order, 'pending', 'order_created');
   throw Object.assign(new Error('email_type desteklenmiyor.'), { status: 400 });

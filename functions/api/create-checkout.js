@@ -300,6 +300,45 @@ function getPublicSiteUrl(env) {
   return String(env.PUBLIC_SITE_URL || 'https://www.cosmoskin.com.tr').replace(/\/$/, '');
 }
 
+
+function checkboxAccepted(value) {
+  return value === true || value === 'true' || value === 'on' || value === '1' || value === 'accepted';
+}
+
+function validateCheckoutConsents(rawCustomer = {}) {
+  const kvkk = checkboxAccepted(rawCustomer.kvkk_acknowledged) || checkboxAccepted(rawCustomer.kvkk_terms);
+  const preliminary = checkboxAccepted(rawCustomer.preliminary_information_accepted) || checkboxAccepted(rawCustomer.sales_terms);
+  const distance = checkboxAccepted(rawCustomer.distance_sales_accepted) || checkboxAccepted(rawCustomer.sales_terms);
+  if (!kvkk) throw new CheckoutError('KVKK aydınlatma metni bilgilendirmesini onaylamalısın.', 400, 'CONSENT_REQUIRED');
+  if (!preliminary) throw new CheckoutError('Ön bilgilendirme formunu onaylamalısın.', 400, 'CONSENT_REQUIRED');
+  if (!distance) throw new CheckoutError('Mesafeli satış sözleşmesini onaylamalısın.', 400, 'CONSENT_REQUIRED');
+  return {
+    kvkk_acknowledged: kvkk,
+    preliminary_information_accepted: preliminary,
+    distance_sales_accepted: distance,
+    marketing_email_opt_in: checkboxAccepted(rawCustomer.marketing_email_opt_in) || checkboxAccepted(rawCustomer.marketing_optin),
+    newsletter_opt_in: checkboxAccepted(rawCustomer.newsletter_opt_in)
+  };
+}
+
+async function recordCheckoutConsents(context, { user, email, consents, orderId }) {
+  const rows = [
+    ['kvkk_acknowledged', consents.kvkk_acknowledged, 'acknowledged'],
+    ['preliminary_information_accepted', consents.preliminary_information_accepted, 'accepted'],
+    ['distance_sales_accepted', consents.distance_sales_accepted, 'accepted'],
+    ['marketing_email_opt_in', consents.marketing_email_opt_in, consents.marketing_email_opt_in ? 'accepted' : 'declined'],
+    ['newsletter_opt_in', consents.newsletter_opt_in, consents.newsletter_opt_in ? 'accepted' : 'declined']
+  ].map(([consent_type, accepted, status]) => ({
+    user_id: user?.id || null,
+    email,
+    consent_type,
+    status,
+    source: 'checkout',
+    metadata: { order_id: orderId || null, page: 'checkout.html' }
+  }));
+  await insertRows(context, 'consent_records', rows).catch((error) => console.error('checkout consent record failed:', { message: error.message }));
+}
+
 function assertPaymentEnvironment(env) {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new CheckoutError('Sipariş sistemi yapılandırması eksik.', 503, 'SERVICE_NOT_CONFIGURED');
@@ -318,7 +357,9 @@ export async function onRequestPost(context) {
     });
 
     const accessToken = payload.accessToken || null;
-    const customer = validateCustomer(payload.customer || {});
+    const rawCustomer = payload.customer || {};
+    const consents = validateCheckoutConsents(rawCustomer);
+    const customer = validateCustomer(rawCustomer);
     const cart = normalizeCart(payload.cart || []);
     const user = accessToken ? await getUserFromAccessToken(context, accessToken) : null;
     if (accessToken && !user) throw new CheckoutError('Oturum süresi dolmuş. Lütfen tekrar giriş yap.', 401, 'INVALID_SESSION');
@@ -354,8 +395,10 @@ export async function onRequestPost(context) {
       cargo_note: customer.cargo_note || null,
       ip_address: getClientIp(context.request),
       user_agent: getUserAgent(context.request),
-      metadata: { source: 'checkout', cart_line_count: cart.length, coupon: coupon.code || null, coupon_label: coupon.label || null }
+      metadata: { source: 'checkout', cart_line_count: cart.length, coupon: coupon.code || null, coupon_label: coupon.label || null, consents: { marketing_email_opt_in: consents.marketing_email_opt_in, newsletter_opt_in: consents.newsletter_opt_in } }
     });
+
+    await recordCheckoutConsents(context, { user, email: customer.email, consents, orderId: order.id });
 
     await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: order.id })));
     await insertRow(context, 'order_status_events', {

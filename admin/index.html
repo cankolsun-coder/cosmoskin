@@ -1,41 +1,14 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
-<title>COSMOSKIN Admin Dashboard</title>
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260510ops" />
-</head>
-<body>
-<div class="cs-admin-shell">
-  <aside class="cs-admin-sidebar">
-    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
-    <nav>
-      <a class="is-active" href="/admin/index.html">Dashboard</a>
-      <a href="/admin/inventory.html">Stok Yönetimi</a>
-      <a href="/admin/orders/">Sipariş Yönetimi</a>
-      <a href="/admin/reviews/">Yorumlar</a>
-      <a href="/admin/coupons.html">Kuponlar</a>
-    </nav>
-    <p>Operasyon paneli stok, sipariş, yorum ve kupon yönetimi için güvenli admin endpointlerini kullanır.</p>
-  </aside>
-  <main class="cs-admin-main">
-    <header class="cs-admin-topbar">
-      <div><p class="cs-kicker">COSMOSKIN Admin</p><h1>Operasyon Dashboard</h1><p>Düşük stok, stokta olmayan ürünler, bekleyen stok bildirimleri ve sipariş kuyruğu için hızlı görünüm.</p></div>
-      <div class="cs-admin-actions"><a href="/admin/inventory.html"><button type="button">Stok Yönetimi</button></a><a href="/admin/orders/"><button type="button">Sipariş Yönetimi</button></a></div>
-    </header>
-    <section class="cs-toolbar"><label class="cs-search">Admin Token<input id="dashToken" type="password" placeholder="ADMIN_TOKEN" autocomplete="off" /></label><button id="dashLoad" type="button">Özeti Yükle</button><p id="dashStatus" aria-live="polite">Token sessionStorage içinde saklanır.</p></section>
-    <section class="cs-summary-grid" id="dashCards">
-      <article><span>Low stock products</span><strong>—</strong></article><article><span>Out of stock products</span><strong>—</strong></article><article><span>Pending restock alerts</span><strong>—</strong></article><article><span>New orders</span><strong>—</strong></article>
-    </section>
-    <section class="cs-table-card"><h2 style="font-family:Fraunces,serif;margin-top:0">Operasyon Kısayolları</h2><div class="cs-filter-row"><a href="/admin/inventory.html"><button type="button">Stok ekranına git</button></a><a href="/admin/orders/"><button type="button">Siparişleri yönet</button></a><a href="/admin/reviews/"><button type="button">Yorumları yönet</button></a></div></section>
-  </main>
-</div>
-<script src="/assets/admin-dashboard.js?v=20260510ops" defer></script>
-</body>
-</html>
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Dashboard | COSMOSKIN Admin</title><link rel="icon" href="/favicon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511phase3"></head><body><div class="cs-admin-shell"><aside class="cs-admin-sidebar"><a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a><nav><a class="is-active" href="/admin/index.html">Dashboard</a>
+      <a href="/admin/inventory.html">Inventory</a>
+      <a href="/admin/orders/">Orders</a>
+      <a href="/admin/shipments.html">Shipments</a>
+      <a href="/admin/returns.html">Returns</a>
+      <a href="/admin/products.html">Products</a>
+      <a href="/admin/customers.html">Customers</a>
+      <a href="/admin/reviews/">Reviews</a>
+      <a href="/admin/email-logs.html">Email Logs</a>
+      <a href="/admin/invoices.html">Invoices</a>
+      <a href="/admin/suppliers.html">Suppliers</a>
+      <a href="/admin/compliance.html">Compliance</a>
+      <a href="/admin/legal-settings.html">Legal Settings</a>
+      <a href="/admin/admin-users.html">Admin Roles</a></nav><p>Token tabanlı MVP korunur; production için authenticated admin users + RBAC gereklidir.</p></aside><main class="cs-admin-main"><header class="cs-admin-topbar"><div><p class="cs-kicker">COSMOSKIN Admin</p><h1>Operasyon Dashboard</h1><p>Sipariş, fulfillment, stok, lot/SKT, e-posta, iade ve ödeme risklerini tek ekranda izle.</p></div><div class="cs-admin-actions"><a href="/admin/orders/"><button type="button">Orders</button></a><a href="/admin/inventory.html"><button type="button">Inventory</button></a></div></header><section class="cs-toolbar"><label class="cs-search">Admin Token<input id="dashToken" type="password" placeholder="ADMIN_TOKEN" autocomplete="off"></label><button id="dashLoad" type="button">Özeti Yükle</button><p id="dashStatus" aria-live="polite">Token sessionStorage içinde saklanır.</p></section><section class="cs-summary-grid" id="dashCards"><article><span>New orders</span><strong>—</strong></article><article><span>Low stock products</span><strong>—</strong></article><article><span>Failed emails</span><strong>—</strong></article><article><span>Return requests</span><strong>—</strong></article></section><section class="cs-table-card"><h2 style="font-family:Fraunces,serif;margin-top:0">Operasyon Kısayolları</h2><div class="cs-filter-row"><a href="/admin/returns.html"><button type="button">Returns</button></a><a href="/admin/email-logs.html"><button type="button">Email Logs</button></a><a href="/admin/invoices.html"><button type="button">Invoices</button></a><a href="/admin/suppliers.html"><button type="button">Suppliers</button></a><a href="/admin/compliance.html"><button type="button">Compliance</button></a></div></section></main></div><div class="cs-drawer" id="phase3Drawer" aria-hidden="true"><div class="cs-drawer-backdrop" data-close-phase3-drawer></div><aside class="cs-drawer-panel" role="dialog" aria-modal="true"><button class="cs-drawer-close" type="button" data-close-phase3-drawer>Kapat</button><div id="phase3DrawerContent"></div></aside></div><script src="/assets/admin-dashboard.js?v=20260511phase3" defer></script></body></html>

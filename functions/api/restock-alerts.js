@@ -1,6 +1,8 @@
 import { insertRow, selectRows } from './_lib/supabase.js';
 import { json } from './_lib/response.js';
 import { catalogProduct, getInventoryRows, normalizeEmail, normalizeSlug, validEmail } from './_lib/inventory.js';
+import { assertRateLimit } from './_lib/security.js';
+import { recordCrmEvent } from './_lib/crm-events.js';
 
 function getAccessToken(request) {
   const auth = request.headers.get('authorization') || '';
@@ -9,6 +11,7 @@ function getAccessToken(request) {
 
 export async function onRequestPost(context) {
   try {
+    assertRateLimit(context, 'restock-alerts', 8, 10 * 60 * 1000);
     const body = await context.request.json().catch(() => ({}));
     const product_slug = normalizeSlug(body.product_slug || body.slug || body.product_id);
     const email = normalizeEmail(body.email);
@@ -42,6 +45,7 @@ export async function onRequestPost(context) {
     }
 
     const alert = await insertRow(context, 'restock_alerts', { product_slug, email, user_id: userId, status: 'waiting' });
+    await recordCrmEvent(context, { event_type: 'restock_alert_created', email, product_slug, metadata: { source: 'restock_alerts' } });
     return json({ ok: true, alert_id: alert?.id || null, message: 'Ürün tekrar stokta olduğunda sana haber vereceğiz.' });
   } catch (error) {
     console.error('restock alert failed:', error);

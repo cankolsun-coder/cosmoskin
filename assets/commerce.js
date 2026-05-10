@@ -161,10 +161,16 @@
     setStatus('Güvenli ödeme sayfası hazırlanıyor...');
 
     const fd = new FormData(form);
+    const customer = Object.fromEntries(fd.entries());
+    customer.kvkk_acknowledged = Boolean(fd.get('kvkk_acknowledged') || fd.get('kvkk_terms'));
+    customer.preliminary_information_accepted = Boolean(fd.get('preliminary_information_accepted') || fd.get('sales_terms'));
+    customer.distance_sales_accepted = Boolean(fd.get('distance_sales_accepted') || fd.get('sales_terms'));
+    customer.marketing_email_opt_in = Boolean(fd.get('marketing_email_opt_in') || fd.get('marketing_optin'));
+    customer.newsletter_opt_in = Boolean(fd.get('newsletter_opt_in'));
     const payload = {
       accessToken: session?.access_token || null,
       cart,
-      customer: Object.fromEntries(fd.entries())
+      customer
     };
 
     try {

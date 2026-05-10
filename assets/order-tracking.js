@@ -23,6 +23,7 @@
       (shipment.tracking_number ? '<div class="tracking-summary-row"><span>Takip No</span><strong>' + esc(shipment.tracking_number) + '</strong></div>' : '') +
       (shipment.carrier ? '<div class="tracking-summary-row"><span>Kargo</span><strong>' + esc(shipment.carrier) + '</strong></div>' : '') +
       (shipment.tracking_url ? '<a class="tracking-btn" href="' + esc(shipment.tracking_url) + '" target="_blank" rel="noopener">Kargoyu Takip Et</a>' : '<div class="tracking-note">Kargo takip bağlantısı oluştuğunda burada görünecek.</div>') +
+      (order.invoice && order.invoice.pdf_url ? '<a class="tracking-btn secondary" href="' + esc(order.invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a>' : '') +
       '</div>' +
       '<div class="tracking-items">' + (items.length ? items.map(function (item) {
         return '<article class="tracking-item"><img src="' + esc(item.image || '/assets/logo-mark-beige.png') + '" alt="' + esc(item.product_name || 'Ürün') + '"><div><span>' + esc(item.brand || '') + '</span><strong>' + esc(item.product_name || 'Ürün') + '</strong></div><b>x' + esc(item.quantity || 1) + '</b></article>';

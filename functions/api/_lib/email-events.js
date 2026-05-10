@@ -9,7 +9,10 @@ export const EMAIL_TYPES = new Set([
   'shipment_delivered',
   'restock_alert',
   'refund_created',
+  'refund_completed',
   'return_request_received',
+  'return_approved',
+  'return_rejected',
   'review_request'
 ]);
 

@@ -1,5 +1,21 @@
-
-import { getUserFromAccessToken, insertRow, selectRows } from './_lib/supabase.js';
+import { getUserFromAccessToken, selectRows } from './_lib/supabase.js';
 import { json } from './_lib/response.js';
 function tokenFromReq(req){return (req.headers.get('authorization')||'').replace(/^Bearer\s+/i,'');}
-export async function onRequestPost(context){try{const body=await context.request.json().catch(()=>({})); const token=body.accessToken||tokenFromReq(context.request); const user=token?await getUserFromAccessToken(context,token):null; if(!user) return json({ok:false,error:'Fatura talebi için giriş gerekli.'},{status:401}); if(!body.order_id) return json({ok:false,error:'order_id gerekli.'},{status:400}); const orderRows=await selectRows(context,'orders',{select:'id,user_id,order_number',id:`eq.${body.order_id}`,limit:'1'}); const order=orderRows?.[0]; if(!order||order.user_id!==user.id) return json({ok:false,error:'Sipariş bulunamadı.'},{status:404}); const row=await insertRow(context,'invoice_records',{order_id:order.id,provider:context.env.EARCHIVE_PROVIDER||'manual',status:'pending',provider_payload:{requested_by:user.email,order_number:order.order_number}}); return json({ok:true,invoice:row,message:'Fatura/e-arşiv talebi sıraya alındı. Gerçek e-arşiv için sağlayıcı API bilgileri gerekir.'});}catch(error){return json({ok:false,error:error.message||'Fatura talebi oluşturulamadı.'},{status:500});}}
+function clean(value, max=120){return String(value||'').trim().slice(0,max);}
+export async function onRequestGet(context){
+  try{
+    const token=tokenFromReq(context.request); const user=token?await getUserFromAccessToken(context,token):null;
+    if(!user) return json({ok:false,error:'Fatura bilgisi için giriş gerekli.'},{status:401});
+    const url=new URL(context.request.url); const orderId=clean(url.searchParams.get('order_id'));
+    const orderParams={select:'id,order_number,customer_email,user_id',customer_email:`eq.${String(user.email||'').toLowerCase()}`,order:'created_at.desc',limit:'50'};
+    if(orderId) orderParams.id=`eq.${orderId}`;
+    const orders=await selectRows(context,'orders',orderParams).catch(()=>[]);
+    const ids=(orders||[]).map(o=>o.id).filter(Boolean);
+    if(!ids.length) return json({ok:true,invoices:[]});
+    const invoices=await selectRows(context,'invoice_records',{select:'id,order_id,invoice_type,invoice_status,invoice_number,provider,pdf_url,issued_at,created_at,updated_at',order_id:`in.(${ids.join(',')})`,order:'created_at.desc'}).catch(()=>[]);
+    return json({ok:true,invoices:(invoices||[]).map(inv=>({ ...inv, pdf_url: inv.pdf_url || null }))});
+  }catch(error){ return json({ok:false,error:error.message||'Fatura bilgisi alınamadı.'},{status:500}); }
+}
+export async function onRequestPost(context){
+  return json({ok:false,error:'Fatura/e-Arşiv talebi şu anda admin tarafından manuel kayıt veya gerçek sağlayıcı entegrasyonu ile yönetilir. Sahte fatura oluşturulmaz.'},{status:409});
+}

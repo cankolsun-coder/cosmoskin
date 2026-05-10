@@ -58,6 +58,9 @@
     restock_alert: 'Stok bildirimi',
     refund_created: 'İade bildirimi',
     return_request_received: 'İade talebi',
+    return_approved: 'İade onayı',
+    return_rejected: 'İade sonucu',
+    refund_completed: 'İade ödeme tamamlandı',
     review_request: 'Yorum isteği'
   };
 
@@ -214,6 +217,50 @@
     }
   }
 
+  async function createInvoice(orderId, form) {
+    var data = new FormData(form);
+    var response = await fetch('/api/admin/invoices', {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({
+        order_id: orderId,
+        invoice_type: data.get('invoice_type'),
+        invoice_status: data.get('invoice_status'),
+        invoice_number: data.get('invoice_number'),
+        pdf_url: data.get('pdf_url'),
+        provider: data.get('provider'),
+        provider_reference: data.get('provider_reference'),
+        note: data.get('note')
+      })
+    });
+    var result = await response.json().catch(function () { return {}; });
+    if (!response.ok || !result.ok) throw new Error(result.error || 'Fatura kaydı oluşturulamadı.');
+    toast('Fatura kaydı', result.message || 'Fatura kaydı oluşturuldu.', 'success');
+    await loadOrders(false);
+  }
+
+  async function createRefund(orderId, form) {
+    var data = new FormData(form);
+    var response = await fetch('/api/admin/refunds', {
+      method: 'POST',
+      headers: apiHeaders(),
+      body: JSON.stringify({
+        order_id: orderId,
+        return_request_id: data.get('return_request_id'),
+        amount: data.get('amount'),
+        currency: data.get('currency') || 'TRY',
+        status: data.get('status'),
+        provider: 'manual',
+        provider_reference: data.get('provider_reference'),
+        note: data.get('note')
+      })
+    });
+    var result = await response.json().catch(function () { return {}; });
+    if (!response.ok || !result.ok) throw new Error(result.error || 'Refund kaydı oluşturulamadı.');
+    toast('Refund kaydı', result.message || 'Refund kaydı oluşturuldu.', result.email && result.email.error ? 'error' : 'success');
+    await loadOrders(false);
+  }
+
   function filteredOrders() {
     var q = state.filters.query.trim().toLowerCase();
     if (!q) return state.orders;
@@ -328,7 +375,11 @@
       '<div class="drawer-body">' +
       renderDetailPanel(order, payment, shipment) +
       renderItemsPanel(order) +
+      renderInvoicePanel(order) +
+      renderReturnsPanel(order) +
+      renderRefundPanel(order) +
       renderTimelinePanel(order) +
+      renderShipmentEventsPanel(order) +
       renderEmailPanel(order) +
       renderUpdatePanel(order, shipment) +
       '</div>';
@@ -365,6 +416,36 @@
       }).join('') : '<div class="empty-state">Ürün satırı bulunamadı.</div>') + '</div></section>';
   }
 
+  function renderInvoicePanel(order) {
+    var invoices = order.invoices || [];
+    var rows = invoices.length ? invoices.map(function (invoice) {
+      return '<div class="timeline-item"><strong>' + esc(invoice.invoice_number || invoice.invoice_status || 'Fatura kaydı') + '</strong><span>' + esc(invoice.invoice_type || 'manual') + (invoice.provider ? ' · ' + esc(invoice.provider) : '') + '</span>' + (invoice.pdf_url ? '<span><a href="' + esc(invoice.pdf_url) + '" target="_blank" rel="noopener">PDF görüntüle</a></span>' : '<span>PDF bağlantısı yok.</span>') + '<span>' + esc(dateTime(invoice.issued_at || invoice.created_at)) + '</span></div>';
+    }).join('') : '<div class="empty-state">Fatura kaydı yok. Fatura sağlayıcı entegrasyonu henüz yapılandırılmadı.</div>';
+    return '<section class="detail-panel"><div class="panel-title"><strong>Fatura</strong><a class="secondary-btn" href="/admin/invoices.html">Fatura paneli</a></div><div class="timeline">' + rows + '</div><form class="update-form" id="invoiceCreateForm" data-order-id="' + esc(order.id) + '"><div class="detail-grid"><div class="field"><label>Fatura tipi</label><select name="invoice_type"><option value="e_arsiv">e-Arşiv</option><option value="e_fatura">e-Fatura</option><option value="manual">Manuel</option></select></div><div class="field"><label>Durum</label><select name="invoice_status"><option value="issued">issued</option><option value="pending">pending</option><option value="failed">failed</option><option value="cancelled">cancelled</option></select></div><div class="field"><label>Fatura No</label><input name="invoice_number" placeholder="FTR-..." /></div><div class="field"><label>PDF URL</label><input name="pdf_url" type="url" placeholder="https://..." /></div><div class="field"><label>Sağlayıcı</label><input name="provider" placeholder="manual / Paraşüt / Mikro" /></div><div class="field"><label>Provider Ref</label><input name="provider_reference" placeholder="Opsiyonel" /></div></div><div class="field"><label>Not</label><textarea name="note" placeholder="Bu kayıt gerçek e-Fatura/e-Arşiv sağlayıcı entegrasyonu değildir."></textarea></div><div class="form-actions"><span class="meta-pill">Sahte resmi fatura oluşturulmaz.</span><button class="secondary-btn" type="submit">Fatura Kaydı Ekle</button></div></form></section>';
+  }
+
+  function renderReturnsPanel(order) {
+    var returns = order.return_requests || [];
+    return '<section class="detail-panel"><div class="panel-title"><strong>İade Talepleri</strong><a class="secondary-btn" href="/admin/returns.html">İade paneli</a></div><div class="timeline">' + (returns.length ? returns.map(function (r) {
+      return '<div class="timeline-item"><strong>' + esc(r.reason || 'İade talebi') + ' · ' + esc(statusLabel(r.status)) + '</strong><span>' + esc(r.customer_note || '') + '</span><span>Refund: ' + esc(r.refund_status || 'not_started') + ' · ' + esc(dateTime(r.created_at)) + '</span>' + (r.admin_note ? '<span>Admin: ' + esc(r.admin_note) + '</span>' : '') + '</div>';
+    }).join('') : '<div class="empty-state">Bu sipariş için iade talebi yok.</div>') + '</div><p class="sidebar-copy">Kozmetik ve kişisel bakım ürünlerinde iade uygunluğu ambalaj, kullanım ve hijyen durumuna göre admin tarafından değerlendirilir.</p></section>';
+  }
+
+  function renderRefundPanel(order) {
+    var refunds = order.refunds || [];
+    var returnOptions = (order.return_requests || []).map(function (r) { return '<option value="' + esc(r.id) + '">' + esc((r.reason || 'İade talebi') + ' · ' + (r.status || 'requested')) + '</option>'; }).join('');
+    return '<section class="detail-panel"><div class="panel-title"><strong>Refund</strong><span class="meta-pill">Manuel temel</span></div><div class="timeline">' + (refunds.length ? refunds.map(function (refund) {
+      return '<div class="timeline-item"><strong>' + esc(statusLabel(refund.status) || refund.status) + ' · ' + esc(money(refund.amount || 0, refund.currency || order.currency)) + '</strong><span>' + esc(refund.provider || 'manual') + (refund.provider_reference ? ' · ' + esc(refund.provider_reference) : '') + '</span><span>' + esc(dateTime(refund.completed_at || refund.created_at)) + '</span>' + (refund.error_message ? '<span>' + esc(refund.error_message) + '</span>' : '') + '</div>';
+    }).join('') : '<div class="empty-state">Refund kaydı yok. Gerçek Iyzico refund API entegrasyonu bu fazda çalıştırılmaz.</div>') + '</div><form class="update-form" id="refundCreateForm" data-order-id="' + esc(order.id) + '"><div class="detail-grid"><div class="field"><label>İade talebi</label><select name="return_request_id"><option value="">Sipariş geneli</option>' + returnOptions + '</select></div><div class="field"><label>Tutar</label><input name="amount" inputmode="decimal" placeholder="0.00" value="' + esc(order.total_amount || '') + '" /></div><div class="field"><label>Para birimi</label><input name="currency" value="' + esc(order.currency || 'TRY') + '" /></div><div class="field"><label>Durum</label><select name="status"><option value="pending">pending</option><option value="completed">completed</option><option value="failed">failed</option><option value="cancelled">cancelled</option></select></div></div><div class="field"><label>Referans / Not</label><input name="provider_reference" placeholder="Manuel banka / Iyzico dashboard referansı" /></div><div class="field"><label>Operasyon notu</label><textarea name="note" placeholder="Gerçek ödeme sağlayıcı refund işlemi ayrı doğrulanmalıdır."></textarea></div><div class="form-actions"><span class="meta-pill">Gerçek Iyzico refund çağrısı yapılmaz.</span><button class="secondary-btn" type="submit">Refund Kaydı Ekle</button></div></form></section>';
+  }
+
+  function renderShipmentEventsPanel(order) {
+    var events = order.shipment_events || [];
+    return '<section class="detail-panel"><div class="panel-title"><strong>Kargo Hareketleri</strong><a class="secondary-btn" href="/admin/shipments.html">Kargo paneli</a></div><div class="timeline">' + (events.length ? events.map(function (event) {
+      return '<div class="timeline-item"><strong>' + esc(statusLabel(event.status) || event.event_type) + '</strong><span>' + esc(event.note || event.event_type || '') + '</span><span>' + esc(dateTime(event.occurred_at)) + '</span></div>';
+    }).join('') : '<div class="empty-state">Kargo hareketi yok.</div>') + '</div></section>';
+  }
+
   function renderTimelinePanel(order) {
     var events = order.status_events || [];
     return '<section class="detail-panel"><div class="panel-title"><strong>Durum geçmişi</strong></div><div class="timeline">' +
@@ -382,6 +463,7 @@
     var shipment = getLatestShipment(order);
     var safeResend = '<div class="email-actions">' +
       (shipment && order.customer_email ? '<button class="secondary-btn" type="button" data-action="resend-email" data-id="' + esc(order.id) + '" data-email-type="shipment_created">Kargo e-postasını tekrar gönder</button>' : '') +
+      (shipment && shipment.status === 'delivered' && order.customer_email ? '<button class="secondary-btn" type="button" data-action="resend-email" data-id="' + esc(order.id) + '" data-email-type="shipment_delivered">Teslim e-postasını tekrar gönder</button>' : '') +
       (order.customer_email ? '<button class="secondary-btn" type="button" data-action="resend-email" data-id="' + esc(order.id) + '" data-email-type="payment_success">Ödeme onayını tekrar gönder</button>' : '') +
       (order.customer_email ? '<button class="secondary-btn" type="button" data-action="resend-email" data-id="' + esc(order.id) + '" data-email-type="order_created">Sipariş onayını tekrar gönder</button>' : '') +
       '</div>';
@@ -401,7 +483,7 @@
       '<form class="update-form" id="orderUpdateForm" data-order-id="' + esc(order.id) + '">' +
       '<div class="field"><label>Hızlı aksiyon</label><select name="action"><option value="">Manuel durum seç</option><option value="mark_payment_paid">Ödemeyi ödendi işaretle</option><option value="mark_preparing">Hazırlanıyor işaretle</option><option value="mark_packed">Paketlendi işaretle</option><option value="mark_shipped">Kargoya verildi işaretle</option><option value="mark_delivered">Teslim edildi işaretle</option><option value="cancel_order">Siparişi iptal et</option></select></div>' +
       '<div class="field"><label>Yeni durum</label><select name="status">' + options + '</select></div>' +
-      '<div class="field"><label>Kargo firması</label><input name="carrier" type="text" placeholder="Yurtiçi, MNG, Aras..." value="' + esc(shipment.carrier || '') + '"></div>' +
+      '<div class="field"><label>Kargo firması</label><select name="carrier"><option value="">Seçiniz</option>' + ['Yurtiçi Kargo','Aras Kargo','MNG Kargo','Sürat Kargo','Hepsijet','Kolay Gelsin','UPS','DHL','Other'].map(function (carrier) { return '<option value="' + esc(carrier) + '"' + ((shipment.carrier || shipment.carrier_name) === carrier ? ' selected' : '') + '>' + esc(carrier) + '</option>'; }).join('') + '</select></div>' +
       '<div class="field"><label>Takip numarası</label><input name="tracking_number" type="text" placeholder="Takip kodu" value="' + esc(shipment.tracking_number || '') + '"></div>' +
       '<div class="field"><label>Takip linki</label><input name="tracking_url" type="url" placeholder="https://..." value="' + esc(shipment.tracking_url || '') + '"></div>' +
       '<div class="field"><label>Admin notu</label><textarea name="message" placeholder="Bu not durum geçmişine yazılır. Kargo bilgisi kaydedilirse müşteri e-postası varsayılan olarak gönderilir."></textarea></div>' +
@@ -491,6 +573,18 @@
       resendEmail(resend.getAttribute('data-id') || '', resend.getAttribute('data-email-type') || 'shipment_created');
     });
     el.drawer.addEventListener('submit', function (event) {
+      var invoiceForm = event.target.closest('#invoiceCreateForm');
+      if (invoiceForm) {
+        event.preventDefault();
+        createInvoice(invoiceForm.getAttribute('data-order-id'), invoiceForm).catch(function (error) { toast('Fatura kaydı başarısız', error.message || 'Bilinmeyen hata.', 'error'); });
+        return;
+      }
+      var refundForm = event.target.closest('#refundCreateForm');
+      if (refundForm) {
+        event.preventDefault();
+        createRefund(refundForm.getAttribute('data-order-id'), refundForm).catch(function (error) { toast('Refund kaydı başarısız', error.message || 'Bilinmeyen hata.', 'error'); });
+        return;
+      }
       var form = event.target.closest('#orderUpdateForm');
       if (!form) return;
       event.preventDefault();

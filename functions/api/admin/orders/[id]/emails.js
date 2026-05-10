@@ -2,7 +2,7 @@ import { json } from '../../../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../../../_lib/admin.js';
 import { resendOrderEmail } from '../../orders.js';
 
-const SAFE_RESEND_TYPES = new Set(['shipment_created', 'shipment_updated', 'order_created', 'payment_success']);
+const SAFE_RESEND_TYPES = new Set(['shipment_created', 'shipment_updated', 'shipment_delivered', 'order_created', 'payment_success']);
 
 export async function onRequestPost(context) {
   try {

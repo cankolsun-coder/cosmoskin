@@ -1,6 +1,7 @@
-import { insertRow, selectRows, updateRows } from '../_lib/supabase.js';
+import { insertRow, insertRows, selectRows, updateRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { renderNewsletterWelcomeEmail } from '../_lib/newsletter-email.js';
+import { recordCrmEvent } from '../_lib/crm-events.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const WINDOW_MS = 10 * 60 * 1000;
@@ -119,6 +120,21 @@ export async function onRequestPost(context) {
       status: 'subscribed',
       confirmed_at: now
     });
+
+    await insertRows(context, 'consent_records', [{
+      email,
+      consent_type: 'newsletter_opt_in',
+      status: 'accepted',
+      source: 'newsletter_'+source,
+      metadata: { source }
+    }, {
+      email,
+      consent_type: 'marketing_email_opt_in',
+      status: 'accepted',
+      source: 'newsletter_'+source,
+      metadata: { source, note: 'Newsletter opt-in implies journal communication only until preference-center is implemented.' }
+    }]).catch((error) => console.error('newsletter consent record failed', { message: error.message }));
+    await recordCrmEvent(context, { event_type: 'newsletter_subscribed', email, metadata: { source } });
 
     try {
       await sendWelcomeEmail(context.env, email);

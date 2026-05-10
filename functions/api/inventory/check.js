@@ -1,8 +1,10 @@
 import { json } from '../_lib/response.js';
 import { buildCheckItem, getInventoryMap, normalizeSlug } from '../_lib/inventory.js';
+import { assertRateLimit } from '../_lib/security.js';
 
 export async function onRequestPost(context) {
   try {
+    assertRateLimit(context, 'inventory-check', 120, 10 * 60 * 1000);
     const body = await context.request.json().catch(() => ({}));
     const items = Array.isArray(body.items) ? body.items.slice(0, 80) : [];
     if (!items.length) return json({ ok: false, error: 'items gerekli.' }, { status: 400 });

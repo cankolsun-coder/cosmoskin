@@ -20,3 +20,10 @@
 /orders.html                 /account/orders.html                     301
 /products/cosrx-advanced-snail-96-mucin-power-essence.html /products/cosrx-advanced-snail-96-mucin-essence.html 301
 /products/torriden-dive-in-serum.html /products/torriden-dive-in-hyaluronic-acid-serum.html 301
+
+# Phase 3 legal readiness canonical paths
+/kvkk-aydinlatma.html /legal/kvkk-aydinlatma-metni.html 301
+/mesafeli-satis.html /legal/mesafeli-satis-sozlesmesi.html 302
+/on-bilgilendirme.html /legal/on-bilgilendirme-formu.html 302
+/iade-degisim.html /legal/iade-ve-cayma-politikasi.html 302
+/teslimat-kargo.html /legal/teslimat-ve-kargo.html 302

@@ -3,6 +3,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
   Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.brevo.com https://www.google-analytics.com https://region1.google-analytics.com https://*.iyzipay.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://*.iyzipay.com
   X-XSS-Protection: 1; mode=block
 
 /assets/*.css

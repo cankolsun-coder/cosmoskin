@@ -4,6 +4,7 @@ import { sendOrderStatusEmail } from './_lib/order-email.js';
 import { recordEmailEvent } from './_lib/email-events.js';
 import { deriveCommerceSegments, mapSegmentsToLists, upsertBrevoContact } from './_lib/brevo.js';
 import { iyzicoRequest } from './_lib/iyzico.js';
+import { recordCrmEvent } from './_lib/crm-events.js';
 import { redirect } from './_lib/response.js';
 
 async function syncBrevoAfterPayment(context, conversationId) {
@@ -332,6 +333,7 @@ export async function onRequestPost(context) {
           await finalizeCommerceAfterPayment(context, conversationId);
           await syncBrevoAfterPayment(context, conversationId);
           await sendPaymentSuccessEmailSafely(context, conversationId);
+          await recordCrmEvent(context, { event_type: 'purchase_completed', order_id: conversationId, metadata: { source: 'iyzico_callback', payment_id: providerPaymentId || null } });
         } else {
           await recordStatusEvent(context, conversationId, 'payment_duplicate_ignored', 'Aynı ödeme callback tekrar geldi; stok ikinci kez düşülmedi.', { provider: 'iyzico', token, paymentId: providerPaymentId });
         }

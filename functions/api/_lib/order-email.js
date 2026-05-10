@@ -311,3 +311,94 @@ export async function sendShipmentEmail(env, payload = {}) {
     textContent: buildShipmentPlainText({ order, shipment, env })
   });
 }
+
+
+const TRANSACTIONAL_COPY = {
+  return_request_received: {
+    subject: 'İade talebin alındı',
+    eyebrow: 'İade Süreci',
+    title: 'İade talebin alındı.',
+    body: 'İade talebin COSMOSKIN ekibi tarafından incelenmek üzere alındı. Değerlendirme sonucunu e-posta yoluyla paylaşacağız.'
+  },
+  return_approved: {
+    subject: 'İade talebin onaylandı',
+    eyebrow: 'İade Değerlendirmesi',
+    title: 'İade talebin onaylandı.',
+    body: 'İade talebin COSMOSKIN ekibi tarafından onaylandı. Ürün ambalaj, kullanım ve hijyen koşulları nihai kontrolde tekrar değerlendirilecektir.'
+  },
+  return_rejected: {
+    subject: 'İade talebin değerlendirildi',
+    eyebrow: 'İade Değerlendirmesi',
+    title: 'İade talebin değerlendirildi.',
+    body: 'İade talebin COSMOSKIN ekibi tarafından değerlendirildi. Uygunluk sonucu ve gerekçesi sipariş kaydına işlendi.'
+  },
+  refund_completed: {
+    subject: 'İade ödemen tamamlandı',
+    eyebrow: 'İade Ödemesi',
+    title: 'İade ödemen tamamlandı.',
+    body: 'COSMOSKIN iade sürecin tamamlandı. İade ödemen, ödeme sağlayıcının işlem sürelerine bağlı olarak kartına yansıyacaktır.'
+  },
+  shipment_delivered: {
+    subject: 'Siparişin teslim edildi',
+    eyebrow: 'Teslimat Tamamlandı',
+    title: 'Siparişin teslim edildi.',
+    body: 'COSMOSKIN siparişin teslim edildi. Deneyimini bizimle paylaşmak istersen ürün sayfasından yorum bırakabilirsin.'
+  }
+};
+
+function buildTransactionalHtml({ order = {}, type = '', env = {}, note = '', cta = null } = {}) {
+  const copy = TRANSACTIONAL_COPY[type] || TRANSACTIONAL_COPY.return_request_received;
+  const siteUrl = getSiteUrl(env);
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  const orderNumber = order.order_number || order.id || '';
+  const ctaHtml = cta && cta.href && cta.label ? `<tr><td style="padding:0 30px 34px;text-align:center;"><a href="${escapeHtml(cta.href)}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 25px;border-radius:999px;background:#15110f;color:#fff;text-decoration:none;font-size:13px;font-weight:800;">${escapeHtml(cta.label)}</a></td></tr>` : '';
+  return `<!DOCTYPE html>
+<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(copy.subject)} | COSMOSKIN</title></head>
+<body style="margin:0;padding:0;background:#f5f1ea;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#181818;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;visibility:hidden;">${escapeHtml(copy.body)}</div>
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f5f1ea;margin:0;padding:24px 12px;"><tr><td align="center">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px;background:#fff;border:1px solid #e7ded2;border-radius:24px;overflow:hidden;">
+      <tr><td style="padding:30px 30px 26px;background:linear-gradient(180deg,#f8f2ea 0%,#efe4d6 100%);border-bottom:1px solid #e9dece;text-align:center;"><a href="${siteUrl}" target="_blank" rel="noopener" style="text-decoration:none;color:#15110f;"><div style="font-size:21px;letter-spacing:4px;text-transform:uppercase;font-weight:750;">COSMOSKIN</div><div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8a7f72;margin-top:8px;">Premium Korean Skincare</div></a></td></tr>
+      <tr><td style="padding:36px 30px 30px;"><div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#8a7f72;font-weight:800;margin-bottom:12px;">${escapeHtml(copy.eyebrow)}</div><h1 style="margin:0;font-size:31px;line-height:1.16;font-weight:650;color:#15110f;">${escapeHtml(copy.title)}</h1><p style="margin:16px 0 0;font-size:15px;line-height:1.9;color:#4f473f;">${escapeHtml(copy.body)}</p>
+      ${orderNumber ? `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:24px;border-collapse:collapse;background:#fcfaf7;border:1px solid #eee4d9;border-radius:18px;overflow:hidden;"><tr><td style="padding:16px 18px;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;color:#8a7f72;font-weight:800;border-bottom:1px solid #eee4d9;">Sipariş Bilgisi</td></tr><tr><td style="padding:12px 18px;font-size:14px;color:#4a4038;">Sipariş No: <strong style="color:#15110f;">${escapeHtml(orderNumber)}</strong></td></tr></table>` : ''}
+      ${note ? `<p style="margin:20px 0 0;padding:14px 16px;border-radius:16px;background:#faf7f2;border:1px solid #eee4d9;font-size:13px;line-height:1.7;color:#5b5148;">${escapeHtml(note)}</p>` : ''}</td></tr>
+      ${ctaHtml}
+      <tr><td style="padding:20px 28px;background:#faf7f2;border-top:1px solid #eee5da;font-size:12px;line-height:1.8;color:#857a6f;text-align:center;">Soruların için <a href="mailto:${escapeHtml(supportEmail)}" style="color:#15110f;text-decoration:none;">${escapeHtml(supportEmail)}</a> adresinden bize ulaşabilirsin.</td></tr>
+    </table>
+  </td></tr></table>
+</body></html>`;
+}
+
+function buildTransactionalText({ order = {}, type = '', env = {}, note = '', cta = null } = {}) {
+  const copy = TRANSACTIONAL_COPY[type] || TRANSACTIONAL_COPY.return_request_received;
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  return [
+    'COSMOSKIN',
+    copy.subject,
+    copy.body,
+    order.order_number || order.id ? `Sipariş No: ${order.order_number || order.id}` : '',
+    note ? `Not: ${note}` : '',
+    cta && cta.href ? `${cta.label || 'Bağlantı'}: ${cta.href}` : '',
+    `Destek: ${supportEmail}`
+  ].filter(Boolean).join('\n');
+}
+
+export function getCommerceEmailSubject(type = '') {
+  return (TRANSACTIONAL_COPY[type] || TRANSACTIONAL_COPY.return_request_received).subject;
+}
+
+export async function sendCommerceTransactionalEmail(env, payload = {}) {
+  const order = payload.order || {};
+  const to = String(payload.to || order.customer_email || '').trim().toLowerCase();
+  if (!to) return { sent: false, skipped: true, reason: 'customer_email_missing' };
+  if (!env?.BREVO_API_KEY) return { sent: false, skipped: true, reason: 'BREVO_API_KEY_missing' };
+  const type = String(payload.type || 'return_request_received').trim();
+  const subject = payload.subject || getCommerceEmailSubject(type);
+  return await sendBrevoEmail(env, {
+    to,
+    toName: `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.trim() || to,
+    subject,
+    htmlContent: buildTransactionalHtml({ ...payload, order, type, env }),
+    textContent: buildTransactionalText({ ...payload, order, type, env })
+  });
+}

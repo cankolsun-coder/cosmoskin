@@ -699,7 +699,13 @@ const CHECKOUT_FIELD_RULES = {
   postal_code: { label: 'Posta Kodu', validate: (value) => /^\d{5}$/.test(onlyDigits(value)) || 'Posta kodu 5 haneli olmalı.' },
   address: { label: 'Adres', validate: (value) => String(value || '').trim().length >= 10 || 'Adres alanı en az 10 karakter olmalı.' },
   sales_terms: { label: 'Mesafeli Satış', validate: (_value, input) => input?.checked || 'Ön bilgilendirme ve mesafeli satış koşullarını onaylamalısın.' },
-  kvkk_terms: { label: 'KVKK', validate: (_value, input) => input?.checked || 'KVKK aydınlatma metni bilgilendirmesini onaylamalısın.' }
+  kvkk_terms: { label: 'KVKK', validate: (_value, input) => input?.checked || 'KVKK aydınlatma metni bilgilendirmesini onaylamalısın.' },
+  kvkk_acknowledged: { label: 'KVKK', validate: (_value, input) => input?.checked || 'KVKK aydınlatma metni bilgilendirmesini onaylamalısın.' },
+  preliminary_information_accepted: { label: 'Ön Bilgilendirme', validate: (_value, input) => input?.checked || 'Ön bilgilendirme formunu onaylamalısın.' },
+  distance_sales_accepted: { label: 'Mesafeli Satış', validate: (_value, input) => input?.checked || 'Mesafeli satış sözleşmesini onaylamalısın.' },
+  kvkk_acknowledged: { label: 'KVKK', validate: (_value, input) => input?.checked || 'KVKK aydınlatma metni bilgilendirmesini onaylamalısın.' },
+  preliminary_information_accepted: { label: 'Ön Bilgilendirme', validate: (_value, input) => input?.checked || 'Ön bilgilendirme formunu onaylamalısın.' },
+  distance_sales_accepted: { label: 'Mesafeli Satış', validate: (_value, input) => input?.checked || 'Mesafeli satış sözleşmesini onaylamalısın.' }
 };
 
 function onlyDigits(value) {

@@ -286,6 +286,7 @@
       drop: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11Z"/></svg>',
       bell: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 9a6 6 0 1 0-12 0c0 7-2 7-2 7h16s-2 0-2-7ZM10 20h4"/></svg>',
       card: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 6h18v12H3zM3 10h18M7 15h4"/></svg>',
+      invoice: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3.8h12v16.4l-2-1.1-2 1.1-2-1.1-2 1.1-2-1.1-2 1.1V3.8Z"/><path d="M8.5 8h7M8.5 12h7M8.5 15h4"/></svg>',
       return: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M5 12h10a5 5 0 1 1 0 10h-1"/></svg>',
       sparkle: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6Z"/></svg>'
     };
@@ -367,10 +368,20 @@
   function canReturnOrder(order) {
     var status = String(order?.status || order?.fulfillment_status || '').toLowerCase();
     var deliveredDate = order?.delivered_at || getPrimaryShipment(order)?.delivered_at;
-    if (!(status === 'delivered' || deliveredDate)) return false;
+    var activeReturn = (order?.return_requests || []).some(function (request) { return ['requested', 'under_review', 'approved', 'received'].includes(String(request.status || '').toLowerCase()); });
+    if (activeReturn) return false;
+    if (!(status === 'delivered' || status === 'shipped' || deliveredDate || getPrimaryShipment(order)?.tracking_number)) return false;
     if (!deliveredDate) return true;
     var days = (Date.now() - new Date(deliveredDate).getTime()) / 86400000;
     return days <= 14;
+  }
+  function getInvoiceWithPdf(order) {
+    return (order?.invoices || []).find(function (invoice) { return invoice && invoice.pdf_url; }) || null;
+  }
+  function renderReturnStatus(order) {
+    var latest = (order?.return_requests || [])[0];
+    if (!latest) return '';
+    return '<div><span>İade</span><strong>' + escapeHtml(latest.status || 'requested') + ' / ' + escapeHtml(latest.refund_status || 'not_started') + '</strong></div>';
   }
 
   function renderOrderCard(order, compact) {
@@ -381,11 +392,13 @@
     var statusText = statusLabels[order.status] || getFulfillmentLabel(order.fulfillment_status) || getShipmentLabel(shipment);
     var trackingHref = shipment.tracking_url || detailHref;
     var returnBtn = canReturnOrder(order) ? '<button class="cs-mini-btn" type="button" data-return-order="' + escapeHtml(order.id) + '">İade Talebi Oluştur</button>' : '';
+    var invoice = getInvoiceWithPdf(order);
+    var invoiceAction = invoice ? '<a class="cs-mini-btn" href="' + escapeHtml(invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a>' : '';
     return '<article class="cs-order-card cs-order-card--rich ' + (compact ? 'is-compact' : '') + '">' +
       '<div class="cs-order-card-head"><div><small>' + (compact ? 'SON SİPARİŞ' : 'SİPARİŞ NO') + '</small><strong>' + escapeHtml(order.order_number || order.id) + '</strong><time>' + escapeHtml(formatDate(order.created_at, true)) + ' · ' + escapeHtml(orderItemCount(order)) + ' ürün</time></div><div class="cs-order-head-actions"><span class="cs-status-pill ' + escapeHtml(statusClass) + '">' + escapeHtml(statusText) + '</span></div></div>' +
       renderOrderProgress(order, compact) +
       '<div class="cs-order-body"><div class="cs-order-items">' + (items || '<p class="account-mini">Ürün detayı bulunamadı.</p>') + '</div>' +
-      '<aside class="cs-order-side"><div><span>Toplam</span><strong>' + escapeHtml(formatMoney(order.total_amount || 0)) + '</strong></div><div><span>Kargo</span><strong>' + escapeHtml(getShipmentLabel(shipment)) + '</strong></div>' + ((shipment.carrier || shipment.carrier_name) ? '<div><span>Firma</span><strong>' + escapeHtml(shipment.carrier || shipment.carrier_name) + '</strong></div>' : '') + (shipment.tracking_number ? '<div><span>Takip No</span><strong>' + escapeHtml(shipment.tracking_number) + '</strong></div>' : '') + '<div class="cs-order-actions"><a class="cs-mini-btn dark" href="' + escapeHtml(trackingHref) + '"' + (shipment.tracking_url ? ' target="_blank" rel="noopener"' : '') + '>Kargoyu Takip Et</a><button class="cs-mini-btn" type="button" data-repeat-order="' + escapeHtml(order.id) + '">Tekrar Satın Al</button><button class="cs-mini-btn" type="button" data-invoice-order="' + escapeHtml(order.id) + '">Faturayı Görüntüle</button><a class="cs-mini-btn" href="' + escapeHtml(detailHref) + '">Detayı Gör</a>' + returnBtn + '</div></aside></div></article>';
+      '<aside class="cs-order-side"><div><span>Toplam</span><strong>' + escapeHtml(formatMoney(order.total_amount || 0)) + '</strong></div><div><span>Kargo</span><strong>' + escapeHtml(getShipmentLabel(shipment)) + '</strong></div>' + ((shipment.carrier || shipment.carrier_name) ? '<div><span>Firma</span><strong>' + escapeHtml(shipment.carrier || shipment.carrier_name) + '</strong></div>' : '') + (shipment.tracking_number ? '<div><span>Takip No</span><strong>' + escapeHtml(shipment.tracking_number) + '</strong></div>' : '') + renderReturnStatus(order) + '<div class="cs-order-actions"><a class="cs-mini-btn dark" href="' + escapeHtml(trackingHref) + '"' + (shipment.tracking_url ? ' target="_blank" rel="noopener"' : '') + '>Kargoyu Takip Et</a><button class="cs-mini-btn" type="button" data-repeat-order="' + escapeHtml(order.id) + '">Tekrar Satın Al</button>' + invoiceAction + '<a class="cs-mini-btn" href="' + escapeHtml(detailHref) + '">Detayı Gör</a>' + returnBtn + '</div></aside></div></article>';
   }
 
   function renderLatestOrder() {
@@ -430,6 +443,7 @@
       { icon: 'pin', title: 'Kayıtlı Adreslerim', sub: (stats.addresses_count || 0) + ' adres kayıtlı', tab: 'addresses' },
       { icon: 'bell', title: 'Bildirim Tercihlerim', sub: 'E-posta & SMS', tab: 'notifications' },
       { icon: 'sparkle', title: 'Son Görüntülenenler', sub: 'Katalog geçmişi', href: '/allproducts.html' },
+      { icon: 'invoice', title: 'Faturalarım', sub: (state.summary?.orders || []).reduce(function (sum, order) { return sum + ((order.invoices || []).filter(function (invoice) { return invoice.pdf_url; }).length); }, 0) + ' fatura linki', tab: 'invoices' },
       { icon: 'return', title: 'İade Taleplerim', sub: (state.returns || []).length + ' açık talep', tab: 'returns' }
     ];
     slot.innerHTML = items.map(function (item) {
@@ -529,13 +543,26 @@
     slot.innerHTML = '<div class="cs-truthful-state">' + iconSvg('card') + '<div><strong>Kayıtlı ödeme yöntemi bulunmuyor.</strong><p>Ödeme bilgileriniz güvenli ödeme sağlayıcısı üzerinden işlenir. COSMOSKIN kart numaranızı hesap sayfanızda saklamaz veya göstermez.</p><a class="cs-pill-btn cs-pill-btn--dark" href="/checkout.html">Ödeme Sayfasına Git</a></div></div>';
   }
 
+  function renderInvoices() {
+    var slot = $('#invoicesSlot');
+    if (!slot) return;
+    var rows = [];
+    (state.summary?.orders || []).forEach(function (order) {
+      (order.invoices || []).forEach(function (invoice) { rows.push({ order: order, invoice: invoice }); });
+    });
+    var linked = rows.filter(function (row) { return row.invoice && row.invoice.pdf_url; });
+    slot.innerHTML = linked.length ? linked.map(function (row) {
+      return '<article class="cs-return-card"><span class="cs-status-pill ' + escapeHtml(row.invoice.invoice_status || 'issued') + '">' + escapeHtml(row.invoice.invoice_status || 'issued') + '</span><h3>' + escapeHtml(row.invoice.invoice_number || row.order.order_number || 'Fatura') + '</h3><p>' + escapeHtml(row.invoice.provider || 'COSMOSKIN') + ' · ' + escapeHtml(formatDate(row.invoice.issued_at || row.invoice.created_at, true)) + '</p><a class="cs-mini-btn dark" href="' + escapeHtml(row.invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a></article>';
+    }).join('') : emptyState('Fatura bağlantısı yok.', 'Fatura PDF bağlantısı admin tarafından oluşturulduğunda burada görünür. Sahte fatura linki gösterilmez.', null);
+  }
+
   function renderReturns() {
     var slot = $('#returnsSlot');
     if (!slot) return;
     var returns = state.returns || [];
     var eligible = (state.summary?.orders || []).filter(canReturnOrder);
     var listHtml = returns.length ? returns.map(function (r) {
-      return '<article class="cs-return-card"><span class="cs-status-pill ' + escapeHtml(r.status || 'requested') + '">' + escapeHtml(statusLabels[r.status] || r.status || 'Talep Alındı') + '</span><h3>' + escapeHtml(r.reason || 'İade talebi') + '</h3><p>' + escapeHtml(r.note || 'Talebiniz inceleniyor.') + '</p><small>' + escapeHtml(formatDate(r.created_at, true)) + '</small></article>';
+      return '<article class="cs-return-card"><span class="cs-status-pill ' + escapeHtml(r.status || 'requested') + '">' + escapeHtml(statusLabels[r.status] || r.status || 'Talep Alındı') + '</span><h3>' + escapeHtml(r.reason || 'İade talebi') + '</h3><p>' + escapeHtml(r.customer_note || r.note || 'Talebiniz inceleniyor.') + '</p><small>' + escapeHtml(formatDate(r.created_at, true)) + ' · Refund: ' + escapeHtml(r.refund_status || 'not_started') + '</small></article>';
     }).join('') : emptyState('Henüz iade talebiniz yok.', 'İade veya değişim talepleriniz burada takip edilir.', null);
     var eligibleHtml = eligible.length ? eligible.map(function (order) {
       return '<article class="cs-return-eligible"><div><small>UYGUN SİPARİŞ</small><strong>' + escapeHtml(order.order_number || order.id) + '</strong><span>' + escapeHtml(formatDate(order.delivered_at || getPrimaryShipment(order).delivered_at || order.created_at)) + ' · ' + escapeHtml(formatMoney(order.total_amount || 0)) + '</span></div><button class="cs-mini-btn dark" type="button" data-return-order="' + escapeHtml(order.id) + '">İade Talebi Oluştur</button></article>';
@@ -604,7 +631,7 @@
   }
 
   function renderAll() {
-    renderShell(); renderStats(); renderLatestOrder(); renderRoutineSlot(); renderSecurityOverview(); renderQuickAccess(); renderRecommendations(); renderOrders(); renderFavorites(); renderAddresses(); renderPayments(); renderReturns(); renderNotifications(); renderForms(); renderRoutinePlan(); renderLoyaltyDetail(); writeLocalFavorites(state.summary?.favorites || []);
+    renderShell(); renderStats(); renderLatestOrder(); renderRoutineSlot(); renderSecurityOverview(); renderQuickAccess(); renderRecommendations(); renderOrders(); renderFavorites(); renderAddresses(); renderPayments(); renderInvoices(); renderReturns(); renderNotifications(); renderForms(); renderRoutinePlan(); renderLoyaltyDetail(); writeLocalFavorites(state.summary?.favorites || []);
   }
 
   function switchTab(tab, push) {
@@ -728,8 +755,10 @@
   function repeatOrder(orderId) { var order = (state.summary?.orders || []).find(function (item) { return item.id === orderId; }); if (!order) return; (order.order_items || []).forEach(function (item) { addProductToCart(item); }); showToast('Siparişteki ürünler sepete eklendi.'); }
 
   async function requestInvoice(orderId) {
-    await apiFetch('/invoices', { method: 'POST', body: { accessToken: state.session.access_token, order_id: orderId } });
-    showToast('Fatura talebiniz sıraya alındı.');
+    var order = (state.summary?.orders || []).find(function (item) { return item.id === orderId; });
+    var invoice = getInvoiceWithPdf(order);
+    if (invoice && invoice.pdf_url) window.open(invoice.pdf_url, '_blank', 'noopener');
+    else showToast('Bu sipariş için fatura bağlantısı henüz oluşturulmadı.');
   }
 
   function openReturnModal(orderId) {
@@ -749,7 +778,7 @@
     var orderId = form.elements.order_id.value;
     var order = (state.summary?.orders || []).find(function (item) { return item.id === orderId; });
     if (!order || !canReturnOrder(order)) return showToast('Bu sipariş için iade süresi dolmuş olabilir.');
-    await apiFetch('/returns', { method: 'POST', body: { accessToken: state.session.access_token, order_id: orderId, reason: form.elements.reason.value, note: form.elements.note.value, items: (order.order_items || []).map(function (item) { return { product_slug: item.product_slug, quantity: item.quantity || 1 }; }) } });
+    await apiFetch('/returns', { method: 'POST', body: { accessToken: state.session.access_token, order_id: orderId, reason: form.elements.reason.value, customer_note: form.elements.note.value, items: (order.order_items || []).map(function (item) { return { product_slug: item.product_slug, quantity: item.quantity || 1 }; }) } });
     closeModal('#returnModal'); await loadSummary({ skipFavoriteSync: true }); showToast('İade talebi oluşturuldu.');
   }
 
