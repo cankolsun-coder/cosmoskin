@@ -26,7 +26,7 @@
     return String(value || '').trim().replace(/^.*\/products\//, '').replace(/\.html.*$/, '').toLowerCase();
   }
   function uniq(list) { return Array.from(new Set(list.filter(Boolean))); }
-  function getButtonSlug(btn) { return slugFrom(btn.dataset.slug || btn.dataset.id || btn.dataset.productSlug || btn.dataset.favoriteId || ''); }
+  function getButtonSlug(btn) { return slugFrom(btn.getAttribute('data-cm-add-cart') || btn.dataset.slug || btn.dataset.id || btn.dataset.productSlug || btn.dataset.favoriteId || ''); }
   function currentSlug() {
     var main = document.querySelector('[data-product-slug]');
     if (main) return slugFrom(main.getAttribute('data-product-slug'));
@@ -36,8 +36,8 @@
   function collectSlugs(root) {
     root = root || document;
     var slugs = [];
-    root.querySelectorAll('[data-add-cart], [data-product-id], [data-product-slug], [data-favorite-id]').forEach(function (node) {
-      slugs.push(slugFrom(node.dataset.slug || node.dataset.id || node.dataset.productId || node.dataset.productSlug || node.dataset.favoriteId || ''));
+    root.querySelectorAll('[data-add-cart], [data-cm-add-cart], [data-product-id], [data-product-slug], [data-favorite-id], [data-cm-stock-badge]').forEach(function (node) {
+      slugs.push(slugFrom(node.getAttribute('data-cm-add-cart') || node.dataset.slug || node.dataset.id || node.dataset.productId || node.dataset.productSlug || node.dataset.favoriteId || ''));
     });
     var pdpSlug = currentSlug();
     if (pdpSlug) slugs.push(pdpSlug);
@@ -71,7 +71,7 @@
     clearTimeout(toast._timer);
     toast._timer = setTimeout(function () { node.classList.remove('show'); }, 3200);
   }
-  function productCardFor(btn) { return btn.closest('.product-card') || btn.closest('.pdp5-purchase-card') || btn.closest('.pdp-related-card') || btn.parentElement; }
+  function productCardFor(btn) { return btn.closest('.cm-product-card') || btn.closest('.cm-mobile-pdp') || btn.closest('.cm-cart-row') || btn.closest('.cm-checkout-item') || btn.closest('.product-card') || btn.closest('.pdp5-purchase-card') || btn.closest('.pdp-related-card') || btn.parentElement; }
   function ensureLine(host) {
     if (!host) return null;
     var line = host.querySelector(':scope > .cs-stock-line');
@@ -83,11 +83,30 @@
     }
     return line;
   }
+
+  function stockLabel(inv) {
+    if (isOut(inv)) return { state: 'out', label: 'Stokta Yok', line: 'Favorilerine ekle, tekrar geldiğinde haber verelim.' };
+    if (isLow(inv)) return { state: 'low', label: 'Az stok kaldı', line: COPY.low };
+    return { state: 'in', label: 'Stokta', line: '' };
+  }
+  function updateCustomStockSurfaces(slug, inv, root) {
+    var info = stockLabel(inv);
+    (root || document).querySelectorAll('[data-cm-stock-badge][data-product-slug="' + slug + '"], [data-product-id="' + slug + '"] [data-cm-stock-badge]').forEach(function (badge) {
+      badge.textContent = info.label;
+      badge.className = 'cm-stock-badge is-' + info.state;
+      badge.setAttribute('aria-label', 'Stok durumu: ' + info.label);
+    });
+    (root || document).querySelectorAll('[data-cm-stock-line][data-product-slug="' + slug + '"], [data-product-id="' + slug + '"] [data-cm-stock-line]').forEach(function (line) {
+      line.textContent = info.line || (info.state === 'in' ? 'Ürün stokta ve sepete eklenebilir.' : '');
+      line.className = 'cm-stock-line is-' + info.state;
+    });
+  }
   function renderButtonState(btn) {
     var slug = getButtonSlug(btn);
     var inv = getInventory(slug);
     if (!slug || !inv) return;
     var host = productCardFor(btn);
+    updateCustomStockSurfaces(slug, inv, document);
     var lineHost = btn.closest('.price-row') || btn.closest('.pdp5-actions') || host;
     var line = ensureLine(lineHost);
     btn.dataset.inventoryChecked = 'true';
@@ -102,7 +121,7 @@
       btn.disabled = false;
       btn.removeAttribute('aria-disabled');
       btn.classList.remove('is-stock-disabled');
-      if (btn.textContent.trim() === 'Stokta Yok') btn.textContent = 'Sepete Ekle';
+      if (btn.textContent.trim() === 'Stokta Yok' || btn.textContent.trim() === 'STOKTA YOK') btn.textContent = btn.hasAttribute('data-cm-add-cart') && !btn.closest('.cm-mobile-pdp') ? 'Ekle' : 'Sepete Ekle';
       if (line) line.textContent = isLow(inv) ? COPY.low : '';
       if (host) host.classList.remove('is-out-of-stock');
     }
@@ -112,6 +131,7 @@
     if (!slug) return;
     var inv = getInventory(slug);
     if (!inv) return;
+    updateCustomStockSurfaces(slug, inv, document);
     var stock = document.querySelector('.pdp5-stock');
     if (stock) {
       stock.textContent = isOut(inv) ? 'Şu anda stokta yok' : (isLow(inv) ? 'Son ürünler' : 'Stokta');
@@ -123,7 +143,7 @@
     if (isOut(inv)) mountRestockForm(slug);
   }
   function applyState(root) {
-    (root || document).querySelectorAll('[data-add-cart]').forEach(renderButtonState);
+    (root || document).querySelectorAll('[data-add-cart], [data-cm-add-cart]').forEach(renderButtonState);
     renderPdpStock();
     window.dispatchEvent(new CustomEvent('cosmoskin:inventory-updated', { detail: { inventory: Array.from(inventoryMap.values()) } }));
   }
