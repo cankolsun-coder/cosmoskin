@@ -32,6 +32,14 @@
     return true;
   }
 
+  function readCouponCode() {
+    try {
+      const stored = JSON.parse(localStorage.getItem('cosmoskin_coupon_state_v1') || 'null');
+      if (stored && stored.code) return String(stored.code).toUpperCase();
+    } catch {}
+    return String(localStorage.getItem('cosmoskin_coupon_code') || '').trim().toUpperCase();
+  }
+
   function getCart() {
     try {
       return JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
@@ -170,7 +178,8 @@
     const payload = {
       accessToken: session?.access_token || null,
       cart,
-      customer
+      customer,
+      coupon_code: customer.coupon_code || customer.couponCode || readCouponCode() || null
     };
 
     try {

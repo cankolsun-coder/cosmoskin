@@ -315,6 +315,7 @@
 #checkoutSubmit{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;overflow:hidden;}#checkoutSubmit .checkout-submit-loader{display:none;width:17px;height:17px;border-radius:999px;border:2px solid rgba(255,255,255,.32);border-top-color:#fff;animation:checkoutSpin .78s linear infinite;}#checkoutSubmit.is-processing{pointer-events:none;filter:none!important;opacity:1!important;}#checkoutSubmit.is-processing .checkout-submit-loader{display:inline-block;}#checkoutSubmit.is-processing .checkout-submit-label{opacity:.88;}@keyframes checkoutSpin{to{transform:rotate(360deg);}}#checkoutStatus{min-height:0;border-radius:18px;font-size:12px;font-weight:750;line-height:1.55;transition:all .2s ease;}#checkoutStatus:not(:empty){padding:13px 15px;border:1px solid rgba(35,27,20,.10);background:rgba(255,255,255,.7);color:#5f554c;}#checkoutStatus.is-error{border-color:rgba(184,73,63,.22);background:rgba(184,73,63,.08);color:#a43d35;}#checkoutStatus.is-success{border-color:rgba(58,116,83,.22);background:rgba(58,116,83,.08);color:#2e6747;}#checkoutStatus.is-loading{border-color:rgba(24,18,14,.13);background:linear-gradient(135deg,rgba(24,18,14,.07),rgba(255,255,255,.72));color:#2a211b;}.checkout-final-review{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px;}.checkout-final-review__item{padding:13px 14px;border:1px solid rgba(35,27,20,.09);border-radius:18px;background:rgba(255,255,255,.58);color:#6b5f55;font-size:11px;font-weight:750;line-height:1.35;}.checkout-final-review__item strong{display:block;margin-bottom:4px;color:#17120f;font-size:12px;}.checkout-sticky-paybar{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:70;padding:10px;border:1px solid rgba(255,255,255,.16);border-radius:24px;background:rgba(16,12,10,.92);box-shadow:0 18px 54px rgba(0,0,0,.28);backdrop-filter:blur(18px);}.checkout-sticky-paybar__inner{display:flex;align-items:center;justify-content:space-between;gap:12px;}.checkout-sticky-paybar__meta{display:grid;gap:2px;min-width:0;padding-left:6px;color:rgba(255,255,255,.65);font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}.checkout-sticky-paybar__meta strong{color:#fff;font-size:15px;letter-spacing:0;text-transform:none;}.checkout-sticky-paybar__btn{border:0;border-radius:999px;padding:13px 18px;background:#fff;color:#14100d;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;cursor:pointer;}.checkout-sticky-paybar.is-hidden{display:none!important;}.checkout-field-focus{box-shadow:0 0 0 4px rgba(184,73,63,.08)!important;border-color:rgba(184,73,63,.35)!important;}@media (max-width:860px){body.checkout-premium-page{padding-bottom:88px;}.checkout-sticky-paybar{display:block;}.checkout-final-review{grid-template-columns:1fr;}}
 </style>
 <link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet"/>
+<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
 </head><body class="checkout-premium-page"><div class="progress" id="progress"></div><div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
 <header class="header">
 <a aria-label="COSMOSKIN anasayfa" class="brand" href="/index.html">
@@ -328,7 +329,7 @@
 <button aria-expanded="false" class="linkish categories-trigger">Kategoriler</button>
 <div class="mega mega--categories mega--discovery">
 <div><h4>Ürün Tipi</h4><a href="/collections/cleanse.html">Temizleyiciler<span>Jel, köpük ve günlük arındırma ürünleri</span></a><a href="/collections/hydrate.html">Tonik &amp; Essence<span>Nem katmanını destekleyen hafif dokular</span></a><a href="/collections/treat.html">Serum &amp; Ampul<span>Leke, ışıltı ve hedef bakım odaklı serumlar</span></a><a href="/collections/care.html">Nemlendiriciler<span>Krem, göz çevresi ve destek bakım ürünleri</span></a><a href="/collections/protect.html">Güneş Koruyucular<span>Günlük şehir kullanımına uygun SPF seçkileri</span></a><a href="/collections/masks.html">Maskeler<span>Sheet mask ve destek bakım editleri</span></a></div>
-<div><h4>Cilt Tipi</h4><a href="/collections/hydrate.html">Kuru Cilt<span>Nem ve konfor odaklı hafif katmanlar</span></a><a href="/collections/protect.html">Yağlı Cilt<span>Dengeli, hafif ve parlama hissini azaltan seçimler</span></a><a href="/collections/routine.html">Karma Cilt<span>Günlük denge için sabah-akşam akışları</span></a><a href="/collections/care.html">Hassas Cilt<span>Bariyer dostu ve yatıştırıcı destek bakım</span></a><a href="/collections/routine.html">Normal Cilt<span>Sade ve dengeli bakım başlangıçları</span></a></div>
+<div><h4>Cilt Tipi</h4><a href="/collections/hydrate.html">Kuru Cilt<span>Nem ve konfor odaklı hafif katmanlar</span></a><a href="/collections/protect.html">Yağlı Cilt<span>Dengeli, hafif ve parlama hissini azaltan seçimler</span></a><a href="/routine.html">Karma Cilt<span>Günlük denge için sabah-akşam akışları</span></a><a href="/collections/care.html">Hassas Cilt<span>Bariyer dostu ve yatıştırıcı destek bakım</span></a><a href="/routine.html">Normal Cilt<span>Sade ve dengeli bakım başlangıçları</span></a></div>
 <div><h4>Cilt Problemleri</h4><a href="/collections/hydrate.html">Nemsizlik<span>Su tutmaya yardımcı, dolgunluk hissi veren seçimler</span></a><a href="/collections/care.html">Hassasiyet &amp; Kızarıklık<span>Yatıştırıcı ve bariyer dostu bakım önerileri</span></a><a href="/collections/treat.html">Leke Görünümü<span>Daha eşit ve aydınlık görünüm odaklı serumlar</span></a><a href="/collections/blemish.html">Akne Eğilimi<span>Gözenek ve sebum dengesini hedefleyen bakım</span></a><a href="/collections/protect.html">Gözenek &amp; Sebum<span>Hafif SPF ve günlük denge seçkileri</span></a><a href="/collections/care.html">Bariyer Desteği<span>Konforu artıran krem ve essence katmanları</span></a></div>
 <div><h4>Öne Çıkan İçerikler</h4><a href="/collections/hydrate.html">DIVE-IN Serum<span>Günlük nem ve dolgun görünüm desteği</span></a><a href="/collections/treat.html">Niacinamide<span>Ton eşitsizliği ve görünüm dengesi</span></a><a href="/collections/care.html">Centella Asiatica<span>Yatıştırıcı ve hassasiyet odaklı bakım</span></a><a href="/collections/blemish.html">Salicylic Acid<span>Akne eğilimi ve gözenek görünümüne destek</span></a><a href="/collections/treat.html">Vitamin C<span>Daha aydınlık ve canlı görünüm için</span></a><a href="/collections/protect.html">Rice Extract<span>Işıltı hissini destekleyen hafif seçkiler</span></a></div>
 </div>
@@ -342,7 +343,7 @@
 <div class="mega-side"><small>Markalar</small><strong>Rafine seçki,<br/>tek bakışta net.</strong><p>Marka bazlı gezinme ile ürünü daha hızlı bulmanızı sağlayan sade yapı.</p><a class="btn btn-secondary" href="/contact.html">Marka Talebi</a></div>
 </div>
 </li><li><a href="/index.html#bestsellers">Çok Satanlar</a></li>
-<li><a href="/collections/routine.html">Rutinler</a></li>
+<li><a href="/routine.html">Rutinler</a></li>
 <li><a href="/contact.html">Destek</a></li>
 </ul><form autocomplete="off" class="site-search-form" role="search">
 <div aria-label="Site içi arama" class="site-search">
@@ -375,7 +376,7 @@
 </form>
 <a href="/index.html#collections">Kategoriler</a>
 <a href="/index.html#brands">Markalar</a>
-<a href="/collections/routine.html">Rutinler</a>
+<a href="/routine.html">Rutinler</a>
 <a href="/contact.html">Destek Merkezi</a>
 </div><main class="checkout-premium-shell">
 <section class="checkout-hero-premium">
@@ -487,7 +488,7 @@
 <p class="footer-copy">COSMOSKIN, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p>
 </div>
 <div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
-<div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/collections/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
+<div class="footer-col"><h5>Kurumsal</h5><a href="/index.html#brands">Markalar</a><a href="/routine.html">Rutinler</a><a href="/contact.html">Destek</a><a href="mailto:partnership@cosmoskin.com.tr">İş Ortaklığı</a></div>
 <div class="footer-col"><h5>Yasal</h5><a href="/legal/teslimat-ve-kargo.html">Teslimat &amp; Kargo</a><a href="/legal/iade-ve-cayma-politikasi.html">İade &amp; Cayma</a><a href="/legal/mesafeli-satis-sozlesmesi.html">Mesafeli Satış</a><a href="/legal/on-bilgilendirme-formu.html">Ön Bilgilendirme</a><a href="/legal/kvkk-aydinlatma-metni.html">KVKK Aydınlatma</a><a href="/legal/cerez-politikasi.html">Çerez Politikası</a><a href="/legal/ticari-elektronik-ileti-izni.html">Ticari İleti İzni</a><a href="mailto:destek@cosmoskin.com.tr">Veri Talepleri</a></div>
 <div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" rel="noopener" target="_blank">Instagram</a><span>İstanbul, Türkiye</span></div>
 </div>
@@ -499,7 +500,7 @@
 <span aria-label="Visa" class="payment-logo payment-logo--visa"><img alt="Visa" loading="lazy" src="/assets/img/payments/visa.svg"></span>
 <span aria-label="Mastercard" class="payment-logo payment-logo--mastercard"><img alt="Mastercard" loading="lazy" src="/assets/img/payments/mastercard.svg"></span>
 <span aria-label="American Express" class="payment-logo payment-logo--amex"><img alt="American Express" loading="lazy" src="/assets/img/payments/american-express.svg"></span>
-<span aria-label="Troy" class="payment-logo payment-logo--troy"><img alt="Troy" loading="lazy" src="/assets/img/payments/troy.png"></span>
+<span aria-label="Troy" class="payment-logo payment-logo--troy"><img alt="Troy" loading="lazy" src="/assets/img/payments/troy.svg"></span>
 </div>
 <p class="footer-meta-copy">Visa, Mastercard, American Express ve Troy ile güvenli ödeme deneyimi.</p>
 </div>
@@ -955,4 +956,5 @@
 <script src="/assets/mobile-redesign.js?v=20260512-reference-ui" defer></script>
 <script src="/assets/inventory-client.js?v=20260510ops" defer></script>
 <script src="/assets/cosmoskin-phase3.js?v=20260511-phase3" defer></script>
+<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
 </body></html>

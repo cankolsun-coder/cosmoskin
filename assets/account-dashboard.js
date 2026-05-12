@@ -418,7 +418,7 @@
       return;
     }
     var products = getRecommendedProducts().slice(0, 3);
-    slot.innerHTML = '<div class="cs-routine-summary"><dl><div><dt>Cilt Tipi:</dt><dd>' + escapeHtml(user.skin_type || 'Belirtilmedi') + '</dd></div><div><dt>Hedef:</dt><dd>' + escapeHtml(user.routine_goal || 'Belirtilmedi') + '</dd></div><div><dt>Odak:</dt><dd>' + escapeHtml(concerns.slice(0, 2).join(', ') || 'Nemsizlik') + '</dd></div><div><dt>Durum:</dt><dd>%75 tamamlandı</dd></div><div><dt>Eksik Adım:</dt><dd>SPF</dd></div></dl><div class="cs-routine-thumbs">' + products.map(function (p) { return '<a href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.product_name) + '" loading="lazy"></a>'; }).join('') + '</div><div class="cs-card-actions"><a class="cs-mini-btn dark" href="/collections/routine.html">Rutini Gör</a><button class="cs-mini-btn" type="button" data-add-routine-cart>Eksikleri Sepete Ekle</button></div></div>';
+    slot.innerHTML = '<div class="cs-routine-summary"><dl><div><dt>Cilt Tipi:</dt><dd>' + escapeHtml(user.skin_type || 'Belirtilmedi') + '</dd></div><div><dt>Hedef:</dt><dd>' + escapeHtml(user.routine_goal || 'Belirtilmedi') + '</dd></div><div><dt>Odak:</dt><dd>' + escapeHtml(concerns.slice(0, 2).join(', ') || 'Nemsizlik') + '</dd></div><div><dt>Durum:</dt><dd>%75 tamamlandı</dd></div><div><dt>Eksik Adım:</dt><dd>SPF</dd></div></dl><div class="cs-routine-thumbs">' + products.map(function (p) { return '<a href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.product_name) + '" loading="lazy"></a>'; }).join('') + '</div><div class="cs-card-actions"><a class="cs-mini-btn dark" href="/routine.html">Rutini Gör</a><button class="cs-mini-btn" type="button" data-add-routine-cart>Eksikleri Sepete Ekle</button></div></div>';
   }
 
   function renderSecurityOverview() {
@@ -612,7 +612,7 @@
     var slot = $('#routinePlanSlot');
     if (!slot) return;
     var products = getRecommendedProducts().slice(0, 4);
-    slot.innerHTML = '<article class="cs-card cs-card-full"><div class="cs-card-head"><span>ÖNERİLEN RUTİN AKIŞI</span><a href="/collections/routine.html">Rutinleri Gör</a></div><div class="cs-routine-plan-grid">' + ['Temizle', 'Nemlendir', 'Hedef Bakım', 'Koru'].map(function (step, index) {
+    slot.innerHTML = '<article class="cs-card cs-card-full"><div class="cs-card-head"><span>ÖNERİLEN RUTİN AKIŞI</span><a href="/routine.html">Rutinleri Gör</a></div><div class="cs-routine-plan-grid">' + ['Temizle', 'Nemlendir', 'Hedef Bakım', 'Koru'].map(function (step, index) {
       var p = products[index];
       return '<div class="cs-routine-step"><small>' + escapeHtml(step) + '</small>' + (p ? '<a href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.product_name) + '" loading="lazy"><strong>' + escapeHtml(p.product_name) + '</strong><span>' + escapeHtml(p.brand) + '</span></a>' : '<p>Ürün seçimi hazırlanıyor.</p>') + '</div>';
     }).join('') + '</div></article>';

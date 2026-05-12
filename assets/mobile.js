@@ -44,7 +44,7 @@ var CATS = [
   {label:'Krem',        icon:'cream',    href:'/collections/care.html'},
   {label:'Maske',       icon:'mask',     href:'/collections/masks.html'},
   {label:'SPF',         icon:'spf',      href:'/collections/protect.html'},
-  {label:'Set',         icon:'set',      href:'/collections/routine.html'}
+  {label:'Set',         icon:'set',      href:'/routine.html'}
 ];
 
 var TRUST = [
@@ -310,7 +310,7 @@ function buildEditorial(){
   copy.innerHTML =
     '<span class="editorial-showcase__eyebrow">Derin Okuma</span>' +
     '<h2 class="editorial-showcase__title">K-Beauty\'nin 10 adımı mı? Aslında 3 yeter.</h2>' +
-    '<a class="editorial-showcase__cta" href="/collections/routine.html">' +
+    '<a class="editorial-showcase__cta" href="/routine.html">' +
       'Rutini keşfet ' + SVG.arrow +
     '</a>';
 

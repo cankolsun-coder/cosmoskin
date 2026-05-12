@@ -78,8 +78,8 @@
   };
 
   var routineState = {
-    selectedGoals: ['nem', 'bariyer'],
-    selectedSkinType: 'kuru',
+    selectedGoals: [],
+    selectedSkinType: 'karma',
     dayRoutine: [],
     nightRoutine: [],
     alternatives: {},
@@ -362,7 +362,7 @@
     if (count) {
       count.textContent = routineState.selectedGoals.length
         ? routineState.selectedGoals.length + ' hedef seçildi'
-        : 'Başlangıç rutini';
+        : 'Cilt hedefini seç';
     }
   }
 
@@ -420,6 +420,7 @@
           '<strong class="smart-routine__product-name">' + esc(product.name) + '</strong>' +
           renderRating(product) +
           '<div class="smart-routine__product-price">' + esc(formatPrice(product.price)) + '</div>' +
+          '<span class="cs-stock-badge" data-cm-stock-badge data-product-slug="' + esc(product.slug) + '">Stokta</span>' +
         '</div>' +
       '</a>' +
       '<button class="smart-routine__product-remove" type="button" data-sr-remove-product="' + esc(slot) + '" aria-label="' + esc(product.name + ' ürününü rutinden çıkar') + '">×</button>' +
@@ -428,9 +429,50 @@
   }
 
   function renderRecommendedRoutine(root) {
-    buildRoutine(routineState.selectedGoals, routineState.selectedSkinType);
     var day = root.querySelector('[data-sr-day-products]');
     var night = root.querySelector('[data-sr-night-products]');
+    if (!routineState.selectedGoals.length) {
+      routineState.dayRoutine = [];
+      routineState.nightRoutine = [];
+      routineState.alternatives = {};
+      routineState.matchScore = 0;
+      routineState.totalPrice = 0;
+      routineState.originalTotalPrice = 0;
+      routineState.bundleDiscountEligible = false;
+      routineState.bundleDiscountAmount = 0;
+      var empty = '<div class="smart-routine__empty"><strong>Cilt hedefini seç</strong><span>Sana uygun sabah ve akşam rutinini görmek için Nem, Bariyer, Işıltı, Leke veya Hassasiyet hedeflerinden biriyle başlayabilirsin.</span></div>';
+      if (day) day.innerHTML = empty;
+      if (night) night.innerHTML = empty;
+      var matchEmpty = root.querySelector('[data-sr-match]');
+      if (matchEmpty) matchEmpty.textContent = 'Hedef bekliyor';
+      var totalEmpty = root.querySelector('[data-sr-total]');
+      if (totalEmpty) totalEmpty.textContent = '—';
+      var originalTotalEmpty = root.querySelector('[data-sr-original-total]');
+      if (originalTotalEmpty) originalTotalEmpty.textContent = '';
+      var discountEmpty = root.querySelector('[data-sr-discount]');
+      if (discountEmpty) discountEmpty.textContent = '—';
+      var timeEmpty = root.querySelector('[data-sr-time]');
+      if (timeEmpty) timeEmpty.textContent = 'Önce hedef seç';
+      var stockEmpty = root.querySelector('[data-sr-stock]');
+      if (stockEmpty) stockEmpty.textContent = '—';
+      var subtitleEmpty = root.querySelector('[data-sr-routine-subtitle]');
+      if (subtitleEmpty) subtitleEmpty.textContent = 'Cilt hedefini seçerek kişisel sabah ve akşam önerilerini aç.';
+      var offerEmpty = root.querySelector('[data-sr-offer]');
+      if (offerEmpty) {
+        offerEmpty.hidden = false;
+        offerEmpty.innerHTML = '<div class="smart-routine__offer-icon">•</div><div><strong>Cilt hedefini seç</strong><span>Ürünler seçimden sonra gerçek ürün verisi ve stok durumuyla gösterilir.</span></div><b>Başla</b>';
+      }
+      root.querySelectorAll('[data-sr-add-cart], [data-sr-save], [data-sr-show-alternatives]').forEach(function (button) {
+        button.disabled = true;
+        button.setAttribute('aria-disabled', 'true');
+      });
+      return;
+    }
+    root.querySelectorAll('[data-sr-add-cart], [data-sr-save], [data-sr-show-alternatives]').forEach(function (button) {
+      button.disabled = false;
+      button.removeAttribute('aria-disabled');
+    });
+    buildRoutine(routineState.selectedGoals, routineState.selectedSkinType);
     if (day) day.innerHTML = routineState.dayRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.dayRoutine.length); }).join('');
     if (night) night.innerHTML = routineState.nightRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.nightRoutine.length); }).join('');
 
@@ -449,9 +491,7 @@
     if (stock) stock.textContent = routineState.dayRoutine.concat(routineState.nightRoutine).every(function (product) { return product.stock; }) ? '✓' : 'Kontrol et';
     var subtitle = root.querySelector('[data-sr-routine-subtitle]');
     if (subtitle) {
-      subtitle.textContent = routineState.selectedGoals.length
-        ? getSkinLabel(routineState.selectedSkinType) + ' cilt için ' + routineState.selectedGoals.map(getGoalLabel).join(' + ') + ' odağı'
-        : 'Başlangıç rutini · Dengeli günlük bakım akışı';
+      subtitle.textContent = getSkinLabel(routineState.selectedSkinType) + ' cilt için ' + routineState.selectedGoals.map(getGoalLabel).join(' + ') + ' odağı';
     }
   }
 
@@ -492,6 +532,10 @@
   }
 
   function addRoutineToCart() {
+    if (!routineState.selectedGoals.length) {
+      showRoutineToast('Önce cilt hedefini seçmelisin.', 'warning');
+      return;
+    }
     var items = collectCartItems();
     if (!items.length) {
       showRoutineToast('Stokta eklenebilir ürün bulunamadı.', 'error');
@@ -546,6 +590,10 @@
   }
 
   function viewRoutinePage() {
+    if (!routineState.selectedGoals.length) {
+      showRoutineToast('Rutini detaylı görmek için önce cilt hedefini seç.', 'warning');
+      return;
+    }
     var payload = {
       selectedGoals: routineState.selectedGoals.slice(),
       selectedSkinType: routineState.selectedSkinType,
@@ -558,10 +606,14 @@
       updatedAt: new Date().toISOString()
     };
     try { localStorage.setItem('cosmoskin_last_routine', JSON.stringify(payload)); } catch (error) {}
-    window.location.href = '/collections/routine.html?goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma') + '#routine-commerce';
+    window.location.href = '/routine.html?goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma') + '#routine-commerce';
   }
 
   async function saveRoutine() {
+    if (!routineState.selectedGoals.length) {
+      showRoutineToast('Rutinini kaydetmek için önce cilt hedefini seç.', 'warning');
+      return;
+    }
     var payload = {
       selectedGoals: routineState.selectedGoals.slice(),
       selectedSkinType: routineState.selectedSkinType,
