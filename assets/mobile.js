@@ -359,7 +359,7 @@ function showToast(msg, link, linkLabel){
 function buildBottomNav(){
   if(qs('.m-bottom-nav')) return;
 
-  var isCat = path.indexOf('/collections/') !== -1 || path.indexOf('/collections/') !== -1;
+  var isCat = path.indexOf('/collections/') !== -1 || path.indexOf('/brands/') !== -1;
   var isFav = path.indexOf('/profile') !== -1;
 
   var nav = el('nav','m-bottom-nav');

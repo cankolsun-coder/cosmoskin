@@ -27,7 +27,3 @@
 /on-bilgilendirme.html /legal/on-bilgilendirme-formu.html 302
 /iade-degisim.html /legal/iade-ve-cayma-politikasi.html 302
 /teslimat-kargo.html /legal/teslimat-ve-kargo.html 302
-
-# Phase 5 brand route safety
-/brands/:slug.html /collections/:slug.html 301
-/brands/:slug /collections/:slug.html 301
