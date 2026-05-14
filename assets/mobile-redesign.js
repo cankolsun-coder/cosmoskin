@@ -23,9 +23,7 @@
     { key: 'treat', title: 'Serumlar', subtitle: 'Hedef bakım için serum ve ampuller.', category: 'Serum & Ampul', href: '/collections/treat.html', icon: 'sparkle' },
     { key: 'care', title: 'Nemlendiriciler', subtitle: 'Bariyer ve konfor odaklı kremler.', category: 'Nemlendiriciler', href: '/collections/care.html', icon: 'cube' },
     { key: 'protect', title: 'Güneş Koruyucular', subtitle: 'Günlük kullanım için SPF ürünleri.', category: 'Güneş Koruyucular', href: '/collections/protect.html', icon: 'sun' },
-    { key: 'masks', title: 'Maskeler', subtitle: 'Haftalık destek ve sheet mask seçkisi.', category: 'Maskeler', href: '/collections/masks.html', icon: 'leaf' },
-    { key: 'eye-care', title: 'Göz Bakımı', subtitle: 'Göz çevresi için destek bakım.', category: 'Göz Bakımı', href: '/collections/care.html?filter=goz-bakimi', icon: 'eye' },
-    { key: 'lip-care', title: 'Dudak Bakımı', subtitle: 'Dudak bakım ürünleri.', category: 'Dudak Bakımı', href: '/collections/care.html?filter=dudak-bakimi', icon: 'heart' }
+    { key: 'masks', title: 'Maskeler', subtitle: 'Haftalık destek ve sheet mask seçkisi.', category: 'Maskeler', href: '/collections/masks.html', icon: 'leaf' }
   ];
 
   var GOAL_ROUTES = [
@@ -481,11 +479,11 @@
   }
 
   function brandTile(slug) {
-    return '<a class="cm-brand-tile" href="/brands.html#brand-' + slug + '"><span>' + esc(brandName(slug)) + '</span></a>';
+    return '<a class="cm-brand-tile" href="/brands/' + slug + '.html"><span>' + esc(brandName(slug)) + '</span></a>';
   }
 
   function brandStrip() {
-    return '<div class="cm-brand-strip-ref">' + BRAND_SLUGS.slice(0, 6).map(function (slug) { return '<a href="/brands.html#brand-' + slug + '">' + esc(brandName(slug)) + '</a>'; }).join('') + '<a class="cm-brand-arrow" href="/brands.html" aria-label="Tüm markalar">Tüm Markalar ' + svg('chevron') + '</a></div>';
+    return '<div class="cm-brand-strip-ref">' + BRAND_SLUGS.slice(0, 6).map(function (slug) { return '<a href="/brands/' + slug + '.html">' + esc(brandName(slug)) + '</a>'; }).join('') + '<a class="cm-brand-arrow" href="/brands.html" aria-label="Tüm markalar">Tüm Markalar ' + svg('chevron') + '</a></div>';
   }
 
   function sectionHead(title, href, text) {
@@ -506,7 +504,9 @@
     var best = ['medicube-zero-pore-pad', 'skin1004-madagascar-centella-ampoule', 'cosrx-advanced-snail-96-mucin-essence', 'beauty-of-joseon-glow-serum-propolis-niacinamide'].map(getProductBySlug).filter(Boolean);
     if (best.length < 4) best = products.slice(0, 4);
     var newest = products.slice(-4).reverse();
-    return '<div class="cm-mobile-page cm-mobile-home">' + header() + '<div class="cm-page-inner cm-page-inner--top">' + searchBar() + '</div><section class="cm-hero-ref cm-hero-ref--desktop-match"><div class="cm-hero-ref__copy"><p>KORE’DEN. BİLİMİN IŞIĞINDA.</p><h1><span>Cildin. <em>Işıltın.</em></span><span class="cm-hero-script">Senin hikayen.</span></h1><span>Kore’nin yüksek performanslı formüllerini seçilmiş markalarla bir araya getiriyor; cildine hak ettiği özeni sade ve güvenli bir alışveriş deneyimiyle sunuyoruz.</span><a class="cm-btn cm-btn--primary" href="#cm-mobile-bestsellers">Alışverişe Başla</a></div></section>' + trustStrip() + brandStrip() + '<div class="cm-page-inner">' + sectionHead('Cilt İhtiyacına Göre', '/categories.html#ihtiyac') + '<div class="cm-concern-grid" id="ihtiyac">' + GOAL_ROUTES.map(function (g) { return '<a class="cm-concern-tile" href="' + g.href + '">' + svg(g.icon) + '<span>' + g.title + '</span></a>'; }).join('') + '</div>' + sectionHead('Çok Satanlar', '/allproducts.html') + '<div class="cm-product-grid cm-product-grid--home" id="cm-mobile-bestsellers">' + best.map(function (p, i) { return productCard(p, { label: i === 0 ? 'Popüler' : i === 1 ? 'Bestseller' : '' }); }).join('') + '</div><section class="cm-routine-teaser"><div><p>AKILLI RUTİN</p><h2>Cildine uygun gündüz ve akşam akışını kur.</h2><span>Seçimlerine göre gerçek ürün verisiyle önerilen rutini gör.</span></div><a class="cm-btn" href="/routine.html">Rutini Başlat</a></section>' + sectionHead('Editörün Seçtikleri', '/explore.html') + '<div class="cm-product-grid cm-product-grid--home">' + newest.map(function (p) { return productCard(p); }).join('') + '</div>' + faqSection() + footer() + '</div>' + bottomNav('home') + '</div>';
+    var heroProduct = best[0] || products[0] || null;
+    var heroImage = heroProduct && heroProduct.image ? heroProduct.image : '/assets/img/hero-sunscreen-cosmoskin.png';
+    return '<div class="cm-mobile-page cm-mobile-home">' + header() + '<div class="cm-page-inner cm-page-inner--top">' + searchBar() + '</div><section class="cm-hero-ref cm-hero-ref--desktop-match"><div class="cm-hero-ref__copy"><p>KORE’DEN. BİLİMİN IŞIĞINDA.</p><h1><span>Cildin. <em>Işıltın.</em></span><span class="cm-hero-script">Senin hikayen.</span></h1><span>Kore’nin yüksek performanslı formüllerini seçilmiş markalarla bir araya getiriyor; cildine hak ettiği özeni sade ve güvenli bir alışveriş deneyimiyle sunuyoruz.</span><a class="cm-btn cm-btn--primary" href="#cm-mobile-bestsellers">Alışverişe Başla</a></div><div class="cm-hero-ref__visual" aria-hidden="true"><img src="' + esc(heroImage) + '" alt="" loading="eager" decoding="async"></div></section>' + trustStrip() + brandStrip() + '<div class="cm-page-inner">' + sectionHead('Cilt İhtiyacına Göre', '/categories.html#ihtiyac') + '<div class="cm-concern-grid" id="ihtiyac">' + GOAL_ROUTES.map(function (g) { return '<a class="cm-concern-tile" href="' + g.href + '">' + svg(g.icon) + '<span>' + g.title + '</span></a>'; }).join('') + '</div>' + sectionHead('Çok Satanlar', '/allproducts.html') + '<div class="cm-product-grid cm-product-grid--home" id="cm-mobile-bestsellers">' + best.map(function (p, i) { return productCard(p, { label: i === 0 ? 'Popüler' : i === 1 ? 'Bestseller' : '' }); }).join('') + '</div><section class="cm-routine-teaser"><div><p>AKILLI RUTİN</p><h2>Cildine uygun gündüz ve akşam akışını kur.</h2><span>Seçimlerine göre gerçek ürün verisiyle önerilen rutini gör.</span></div><a class="cm-btn" href="/routine.html">Rutini Başlat</a></section>' + sectionHead('Editörün Seçtikleri', '/explore.html') + '<div class="cm-product-grid cm-product-grid--home">' + newest.map(function (p) { return productCard(p); }).join('') + '</div>' + faqSection() + footer() + '</div>' + bottomNav('home') + '</div>';
   }
 
 
@@ -974,7 +974,7 @@
   }
 
   function footer() {
-    return '<footer class="cm-footer"><div class="cm-footer-logo">COSMOSKIN</div><p>Seçilmiş Kore cilt bakım ürünleri. Gereksiz olanı çıkarır, etkili olanı bırakır.</p><form class="cm-newsletter" action="/api/newsletter/subscribe" method="post" data-newsletter-form data-newsletter-source="mobile-footer" novalidate><label><span>E-posta adresi</span><input type="email" name="email" placeholder="E-posta adresin" required autocomplete="email"></label><button type="submit">Kaydol</button><p class="cm-newsletter__status" data-newsletter-status aria-live="polite"></p></form><div class="cm-footer-grid"><a href="/contact.html">Destek</a><a href="/teslimat-kargo.html">Teslimat</a><a href="/iade-degisim.html">İade</a><a href="/legal/kvkk-aydinlatma-metni.html">KVKK</a></div><div class="cm-payment-row"><img src="/assets/payment/visa.svg" alt="Visa"><img src="/assets/payment/mastercard.svg" alt="Mastercard"><img src="/assets/payment/amex.svg" alt="American Express"><img src="/assets/payment/troy.svg" alt="Troy"></div></footer>';
+    return '<footer class="cm-footer"><div class="cm-footer-logo">COSMOSKIN</div><p>Seçilmiş Kore cilt bakım ürünleri. Gereksiz olanı çıkarır, etkili olanı bırakır.</p><div class="cm-footer-grid"><a href="/contact.html">Destek</a><a href="/teslimat-kargo.html">Teslimat</a><a href="/iade-degisim.html">İade</a><a href="/legal/kvkk-aydinlatma-metni.html">KVKK</a></div><div class="cm-payment-row"><img src="/assets/payment/visa.svg" alt="Visa"><img src="/assets/payment/mastercard.svg" alt="Mastercard"><img src="/assets/payment/amex.svg" alt="American Express"><img src="/assets/payment/troy.svg" alt="Troy"></div></footer>';
   }
 
   function pageHtml() {
@@ -997,7 +997,7 @@
     if (!isMobile()) { unmount(); return; }
     var html = pageHtml();
     if (!html) { unmount(); return; }
-    var main = document.querySelector('main') || document.body;
+    var main = document.body;
     var root = document.getElementById(ROOT_ID);
     if (!root) { root = document.createElement('div'); root.id = ROOT_ID; main.insertBefore(root, main.firstChild); }
     root.innerHTML = html;
@@ -1094,18 +1094,17 @@
   function sheetHtml(kind) {
     if (kind === 'menu') {
       var primary = [
-        ['/collections/cleanse.html', 'Cilt Bakımı', 'drop'],
-        ['/categories.html#ihtiyac', 'Cilt İhtiyacına Göre', 'sparkle'],
+        ['/categories.html', 'Kategoriler', 'grid'],
+        ['/allproducts.html', 'Tüm Ürünler', 'drop'],
         ['/brands.html', 'Markalar', 'leaf'],
-        ['/routine.html', 'Rutinler', 'bottle'],
         ['/collections/bestsellers.html', 'Çok Satanlar', 'crown'],
-        ['/collections/glow.html', 'Kampanyalar', 'tag']
+        ['/collections/protect.html', 'Güneş Bakımı', 'sun'],
+        ['/routine.html', 'Akıllı Rutin', 'bottle']
       ];
       var secondary = [
-        ['/routine.html', 'Cilt Analizi', 'search'],
         ['/account/profile.html', 'Hesabım', 'user'],
+        ['/favorites.html', 'Favorilerim', 'heart'],
         ['/order-tracking.html', 'Sipariş Takibi', 'cube'],
-        ['/contact.html#hakkimizda', 'Hakkımızda', 'bank'],
         ['/contact.html', 'İletişim', 'mail']
       ];
       var linkRow = function (l) { return '<a href="' + l[0] + '">' + svg(l[2]) + '<span>' + l[1] + '</span>' + svg('chevron') + '</a>'; };
