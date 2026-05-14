@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" color="#9A7B52" aria-hidden="true" role="img">
   <g stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M28 8H36V19H28V8Z"/>
-    <path d="M23 19H41C43.2 19 45 20.8 45 23V55C45 57.2 43.2 59 41 59H23C20.8 59 19 57.2 19 55V23C19 20.8 20.8 19 23 19Z"/>
-    <path d="M25 36H39"/>
-    <path d="M25 47H39"/>
+    <path d="M28 8H36V19H28V8Z"></path>
+    <path d="M23 19H41C43.2 19 45 20.8 45 23V55C45 57.2 43.2 59 41 59H23C20.8 59 19 57.2 19 55V23C19 20.8 20.8 19 23 19Z"></path>
+    <path d="M25 36H39"></path>
+    <path d="M25 47H39"></path>
   </g>
 </svg>

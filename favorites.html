@@ -13,9 +13,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 <link rel="stylesheet" href="/assets/style.css?v=20260503-fav-cart-pdp" />
 <link rel="stylesheet" href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" />
-<link rel="stylesheet" href="/assets/mobile.css?v=20260425f" />
 <link rel="stylesheet" href="/assets/phase6-commerce.css?v=20260503-ratingux" />
-<link rel="stylesheet" href="/assets/mobile-redesign.css?v=20260512-reference-ui" />
 <style>
   body{margin:0;background:#fbf8f2;color:#111;font-family:"Plus Jakarta Sans",Arial,sans-serif;}
   .fallback-shell{min-height:100vh;display:flex;flex-direction:column;}
@@ -33,26 +31,160 @@
   .fallback-footer{margin-top:auto;padding:28px;text-align:center;color:#6f6a63;border-top:1px solid rgba(17,17,17,.08);}
 </style>
 <link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/assets/cosmoskin-mobile.css?v=20260514-mobile-final" rel="stylesheet"/>
 </head>
-<body>
-<div class="fallback-shell">
-  <header class="fallback-header"><a class="fallback-logo" href="/index.html">COSMOSKIN</a></header>
-  <main class="fallback-main">
-    <p class="fallback-kicker">Favoriler</p>
-    <h1>Favorilerim</h1>
-    <p class="fallback-copy">Kaydettiğin ürünleri görüntüle, stok durumunu kontrol et ve uygun ürünleri sepete ekle.</p>
-    <a class="fallback-cta" href="/allproducts.html">Ürünleri Keşfet</a>
-    <div class="fallback-grid"><a class="fallback-card" href="/allproducts.html"><strong>Ürünleri Keşfet</strong><span>Favorilerine yeni ürünler ekle.</span></a><a class="fallback-card" href="/collections/bestsellers.html"><strong>Çok Satanlar</strong><span>Popüler ürünleri incele.</span></a><a class="fallback-card" href="/categories.html"><strong>Kategoriler</strong><span>Cilt ihtiyacına göre ürün bul.</span></a><a class="fallback-card" href="/account/profile.html"><strong>Hesabım</strong><span>Profil ve siparişlerini yönet.</span></a></div>
-  </main>
-  <footer class="fallback-footer">COSMOSKIN — Seçilmiş Kore Cilt Bakımı</footer>
+<body class="favorites-page">
+<div class="announcement"><div class="marquee"><span>Türkiye Geneli Hızlı Gönderim</span><span>Orijinal K-Beauty Seçkisi</span><span>Güvenli Ödeme</span><span>2.500 TL Üzeri Ücretsiz Kargo</span></div></div>
+<header class="header">
+<a aria-label="COSMOSKIN anasayfa" class="brand" href="/index.html">
+<img alt="COSMOSKIN logo" class="brand-logo" src="/assets/logo-mark.png"/>
+<span class="brand-word">COSMOSKIN</span>
+</a>
+<nav aria-label="Ana gezinme" class="site-nav">
+<div class="nav-shell">
+<ul class="nav">
+<li><a href="/allproducts.html">Tüm Ürünler</a></li>
+<li><a href="/index.html#bestsellers">Çok Satanlar</a></li>
+<li><a href="/routine.html">Rutinler</a></li>
+<li><a href="/contact.html">Destek</a></li>
+</ul>
 </div>
+</nav>
+<div class="header-tools">
+<button aria-label="Menüyü aç" class="tool-btn mobile-toggle" id="mobileToggle"><svg fill="none" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-linecap="round" stroke-width="1.8"></path></svg></button>
+<button aria-label="Hesap" class="tool-btn" id="accountBtn"><svg fill="none" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 1 1 14 0" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path></svg></button>
+<a aria-label="Favoriler" class="tool-btn" data-favorites-link="true" href="/account/profile.html?tab=favorites"><svg fill="none" viewBox="0 0 24 24"><path d="M12.1 20.3 4.9 13.4a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8l-7.2 6.9a.6.6 0 0 1-.8 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path></svg></a>
+<button aria-label="Sepet" class="tool-btn" id="cartBtn"><svg fill="none" viewBox="0 0 24 24"><path d="M3 5h2l2.2 10.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L21 8H7" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path><circle cx="10" cy="19" r="1.4" stroke="currentColor" stroke-width="1.8"></circle><circle cx="18" cy="19" r="1.4" stroke="currentColor" stroke-width="1.8"></circle></svg><span class="cart-count">0</span></button>
+</div>
+</header>
+<main>
+<section class="section">
+<div class="container">
+<p class="kicker">FAVORİLERİM</p>
+<h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(34px,7vw,56px);line-height:1.05;margin:6px 0 14px;font-weight:500;">Favoriler</h1>
+<p style="color:#6f6a63;font-size:14px;line-height:1.55;margin:0 0 18px;max-width:600px;">Kaydettiğin ürünleri görüntüle, stok durumunu kontrol et ve uygun olanları sepete ekle.</p>
+<div id="csFavoritesGrid" data-favorites-grid="true"></div>
+<div id="csFavoritesEmpty" hidden style="text-align:center;padding:40px 20px;background:#fff;border:1px solid rgba(20,17,13,.08);border-radius:18px;margin-top:14px;">
+<strong style="display:block;font-family:'Cormorant Garamond',Georgia,serif;font-size:24px;color:#14110d;margin-bottom:8px;">Henüz favorin yok.</strong>
+<p style="font-size:13px;color:#6f6a63;margin:0 0 16px;">Beğendiğin ürünleri kalp ikonuyla kaydet, kaldığın yerden devam et.</p>
+<a href="/allproducts.html" class="btn btn-primary" style="display:inline-flex;align-items:center;justify-content:center;background:#14110d;color:#fff;border-radius:999px;padding:14px 26px;text-decoration:none;font-weight:700;letter-spacing:.08em;">Alışverişe Başla</a>
+</div>
+</div>
+</section>
+</main>
+<footer class="footer">
+<div class="container footer-grid">
+<div>
+<a class="brand footer-brandlock" href="/index.html"><img alt="COSMOSKIN logo" class="brand-logo" src="/assets/logo-mark-light.png"/><span class="brand-word">COSMOSKIN</span></a>
+<p class="footer-copy">COSMOSKIN, orijinal Kore cilt bakım ürünlerini seçilmiş markalar, şeffaf fiyatlama ve güvenli alışveriş deneyimiyle sunar.</p>
+</div>
+<div class="footer-col"><h5>Ürünler</h5><a href="/collections/cleanse.html">Temizle</a><a href="/collections/hydrate.html">Nemlendir</a><a href="/collections/treat.html">Hedef Bakım</a><a href="/collections/protect.html">Koru</a></div>
+<div class="footer-col"><h5>Kurumsal</h5><a href="/brands.html">Markalar</a><a href="/routine.html">Rutinler</a><a href="/contact.html">Destek</a></div>
+<div class="footer-col"><h5>Yasal</h5><a href="/legal/teslimat-ve-kargo.html">Teslimat &amp; Kargo</a><a href="/legal/iade-ve-cayma-politikasi.html">İade &amp; Cayma</a><a href="/legal/mesafeli-satis-sozlesmesi.html">Mesafeli Satış</a><a href="/legal/on-bilgilendirme-formu.html">Ön Bilgilendirme</a><a href="/legal/kvkk-aydinlatma-metni.html">KVKK Aydınlatma</a><a href="/legal/cerez-politikasi.html">Çerez Politikası</a></div>
+<div class="footer-col"><h5>İletişim</h5><a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a><a href="/contact.html">Destek Merkezi</a><a href="https://instagram.com/cosmoskin.tr" rel="noopener" target="_blank">Instagram</a></div>
+</div>
+<div class="container footer-trustbar">
+<div class="footer-payment-block">
+<span class="footer-meta-label">Ödeme Yöntemleri</span>
+<div aria-label="Desteklenen ödeme yöntemleri" class="payment-logos">
+<span aria-label="Visa" class="payment-logo payment-logo--visa"><img alt="Visa" loading="lazy" src="/assets/img/payments/visa.svg"></span>
+<span aria-label="Mastercard" class="payment-logo payment-logo--mastercard"><img alt="Mastercard" loading="lazy" src="/assets/img/payments/mastercard.svg"></span>
+<span aria-label="American Express" class="payment-logo payment-logo--amex"><img alt="American Express" loading="lazy" src="/assets/img/payments/american-express.svg"></span>
+</div>
+</div>
+</div>
+<div class="footer-bottom"><span>© 2026 COSMOSKIN</span><span>Seçilmiş K-Beauty</span></div>
+</footer>
+<div class="backdrop" id="backdrop"></div>
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
+<script src="/assets/auth.js?v=20260503-phase62" type="module"></script>
+<script src="/assets/app.js?v=20260503-phase62"></script>
 <script src="/assets/commerce.js?v=20260418d"></script>
 <script defer src="/assets/phase6-commerce.js?v=20260503-phase63"></script>
 <script defer src="/assets/inventory-client.js?v=20260510ops"></script>
-<script defer src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>
-<script defer src="/assets/mobile-redesign.js?v=20260512-reference-ui"></script>
 <script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script>
+(function(){
+  function isOut(slug){
+    try {
+      if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.getInventory === 'function') {
+        var inv = window.COSMOSKIN_STOCK.getInventory(slug);
+        if (inv && inv.status === 'active' && !inv.allow_backorder && Number(inv.available_stock||0) <= 0) return true;
+      }
+    } catch(e){}
+    return false;
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function fmt(v){
+    if (typeof window.COSMOSKIN_FORMAT_PRICE === 'function') return window.COSMOSKIN_FORMAT_PRICE(Number(v||0));
+    try { return Number(v||0).toLocaleString('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}); } catch(e){ return '₺'+(v||0); }
+  }
+  function readFavs(){
+    try { return JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]'); } catch(e){ return []; }
+  }
+  function getProduct(slug){
+    if (window.COSMOSKIN_PRODUCT_HELPERS && window.COSMOSKIN_PRODUCT_HELPERS.getProductBySlug) {
+      return window.COSMOSKIN_PRODUCT_HELPERS.getProductBySlug(slug);
+    }
+    return (window.COSMOSKIN_PRODUCTS||[]).find(function(p){ return p.slug === slug || p.id === slug; });
+  }
+  function render(){
+    var grid = document.getElementById('csFavoritesGrid');
+    var empty = document.getElementById('csFavoritesEmpty');
+    if (!grid) return;
+    var favs = readFavs();
+    var items = favs.map(function(f){
+      var slug = typeof f === 'string' ? f : (f && (f.slug || f.id));
+      var p = slug ? getProduct(slug) : null;
+      if (p) return p;
+      if (f && typeof f === 'object') return f;
+      return null;
+    }).filter(Boolean);
+    if (!items.length){
+      grid.innerHTML = '';
+      if (empty) empty.hidden = false;
+      return;
+    }
+    if (empty) empty.hidden = true;
+    var html = items.map(function(p){
+      var slug = p.slug || p.id;
+      var out = isOut(slug);
+      return '<article class="cs-product-card'+(out?' is-out-of-stock':'')+'" data-product-id="'+esc(slug)+'">'
+        + '<a class="cs-product-card__media" href="'+esc(p.url||('/products/'+slug+'.html'))+'">'
+        +   '<img src="'+esc(p.image||'')+'" alt="'+esc((p.brand||'')+' '+(p.name||''))+'" loading="lazy">'
+        + '</a>'
+        + '<div class="cs-product-card__body">'
+        +   '<span class="cs-product-card__brand">'+esc(p.brand||'')+'</span>'
+        +   '<a href="'+esc(p.url||('/products/'+slug+'.html'))+'" style="text-decoration:none;color:inherit;"><h3 class="cs-product-card__name">'+esc(p.name||'')+'</h3></a>'
+        +   '<div class="cs-product-card__footer">'
+        +     '<span class="cs-price">'+esc(fmt(p.price))+'</span>'
+        +     '<button type="button" data-add-cart="" data-slug="'+esc(slug)+'" data-id="'+esc(slug)+'" data-name="'+esc(p.name||'')+'" data-brand="'+esc(p.brand||'')+'" data-price="'+esc(p.price||0)+'" data-image="'+esc(p.image||'')+'" data-url="'+esc(p.url||'')+'"'+(out?' disabled aria-disabled="true" class="is-stock-disabled"':'')+'>'+(out?'Stokta Yok':'Sepete Ekle')+'</button>'
+        +   '</div>'
+        + '</div>'
+        + '</article>';
+    }).join('');
+    grid.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">'+html+'</div>';
+    if (window.COSMOSKIN_STOCK && window.COSMOSKIN_STOCK.applyState) {
+      try { window.COSMOSKIN_STOCK.applyState(grid); } catch(e){}
+    }
+  }
+  function init(){
+    if (window.COSMOSKIN_PRODUCTS_READY && typeof window.COSMOSKIN_PRODUCTS_READY.then === 'function') {
+      window.COSMOSKIN_PRODUCTS_READY.then(render);
+    }
+    render();
+    window.addEventListener('cosmoskin:favorites-updated', render);
+    window.addEventListener('storage', function(e){
+      if (e.key === 'cosmoskin_favorites') render();
+    });
+    document.addEventListener('cosmoskin:inventory-updated', render);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script defer src="/assets/cosmoskin-mobile.js?v=20260514-mobile-final"></script>
+<aside class="drawer" id="cartDrawer"><div class="drawer-head"><div class="drawer-title">Sepet</div><button class="icon-close close-any" type="button">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-summary"><div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="cartSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="cartVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="cartShipping">₺0</strong></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="cartTotal">₺0</strong></div><div class="shipping-progress" id="shippingProgress"><div class="shipping-progress-bar"><span id="shippingProgressFill"></span></div><div class="shipping-progress-text" id="shippingProgressText">Kargo avantajı hesaplanıyor...</div></div><a class="btn btn-primary" href="/checkout.html">Ödemeye Geç</a><div class="account-mini">2.500 TL ve üzeri siparişlerde kargo ücretsizdir. Tüm fiyatlara KDV dahildir.</div></div></aside>
+<aside class="drawer" id="accountDrawer"><div class="drawer-head"><div class="drawer-title">Hesap</div><button class="icon-close close-any" type="button">×</button></div><div class="account-state" id="accountState"></div><div class="account-actions" id="accountActions"><button class="btn btn-primary" data-auth-tab="loginPanel" data-open-auth="" type="button">Giriş Yap</button><button class="btn btn-secondary" data-auth-tab="registerPanel" data-open-auth="" type="button">Kayıt Ol</button></div><div class="account-mini">Sipariş geçmişinizi, kayıtlı adreslerinizi ve üyelik tercihlerinizi tek ekranda yönetin.</div></aside>
 </body>
 </html>
