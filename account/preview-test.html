@@ -13,8 +13,8 @@
 <link href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" rel="stylesheet"/>
 <link href="/assets/phase6-commerce.css?v=20260503-ratingux" rel="stylesheet"/>
 <link href="/assets/account-premium.css?v=20260506-account-premium" rel="stylesheet"/>
+<link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
-<link href="/assets/cosmoskin-mobile.css?v=20260514-mobile-final" rel="stylesheet"/>
 </head>
 <body class="account-page account-premium-page">
 <div class="cs-benefit-strip" aria-label="COSMOSKIN avantajları">
@@ -273,9 +273,10 @@ const demoSummary={ok:true,user:{id:'u1',email:'cankolsun@cosmoskin.com.tr',crea
 window.fetch=async function(url,opts){ const u=String(url); if(u.includes('/api/account/summary')) return new Response(JSON.stringify(demoSummary),{status:200,headers:{'content-type':'application/json'}}); if(u.includes('/api/returns')) return new Response(JSON.stringify({ok:true,returns:[{id:'ret1',status:'requested',reason:'Ürün beklentimi karşılamadı',note:'Talep inceleniyor.',created_at:'2026-04-26T09:00:00+03:00'}]}),{status:200,headers:{'content-type':'application/json'}}); return new Response(JSON.stringify({ok:true}),{status:200,headers:{'content-type':'application/json'}});};
 </script>
 <script src="/assets/account-dashboard.js?v=20260506-account-premium"></script>
+<script src="/assets/mobile.js?v=20260425f"></script>
 <script defer="True" src="/assets/phase6-commerce.js?v=20260503-phase63"></script><script defer src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>
+<script src="/assets/mobile-redesign.js?v=20260512-reference-ui" defer></script>
 <script src="/assets/inventory-client.js?v=20260510ops" defer></script>
 <script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script defer src="/assets/cosmoskin-mobile.js?v=20260514-mobile-final"></script>
 </body>
 </html>
