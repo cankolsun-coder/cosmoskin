@@ -620,7 +620,7 @@
       return;
     }
     persistRoutineSelectionForRoutinePages();
-    window.location.href = '/collections/routine?from=home-smart-routine&goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma');
+    window.location.href = '/collections/routine.html?from=home-smart-routine&goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma');
   }
 
   async function saveRoutine() {

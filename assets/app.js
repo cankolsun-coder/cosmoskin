@@ -472,7 +472,7 @@
     { label: 'Kuru Cilt', type: 'Cilt Tipi', url: '/collections/hydrate.html', keywords: 'dry skin kuru cilt nemsizlik barrier', meta: 'Nem ve konfor odaklı seçkiler', badge: 'Cilt Tipi' },
     { label: 'Yağlı Cilt', type: 'Cilt Tipi', url: '/collections/protect.html', keywords: 'oily skin yagli cilt sebum parlama hafif spf', meta: 'Daha hafif ve dengeli seçimler', badge: 'Cilt Tipi' },
     { label: 'Hassas Cilt', type: 'Cilt Tipi', url: '/collections/care.html', keywords: 'sensitive skin hassas cilt centella bariyer', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'Cilt Tipi' },
-    { label: 'Karma Cilt', type: 'Cilt Tipi', url: '/collections/routine', keywords: 'combination skin karma cilt denge rutin', meta: 'Günlük denge için sabah-akşam akışları', badge: 'Cilt Tipi' },
+    { label: 'Karma Cilt', type: 'Cilt Tipi', url: '/collections/routine.html', keywords: 'combination skin karma cilt denge rutin', meta: 'Günlük denge için sabah-akşam akışları', badge: 'Cilt Tipi' },
     { label: 'Nemsizlik', type: 'Cilt Problemi', url: '/collections/hydrate.html', keywords: 'dehydration nemsizlik hyaluronic acid essence dolgunluk', meta: 'Dolgun görünüm ve su tutma desteği', badge: 'Cilt Problemi' },
     { label: 'Leke Görünümü', type: 'Cilt Problemi', url: '/collections/treat.html', keywords: 'tone leke gorunumu vitamin c niacinamide serum brightening', meta: 'Daha eşit ton görünümü için serumlar', badge: 'Cilt Problemi' },
     { label: 'Akne Eğilimi', type: 'Cilt Problemi', url: '/collections/blemish.html', keywords: 'blemish acne akne egilimi salicylic acid pore sivilce gozenek', meta: 'Gözenek ve akne eğilimine uygun bakım', badge: 'Cilt Problemi' },
@@ -498,7 +498,7 @@
     { label: 'Medicube', type: 'Marka', url: '/collections/medicube.html', keywords: 'marka medicube zero pore pad', meta: 'Gözenek ve akne odaklı bakım', badge: 'Marka' },
     { label: 'Mediheal', type: 'Marka', url: '/collections/mediheal.html', keywords: 'marka mediheal sheet mask nmf aquaring', meta: 'Sheet mask ve nem yoğunlaşması', badge: 'Marka' },
     { label: 'Some By Mi', type: 'Marka', url: '/collections/some-by-mi.html', keywords: 'marka some by mi aha bha miracle', meta: 'AHA BHA Miracle serisi', badge: 'Marka' },
-    { label: 'Rutinler', type: 'Sayfa', url: '/collections/routine', keywords: 'rutinler routine cilt bakim rutini sabah aksam', meta: 'Hazır sabah-akşam akışları', badge: 'Sayfa' },
+    { label: 'Rutinler', type: 'Sayfa', url: '/collections/routine.html', keywords: 'rutinler routine cilt bakim rutini sabah aksam', meta: 'Hazır sabah-akşam akışları', badge: 'Sayfa' },
     { label: 'Destek Merkezi', type: 'Sayfa', url: '/contact.html', keywords: 'destek merkez iletisim yardim partnership', meta: 'İletişim ve iş ortaklığı formları', badge: 'Sayfa' }
   ];
 
@@ -540,7 +540,7 @@
   function renderSearchResults(container, results, query = '') {
     if (!container) return;
     if (!results.length) {
-      container.innerHTML = '<div class="site-search-empty"><strong>Sonuç bulunamadı.</strong><span>Farklı bir ürün, kategori, içerik veya marka deneyin.</span><a class="site-search-empty__link" href="/collections/routine">Rutinleri incele</a></div>';
+      container.innerHTML = '<div class="site-search-empty"><strong>Sonuç bulunamadı.</strong><span>Farklı bir ürün, kategori, içerik veya marka deneyin.</span><a class="site-search-empty__link" href="/collections/routine.html">Rutinleri incele</a></div>';
       container.hidden = false;
       return;
     }
@@ -1349,7 +1349,7 @@ function broadcastFavoritesChange() {
     if (path.includes('/collections/hydrate')) return 'hydrate';
     if (path.includes('/collections/treat')) return 'treat';
     if (path.includes('/collections/protect')) return 'protect';
-    if (path.includes('/collections/routine')) return 'routine';
+    if (path.includes('/collections/routine.html')) return 'routine';
     if (path.includes('/collections/care')) return 'care';
     return 'default';
   }

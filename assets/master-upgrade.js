@@ -15,14 +15,14 @@
     'Maskeler': '/collections/masks.html'
   };
   var goalMap = {
-    'Nem': '/collections/routine?goal=nem',
-    'Bariyer': '/collections/routine?goal=bariyer',
-    'Işıltı': '/collections/routine?goal=isilti',
-    'Leke': '/collections/routine?goal=leke',
-    'Akne': '/collections/routine?goal=akne',
-    'Hassasiyet': '/collections/routine?goal=hassasiyet',
-    'Gözenek': '/collections/routine?goal=gozenek',
-    'Güneş bakımı': '/collections/routine?goal=spf'
+    'Nem': '/collections/routine.html?goal=nem',
+    'Bariyer': '/collections/routine.html?goal=bariyer',
+    'Işıltı': '/collections/routine.html?goal=isilti',
+    'Leke': '/collections/routine.html?goal=leke',
+    'Akne': '/collections/routine.html?goal=akne',
+    'Hassasiyet': '/collections/routine.html?goal=hassasiyet',
+    'Gözenek': '/collections/routine.html?goal=gozenek',
+    'Güneş bakımı': '/collections/routine.html?goal=spf'
   };
 
   function esc(value) {
@@ -209,7 +209,7 @@
   }
 
   function patchLinks() {
-    document.querySelectorAll('a[href*="/collections/routine"]').forEach(function (a) { a.href = a.href.replace('/collections/routine', '/collections/routine'); });
+    document.querySelectorAll('a[href*="/collections/routine.html"]').forEach(function (a) { a.href = a.href.replace('/collections/routine.html', '/collections/routine.html'); });
     document.querySelectorAll('.brand-ribbon__item[href*="/collections/"], .brand-strip a[href*="/collections/"]').forEach(function (a) {
       var label = a.getAttribute('aria-label') || a.textContent || a.href.split('/').pop().replace('.html', '');
       a.href = '/brands.html#brand-' + brandSlug(label);

@@ -10,9 +10,9 @@ Bu güncelleme, son kontrolde görülen Rutinler akışı, homepage hover/search
 - `_redirects` içinde eski ve yardımcı rutin rotaları temiz Rutinler rotasına bağlandı.
 - Global HTML ve JS içindeki eski `/routine.html` linkleri `/collections/routine` rotasına taşındı.
 - Account içindeki rutin alt sayfa linkleri, tek Rutinler ekranı içinde query tab mantığına bağlandı:
-  - `/collections/routine?view=profile`
-  - `/collections/routine?view=favorites`
-  - `/collections/routine?view=history`
+  - `/collections/routine.html?view=profile`
+  - `/collections/routine.html?view=favorites`
+  - `/collections/routine.html?view=history`
 
 ## Rutinler sayfa geçişi
 - Rutinler alanında sidebar geçişleri gerçek ayrı sayfa hissi yerine aynı sayfa içinde çalışacak şekilde History API ile düzenlendi.
