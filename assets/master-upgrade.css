@@ -292,3 +292,67 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .smart-routine__product-price{font-size:11.5px!important;margin-top:6px!important;}
 @media(max-width:860px){.smart-routine__goals{grid-template-columns:repeat(2,minmax(0,1fr))!important}.smart-routine__goal{min-height:70px!important}.smart-routine__product-card{min-height:178px!important}}
 @media(max-width:520px){.smart-routine__goals{grid-template-columns:1fr!important}.smart-routine__goal{min-height:62px!important;flex-direction:row!important;align-items:center!important}.smart-routine__product-card{grid-template-columns:88px minmax(0,1fr)!important;min-height:112px!important}.smart-routine__product-media{min-height:112px!important}.smart-routine__product-media img{height:82px!important}}
+
+/* 2026-05-16 — Premium product card price polish.
+   Reduce oversized prices (was 22–28px) to a balanced, readable scale.
+   Applies site-wide; desktop and mobile harmonised. */
+.product-card .price,
+.collection-page .price,
+.product-body .price,
+.cm-product-card .price,
+.cm-card-price,
+.phase6-product-card .price,
+#bestsellers .price,
+.price {
+  font-size: 16px !important;
+  line-height: 1.15 !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.005em !important;
+}
+.product-card .price .strike,
+.product-card .price del,
+.price .was,
+.price del {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #8a7e72 !important;
+  margin-right: 6px !important;
+}
+@media (max-width: 760px) {
+  .product-card .price,
+  .collection-page .price,
+  .product-body .price,
+  .cm-product-card .price,
+  .cm-card-price,
+  .phase6-product-card .price,
+  #bestsellers .price,
+  .price {
+    font-size: 15px !important;
+  }
+  .product-card .price .strike,
+  .product-card .price del,
+  .price .was,
+  .price del { font-size: 11.5px !important; }
+}
+
+/* 2026-05-16 — Live search overlay safety: prevent right-edge overflow.
+   Older rule used `width: min(380px, calc(100vw - 48px))` which can exceed
+   the parent container on narrow desktop. Clamp width + cap with viewport. */
+.header .site-search-results {
+  right: 0 !important;
+  left: auto !important;
+  width: min(380px, calc(100vw - 32px)) !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: min(72svh, 520px) !important;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+}
+.site-search-form { position: relative; }
+@media (max-width: 760px) {
+  .header .site-search-results {
+    right: 0 !important;
+    width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
