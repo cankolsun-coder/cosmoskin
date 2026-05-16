@@ -9,6 +9,8 @@
     favorites: 'cosmoskin_routine_favorites'
   };
 
+  var ROUTINE_ROUTE = '/collections/routine';
+
   var goalLabels = { nem: 'Nem', bariyer: 'Bariyer', isilti: 'Işıltı', leke: 'Leke Karşıtı', akne: 'Akne & Sivilce Karşıtı', hassasiyet: 'Hassasiyet', gozenek: 'Gözenek Sıkılaştırıcı', parlaklik: 'Parlaklık' };
   var skinLabels = { kuru: 'Kuru', karma: 'Karma', yagli: 'Yağlı', hassas: 'Hassas', normal: 'Normal' };
 
@@ -67,13 +69,22 @@
   function normalizePreferences(raw) {
     var base = defaultPreferences();
     raw = raw || {};
+    var skinMap = { dry:'kuru', oily:'yagli', combination:'karma', sensitive:'hassas', normal:'normal', kuru:'kuru', yagli:'yagli', karma:'karma', hassas:'hassas' };
+    var goalMap = { hydration:'nem', barrier:'bariyer', glow:'isilti', balance:'nem', dehydration:'nem', sensitivity:'hassasiyet', tone:'leke', blemish:'akne', isilti:'isilti', nem:'nem', bariyer:'bariyer', leke:'leke', akne:'akne', hassasiyet:'hassasiyet', gozenek:'gozenek', parlaklik:'parlaklik' };
     var goals = raw.selectedGoals || raw.goals || raw.skinGoals || raw.goal || [];
     if (typeof goals === 'string') goals = goals.split(/[,+]/).map(function (x) { return x.trim(); });
     goals = Array.isArray(goals) ? goals.filter(Boolean) : base.selectedGoals;
+    var concerns = raw.concerns || raw.selectedConcerns || [];
+    if (typeof concerns === 'string') concerns = concerns.split(/[,+]/).map(function (x) { return x.trim(); });
+    if (Array.isArray(concerns)) goals = goals.concat(concerns);
+    goals = goals.map(function (id) { return goalMap[id] || id; }).filter(Boolean);
+    goals = goals.filter(function (id, index) { return goals.indexOf(id) === index; });
+    var skin = raw.selectedSkinType || raw.skinType || raw.skin || base.selectedSkinType;
+    skin = skinMap[skin] || skin;
     return Object.assign({}, base, raw, {
       selectedGoals: goals.length ? goals : base.selectedGoals,
-      selectedSkinType: raw.selectedSkinType || raw.skinType || raw.skin || base.selectedSkinType,
-      sensitivity: raw.sensitivity || raw.skinSensitivity || base.sensitivity,
+      selectedSkinType: skin,
+      sensitivity: raw.sensitivity || raw.skinSensitivity || (skin === 'hassas' ? 'orta' : base.sensitivity),
       habit: raw.habit || raw.period || raw.usagePattern || base.habit,
       intensity: raw.intensity || raw.routineIntensity || base.intensity,
       tolerance: raw.tolerance || raw.activeTolerance || base.tolerance,
@@ -126,7 +137,32 @@
     return list;
   }
 
+  function hydrateRoutineProduct(item) {
+    if (!item) return null;
+    var slug = item.slug || item.id || item.url || '';
+    var catalog = findProduct(slug) || (window.COSMOSKIN_PRODUCT_HELPERS && window.COSMOSKIN_PRODUCT_HELPERS.getProductByHandle ? window.COSMOSKIN_PRODUCT_HELPERS.getProductByHandle(slug) : null);
+    return catalog || (item.name ? {
+      id: item.slug || item.id,
+      slug: item.slug || item.id,
+      name: item.name,
+      brand: item.brand || 'COSMOSKIN',
+      category: item.category || '',
+      price: Number(item.price || 0),
+      image: item.image || '/assets/packaging-mockup-premium.png',
+      url: item.url || ('/products/' + (item.slug || item.id) + '.html')
+    } : null);
+  }
+
   function activeRoutineProducts(prefs) {
+    var day = Array.isArray(prefs.dayRoutine) ? prefs.dayRoutine.map(hydrateRoutineProduct).filter(Boolean) : [];
+    var night = Array.isArray(prefs.nightRoutine) ? prefs.nightRoutine.map(hydrateRoutineProduct).filter(Boolean) : [];
+    if (day.length || night.length) {
+      var fallback = recommendProducts(prefs);
+      return {
+        morning: (day.length ? day : [fallback[8], fallback[0], fallback[2], fallback[5]]).filter(Boolean).slice(0, 4),
+        evening: (night.length ? night : [fallback[6], fallback[1], fallback[2], fallback[4]]).filter(Boolean).slice(0, 4)
+      };
+    }
     var products = recommendProducts(prefs);
     return {
       morning: [products[8], products[0], products[2], products[5]].filter(Boolean),
@@ -154,16 +190,20 @@
     return '<div class="rt-product-step"><a href="' + esc(product.url || '#') + '"><img src="' + esc(product.image) + '" alt="' + esc(product.brand + ' ' + product.name) + '" loading="lazy"></a><strong><small>' + (index + 1) + '</small>' + esc(label) + '</strong></div>';
   }
 
+  function routineHref(view) {
+    return ROUTINE_ROUTE + (view && view !== 'dashboard' ? '?view=' + encodeURIComponent(view) : '');
+  }
+
   function sidebar(active) {
     var items = [
-      ['dashboard','/account/routines.html','Aktif Rutinim','spark'],
-      ['history','/account/routine-history.html','Rutin Geçmişim','history'],
-      ['favorites','/account/routine-favorites.html','Favori Ürünlerim','heart'],
-      ['compare','/account/routine-history.html#compare','Rutin Karşılaştır','compare'],
-      ['profile','/account/routine-profile.html','Cilt Profilim','user']
+      ['dashboard', routineHref('dashboard'), 'Aktif Rutinim', 'spark'],
+      ['history', routineHref('history'), 'Rutin Geçmişim', 'history'],
+      ['favorites', routineHref('favorites'), 'Favori Ürünlerim', 'heart'],
+      ['history', routineHref('history') + '#compare', 'Rutin Karşılaştır', 'compare'],
+      ['profile', routineHref('profile'), 'Cilt Profilim', 'user']
     ];
     return '<aside class="rt-sidebar rt-card"><div class="rt-sidebar-title">RUTİNLERİM</div><nav class="rt-side-nav" aria-label="Rutin menüsü">' + items.map(function (item) {
-      return '<a class="' + (active === item[0] ? 'is-active' : '') + '" href="' + item[1] + '">' + icon(item[3]) + '<span>' + item[2] + '</span></a>';
+      return '<a class="' + (active === item[0] ? 'is-active' : '') + '" href="' + item[1] + '" data-rt-view="' + item[0] + '">' + icon(item[3]) + '<span>' + item[2] + '</span></a>';
     }).join('') + '</nav><div class="rt-side-promo"><p>Cildine iyi gelen, sadece sana özel bir rutin.</p><div class="rt-side-products"><img src="' + esc(productImage('anua-heartleaf-77-soothing-toner',0)) + '" alt=""><img src="' + esc(productImage('torriden-dive-in-hyaluronic-acid-serum',1)) + '" alt=""><img src="' + esc(productImage('torriden-solid-in-ceramide-cream',2)) + '" alt=""><img src="' + esc(productImage('beauty-of-joseon-relief-sun-spf50',3)) + '" alt=""></div><a href="/index.html#smart-routine">Yeni Rutin Oluştur ' + icon('arrow') + '</a></div></aside>';
   }
 
@@ -173,7 +213,7 @@
       '<div class="rt-summary-item">' + icon('shield') + '<div><small>Cilt Hedeflerin</small><strong>' + esc(goalText(prefs)) + '</strong></div></div>' +
       '<div class="rt-summary-item">' + icon('refresh') + '<div><small>Rutin Yoğunluğu</small><strong>' + esc(cap(prefs.intensity)) + '</strong></div></div>' +
       '<div class="rt-summary-item">' + icon('leaf') + '<div><small>Oluşturulan Rutin</small><strong>1 Aktif Rutin</strong></div></div>' +
-      '<a class="rt-btn" href="/account/routine-profile.html">' + icon('edit') + 'Profili Düzenle</a></div>';
+      '<a class="rt-btn" href="/collections/routine?view=profile">' + icon('edit') + 'Profili Düzenle</a></div>';
   }
 
   function renderDashboard(host) {
@@ -187,7 +227,7 @@
         '<section class="rt-routine-hero"><div><span class="rt-tag">Aktif Rutinim · En son güncellendi: ' + esc(nowDate()) + '</span><h2 class="rt-h2">Dengeli & Aydınlık Bakım Rutini</h2><p>Cildinin ihtiyaçlarına göre oluşturulan bu rutin, cildini nazikçe arındırır, nemlendirir ve ışıl ışıl bir görünüm kazandırmayı hedefler.</p></div><div class="rt-score"><div class="rt-score-ring" style="--score:92"><strong>92</strong><span>100</span></div><small>Cilt uyumun yüksek</small></div></section>' +
         '<section class="rt-routine-flow"><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('sun') + 'Sabah Rutini</h3><div class="rt-product-steps">' + routine.morning.map(function (p,i) { return productStep(p,i,['Temizle','Dengele','Nemlendir','Koru'][i] || 'Bakım'); }).join('') + '</div></div><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('moon') + 'Akşam Rutini</h3><div class="rt-product-steps">' + routine.evening.map(function (p,i) { return productStep(p,i,['Temizle','Bakım','Onar','Yenile'][i] || 'Bakım'); }).join('') + '</div></div></section>' +
         '<section class="rt-reason"><h3>' + icon('sun') + 'Neden Bu Ürünler?</h3><p>Bu rutin, cilt tipin (' + esc(skinText(prefs).toLocaleLowerCase('tr-TR')) + '), cilt hedeflerin ve içerik tercihlerin göz önünde bulundurularak hazırlandı.</p><div class="rt-reason-list"><span>' + icon('spark') + 'Aydınlık görünümü destekler</span><span>' + icon('shield') + 'Cilt bariyerini güçlendirir</span><span>' + icon('leaf') + 'Nem dengesini korur</span><span>' + icon('target') + 'Tahrişi azaltmaya yardımcı olur</span></div></section>' +
-        '<div class="rt-products-head"><div><h2>Önerilen Ürünler</h2><p>Cilt profiline %90+ uyumlu ürünler</p></div><div><button class="rt-btn rt-btn--black" type="button" data-rt-add-all>' + icon('bag') + 'Tümünü Sepete Ekle</button> <a class="rt-btn" href="/account/routine-profile.html">' + icon('edit') + 'Rutinini Düzenle</a></div></div>' +
+        '<div class="rt-products-head"><div><h2>Önerilen Ürünler</h2><p>Cilt profiline %90+ uyumlu ürünler</p></div><div><button class="rt-btn rt-btn--black" type="button" data-rt-add-all>' + icon('bag') + 'Tümünü Sepete Ekle</button> <a class="rt-btn" href="/collections/routine?view=profile">' + icon('edit') + 'Rutinini Düzenle</a></div></div>' +
         '<div class="rt-products-grid rt-products-grid--six">' + recs.map(function (p) { return productCard(p); }).join('') + '</div>' +
         '<section class="rt-improve rt-card"><h2 class="rt-products-head"><span><b>Rutinini İyileştir</b><small>Daha iyi sonuçlar için bu önerilere göz atabilirsin.</small></span></h2><div class="rt-improve-grid">' + improveCards() + '</div></section>' +
       '</div></div></div></section>';
@@ -199,19 +239,19 @@
       ['Peeling Önerisi','Haftada 1–2 kez nazik bir peeling ile cilt dokunu daha pürüzsüz hale getir.','some-by-mi-aha-bha-miracle-toner'],
       ['Gece Onarım Desteği','Gece kullanımına uygun onarıcı içerikler cildini yenilemeye yardımcı olur.','torriden-solid-in-ceramide-cream']
     ];
-    return items.map(function (item) { return '<a class="rt-improve-card" href="/collections/routine.html"><img src="' + esc(productImage(item[2],0)) + '" alt=""><div><strong>' + esc(item[0]) + '</strong><span>' + esc(item[1]) + '</span><b>Ürünleri Keşfet ' + icon('arrow') + '</b></div></a>'; }).join('');
+    return items.map(function (item) { return '<a class="rt-improve-card" href="/collections/routine"><img src="' + esc(productImage(item[2],0)) + '" alt=""><div><strong>' + esc(item[0]) + '</strong><span>' + esc(item[1]) + '</span><b>Ürünleri Keşfet ' + icon('arrow') + '</b></div></a>'; }).join('');
   }
 
   function renderWelcome(host) {
     var prefs = normalizePreferences(readJSON(KEYS.pending, null) || readJSON(KEYS.preferences, null));
     var hasPending = !!readJSON(KEYS.pending, null);
     host.innerHTML = '<section class="rt-section"><div class="rt-container">' +
-      '<div class="rt-welcome-hero"><div class="rt-welcome-copy"><p class="rt-eyebrow">AKILLI RUTİN MERKEZİ</p><h1 class="rt-h1">Cildine özel bakım yolculuğunu başlat.</h1><p class="rt-copy">COSMOSKIN Akıllı Rutin, cilt hedeflerin ve alışkanlıklarına göre senin için sade bir sabah ve akşam planı oluşturur. Cildi yormayan, dengeli ve sürdürülebilir bir bakışla tanış.</p><div class="rt-welcome-actions"><a class="rt-btn rt-btn--black" href="/index.html#smart-routine">Akıllı Rutine Başlat</a></div><div class="rt-avatars"><div class="rt-avatars__stack"><span class="rt-avatar">C</span><span class="rt-avatar">S</span><span class="rt-avatar">K</span></div><div><strong>70.000+ kullanıcı</strong><span>akıllı rutinlerini oluşturdu.</span></div></div></div>' +
+      '<div class="rt-welcome-hero"><div class="rt-welcome-copy"><p class="rt-eyebrow">AKILLI RUTİN MERKEZİ</p><h1 class="rt-h1">Cildine özel bakım yolculuğunu başlat.</h1><p class="rt-copy">COSMOSKIN Akıllı Rutin, cilt hedeflerin ve alışkanlıklarına göre senin için sade bir sabah ve akşam planı oluşturur. Cildi yormayan, dengeli ve sürdürülebilir bir bakışla tanış.</p><div class="rt-welcome-actions"><a class="rt-btn rt-btn--black" href="/index.html#smart-routine">Akıllı Rutine Başlat</a></div><div class="rt-avatars"><div class="rt-avatars__stack"><span class="rt-avatar">C</span><span class="rt-avatar">S</span><span class="rt-avatar">K</span></div><div><strong>Kişisel rutin akışı</strong><span>seçimlerinle gerçek ürün verisine bağlanır.</span></div></div></div>' +
       '<div class="rt-flow-board">' +
         '<div class="rt-flow-card"><h3>' + icon('target') + 'Cilt Hedeflerini</h3><div class="rt-pill-row"><span class="rt-pill">Nem</span><span class="rt-pill">Parlaklık</span><span class="rt-pill">Işıltı</span><span class="rt-pill">Sivilce</span><span class="rt-pill">Hassasiyet</span></div></div>' +
         '<div class="rt-flow-card"><h3>' + icon('sun') + 'Sabah Akışı</h3>' + miniSteps(['Temizle','Dengele','Nemlendir','Koru']) + '</div>' +
         '<div class="rt-flow-card"><h3>' + icon('moon') + 'Akşam Akışı</h3>' + miniSteps(['Temizle','Bakım','Onar','Yenile']) + '</div>' +
-        '<div class="rt-flow-card"><h3>' + icon('spark') + 'Anasayfada seçtiğin Akıllı Rutin seçimlerin bu rutine kolayca yansır.</h3><p class="rt-copy" style="margin:0;font-size:12px">Seçimlerini senkronize edilir.</p></div>' +
+        '<div class="rt-flow-card"><h3>' + icon('spark') + 'Anasayfada seçtiğin Akıllı Rutin seçimlerin bu rutine kolayca yansır.</h3><p class="rt-copy" style="margin:0;font-size:12px">Seçimlerin senkronize edilir.</p></div>' +
       '</div><aside class="rt-login-card rt-card">' + icon('lock') + '<div><h2>Rutinini kaydet</h2><p>Rutinlerini kaydetmek ve istediğin zaman kaldığın yerden devam etmek için giriş yapmalısın.</p></div><div><button class="rt-btn rt-btn--black" type="button" data-rt-auth="login">Giriş Yap</button><a href="#" data-rt-auth="register">Hesabın yok mu? Kayıt Ol →</a></div></aside></div>' +
       '<div class="rt-feature-row rt-card"><div class="rt-feature">' + icon('target') + '<strong>Cilt Hedefine Göre</strong><span>Hedeflerine uygun sade bir plan oluşturur.</span></div><div class="rt-feature">' + icon('sun') + '<strong>Sabah & Akşam Akışı</strong><span>Güne ve geceye uygun iki ayrı akış sunar.</span></div><div class="rt-feature">' + icon('shield') + '<strong>Ürün Uyumu</strong><span>İçerik uyumsuzluklarını tespit edip öneriler önerir.</span></div><div class="rt-feature">' + icon('leaf') + '<strong>Sade Akış</strong><span>Az adımla etkili sonuç, cildi yormayan rutin.</span></div><div class="rt-feature">' + icon('bag') + '<strong>Sepette Hazır Sonuç</strong><span>Rutini tamamladığında kolayca sepete ekle.</span></div></div>' +
       '<section class="rt-how"><p class="rt-eyebrow">NASIL ÇALIŞIR?</p><h2 class="rt-h2">Rutinini 3 adımda oluştur.</h2><div class="rt-step-grid"><div class="rt-step-card"><small>01</small><strong>Cilt hedefini seç</strong><p>Nem, parlaklık, sivilce, hassasiyet gibi hedeflerinden birini veya birkaçını seç.</p></div><div class="rt-step-arrow"></div><div class="rt-step-card"><small>02</small><strong>Kullanım düzenini belirle</strong><p>Sabah ve/veya akşam akışını ve cilt tipine uygun tercihlerini belirle.</p></div><div class="rt-step-arrow"></div><div class="rt-step-card"><small>03</small><strong>Kişisel önerini al</strong><p>Cildine uygun akıllı bir rutin sırala senin için oluşturulur.</p></div></div></section>' +
@@ -238,7 +278,7 @@
       formBlock('6. Aktif İçerik Toleransı','tolerance',[['dusuk','Düşük'],['orta','Orta'],['yuksek','Yüksek']], prefs.tolerance, false) +
       '<div class="rt-form-card"><h3>7. Mevcut Ürünlerin <small>(Sahip olduğun ürünleri seç, tekrar önermeyelim)</small></h3><div class="rt-products-owned">' + products.map(function (p) { return '<div class="rt-owned"><img src="' + esc(p.image) + '" alt=""><div><strong>' + esc(p.brand) + '</strong><span>' + esc(p.name.split(':')[0]) + '</span></div><button type="button" data-rt-remove-owned>×</button></div>'; }).join('') + '<button class="rt-add-owned" type="button" data-rt-add-owned>' + icon('plus') + 'Ürün Ekle</button></div></div>' +
       formBlock('8. Kaçındığım İçerikler <small>(İstemediğin içerikleri seç)</small>','avoid',[['Parfüm','Parfüm'],['Ağır Yağlar','Ağır Yağlar'],['Alkol','Alkol'],['Uçucu Yağlar','Uçucu Yağlar'],['Yüksek Asitler','Yüksek Asitler'],['Komedojenik Yapılar','Komedojenik Yapılar']], prefs.avoid, true) +
-      '<div class="rt-profile-actions"><button class="rt-btn rt-btn--black" type="button" data-rt-save-profile>Kaydet ve Güncelle</button><a class="rt-btn" href="/account/routines.html">İptal</a><button class="rt-btn" type="button" data-rt-reset-profile>Varsayılanlara Dön</button></div></div>' +
+      '<div class="rt-profile-actions"><button class="rt-btn rt-btn--black" type="button" data-rt-save-profile>Kaydet ve Güncelle</button><a class="rt-btn" href="/collections/routine">İptal</a><button class="rt-btn" type="button" data-rt-reset-profile>Varsayılanlara Dön</button></div></div>' +
       '<aside class="rt-summary-side">' + profileSummary(prefs) + '</aside></div></div></div></div></section>';
   }
 
@@ -258,18 +298,18 @@
     var prefs = mergePendingRoutinePreferences();
     var products = recommendProducts(prefs).slice(0, 8);
     writeJSON(KEYS.favorites, products.map(function (p) { return p.slug; }));
-    host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-fav-top"><div><h1 class="rt-h1">Favori Ürünlerim</h1><p class="rt-copy">Beğendiğin ve tekrar almak istediğin ürünleri burada kolayca görüntüleyebilir, rutine ekleyebilirsin.</p><div class="rt-stats"><div class="rt-stat">' + icon('heart') + '<strong>24</strong><span>Toplam Favori Ürün</span><small>Tüm favorilerin</small></div><div class="rt-stat">' + icon('spark') + '<strong>18</strong><span>Rutine Uyumlu</span><small>Cilt profiline uygun</small></div><div class="rt-stat">' + icon('target') + '<strong>6</strong><span>İndirimde</span><small>Kaçırılmayacak fırsatlar</small></div><div class="rt-stat">' + icon('bag') + '<strong>3</strong><span>Az Stokta</span><small>Tükenmeden al</small></div></div></div><aside class="rt-fit-card rt-card"><h3>Favorilerinden Sana Uygun Seçkiler <a href="/collections/routine.html" style="float:right;color:#111;text-decoration:none">Tümünü Gör →</a></h3>' + fitRow(products[0], products[1], 'Nem & Onarım Rutini', 'Kuru ve hassas ciltler için yoğun nem desteği.') + fitRow(products[2], products[3], 'Aydınlık & Pürüzsüzlük Rutini', 'Cilt tonunu eşitleyen ve canlandıran bakım.') + '</aside></div><div class="rt-shell">' + sidebar('favorites') + '<div class="rt-content"><div class="rt-filter-bar rt-card"><div class="rt-tabs"><button class="rt-tab is-active" type="button" data-rt-filter="all">Tümü</button><button class="rt-tab" type="button" data-rt-filter="routine">Rutinle Uyumlu</button><button class="rt-tab" type="button" data-rt-filter="sale">İndirimde</button><button class="rt-tab" type="button" data-rt-filter="stock">Stoktaki</button></div><select class="rt-sort" aria-label="Sıralama"><option>Eklenme Tarihine Göre</option><option>Fiyata Göre Artan</option><option>Fiyata Göre Azalan</option></select></div><div class="rt-products-grid" data-rt-fav-grid>' + products.map(function (p, i) { return productCard(p, { activeFav: i % 3 === 0, sale: i === 4, stock: i === 7 }); }).join('') + '</div></div></div></div></section>';
+    host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-fav-top"><div><h1 class="rt-h1">Favori Ürünlerim</h1><p class="rt-copy">Beğendiğin ve tekrar almak istediğin ürünleri burada kolayca görüntüleyebilir, rutine ekleyebilirsin.</p><div class="rt-stats"><div class="rt-stat">' + icon('heart') + '<strong>' + products.length + '</strong><span>Toplam Favori Ürün</span><small>Gerçek ürün kataloğundan</small></div><div class="rt-stat">' + icon('spark') + '<strong>' + Math.max(0, products.length - 2) + '</strong><span>Rutine Uyumlu</span><small>Cilt profiline uygun</small></div><div class="rt-stat">' + icon('target') + '<strong>' + Math.min(2, products.length) + '</strong><span>Öne Çıkan</span><small>Rutin hedeflerine göre</small></div><div class="rt-stat">' + icon('bag') + '<strong>' + Math.min(3, products.length) + '</strong><span>Sepete Uygun</span><small>Rutine eklenebilir</small></div></div></div><aside class="rt-fit-card rt-card"><h3>Favorilerinden Sana Uygun Seçkiler <a href="/collections/routine" style="float:right;color:#111;text-decoration:none">Tümünü Gör →</a></h3>' + fitRow(products[0], products[1], 'Nem & Onarım Rutini', 'Kuru ve hassas ciltler için yoğun nem desteği.') + fitRow(products[2], products[3], 'Aydınlık & Pürüzsüzlük Rutini', 'Cilt tonunu eşitleyen ve canlandıran bakım.') + '</aside></div><div class="rt-shell">' + sidebar('favorites') + '<div class="rt-content"><div class="rt-filter-bar rt-card"><div class="rt-tabs"><button class="rt-tab is-active" type="button" data-rt-filter="all">Tümü</button><button class="rt-tab" type="button" data-rt-filter="routine">Rutinle Uyumlu</button><button class="rt-tab" type="button" data-rt-filter="sale">İndirimde</button><button class="rt-tab" type="button" data-rt-filter="stock">Stoktaki</button></div><select class="rt-sort" aria-label="Sıralama"><option>Eklenme Tarihine Göre</option><option>Fiyata Göre Artan</option><option>Fiyata Göre Azalan</option></select></div><div class="rt-products-grid" data-rt-fav-grid>' + products.map(function (p, i) { return productCard(p, { activeFav: i % 3 === 0, sale: i === 4, stock: i === 7 }); }).join('') + '</div></div></div></div></section>';
   }
 
   function fitRow(a, b, title, copy) {
-    return '<div class="rt-fit-row"><div class="rt-fit-media"><img src="' + esc(a && a.image || '') + '" alt=""><span>+</span><img src="' + esc(b && b.image || '') + '" alt=""></div><div><strong>' + esc(title) + '</strong><p>' + esc(copy) + '</p><a class="rt-btn" href="/collections/routine.html" style="height:32px;padding:0 12px">Keşfet</a></div></div>';
+    return '<div class="rt-fit-row"><div class="rt-fit-media"><img src="' + esc(a && a.image || '') + '" alt=""><span>+</span><img src="' + esc(b && b.image || '') + '" alt=""></div><div><strong>' + esc(title) + '</strong><p>' + esc(copy) + '</p><a class="rt-btn" href="/collections/routine" style="height:32px;padding:0 12px">Keşfet</a></div></div>';
   }
 
   function renderHistory(host) {
     var prefs = mergePendingRoutinePreferences();
     var routine = activeRoutineProducts(prefs);
     var products = recommendProducts(prefs);
-    host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-breadcrumb"><a href="/account/routine-history.html">Rutin Geçmişim</a> / <strong>Geçmiş Rutin Detayı</strong></div><div class="rt-shell">' + sidebar('history') + '<div class="rt-content"><section class="rt-routine-hero"><div><span class="rt-tag">Kaydedilen Rutin</span><h1 class="rt-h2">Parlaklık & Bariyer Rutini</h1><p>Cilt tonunu eşitlemeye, canlı görünümü artırmaya ve cilt bariyerini güçlendirmeye odaklanan dengeli bir rutin.</p><div class="rt-history-meta"><div>' + icon('history') + '<p><small>Oluşturulma Tarihi</small><strong>20 Nisan 2024</strong></p></div><div>' + icon('refresh') + '<p><small>Son Kullanım</small><strong>28 Nisan 2024</strong></p></div><div>' + icon('user') + '<p><small>Oluşturan</small><strong>Sen</strong></p></div></div></div><div class="rt-score"><div class="rt-score-ring" style="--score:89"><strong>89</strong><span>100</span></div><small>Çok iyi uyum</small></div></section><section class="rt-routine-flow"><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('sun') + 'Sabah Rutini</h3><div class="rt-product-steps">' + routine.morning.map(function (p,i) { return productStep(p,i,['Temizle','Aydınlat','Nemlendir','Koru'][i] || 'Bakım'); }).join('') + '</div></div><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('moon') + 'Akşam Rutini</h3><div class="rt-product-steps">' + routine.evening.map(function (p,i) { return productStep(p,i,['Temizle','Bakım','Onar','Yenile'][i] || 'Bakım'); }).join('') + '</div></div></section><p class="rt-note">' + icon('info') + 'Bu rutin geçmişte oluşturuldu ve artık aktif rutininden farklı olabilir.</p><section class="rt-card rt-compare"><h2>Neden Bu Rutin?</h2><p class="rt-copy" style="font-size:13px;margin-top:0">Bu rutin, cilt profilin (' + esc(skinText(prefs).toLocaleLowerCase('tr-TR')) + ', hassas) ve hedeflerin doğrultusunda oluşturuldu.</p><div class="rt-why-grid"><div class="rt-why-item"><strong>Aydınlık Görünüm</strong><p>Cilt tonunu eşitleyerek ışıl ışıl bir görünüm kazandırmaya yardımcı olur.</p></div><div class="rt-why-item"><strong>Bariyer Desteği</strong><p>Cilt bariyerini güçlendirir ve daha dengeli bir cilt yapısını destekler.</p></div><div class="rt-why-item"><strong>Nem Dengesi</strong><p>Cildin ihtiyaç duyduğu nemi sağlayarak dolgun ve sağlıklı bir görünüm sunar.</p></div><div class="rt-why-item"><strong>Hassasiyete Uygun</strong><p>Hassas ciltlerin toleransını gözeten nazik içeriklerle formüle edilmiştir.</p></div></div></section><section class="rt-compare rt-card" id="compare"><h2>Mevcut rutinine göre değişenler</h2><div class="rt-compare-grid">' + compareCard(products[8], products[3]) + compareCard(products[0], products[1]) + compareCard(products[4], products[2]) + '</div><p class="rt-copy" style="font-size:12px">Formülasyonlar ve içerikler zamanla değişebilir. Daha iyi sonuçlar için rutinini güncelleyebilirsin.</p></section><div class="rt-action-row"><button class="rt-btn rt-btn--black" type="button" data-rt-apply-history>' + icon('refresh') + '<strong>Bu Rutini Yeniden Uygula<span>Bu rutini aktif rutinim olarak ayarla</span></strong></button><a class="rt-btn" href="#compare">' + icon('compare') + '<strong>Güncel Rutinimle Karşılaştır<span>İçerik ve ürün farklarını gör</span></strong></a><button class="rt-btn rt-btn--soft" type="button" data-rt-add-all>' + icon('bag') + '<strong>Sepete Ekle<span>Tüm rutin ürünlerini sepete ekle</span></strong></button></div></div></div></div></section>';
+    host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-breadcrumb"><a href="/collections/routine?view=history">Rutin Geçmişim</a> / <strong>Geçmiş Rutin Detayı</strong></div><div class="rt-shell">' + sidebar('history') + '<div class="rt-content"><section class="rt-routine-hero"><div><span class="rt-tag">Kaydedilen Rutin</span><h1 class="rt-h2">Parlaklık & Bariyer Rutini</h1><p>Cilt tonunu eşitlemeye, canlı görünümü artırmaya ve cilt bariyerini güçlendirmeye odaklanan dengeli bir rutin.</p><div class="rt-history-meta"><div>' + icon('history') + '<p><small>Oluşturulma Tarihi</small><strong>20 Nisan 2024</strong></p></div><div>' + icon('refresh') + '<p><small>Son Kullanım</small><strong>28 Nisan 2024</strong></p></div><div>' + icon('user') + '<p><small>Oluşturan</small><strong>Sen</strong></p></div></div></div><div class="rt-score"><div class="rt-score-ring" style="--score:89"><strong>89</strong><span>100</span></div><small>Çok iyi uyum</small></div></section><section class="rt-routine-flow"><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('sun') + 'Sabah Rutini</h3><div class="rt-product-steps">' + routine.morning.map(function (p,i) { return productStep(p,i,['Temizle','Aydınlat','Nemlendir','Koru'][i] || 'Bakım'); }).join('') + '</div></div><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('moon') + 'Akşam Rutini</h3><div class="rt-product-steps">' + routine.evening.map(function (p,i) { return productStep(p,i,['Temizle','Bakım','Onar','Yenile'][i] || 'Bakım'); }).join('') + '</div></div></section><p class="rt-note">' + icon('info') + 'Bu rutin geçmişte oluşturuldu ve artık aktif rutininden farklı olabilir.</p><section class="rt-card rt-compare"><h2>Neden Bu Rutin?</h2><p class="rt-copy" style="font-size:13px;margin-top:0">Bu rutin, cilt profilin (' + esc(skinText(prefs).toLocaleLowerCase('tr-TR')) + ', hassas) ve hedeflerin doğrultusunda oluşturuldu.</p><div class="rt-why-grid"><div class="rt-why-item"><strong>Aydınlık Görünüm</strong><p>Cilt tonunu eşitleyerek ışıl ışıl bir görünüm kazandırmaya yardımcı olur.</p></div><div class="rt-why-item"><strong>Bariyer Desteği</strong><p>Cilt bariyerini güçlendirir ve daha dengeli bir cilt yapısını destekler.</p></div><div class="rt-why-item"><strong>Nem Dengesi</strong><p>Cildin ihtiyaç duyduğu nemi sağlayarak dolgun ve sağlıklı bir görünüm sunar.</p></div><div class="rt-why-item"><strong>Hassasiyete Uygun</strong><p>Hassas ciltlerin toleransını gözeten nazik içeriklerle formüle edilmiştir.</p></div></div></section><section class="rt-compare rt-card" id="compare"><h2>Mevcut rutinine göre değişenler</h2><div class="rt-compare-grid">' + compareCard(products[8], products[3]) + compareCard(products[0], products[1]) + compareCard(products[4], products[2]) + '</div><p class="rt-copy" style="font-size:12px">Formülasyonlar ve içerikler zamanla değişebilir. Daha iyi sonuçlar için rutinini güncelleyebilirsin.</p></section><div class="rt-action-row"><button class="rt-btn rt-btn--black" type="button" data-rt-apply-history>' + icon('refresh') + '<strong>Bu Rutini Yeniden Uygula<span>Bu rutini aktif rutinim olarak ayarla</span></strong></button><a class="rt-btn" href="#compare">' + icon('compare') + '<strong>Güncel Rutinimle Karşılaştır<span>İçerik ve ürün farklarını gör</span></strong></a><button class="rt-btn rt-btn--soft" type="button" data-rt-add-all>' + icon('bag') + '<strong>Sepete Ekle<span>Tüm rutin ürünlerini sepete ekle</span></strong></button></div></div></div></div></section>';
   }
 
   function compareCard(a, b) {
@@ -301,7 +341,7 @@
   }
 
   function openAuth(mode) {
-    try { sessionStorage.setItem('cosmoskin_return_to', '/account/routines.html?routineSync=1'); } catch (error) {}
+    try { sessionStorage.setItem('cosmoskin_return_to', ROUTINE_ROUTE + '?routineSync=1'); } catch (error) {}
     var eventName = 'cosmoskin:open-auth-modal';
     try { document.dispatchEvent(new CustomEvent(eventName, { detail: { tab: mode === 'register' ? 'registerPanel' : 'loginPanel' } })); } catch (error) {}
     var modal = qs('#accountModal');
@@ -318,7 +358,7 @@
       if (input) setTimeout(function () { input.focus(); }, 80);
       return;
     }
-    window.location.href = '/index.html?next=' + encodeURIComponent('/account/routines.html?routineSync=1');
+    window.location.href = '/index.html?next=' + encodeURIComponent('/collections/routine?routineSync=1');
   }
 
   function toast(message) {
@@ -372,6 +412,17 @@
 
   function bindPage(host) {
     document.addEventListener('click', function (event) {
+      var viewLink = event.target.closest('[data-rt-view]');
+      if (viewLink) { event.preventDefault(); navigateRoutine(host, viewLink.getAttribute('data-rt-view') || 'dashboard'); return; }
+      var routineAnchor = event.target.closest('a[href^="/collections/routine"]');
+      if (routineAnchor) {
+        event.preventDefault();
+        var href = routineAnchor.getAttribute('href') || ROUTINE_ROUTE;
+        var parsed = new URL(href, window.location.origin);
+        var targetView = routineAnchor.getAttribute('data-rt-view') || parsed.searchParams.get('view') || (parsed.hash || '').replace(/^#/, '') || 'dashboard';
+        navigateRoutine(host, targetView);
+        return;
+      }
       var auth = event.target.closest('[data-rt-auth]');
       if (auth) { event.preventDefault(); openAuth(auth.getAttribute('data-rt-auth')); return; }
       var choice = event.target.closest('.rt-choice');
@@ -403,22 +454,42 @@
     });
   }
 
+  function currentView(defaultView) {
+    var params = new URLSearchParams(window.location.search || '');
+    var view = params.get('view') || (window.location.hash || '').replace(/^#/, '') || defaultView || 'dashboard';
+    if (['dashboard','profile','favorites','history'].indexOf(view) === -1) view = 'dashboard';
+    return view;
+  }
+
+  async function renderSmartRoute(host, view) {
+    host.innerHTML = '<div class="rt-loading">Rutin deneyimi hazırlanıyor...</div>';
+    var auth = await detectAuthState();
+    if (!auth.loggedIn) { renderWelcome(host); return { loggedIn:false, view:'welcome' }; }
+    mergePendingRoutinePreferences();
+    view = view || currentView('dashboard');
+    if (view === 'profile') renderProfile(host);
+    else if (view === 'favorites') renderFavorites(host);
+    else if (view === 'history') renderHistory(host);
+    else renderDashboard(host);
+    return { loggedIn:true, view:view };
+  }
+
+  async function navigateRoutine(host, view, replace) {
+    var url = routineHref(view);
+    if (replace) window.history.replaceState({ routineView:view }, '', url);
+    else window.history.pushState({ routineView:view }, '', url);
+    await renderSmartRoute(host, view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   async function init() {
     var host = qs('[data-routine-page]');
     if (!host) return;
-    host.innerHTML = '<div class="rt-loading">Rutin deneyimi hazırlanıyor...</div>';
     var page = host.getAttribute('data-routine-page');
-    var auth = await detectAuthState();
-    if (page === 'smart') {
-      if (auth.loggedIn) { mergePendingRoutinePreferences(); window.location.replace('/account/routines.html?routineSync=1'); return; }
-      renderWelcome(host); bindPage(host); return;
-    }
-    if (!auth.loggedIn) { window.location.replace('/routine.html?auth=required'); return; }
-    if (page === 'dashboard') renderDashboard(host);
-    else if (page === 'profile') renderProfile(host);
-    else if (page === 'favorites') renderFavorites(host);
-    else if (page === 'history') renderHistory(host);
+    var defaultView = page === 'profile' ? 'profile' : page === 'favorites' ? 'favorites' : page === 'history' ? 'history' : 'dashboard';
+    await renderSmartRoute(host, currentView(defaultView));
     bindPage(host);
+    window.addEventListener('popstate', function () { renderSmartRoute(host, currentView(defaultView)); });
   }
 
   window.COSMOSKIN_ROUTINE = {
@@ -430,6 +501,7 @@
     renderRoutineProfile: renderProfile,
     handleRoutineCTA: openAuth,
     handleRoutineNav: init,
+    navigateRoutine: navigateRoutine,
     addRoutineProductsToCart: addRoutineProductsToCart
   };
 

@@ -75,7 +75,7 @@ function getBrandAssets(env) {
     siteUrl,
     logoUrl: `${siteUrl}/assets/logo-mark.png`,
     supportUrl: `${siteUrl}/contact.html`,
-    shopUrl: `${siteUrl}/routine.html`,
+    shopUrl: `${siteUrl}/collections/routine`,
     instagramUrl: 'https://instagram.com/cosmoskin.tr',
     partnershipEmail: 'partnership@cosmoskin.com.tr',
     supportEmail: 'destek@cosmoskin.com.tr'

@@ -24,7 +24,29 @@
   };
 
   function getSavedArray(){ try { return JSON.parse(localStorage.getItem(CONCERNS_KEY) || '[]'); } catch(e){ return []; } }
-  function saveState(skin, goal, concerns){ if (skin) localStorage.setItem(SKIN_KEY, skin); if (goal) localStorage.setItem(GOAL_KEY, goal); localStorage.setItem(CONCERNS_KEY, JSON.stringify(concerns || [])); }
+  function saveState(skin, goal, concerns){
+    if (skin) localStorage.setItem(SKIN_KEY, skin);
+    if (goal) localStorage.setItem(GOAL_KEY, goal);
+    localStorage.setItem(CONCERNS_KEY, JSON.stringify(concerns || []));
+    const skinMap = { dry:'kuru', oily:'yagli', combination:'karma', sensitive:'hassas', normal:'normal' };
+    const goalMap = { hydration:'nem', barrier:'bariyer', glow:'isilti', balance:'nem', dehydration:'nem', sensitivity:'hassasiyet', tone:'leke', blemish:'akne' };
+    const selectedGoals = [goal].concat(concerns || []).map(v => goalMap[v] || v).filter(Boolean);
+    const payload = {
+      selectedSkinType: skinMap[skin] || skin || 'karma',
+      selectedGoals: [...new Set(selectedGoals.length ? selectedGoals : ['nem'])],
+      concerns: concerns || [],
+      sensitivity: skin === 'sensitive' ? 'orta' : 'orta',
+      habit: 'Sabah & Akşam',
+      intensity: 'orta',
+      tolerance: 'orta',
+      source: 'home-routine',
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      localStorage.setItem('cosmoskin_pending_routine_preferences', JSON.stringify(payload));
+      localStorage.setItem('cosmoskin_routine_preferences', JSON.stringify(payload));
+    } catch(e) {}
+  }
   function getState(){ return { skin: localStorage.getItem(SKIN_KEY) || 'combination', goal: localStorage.getItem(GOAL_KEY) || 'balance', concerns: getSavedArray() }; }
   function money(v){ return typeof window.COSMOSKIN_FORMAT_PRICE === 'function' ? window.COSMOSKIN_FORMAT_PRICE(v) : `${fmt.format(v)} TL`; }
   function getCatalogProduct(slug){ return window.COSMOSKIN_PRODUCT_HELPERS?.getProductByHandle?.(slug) || null; }
@@ -117,7 +139,7 @@
     tags = [...new Set(tags.concat((concerns || []).map(c => LABELS.concern[c]).filter(Boolean)))].slice(0,4);
     const total = items.reduce((sum, item) => sum + item.price, 0);
     const bundleName = title.replace('rutini','seti').replace('rutin','set');
-    const route = goal === 'glow' || selected.has('tone') ? '/collections/treat.html' : goal === 'barrier' || selected.has('sensitivity') ? '/collections/care.html' : goal === 'hydration' || selected.has('dehydration') ? '/collections/hydrate.html' : '/routine.html';
+    const route = goal === 'glow' || selected.has('tone') ? '/collections/routine' : goal === 'barrier' || selected.has('sensitivity') ? '/collections/routine' : goal === 'hydration' || selected.has('dehydration') ? '/collections/routine' : '/collections/routine';
     return { items, title, analysis, summary, tags, total, bundleName, route, meta: `${items.length} ürün · ${money(total)}` };
   }
 
@@ -258,6 +280,10 @@
       skin = 'combination'; goal = 'balance'; concerns = [];
       selectedPreset = presetFromState();
       saveAndNotify('Seçimler sıfırlandı.');
+    });
+
+    linkEl?.addEventListener('click', function(){
+      saveState(skin, goal, concerns);
     });
 
     addBundleBtn?.addEventListener('click', function(){

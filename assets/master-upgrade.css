@@ -179,3 +179,116 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .cm-searchbar .cs-search-row strong{font-size:12px;-webkit-line-clamp:1;}
   .cm-searchbar .cs-search-row span{font-size:10px;}
 }
+
+/* COSMOSKIN targeted polish 20260516 — routine route, header/search/cart/product fixes */
+.marquee{animation-duration:22s!important;}
+.header .categories-wrap > .mega{left:0!important;right:auto!important;transform:translateX(var(--mega-nudge-x,0px)) translateY(14px)!important;transition:opacity 360ms ease, transform 440ms cubic-bezier(.22,1,.36,1)!important;}
+.header .categories-wrap:hover > .mega,.header .categories-wrap:focus-within > .mega,.header .categories-wrap.open > .mega{transform:translateX(var(--mega-nudge-x,0px)) translateY(0)!important;}
+.header .brands-wrap > .mega{transition:opacity 360ms ease, transform 440ms cubic-bezier(.22,1,.36,1)!important;}
+.header .tool-btn:focus,.header .tool-btn:focus-visible,.header .site-search:focus,.header .site-search:focus-visible,.header .site-search-input:focus,.header .site-search-input:focus-visible{outline:0!important;}
+.header .tool-btn:focus-visible{box-shadow:0 0 0 1px rgba(22,18,14,.12),0 10px 22px rgba(18,13,8,.08)!important;}
+.header .site-search:focus-within{box-shadow:0 12px 26px rgba(18,13,8,.07)!important;border-color:rgba(22,18,14,.12)!important;}
+.site-search-results:not([hidden]){border-radius:18px!important;padding:8px!important;max-height:min(420px,calc(100vh - 160px))!important;box-shadow:0 18px 54px rgba(22,18,14,.13)!important;}
+.srch-item{min-height:64px!important;padding:9px 10px!important;border-radius:14px!important;text-decoration:none!important;color:#18130f!important;}
+.srch-item-img{width:42px!important;height:42px!important;object-fit:contain!important;border-radius:10px!important;background:#f6efe7!important;}
+.srch-item-name{font-size:12.5px!important;line-height:1.25!important;font-weight:700!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.srch-item-meta{font-size:10.5px!important;line-height:1.45!important;color:#7a6d61!important;display:block!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.srch-no-result{padding:14px!important;font-size:12px!important;color:#6d6258!important;}
+.product-card .price,.collection-page .price,.price{font-size:22px!important;line-height:1.05!important;letter-spacing:-.015em!important;}
+.product-body{gap:7px!important;}
+.product-body h3{font-size:18px!important;line-height:1.22!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:44px;}
+.product-body p{font-size:12px!important;line-height:1.55!important;}
+.price-row{align-items:center!important;gap:8px!important;}
+.price-row .btn{white-space:nowrap!important;}
+@media(max-width:760px){.product-card .price,.collection-page .price,.price{font-size:20px!important}.product-body h3{font-size:16px!important;min-height:40px}.product-body{padding:14px!important}.price-row{flex-wrap:nowrap!important}.price-row .btn{font-size:10px!important;padding:0 12px!important}}
+.home-routine__step{padding:18px 0!important;}
+.home-routine__step-head{align-items:flex-start!important;gap:12px!important;}
+.home-routine__step-head h3{font-size:18px!important;line-height:1.25!important;letter-spacing:-.01em!important;}
+.home-routine__step-head p{font-size:12.5px!important;line-height:1.55!important;max-width:62ch!important;}
+.home-routine__option-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))!important;gap:10px!important;}
+.home-routine__option{min-height:72px!important;padding:13px 14px!important;border-radius:18px!important;align-content:center!important;}
+.home-routine__option span{font-size:13px!important;line-height:1.2!important;}
+.home-routine__option small{font-size:11px!important;line-height:1.45!important;}
+.home-routine__mood{box-shadow:none!important;}
+.cart-item{grid-template-columns:72px minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important;padding:12px!important;}
+.cart-item img{width:72px!important;height:72px!important;object-fit:contain!important;border-radius:16px!important;background:#f7efe7!important;}
+.cart-item strong{font-size:13px!important;line-height:1.3!important;}
+.cart-item>strong:last-child{font-size:14px!important;white-space:nowrap!important;}
+.cart-item .account-mini{font-size:11px!important;line-height:1.4!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.cart-item .qty{gap:6px!important;flex-wrap:nowrap!important;margin-top:8px!important;}
+.cart-item .qty button{min-width:28px!important;height:28px!important;font-size:11px!important;padding:0 8px!important;}
+@media(max-width:520px){.cart-item{grid-template-columns:58px minmax(0,1fr)!important}.cart-item>strong:last-child{grid-column:2;font-size:13px!important}.cart-item img{width:58px!important;height:58px!important}.cart-item .qty{flex-wrap:wrap!important}}
+
+/* COSMOSKIN targeted polish 20260516b — mobile cart row refinements */
+.cm-cart-row--ref{
+  align-items:center!important;
+  grid-template-columns:112px minmax(0,1fr)!important;
+  gap:12px!important;
+  padding:12px!important;
+}
+.cm-cart-row--ref .cm-cart-row__img{
+  min-height:112px!important;
+  height:112px!important;
+  border-radius:18px!important;
+}
+.cm-cart-row__img img{
+  max-height:94px!important;
+  max-width:92%!important;
+  object-fit:contain!important;
+}
+.cm-cart-row--ref .cm-cart-row__body{min-width:0!important;align-content:center!important;}
+.cm-cart-row--ref .cm-cart-row__top{gap:8px!important;align-items:flex-start!important;min-width:0!important;}
+.cm-cart-row--ref .cm-cart-row__top h2 a,
+.cm-cart-row h2{
+  font-size:13.5px!important;
+  line-height:1.22!important;
+  margin:3px 0!important;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+  overflow:hidden!important;
+  overflow-wrap:normal!important;
+}
+.cm-cart-row small{font-size:9.5px!important;letter-spacing:.08em!important;line-height:1.2!important;}
+.cm-cart-row span{font-size:10.5px!important;line-height:1.35!important;display:block!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important;}
+.cm-cart-row b{font-size:15.5px!important;line-height:1.1!important;margin:6px 0!important;}
+.cm-cart-controls{gap:8px!important;align-items:center!important;flex-wrap:nowrap!important;}
+.cm-cart-row--ref .cm-stepper{grid-template-columns:32px 30px 32px!important;height:34px!important;border-radius:12px!important;}
+.cm-cart-row--ref .cm-stepper button{width:32px!important;height:32px!important;font-size:17px!important;line-height:1!important;}
+.cm-cart-row--ref .cm-trash{width:34px!important;height:34px!important;border-radius:12px!important;}
+.cm-cart-row--ref .cm-cart-fav{width:32px!important;height:32px!important;flex:0 0 auto!important;}
+.cm-cart-row--ref .cm-stock-line{margin-top:6px!important;font-size:10.8px!important;line-height:1.35!important;}
+@media(max-width:420px){
+  .cm-cart-row--ref{grid-template-columns:96px minmax(0,1fr)!important;gap:10px!important;padding:10px!important;}
+  .cm-cart-row--ref .cm-cart-row__img{min-height:96px!important;height:96px!important;}
+  .cm-cart-row__img img{max-height:80px!important;}
+  .cm-cart-row--ref .cm-cart-row__top h2 a,.cm-cart-row h2{font-size:12.8px!important;}
+  .cm-cart-row b{font-size:14.5px!important;}
+  .cm-cart-row--ref .cm-stepper{grid-template-columns:30px 28px 30px!important;height:32px!important;}
+  .cm-cart-row--ref .cm-stepper button{width:30px!important;height:30px!important;}
+  .cm-cart-row--ref .cm-trash{width:32px!important;height:32px!important;}
+}
+
+/* COSMOSKIN targeted polish 20260516c — homepage smart routine organization */
+.smart-routine__panel{border-radius:24px!important;background:linear-gradient(180deg,rgba(255,253,250,.86),rgba(246,238,228,.72))!important;border:1px solid rgba(44,26,20,.08)!important;box-shadow:0 14px 36px rgba(44,26,20,.045)!important;}
+.smart-routine__panel-title{align-items:center!important;gap:10px!important;font-size:15px!important;letter-spacing:.01em!important;}
+.smart-routine__goals{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
+.smart-routine__goal{min-height:76px!important;padding:12px 12px!important;border-radius:18px!important;align-items:flex-start!important;text-align:left!important;gap:7px!important;background:rgba(255,255,255,.78)!important;}
+.smart-routine__goal img{width:24px!important;height:24px!important;}
+.smart-routine__goal span{font-family:var(--sans)!important;font-size:13px!important;font-weight:800!important;line-height:1.2!important;letter-spacing:-.01em!important;}
+.smart-routine__goal-check{top:10px!important;right:10px!important;}
+.smart-routine__selection-line{margin-top:12px!important;padding-top:12px!important;border-top:1px solid rgba(44,26,20,.08)!important;}
+.smart-routine__skin-types{gap:9px!important;}
+.smart-routine__skin{min-height:42px!important;border-radius:999px!important;font-size:12px!important;padding:0 14px!important;}
+.smart-routine__daypart{border-radius:22px!important;background:rgba(255,253,250,.72)!important;border:1px solid rgba(44,26,20,.08)!important;}
+.smart-routine__daypart-title{font-size:12px!important;letter-spacing:.11em!important;}
+.smart-routine__product-flow{gap:10px!important;}
+.smart-routine__product-card{min-height:194px!important;grid-template-rows:104px auto!important;border-radius:16px!important;}
+.smart-routine__product-media{padding:10px 10px 6px!important;}
+.smart-routine__product-media img{height:88px!important;}
+.smart-routine__product-info{padding:9px 10px 11px!important;}
+.smart-routine__product-step{font-size:9.4px!important;letter-spacing:.08em!important;margin-bottom:4px!important;}
+.smart-routine__product-name{font-size:11.5px!important;line-height:1.28!important;min-height:30px!important;}
+.smart-routine__product-price{font-size:11.5px!important;margin-top:6px!important;}
+@media(max-width:860px){.smart-routine__goals{grid-template-columns:repeat(2,minmax(0,1fr))!important}.smart-routine__goal{min-height:70px!important}.smart-routine__product-card{min-height:178px!important}}
+@media(max-width:520px){.smart-routine__goals{grid-template-columns:1fr!important}.smart-routine__goal{min-height:62px!important;flex-direction:row!important;align-items:center!important}.smart-routine__product-card{grid-template-columns:88px minmax(0,1fr)!important;min-height:112px!important}.smart-routine__product-media{min-height:112px!important}.smart-routine__product-media img{height:82px!important}}
