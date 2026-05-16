@@ -2,6 +2,7 @@
   'use strict';
   var ROUTINE_FILE_ROUTE = '/collections/routine.html';
   var ROUTINE_CLEAN_ROUTE = '/collections/routine';
+  var ROUTINE_TARGET_ROUTE = ROUTINE_CLEAN_ROUTE;
   var PENDING_KEY = 'cosmoskin_pending_routine_preferences';
 
   function isRoutinePath(path) {
@@ -10,10 +11,10 @@
 
   function normalizeTarget(rawHref) {
     var url;
-    try { url = new URL(rawHref || ROUTINE_FILE_ROUTE, window.location.origin); }
-    catch (e) { url = new URL(ROUTINE_FILE_ROUTE, window.location.origin); }
+    try { url = new URL(rawHref || ROUTINE_TARGET_ROUTE, window.location.origin); }
+    catch (e) { url = new URL(ROUTINE_TARGET_ROUTE, window.location.origin); }
     if (!isRoutinePath(url.pathname.replace(/\/$/, ''))) return null;
-    return ROUTINE_FILE_ROUTE + (url.search || '') + (url.hash || '');
+    return ROUTINE_TARGET_ROUTE + (url.search || '') + (url.hash || '');
   }
 
   function readJSON(key, fallback) {
