@@ -149,8 +149,10 @@ export async function onRequestGet(context) {
         full_name: meta.full_name || meta.name || [meta.first_name, meta.last_name].filter(Boolean).join(' '),
         phone: meta.phone || meta.phone_number || '',
         skin_type: meta.skin_type || '',
+        skin_sensitivity: meta.skin_sensitivity || '',
         skin_concerns: Array.isArray(meta.skin_concerns) ? meta.skin_concerns : [],
         routine_goal: meta.routine_goal || '',
+        routine_style: meta.routine_style || meta.routine_intensity || '',
         communication: meta.comm_prefs || meta.communication || {},
         routine_reminders: meta.routine_reminders || {}
       },

@@ -48,8 +48,17 @@ This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain
 
 ## Verification
 - Static checks: balance braces in CSS, parens in JS. Grep dead links.
-- Local server: `python3 -m http.server 7700 --directory .` (the preview MCP cannot start a server in this sandbox, so manual verification is the path).
+- **Local server for static HTML/CSS/JS only:** `python3 -m http.server 7700 --directory .`. This does NOT serve `/api/*` — those are Cloudflare Pages Functions.
+- **Local server for full account/checkout flow (needs `/api/*`):** `npx wrangler pages dev . --compatibility-date=2024-06-01`. Cloudflare Functions live in `/functions/api/...` and only run under wrangler. Without wrangler, `/account/profile.html` will fail to load `/api/account/summary` and the page will show the "Bilgiler şu anda yüklenemedi" error UI — that's expected, not a bug.
 - For visual changes, test on Chrome DevTools mobile presets at 360 / 390 / 430 / 768.
+
+## Script load order on account pages
+- Any page that uses Supabase auth (account/profile.html, account/routines.html, etc.) MUST load in this order:
+  1. `/assets/site-config.js` (defines `window.COSMOSKIN_CONFIG.supabaseUrl/anonKey`)
+  2. `https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2`
+  3. `/assets/account-dashboard.js` (or the page-specific consumer)
+- The skin profile store (`/assets/skin-profile-store.js`) should load early on any page that reads or writes profile state.
+- `account-dashboard.js` reads `window.COSMOSKIN_CONFIG` lazily inside `init()`, so a late-loaded site-config still works — but the canonical order above is the contract.
 
 ## Reports & deliverables
 - Final reports go in `/COSMOSKIN_*_REPORT_YYYYMMDD.md` only when a delivery is requested.

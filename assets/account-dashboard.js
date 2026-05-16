@@ -1,7 +1,8 @@
 (function () {
   'use strict';
 
-  var cfg = window.COSMOSKIN_CONFIG || {};
+  function readConfig() { return window.COSMOSKIN_CONFIG || {}; }
+  var cfg = readConfig();
   var state = {
     client: null,
     session: null,
@@ -659,6 +660,7 @@
       var returnsData = await apiFetch('/returns');
       state.returns = returnsData.returns || [];
     } catch (_) { state.returns = []; }
+    if (state.summary && state.summary.user) syncCanonicalSkinProfile(state.summary.user);
     renderAll();
   }
 
@@ -680,11 +682,35 @@
     var form = $('#skinForm');
     if (!form) return;
     var current = state.summary?.user || {};
-    var payload = { first_name: current.first_name || '', last_name: current.last_name || '', full_name: current.full_name || '', phone: current.phone || '', skin_type: form.elements.skin_type.value, skin_sensitivity: form.elements.skin_sensitivity?.value || '', routine_goal: form.elements.routine_goal.value, skin_concerns: $$('input[name="skin_concerns"]:checked', form).map(function (input) { return input.value; }), comm_prefs: current.communication || {}, routine_reminders: current.routine_reminders || {} };
+    var concerns = $$('input[name="skin_concerns"]:checked', form).map(function (input) { return input.value; });
+    var payload = { first_name: current.first_name || '', last_name: current.last_name || '', full_name: current.full_name || '', phone: current.phone || '', skin_type: form.elements.skin_type.value, skin_sensitivity: form.elements.skin_sensitivity?.value || '', routine_goal: form.elements.routine_goal.value, skin_concerns: concerns, comm_prefs: current.communication || {}, routine_reminders: current.routine_reminders || {} };
     var res = await state.client.auth.updateUser({ data: payload });
     if (res.error) throw res.error;
+    syncCanonicalSkinProfile(payload);
     await loadSummary({ skipFavoriteSync: true });
     showToast('Cilt profiliniz güncellendi.');
+  }
+
+  function syncCanonicalSkinProfile(source) {
+    if (!source) return;
+    var concerns = Array.isArray(source.skin_concerns) ? source.skin_concerns : [];
+    var primary = source.routine_goal || concerns[0] || '';
+    var secondary = concerns.find(function (g) { return g && g !== primary; }) || '';
+    var profilePartial = {
+      skinType: source.skin_type || '',
+      sensitivity: source.skin_sensitivity || '',
+      primaryGoal: primary,
+      secondaryGoal: secondary,
+      routineStyle: source.routine_style || source.routine_intensity || '',
+      updatedAt: new Date().toISOString()
+    };
+    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.save === 'function') {
+      try { window.CosmoskinSkinProfile.save(profilePartial); return; } catch (e) {}
+    }
+    try {
+      localStorage.setItem('cosmoskin_skin_profile', JSON.stringify(profilePartial));
+      window.dispatchEvent(new CustomEvent('cosmoskin:skin-profile-change', { detail: profilePartial }));
+    } catch (e) {}
   }
 
   async function saveNotificationPreferences() {
@@ -831,7 +857,9 @@
 
   async function init() {
     try {
-      if (!window.supabase?.createClient || !cfg.supabaseUrl || !cfg.supabaseAnonKey) throw new Error('Supabase ayarları eksik.');
+      cfg = readConfig();
+      if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) throw new Error('Hesap yüklenemedi: site-config.js eksik veya geç yüklendi.');
+      if (!window.supabase?.createClient) throw new Error('Hesap yüklenemedi: Supabase istemcisi bulunamadı.');
       state.client = window.cosmoskinSupabase || window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
       var sessionResult = await state.client.auth.getSession();
       state.session = sessionResult?.data?.session || null;
