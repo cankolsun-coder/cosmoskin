@@ -15,14 +15,14 @@
     'Maskeler': '/collections/masks.html'
   };
   var goalMap = {
-    'Nem': '/account/routines.html?goal=nem',
-    'Bariyer': '/account/routines.html?goal=bariyer',
-    'Işıltı': '/account/routines.html?goal=isilti',
-    'Leke': '/account/routines.html?goal=leke',
-    'Akne': '/account/routines.html?goal=akne',
-    'Hassasiyet': '/account/routines.html?goal=hassasiyet',
-    'Gözenek': '/account/routines.html?goal=gozenek',
-    'Güneş bakımı': '/account/routines.html?goal=spf'
+    'Nem': '/collections/hydration.html',
+    'Bariyer': '/collections/barrier.html',
+    'Işıltı': '/collections/glow.html',
+    'Leke': '/collections/blemish.html',
+    'Akne': '/collections/acne-balance.html',
+    'Hassasiyet': '/collections/sensitivity.html',
+    'Gözenek': '/collections/pore-sebum.html',
+    'Güneş bakımı': '/collections/protect.html'
   };
 
   function esc(value) {
@@ -157,8 +157,13 @@
   }
 
   function mountLiveSearch() {
+    var dedicatedDesktopSearch = Array.from(document.scripts || []).some(function (script) {
+      return /\/js\/search\.js(?:$|[?#])/.test(script.getAttribute('src') || '');
+    });
     var forms = Array.from(document.querySelectorAll('[data-cs-live-search], .site-search-form, form[role="search"], .cm-searchbar')).filter(function (form) {
-      return !form.dataset.csSearchMounted && form.querySelector('input[type="search"], input[name="q"], input[placeholder*="Ara"], input[placeholder*="ara"]');
+      if (form.dataset.csSearchMounted) return false;
+      if (dedicatedDesktopSearch && form.classList.contains('site-search-form')) return false;
+      return form.querySelector('input[type="search"], input[name="q"], input[placeholder*="Ara"], input[placeholder*="ara"]');
     });
     forms.forEach(function (form) {
       form.dataset.csSearchMounted = 'true';
@@ -182,10 +187,10 @@
         var goals = Object.keys(goalMap).filter(function (g) { return match(g); }).slice(0, 4);
         var html = '';
         if (ps.length) html += '<div class="cs-search-group"><span class="cs-search-group__title">Ürünler</span>' + ps.map(function (p) { return '<a class="cs-search-row" href="' + esc(p.url) + '"><img src="' + esc(p.image) + '" alt=""><span><strong>' + esc(p.name) + '</strong><span>' + esc(p.brand) + ' · ' + esc(p.category) + '</span></span><b>' + esc(fmt(p.price)) + '</b></a>'; }).join('') + '</div>';
-        if (brands.length) html += '<div class="cs-search-group"><span class="cs-search-group__title">Markalar</span>' + brands.map(function (b) { return '<a class="cs-search-row" href="/brands.html#brand-' + esc(brandSlug(b)) + '"><span></span><span><strong>' + esc(b) + '</strong><span>Marka sayfasını aç</span></span><b>›</b></a>'; }).join('') + '</div>';
+        if (brands.length) html += '<div class="cs-search-group"><span class="cs-search-group__title">Markalar</span>' + brands.map(function (b) { return '<a class="cs-search-row" href="/brands/' + esc(brandSlug(b)) + '.html"><span></span><span><strong>' + esc(b) + '</strong><span>Marka sayfasını aç</span></span><b>›</b></a>'; }).join('') + '</div>';
         if (cats.length) html += '<div class="cs-search-group"><span class="cs-search-group__title">Kategoriler</span>' + cats.map(function (c) { return '<a class="cs-search-row" href="' + esc(categoryMap[c]) + '"><span></span><span><strong>' + esc(c) + '</strong><span>Kategori seçkisini gör</span></span><b>›</b></a>'; }).join('') + '</div>';
-        if (goals.length) html += '<div class="cs-search-group"><span class="cs-search-group__title">Rutinler</span>' + goals.map(function (g) { return '<a class="cs-search-row" href="' + esc(goalMap[g]) + '"><span></span><span><strong>' + esc(g) + '</strong><span>Rutin önerilerini gör</span></span><b>›</b></a>'; }).join('') + '</div>';
-        results.innerHTML = html || '<div class="cs-search-empty"><strong>Sonuç bulunamadı.</strong><br>Ürün adı, marka veya kategori ile tekrar deneyebilirsin.</div>';
+        if (goals.length) html += '<div class="cs-search-group"><span class="cs-search-group__title">Cilt İhtiyaçları</span>' + goals.map(function (g) { return '<a class="cs-search-row" href="' + esc(goalMap[g]) + '"><span></span><span><strong>' + esc(g) + '</strong><span>İlgili seçkiyi gör</span></span><b>›</b></a>'; }).join('') + '</div>';
+        results.innerHTML = html || '<div class="cs-search-empty"><strong>Aramanızla eşleşen ürün bulunamadı.</strong><span>Ürün adı, marka veya kategori ile tekrar deneyebilirsiniz.</span><a href="/allproducts.html">Tüm ürünleri keşfet</a></div>';
         results.hidden = false;
       }
       input.addEventListener('input', render);

@@ -130,7 +130,11 @@ const CosmoSearch = (() => {
 
   function _resultHtml(results, q) {
     if (!results.length) {
-      return '<div class="srch-no-result"><span>&ldquo;' + esc(q) + '&rdquo; i\u00e7in sonu\u00e7 bulunamad\u0131</span></div>';
+      return '<div class="srch-no-result">' +
+        '<strong>Aramanızla eşleşen ürün bulunamadı.</strong>' +
+        '<span>&ldquo;' + esc(q) + '&rdquo; için farklı bir ürün, marka veya içerik deneyebilirsiniz.</span>' +
+        '<a class="srch-no-result__cta" href="/allproducts.html">Tüm ürünleri keşfet</a>' +
+      '</div>';
     }
     return results.map(function(p, i) {
       const hiName  = _highlight(p.name, q);

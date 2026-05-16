@@ -30,11 +30,14 @@
     { title: 'Nem', href: '/collections/hydration.html', icon: 'drop' },
     { title: 'Bariyer', href: '/collections/barrier.html', icon: 'shield' },
     { title: 'Işıltı', href: '/collections/glow.html', icon: 'sparkle' },
-    { title: 'Hassasiyet', href: '/collections/sensitivity.html', icon: 'leaf' }
+    { title: 'Hassasiyet', href: '/collections/sensitivity.html', icon: 'leaf' },
+    { title: 'Gözenek', href: '/collections/pore-sebum.html', icon: 'cube' },
+    { title: 'Akne & Denge', href: '/collections/acne-balance.html', icon: 'drop' }
   ];
 
   var BRAND_SLUGS = ['cosrx', 'anua', 'beauty-of-joseon', 'round-lab', 'skin1004', 'torriden', 'some-by-mi', 'thank-you-farmer'];
   var ALL_BRAND_SLUGS = ['anua', 'beauty-of-joseon', 'by-wishtrend', 'cosrx', 'dr-jart', 'goodal', 'im-from', 'innisfree', 'isntree', 'laneige', 'medicube', 'mediheal', 'round-lab', 'skin1004', 'some-by-mi', 'thank-you-farmer', 'torriden'];
+  var BESTSELLER_SLUGS = ['anua-heartleaf-pore-control-cleansing-oil', 'beauty-of-joseon-relief-sun-spf50', 'cosrx-advanced-snail-96-mucin-essence', 'round-lab-birch-juice-sunscreen', 'torriden-dive-in-hyaluronic-acid-serum', 'skin1004-madagascar-centella-ampoule', 'some-by-mi-aha-bha-miracle-toner', 'laneige-water-sleeping-mask'];
 
   var COLLECTION_META = {
     cleanse: { title: 'Temizleyiciler', category: 'Temizleyiciler', keywords: ['temizleyici', 'cleanser', 'cleansing', 'oil', 'foam'] },
@@ -47,9 +50,16 @@
     barrier: { title: 'Bariyer Desteği', goal: 'Bariyer', keywords: ['bariyer', 'barrier', 'ceramide', 'seramid', 'cica', 'centella'] },
     glow: { title: 'Işıltı', goal: 'Işıltı', keywords: ['ışıltı', 'glow', 'vitamin', 'niacinamide', 'niasinamid', 'arbutin', 'pirinç'] },
     sensitivity: { title: 'Hassasiyet', goal: 'Hassasiyet', keywords: ['hassas', 'soothing', 'heartleaf', 'centella', 'cica', 'yatıştırıcı'] },
-    blemish: { title: 'Akne & Denge', goal: 'Akne', keywords: ['akne', 'acne', 'pore', 'gözenek', 'sebum', 'bha', 'salisilik'] },
+    blemish: { title: 'Leke Görünümü', goal: 'Leke', keywords: ['leke', 'dark spot', 'bright', 'glow', 'vitamin', 'niacinamide', 'niasinamid', 'arbutin', 'pirinç', 'tangerine'] },
     'acne-balance': { title: 'Akne & Denge', goal: 'Akne', keywords: ['akne', 'acne', 'pore', 'gözenek', 'sebum', 'bha', 'salisilik'] },
     'pore-sebum': { title: 'Gözenek & Sebum', goal: 'Gözenek', keywords: ['pore', 'gözenek', 'sebum', 'bha', 'clay'] },
+    bestsellers: { title: 'Çok Satanlar', collection: 'bestsellers', keywords: [] },
+    'kuru-cilt': { title: 'Kuru Cilt', skin: 'dry', keywords: ['kuru', 'dry', 'nem', 'hyaluronic', 'hyalüronik', 'barrier', 'bariyer', 'cream'] },
+    'yagli-cilt': { title: 'Yağlı Cilt', skin: 'oily', keywords: ['yağlı', 'yagli', 'oily', 'sebum', 'pore', 'gözenek', 'bha', 'oil-free'] },
+    'karma-cilt': { title: 'Karma Cilt', skin: 'combination', keywords: ['karma', 'combination', 'nem', 'sebum', 'pore', 'gözenek', 'light'] },
+    'hassas-cilt': { title: 'Hassas Cilt', skin: 'sensitive', keywords: ['hassas', 'sensitive', 'soothing', 'centella', 'heartleaf', 'cica', 'bariyer'] },
+    'normal-cilt': { title: 'Normal Cilt', skin: 'normal', keywords: ['cleanser', 'temizleyici', 'toner', 'essence', 'cream', 'spf', 'mask'] },
+    'akneye-egilimli-cilt': { title: 'Akneye Eğilimli Cilt', skin: 'acne-prone', keywords: ['akne', 'acne', 'bha', 'salisilik', 'pore', 'gözenek', 'sebum'] },
     routine: { title: 'Akıllı Rutin', goal: 'Rutin', keywords: [] }
   };
 
@@ -540,7 +550,7 @@
 
 
   function categoriesPage() {
-    return '<div class="cm-mobile-page cm-mobile-categories">' + header() + '<div class="cm-page-inner cm-page-inner--top"><h1 class="cm-page-title">Kategoriler</h1><p class="cm-page-subtitle">Cilt bakımını ihtiyacına göre keşfet.</p><div class="cm-search-filter-row">' + searchBar('Ürün, kategori veya içerik ara') + '<button type="button" class="cm-filter-mini" data-cm-open-filter>Filtrele ' + svg('filter') + '</button></div><div class="cm-category-grid-ref">' + CATEGORY_ROUTES.map(function (cat) { return '<a class="cm-category-tile-ref" href="' + cat.href + '"><span><img src="' + esc(productImageForCategory(cat.category)) + '" alt="' + esc(cat.title) + '" loading="lazy"></span><b>' + esc(cat.title) + '</b>' + svg('chevron') + '</a>'; }).join('') + '</div>' + sectionHead('Cilt İhtiyacına Göre', '/account/routines.html') + '<div class="cm-concern-grid">' + GOAL_ROUTES.map(function (g) { return '<a class="cm-concern-tile" href="' + g.href + '">' + svg(g.icon) + '<span>' + g.title + '</span></a>'; }).join('') + '</div>' + sectionHead('Markalar', '/allproducts.html', 'Tümünü Gör') + '<div class="cm-brand-grid-ref" id="markalar">' + ALL_BRAND_SLUGS.map(brandTile).join('') + '</div></div>' + footer() + bottomNav('explore') + '</div>';
+    return '<div class="cm-mobile-page cm-mobile-categories">' + header() + '<div class="cm-page-inner cm-page-inner--top"><h1 class="cm-page-title">Kategoriler</h1><p class="cm-page-subtitle">Cilt bakımını ihtiyacına göre keşfet.</p><div class="cm-search-filter-row">' + searchBar('Ürün, kategori veya içerik ara') + '<button type="button" class="cm-filter-mini" data-cm-open-filter>Filtrele ' + svg('filter') + '</button></div><div class="cm-category-grid-ref">' + CATEGORY_ROUTES.map(function (cat) { return '<a class="cm-category-tile-ref" href="' + cat.href + '"><span><img src="' + esc(productImageForCategory(cat.category)) + '" alt="' + esc(cat.title) + '" loading="lazy"></span><b>' + esc(cat.title) + '</b>' + svg('chevron') + '</a>'; }).join('') + '</div>' + sectionHead('Cilt İhtiyacına Göre', '/categories.html#ihtiyac') + '<div class="cm-concern-grid" id="ihtiyac">' + GOAL_ROUTES.map(function (g) { return '<a class="cm-concern-tile" href="' + g.href + '">' + svg(g.icon) + '<span>' + g.title + '</span></a>'; }).join('') + '</div>' + sectionHead('Markalar', '/brands.html', 'Tümünü Gör') + '<div class="cm-brand-grid-ref" id="markalar">' + ALL_BRAND_SLUGS.map(brandTile).join('') + '</div></div>' + footer() + bottomNav('explore') + '</div>';
   }
 
   function brandsPage() {
@@ -600,10 +610,23 @@
 
   function productMatchesMeta(product, meta) {
     var text = [product.name, product.brand, product.category, product.keywords, (product.aliases || []).join(' ')].join(' ').toLocaleLowerCase('tr-TR');
+    var foldedText = text.replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u');
+    function fold(value) {
+      return String(value || '').toLocaleLowerCase('tr-TR').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u');
+    }
+    function any(words) {
+      return words.some(function (word) { return foldedText.indexOf(fold(word)) !== -1; });
+    }
     if (meta.category && !(product.category === meta.category || product.categorySlug === slugify(meta.category))) return false;
     if (meta.brand && !(slugify(product.brand) === slugify(meta.brand))) return false;
-    if (meta.query && text.indexOf(String(meta.query).toLocaleLowerCase('tr-TR')) === -1) return false;
-    if (meta.keywords && meta.keywords.length && !meta.keywords.some(function (word) { return text.indexOf(String(word).toLocaleLowerCase('tr-TR')) !== -1; })) return false;
+    if (meta.collection === 'bestsellers' && BESTSELLER_SLUGS.indexOf(product.slug) === -1) return false;
+    if (meta.query && foldedText.indexOf(fold(meta.query)) === -1) return false;
+    if (meta.keywords && meta.keywords.length && !any(meta.keywords)) return false;
+    if (meta.skin === 'dry' && !(any(['kuru', 'dry', 'nem', 'hyaluronic', 'hyaluronik', 'barrier', 'bariyer', 'cream']))) return false;
+    if (meta.skin === 'oily' && !(any(['yagli', 'oily', 'sebum', 'pore', 'gozenek', 'bha', 'oil-free']))) return false;
+    if (meta.skin === 'combination' && !(any(['karma', 'combination', 'nem', 'sebum', 'pore', 'gozenek', 'light']))) return false;
+    if (meta.skin === 'sensitive' && !(any(['hassas', 'sensitive', 'soothing', 'centella', 'heartleaf', 'cica', 'bariyer']))) return false;
+    if (meta.skin === 'acne-prone' && !(any(['akne', 'acne', 'bha', 'salisilik', 'pore', 'gozenek', 'sebum']))) return false;
     if (listingState.category && product.category !== listingState.category) return false;
     if (listingState.brand && slugify(product.brand) !== slugify(listingState.brand)) return false;
     if (listingState.skin) {
@@ -658,7 +681,7 @@
     var products = filteredProducts();
     var count = document.querySelector('[data-cm-product-count]');
     if (count) count.textContent = String(products.length);
-    grid.innerHTML = products.length ? products.map(function (p, i) { return productCard(p, { label: i === 0 ? 'Popüler' : '' }); }).join('') : '<div class="cm-empty-state"><strong>Eşleşen ürün bulunamadı.</strong><span>Filtreleri temizleyerek tekrar deneyebilirsin.</span></div>';
+    grid.innerHTML = products.length ? products.map(function (p, i) { return productCard(p, { label: i === 0 ? 'Popüler' : '' }); }).join('') : '<div class="cm-empty-state"><strong>Aramanızla eşleşen ürün bulunamadı.</strong><span>Filtreleri temizleyerek veya tüm ürünlere dönerek tekrar keşfedebilirsiniz.</span><a class="cm-btn cm-btn--primary" href="/allproducts.html">Tüm ürünleri keşfet</a></div>';
     syncFavButtons(grid);
     refreshInventory(grid);
   }

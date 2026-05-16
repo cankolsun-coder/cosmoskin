@@ -469,19 +469,20 @@
     { label: 'Nemlendiriciler', type: 'Kategori', url: '/collections/care.html', keywords: 'nemlendirici krem bariyer goz cevresi care', meta: 'Krem ve destek bakım ürünleri', badge: 'Kategori' },
     { label: 'Güneş Koruyucular', type: 'Kategori', url: '/collections/protect.html', keywords: 'gunes bakimi gunes kremi spf sun sunscreen protect', meta: 'Şehir kullanımına uygun SPF seçkileri', badge: 'Kategori' },
     { label: 'Maskeler', type: 'Kategori', url: '/collections/masks.html', keywords: 'yuz maskesi sheet mask maske care', meta: 'Maskeler ve destek bakım editleri', badge: 'Kategori' },
-    { label: 'Kuru Cilt', type: 'Cilt Tipi', url: '/collections/hydrate.html', keywords: 'dry skin kuru cilt nemsizlik barrier', meta: 'Nem ve konfor odaklı seçkiler', badge: 'Cilt Tipi' },
-    { label: 'Yağlı Cilt', type: 'Cilt Tipi', url: '/collections/protect.html', keywords: 'oily skin yagli cilt sebum parlama hafif spf', meta: 'Daha hafif ve dengeli seçimler', badge: 'Cilt Tipi' },
-    { label: 'Hassas Cilt', type: 'Cilt Tipi', url: '/collections/care.html', keywords: 'sensitive skin hassas cilt centella bariyer', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'Cilt Tipi' },
-    { label: 'Karma Cilt', type: 'Cilt Tipi', url: '/account/routines.html', keywords: 'combination skin karma cilt denge rutin', meta: 'Günlük denge için sabah-akşam akışları', badge: 'Cilt Tipi' },
-    { label: 'Nemsizlik', type: 'Cilt Problemi', url: '/collections/hydrate.html', keywords: 'dehydration nemsizlik hyaluronic acid essence dolgunluk', meta: 'Dolgun görünüm ve su tutma desteği', badge: 'Cilt Problemi' },
-    { label: 'Leke Görünümü', type: 'Cilt Problemi', url: '/collections/treat.html', keywords: 'tone leke gorunumu vitamin c niacinamide serum brightening', meta: 'Daha eşit ton görünümü için serumlar', badge: 'Cilt Problemi' },
-    { label: 'Akne Eğilimi', type: 'Cilt Problemi', url: '/collections/blemish.html', keywords: 'blemish acne akne egilimi salicylic acid pore sivilce gozenek', meta: 'Gözenek ve akne eğilimine uygun bakım', badge: 'Cilt Problemi' },
-    { label: 'Niacinamide', type: 'İçerik', url: '/collections/treat.html', keywords: 'niacinamide tone glow leke ingredient niasinamid', meta: 'Ton eşitliği ve görünüm dengesi', badge: 'İçerik' },
+    { label: 'Kuru Cilt', type: 'Cilt Tipi', url: '/collections/kuru-cilt.html', keywords: 'dry skin kuru cilt nemsizlik barrier', meta: 'Nem ve konfor odaklı seçkiler', badge: 'Cilt Tipi' },
+    { label: 'Yağlı Cilt', type: 'Cilt Tipi', url: '/collections/yagli-cilt.html', keywords: 'oily skin yagli cilt sebum parlama hafif spf', meta: 'Daha hafif ve dengeli seçimler', badge: 'Cilt Tipi' },
+    { label: 'Hassas Cilt', type: 'Cilt Tipi', url: '/collections/hassas-cilt.html', keywords: 'sensitive skin hassas cilt centella bariyer', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'Cilt Tipi' },
+    { label: 'Karma Cilt', type: 'Cilt Tipi', url: '/collections/karma-cilt.html', keywords: 'combination skin karma cilt denge rutin', meta: 'Günlük denge için sabah-akşam akışları', badge: 'Cilt Tipi' },
+    { label: 'Normal Cilt', type: 'Cilt Tipi', url: '/collections/normal-cilt.html', keywords: 'normal skin normal cilt gunluk bakim', meta: 'Günlük bakım için dengeli seçkiler', badge: 'Cilt Tipi' },
+    { label: 'Nemsizlik', type: 'Cilt Problemi', url: '/collections/hydration.html', keywords: 'dehydration nemsizlik hyaluronic acid essence dolgunluk', meta: 'Dolgun görünüm ve su tutma desteği', badge: 'Cilt Problemi' },
+    { label: 'Leke Görünümü', type: 'Cilt Problemi', url: '/collections/blemish.html', keywords: 'tone leke gorunumu vitamin c niacinamide serum brightening', meta: 'Daha eşit ton görünümü için serumlar', badge: 'Cilt Problemi' },
+    { label: 'Akne Eğilimi', type: 'Cilt Problemi', url: '/collections/acne-balance.html', keywords: 'blemish acne akne egilimi salicylic acid pore sivilce gozenek', meta: 'Gözenek ve akne eğilimine uygun bakım', badge: 'Cilt Problemi' },
+    { label: 'Niacinamide', type: 'İçerik', url: '/collections/glow.html', keywords: 'niacinamide tone glow leke ingredient niasinamid', meta: 'Ton eşitliği ve görünüm dengesi', badge: 'İçerik' },
     { label: 'Hyaluronik Asit', type: 'İçerik', url: '/collections/hydrate.html', keywords: 'hyaluronic acid hyaluronik nem ingredient dolgunluk', meta: 'Nem ve dolgun görünüm desteği', badge: 'İçerik' },
-    { label: 'Centella Asiatica', type: 'İçerik', url: '/collections/care.html', keywords: 'centella asiatica cica hassasiyet ingredient yatistirici', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'İçerik' },
-    { label: 'Salicylic Acid', type: 'İçerik', url: '/collections/blemish.html', keywords: 'salicylic acid bha akne gozenek ingredient bha asit', meta: 'Akne eğilimi ve gözenek desteği', badge: 'İçerik' },
-    { label: 'Ceramide', type: 'İçerik', url: '/collections/care.html', keywords: 'ceramide seramid bariyer kuru hassas ingredient', meta: 'Bariyer güçlendirici ve nem koruyucu', badge: 'İçerik' },
-    { label: 'Vitamin C', type: 'İçerik', url: '/collections/treat.html', keywords: 'vitamin c c vitamini leke brightening isilti ingredient', meta: 'Işıltı ve leke görünümü için', badge: 'İçerik' },
+    { label: 'Centella Asiatica', type: 'İçerik', url: '/collections/sensitivity.html', keywords: 'centella asiatica cica hassasiyet ingredient yatistirici', meta: 'Yatıştırıcı ve bariyer dostu bakım', badge: 'İçerik' },
+    { label: 'Salicylic Acid', type: 'İçerik', url: '/collections/acne-balance.html', keywords: 'salicylic acid bha akne gozenek ingredient bha asit', meta: 'Akne eğilimi ve gözenek desteği', badge: 'İçerik' },
+    { label: 'Ceramide', type: 'İçerik', url: '/collections/barrier.html', keywords: 'ceramide seramid bariyer kuru hassas ingredient', meta: 'Bariyer güçlendirici ve nem koruyucu', badge: 'İçerik' },
+    { label: 'Vitamin C', type: 'İçerik', url: '/collections/glow.html', keywords: 'vitamin c c vitamini leke brightening isilti ingredient', meta: 'Işıltı ve leke görünümü için', badge: 'İçerik' },
     { label: 'Anua', type: 'Marka', url: '/collections/anua.html', keywords: 'marka anua heartleaf', meta: 'Heartleaf ile hassas ve yatıştırıcı bakım', badge: 'Marka' },
     { label: 'COSRX', type: 'Marka', url: '/collections/cosrx.html', keywords: 'marka cosrx snail essence', meta: 'Essence ve hedef bakım ikonları', badge: 'Marka' },
     { label: 'Beauty of Joseon', type: 'Marka', url: '/collections/beauty-of-joseon.html', keywords: 'marka beauty of joseon boj', meta: 'Glow ve hafif SPF seçkileri', badge: 'Marka' },
@@ -540,7 +541,7 @@
   function renderSearchResults(container, results, query = '') {
     if (!container) return;
     if (!results.length) {
-      container.innerHTML = '<div class="site-search-empty"><strong>Sonuç bulunamadı.</strong><span>Farklı bir ürün, kategori, içerik veya marka deneyin.</span><a class="site-search-empty__link" href="/account/routines.html">Rutinleri incele</a></div>';
+      container.innerHTML = '<div class="site-search-empty"><strong>Aramanızla eşleşen ürün bulunamadı.</strong><span>Farklı bir ürün, kategori, içerik veya marka deneyin.</span><a class="site-search-empty__link" href="/allproducts.html">Tüm ürünleri keşfet</a></div>';
       container.hidden = false;
       return;
     }
@@ -585,9 +586,8 @@
 
       form.addEventListener('submit', (event) => {
         event.preventDefault();
-        const matches = findSearchMatches(input.value);
-        if (!matches.length) return;
-        window.location.href = matches[0].url;
+        const query = input.value.trim();
+        if (query) window.location.href = '/search.html?q=' + encodeURIComponent(query);
       });
     });
 
@@ -599,10 +599,11 @@
     });
   }
 
-  // search.js varsa kendi sistemi devreye girer
-  if (!window.__COSMOSKIN_SEARCH_BOUND) { bindSiteSearch(); }
-  else {
-    // Yalnızca clear buton state'ini senkronize et
+  function hasDedicatedSearchScript() {
+    return Array.from(document.scripts || []).some((script) => /\/js\/search\.js(?:$|[?#])/.test(script.getAttribute('src') || ''));
+  }
+
+  function syncSearchClearButtonsOnly() {
     $$('.site-search-form').forEach(form => {
       const input    = form.querySelector('.site-search-input');
       const clearBtn = form.querySelector('.site-search-clear');
@@ -619,6 +620,13 @@
       });
     });
   }
+
+  // search.js is commonly loaded after app.js. Defer legacy binding so one search
+  // controller owns each form and the dropdown never renders twice.
+  setTimeout(() => {
+    if (!window.__COSMOSKIN_SEARCH_BOUND && !hasDedicatedSearchScript()) bindSiteSearch();
+    else syncSearchClearButtonsOnly();
+  }, 0);
 
   function persistCart() {
     localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
