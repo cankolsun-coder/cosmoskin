@@ -93,7 +93,21 @@
   }
 
   function getRoutinePreferences() {
-    return normalizePreferences(readJSON(KEYS.active, null) || readJSON(KEYS.profile, null) || readJSON(KEYS.preferences, null) || readJSON(KEYS.pending, null));
+    var canonical = null;
+    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.get === 'function') {
+      try { canonical = window.CosmoskinSkinProfile.get(); } catch (e) { canonical = null; }
+    }
+    var source = readJSON(KEYS.active, null) || readJSON(KEYS.profile, null) || readJSON(KEYS.preferences, null) || readJSON(KEYS.pending, null);
+    if (canonical && canonical.skinType) {
+      source = Object.assign({}, source || {}, {
+        selectedSkinType: canonical.skinType,
+        sensitivity: canonical.sensitivity || (source && source.sensitivity) || '',
+        selectedGoals: [canonical.primaryGoal, canonical.secondaryGoal].filter(Boolean),
+        intensity: canonical.routineStyle || (source && source.intensity) || '',
+        updatedAt: canonical.updatedAt
+      });
+    }
+    return normalizePreferences(source);
   }
 
   function saveRoutinePreferences(prefs, options) {
@@ -101,6 +115,17 @@
     writeJSON(KEYS.profile, normalized);
     writeJSON(KEYS.preferences, normalized);
     if (options && options.active !== false) writeJSON(KEYS.active, normalized);
+    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.save === 'function') {
+      try {
+        window.CosmoskinSkinProfile.save({
+          skinType: normalized.selectedSkinType,
+          sensitivity: normalized.sensitivity,
+          primaryGoal: (normalized.selectedGoals || [])[0] || '',
+          secondaryGoal: (normalized.selectedGoals || [])[1] || '',
+          routineStyle: normalized.intensity
+        });
+      } catch (e) {}
+    }
     return normalized;
   }
 
