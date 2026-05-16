@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "cosmoskin",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "7700"],
+      "runtimeExecutable": "/usr/bin/ruby",
+      "runtimeArgs": ["/Users/can/Documents/GitHub/cosmoskin/.claude/serve.rb", "7700"],
       "port": 7700
     }
   ]
