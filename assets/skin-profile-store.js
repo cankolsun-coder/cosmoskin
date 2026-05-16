@@ -42,6 +42,8 @@
   var STYLE_VOCAB = { minimal:1, dengeli:1, kapsamli:1 };
 
   var skinAliases = { dry:'kuru', oily:'yagli', combination:'karma', sensitive:'hassas', normal:'normal' };
+  var sensitivityAliases = { low:'dusuk', medium:'orta', med:'orta', high:'yuksek', düşük:'dusuk', düşükhassasiyet:'dusuk', yüksek:'yuksek' };
+  var styleAliases = { orta:'dengeli', balanced:'dengeli', balance:'dengeli', medium:'dengeli', minimal:'minimal', simple:'minimal', kapsamlı:'kapsamli', kapsamli:'kapsamli', advanced:'kapsamli' };
   var goalAliases = {
     hydration:'nem', barrier:'bariyer', glow:'isilti', balance:'nem',
     dehydration:'nem', sensitivity:'hassasiyet', tone:'leke', blemish:'akne'
@@ -55,9 +57,23 @@
   }
   function pick(value, vocab, fallback) {
     if (!value) return fallback || '';
-    var v = String(value).toLowerCase();
-    v = skinAliases[v] || goalAliases[v] || v;
+    var v = String(value).toLocaleLowerCase('tr-TR').replace(/\s+/g, '');
+    v = skinAliases[v] || sensitivityAliases[v] || goalAliases[v] || styleAliases[v] || v;
     return vocab[v] ? v : (fallback || '');
+  }
+  function isNonEmpty(profile) {
+    profile = normalize(profile || {});
+    return Boolean(profile.skinType || profile.sensitivity || profile.primaryGoal || profile.secondaryGoal || profile.routineStyle);
+  }
+  function completeness(profile) {
+    profile = normalize(profile || {});
+    return ['skinType','sensitivity','primaryGoal','secondaryGoal','routineStyle'].reduce(function (score, key) {
+      return score + (profile[key] ? 1 : 0);
+    }, 0);
+  }
+  function timestamp(profile) {
+    var time = Date.parse(profile && profile.updatedAt || '');
+    return Number.isFinite(time) ? time : 0;
   }
 
   function normalize(partial) {
@@ -109,9 +125,36 @@
     return current;
   }
 
+  function mergeProfiles(localProfile, incomingProfile) {
+    var local = normalize(localProfile || {});
+    var incoming = normalize(incomingProfile || {});
+    if (!isNonEmpty(incoming)) return local;
+    if (!isNonEmpty(local)) return incoming;
+    var preferIncoming = completeness(incoming) > completeness(local) || (completeness(incoming) === completeness(local) && timestamp(incoming) >= timestamp(local));
+    var base = preferIncoming ? local : incoming;
+    var top = preferIncoming ? incoming : local;
+    return normalize({
+      skinType: top.skinType || base.skinType,
+      sensitivity: top.sensitivity || base.sensitivity,
+      primaryGoal: top.primaryGoal || base.primaryGoal,
+      secondaryGoal: top.secondaryGoal || base.secondaryGoal,
+      routineStyle: top.routineStyle || base.routineStyle,
+      updatedAt: timestamp(top) >= timestamp(base) ? top.updatedAt : base.updatedAt
+    });
+  }
+
   function save(partial) {
     var existing = get();
-    var merged = normalize(Object.assign({}, existing, partial, { updatedAt: new Date().toISOString() }));
+    var incoming = normalize(partial || {});
+    var merged = mergeProfiles(existing, incoming);
+    merged.updatedAt = (partial && partial.updatedAt) || new Date().toISOString();
+    writeRaw(KEY, merged);
+    broadcast(merged);
+    return merged;
+  }
+
+  function merge(partial) {
+    var merged = mergeProfiles(get(), partial || {});
     writeRaw(KEY, merged);
     broadcast(merged);
     return merged;
@@ -142,6 +185,9 @@
     clear: clear,
     subscribe: subscribe,
     normalize: normalize,
+    merge: merge,
+    isNonEmpty: isNonEmpty,
+    completeness: completeness,
     KEY: KEY
   };
 })();

@@ -45,6 +45,11 @@
 /collections/routine       /account/routines.html          200
 /collections/routine/      /account/routines.html          200
 /collections/routine.html  /account/routines.html          200
+/account/routines          /account/routines.html          200
+/account/routine-compare   /account/routine-compare.html   200
+/account/routine-favorites /account/routine-favorites.html 200
+/account/routine-history   /account/routine-history.html   200
+/account/routine-profile   /account/routine-profile.html   200
 /routine.html              /account/routines.html          200
 /rutinler                  /account/routines.html          200
 /rutinler.html             /account/routines.html          200

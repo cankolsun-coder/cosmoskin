@@ -153,6 +153,7 @@ export async function onRequestGet(context) {
         skin_concerns: Array.isArray(meta.skin_concerns) ? meta.skin_concerns : [],
         routine_goal: meta.routine_goal || '',
         routine_style: meta.routine_style || meta.routine_intensity || '',
+        skin_profile_updated_at: meta.skin_profile_updated_at || meta.skinProfileUpdatedAt || meta.updatedAt || '',
         communication: meta.comm_prefs || meta.communication || {},
         routine_reminders: meta.routine_reminders || {}
       },

@@ -4,10 +4,15 @@
   var ROUTINE_TARGET_ROUTE = '/account/routines.html';
   var PENDING_KEY = 'cosmoskin_pending_routine_preferences';
   var ROUTINE_PATHS = [
+    '/account/routines',
     '/account/routines.html',
+    '/account/routine-profile',
     '/account/routine-profile.html',
+    '/account/routine-favorites',
     '/account/routine-favorites.html',
+    '/account/routine-history',
     '/account/routine-history.html',
+    '/account/routine-compare',
     '/account/routine-compare.html',
     '/collections/routine',
     '/collections/routine.html',
@@ -22,10 +27,12 @@
 
   function accountRouteFor(url) {
     var path = cleanPath(url.pathname);
-    if (/routine-profile/.test(path) || url.searchParams.get('view') === 'profile') return '/account/routine-profile.html';
-    if (/routine-favorites/.test(path) || url.searchParams.get('view') === 'favorites') return '/account/routine-favorites.html';
-    if (/routine-history/.test(path) || url.searchParams.get('view') === 'history') return '/account/routine-history.html';
-    if (/routine-compare/.test(path) || url.searchParams.get('view') === 'compare') return '/account/routine-compare.html';
+    var requestedView = url.searchParams.get('tab') || url.searchParams.get('view');
+    if (/routine-profile/.test(path) || requestedView === 'profile') return '/account/routine-profile.html';
+    if (/routine-favorites/.test(path) || requestedView === 'favorites') return '/account/routine-favorites.html';
+    if (/routine-history/.test(path) || requestedView === 'history') return '/account/routine-history.html';
+    if (/routine-compare/.test(path) || requestedView === 'compare') return '/account/routine-compare.html';
+    if (requestedView === 'recommendations') return '/account/routines.html?tab=recommendations';
     return ROUTINE_TARGET_ROUTE;
   }
 
