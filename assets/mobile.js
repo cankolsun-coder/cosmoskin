@@ -359,23 +359,21 @@ function showToast(msg, link, linkLabel){
 function buildBottomNav(){
   if(qs('.m-bottom-nav')) return;
 
-  var isCat = path.indexOf('/collections/') !== -1 || path.indexOf('/brands/') !== -1;
-  var isFav = path.indexOf('/profile') !== -1;
+  var isExplore = path.indexOf('/explore') !== -1 || path.indexOf('/search') !== -1 || path.indexOf('/allproducts') !== -1 || path.indexOf('/collections/') !== -1 || path.indexOf('/brands/') !== -1 || path.indexOf('/categories') !== -1;
+  var isRoutine = path.indexOf('/routine') !== -1 || path.indexOf('/akilli-rutin') !== -1;
+  var isFavorites = path.indexOf('/favorites') !== -1 || path.indexOf('#favorites') !== -1;
+  var isAccount = path.indexOf('/account/') !== -1 || path.indexOf('/profile') !== -1 || path.indexOf('/orders') !== -1 || path.indexOf('/returns') !== -1;
 
   var nav = el('nav','m-bottom-nav');
-  nav.setAttribute('aria-label','Ana gezinme');
+  nav.setAttribute('aria-label','Mobil alt navigasyon');
   nav.id = 'mBottomNav';
 
   nav.innerHTML =
-    '<a class="m-tab' + (isHome?' is-active':'') + '" href="/index.html" aria-label="Ana Sayfa">' + SVG.home + '<span>Ana Sayfa</span></a>' +
-    '<a class="m-tab" href="/search.html" aria-label="Ara" id="mNavSearch">' + SVG.srch + '<span>Ara</span></a>' +
-    '<a class="m-tab' + (isCat?' is-active':'') + '" href="/collections/cleanse.html" aria-label="Kategoriler">' + SVG.grid + '<span>Kategoriler</span></a>' +
-    '<a class="m-tab' + (isFav?' is-active':'') + '" href="/profile.html#favorites" aria-label="Favoriler">' + SVG.heart + '<span>Favoriler</span></a>' +
-    '<button class="m-tab" id="mNavCart" type="button" aria-label="Sepet">' +
-      SVG.bag +
-      '<span class="m-tab__badge" id="mNavBadge"></span>' +
-      '<span>Sepet</span>' +
-    '</button>';
+    '<a class="m-tab' + (isHome?' is-active':'') + '" href="/index.html" aria-label="Anasayfa">' + SVG.home + '<span>Anasayfa</span></a>' +
+    '<a class="m-tab' + (isExplore?' is-active':'') + '" href="/explore.html" aria-label="Keşfet">' + SVG.srch + '<span>Keşfet</span></a>' +
+    '<a class="m-tab' + (isRoutine?' is-active':'') + '" href="/routine.html" aria-label="Rutinim">' + SVG.set + '<span>Rutinim</span></a>' +
+    '<a class="m-tab' + (isFavorites?' is-active':'') + '" href="/favorites.html" aria-label="Favorilerim">' + SVG.heart + '<span>Favorilerim</span></a>' +
+    '<a class="m-tab' + (isAccount?' is-active':'') + '" href="/account/profile.html" aria-label="Hesabım">' + SVG.user + '<span>Hesabım</span></a>';
 
   document.body.appendChild(nav);
 
@@ -388,13 +386,15 @@ function buildBottomNav(){
 
   /* Cart button */
   var cartBtn = qs('#mNavCart');
-  cartBtn.addEventListener('click', function(){
-    var btn = qs('#cartBtn');
-    if(btn){ btn.click(); return; }
-    var drawer = qs('#cartDrawer');
-    var bd = qs('#backdrop');
-    if(drawer){ drawer.classList.add('open'); if(bd) bd.classList.add('open'); }
-  });
+  if (cartBtn) {
+    cartBtn.addEventListener('click', function(){
+      var btn = qs('#cartBtn');
+      if(btn){ btn.click(); return; }
+      var drawer = qs('#cartDrawer');
+      var bd = qs('#backdrop');
+      if(drawer){ drawer.classList.add('open'); if(bd) bd.classList.add('open'); }
+    });
+  }
 
   updateBadges();
 }

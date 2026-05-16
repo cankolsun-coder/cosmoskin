@@ -102,16 +102,16 @@
     if(qs('.mobile-bottom-nav') || qs('.cs-bottom-nav')) return;
     const nav = document.createElement('nav');
     nav.className = 'mobile-bottom-nav';
-    const catPages = ['cleanse.html','hydrate.html','treat.html','protect.html','care.html','masks.html','blemish.html','anua.html','beauty-of-joseon.html','cosrx.html','round-lab.html','skin1004.html','thank-you-farmer.html','torriden.html','routine.html'];
-    const accountActive = /profile|orders/.test(path);
-    const cartActive = /checkout/.test(path);
+    const explorePages = ['allproducts.html','search.html','categories.html','brands.html','explore.html','kesfet.html','cleanse.html','hydrate.html','treat.html','protect.html','care.html','masks.html','blemish.html','anua.html','beauty-of-joseon.html','cosrx.html','round-lab.html','skin1004.html','thank-you-farmer.html','torriden.html'];
+    const routineActive = /routine|akilli-rutin/.test(path);
+    const favoritesActive = /favorites/.test(path);
+    const accountActive = /profile|orders|returns|account/.test(path);
     nav.innerHTML = `
       <a href="/index.html" class="${path === 'index.html' ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">⌂</span><span>Anasayfa</span></a>
-      <a href="/cleanse.html" class="${catPages.includes(path) ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">◫</span><span>Shop</span></a>
-      <button type="button" class="mobile-bottom-nav__search"><span class="mobile-bottom-nav__icon">⌕</span><span>Ara</span></button>
-      <a href="/profile.html" class="${accountActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">◌</span><span>Hesap</span></a>
-      <a href="/checkout.html" class="${cartActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">👜</span><span>Sepet</span></a>`;
-    qs('.mobile-bottom-nav__search', nav).addEventListener('click', ()=> window.openMobileSearch && window.openMobileSearch());
+      <a href="/explore.html" class="${explorePages.includes(path) ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">⌕</span><span>Keşfet</span></a>
+      <a href="/routine.html" class="${routineActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">✦</span><span>Rutinim</span></a>
+      <a href="/favorites.html" class="${favoritesActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">♡</span><span>Favorilerim</span></a>
+      <a href="/account/profile.html" class="${accountActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">◌</span><span>Hesabım</span></a>`;
     document.body.appendChild(nav);
   }
 
