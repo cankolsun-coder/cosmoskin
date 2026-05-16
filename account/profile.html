@@ -12,7 +12,7 @@
 <link href="/assets/style.css?v=20260503-order-tracking-final" rel="stylesheet"/>
 <link href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" rel="stylesheet"/>
 <link href="/assets/phase6-commerce.css?v=20260503-ratingux" rel="stylesheet"/>
-<link href="/assets/account-premium.css?v=20260506-account-premium" rel="stylesheet"/>
+<link href="/assets/account-premium.css?v=20260516-skin-profile" rel="stylesheet"/>
 <link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet"/>
 <link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
 </head>
@@ -46,6 +46,16 @@
       <div class="cs-loyalty-meta"><strong id="heroPoints">—</strong><span id="heroRemaining">—</span></div>
       <p id="heroTierHint">Hesap verilerin hazırlanıyor.</p>
       <div class="cs-loyalty-links"><a href="/account/profile.html?tab=loyalty" data-tab-link="loyalty">Avantajları Gör</a><a href="/account/profile.html?tab=loyalty" data-tab-link="loyalty">Puan Geçmişi</a></div>
+    </article>
+    <article class="cs-skin-profile-card" data-skin-profile-widget aria-live="polite">
+      <span class="cs-overline"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3.4c5.2 1.4 8 5.2 8 9.6 0 4.4-3.4 7.6-8 7.6S4 17.4 4 13c0-4.4 2.8-8.2 8-9.6Z"/><path d="M9.5 12.5l1.8 1.8 3.4-3.6"/></svg>CİLT PROFİLİM</span>
+      <h2 data-skin-headline>Profilini oluştur</h2>
+      <div class="cs-skin-profile-meta" data-skin-meta>
+        <p>Cilt tipini ve hedeflerini kaydet; rutin önerilerin sana göre güncellensin.</p>
+      </div>
+      <div class="cs-skin-profile-actions">
+        <a class="btn btn-secondary" href="/account/routines.html?view=profile">Profili Düzenle</a>
+      </div>
     </article>
   </section>
 
@@ -254,7 +264,53 @@
 <div class="footer-bottom"><span>© 2026 COSMOSKIN</span><span>Seçilmiş K-Beauty</span></div>
 </footer>
 <script src="/assets/products-data.js?v=20260424a"></script>
-<script src="/assets/site-config.js?v=20260418a"></script>
+<script src="/assets/skin-profile-store.js?v=20260516-profile-store"></script>
+<script>
+(function () {
+  var SKIN_LABELS = { kuru:'Kuru cilt', yagli:'Yağlı cilt', karma:'Karma cilt', hassas:'Hassas cilt', normal:'Normal cilt' };
+  var SENS_LABELS = { dusuk:'Düşük hassasiyet', orta:'Orta hassasiyet', yuksek:'Yüksek hassasiyet' };
+  var GOAL_LABELS = { nem:'Nem', bariyer:'Bariyer', isilti:'Işıltı', leke:'Leke karşıtı', akne:'Akne karşıtı', hassasiyet:'Hassasiyet desteği', gozenek:'Gözenek', parlaklik:'Parlaklık' };
+  var STYLE_LABELS = { minimal:'Minimal rutin', dengeli:'Dengeli rutin', kapsamli:'Kapsamlı rutin' };
+
+  function render(profile) {
+    var card = document.querySelector('[data-skin-profile-widget]');
+    if (!card) return;
+    var headline = card.querySelector('[data-skin-headline]');
+    var meta = card.querySelector('[data-skin-meta]');
+    if (!profile || !profile.skinType) {
+      headline.textContent = 'Profilini oluştur';
+      meta.innerHTML = '<p>Cilt tipini ve hedeflerini kaydet; rutin önerilerin sana göre güncellensin.</p>';
+      return;
+    }
+    var parts = [];
+    if (SKIN_LABELS[profile.skinType]) parts.push(SKIN_LABELS[profile.skinType]);
+    if (SENS_LABELS[profile.sensitivity]) parts.push(SENS_LABELS[profile.sensitivity]);
+    if (STYLE_LABELS[profile.routineStyle]) parts.push(STYLE_LABELS[profile.routineStyle]);
+    headline.textContent = SKIN_LABELS[profile.skinType] || 'Cilt profilim';
+    var goals = [profile.primaryGoal, profile.secondaryGoal].filter(Boolean).map(function (g) { return GOAL_LABELS[g] || g; });
+    var html = '';
+    if (parts.length) html += '<p>' + parts.join(' · ') + '</p>';
+    if (goals.length) html += '<p><strong>Hedefler:</strong> ' + goals.join(', ') + '</p>';
+    if (profile.updatedAt) {
+      try {
+        var dt = new Date(profile.updatedAt);
+        var fmt = new Intl.DateTimeFormat('tr-TR', { day:'numeric', month:'long', year:'numeric' }).format(dt);
+        html += '<p class="cs-skin-profile-stamp">Son güncelleme: ' + fmt + '</p>';
+      } catch (e) {}
+    }
+    meta.innerHTML = html || '<p>Profilini güncellemek için Profili Düzenle\'ye dokun.</p>';
+  }
+
+  function init() {
+    if (!window.CosmoskinSkinProfile) return;
+    render(window.CosmoskinSkinProfile.get());
+    window.CosmoskinSkinProfile.subscribe(render);
+    window.addEventListener('cosmoskin:skin-profile-change', function (e) { render(e.detail); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/account-dashboard.js?v=20260506-account-premium"></script>
 <script src="/assets/mobile.js?v=20260425f"></script>

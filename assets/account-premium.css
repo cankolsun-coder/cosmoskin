@@ -209,3 +209,19 @@
   .cs-order-card.is-compact .cs-order-side,.cs-order-card.is-compact .cs-order-actions{grid-template-columns:1fr!important;}
   .cs-order-head-actions{max-width:100%;justify-content:flex-start;}
 }
+
+/* 2026-05-16 — Skin profile widget on /account/profile.html (consumes cosmoskin_skin_profile) */
+.cs-skin-profile-card{position:relative;display:grid;gap:14px;padding:22px;border-radius:24px;background:linear-gradient(155deg,#fffdf9,#f6ecdd 100%);border:1px solid rgba(181,138,74,.20);box-shadow:0 18px 42px rgba(26,21,16,.06);}
+.cs-skin-profile-card .cs-overline{display:inline-flex;align-items:center;gap:8px;color:#8a6d44;font-size:11px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;}
+.cs-skin-profile-card .cs-overline svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.cs-skin-profile-card h2{margin:0;font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:500;color:#1a1510;line-height:1.1;}
+.cs-skin-profile-meta p{margin:0 0 6px;color:#3b332a;font-size:14px;line-height:1.55;}
+.cs-skin-profile-meta p:last-child{margin-bottom:0;}
+.cs-skin-profile-meta p strong{font-weight:700;color:#1a1510;}
+.cs-skin-profile-stamp{color:#8a7e72 !important;font-size:12px !important;}
+.cs-skin-profile-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.cs-skin-profile-actions .btn{min-height:42px;padding:0 16px;border-radius:999px;font-size:12px;letter-spacing:.10em;text-transform:uppercase;font-weight:800;}
+@media(max-width:720px){
+  .cs-skin-profile-card{padding:18px;}
+  .cs-skin-profile-card h2{font-size:22px;}
+}
