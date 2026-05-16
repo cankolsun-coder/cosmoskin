@@ -31,7 +31,7 @@
 - Lead metin: "Özenle seçilmiş Kore cilt bakımı ürünleriyle cildine hak ettiği ışıltıyı kazandır."
 - İki CTA:
   - **Birincil:** `ALIŞVERİŞE BAŞLA` → `/allproducts.html` (siyah, dolgun)
-  - **İkincil:** `RUTİNİNİ KEŞFET` → `/collections/routine.html` (krem ghost, ince border)
+  - **İkincil:** `RUTİNİNİ KEŞFET` → `/account/routines.html` (krem ghost, ince border)
 - 360px / 390px / 430px için ayrı medya sorguları: dar telefonlarda görsel hafif küçülüyor, çok-dar (≤360px) cihazlarda görsel alta dönüyor, tipografi tam genişliğe açılıyor.
 
 ### 2. Footer Pozisyonu & Beyaz Boşluk Onarımı
@@ -132,7 +132,7 @@ python3 -m http.server 7700
 - `/` ve `/index.html` — yeni hero, marka çubuğu, footer
 - `/categories.html` — footer pozisyonu, beyaz alan testi
 - `/allproducts.html`, `/cart.html`, `/checkout.html`, `/account/profile.html` — header/wordmark tutarlılığı, header'ın diğer sayfalarda da düzgün hizalandığı
-- `/collections/routine.html` — hero CTA'sının doğru sayfaya gittiği
+- `/account/routines.html` — hero CTA'sının doğru sayfaya gittiği
 - `/brands/cosrx.html` ve diğer marka sayfaları
 - En az 2 PDP
 

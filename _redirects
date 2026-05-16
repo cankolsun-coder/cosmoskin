@@ -15,7 +15,6 @@
 /masks.html                  /collections/masks.html                  301
 /protect.html                /collections/protect.html                301
 /treat.html                  /collections/treat.html                  301
-/routine.html                /collections/routine.html                301
 /profile.html                /account/profile.html                    301
 /orders.html                 /account/orders.html                     301
 /products/cosrx-advanced-snail-96-mucin-power-essence.html /products/cosrx-advanced-snail-96-mucin-essence.html 301
@@ -28,12 +27,11 @@
 /iade-degisim.html /legal/iade-ve-cayma-politikasi.html 302
 /teslimat-kargo.html /legal/teslimat-ve-kargo.html 302
 
-# Routine clean URL fallback
-# Routine stable route — no 301 loop. Clean URL internally serves the real HTML file.
-/collections/routine /collections/routine.html 200
-/rutinler /collections/routine 301
-/rutinler.html /collections/routine 301
-/account/routines.html /collections/routine 301
-/account/routine-profile.html /collections/routine?view=profile 301
-/account/routine-favorites.html /collections/routine?view=favorites 301
-/account/routine-history.html /collections/routine?view=history 301
+
+# Routine routes: internal rewrites only, no browser redirects.
+/collections/routine       /account/routines.html          200
+/collections/routine/      /account/routines.html          200
+/collections/routine.html  /account/routines.html          200
+/routine.html              /account/routines.html          200
+/rutinler                  /account/routines.html          200
+/rutinler.html             /account/routines.html          200

@@ -19,7 +19,7 @@ Implemented the Rutinler content area using the attached routine reference scree
 
 ## Routing
 - `/routine.html` is the smart Rutinler entry used by the existing top navigation.
-- `/rutinler.html` is also provided as a Turkish alias-style smart entry.
+- `/account/routines.html` is also provided as a Turkish alias-style smart entry.
 - `/account/routines.html` renders the logged-in active routine dashboard.
 - `/account/routine-profile.html` renders the logged-in `Cilt Profilim` edit page.
 - `/account/routine-favorites.html` renders routine-related favorite products.

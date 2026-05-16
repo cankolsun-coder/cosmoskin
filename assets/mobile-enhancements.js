@@ -37,7 +37,7 @@
     const el = document.createElement('div');
     el.className = 'mobile-search-sheet';
     const links = [
-      ['/cleanse.html','Temizleyiciler'], ['/hydrate.html','Nem & Bariyer'], ['/treat.html','Hedef Bakım'], ['/protect.html','SPF'], ['/collections/routine.html','Rutinler']
+      ['/cleanse.html','Temizleyiciler'], ['/hydrate.html','Nem & Bariyer'], ['/treat.html','Hedef Bakım'], ['/protect.html','SPF'], ['/account/routines.html','Rutinler']
     ];
     const brands = [ ['/anua.html','Anua'], ['/cosrx.html','COSRX'], ['/beauty-of-joseon.html','BOJ'], ['/torriden.html','Torriden'] ];
     el.innerHTML = `
@@ -109,7 +109,7 @@
     nav.innerHTML = `
       <a href="/index.html" class="${path === 'index.html' ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">⌂</span><span>Anasayfa</span></a>
       <a href="/explore.html" class="${explorePages.includes(path) ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">⌕</span><span>Keşfet</span></a>
-      <a href="/collections/routine.html" class="${routineActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">✦</span><span>Rutinim</span></a>
+      <a href="/account/routines.html" class="${routineActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">✦</span><span>Rutinim</span></a>
       <a href="/favorites.html" class="${favoritesActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">♡</span><span>Favorilerim</span></a>
       <a href="/account/profile.html" class="${accountActive ? 'is-active' : ''}"><span class="mobile-bottom-nav__icon">◌</span><span>Hesabım</span></a>`;
     document.body.appendChild(nav);
@@ -137,7 +137,7 @@
     wrap.className = 'mobile-page-pillbar';
     wrap.innerHTML = `
       <a href="/index.html">Anasayfa</a>
-      <a href="/collections/routine.html">Rutinler</a>
+      <a href="/account/routines.html">Rutinler</a>
       <a href="/protect.html">SPF</a>
       <a href="/hydrate.html">Nem</a>
       <a href="/treat.html">Bakım</a>`;

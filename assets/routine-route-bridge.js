@@ -1,20 +1,39 @@
 (function () {
   'use strict';
-  var ROUTINE_FILE_ROUTE = '/collections/routine.html';
-  var ROUTINE_CLEAN_ROUTE = '/collections/routine';
-  var ROUTINE_TARGET_ROUTE = ROUTINE_CLEAN_ROUTE;
-  var PENDING_KEY = 'cosmoskin_pending_routine_preferences';
 
-  function isRoutinePath(path) {
-    return path === ROUTINE_CLEAN_ROUTE || path === ROUTINE_FILE_ROUTE || path === '/rutinler' || path === '/rutinler.html' || path === '/routine.html';
+  var ROUTINE_TARGET_ROUTE = '/account/routines.html';
+  var PENDING_KEY = 'cosmoskin_pending_routine_preferences';
+  var ROUTINE_PATHS = [
+    '/account/routines.html',
+    '/account/routine-profile.html',
+    '/account/routine-favorites.html',
+    '/account/routine-history.html',
+    '/collections/routine',
+    '/collections/routine.html',
+    '/routine.html',
+    '/rutinler',
+    '/rutinler.html'
+  ];
+
+  function cleanPath(path) { return String(path || '').replace(/\/$/, ''); }
+  function isRoutinePath(path) { return ROUTINE_PATHS.indexOf(cleanPath(path)) !== -1; }
+  function isCurrentRoutinePage() { return isRoutinePath(window.location.pathname); }
+
+  function accountRouteFor(url) {
+    var path = cleanPath(url.pathname);
+    if (/routine-profile/.test(path) || url.searchParams.get('view') === 'profile') return '/account/routine-profile.html';
+    if (/routine-favorites/.test(path) || url.searchParams.get('view') === 'favorites') return '/account/routine-favorites.html';
+    if (/routine-history/.test(path) || url.searchParams.get('view') === 'history') return '/account/routine-history.html';
+    return ROUTINE_TARGET_ROUTE;
   }
 
   function normalizeTarget(rawHref) {
     var url;
     try { url = new URL(rawHref || ROUTINE_TARGET_ROUTE, window.location.origin); }
     catch (e) { url = new URL(ROUTINE_TARGET_ROUTE, window.location.origin); }
-    if (!isRoutinePath(url.pathname.replace(/\/$/, ''))) return null;
-    return ROUTINE_TARGET_ROUTE + (url.search || '') + (url.hash || '');
+    if (!isRoutinePath(url.pathname)) return null;
+    var target = accountRouteFor(url);
+    return target + (url.hash || '');
   }
 
   function readJSON(key, fallback) {
@@ -60,9 +79,7 @@
     if (!anchor) return;
     var target = normalizeTarget(anchor.getAttribute('href'));
     if (!target) return;
-
-    var currentPath = window.location.pathname.replace(/\/$/, '');
-    if (currentPath === ROUTINE_CLEAN_ROUTE || currentPath === ROUTINE_FILE_ROUTE) return;
+    if (isCurrentRoutinePage()) return;
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
     preserveHomeSmartRoutineSelection();

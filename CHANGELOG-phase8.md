@@ -6,7 +6,7 @@
 
 ## Overview
 
-Phase 8 targets two high-traffic page types — the Routine Experience page (`/collections/routine.html`) and the 35 Product Detail Pages (PDPs) under `/products/` — applying mobile polish, accessibility fixes, responsive QA, and code-quality improvements directly to `assets/mobile-redesign.js` and `assets/mobile-redesign.css` in the main project.
+Phase 8 targets two high-traffic page types — the Routine Experience page (`/account/routines.html`) and the 35 Product Detail Pages (PDPs) under `/products/` — applying mobile polish, accessibility fixes, responsive QA, and code-quality improvements directly to `assets/mobile-redesign.js` and `assets/mobile-redesign.css` in the main project.
 
 ---
 
@@ -41,10 +41,10 @@ function pdpPage() {
 ---
 
 ### TASK 2 — Routine page "Rutini Gör" self-link fix
-**Problem:** The secondary actions row in `routineBuilder()` contained a link `href="/collections/routine.html#routine-commerce"`. When `compact=false` (i.e., the user is already on `/collections/routine.html`), this link was a redundant self-reference.
+**Problem:** The secondary actions row in `routineBuilder()` contained a link `href="/account/routines.html#routine-commerce"`. When `compact=false` (i.e., the user is already on `/account/routines.html`), this link was a redundant self-reference.
 
 **Fix:** Made the link context-aware using the existing `compact` parameter:
-- `compact=true` (homepage embed) → keeps `href="/collections/routine.html"` as "Rutini Gör"
+- `compact=true` (homepage embed) → keeps `href="/account/routines.html"` as "Rutini Gör"
 - `compact=false` (on the routine page) → shows `href="/allproducts.html"` as "Tüm Ürünleri Gör"
 
 ---

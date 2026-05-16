@@ -44,7 +44,7 @@ var CATS = [
   {label:'Krem',        icon:'cream',    href:'/collections/care.html'},
   {label:'Maske',       icon:'mask',     href:'/collections/masks.html'},
   {label:'SPF',         icon:'spf',      href:'/collections/protect.html'},
-  {label:'Set',         icon:'set',      href:'/collections/routine.html'}
+  {label:'Set',         icon:'set',      href:'/account/routines.html'}
 ];
 
 var TRUST = [
@@ -310,7 +310,7 @@ function buildEditorial(){
   copy.innerHTML =
     '<span class="editorial-showcase__eyebrow">Derin Okuma</span>' +
     '<h2 class="editorial-showcase__title">K-Beauty\'nin 10 adımı mı? Aslında 3 yeter.</h2>' +
-    '<a class="editorial-showcase__cta" href="/collections/routine.html">' +
+    '<a class="editorial-showcase__cta" href="/account/routines.html">' +
       'Rutini keşfet ' + SVG.arrow +
     '</a>';
 
@@ -371,7 +371,7 @@ function buildBottomNav(){
   nav.innerHTML =
     '<a class="m-tab' + (isHome?' is-active':'') + '" href="/index.html" aria-label="Anasayfa">' + SVG.home + '<span>Anasayfa</span></a>' +
     '<a class="m-tab' + (isExplore?' is-active':'') + '" href="/explore.html" aria-label="Keşfet">' + SVG.srch + '<span>Keşfet</span></a>' +
-    '<a class="m-tab' + (isRoutine?' is-active':'') + '" href="/collections/routine.html" aria-label="Rutinim">' + SVG.set + '<span>Rutinim</span></a>' +
+    '<a class="m-tab' + (isRoutine?' is-active':'') + '" href="/account/routines.html" aria-label="Rutinim">' + SVG.set + '<span>Rutinim</span></a>' +
     '<a class="m-tab' + (isFavorites?' is-active':'') + '" href="/favorites.html" aria-label="Favorilerim">' + SVG.heart + '<span>Favorilerim</span></a>' +
     '<a class="m-tab' + (isAccount?' is-active':'') + '" href="/account/profile.html" aria-label="Hesabım">' + SVG.user + '<span>Hesabım</span></a>';
 
