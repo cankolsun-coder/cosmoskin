@@ -185,6 +185,7 @@
       home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 11 8-7 8 7v9H6v-7h12"/></svg>',
       grid: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5v5H5V5Zm9 0h5v5h-5V5ZM5 14h5v5H5v-5Zm9 0h5v5h-5v-5Z"/></svg>',
       sparkle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v5M12 16v5M4 12h5M15 12h5M7.8 7.8l2.2 2.2M14 14l2.2 2.2M16.2 7.8 14 10M10 14l-2.2 2.2"/></svg>',
+      routine: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19V10M12 19V5M18 19v-7"/><path d="M4 19h16"/></svg>',
       user: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
       chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>',
       filter: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M8 5v4M16 15v4"/></svg>',
@@ -223,7 +224,7 @@
   function header(opts) {
     opts = opts || {};
     var left = opts.back ? '<button type="button" class="cm-icon-btn" data-cm-back aria-label="Geri dön">' + svg('back') + '</button>' : '<button type="button" class="cm-icon-btn" data-cm-open-menu aria-label="Menüyü aç">' + svg('menu') + '</button>';
-    var right = opts.checkout ? '<span class="cm-secure-title">' + svg('lock') + ' Güvenli Ödeme</span>' : '<div class="cm-header__right"><a class="cm-icon-btn" href="/favorites.html" aria-label="Favorilerim">' + svg('heart') + '</a><a class="cm-icon-btn" href="/cart.html" aria-label="Sepetim">' + svg('bag') + '<span class="cm-badge" data-cm-cart-badge>0</span></a></div>';
+    var right = opts.checkout ? '<span class="cm-secure-title">' + svg('lock') + ' Güvenli Ödeme</span>' : '<div class="cm-header__right"><a class="cm-icon-btn" href="/account/profile.html" aria-label="Hesabım">' + svg('user') + '</a><a class="cm-icon-btn cm-icon-btn--bag" href="/cart.html" aria-label="Sepetim">' + svg('bag') + '<span class="cm-badge" data-cm-cart-badge>0</span></a></div>';
     return '<header class="cm-header ' + (opts.checkout ? 'cm-header--checkout' : '') + '"><div class="cm-header__left">' + left + '</div><a class="cm-wordmark" href="/index.html" aria-label="COSMOSKIN anasayfa">COSMOSKIN</a>' + right + '</header>';
   }
 
@@ -231,7 +232,7 @@
     var items = [
       ['home', 'Anasayfa', '/index.html', 'home'],
       ['search', 'Keşfet', '/explore.html', 'explore'],
-      ['sparkle', 'Rutinim', '/routine.html', 'routine'],
+      ['routine', 'Rutinim', '/routine.html', 'routine'],
       ['heart', 'Favorilerim', '/favorites.html', 'favorites'],
       ['user', 'Hesabım', '/account/profile.html', 'account']
     ];
@@ -647,7 +648,8 @@
     if (listingState.concern) chips.push({ label: 'Cilt İhtiyacı: ' + listingState.concern, key: 'concern' });
     if (listingState.price) chips.push({ label: 'Fiyat filtresi', key: 'price' });
     if (!chips.length && /cleanse/.test(location.pathname)) chips = [{ label: 'Cilt Tipi: Karma', key: '' }, { label: 'Cilt Endişesi: Gözenek', key: '' }, { label: 'Temizleyici', key: '' }];
-    return '<div class="cm-mobile-page cm-mobile-listing">' + header({ back: true }) + '<div class="cm-page-inner cm-page-inner--top">' + searchBar() + '<section class="cm-list-head"><div><h1>' + esc(meta.title) + '</h1><p><span data-cm-product-count>0</span> ürün</p></div></section><div class="cm-list-controls"><button type="button" data-cm-open-filter>Filtrele ' + svg('filter') + '</button><button type="button" data-cm-open-sort>Sırala ' + svg('sort') + '</button></div>' + (chips.length ? '<div class="cm-filter-chips">' + chips.map(function (c) { return c.key ? '<button type="button" data-cm-filter-remove="' + esc(c.key) + '">' + esc(c.label) + ' <b aria-hidden="true">×</b></button>' : '<span>' + esc(c.label) + '</span>'; }).join('') + '</div>' : '') + '<div class="cm-product-grid" data-cm-listing-grid></div></div><div class="cm-mobile-filterbar"><button type="button" data-cm-open-filter>' + svg('filter') + ' Filtrele</button><button type="button" data-cm-open-sort>' + svg('sort') + ' Sırala</button></div>' + bottomNav('explore') + '</div>';
+    var isPrimaryAllProducts = /\/allproducts\.html$/.test(location.pathname);
+    return '<div class="cm-mobile-page cm-mobile-listing">' + header({ back: !isPrimaryAllProducts }) + '<div class="cm-page-inner cm-page-inner--top">' + searchBar() + '<section class="cm-list-head"><div><h1>' + esc(meta.title) + '</h1><p><span data-cm-product-count>0</span> ürün</p></div></section><div class="cm-list-controls"><button type="button" data-cm-open-filter>Filtrele ' + svg('filter') + '</button><button type="button" data-cm-open-sort>Sırala ' + svg('sort') + '</button></div>' + (chips.length ? '<div class="cm-filter-chips">' + chips.map(function (c) { return c.key ? '<button type="button" data-cm-filter-remove="' + esc(c.key) + '">' + esc(c.label) + ' <b aria-hidden="true">×</b></button>' : '<span>' + esc(c.label) + '</span>'; }).join('') + '</div>' : '') + '<div class="cm-product-grid" data-cm-listing-grid></div></div><div class="cm-mobile-filterbar"><button type="button" data-cm-open-filter>' + svg('filter') + ' Filtrele</button><button type="button" data-cm-open-sort>' + svg('sort') + ' Sırala</button></div>' + bottomNav('explore') + '</div>';
   }
 
   function renderListingGrid() {
