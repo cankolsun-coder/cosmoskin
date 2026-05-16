@@ -6,10 +6,13 @@
     preferences: 'cosmoskin_routine_preferences',
     profile: 'cosmoskin_routine_profile',
     active: 'cosmoskin_routine_active',
-    favorites: 'cosmoskin_routine_favorites'
+    favorites: 'cosmoskin_routine_favorites',
+    history: 'cosmoskin_routine_history',
+    cart: 'cosmoskin_cart'
   };
 
   var ROUTINE_ROUTE = '/account/routines.html';
+  var ROUTINE_COMPARE_ROUTE = '/account/routine-compare.html';
 
   var goalLabels = { nem: 'Nem', bariyer: 'Bariyer', isilti: 'Işıltı', leke: 'Leke Karşıtı', akne: 'Akne & Sivilce Karşıtı', hassasiyet: 'Hassasiyet', gozenek: 'Gözenek Sıkılaştırıcı', parlaklik: 'Parlaklık' };
   var skinLabels = { kuru: 'Kuru', karma: 'Karma', yagli: 'Yağlı', hassas: 'Hassas', normal: 'Normal' };
@@ -21,6 +24,7 @@
   function writeJSON(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) {} }
   function formatPrice(value) { try { return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(value || 0)); } catch (error) { return Number(value || 0) + ' TL'; } }
   function nowDate() { try { return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()); } catch (error) { return 'Bugün'; } }
+  function slugFromProduct(item) { return item && (item.slug || item.id || item.product_slug || item.productSlug || item.handle || item.url || ''); }
   function icon(name) {
     var paths = {
       spark:'M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8L12 3Z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z',
@@ -51,6 +55,14 @@
   }
   function findProduct(slug) { return getProducts().find(function (p) { return p.slug === slug || p.id === slug; }); }
   function pickBySlugs(slugs) { return slugs.map(findProduct).filter(Boolean); }
+  function compact(arr) { return (arr || []).filter(Boolean); }
+  function uniq(arr) { var seen = new Set(); return (arr || []).filter(function (item) { var key = String(item || ''); if (!key || seen.has(key)) return false; seen.add(key); return true; }); }
+  function asArray(value) { if (Array.isArray(value)) return value.filter(Boolean); if (value == null || value === '') return []; return [value]; }
+  function normalizeText(value) {
+    return String(value || '')
+      .toLocaleLowerCase('tr-TR')
+      .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u');
+  }
 
   function defaultPreferences() {
     return {
@@ -164,7 +176,7 @@
 
   function hydrateRoutineProduct(item) {
     if (!item) return null;
-    var slug = item.slug || item.id || item.url || '';
+    var slug = typeof item === 'string' ? item : (item.slug || item.id || item.product_slug || item.productSlug || item.url || '');
     var catalog = findProduct(slug) || (window.COSMOSKIN_PRODUCT_HELPERS && window.COSMOSKIN_PRODUCT_HELPERS.getProductByHandle ? window.COSMOSKIN_PRODUCT_HELPERS.getProductByHandle(slug) : null);
     return catalog || (item.name ? {
       id: item.slug || item.id,
@@ -176,6 +188,297 @@
       image: item.image || '/assets/packaging-mockup-premium.png',
       url: item.url || ('/products/' + (item.slug || item.id) + '.html')
     } : null);
+  }
+
+  function getRoutineProfile() {
+    return getRoutinePreferences();
+  }
+
+  function getProductCatalog() {
+    return getProducts();
+  }
+
+  function productText(product) {
+    return normalizeText([product && product.brand, product && product.name, product && product.category, product && product.keywordText, (product && product.keywords || []).join(' ')].join(' '));
+  }
+
+  function productMatchesGoal(product, goal) {
+    var text = productText(product);
+    var terms = {
+      nem: ['nem', 'hydration', 'hyaluronic', 'hyaluronik', 'moisture', 'aqua', 'water'],
+      bariyer: ['bariyer', 'barrier', 'ceramide', 'seramid', 'snail', 'mucin', 'panthenol', 'centella', 'cica'],
+      isilti: ['glow', 'isilt', 'bright', 'radiance', 'rice', 'pirinc', 'vitamin c', 'niacinamide', 'niasinamid'],
+      parlaklik: ['glow', 'isilt', 'parlak', 'bright', 'radiance', 'rice', 'vitamin c', 'niacinamide'],
+      leke: ['leke', 'spot', 'vitamin c', 'arbutin', 'niacinamide', 'tangerine', 'bright'],
+      akne: ['akne', 'acne', 'pimple', 'salicylic', 'salisilik', 'aha', 'bha', 'pore', 'gözenek', 'gozenek'],
+      gozenek: ['pore', 'gözenek', 'gozenek', 'sebum', 'bha', 'clay', 'pad'],
+      hassasiyet: ['hassas', 'sensitive', 'heartleaf', 'centella', 'cica', 'soothing', 'yatistir']
+    };
+    return (terms[goal] || [goal]).some(function (term) { return text.indexOf(normalizeText(term)) !== -1; });
+  }
+
+  function activeTerms(product) {
+    var text = productText(product);
+    return ['aha','bha','pha','salicylic','salisilik','vitamin c','retinol','arbutin','acid','asit','peeling'].filter(function (term) { return text.indexOf(term) !== -1; });
+  }
+
+  function isBarrierProduct(product) {
+    var text = productText(product);
+    return ['ceramide','seramid','snail','mucin','beta-glucan','beta glucan','panthenol','centella','cica','heartleaf','hyaluronic','hyaluronik'].some(function (term) { return text.indexOf(term) !== -1; });
+  }
+
+  function getRoutineProductList(routine) {
+    return compact((routine && routine.morning || []).concat(routine && routine.evening || []).map(function (step) { return step && step.product; }));
+  }
+
+  function stepFromProduct(product, index, period, label) {
+    if (!product) return null;
+    var defaultLabels = period === 'morning' ? ['Temizle','Dengele','Nemlendir','Koru'] : ['Temizle','Bakım','Onar','Yenile'];
+    return {
+      id: period + '-' + index + '-' + product.slug,
+      step: index + 1,
+      label: label || defaultLabels[index] || 'Bakım',
+      product: product
+    };
+  }
+
+  function hydrateStep(item, index, period) {
+    if (!item) return null;
+    var product = hydrateRoutineProduct(item.product || item);
+    return stepFromProduct(product, index, period, item.label || item.stepLabel || item.step || item.type);
+  }
+
+  function stepsFromSlugs(slugs, period) {
+    return compact(slugs.map(function (slug, index) { return stepFromProduct(findProduct(slug), index, period); }));
+  }
+
+  function routineProductsFromRaw(raw, prefs, fallbackKind) {
+    raw = raw || {};
+    var morningRaw = raw.morning || raw.day || raw.dayRoutine || raw.morningRoutine || raw.am || [];
+    var eveningRaw = raw.evening || raw.night || raw.nightRoutine || raw.eveningRoutine || raw.pm || [];
+    var allRaw = raw.products || raw.items || raw.productSlugs || [];
+    var morning = asArray(morningRaw).map(function (item, index) { return hydrateStep(item, index, 'morning'); }).filter(Boolean).slice(0, 5);
+    var evening = asArray(eveningRaw).map(function (item, index) { return hydrateStep(item, index, 'evening'); }).filter(Boolean).slice(0, 5);
+    if ((!morning.length || !evening.length) && allRaw.length) {
+      var all = asArray(allRaw).map(hydrateRoutineProduct).filter(Boolean);
+      if (!morning.length) morning = all.slice(0, 4).map(function (p, i) { return stepFromProduct(p, i, 'morning'); });
+      if (!evening.length) evening = all.slice(4, 8).concat(all.slice(0, Math.max(0, 4 - all.slice(4, 8).length))).map(function (p, i) { return stepFromProduct(p, i, 'evening'); });
+    }
+    if (morning.length && evening.length) return { morning: morning, evening: evening };
+    return generatedRoutineProducts(prefs, fallbackKind || 'active');
+  }
+
+  function generatedRoutineProducts(prefs, kind) {
+    var goals = (prefs.selectedGoals || []).join(' ');
+    var isBright = /isilti|leke|parlak/.test(goals);
+    var isSensitive = /hassas/.test(String(prefs.sensitivity || '') + ' ' + goals);
+    var maps = {
+      active: {
+        morning: ['round-lab-1025-dokdo-cleanser','anua-heartleaf-77-soothing-toner', isBright ? 'beauty-of-joseon-glow-serum-propolis-niacinamide' : 'torriden-dive-in-hyaluronic-acid-serum', 'beauty-of-joseon-relief-sun-spf50'],
+        evening: ['anua-heartleaf-pore-control-cleansing-oil', isSensitive ? 'skin1004-madagascar-centella-ampoule' : 'some-by-mi-aha-bha-miracle-toner', 'cosrx-advanced-snail-96-mucin-essence', 'torriden-solid-in-ceramide-cream']
+      },
+      glowBarrier: {
+        morning: ['anua-heartleaf-77-soothing-toner','beauty-of-joseon-glow-deep-serum','cosrx-advanced-snail-96-mucin-essence','beauty-of-joseon-relief-sun-spf50'],
+        evening: ['anua-heartleaf-pore-control-cleansing-oil','beauty-of-joseon-glow-serum-propolis-niacinamide','torriden-solid-in-ceramide-cream','skin1004-hyalu-cica-water-fit-sun-serum']
+      },
+      hydration: {
+        morning: ['round-lab-dokdo-toner','torriden-dive-in-hyaluronic-acid-serum','cosrx-oil-free-ultra-moisturizing-lotion','round-lab-birch-juice-sunscreen'],
+        evening: ['round-lab-1025-dokdo-cleanser','cosrx-advanced-snail-96-mucin-essence','laneige-water-sleeping-mask','dr-jart-ceramidin-cream']
+      },
+      balance: {
+        morning: ['cosrx-low-ph-good-morning-gel-cleanser','skin1004-centella-toning-toner','skin1004-madagascar-centella-ampoule','skin1004-hyalu-cica-water-fit-sun-serum'],
+        evening: ['anua-heartleaf-pore-control-cleansing-oil','cosrx-aha-bha-clarifying-treatment-toner','cosrx-acne-pimple-master-patch','cosrx-oil-free-ultra-moisturizing-lotion']
+      }
+    };
+    var selected = maps[kind] || maps.active;
+    return { morning: stepsFromSlugs(selected.morning, 'morning'), evening: stepsFromSlugs(selected.evening, 'evening') };
+  }
+
+  function normalizeRoutineRecord(raw, prefs, fallbackKind, index) {
+    raw = raw || {};
+    var flow = routineProductsFromRaw(raw, prefs, fallbackKind);
+    var goals = uniq(asArray(raw.goals || raw.selectedGoals || raw.skinGoals || prefs.selectedGoals)).slice(0, 4);
+    var routine = {
+      id: raw.id || raw.key || raw.slug || (fallbackKind || 'routine') + '-' + (index || 0),
+      name: raw.name || raw.title || (fallbackKind === 'active' ? 'Dengeli & Aydınlık Bakım Rutini' : fallbackKind === 'hydration' ? 'Nem & Konfor Rutini' : fallbackKind === 'balance' ? 'Gözenek & Denge Rutini' : 'Parlaklık & Bariyer Rutini'),
+      source: raw.source || fallbackKind || 'generated',
+      skinType: raw.skinType || raw.selectedSkinType || prefs.selectedSkinType || 'karma',
+      sensitivity: raw.sensitivity || prefs.sensitivity || 'orta',
+      goals: goals.length ? goals : ['isilti','nem','bariyer'],
+      morning: flow.morning,
+      evening: flow.evening,
+      createdAt: raw.createdAt || raw.updatedAt || new Date().toISOString()
+    };
+    routine.score = Number(raw.score || raw.routineScore || calculateRoutineScore(routine, prefs));
+    routine.estimatedMinutes = Number(raw.estimatedMinutes || raw.time || Math.max(6, Math.round((routine.morning.length + routine.evening.length) * 1.1)));
+    return routine;
+  }
+
+  function serializeRoutine(routine, source) {
+    return {
+      id: routine.id,
+      name: routine.name,
+      source: source || routine.source || 'routine-compare',
+      score: routine.score,
+      skinType: routine.skinType,
+      sensitivity: routine.sensitivity,
+      goals: routine.goals,
+      estimatedMinutes: routine.estimatedMinutes,
+      dayRoutine: (routine.morning || []).map(function (step) { return Object.assign({ label: step.label }, step.product); }),
+      nightRoutine: (routine.evening || []).map(function (step) { return Object.assign({ label: step.label }, step.product); }),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function getActiveRoutine() {
+    var prefs = getRoutineProfile();
+    var raw = readJSON(KEYS.active, null) || {};
+    return normalizeRoutineRecord(raw, prefs, 'active', 0);
+  }
+
+  function getRoutineHistory() {
+    var prefs = getRoutineProfile();
+    var history = readJSON(KEYS.history, []);
+    if (!Array.isArray(history)) history = [];
+    return history.map(function (item, index) { return normalizeRoutineRecord(item, prefs, 'history', index); });
+  }
+
+  function getGeneratedCompareRoutines(prefs) {
+    return [
+      normalizeRoutineRecord({ id:'generated-glow-barrier', name:'Parlaklık & Bariyer Rutini', goals:['isilti','bariyer'] }, prefs, 'glowBarrier', 1),
+      normalizeRoutineRecord({ id:'generated-hydration', name:'Nem & Konfor Rutini', goals:['nem','bariyer','hassasiyet'] }, prefs, 'hydration', 2),
+      normalizeRoutineRecord({ id:'generated-balance', name:'Gözenek & Denge Rutini', goals:['gozenek','akne','hassasiyet'] }, prefs, 'balance', 3)
+    ];
+  }
+
+  function getDefaultCompareRoutine(selectedId) {
+    var prefs = getRoutineProfile();
+    var routines = getRoutineHistory().concat(getGeneratedCompareRoutines(prefs));
+    return routines.find(function (routine) { return routine.id === selectedId; }) || routines[0] || normalizeRoutineRecord({}, prefs, 'glowBarrier', 1);
+  }
+
+  function calculateGoalMatch(routine, prefs) {
+    var goals = uniq((prefs.selectedGoals || []).concat(routine.goals || [])).slice(0, 4);
+    var products = getRoutineProductList(routine);
+    if (!goals.length || !products.length) return 72;
+    var hits = products.reduce(function (sum, product) {
+      return sum + goals.reduce(function (inner, goal) { return inner + (productMatchesGoal(product, goal) ? 1 : 0); }, 0);
+    }, 0);
+    return Math.min(100, Math.round(58 + (hits / Math.max(1, goals.length * products.length)) * 42));
+  }
+
+  function calculateBarrierSupport(routine) {
+    var products = getRoutineProductList(routine);
+    var hits = products.filter(isBarrierProduct).length;
+    return Math.min(100, Math.round(48 + (hits / Math.max(1, products.length)) * 52));
+  }
+
+  function calculateSensitivityFit(routine, prefs) {
+    var products = getRoutineProductList(routine);
+    var activeCount = products.reduce(function (sum, product) { return sum + activeTerms(product).length; }, 0);
+    var soothing = products.filter(function (product) { return /heartleaf|centella|cica|soothing|hassas|sensitive|snail|ceramide|seramid/.test(productText(product)); }).length;
+    var sensitivity = normalizeText(prefs.sensitivity || routine.sensitivity || '');
+    var penalty = /yuksek|orta|hassas/.test(sensitivity) ? activeCount * 7 : activeCount * 3;
+    return Math.max(38, Math.min(100, 78 + soothing * 4 - penalty));
+  }
+
+  function detectProductConflicts(routine) {
+    var products = getRoutineProductList(routine);
+    var categories = {};
+    products.forEach(function (product) { categories[product.category] = (categories[product.category] || 0) + 1; });
+    var activeCount = products.reduce(function (sum, product) { return sum + (activeTerms(product).length ? 1 : 0); }, 0);
+    var duplicateSteps = Object.keys(categories).filter(function (category) { return categories[category] > 3; }).length;
+    var warnings = [];
+    if (activeCount >= 3) warnings.push('Aktif içerik yoğunluğu yüksek');
+    if (duplicateSteps) warnings.push('Benzer adım tekrarı var');
+    return { count: warnings.length, warnings: warnings, activeCount: activeCount, duplicateSteps: duplicateSteps };
+  }
+
+  function calculateMorningPracticality(routine) {
+    var steps = routine && routine.morning ? routine.morning.length : 0;
+    if (steps <= 4) return 92;
+    if (steps === 5) return 76;
+    return 62;
+  }
+
+  function calculateRoutineScore(routine, prefs) {
+    var goal = calculateGoalMatch(routine, prefs);
+    var barrier = calculateBarrierSupport(routine);
+    var sensitivity = calculateSensitivityFit(routine, prefs);
+    var practical = calculateMorningPracticality(routine);
+    var conflicts = detectProductConflicts(routine).count;
+    return Math.max(50, Math.min(98, Math.round(goal * .36 + barrier * .24 + sensitivity * .24 + practical * .16 - conflicts * 4)));
+  }
+
+  function metricLabel(score) {
+    if (score >= 88) return 'Çok yüksek';
+    if (score >= 76) return 'Yüksek';
+    if (score >= 62) return 'Orta';
+    return 'Dikkat';
+  }
+
+  function deltaChip(delta, warning) {
+    if (warning) return { text:'Dikkat', tone:'warn' };
+    if (delta >= 4) return { text:'+' + delta + ' daha iyi', tone:'good' };
+    if (delta <= -4) return { text:Math.abs(delta) + ' puan geride', tone:'warn' };
+    return { text:'Eşit', tone:'neutral' };
+  }
+
+  function getProductComparisonBadge(currentStep, compareStep, prefs) {
+    var current = currentStep && currentStep.product;
+    var compare = compareStep && compareStep.product;
+    if (current && compare && current.slug === compare.slug) return { text:'Aynı ürün', tone:'same' };
+    if (!compare && current) return { text:'Çıkarıldı', tone:'removed' };
+    if (compare && !current) return { text:'Yeni öneri', tone:'new' };
+    if (compare && productMatchesGoal(compare, (prefs.selectedGoals || [])[0] || 'nem')) return { text:'Daha uyumlu', tone:'better' };
+    if (compare && activeTerms(compare).length && /orta|yuksek/.test(normalizeText(prefs.sensitivity))) return { text:'Dikkat', tone:'warn' };
+    return { text:'Yeni öneri', tone:'new' };
+  }
+
+  function compareRoutines(active, compared, prefs) {
+    active.score = calculateRoutineScore(active, prefs);
+    compared.score = calculateRoutineScore(compared, prefs);
+    var activeGoal = calculateGoalMatch(active, prefs);
+    var comparedGoal = calculateGoalMatch(compared, prefs);
+    var activeBarrier = calculateBarrierSupport(active);
+    var comparedBarrier = calculateBarrierSupport(compared);
+    var activeSensitivity = calculateSensitivityFit(active, prefs);
+    var comparedSensitivity = calculateSensitivityFit(compared, prefs);
+    var activeConflicts = detectProductConflicts(active);
+    var comparedConflicts = detectProductConflicts(compared);
+    var activePracticality = calculateMorningPracticality(active);
+    var comparedPracticality = calculateMorningPracticality(compared);
+    return {
+      rows: [
+        ['Cilt hedefi uyumu', goalText({ selectedGoals: active.goals }), goalText({ selectedGoals: compared.goals }), deltaChip(comparedGoal - activeGoal)],
+        ['Bariyer desteği', metricLabel(activeBarrier), metricLabel(comparedBarrier), deltaChip(comparedBarrier - activeBarrier)],
+        ['Hassasiyet uyumu', metricLabel(activeSensitivity), metricLabel(comparedSensitivity), deltaChip(comparedSensitivity - activeSensitivity)],
+        ['Ürün çakışması', activeConflicts.count ? activeConflicts.count + ' uyarı' : 'Temiz', comparedConflicts.count ? comparedConflicts.count + ' uyarı' : 'Temiz', comparedConflicts.count < activeConflicts.count ? { text:'Daha sade', tone:'good' } : comparedConflicts.count > activeConflicts.count ? { text:'Dikkat', tone:'warn' } : { text:'Eşit', tone:'neutral' }],
+        ['Sabah pratikliği', metricLabel(activePracticality), metricLabel(comparedPracticality), compared.morning.length < active.morning.length ? { text:'Daha sade', tone:'good' } : deltaChip(comparedPracticality - activePracticality)]
+      ],
+      compatibility: {
+        conflicts: activeConflicts.count || comparedConflicts.count ? (comparedConflicts.count + ' uyarı') : 'Temiz',
+        sensitivity: metricLabel(comparedSensitivity),
+        actives: comparedConflicts.activeCount >= 3 ? 'Yüksek' : comparedConflicts.activeCount >= 2 ? 'Orta' : 'Düşük',
+        barrier: comparedBarrier >= 84 ? 'Evet' : comparedBarrier >= 68 ? 'Kısmen' : 'Hayır'
+      },
+      changes: buildRoutineChanges(active, compared, prefs)
+    };
+  }
+
+  function buildRoutineChanges(active, compared, prefs) {
+    var activeSteps = (active.morning || []).concat(active.evening || []);
+    var comparedSteps = (compared.morning || []).concat(compared.evening || []);
+    var changes = [];
+    for (var i = 0; i < Math.max(activeSteps.length, comparedSteps.length); i += 1) {
+      var current = activeSteps[i] && activeSteps[i].product;
+      var next = comparedSteps[i] && comparedSteps[i].product;
+      if (!current || !next || current.slug === next.slug) continue;
+      var reason = productMatchesGoal(next, 'bariyer') ? 'Bariyer desteği ve konfor odağı güçlenir.' : productMatchesGoal(next, 'isilti') || productMatchesGoal(next, 'leke') ? 'Aydınlık görünüm odağı daha belirgin hale gelir.' : productMatchesGoal(next, 'nem') ? 'Nem desteği daha dengeli bir akışa taşınır.' : 'Cilt profiline daha sade bir ürün akışı sunar.';
+      changes.push({ index: i, period: i < (active.morning || []).length ? 'morning' : 'evening', current: current, next: next, reason: reason, badge: getProductComparisonBadge(activeSteps[i], comparedSteps[i], prefs) });
+      if (changes.length >= 4) break;
+    }
+    return changes;
   }
 
   function activeRoutineProducts(prefs) {
@@ -219,6 +522,7 @@
     if (view === 'profile') return '/account/routine-profile.html';
     if (view === 'favorites') return '/account/routine-favorites.html';
     if (view === 'history') return '/account/routine-history.html';
+    if (view === 'compare') return ROUTINE_COMPARE_ROUTE;
     return ROUTINE_ROUTE;
   }
 
@@ -227,7 +531,7 @@
       ['dashboard', routineHref('dashboard'), 'Aktif Rutinim', 'spark'],
       ['history', routineHref('history'), 'Rutin Geçmişim', 'history'],
       ['favorites', routineHref('favorites'), 'Favori Ürünlerim', 'heart'],
-      ['history', routineHref('history') + '#compare', 'Rutin Karşılaştır', 'compare'],
+      ['compare', routineHref('compare'), 'Rutin Karşılaştır', 'compare'],
       ['profile', routineHref('profile'), 'Cilt Profilim', 'user']
     ];
     return '<aside class="rt-sidebar rt-card"><div class="rt-sidebar-title">RUTİNLERİM</div><nav class="rt-side-nav" aria-label="Rutin menüsü">' + items.map(function (item) {
@@ -344,6 +648,114 @@
     return '<div class="rt-compare-card"><div class="rt-compare-side"><img src="' + esc(a && a.image || '') + '" alt=""><div><small>Mevcut Rutin</small><strong>' + esc(a && a.brand || '') + '<br>' + esc(a && a.name || '') + '</strong></div></div><span>→</span><div class="rt-compare-side"><img src="' + esc(b && b.image || '') + '" alt=""><div><small>Bu Rutin</small><strong>' + esc(b && b.brand || '') + '<br>' + esc(b && b.name || '') + '</strong></div></div></div>';
   }
 
+  function routineMeta(routine) {
+    var products = getRoutineProductList(routine);
+    return {
+      goals: goalText({ selectedGoals: routine.goals || [] }),
+      skin: (skinLabels[routine.skinType] || cap(routine.skinType) || 'Karma') + ' + ' + cap(routine.sensitivity || 'orta'),
+      productCount: uniq(products.map(function (p) { return p.slug; })).length,
+      time: '~' + (routine.estimatedMinutes || Math.max(6, products.length)) + ' dk'
+    };
+  }
+
+  function scoreRing(score, light) {
+    var value = Math.max(0, Math.min(100, Number(score || 0)));
+    return '<div class="routine-compare-score' + (light ? ' routine-compare-score--light' : '') + '" style="--score:' + value + '"><strong>' + value + '</strong><span>/100</span></div>';
+  }
+
+  function summaryCard(routine, title, selectorHtml) {
+    var meta = routineMeta(routine);
+    return '<article class="routine-compare-summary rt-card"><div><span>' + esc(title) + '</span>' + (selectorHtml || '<h2>' + esc(routine.name) + '</h2>') + '<p>' + icon('user') + esc(meta.skin) + '</p><p>' + icon('target') + esc(meta.goals) + '</p></div>' + scoreRing(routine.score, true) + '<footer><small>Sabah ' + routine.morning.length + ' adım</small><small>Akşam ' + routine.evening.length + ' adım</small><small>' + meta.productCount + ' ürün</small><small>' + esc(meta.time) + '</small></footer></article>';
+  }
+
+  function routineSelect(routines, selected) {
+    return '<label class="routine-compare-select"><span class="visually-hidden">Karşılaştırılacak rutin</span><select data-rt-compare-select>' + routines.map(function (routine) {
+      return '<option value="' + esc(routine.id) + '"' + (routine.id === selected.id ? ' selected' : '') + '>' + esc(routine.name) + '</option>';
+    }).join('') + '</select></label>';
+  }
+
+  function metricCard(routine, label, dark) {
+    var meta = routineMeta(routine);
+    var rows = [
+      ['sun', 'Sabah Adım Sayısı', routine.morning.length + ' adım'],
+      ['moon', 'Akşam Adım Sayısı', routine.evening.length + ' adım'],
+      ['bag', 'Toplam Ürün', meta.productCount + ' ürün'],
+      ['history', 'Tahmini Süre', meta.time],
+      ['target', 'Öne Çıkan Hedefler', meta.goals]
+    ];
+    return '<article class="routine-compare-hero-card' + (dark ? ' is-dark' : '') + '"><div class="routine-compare-hero-head"><div><span>' + esc(label) + '</span><h2>' + esc(routine.name) + '</h2></div>' + scoreRing(routine.score, !dark) + '</div><dl>' + rows.map(function (row) { return '<div>' + icon(row[0]) + '<dt>' + esc(row[1]) + '</dt><dd>' + esc(row[2]) + '</dd></div>'; }).join('') + '</dl></article>';
+  }
+
+  function renderAnalysisRows(rows) {
+    return rows.map(function (row) {
+      var chip = row[3] || { text:'Eşit', tone:'neutral' };
+      return '<tr><th scope="row">' + esc(row[0]) + '</th><td>' + esc(row[1]) + '</td><td>' + esc(row[2]) + '</td><td><span class="routine-compare-chip is-' + esc(chip.tone || 'neutral') + '">' + esc(chip.text) + '</span></td></tr>';
+    }).join('');
+  }
+
+  function stepList(title, steps, counterpart, prefs) {
+    return '<div class="routine-compare-step-col"><h3>' + esc(title) + '</h3><ol>' + steps.map(function (step, index) {
+      var badge = getProductComparisonBadge(counterpart && counterpart[index], step, prefs);
+      var product = step.product;
+      return '<li><span class="routine-compare-step-no">' + (index + 1) + '</span><div class="routine-compare-step-img"><img src="' + esc(product.image) + '" alt="' + esc(product.brand + ' ' + product.name) + '" loading="lazy"></div><div><small>' + esc(step.label) + '</small><strong>' + esc(product.brand) + '</strong><span>' + esc(product.name) + '</span></div><b class="routine-compare-badge is-' + esc(badge.tone) + '">' + esc(badge.text) + '</b></li>';
+    }).join('') + '</ol></div>';
+  }
+
+  function stepComparison(title, activeSteps, comparedSteps, prefs) {
+    return '<section class="routine-compare-panel rt-card"><h2>' + esc(title) + '</h2><div class="routine-compare-step-grid">' + stepList('Mevcut Rutin', activeSteps, comparedSteps, prefs) + stepList('Karşılaştırılan Rutin', comparedSteps, activeSteps, prefs) + '</div></section>';
+  }
+
+  function changeCard(change) {
+    var current = change.current;
+    var next = change.next;
+    return '<article class="routine-compare-change"><div class="routine-compare-change-row"><a href="' + esc(current.url || ('/products/' + current.slug + '.html')) + '"><img src="' + esc(current.image) + '" alt="' + esc(current.brand + ' ' + current.name) + '" loading="lazy"></a><div><small>' + esc(current.brand) + '</small><strong>' + esc(current.name) + '</strong><b>' + esc(formatPrice(current.price)) + '</b></div><span aria-hidden="true">→</span><a href="' + esc(next.url || ('/products/' + next.slug + '.html')) + '"><img src="' + esc(next.image) + '" alt="' + esc(next.brand + ' ' + next.name) + '" loading="lazy"></a><div><small>' + esc(next.brand) + '</small><strong>' + esc(next.name) + '</strong><b>' + esc(formatPrice(next.price)) + '</b></div></div><p><strong>Neden?</strong> ' + esc(change.reason) + '</p><div class="routine-compare-change-actions"><a class="rt-btn" href="' + esc(next.url || '/allproducts.html') + '">Ürün Detayı</a><button class="rt-btn rt-btn--black" type="button" data-rt-replace-product data-current-slug="' + esc(current.slug) + '" data-next-slug="' + esc(next.slug) + '" data-period="' + esc(change.period) + '">Bu değişimi uygula</button></div></article>';
+  }
+
+  function compatibilityCards(compatibility) {
+    var items = [
+      ['shield', 'Çakışma Kontrolü', compatibility.conflicts, compatibility.conflicts === 'Temiz' ? 'Önemli bir çakışma yok.' : 'Aktif içerik yoğunluğu kontrol edilmeli.'],
+      ['heart', 'Hassasiyet Riski', compatibility.sensitivity === 'Dikkat' ? 'Orta' : compatibility.sensitivity, 'Hassas ciltler için kullanım sıklığı izlenmeli.'],
+      ['sun', 'Aktif İçerik Yoğunluğu', compatibility.actives, 'Dengeli bir aktif içerik profili.'],
+      ['leaf', 'Bariyer Dostu', compatibility.barrier, 'Bariyer destekleyici içerikler mevcut.']
+    ];
+    return items.map(function (item) { return '<article class="routine-compare-status">' + icon(item[0]) + '<div><span>' + esc(item[1]) + '</span><strong>' + esc(item[2]) + '</strong><p>' + esc(item[3]) + '</p></div></article>'; }).join('');
+  }
+
+  function recommendationCopy(active, compared, comparison) {
+    var scoreDelta = compared.score - active.score;
+    if (scoreDelta > 3) return {
+      title: compared.name + ' daha güçlü bir tercih olabilir.',
+      body: 'Bu rutin, seçili cilt hedeflerine göre daha yüksek uyum gösteriyor. Özellikle bariyer desteği, aydınlık görünüm ve ürün tekrarını azaltma tarafında daha dengeli bir akış sunuyor.'
+    };
+    if (scoreDelta < -3) return {
+      title: 'Mevcut rutinin senin profilin için daha dengeli görünüyor.',
+      body: 'Karşılaştırılan rutin iyi bir alternatif olsa da mevcut rutinin cilt profilin, hassasiyet seviyen ve sabah pratikliği açısından daha dengeli bir görünüm veriyor.'
+    };
+    return {
+      title: 'İki rutin de cilt profiline uyumlu; fark kullanım önceliklerinde.',
+      body: 'Skorlar birbirine yakın. Karşılaştırılan rutin belirli hedeflerde güçlenirken mevcut rutinin daha tanıdık ve sürdürülebilir bir kullanım akışı sunuyor.'
+    };
+  }
+
+  function renderCompare(host, selectedId) {
+    var prefs = mergePendingRoutinePreferences();
+    var active = getActiveRoutine();
+    var choices = getRoutineHistory().concat(getGeneratedCompareRoutines(prefs));
+    var compared = choices.find(function (routine) { return routine.id === selectedId; }) || choices[0] || getDefaultCompareRoutine();
+    var comparison = compareRoutines(active, compared, prefs);
+    var rec = recommendationCopy(active, compared, comparison);
+    host.innerHTML = '<section class="rt-section routine-compare-page"><div class="rt-container"><div class="rt-shell">' + sidebar('compare') + '<div class="rt-content">' +
+      '<div class="routine-compare-head"><div><h1 class="rt-h1">Rutin Karşılaştır</h1><p class="rt-copy">Mevcut rutinin ile önerilen veya geçmiş rutinlerini içerik, uyum ve adım bazında karşılaştır.</p></div><a class="rt-btn rt-btn--black" href="/index.html#smart-routine">' + icon('plus') + 'Yeni Rutin Oluştur</a></div>' +
+      '<div class="routine-compare-selector">' + summaryCard(active, 'Mevcut Aktif Rutin') + summaryCard(compared, 'Karşılaştırılacak Rutin', routineSelect(choices, compared)) + '</div>' +
+      '<div class="routine-compare-cards">' + metricCard(active, 'MEVCUT RUTİN', true) + '<div class="routine-compare-vs">VS</div>' + metricCard(compared, 'KARŞILAŞTIRILAN RUTİN', false) + '</div>' +
+      '<section class="routine-compare-panel rt-card"><h2>Uyum Analizi</h2><div class="routine-compare-table-wrap"><table class="routine-compare-table"><thead><tr><th>Kriter</th><th>Mevcut Rutin</th><th>Karşılaştırılan Rutin</th><th>Sonuç</th></tr></thead><tbody>' + renderAnalysisRows(comparison.rows) + '</tbody></table></div></section>' +
+      '<div class="routine-compare-steps">' + stepComparison('Sabah Rutini Karşılaştırması', active.morning, compared.morning, prefs) + stepComparison('Akşam Rutini Karşılaştırması', active.evening, compared.evening, prefs) + '</div>' +
+      '<section class="routine-compare-panel rt-card"><h2>Rutininde Değişenler</h2><div class="routine-compare-changes">' + (comparison.changes.length ? comparison.changes.map(changeCard).join('') : '<div class="routine-compare-empty">Bu iki rutin arasında ürün değişimi bulunmuyor.</div>') + '</div></section>' +
+      '<section class="routine-compare-panel rt-card"><h2>İçerik Uyumu</h2><div class="routine-compare-status-grid">' + compatibilityCards(comparison.compatibility) + '</div></section>' +
+      '<section class="routine-compare-decision rt-card"><div class="routine-compare-decision-art"><img src="' + esc(productImage('beauty-of-joseon-dynasty-cream', 4)) + '" alt=""></div><div><span>COSMOSKIN önerisi</span><h2>' + esc(rec.title) + '</h2><p>' + esc(rec.body) + '</p><div class="routine-compare-decision-actions"><button class="rt-btn rt-btn--black" type="button" data-rt-apply-compare data-compare-id="' + esc(compared.id) + '">Bu Rutini Uygula</button><button class="rt-btn" type="button" data-rt-compare-cart data-compare-id="' + esc(compared.id) + '">Ürünleri Sepete Ekle</button><a class="rt-btn" href="/account/routines.html">Mevcut Rutinimde Kal</a></div></div></section>' +
+      '</div></div></div></section>';
+  }
+
   function waitForAuthClient() {
     return new Promise(function (resolve) {
       var started = Date.now();
@@ -422,6 +834,48 @@
     toast(unique.size + ' rutin ürünü sepete eklendi.');
   }
 
+  function addComparedRoutineToCart(compareId) {
+    var routine = getDefaultCompareRoutine(compareId);
+    var unique = new Set();
+    getRoutineProductList(routine).forEach(function (product) {
+      if (!product || unique.has(product.slug)) return;
+      unique.add(product.slug);
+      addProductToCart(product.slug);
+    });
+    toast(unique.size + ' ürün sepete eklendi.');
+  }
+
+  function applyComparedRoutine(compareId) {
+    var active = getActiveRoutine();
+    var compared = getDefaultCompareRoutine(compareId);
+    var history = readJSON(KEYS.history, []);
+    if (!Array.isArray(history)) history = [];
+    history.unshift(serializeRoutine(active, 'previous-active'));
+    writeJSON(KEYS.history, history.slice(0, 12));
+    writeJSON(KEYS.active, serializeRoutine(compared, 'routine-compare-applied'));
+    toast('Yeni rutinin aktif hale getirildi.');
+    setTimeout(function () { window.location.href = '/account/routines.html'; }, 450);
+  }
+
+  function replaceRoutineProduct(currentSlug, nextSlug) {
+    var active = getActiveRoutine();
+    var nextProduct = findProduct(nextSlug);
+    if (!nextProduct) return false;
+    var replaced = false;
+    ['morning','evening'].forEach(function (period) {
+      active[period] = (active[period] || []).map(function (step, index) {
+        if (!replaced && step.product && step.product.slug === currentSlug) {
+          replaced = true;
+          return stepFromProduct(nextProduct, index, period, step.label);
+        }
+        return step;
+      });
+    });
+    active.score = calculateRoutineScore(active, getRoutineProfile());
+    writeJSON(KEYS.active, serializeRoutine(active, 'routine-compare-replacement'));
+    return replaced;
+  }
+
   function collectProfileFromDOM() {
     var prefs = getRoutinePreferences();
     qsa('[data-rt-group]').forEach(function (groupEl) {
@@ -453,6 +907,7 @@
           if (/routine-profile/.test(path)) targetView = 'profile';
           else if (/routine-favorites/.test(path)) targetView = 'favorites';
           else if (/routine-history/.test(path)) targetView = 'history';
+          else if (/routine-compare/.test(path)) targetView = 'compare';
         }
         navigateRoutine(host, targetView);
         return;
@@ -483,8 +938,28 @@
       if (event.target.closest('[data-rt-add-owned]')) { toast('Ürün ekleme alanı hazırlandı.'); return; }
       if (event.target.closest('[data-rt-remove-owned]')) { var owned = event.target.closest('.rt-owned'); if (owned) owned.remove(); toast('Ürün mevcut ürünlerinden kaldırıldı.'); return; }
       if (event.target.closest('[data-rt-apply-history]')) { writeJSON(KEYS.active, getRoutinePreferences()); toast('Geçmiş rutin aktif rutin olarak ayarlandı.'); return; }
+      var applyCompare = event.target.closest('[data-rt-apply-compare]');
+      if (applyCompare) { applyComparedRoutine(applyCompare.getAttribute('data-compare-id')); return; }
+      var compareCart = event.target.closest('[data-rt-compare-cart]');
+      if (compareCart) { addComparedRoutineToCart(compareCart.getAttribute('data-compare-id')); return; }
+      var replace = event.target.closest('[data-rt-replace-product]');
+      if (replace) {
+        var currentSelection = qs('[data-rt-compare-select]') && qs('[data-rt-compare-select]').value;
+        if (replaceRoutineProduct(replace.getAttribute('data-current-slug'), replace.getAttribute('data-next-slug'))) {
+          toast('Rutinindeki ürün güncellendi.');
+          renderCompare(host, currentSelection);
+        } else {
+          toast('Bu değişim şu anda uygulanamadı.');
+        }
+        return;
+      }
       var filter = event.target.closest('[data-rt-filter]');
       if (filter) { qsa('[data-rt-filter]').forEach(function (btn) { btn.classList.remove('is-active'); }); filter.classList.add('is-active'); toast(filter.textContent.trim() + ' filtresi uygulandı.'); return; }
+    });
+    document.addEventListener('change', function (event) {
+      var select = event.target.closest('[data-rt-compare-select]');
+      if (!select) return;
+      renderCompare(host, select.value);
     });
   }
 
@@ -496,21 +971,30 @@
       if (/routine-profile/.test(path)) view = 'profile';
       else if (/routine-favorites/.test(path)) view = 'favorites';
       else if (/routine-history/.test(path)) view = 'history';
+      else if (/routine-compare/.test(path)) view = 'compare';
       else view = (window.location.hash || '').replace(/^#/, '') || defaultView || 'dashboard';
     }
-    if (['dashboard','profile','favorites','history'].indexOf(view) === -1) view = 'dashboard';
+    if (['dashboard','profile','favorites','history','compare'].indexOf(view) === -1) view = 'dashboard';
     return view;
   }
 
   async function renderSmartRoute(host, view) {
     host.innerHTML = '<div class="rt-loading">Rutin deneyimi hazırlanıyor...</div>';
     var auth = await detectAuthState();
-    if (!auth.loggedIn) { renderWelcome(host); return { loggedIn:false, view:'welcome' }; }
-    mergePendingRoutinePreferences();
     view = view || currentView('dashboard');
+    if (!auth.loggedIn) {
+      if (view === 'compare') {
+        window.location.replace('/account/routines.html');
+        return { loggedIn:false, view:'redirect' };
+      }
+      renderWelcome(host);
+      return { loggedIn:false, view:'welcome' };
+    }
+    mergePendingRoutinePreferences();
     if (view === 'profile') renderProfile(host);
     else if (view === 'favorites') renderFavorites(host);
     else if (view === 'history') renderHistory(host);
+    else if (view === 'compare') renderCompare(host);
     else renderDashboard(host);
     return { loggedIn:true, view:view };
   }
@@ -527,7 +1011,7 @@
     var host = qs('[data-routine-page]');
     if (!host) return;
     var page = host.getAttribute('data-routine-page');
-    var defaultView = page === 'profile' ? 'profile' : page === 'favorites' ? 'favorites' : page === 'history' ? 'history' : 'dashboard';
+    var defaultView = page === 'profile' ? 'profile' : page === 'favorites' ? 'favorites' : page === 'history' ? 'history' : page === 'compare' ? 'compare' : 'dashboard';
     await renderSmartRoute(host, currentView(defaultView));
     bindPage(host);
     window.addEventListener('popstate', function () { renderSmartRoute(host, currentView(defaultView)); });
@@ -538,6 +1022,23 @@
     getRoutinePreferences: getRoutinePreferences,
     saveRoutinePreferences: saveRoutinePreferences,
     mergePendingRoutinePreferences: mergePendingRoutinePreferences,
+    getRoutineProfile: getRoutineProfile,
+    getActiveRoutine: getActiveRoutine,
+    getRoutineHistory: getRoutineHistory,
+    getProductCatalog: getProductCatalog,
+    getDefaultCompareRoutine: getDefaultCompareRoutine,
+    compareRoutines: compareRoutines,
+    calculateGoalMatch: calculateGoalMatch,
+    calculateBarrierSupport: calculateBarrierSupport,
+    calculateSensitivityFit: calculateSensitivityFit,
+    detectProductConflicts: detectProductConflicts,
+    calculateMorningPracticality: calculateMorningPracticality,
+    getProductComparisonBadge: getProductComparisonBadge,
+    renderRoutineComparePage: renderCompare,
+    bindRoutineCompareEvents: bindPage,
+    applyComparedRoutine: applyComparedRoutine,
+    addComparedRoutineToCart: addComparedRoutineToCart,
+    replaceRoutineProduct: replaceRoutineProduct,
     renderRoutineDashboard: renderDashboard,
     renderRoutineProfile: renderProfile,
     handleRoutineCTA: openAuth,

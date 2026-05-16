@@ -8,6 +8,7 @@
     '/account/routine-profile.html',
     '/account/routine-favorites.html',
     '/account/routine-history.html',
+    '/account/routine-compare.html',
     '/collections/routine',
     '/collections/routine.html',
     '/routine.html',
@@ -24,6 +25,7 @@
     if (/routine-profile/.test(path) || url.searchParams.get('view') === 'profile') return '/account/routine-profile.html';
     if (/routine-favorites/.test(path) || url.searchParams.get('view') === 'favorites') return '/account/routine-favorites.html';
     if (/routine-history/.test(path) || url.searchParams.get('view') === 'history') return '/account/routine-history.html';
+    if (/routine-compare/.test(path) || url.searchParams.get('view') === 'compare') return '/account/routine-compare.html';
     return ROUTINE_TARGET_ROUTE;
   }
 
