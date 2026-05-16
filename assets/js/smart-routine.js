@@ -589,14 +589,15 @@
     return 'nem';
   }
 
-  function viewRoutinePage() {
-    if (!routineState.selectedGoals.length) {
-      showRoutineToast('Rutini detaylı görmek için önce cilt hedefini seç.', 'warning');
-      return;
-    }
+  function persistRoutineSelectionForRoutinePages() {
     var payload = {
       selectedGoals: routineState.selectedGoals.slice(),
       selectedSkinType: routineState.selectedSkinType,
+      skinType: routineState.selectedSkinType,
+      sensitivity: 'orta',
+      habit: 'Sabah & Akşam',
+      intensity: 'orta',
+      tolerance: 'orta',
       dayRoutine: routineState.dayRoutine.map(safeRoutineProduct),
       nightRoutine: routineState.nightRoutine.map(safeRoutineProduct),
       uniqueProductSlugs: getUniqueRoutineProducts(routineState.dayRoutine, routineState.nightRoutine, true).map(function (product) { return product.slug; }),
@@ -605,8 +606,21 @@
       source: 'home-smart-routine',
       updatedAt: new Date().toISOString()
     };
-    try { localStorage.setItem('cosmoskin_last_routine', JSON.stringify(payload)); } catch (error) {}
-    window.location.href = '/routine.html?goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma') + '#routine-commerce';
+    try {
+      localStorage.setItem('cosmoskin_last_routine', JSON.stringify(payload));
+      localStorage.setItem('cosmoskin_pending_routine_preferences', JSON.stringify(payload));
+      localStorage.setItem('cosmoskin_routine_preferences', JSON.stringify(payload));
+    } catch (error) {}
+    return payload;
+  }
+
+  function viewRoutinePage() {
+    if (!routineState.selectedGoals.length) {
+      showRoutineToast('Rutini detaylı görmek için önce cilt hedefini seç.', 'warning');
+      return;
+    }
+    persistRoutineSelectionForRoutinePages();
+    window.location.href = '/routine.html?from=home-smart-routine&goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma');
   }
 
   async function saveRoutine() {
@@ -645,6 +659,8 @@
 
     try {
       localStorage.setItem('cosmoskin_saved_routine', JSON.stringify(payload));
+      localStorage.setItem('cosmoskin_routine_active', JSON.stringify(payload));
+      localStorage.setItem('cosmoskin_routine_preferences', JSON.stringify(payload));
       window.dispatchEvent(new CustomEvent('cosmoskin:routine-saved', { detail: payload }));
       showRoutineToast('Rutinin kaydedildi.', 'success');
     } catch (error) {
