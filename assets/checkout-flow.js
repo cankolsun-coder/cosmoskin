@@ -19,6 +19,14 @@
   var cart = { key: CART_KEYS[0], data: [], items: [], found: false };
   var inventoryWarning = '';
   var submitLocked = false;
+  var currentUser = null;
+  var savedAddresses = [];
+  var accountSyncInFlight = false;
+  var addressSyncLoaded = false;
+  var bankAccountSyncInFlight = false;
+  var bankAccountSyncLoaded = false;
+  var liveBankAccount = null;
+
 
   function $(selector, root) { return (root || document).querySelector(selector); }
   function $all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
@@ -63,6 +71,151 @@
   }
   function writeSession(key, value) {
     try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
+  }
+
+  function dispatchCheckoutEvent(name, detail) {
+    try { document.dispatchEvent(new CustomEvent(name, { detail: detail || {} })); } catch (_) {}
+  }
+  function scheduleCheckoutRender(delay) {
+    window.setTimeout(function () { render({ skipAuth: true }); }, delay || 0);
+  }
+  function normalizeUserMeta(user) {
+    var meta = (user && user.user_metadata) || {};
+    var fullName = meta.full_name || meta.name || '';
+    var parts = String(fullName || '').trim().split(/\s+/).filter(Boolean);
+    var firstName = meta.first_name || meta.firstName || meta.given_name || parts.shift() || '';
+    var lastName = meta.last_name || meta.lastName || meta.family_name || parts.join(' ') || '';
+    return {
+      email: user && user.email || meta.email || '',
+      firstName: String(firstName || '').trim(),
+      lastName: String(lastName || '').trim()
+    };
+  }
+  function normalizeAddress(address, index) {
+    address = address || {};
+    var firstName = address.recipient_first_name || address.first_name || address.firstName || '';
+    var lastName = address.recipient_last_name || address.last_name || address.lastName || '';
+    var full = address.name || address.full_name || [firstName, lastName].filter(Boolean).join(' ');
+    var split = String(full || '').trim().split(/\s+/).filter(Boolean);
+    if (!firstName && split.length) firstName = split.shift();
+    if (!lastName && split.length) lastName = split.join(' ');
+    return {
+      id: String(address.id || address.__key || 'address-' + index),
+      title: address.title || address.label || (address.is_default || address.isDefault ? 'Varsayılan Adres' : 'Adresim'),
+      firstName: String(firstName || '').trim(),
+      lastName: String(lastName || '').trim(),
+      phone: String(address.phone || address.phone_number || '').trim(),
+      address: String(address.address_line || address.address || address.line || address.addressLine || '').trim(),
+      city: String(address.city || '').trim(),
+      district: String(address.district || '').trim(),
+      postalCode: String(address.postal_code || address.postalCode || address.postal || '').trim(),
+      type: address.address_type || address.type || 'shipping',
+      isDefault: Boolean(address.is_default || address.isDefault || address.default)
+    };
+  }
+  function addressHasContent(address) {
+    return Boolean(address && (address.address || address.city || address.district || address.phone || address.firstName || address.lastName));
+  }
+  function applyUserToState(user, overwrite) {
+    if (!user) return false;
+    var meta = normalizeUserMeta(user);
+    var changed = false;
+    state.delivery = state.delivery || { country: 'Türkiye' };
+    [['email', meta.email], ['firstName', meta.firstName], ['lastName', meta.lastName]].forEach(function (pair) {
+      var key = pair[0];
+      var value = pair[1];
+      if (!value) return;
+      if (overwrite || !String(state.delivery[key] || '').trim()) {
+        if (state.delivery[key] !== value) { state.delivery[key] = value; changed = true; }
+      }
+    });
+    return changed;
+  }
+  function applyAddressToState(address, overwrite) {
+    var addr = normalizeAddress(address || {}, 0);
+    if (!addressHasContent(addr)) return false;
+    var changed = false;
+    state.delivery = state.delivery || { country: 'Türkiye' };
+    var mapping = {
+      firstName: addr.firstName,
+      lastName: addr.lastName,
+      phone: addr.phone,
+      address: addr.address,
+      city: addr.city,
+      district: addr.district,
+      postalCode: addr.postalCode,
+      country: 'Türkiye'
+    };
+    Object.keys(mapping).forEach(function (key) {
+      var value = mapping[key];
+      if (!value) return;
+      if (overwrite || !String(state.delivery[key] || '').trim()) {
+        if (state.delivery[key] !== value) { state.delivery[key] = value; changed = true; }
+      }
+    });
+    if (state.invoice && state.invoice.sameAsDelivery) syncSameInvoice();
+    return changed;
+  }
+  function setLiveFieldValue(name, value, overwrite) {
+    var input = field(name);
+    if (!input) return;
+    var safe = String(value || '').trim();
+    if (!safe) return;
+    if (overwrite || !String(input.value || '').trim()) {
+      input.value = safe;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }
+  function applyLiveCheckoutValues(overwrite) {
+    var d = state.delivery || {};
+    Object.keys(d).forEach(function (key) { setLiveFieldValue(key, d[key], overwrite); });
+  }
+  function updateAuthGate(user) {
+    var gate = byId('csCheckoutAuthGate');
+    var summary = byId('csCheckoutAccountSummary');
+    if (gate) {
+      gate.hidden = Boolean(user);
+      gate.classList.toggle('is-hidden', Boolean(user));
+      gate.setAttribute('aria-hidden', user ? 'true' : 'false');
+    }
+    if (summary) {
+      if (user) {
+        var meta = normalizeUserMeta(user);
+        summary.hidden = false;
+        summary.innerHTML = '<strong>' + esc([meta.firstName, meta.lastName].filter(Boolean).join(' ') || 'COSMOSKIN hesabın') + '</strong><span>' + esc(meta.email || 'Hesabınla devam ediyorsun') + '</span>';
+      } else {
+        summary.hidden = true;
+        summary.innerHTML = '';
+      }
+    }
+  }
+  function authHeaders(token) {
+    return token ? { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+  }
+  async function fetchAccountAddresses(token) {
+    if (!token) return [];
+    var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/account/addresses', { headers: authHeaders(token) });
+    if (!res.ok) throw new Error('Adresler alınamadı.');
+    var data = await res.json().catch(function () { return {}; });
+    return (Array.isArray(data.addresses) ? data.addresses : []).map(normalizeAddress).filter(addressHasContent);
+  }
+  async function fetchBankAccountConfig() {
+    if (bankAccountSyncInFlight || bankAccountSyncLoaded) return liveBankAccount;
+    bankAccountSyncInFlight = true;
+    try {
+      var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/payment/bank-accounts');
+      if (!res.ok) throw new Error('bank accounts unavailable');
+      var data = await res.json().catch(function () { return {}; });
+      var account = Array.isArray(data.accounts) ? data.accounts[0] : data.account;
+      if (account) liveBankAccount = account;
+      bankAccountSyncLoaded = true;
+    } catch (_) {
+      bankAccountSyncLoaded = true;
+    } finally {
+      bankAccountSyncInFlight = false;
+    }
+    return liveBankAccount;
   }
   function loadState() {
     var saved = readJSON(STORAGE_KEY, {});
@@ -345,14 +498,17 @@
   }
   function bankConfig() {
     var checkout = (window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.checkout) || {};
-    var bank = checkout.bankTransfer || window.COSMOSKIN_BANK_TRANSFER || {};
+    var bank = liveBankAccount || checkout.bankTransfer || window.COSMOSKIN_BANK_TRANSFER || {};
+    var bankName = bank.bankName || bank.bank_name || bank.bank || '';
+    var accountName = bank.accountName || bank.account_holder || bank.recipient || '';
+    var iban = bank.iban || '';
     return {
-      bankName: bank.bankName || bank.bank || '',
-      accountName: bank.accountName || bank.recipient || '',
-      iban: bank.iban || '',
-      branch: bank.branch || '',
+      bankName: bankName,
+      accountName: accountName,
+      iban: iban,
+      branch: bank.branch || bank.branch_name || '',
       currency: bank.currency || 'TRY',
-      configured: Boolean(bank.bankName && bank.accountName && bank.iban)
+      configured: Boolean(bankName && accountName && iban)
     };
   }
   function paymentLabel() { return state.paymentMethod === 'bank_transfer' ? 'Havale / EFT' : 'Kredi Kartı'; }
@@ -397,7 +553,8 @@
       shipping: Object.assign({ method: state.shippingMethod }, shippingInfo()),
       totals: t,
       coupon_code: state.coupon.code || null,
-      legal_approved_at: new Date().toISOString()
+      legal_approved_at: new Date().toISOString(),
+      legal: { sales: Boolean(state.legal.sales), kvkk: Boolean(state.legal.kvkk) }
     };
   }
   async function accessToken() {
@@ -409,6 +566,15 @@
       return null;
     }
   }
+  function clearCartAfterSuccessfulOrder() {
+    try {
+      if (cart && cart.key && cart.key !== 'COSMOSKIN_CART_API') localStorage.removeItem(cart.key);
+      CART_KEYS.forEach(function (key) { localStorage.removeItem(key); });
+      if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.clear === 'function') window.COSMOSKIN_CART_API.clear();
+      dispatchCheckoutEvent('cosmoskin:cart:updated', { source: 'checkout' });
+    } catch (_) {}
+  }
+
   async function submitOrder() {
     if (submitLocked) return;
     submitLocked = true;
@@ -435,6 +601,7 @@
         };
         saveState();
         writeSession(ORDER_KEY, state.order);
+        clearCartAfterSuccessfulOrder();
         setStep('success');
         return;
       }
@@ -530,13 +697,33 @@
     var err = id + '-error';
     return '<div class="cs-checkout-field is-full"><label for="' + id + '">' + label + '</label><textarea class="cs-checkout-textarea" id="' + id + '" name="' + name + '" aria-invalid="false" aria-describedby="' + err + '">' + esc(value || '') + '</textarea><div class="cs-checkout-error" id="' + err + '"></div></div>';
   }
+  function savedAddressesHtml() {
+    var visible = Boolean(currentUser);
+    var content = '';
+    if (!visible) {
+      content = '<p class="cs-checkout-note">Giriş yaptığında kayıtlı adreslerin burada görünecek.</p>';
+    } else if (!addressSyncLoaded) {
+      content = '<p class="cs-checkout-note">Kayıtlı adresler kontrol ediliyor...</p>';
+    } else if (!savedAddresses.length) {
+      content = '<div class="cs-checkout-empty-inline"><strong>Kayıtlı adres bulunamadı.</strong><span>Bu sipariş için aşağıdaki teslimat formunu doldurabilir veya hesabım ekranından adres ekleyebilirsin.</span><a href="/account/profile.html?tab=addresses">Adreslerime Git</a></div>';
+    } else {
+      content = '<div class="cs-checkout-address-grid">' + savedAddresses.map(function (addr, index) {
+        var location = [addr.district, addr.city].filter(Boolean).join(' / ');
+        var detail = [addr.address, location, addr.postalCode].filter(Boolean).join(' · ');
+        var selected = String(state.delivery.address || '') === String(addr.address || '') && String(state.delivery.city || '') === String(addr.city || '');
+        return '<button type="button" class="cs-checkout-address-card ' + (selected ? 'is-selected ' : '') + (addr.isDefault ? 'is-default' : '') + '" data-use-address="' + index + '"><span><strong>' + esc(addr.title || 'Adresim') + '</strong>' + (addr.isDefault ? '<em>Varsayılan</em>' : '') + '</span><small>' + esc([addr.firstName, addr.lastName].filter(Boolean).join(' ') || 'Alıcı bilgisi') + '</small><p>' + esc(detail || 'Adres detayı eksik') + '</p>' + (addr.phone ? '<small>' + esc(addr.phone) + '</small>' : '') + '</button>';
+      }).join('') + '</div>';
+    }
+    return '<section class="cs-checkout-card cs-checkout-saved-addresses" id="csCheckoutSavedAddressSection" ' + (!visible ? 'hidden' : '') + '><div class="cs-checkout-card-head"><div><h2>Kayıtlı Adreslerim</h2><p>Hesabına kayıtlı teslimat adreslerinden birini seçebilirsin.</p></div></div>' + content + '</section>';
+  }
+
   function renderDelivery() {
     var d = state.delivery || {};
     var inv = state.invoice || {};
     var same = inv.sameAsDelivery !== false;
     var individual = inv.type !== 'corporate';
     return '<form id="csCheckoutDeliveryForm" novalidate>' +
-      '<section class="cs-checkout-card"><div class="cs-checkout-auth" id="csCheckoutAuthGate"><div><strong>Hesabın varsa daha hızlı ilerleyebilirsin.</strong><span>Misafir ödeme açık; giriş yapmak zorunlu değildir.</span></div><div class="cs-checkout-auth-actions"><button class="cs-checkout-secondary" data-open-auth data-auth-tab="loginPanel" type="button">Giriş Yap</button><button class="cs-checkout-secondary" data-open-auth data-auth-tab="registerPanel" type="button">Kayıt Ol</button></div></div>' +
+      '<section class="cs-checkout-card"><div class="cs-checkout-auth" id="csCheckoutAuthGate"><div><strong>Hesabın varsa daha hızlı ilerleyebilirsin.</strong><span>Misafir ödeme açık; giriş yapmak zorunlu değildir.</span></div><div class="cs-checkout-auth-actions"><button class="cs-checkout-secondary" data-open-auth data-auth-tab="loginPanel" type="button">Giriş Yap</button><button class="cs-checkout-secondary" data-open-auth data-auth-tab="registerPanel" type="button">Kayıt Ol</button></div></div><div class="cs-checkout-account-summary" id="csCheckoutAccountSummary" hidden></div>' +
       '<div class="cs-checkout-card-head"><div><h2>Teslimat Bilgileri</h2><p>Sipariş bildirimleri ve kargo süreci için gerekli bilgileri girin.</p></div></div>' +
       '<div class="cs-checkout-form-grid">' +
       input('firstName', 'Ad', d.firstName, { autocomplete: 'given-name' }) +
@@ -549,6 +736,7 @@
       input('district', 'İlçe', d.district, { autocomplete: 'address-level2' }) +
       input('postalCode', 'Posta Kodu', d.postalCode, { inputmode: 'numeric', maxlength: 5, full: true }) +
       '</div></section>' +
+      savedAddressesHtml() +
       '<section class="cs-checkout-card"><div class="cs-checkout-card-head"><div><h2>Kargo Yöntemi</h2><p>Seçiminiz sipariş özetindeki kargo tutarını günceller.</p></div></div>' + shippingOptionsHtml() + '</section>' +
       '<section class="cs-checkout-card"><div class="cs-checkout-card-head"><div><h2>Fatura Bilgileri</h2><p>Bireysel veya kurumsal fatura bilgilerinizi güvenle ekleyin.</p></div></div>' +
       '<input type="hidden" name="invoiceType" value="' + (individual ? 'individual' : 'corporate') + '">' +
@@ -768,16 +956,53 @@
       return '<div class="cs-checkout-trust-item"><span class="cs-checkout-trust-icon">' + icon(item[0]) + '</span><span>' + item[1] + '</span></div>';
     }).join('');
   }
-  function render() {
+  function render(options) {
+    options = options || {};
     cart = readCart();
     renderStepper();
     renderContent();
     renderSummary();
     renderTrust();
-    syncAuthUi();
+    updateAuthGate(currentUser);
+    if (!options.skipAuth) syncAuthUi();
   }
+  function syncStateFromField(target) {
+    if (!target || !target.name) return;
+    var value = target.type === 'checkbox' ? target.checked : target.value;
+    state.delivery = state.delivery || { country: 'Türkiye' };
+    state.invoice = state.invoice || { type: 'individual', sameAsDelivery: true };
+    state.payment = state.payment || {};
+    var deliveryFields = ['firstName', 'lastName', 'email', 'phone', 'country', 'address', 'city', 'district', 'postalCode'];
+    if (deliveryFields.indexOf(target.name) !== -1) state.delivery[target.name] = value;
+    var invoiceMap = {
+      invoiceName: 'name', invoiceIdentity: 'identity', invoiceEmail: 'email', invoicePhone: 'phone', invoiceAddress: 'address', invoiceCity: 'city', invoiceDistrict: 'district', invoicePostalCode: 'postalCode', companyTitle: 'company', taxOffice: 'taxOffice', taxNumber: 'taxNumber', corporateEmail: 'corporateEmail', eInvoice: 'eInvoice'
+    };
+    if (invoiceMap[target.name]) state.invoice[invoiceMap[target.name]] = value;
+    if (target.name === 'cardHolder') state.payment.cardHolder = String(value || '');
+    if (target.name === 'cardNumber') state.payment.cardLast4 = digits(value).slice(-4);
+    saveState();
+  }
+
   function bind() {
     document.addEventListener('click', async function (event) {
+      var openAuth = event.target.closest('[data-open-auth]');
+      if (openAuth) {
+        event.preventDefault();
+        event.stopPropagation();
+        dispatchCheckoutEvent('cosmoskin:open-auth-modal', { tab: openAuth.getAttribute('data-auth-tab') || 'loginPanel' });
+        return;
+      }
+      var useAddress = event.target.closest('[data-use-address]');
+      if (useAddress) {
+        var idx = Number(useAddress.getAttribute('data-use-address'));
+        if (savedAddresses[idx]) {
+          applyAddressToState(savedAddresses[idx], true);
+          saveState();
+          render({ skipAuth: true });
+          setStatus('Kayıtlı adres teslimat bilgilerine aktarıldı.', 'success');
+        }
+        return;
+      }
       var stepNav = event.target.closest('[data-step-nav]');
       if (stepNav) {
         var step = stepNav.getAttribute('data-step-nav');
@@ -807,6 +1032,7 @@
       if (payment) {
         state.paymentMethod = payment.getAttribute('data-payment-method');
         saveState();
+        if (state.paymentMethod === 'bank_transfer') fetchBankAccountConfig().then(function () { render({ skipAuth: true }); });
         render();
         return;
       }
@@ -841,6 +1067,23 @@
         target.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
       }
       if (target.name === 'cardCvv') target.value = digits(target.value).slice(0, 4);
+      syncStateFromField(target);
+    });
+    document.addEventListener('change', function (event) {
+      var target = event.target;
+      if (!target || !target.name) return;
+      syncStateFromField(target);
+      if (target.name === 'invoiceSame') {
+        state.invoice.sameAsDelivery = target.checked;
+        if (target.checked) syncSameInvoice();
+        saveState();
+        render({ skipAuth: true });
+      }
+      if (target.name === 'legalSales' || target.name === 'legalKvkk') {
+        state.legal.sales = Boolean(field('legalSales') && field('legalSales').checked);
+        state.legal.kvkk = Boolean(field('legalKvkk') && field('legalKvkk').checked);
+        saveState();
+      }
     });
     window.addEventListener('popstate', function () {
       state.step = stepFromUrl() || state.step || 'delivery';
@@ -868,21 +1111,44 @@
     }
     window.location.href = '/allproducts.html';
   }
-  async function syncAuthUi() {
-    var gate = byId('csCheckoutAuthGate');
-    if (!gate) return;
+  async function syncAuthUi(options) {
+    options = options || {};
+    if (accountSyncInFlight && !options.force) return;
+    accountSyncInFlight = true;
     try {
-      if (!window.cosmoskinSupabase || !window.cosmoskinSupabase.auth) return;
+      if (!window.cosmoskinSupabase || !window.cosmoskinSupabase.auth) {
+        window.setTimeout(function () { syncAuthUi({ force: true }); }, 400);
+        return;
+      }
       var result = await window.cosmoskinSupabase.auth.getSession();
-      var user = result && result.data && result.data.session && result.data.session.user;
-      gate.hidden = Boolean(user);
-      if (!user) return;
-      var meta = user.user_metadata || {};
-      state.delivery.email = state.delivery.email || user.email || '';
-      state.delivery.firstName = state.delivery.firstName || meta.first_name || meta.firstName || '';
-      state.delivery.lastName = state.delivery.lastName || meta.last_name || meta.lastName || '';
+      var session = result && result.data && result.data.session;
+      var user = session && session.user;
+      currentUser = user || null;
+      updateAuthGate(currentUser);
+      if (!user) {
+        savedAddresses = [];
+        addressSyncLoaded = false;
+        return;
+      }
+      var changed = applyUserToState(user, false);
+      if (!addressSyncLoaded && session.access_token) {
+        try {
+          savedAddresses = await fetchAccountAddresses(session.access_token);
+          addressSyncLoaded = true;
+          var defaultAddress = savedAddresses.find(function (item) { return item.isDefault; }) || savedAddresses[0];
+          if (defaultAddress) changed = applyAddressToState(defaultAddress, false) || changed;
+        } catch (_) {
+          addressSyncLoaded = true;
+          savedAddresses = [];
+        }
+      }
       saveState();
-    } catch (_) {}
+      if (changed || options.force) render({ skipAuth: true });
+      else updateAuthGate(currentUser);
+      applyLiveCheckoutValues(false);
+    } finally {
+      accountSyncInFlight = false;
+    }
   }
   function init() {
     var requested = stepFromUrl();
@@ -890,8 +1156,19 @@
     if (state.step === 'success') state.order = state.order || readJSON(ORDER_KEY, null);
     saveState();
     bind();
+    fetchBankAccountConfig().then(function () { render({ skipAuth: true }); });
+    document.addEventListener('cosmoskin:auth-state', function (event) {
+      currentUser = event.detail && event.detail.user || null;
+      addressSyncLoaded = false;
+      syncAuthUi({ force: true });
+    });
+    document.addEventListener('cosmoskin:auth-refresh-requested', function () {
+      addressSyncLoaded = false;
+      syncAuthUi({ force: true });
+    });
     render();
-    setTimeout(render, 300);
+    setTimeout(function () { syncAuthUi({ force: true }); }, 300);
+    setTimeout(function () { syncAuthUi({ force: true }); }, 1200);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

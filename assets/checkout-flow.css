@@ -939,3 +939,136 @@ body.checkout-premium-page {
     grid-column: 2;
   }
 }
+
+/* Checkout auth/account sync hardening */
+.cs-checkout-auth[hidden],
+.cs-checkout-saved-addresses[hidden],
+.cs-checkout-account-summary[hidden] {
+  display: none !important;
+}
+
+.cs-checkout-auth.is-hidden {
+  display: none !important;
+}
+
+.cs-checkout-account-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid rgba(45,107,73,.18);
+  border-radius: 12px;
+  background: rgba(245,239,230,.76);
+  color: var(--cs-checkout-ink);
+}
+
+.cs-checkout-account-summary strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.cs-checkout-account-summary span {
+  display: block;
+  margin-top: 3px;
+  color: var(--cs-checkout-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cs-checkout-address-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.cs-checkout-address-card {
+  width: 100%;
+  min-height: 132px;
+  padding: 16px;
+  text-align: left;
+  border: 1px solid var(--cs-checkout-line);
+  border-radius: 16px;
+  background: rgba(255,253,249,.82);
+  color: var(--cs-checkout-ink);
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.cs-checkout-address-card:hover,
+.cs-checkout-address-card.is-selected {
+  border-color: rgba(21,17,13,.44);
+  background: #fffdf9;
+  transform: translateY(-1px);
+}
+
+.cs-checkout-address-card > span:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cs-checkout-address-card strong {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.cs-checkout-address-card em {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #f3eadf;
+  color: var(--cs-checkout-gold);
+}
+
+.cs-checkout-address-card small,
+.cs-checkout-address-card p {
+  display: block;
+  margin: 0 0 6px;
+  color: var(--cs-checkout-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.cs-checkout-empty-inline {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed var(--cs-checkout-line-strong);
+  border-radius: 16px;
+  background: rgba(255,253,249,.62);
+}
+
+.cs-checkout-empty-inline strong {
+  color: var(--cs-checkout-ink);
+  font-size: 14px;
+}
+
+.cs-checkout-empty-inline span,
+.cs-checkout-empty-inline a {
+  color: var(--cs-checkout-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cs-checkout-empty-inline a {
+  color: var(--cs-checkout-ink);
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+  .cs-checkout-address-grid {
+    grid-template-columns: 1fr;
+  }
+  .cs-checkout-account-summary {
+    align-items: flex-start;
+  }
+}

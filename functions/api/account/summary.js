@@ -57,7 +57,7 @@ export async function onRequestGet(context) {
 
     const [ordersRaw, addresses, favorites, dbNotifications] = await Promise.all([
       selectRows(context, 'orders', {
-        select: 'id,order_number,status,payment_status,fulfillment_status,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,city,district,postal_code,address_line,cargo_note,created_at,updated_at,paid_at,fulfilled_at,delivered_at',
+        select: 'id,order_number,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,created_at,updated_at,paid_at,fulfilled_at,delivered_at',
         or: `(user_id.eq.${user.id},customer_email.eq.${String(user.email || '').toLowerCase()})`,
         order: 'created_at.desc',
         limit: '12'

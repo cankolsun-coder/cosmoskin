@@ -284,12 +284,12 @@ function renderCheckoutSavedAddresses(user) {
 }
 
 function setCheckoutGateVisibility(user) {
-  const gate = document.getElementById('checkoutAuthGate');
-  const form = document.getElementById('checkoutForm');
-  const savedAddressField = document.getElementById('savedAddressField');
+  const gate = document.getElementById('checkoutAuthGate') || document.getElementById('csCheckoutAuthGate');
+  const form = document.getElementById('checkoutForm') || document.getElementById('csCheckoutDeliveryForm');
+  const savedAddressField = document.getElementById('savedAddressField') || document.getElementById('csCheckoutSavedAddressSection');
   const emailInput = form?.querySelector('input[name="email"]');
-  const firstNameInput = form?.querySelector('input[name="first_name"]');
-  const lastNameInput = form?.querySelector('input[name="last_name"]');
+  const firstNameInput = form?.querySelector('input[name="first_name"]') || form?.querySelector('input[name="firstName"]');
+  const lastNameInput = form?.querySelector('input[name="last_name"]') || form?.querySelector('input[name="lastName"]');
 
   if (!gate && !form) return;
 
@@ -337,7 +337,7 @@ function setCheckoutGateVisibility(user) {
 }
 
 async function syncCheckoutAuthState() {
-  if (!document.getElementById('checkoutForm') && !document.getElementById('checkoutAuthGate')) return;
+  if (!document.getElementById('checkoutForm') && !document.getElementById('checkoutAuthGate') && !document.getElementById('csCheckoutDeliveryForm') && !document.getElementById('csCheckoutAuthGate')) return;
 
   try {
     // Checkout UI için önce lokal Supabase session okunur. getUser bazı network/cookie durumlarında gecikebilir;

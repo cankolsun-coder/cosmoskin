@@ -340,6 +340,54 @@ async function recordCheckoutConsents(context, { user, email, consents, orderId 
   await insertRows(context, 'consent_records', rows).catch((error) => console.error('checkout consent record failed:', { message: error.message }));
 }
 
+
+async function recordOrderLegalConsents(context, { orderId, consents, request }) {
+  if (!orderId) return;
+  const acceptedAt = new Date().toISOString();
+  const ip = getClientIp(request);
+  const userAgent = getUserAgent(request);
+  const rows = [
+    ['kvkk_acknowledged', consents.kvkk_acknowledged, 'KVKK Aydınlatma Metni'],
+    ['preliminary_information_accepted', consents.preliminary_information_accepted, 'Ön Bilgilendirme Formu'],
+    ['distance_sales_accepted', consents.distance_sales_accepted, 'Mesafeli Satış Sözleşmesi']
+  ].map(([consent_type, accepted, document_title]) => ({
+    order_id: orderId,
+    consent_type,
+    accepted: Boolean(accepted),
+    accepted_at: acceptedAt,
+    ip_address: ip,
+    user_agent: userAgent,
+    document_version: 'checkout-20260517',
+    metadata: { document_title, source: 'checkout.html' }
+  }));
+  await insertRows(context, 'order_legal_consents', rows).catch((error) => console.error('order legal consent record failed:', { message: error.message }));
+}
+
+function normalizeInvoicePayload(invoicePayload = {}, customer = {}) {
+  const isCorporate = String(invoicePayload.type || '').toLowerCase() === 'corporate' || customer.invoice_type === 'Kurumsal';
+  const sameAsDelivery = invoicePayload.sameAsDelivery !== false;
+  const billingName = clampText(invoicePayload.name || `${customer.first_name || ''} ${customer.last_name || ''}`, 120);
+  const nameParts = billingName.split(/\s+/).filter(Boolean);
+  const billingFirstName = isCorporate ? null : (nameParts.shift() || customer.first_name || null);
+  const billingLastName = isCorporate ? null : (nameParts.join(' ') || customer.last_name || null);
+  return {
+    invoice_type: isCorporate ? 'Kurumsal' : 'Bireysel',
+    billing_first_name: billingFirstName,
+    billing_last_name: billingLastName,
+    billing_email: normalizeEmail(isCorporate ? invoicePayload.corporateEmail : (invoicePayload.email || customer.email)),
+    billing_phone: normalizeTurkishPhone(invoicePayload.phone || customer.phone) || customer.phone,
+    company_title: isCorporate ? clampText(invoicePayload.company || invoicePayload.companyTitle, 180) : null,
+    tax_office: isCorporate ? clampText(invoicePayload.taxOffice, 120) : null,
+    tax_number: isCorporate ? onlyDigits(invoicePayload.taxNumber).slice(0, 20) : null,
+    corporate_email: isCorporate ? normalizeEmail(invoicePayload.corporateEmail || invoicePayload.email) : null,
+    is_e_invoice_taxpayer: Boolean(invoicePayload.eInvoice || invoicePayload.is_e_invoice_taxpayer),
+    billing_address_line: clampText(invoicePayload.address || (sameAsDelivery ? customer.address : ''), 300) || null,
+    billing_city: clampText(invoicePayload.city || (sameAsDelivery ? customer.city : ''), 60) || null,
+    billing_district: clampText(invoicePayload.district || (sameAsDelivery ? customer.district : ''), 80) || null,
+    billing_postal_code: onlyDigits(invoicePayload.postalCode || invoicePayload.postal_code || (sameAsDelivery ? customer.postal_code : '')).slice(0, 5) || null
+  };
+}
+
 function assertOrderEnvironment(env) {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new CheckoutError('Sipariş sistemi yapılandırması eksik.', 503, 'SERVICE_NOT_CONFIGURED');
@@ -382,14 +430,24 @@ export async function onRequestPost(context) {
     const deliveryPayload = payload.delivery && typeof payload.delivery === 'object' ? payload.delivery : {};
     const shippingPayload = payload.shipping && typeof payload.shipping === 'object' ? payload.shipping : {};
     const orderStatus = paymentMethod === 'bank_transfer' ? 'pending_bank_transfer' : 'pending_payment';
-    const paymentStatus = paymentMethod === 'bank_transfer' ? 'awaiting_transfer' : 'pending';
-    const fulfillmentStatus = paymentMethod === 'bank_transfer' ? 'not_started' : 'not_started';
+    const initialPaymentStatus = paymentMethod === 'bank_transfer' ? 'awaiting_transfer' : 'pending';
+    const fulfillmentStatus = 'not_started';
+    const invoiceDetails = normalizeInvoicePayload(invoicePayload, customer);
+    const legalConsents = {
+      kvkk: consents.kvkk_acknowledged,
+      pre_information: consents.preliminary_information_accepted,
+      distance_sales: consents.distance_sales_accepted,
+      accepted_at: payload.legal_approved_at || new Date().toISOString(),
+      ip_address: getClientIp(context.request),
+      user_agent: getUserAgent(context.request)
+    };
     const order = await insertRow(context, 'orders', {
       user_id: user?.id || null,
       order_number: orderNumber,
       status: orderStatus,
-      payment_status: paymentStatus,
+      payment_status: initialPaymentStatus,
       fulfillment_status: fulfillmentStatus,
+      payment_method: paymentMethod,
       currency: 'TRY',
       subtotal_amount: totals.subtotal,
       discount_amount: totals.discount || 0,
@@ -401,16 +459,26 @@ export async function onRequestPost(context) {
       customer_first_name: customer.first_name,
       customer_last_name: customer.last_name,
       customer_phone: customer.phone,
-      invoice_type: customer.invoice_type,
+      invoice_type: invoiceDetails.invoice_type,
       identity_number: customer.identity_number,
       city: customer.city,
       district: customer.district,
       postal_code: customer.postal_code,
       address_line: customer.address,
-      billing_address_line: invoicePayload.address || (invoicePayload.sameAsDelivery ? customer.address : null) || null,
-      billing_city: invoicePayload.city || (invoicePayload.sameAsDelivery ? customer.city : null) || null,
-      billing_district: invoicePayload.district || (invoicePayload.sameAsDelivery ? customer.district : null) || null,
-      billing_postal_code: invoicePayload.postalCode || invoicePayload.postal_code || (invoicePayload.sameAsDelivery ? customer.postal_code : null) || null,
+      billing_first_name: invoiceDetails.billing_first_name,
+      billing_last_name: invoiceDetails.billing_last_name,
+      billing_email: invoiceDetails.billing_email,
+      billing_phone: invoiceDetails.billing_phone,
+      company_title: invoiceDetails.company_title,
+      tax_office: invoiceDetails.tax_office,
+      tax_number: invoiceDetails.tax_number,
+      corporate_email: invoiceDetails.corporate_email,
+      is_e_invoice_taxpayer: invoiceDetails.is_e_invoice_taxpayer,
+      billing_address_line: invoiceDetails.billing_address_line,
+      billing_city: invoiceDetails.billing_city,
+      billing_district: invoiceDetails.billing_district,
+      billing_postal_code: invoiceDetails.billing_postal_code,
+      legal_consents: legalConsents,
       cargo_note: customer.cargo_note || null,
       ip_address: getClientIp(context.request),
       user_agent: getUserAgent(context.request),
@@ -422,6 +490,7 @@ export async function onRequestPost(context) {
         coupon_label: coupon.label || null,
         delivery: deliveryPayload,
         invoice: invoicePayload,
+        invoice_details: invoiceDetails,
         shipping: shippingPayload,
         legal_approved_at: payload.legal_approved_at || new Date().toISOString(),
         consents: { marketing_email_opt_in: consents.marketing_email_opt_in, newsletter_opt_in: consents.newsletter_opt_in }
@@ -429,6 +498,7 @@ export async function onRequestPost(context) {
     });
 
     await recordCheckoutConsents(context, { user, email: customer.email, consents, orderId: order.id });
+    await recordOrderLegalConsents(context, { orderId: order.id, consents, request: context.request });
 
     await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: order.id })));
     await insertRow(context, 'order_status_events', {
