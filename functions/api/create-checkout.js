@@ -598,8 +598,8 @@ export async function onRequestPost(context) {
       throw new CheckoutError(paymentError.message || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar dene.', 502, 'PAYMENT_INITIALIZE_FAILED');
     }
 
-    const paymentStatus = String(iyzicoRes?.status || '').toLowerCase();
-    const paymentSucceeded = paymentStatus === 'success' && (iyzicoRes.token || iyzicoRes.paymentPageUrl || iyzicoRes.checkoutFormContent);
+    const iyzicoStatus = String(iyzicoRes?.status || '').toLowerCase();
+    const paymentSucceeded = iyzicoStatus === 'success' && (iyzicoRes.token || iyzicoRes.paymentPageUrl || iyzicoRes.checkoutFormContent);
 
     await insertRow(context, 'payments', {
       order_id: order.id,
