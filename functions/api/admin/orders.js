@@ -15,8 +15,8 @@ const SHIPMENT_EVENT_SELECT = 'id,shipment_id,order_id,event_type,status,note,oc
 const EVENT_SELECT = 'id,order_id,status,message,source,event_type,previous_status,new_status,note,created_by,created_at,metadata';
 const EMAIL_SELECT = 'id,order_id,customer_email,email_type,provider,status,subject,provider_message_id,error_message,sent_at,created_at,metadata';
 
-const VALID_ORDER_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'packed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned', 'refunded', 'pending_payment', 'paid', 'payment_failed', 'partially_refunded']);
-const VALID_PAYMENT_STATUSES = new Set(['pending', 'authorized', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled', 'initiated', 'initialize_failed']);
+const VALID_ORDER_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'packed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned', 'refunded', 'pending_payment', 'pending_bank_transfer', 'paid', 'payment_failed', 'partially_refunded']);
+const VALID_PAYMENT_STATUSES = new Set(['pending', 'authorized', 'awaiting_transfer', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled', 'initiated', 'initialize_failed']);
 const VALID_FULFILLMENT = new Set(['unfulfilled', 'preparing', 'packed', 'shipped', 'delivered', 'failed', 'returned', 'not_started', 'cancelled']);
 const CARRIER_NAMES = new Set(['Yurtiçi Kargo','Aras Kargo','MNG Kargo','Sürat Kargo','Hepsijet','Kolay Gelsin','UPS','DHL','Other']);
 

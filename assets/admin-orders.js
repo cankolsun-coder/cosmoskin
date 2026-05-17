@@ -9,10 +9,10 @@
     ['all', 'Tümü'], ['pending', 'Bekliyor'], ['confirmed', 'Onaylandı'], ['preparing', 'Hazırlanıyor'],
     ['packed', 'Paketlendi'], ['shipped', 'Kargoya Verildi'], ['delivered', 'Teslim Edildi'], ['cancelled', 'İptal Edildi'],
     ['return_requested', 'İade Talebi'], ['returned', 'İade Edildi'], ['refunded', 'Refund Tamamlandı'],
-    ['pending_payment', 'Ödeme Bekliyor'], ['paid', 'Ödendi'], ['payment_failed', 'Ödeme Başarısız'], ['partially_refunded', 'Kısmi İade']
+    ['pending_payment', 'Ödeme Bekliyor'], ['pending_bank_transfer', 'Havale/EFT Bekleniyor'], ['paid', 'Ödendi'], ['payment_failed', 'Ödeme Başarısız'], ['partially_refunded', 'Kısmi İade']
   ];
   var PAYMENT_STATUSES = [
-    ['all', 'Tümü'], ['pending', 'Bekliyor'], ['authorized', 'Provizyon Alındı'], ['paid', 'Ödendi'],
+    ['all', 'Tümü'], ['pending', 'Bekliyor'], ['authorized', 'Provizyon Alındı'], ['initiated', 'Başlatıldı'], ['awaiting_transfer', 'Havale/EFT Bekleniyor'], ['paid', 'Ödendi'],
     ['failed', 'Başarısız'], ['refunded', 'İade Edildi'], ['partially_refunded', 'Kısmi İade'], ['cancelled', 'İptal Edildi']
   ];
   var FULFILLMENT_STATUSES = [
@@ -26,7 +26,7 @@
 
   var STATUS_COPY = {
     order: {
-      pending: 'Bekliyor', confirmed: 'Onaylandı', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', return_requested: 'İade Talebi', returned: 'İade Edildi', refunded: 'Refund Tamamlandı', pending_payment: 'Ödeme Bekliyor', paid: 'Ödendi', payment_failed: 'Ödeme Başarısız', partially_refunded: 'Kısmi İade'
+      pending: 'Bekliyor', confirmed: 'Onaylandı', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', return_requested: 'İade Talebi', returned: 'İade Edildi', refunded: 'Refund Tamamlandı', pending_payment: 'Ödeme Bekliyor', pending_bank_transfer: 'Havale/EFT Bekleniyor', awaiting_transfer: 'Havale/EFT Bekleniyor', paid: 'Ödendi', payment_failed: 'Ödeme Başarısız', partially_refunded: 'Kısmi İade'
     },
     payment: {
       pending: 'Bekliyor', authorized: 'Provizyon Alındı', paid: 'Ödendi', failed: 'Başarısız', refunded: 'İade Edildi', partially_refunded: 'Kısmi İade', cancelled: 'İptal Edildi', initiated: 'Başlatıldı', initialize_failed: 'Başlatılamadı'
@@ -140,7 +140,7 @@
     var value = normalizeStatus(kind, status);
     if (value === 'none' || value === 'not_started' || value === 'unfulfilled') return 'neutral';
     if (['paid', 'authorized', 'confirmed', 'delivered', 'issued', 'sent', 'approved', 'completed'].indexOf(value) >= 0) return 'ok';
-    if (['pending', 'pending_payment', 'preparing', 'packed', 'requested', 'under_review', 'partially_refunded'].indexOf(value) >= 0) return 'warn';
+    if (['pending', 'pending_payment', 'pending_bank_transfer', 'awaiting_transfer', 'preparing', 'packed', 'requested', 'under_review', 'partially_refunded'].indexOf(value) >= 0) return 'warn';
     if (['failed', 'payment_failed', 'cancelled', 'rejected', 'skipped', 'initialize_failed'].indexOf(value) >= 0) return 'danger';
     if (['shipped', 'shipment_created', 'shipment_updated'].indexOf(value) >= 0) return 'info';
     if (['return_requested', 'returned', 'refunded', 'received', 'closed'].indexOf(value) >= 0) return 'violet';
@@ -353,7 +353,7 @@
     var sStatus = shipmentStatus(order);
     var rStatus = returnStatus(order);
     if (tab === 'all') return true;
-    if (tab === 'new') return ['pending', 'confirmed', 'paid', 'pending_payment'].indexOf(status) >= 0 || (payment === 'paid' && ['unfulfilled', 'not_started', '', null].indexOf(fulfillment) >= 0);
+    if (tab === 'new') return ['pending', 'confirmed', 'paid', 'pending_payment', 'pending_bank_transfer'].indexOf(status) >= 0 || payment === 'awaiting_transfer' || (payment === 'paid' && ['unfulfilled', 'not_started', '', null].indexOf(fulfillment) >= 0);
     if (tab === 'prepare') return payment === 'paid' && ['unfulfilled', 'not_started', 'preparing', ''].indexOf(fulfillment) >= 0 && ['cancelled', 'delivered'].indexOf(status) < 0;
     if (tab === 'packed') return status === 'packed' || fulfillment === 'packed';
     if (tab === 'shipped') return status === 'shipped' || fulfillment === 'shipped' || sStatus === 'shipped';

@@ -97,11 +97,11 @@ CREATE TABLE IF NOT EXISTS orders (
   user_id               UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   order_number          TEXT UNIQUE NOT NULL,
   status                TEXT NOT NULL DEFAULT 'pending_payment' CHECK (status IN (
-                          'pending_payment','paid','preparing','shipped','delivered','cancelled',
+                          'pending_payment','pending_bank_transfer','paid','preparing','shipped','delivered','cancelled',
                           'payment_failed','refunded','partially_refunded'
                         )),
   payment_status        TEXT NOT NULL DEFAULT 'pending' CHECK (payment_status IN (
-                          'pending','initiated','paid','failed','refunded','partially_refunded'
+                          'pending','initiated','awaiting_transfer','paid','failed','refunded','partially_refunded'
                         )),
   fulfillment_status    TEXT NOT NULL DEFAULT 'not_started' CHECK (fulfillment_status IN (
                           'not_started','preparing','packed','shipped','delivered','cancelled','returned'
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS payments (
   order_id                UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   provider                TEXT NOT NULL DEFAULT 'iyzico',
   status                  TEXT NOT NULL DEFAULT 'initiated' CHECK (status IN (
-                            'initiated','paid','failed','initialize_failed','refunded','partially_refunded'
+                            'initiated','awaiting_transfer','paid','failed','initialize_failed','refunded','partially_refunded'
                           )),
   amount                  NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (amount >= 0),
   currency                TEXT NOT NULL DEFAULT 'TRY',
@@ -924,4 +924,3 @@ INSERT INTO inventory (product_slug, sku, stock_qty, low_stock_threshold, status
 ('torriden-solid-in-ceramide-cream','TORRIDEN_SOLID_IN_CERAMIDE_CREAM',25,5,'active'),
 ('torriden-dive-in-watery-moisture-sun-cream','TORRIDEN_DIVE_IN_WATERY_MOISTURE_SUN_CREAM',25,5,'active')
 ON CONFLICT (product_slug) DO NOTHING;
-

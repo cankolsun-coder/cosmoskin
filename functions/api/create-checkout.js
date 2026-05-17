@@ -12,6 +12,7 @@ const MAX_TOTAL_QUANTITY = 99;
 const MAX_ITEM_QUANTITY = 10;
 const MAX_NOTE_LENGTH = 180;
 const ALLOWED_INVOICE_TYPES = new Set(['Bireysel', 'Kurumsal']);
+const PAYMENT_METHODS = new Set(['card', 'bank_transfer']);
 
 class CheckoutError extends Error {
   constructor(message, status = 400, code = 'CHECKOUT_ERROR') {
@@ -84,7 +85,7 @@ function validateCustomer(rawCustomer = {}) {
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(customer.email)) throw new CheckoutError('E-posta adresi geçersiz.', 400, 'INVALID_CUSTOMER');
   if (!customer.phone) throw new CheckoutError('Telefon numarası geçersiz.', 400, 'INVALID_CUSTOMER');
-  if (!isValidTurkishIdentityNumber(customer.identity_number)) throw new CheckoutError('T.C. kimlik numarası geçersiz.', 400, 'INVALID_CUSTOMER');
+  if (customer.identity_number && !isValidTurkishIdentityNumber(customer.identity_number)) throw new CheckoutError('T.C. kimlik numarası geçersiz.', 400, 'INVALID_CUSTOMER');
   if (customer.city.length < 2) throw new CheckoutError('İl alanı geçersiz.', 400, 'INVALID_CUSTOMER');
   if (customer.district.length < 2) throw new CheckoutError('İlçe alanı geçersiz.', 400, 'INVALID_CUSTOMER');
   if (!/^\d{5}$/.test(customer.postal_code)) throw new CheckoutError('Posta kodu geçersiz.', 400, 'INVALID_CUSTOMER');
@@ -339,10 +340,13 @@ async function recordCheckoutConsents(context, { user, email, consents, orderId 
   await insertRows(context, 'consent_records', rows).catch((error) => console.error('checkout consent record failed:', { message: error.message }));
 }
 
-function assertPaymentEnvironment(env) {
+function assertOrderEnvironment(env) {
   if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new CheckoutError('Sipariş sistemi yapılandırması eksik.', 503, 'SERVICE_NOT_CONFIGURED');
   }
+}
+
+function assertCardPaymentEnvironment(env) {
   if (!env.IYZICO_API_KEY || !env.IYZICO_SECRET_KEY) {
     throw new CheckoutError('Ödeme sistemi henüz aktif değil.', 503, 'PAYMENT_NOT_CONFIGURED');
   }
@@ -350,11 +354,16 @@ function assertPaymentEnvironment(env) {
 
 export async function onRequestPost(context) {
   try {
-    assertPaymentEnvironment(context.env || {});
+    assertOrderEnvironment(context.env || {});
 
     const payload = await context.request.json().catch(() => {
       throw new CheckoutError('Geçersiz istek formatı.', 400, 'INVALID_JSON');
     });
+
+    const paymentMethod = PAYMENT_METHODS.has(String(payload.payment_method || payload.paymentMethod || 'card'))
+      ? String(payload.payment_method || payload.paymentMethod || 'card')
+      : 'card';
+    if (paymentMethod === 'card') assertCardPaymentEnvironment(context.env || {});
 
     const accessToken = payload.accessToken || null;
     const rawCustomer = payload.customer || {};
@@ -369,12 +378,18 @@ export async function onRequestPost(context) {
     const coupon = await applyCoupon(context, cart, baseTotals.subtotal, payload.coupon_code || payload.couponCode);
     const totals = calculateTotalsWithCoupon(cart, coupon);
     const orderNumber = createOrderNumber();
+    const invoicePayload = payload.invoice && typeof payload.invoice === 'object' ? payload.invoice : {};
+    const deliveryPayload = payload.delivery && typeof payload.delivery === 'object' ? payload.delivery : {};
+    const shippingPayload = payload.shipping && typeof payload.shipping === 'object' ? payload.shipping : {};
+    const orderStatus = paymentMethod === 'bank_transfer' ? 'pending_bank_transfer' : 'pending_payment';
+    const paymentStatus = paymentMethod === 'bank_transfer' ? 'awaiting_transfer' : 'pending';
+    const fulfillmentStatus = paymentMethod === 'bank_transfer' ? 'not_started' : 'not_started';
     const order = await insertRow(context, 'orders', {
       user_id: user?.id || null,
       order_number: orderNumber,
-      status: 'pending',
-      payment_status: 'pending',
-      fulfillment_status: 'unfulfilled',
+      status: orderStatus,
+      payment_status: paymentStatus,
+      fulfillment_status: fulfillmentStatus,
       currency: 'TRY',
       subtotal_amount: totals.subtotal,
       discount_amount: totals.discount || 0,
@@ -392,10 +407,25 @@ export async function onRequestPost(context) {
       district: customer.district,
       postal_code: customer.postal_code,
       address_line: customer.address,
+      billing_address_line: invoicePayload.address || (invoicePayload.sameAsDelivery ? customer.address : null) || null,
+      billing_city: invoicePayload.city || (invoicePayload.sameAsDelivery ? customer.city : null) || null,
+      billing_district: invoicePayload.district || (invoicePayload.sameAsDelivery ? customer.district : null) || null,
+      billing_postal_code: invoicePayload.postalCode || invoicePayload.postal_code || (invoicePayload.sameAsDelivery ? customer.postal_code : null) || null,
       cargo_note: customer.cargo_note || null,
       ip_address: getClientIp(context.request),
       user_agent: getUserAgent(context.request),
-      metadata: { source: 'checkout', cart_line_count: cart.length, coupon: coupon.code || null, coupon_label: coupon.label || null, consents: { marketing_email_opt_in: consents.marketing_email_opt_in, newsletter_opt_in: consents.newsletter_opt_in } }
+      metadata: {
+        source: 'checkout',
+        payment_method: paymentMethod,
+        cart_line_count: cart.length,
+        coupon: coupon.code || null,
+        coupon_label: coupon.label || null,
+        delivery: deliveryPayload,
+        invoice: invoicePayload,
+        shipping: shippingPayload,
+        legal_approved_at: payload.legal_approved_at || new Date().toISOString(),
+        consents: { marketing_email_opt_in: consents.marketing_email_opt_in, newsletter_opt_in: consents.newsletter_opt_in }
+      }
     });
 
     await recordCheckoutConsents(context, { user, email: customer.email, consents, orderId: order.id });
@@ -403,21 +433,21 @@ export async function onRequestPost(context) {
     await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: order.id })));
     await insertRow(context, 'order_status_events', {
       order_id: order.id,
-      status: 'pending',
+      status: orderStatus,
       event_type: 'order_created',
       previous_status: null,
-      new_status: 'pending',
+      new_status: orderStatus,
       source: 'system',
       created_by: 'system',
-      message: 'Sipariş oluşturuldu, ödeme bekleniyor.',
-      note: 'Sipariş oluşturuldu, ödeme bekleniyor.',
-      metadata: { order_number: orderNumber }
+      message: paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuldu, Havale/EFT ödemesi bekleniyor.' : 'Sipariş oluşturuldu, ödeme bekleniyor.',
+      note: paymentMethod === 'bank_transfer' ? 'Havale/EFT ödemesi bekleniyor.' : 'Sipariş oluşturuldu, ödeme bekleniyor.',
+      metadata: { order_number: orderNumber, payment_method: paymentMethod }
     });
 
     let reservations = [];
     try {
       reservations = await reserveInventoryForOrder(context, order.id, cart, {
-        minutes: 15,
+        minutes: paymentMethod === 'bank_transfer' ? 4320 : 15,
         session_id: payload.session_id || payload.sessionId || null,
         created_by: 'checkout'
       });
@@ -427,15 +457,15 @@ export async function onRequestPost(context) {
         event_type: 'stock_reserved',
         source: 'inventory',
         created_by: 'system',
-        message: 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
-        note: 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
-        metadata: { reservation_count: reservations.length }
+        message: paymentMethod === 'bank_transfer' ? 'Havale/EFT siparişi için stok rezervasyonu oluşturuldu.' : 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
+        note: paymentMethod === 'bank_transfer' ? 'Havale/EFT ödeme onayı bekleniyor.' : 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
+        metadata: { reservation_count: reservations.length, payment_method: paymentMethod }
       }).catch(() => null);
     } catch (reservationError) {
       await updateRows(context, 'orders', { id: order.id }, {
         status: 'cancelled',
         payment_status: 'failed',
-        fulfillment_status: 'failed',
+        fulfillment_status: 'cancelled',
         updated_at: new Date().toISOString(),
         metadata: { source: 'checkout', cart_line_count: cart.length, reservation_error: serializeError(reservationError) }
       }).catch(() => null);
@@ -450,6 +480,43 @@ export async function onRequestPost(context) {
         metadata: { error: serializeError(reservationError) }
       }).catch(() => null);
       throw new CheckoutError(reservationError.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', reservationError.status || 409, reservationError.code || 'INSUFFICIENT_STOCK');
+    }
+
+    if (paymentMethod === 'bank_transfer') {
+      await insertRow(context, 'payments', {
+        order_id: order.id,
+        provider: 'bank_transfer',
+        status: 'awaiting_transfer',
+        amount: totals.total,
+        currency: 'TRY',
+        conversation_id: order.id,
+        raw_initialize_response: {
+          payment_method: 'bank_transfer',
+          payment_status: 'awaiting_transfer',
+          message: 'Havale/EFT ödemesi bekleniyor.'
+        }
+      }).catch((error) => console.error('bank transfer payment row failed:', { message: error.message }));
+      await insertRow(context, 'order_status_events', {
+        order_id: order.id,
+        status: 'awaiting_transfer',
+        event_type: 'payment_awaiting_transfer',
+        previous_status: 'pending_bank_transfer',
+        new_status: 'pending_bank_transfer',
+        source: 'checkout',
+        created_by: 'checkout',
+        message: 'Havale/EFT ödeme onayı bekleniyor.',
+        note: 'Müşteri açıklama alanına sipariş numarasını yazmalıdır.',
+        metadata: { order_number: orderNumber, payment_method: 'bank_transfer' }
+      }).catch(() => null);
+      return json({
+        ok: true,
+        orderId: order.id,
+        orderNumber: order.order_number,
+        paymentMethod: 'bank_transfer',
+        orderStatus: 'pending_bank_transfer',
+        paymentStatus: 'awaiting_transfer',
+        message: 'Siparişiniz oluşturuldu. Havale/EFT ödemeniz bekleniyor.'
+      });
     }
 
     const callbackUrl = `${getPublicSiteUrl(context.env)}/api/iyzico-callback`;
@@ -520,7 +587,7 @@ export async function onRequestPost(context) {
         order_id: order.id,
         status: 'payment_failed',
         event_type: 'payment_failed',
-        previous_status: 'pending',
+        previous_status: 'pending_payment',
         new_status: 'cancelled',
         source: 'payment',
         created_by: 'payment_initialize',
@@ -549,14 +616,14 @@ export async function onRequestPost(context) {
       await updateRows(context, 'orders', { id: order.id }, {
         status: 'cancelled',
         payment_status: 'failed',
-        fulfillment_status: 'failed'
+        fulfillment_status: 'cancelled'
       });
       await releaseInventoryReservations(context, order.id, 'payment_initialize_failed').catch(() => null);
       await insertRow(context, 'order_status_events', {
         order_id: order.id,
         status: 'payment_failed',
         event_type: 'payment_failed',
-        previous_status: 'pending',
+        previous_status: 'pending_payment',
         new_status: 'cancelled',
         source: 'payment',
         created_by: 'payment_initialize',
@@ -568,14 +635,14 @@ export async function onRequestPost(context) {
     }
 
     await updateRows(context, 'orders', { id: order.id }, {
-      payment_status: 'authorized'
+      payment_status: 'initiated'
     });
     await insertRow(context, 'order_status_events', {
       order_id: order.id,
       status: 'payment_authorized',
       event_type: 'payment_authorized',
-      previous_status: 'pending',
-      new_status: 'pending',
+      previous_status: 'pending_payment',
+      new_status: 'pending_payment',
       source: 'payment',
       created_by: 'checkout',
       message: 'iyzico güvenli ödeme formu başlatıldı ve ödeme yetkilendirme sürecine alındı.',

@@ -8,7 +8,16 @@ window.COSMOSKIN_CONFIG = {
   currency: 'TRY',
   vatRate: 0.20,
   freeShippingThreshold: 2500,
-  shippingFee: 119
+  shippingFee: 119,
+  checkout: {
+    bankTransfer: {
+      bankName: '',
+      accountName: '',
+      iban: '',
+      branch: '',
+      currency: 'TRY'
+    }
+  }
 };
 
 window.__COSMOSKIN_CFG = {

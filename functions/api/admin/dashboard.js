@@ -32,7 +32,7 @@ export async function onRequestGet(context) {
     const revenueToday = paidToday.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
     const expiringSoon = (lots || []).filter((lot) => lot.expiry_date && new Date(lot.expiry_date).getTime() - now <= 90*24*60*60*1000 && new Date(lot.expiry_date).getTime() >= now && lot.status === 'sellable').length;
     return json({ ok: true, summary: {
-      new_orders: count(orders, (o) => o.status === 'pending' || o.payment_status === 'paid'),
+      new_orders: count(orders, (o) => ['pending', 'pending_payment', 'pending_bank_transfer'].includes(o.status) || o.payment_status === 'paid'),
       preparing_orders: count(orders, (o) => o.fulfillment_status === 'preparing' || o.status === 'preparing'),
       packed_orders: count(orders, (o) => o.fulfillment_status === 'packed' || o.status === 'packed'),
       shipped_orders: count(orders, (o) => o.fulfillment_status === 'shipped' || o.status === 'shipped'),

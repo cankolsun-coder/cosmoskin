@@ -5,13 +5,13 @@
   var moneyFmt = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
 
   var statusLabels = {
-    pending: 'Sipariş Alındı', pending_payment: 'Ödeme Bekleniyor', confirmed: 'Ödeme Onaylandı', paid: 'Ödeme Alındı', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', payment_failed: 'Ödeme Başarısız', refunded: 'İade Edildi', partially_refunded: 'Kısmi İade', return_requested: 'İade Talebi', returned: 'İade Alındı'
+    pending: 'Sipariş Alındı', pending_payment: 'Ödeme Bekleniyor', pending_bank_transfer: 'Havale/EFT Bekleniyor', confirmed: 'Ödeme Onaylandı', paid: 'Ödeme Alındı', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', payment_failed: 'Ödeme Başarısız', refunded: 'İade Edildi', partially_refunded: 'Kısmi İade', return_requested: 'İade Talebi', returned: 'İade Alındı', awaiting_transfer: 'Havale/EFT Bekleniyor'
   };
   var shipmentLabels = {
     not_started: 'Hazırlık bekliyor', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoda', delivered: 'Teslim edildi', cancelled: 'İptal edildi', returned: 'İade sürecinde'
   };
   var paymentLabels = {
-    pending: 'Beklemede', authorized: 'Yetkilendirildi', initiated: 'Başlatıldı', paid: 'Ödendi', failed: 'Başarısız', refunded: 'İade edildi', partially_refunded: 'Kısmi iade', cancelled: 'İptal edildi'
+    pending: 'Beklemede', authorized: 'Yetkilendirildi', initiated: 'Başlatıldı', awaiting_transfer: 'Havale/EFT bekleniyor', paid: 'Ödendi', failed: 'Başarısız', refunded: 'İade edildi', partially_refunded: 'Kısmi iade', cancelled: 'İptal edildi'
   };
 
   function $(selector, root) { return (root || document).querySelector(selector); }
