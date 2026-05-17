@@ -19,7 +19,7 @@ The desktop homepage was **not redesigned from scratch**. The original desktop h
 
 ## Fixed issues
 - Homepage brand bar now routes to `brands.html#brand-*` sections instead of incorrect collection pages.
-- Global routine links now route to `/routine.html` instead of `/account/routines.html`.
+- Global routine links now route to `/routine.html` instead of `/account/routines/`.
 - Mobile header no longer has a duplicate search trigger; the left icon opens the menu.
 - Mobile search forms are mounted with the shared live search result UI.
 - Desktop dropdowns have slower/premium transitions and viewport-safe max width.

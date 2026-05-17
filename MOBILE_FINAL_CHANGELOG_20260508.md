@@ -27,7 +27,7 @@
 - “Kategoriler” yerine “Tüm Ürünler” eklendi ve `/allproducts.html` rotasına bağlandı.
 - “Markalar” accordion/dropdown yapıldı; mevcut marka sayfalarına gerçek linkler bağlandı.
 - “Çok Satanlar” menü öğesi homepage best sellers alanına yönlenecek şekilde ayarlandı.
-- “Rutinler” `/account/routines.html` rotasına bağlandı.
+- “Rutinler” `/account/routines/` rotasına bağlandı.
 - COSMOSKIN Edit hamburger menüden çıkarıldı.
 - Destek bağlantısı `/contact.html` rotasına bağlandı.
 - Quick Categories ve Skin Goal Discovery öğeleri gerçek collection/goal sayfalarına bağlandı.

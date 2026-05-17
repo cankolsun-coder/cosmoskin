@@ -1,7 +1,7 @@
 # COSMOSKIN Routines QA Fix Report — 2026-05-17
 
 ## Scope
-- Audited and fixed the account routines system, including `/account/routines.html`, routine tabs, compare, favorites, history, skin profile sync, account dashboard profile mirroring, routine recommendations, inventory integration, and header search dropdown positioning.
+- Audited and fixed the account routines system, including `/account/routines/`, routine tabs, compare, favorites, history, skin profile sync, account dashboard profile mirroring, routine recommendations, inventory integration, and header search dropdown positioning.
 - Preserved the existing COSMOSKIN global header, navigation, logo area, announcement bar, footer, and homepage design.
 
 ## Files Changed
@@ -31,7 +31,7 @@
 - Legacy extensionless account routine paths were missing rewrite coverage.
 
 ## Bugs Fixed
-- Logged-in `/account/routines.html` now renders the account routine shell directly and defaults to `Akıllı Rutinim`.
+- Logged-in `/account/routines/` now renders the account routine shell directly and defaults to `Akıllı Rutinim`.
 - Added Supabase auth-state listening and immediate rerender after login/session changes.
 - Added account summary hydration for routines, including favorites and profile metadata.
 - Favorites now call `/api/account/favorites` with authenticated session tokens when available, with optimistic UI and rollback on failure.
@@ -67,12 +67,12 @@
 - `POST /api/inventory/check` through the existing inventory client validation path.
 
 ## Routes Tested
-- `/account/routines.html`
-- `/account/routines.html?tab=recommendations`
-- `/account/routine-compare.html`
-- `/account/routine-favorites.html`
-- `/account/routine-history.html`
-- `/account/routine-profile.html`
+- `/account/routines/`
+- `/account/routines/?tab=recommendations`
+- `/account/routine-compare/`
+- `/account/routine-favorites/`
+- `/account/routine-history/`
+- `/account/routine-profile/`
 - `/account/profile.html`
 - `/collections/hydration.html`
 - `/collections/barrier.html`
@@ -107,7 +107,7 @@
 - Local loopback `curl` to the Python static server was blocked in this sandbox despite the server starting; route availability was verified by file existence and the VM render harness.
 
 ## Confirmation Checklist
-- Logged-in `/account/routines.html` no longer renders welcome/login CTAs.
+- Logged-in `/account/routines/` no longer renders welcome/login CTAs.
 - `Akıllı Rutinim` opens by default after login/session detection.
 - `Cilt Profilim` saves locally first, mirrors through account metadata, and is protected from empty remote overwrite.
 - Account dashboard reads the same canonical skin profile as routines.

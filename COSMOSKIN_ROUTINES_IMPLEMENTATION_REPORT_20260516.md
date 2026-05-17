@@ -19,17 +19,17 @@ Implemented the Rutinler content area using the attached routine reference scree
 
 ## Routing
 - `/routine.html` is the smart Rutinler entry used by the existing top navigation.
-- `/account/routines.html` is also provided as a Turkish alias-style smart entry.
-- `/account/routines.html` renders the logged-in active routine dashboard.
-- `/account/routine-profile.html` renders the logged-in `Cilt Profilim` edit page.
-- `/account/routine-favorites.html` renders routine-related favorite products.
-- `/account/routine-history.html` renders the routine history/detail and compare page.
+- `/account/routines/` is also provided as a Turkish alias-style smart entry.
+- `/account/routines/` renders the logged-in active routine dashboard.
+- `/account/routine-profile/` renders the logged-in `Cilt Profilim` edit page.
+- `/account/routine-favorites/` renders routine-related favorite products.
+- `/account/routine-history/` renders the routine history/detail and compare page.
 
 ## Auth / State Logic
 Added a routine state adapter in `assets/routines.js`:
 - `detectAuthState()` checks Supabase session first when available and falls back to existing `cosmoskin_user` local state for static/mobile preview compatibility.
 - Logged-out users hitting `/routine.html` see the welcome screen.
-- Logged-in users hitting `/routine.html` are routed to `/account/routines.html`.
+- Logged-in users hitting `/routine.html` are routed to `/account/routines/`.
 - Logged-out users trying logged-in routine routes are sent back to `/routine.html`.
 
 Local storage keys used:

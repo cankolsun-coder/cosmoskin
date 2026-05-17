@@ -41,15 +41,20 @@
 /teslimat-kargo.html /legal/teslimat-ve-kargo.html 302
 
 
-# Routine routes: internal rewrites only, no browser redirects.
-/collections/routine       /account/routines.html          200
-/collections/routine/      /account/routines.html          200
-/collections/routine.html  /account/routines.html          200
-/account/routines          /account/routines.html          200
-/account/routine-compare   /account/routine-compare.html   200
-/account/routine-favorites /account/routine-favorites.html 200
-/account/routine-history   /account/routine-history.html   200
-/account/routine-profile   /account/routine-profile.html   200
-/routine.html              /account/routines.html          200
-/rutinler                  /account/routines.html          200
-/rutinler.html             /account/routines.html          200
+# Routine routes: canonical slash directories. Legacy paths redirect once.
+/account/routines               /account/routines/          302
+/account/routine-compare        /account/routine-compare/   302
+/account/routine-favorites      /account/routine-favorites/ 302
+/account/routine-history        /account/routine-history/   302
+/account/routine-profile        /account/routine-profile/   302
+/account/routines.html          /account/routines/          302
+/account/routine-compare.html   /account/routine-compare/   302
+/account/routine-favorites.html /account/routine-favorites/ 302
+/account/routine-history.html   /account/routine-history/   302
+/account/routine-profile.html   /account/routine-profile/   302
+/collections/routine       /account/routines/          302
+/collections/routine/      /account/routines/          302
+/collections/routine.html  /account/routines/          302
+/routine.html              /account/routines/          302
+/rutinler                  /account/routines/          302
+/rutinler.html             /account/routines/          302

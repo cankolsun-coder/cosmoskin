@@ -11,8 +11,8 @@
     cart: 'cosmoskin_cart'
   };
 
-  var ROUTINE_ROUTE = '/account/routines.html';
-  var ROUTINE_COMPARE_ROUTE = '/account/routine-compare.html';
+  var ROUTINE_ROUTE = '/account/routines/';
+  var ROUTINE_COMPARE_ROUTE = '/account/routine-compare/';
   var API_BASE = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
   var routineState = {
     auth: null,
@@ -576,7 +576,7 @@
       '<small>' + esc(product.brand || '') + '</small><strong>' + esc(product.name || '') + '</strong>' +
       '<div class="rt-price">' + esc(formatPrice(product.price)) + '</div>' +
       '<span class="rt-badge rt-badge--stock cm-stock-badge is-unknown" data-cm-stock-badge data-product-slug="' + esc(product.slug) + '">Stok bilgisi kontrol ediliyor</span>' +
-      '<div class="rt-product-card__actions"><button class="rt-btn rt-btn--black" type="button" data-rt-add-cart="' + esc(product.slug) + '" data-cm-add-cart="' + esc(product.slug) + '">Sepete Ekle</button><a class="rt-btn" href="' + esc(product.url || ('/products/' + product.slug + '.html')) + '">Ürün Detayı</a><a class="rt-btn" href="/account/routine-profile.html">Rutini Düzenle</a></div>' +
+      '<div class="rt-product-card__actions"><button class="rt-btn rt-btn--black" type="button" data-rt-add-cart="' + esc(product.slug) + '" data-cm-add-cart="' + esc(product.slug) + '">Sepete Ekle</button><a class="rt-btn" href="' + esc(product.url || ('/products/' + product.slug + '.html')) + '">Ürün Detayı</a><a class="rt-btn" href="/account/routine-profile/">Rutini Düzenle</a></div>' +
     '</article>';
   }
 
@@ -586,9 +586,9 @@
   }
 
   function routineHref(view) {
-    if (view === 'profile') return '/account/routine-profile.html';
-    if (view === 'favorites') return '/account/routine-favorites.html';
-    if (view === 'history') return '/account/routine-history.html';
+    if (view === 'profile') return '/account/routine-profile/';
+    if (view === 'favorites') return '/account/routine-favorites/';
+    if (view === 'history') return '/account/routine-history/';
     if (view === 'compare') return ROUTINE_COMPARE_ROUTE;
     if (view === 'recommendations') return ROUTINE_ROUTE + '?tab=recommendations';
     return ROUTINE_ROUTE;
@@ -614,13 +614,13 @@
       '<div class="rt-summary-item">' + icon('shield') + '<div><small>Cilt Hedeflerin</small><strong>' + esc(goalText(prefs)) + '</strong></div></div>' +
       '<div class="rt-summary-item">' + icon('refresh') + '<div><small>Rutin Yoğunluğu</small><strong>' + esc(cap(prefs.intensity)) + '</strong></div></div>' +
       '<div class="rt-summary-item">' + icon('leaf') + '<div><small>Oluşturulan Rutin</small><strong>1 Aktif Rutin</strong></div></div>' +
-      '<a class="rt-btn" href="/account/routine-profile.html">' + icon('edit') + 'Profili Düzenle</a></div>';
+      '<a class="rt-btn" href="/account/routine-profile/">' + icon('edit') + 'Profili Düzenle</a></div>';
   }
 
   function renderDashboard(host) {
     var prefs = mergePendingRoutinePreferences();
     if (!hasUsableSkinProfile()) {
-      host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-page-head"><div><h1 class="rt-h1">Akıllı Rutinim</h1><p class="rt-copy">Cilt profilin tamamlandığında sana daha doğru, daha sade ve gerçek ürün verisine bağlı rutin önerileri sunabiliriz.</p></div><a class="rt-btn rt-btn--black" href="/account/routine-profile.html">' + icon('edit') + 'Cilt Profilimi Tamamla</a></div><div class="rt-shell">' + sidebar('dashboard') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('spark') + '<h2>Henüz aktif bir rutinin yok.</h2><p>Cilt tipini ve bakım hedeflerini seçerek sana özel bakım akışını oluşturabilirsin.</p><a class="rt-btn rt-btn--black" href="/account/routine-profile.html">Cilt Profilimi Tamamla</a></section></div></div></div></section>';
+      host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-page-head"><div><h1 class="rt-h1">Akıllı Rutinim</h1><p class="rt-copy">Cilt profilin tamamlandığında sana daha doğru, daha sade ve gerçek ürün verisine bağlı rutin önerileri sunabiliriz.</p></div><a class="rt-btn rt-btn--black" href="/account/routine-profile/">' + icon('edit') + 'Cilt Profilimi Tamamla</a></div><div class="rt-shell">' + sidebar('dashboard') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('spark') + '<h2>Henüz aktif bir rutinin yok.</h2><p>Cilt tipini ve bakım hedeflerini seçerek sana özel bakım akışını oluşturabilirsin.</p><a class="rt-btn rt-btn--black" href="/account/routine-profile/">Cilt Profilimi Tamamla</a></section></div></div></div></section>';
       return;
     }
     var routine = activeRoutineProducts(prefs);
@@ -633,7 +633,7 @@
         '<section class="rt-routine-hero"><div><span class="rt-tag">Aktif Rutinim · En son güncellendi: ' + esc(nowDate()) + '</span><h2 class="rt-h2">Dengeli & Aydınlık Bakım Rutini</h2><p>Bu rutin, seçtiğin cilt hedefleri ve ürün kategorileri üzerinden hazırlanan bir bakım akışıdır. Uyum skoru, hedef, hassasiyet ve adım yoğunluğu gibi kriterlerle hesaplanan rehber niteliğinde bir değerdir.</p></div><div class="rt-score"><div class="rt-score-ring" style="--score:' + score + '"><strong>' + score + '</strong><span>100</span></div><small>Rutin uyum skoru</small></div></section>' +
         '<section class="rt-routine-flow"><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('sun') + 'Sabah Rutini</h3><div class="rt-product-steps">' + routine.morning.map(function (p,i) { return productStep(p,i,['Temizle','Dengele','Nemlendir','Koru'][i] || 'Bakım'); }).join('') + '</div></div><div class="rt-flow-col"><h3 class="rt-flow-title">' + icon('moon') + 'Akşam Rutini</h3><div class="rt-product-steps">' + routine.evening.map(function (p,i) { return productStep(p,i,['Temizle','Bakım','Onar','Yenile'][i] || 'Bakım'); }).join('') + '</div></div></section>' +
         '<section class="rt-reason"><h3>' + icon('sun') + 'Neden Bu Ürünler?</h3><p>Bu rutin, cilt tipin (' + esc(skinText(prefs).toLocaleLowerCase('tr-TR')) + '), cilt hedeflerin ve içerik tercihlerin göz önünde bulundurularak hazırlandı.</p><div class="rt-reason-list"><span>' + icon('spark') + 'Aydınlık görünümü destekler</span><span>' + icon('shield') + 'Cilt bariyerini güçlendirir</span><span>' + icon('leaf') + 'Nem dengesini korur</span><span>' + icon('target') + 'Tahrişi azaltmaya yardımcı olur</span></div></section>' +
-        '<div class="rt-products-head"><div><h2>Önerilen Ürünler</h2><p>Cilt hedeflerin, rutin yoğunluğun ve ürün kategorilerine göre seçilen gerçek katalog ürünleri.</p></div><div><button class="rt-btn rt-btn--black" type="button" data-rt-add-all>' + icon('bag') + 'Tümünü Sepete Ekle</button> <a class="rt-btn" href="/account/routine-profile.html">' + icon('edit') + 'Rutinini Düzenle</a></div></div>' +
+        '<div class="rt-products-head"><div><h2>Önerilen Ürünler</h2><p>Cilt hedeflerin, rutin yoğunluğun ve ürün kategorilerine göre seçilen gerçek katalog ürünleri.</p></div><div><button class="rt-btn rt-btn--black" type="button" data-rt-add-all>' + icon('bag') + 'Tümünü Sepete Ekle</button> <a class="rt-btn" href="/account/routine-profile/">' + icon('edit') + 'Rutinini Düzenle</a></div></div>' +
         '<div class="rt-products-grid rt-products-grid--six">' + recs.map(function (p) { return productCard(p); }).join('') + '</div>' +
         '<section class="rt-improve rt-card"><div class="rt-improve-head"><h2>Rutinini İyileştir</h2><p>Daha dengeli bir bakım hissi için ilgili ürün seçkilerine göz atabilirsin.</p></div><div class="rt-improve-grid">' + improveCards() + '</div></section>' +
       '</div></div></div></section>';
@@ -652,7 +652,7 @@
   function renderRecommendationsPage(host) {
     var prefs = mergePendingRoutinePreferences();
     if (!hasUsableSkinProfile()) {
-      host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-shell">' + sidebar('recommendations') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('bag') + '<h1>Öneriler için cilt profilin gerekli.</h1><p>Cilt profilini tamamladığında sana daha doğru ürün önerileri sunabiliriz.</p><a class="rt-btn rt-btn--black" href="/account/routine-profile.html">Cilt Profilimi Tamamla</a></section></div></div></div></section>';
+      host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-shell">' + sidebar('recommendations') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('bag') + '<h1>Öneriler için cilt profilin gerekli.</h1><p>Cilt profilini tamamladığında sana daha doğru ürün önerileri sunabiliriz.</p><a class="rt-btn rt-btn--black" href="/account/routine-profile/">Cilt Profilimi Tamamla</a></section></div></div></div></section>';
       return;
     }
     var products = recommendProducts(prefs).slice(0, 12);
@@ -696,7 +696,7 @@
       formBlock('6. Aktif İçerik Toleransı','tolerance',[['dusuk','Düşük'],['orta','Orta'],['yuksek','Yüksek']], prefs.tolerance, false) +
       '<div class="rt-form-card"><h3>7. Mevcut Ürünlerin <small>(Sahip olduğun ürünleri seç, tekrar önermeyelim)</small></h3><div class="rt-products-owned">' + products.map(function (p) { return '<div class="rt-owned"><img src="' + esc(p.image) + '" alt=""><div><strong>' + esc(p.brand) + '</strong><span>' + esc(p.name.split(':')[0]) + '</span></div><button type="button" data-rt-remove-owned>×</button></div>'; }).join('') + '<button class="rt-add-owned" type="button" data-rt-add-owned>' + icon('plus') + 'Ürün Ekle</button></div></div>' +
       formBlock('8. Kaçındığım İçerikler <small>(İstemediğin içerikleri seç)</small>','avoid',[['Parfüm','Parfüm'],['Ağır Yağlar','Ağır Yağlar'],['Alkol','Alkol'],['Uçucu Yağlar','Uçucu Yağlar'],['Yüksek Asitler','Yüksek Asitler'],['Komedojenik Yapılar','Komedojenik Yapılar']], prefs.avoid, true) +
-      '<div class="rt-profile-actions"><button class="rt-btn rt-btn--black" type="button" data-rt-save-profile>Kaydet ve Güncelle</button><a class="rt-btn" href="/account/routines.html">İptal</a><button class="rt-btn" type="button" data-rt-reset-profile>Varsayılanlara Dön</button></div></div>' +
+      '<div class="rt-profile-actions"><button class="rt-btn rt-btn--black" type="button" data-rt-save-profile>Kaydet ve Güncelle</button><a class="rt-btn" href="/account/routines/">İptal</a><button class="rt-btn" type="button" data-rt-reset-profile>Varsayılanlara Dön</button></div></div>' +
       '<aside class="rt-summary-side">' + profileSummary(prefs) + '</aside></div></div></div></div></section>';
   }
 
@@ -722,10 +722,10 @@
   function renderHistory(host) {
     var history = getRoutineHistory();
     if (!history.length) {
-      host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-page-head"><div><h1 class="rt-h1">Rutin Geçmişi</h1><p class="rt-copy">Aktif hale getirdiğin veya kaydettiğin rutinler burada listelenir.</p></div><a class="rt-btn rt-btn--black" href="/index.html#smart-routine">Alternatif Rutin Oluştur</a></div><div class="rt-shell">' + sidebar('history') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('history') + '<h2>Henüz rutin geçmişin yok.</h2><p>Bir rutini uyguladığında önceki aktif rutinin burada güvenle saklanır.</p><a class="rt-btn rt-btn--black" href="/account/routines.html">Akıllı Rutinime Dön</a></section></div></div></div></section>';
+      host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-page-head"><div><h1 class="rt-h1">Rutin Geçmişi</h1><p class="rt-copy">Aktif hale getirdiğin veya kaydettiğin rutinler burada listelenir.</p></div><a class="rt-btn rt-btn--black" href="/index.html#smart-routine">Alternatif Rutin Oluştur</a></div><div class="rt-shell">' + sidebar('history') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('history') + '<h2>Henüz rutin geçmişin yok.</h2><p>Bir rutini uyguladığında önceki aktif rutinin burada güvenle saklanır.</p><a class="rt-btn rt-btn--black" href="/account/routines/">Akıllı Rutinime Dön</a></section></div></div></div></section>';
       return;
     }
-    host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-page-head"><div><h1 class="rt-h1">Rutin Geçmişi</h1><p class="rt-copy">Kaydettiğin rutinleri inceleyebilir ve istediğin rutini tekrar aktif hale getirebilirsin.</p></div><a class="rt-btn" href="/account/routine-compare.html">Rutinleri Karşılaştır</a></div><div class="rt-shell">' + sidebar('history') + '<div class="rt-content"><div class="rt-history-list">' + history.map(function (routine) {
+    host.innerHTML = '<section class="rt-section"><div class="rt-container"><div class="rt-page-head"><div><h1 class="rt-h1">Rutin Geçmişi</h1><p class="rt-copy">Kaydettiğin rutinleri inceleyebilir ve istediğin rutini tekrar aktif hale getirebilirsin.</p></div><a class="rt-btn" href="/account/routine-compare/">Rutinleri Karşılaştır</a></div><div class="rt-shell">' + sidebar('history') + '<div class="rt-content"><div class="rt-history-list">' + history.map(function (routine) {
       var meta = routineMeta(routine);
       return '<article class="rt-history-card rt-card"><div><small>' + esc(formatDateSafe(routine.createdAt)) + '</small><h2>' + esc(routine.name) + '</h2><p>' + esc(meta.goals) + ' · ' + esc(meta.productCount) + ' ürün · ' + esc(meta.time) + '</p></div><div class="rt-history-card__actions"><span>Rutin uyum skoru: ' + esc(routine.score) + '/100</span><button class="rt-btn rt-btn--black" type="button" data-rt-apply-history="' + esc(routine.id) + '">Rutini Aktif Yap</button></div></article>';
     }).join('') + '</div></div></div></div></section>';
@@ -824,7 +824,7 @@
   function renderCompare(host, selectedId) {
     var prefs = mergePendingRoutinePreferences();
     if (!hasUsableSkinProfile()) {
-      host.innerHTML = '<section class="rt-section routine-compare-page"><div class="rt-container"><div class="rt-shell">' + sidebar('compare') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('compare') + '<h1>Karşılaştırılacak rutin bulunmuyor.</h1><p>Cilt profilini tamamladığında aktif rutinini önerilen alternatiflerle karşılaştırabilirsin.</p><a class="rt-btn rt-btn--black" href="/account/routine-profile.html">Cilt Profilimi Tamamla</a></section></div></div></div></section>';
+      host.innerHTML = '<section class="rt-section routine-compare-page"><div class="rt-container"><div class="rt-shell">' + sidebar('compare') + '<div class="rt-content"><section class="rt-empty-state rt-card">' + icon('compare') + '<h1>Karşılaştırılacak rutin bulunmuyor.</h1><p>Cilt profilini tamamladığında aktif rutinini önerilen alternatiflerle karşılaştırabilirsin.</p><a class="rt-btn rt-btn--black" href="/account/routine-profile/">Cilt Profilimi Tamamla</a></section></div></div></div></section>';
       return;
     }
     var active = getActiveRoutine();
@@ -840,7 +840,7 @@
       '<div class="routine-compare-steps">' + stepComparison('Sabah Rutini Karşılaştırması', active.morning, compared.morning, prefs) + stepComparison('Akşam Rutini Karşılaştırması', active.evening, compared.evening, prefs) + '</div>' +
       '<section class="routine-compare-panel rt-card"><h2>Rutininde Değişenler</h2><div class="routine-compare-changes">' + (comparison.changes.length ? comparison.changes.map(changeCard).join('') : '<div class="routine-compare-empty">Bu iki rutin arasında ürün değişimi bulunmuyor.</div>') + '</div></section>' +
       '<section class="routine-compare-panel rt-card"><h2>İçerik Uyumu</h2><div class="routine-compare-status-grid">' + compatibilityCards(comparison.compatibility) + '</div></section>' +
-      '<section class="routine-compare-decision rt-card"><div class="routine-compare-decision-art"><img src="' + esc(productImage('beauty-of-joseon-dynasty-cream', 4)) + '" alt=""></div><div><span>COSMOSKIN önerisi</span><h2>' + esc(rec.title) + '</h2><p>' + esc(rec.body) + '</p><div class="routine-compare-decision-actions"><button class="rt-btn rt-btn--black" type="button" data-rt-apply-compare data-compare-id="' + esc(compared.id) + '">Bu Rutini Uygula</button><button class="rt-btn" type="button" data-rt-compare-cart data-compare-id="' + esc(compared.id) + '">Ürünleri Sepete Ekle</button><a class="rt-btn" href="/account/routines.html">Mevcut Rutinimde Kal</a></div></div></section>' +
+      '<section class="routine-compare-decision rt-card"><div class="routine-compare-decision-art"><img src="' + esc(productImage('beauty-of-joseon-dynasty-cream', 4)) + '" alt=""></div><div><span>COSMOSKIN önerisi</span><h2>' + esc(rec.title) + '</h2><p>' + esc(rec.body) + '</p><div class="routine-compare-decision-actions"><button class="rt-btn rt-btn--black" type="button" data-rt-apply-compare data-compare-id="' + esc(compared.id) + '">Bu Rutini Uygula</button><button class="rt-btn" type="button" data-rt-compare-cart data-compare-id="' + esc(compared.id) + '">Ürünleri Sepete Ekle</button><a class="rt-btn" href="/account/routines/">Mevcut Rutinimde Kal</a></div></div></section>' +
       '</div></div></div></section>';
   }
 
@@ -980,7 +980,7 @@
       if (input) setTimeout(function () { input.focus(); }, 80);
       return;
     }
-    window.location.href = '/index.html?next=' + encodeURIComponent('/account/routines.html?routineSync=1');
+    window.location.href = '/index.html?next=' + encodeURIComponent('/account/routines/?routineSync=1');
   }
 
   function toast(message) {
@@ -1051,7 +1051,7 @@
     writeJSON(KEYS.history, history.slice(0, 12));
     writeJSON(KEYS.active, serializeRoutine(compared, 'routine-compare-applied'));
     toast('Yeni rutinin aktif hale getirildi.');
-    setTimeout(function () { window.location.href = '/account/routines.html'; }, 450);
+    setTimeout(function () { window.location.href = '/account/routines/'; }, 450);
   }
 
   function replaceRoutineProduct(currentSlug, nextSlug) {
@@ -1213,7 +1213,7 @@
       var fav = event.target.closest('[data-rt-favorite]');
       if (fav) { toggleFavorite(fav.getAttribute('data-rt-favorite'), fav).then(function () { if (routineState.currentView === 'favorites') renderFavorites(host); }).catch(function (error) { toast(error && error.message ? error.message : 'Favori işlemi tamamlanamadı.'); }); return; }
       var addRoutine = event.target.closest('[data-rt-add-routine]');
-      if (addRoutine) { window.location.href = '/account/routine-profile.html'; return; }
+      if (addRoutine) { window.location.href = '/account/routine-profile/'; return; }
       if (event.target.closest('[data-rt-add-owned]')) { window.location.href = '/allproducts.html'; return; }
       if (event.target.closest('[data-rt-remove-owned]')) { var owned = event.target.closest('.rt-owned'); if (owned) owned.remove(); toast('Ürün mevcut ürünlerinden kaldırıldı.'); return; }
       var applyHistory = event.target.closest('[data-rt-apply-history]');
@@ -1270,7 +1270,7 @@
     view = view || currentView('dashboard');
     if (!auth.loggedIn) {
       if (view === 'compare') {
-        window.location.replace('/account/routines.html');
+        window.location.replace('/account/routines/');
         return { loggedIn:false, view:'redirect' };
       }
       renderWelcome(host);

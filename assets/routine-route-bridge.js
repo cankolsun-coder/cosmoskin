@@ -1,18 +1,23 @@
 (function () {
   'use strict';
 
-  var ROUTINE_TARGET_ROUTE = '/account/routines.html';
+  var ROUTINE_TARGET_ROUTE = '/account/routines/';
   var PENDING_KEY = 'cosmoskin_pending_routine_preferences';
   var ROUTINE_PATHS = [
     '/account/routines',
+    '/account/routines/',
     '/account/routines.html',
     '/account/routine-profile',
+    '/account/routine-profile/',
     '/account/routine-profile.html',
     '/account/routine-favorites',
+    '/account/routine-favorites/',
     '/account/routine-favorites.html',
     '/account/routine-history',
+    '/account/routine-history/',
     '/account/routine-history.html',
     '/account/routine-compare',
+    '/account/routine-compare/',
     '/account/routine-compare.html',
     '/collections/routine',
     '/collections/routine.html',
@@ -22,17 +27,20 @@
   ];
 
   function cleanPath(path) { return String(path || '').replace(/\/$/, ''); }
-  function isRoutinePath(path) { return ROUTINE_PATHS.indexOf(cleanPath(path)) !== -1; }
+  function isRoutinePath(path) {
+    var raw = String(path || '');
+    return ROUTINE_PATHS.indexOf(raw) !== -1 || ROUTINE_PATHS.indexOf(cleanPath(raw)) !== -1;
+  }
   function isCurrentRoutinePage() { return isRoutinePath(window.location.pathname); }
 
   function accountRouteFor(url) {
     var path = cleanPath(url.pathname);
     var requestedView = url.searchParams.get('tab') || url.searchParams.get('view');
-    if (/routine-profile/.test(path) || requestedView === 'profile') return '/account/routine-profile.html';
-    if (/routine-favorites/.test(path) || requestedView === 'favorites') return '/account/routine-favorites.html';
-    if (/routine-history/.test(path) || requestedView === 'history') return '/account/routine-history.html';
-    if (/routine-compare/.test(path) || requestedView === 'compare') return '/account/routine-compare.html';
-    if (requestedView === 'recommendations') return '/account/routines.html?tab=recommendations';
+    if (/routine-profile/.test(path) || requestedView === 'profile') return '/account/routine-profile/';
+    if (/routine-favorites/.test(path) || requestedView === 'favorites') return '/account/routine-favorites/';
+    if (/routine-history/.test(path) || requestedView === 'history') return '/account/routine-history/';
+    if (/routine-compare/.test(path) || requestedView === 'compare') return '/account/routine-compare/';
+    if (requestedView === 'recommendations') return '/account/routines/?tab=recommendations';
     return ROUTINE_TARGET_ROUTE;
   }
 

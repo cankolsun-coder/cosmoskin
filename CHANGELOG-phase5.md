@@ -133,7 +133,7 @@ html.cm-menu-open {
 | Tüm Ürünler | `/allproducts.html` | ✅ |
 | Markalar accordion | 17 marka × `/brands/[slug].html` | ✅ |
 | Çok Satanlar | `/index.html#bestsellers` | ✅ |
-| Rutinler | `/account/routines.html` | ✅ |
+| Rutinler | `/account/routines/` | ✅ |
 | Destek | `/contact.html` | ✅ |
 
 ### Marka Accordion (17 Marka)

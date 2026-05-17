@@ -28,7 +28,7 @@ This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain
 - Any new consumer (account widget, recommendation engine, routine builder) must read via `CosmoskinSkinProfile.get()` and subscribe via `CosmoskinSkinProfile.subscribe()`.
 
 ## Routes
-- `/account/routines.html` is THE canonical Rutinler page. All legacy aliases (`/routine.html`, `/rutinler.html`, `/collections/routine.html`) are 200-rewrites to it.
+- `/account/routines/` is THE canonical Rutinler page. All legacy aliases (`/routine.html`, `/rutinler.html`, `/collections/routine.html`) redirect once to it with 302 rules.
 - Sub-views use query strings: `?view=profile|favorites|history|dashboard`. Rendered by `assets/routines.js`.
 - Category dropdown links must point to real `/collections/*.html` files. Don't route categories to routines/account pages.
 - Skin-type / skin-concern dropdowns should prefer dedicated concern pages where they exist: `/collections/hydration.html`, `/collections/sensitivity.html`, `/collections/pore-sebum.html`, `/collections/barrier.html`, `/collections/acne-balance.html`, `/collections/blemish.html`, `/collections/glow.html`.
@@ -44,7 +44,7 @@ This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain
 - **No horizontal scroll on mobile.** Common cause: full-width hero, fixed-px wide elements, unbounded grids.
 - **No huge white space gaps.** Footer must dock at the page bottom via flex column, not via mountain padding.
 - **No console errors in critical flows.** Home, category, PDP, cart, checkout, account, routines must be clean.
-- **Account → Routines save must persist after refresh and sync across `/account/profile.html`, `/account/routines.html`, `/account/routines.html?view=profile`.**
+- **Account → Routines save must persist after refresh and sync across `/account/profile.html`, `/account/routines/`, `/account/routine-profile/`.**
 
 ## Verification
 - Static checks: balance braces in CSS, parens in JS. Grep dead links.
@@ -53,7 +53,7 @@ This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain
 - For visual changes, test on Chrome DevTools mobile presets at 360 / 390 / 430 / 768.
 
 ## Script load order on account pages
-- Any page that uses Supabase auth (account/profile.html, account/routines.html, etc.) MUST load in this order:
+- Any page that uses Supabase auth (account/profile.html, account/routines/, etc.) MUST load in this order:
   1. `/assets/site-config.js` (defines `window.COSMOSKIN_CONFIG.supabaseUrl/anonKey`)
   2. `https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2`
   3. `/assets/account-dashboard.js` (or the page-specific consumer)

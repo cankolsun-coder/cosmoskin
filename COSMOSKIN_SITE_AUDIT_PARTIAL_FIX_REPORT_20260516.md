@@ -25,7 +25,7 @@ Bu pass'te yapılanlar:
 ### 1. Cilt Tipi Dropdown Doğru Koleksiyonlara Yönlendirildi
 **Dosya:** [index.html:162](index.html#L162)
 
-Önce: Karma Cilt ve Normal Cilt `/account/routines.html`'e yönlendiriyordu — bu yanlıştı, kategoriler ürün koleksiyonlarına gitmeli.
+Önce: Karma Cilt ve Normal Cilt `/account/routines/`'e yönlendiriyordu — bu yanlıştı, kategoriler ürün koleksiyonlarına gitmeli.
 
 Sonra:
 - Kuru Cilt → `/collections/hydrate.html` (korundu)
@@ -112,7 +112,7 @@ Aşağıdaki kalemler tek bir geçişte yapılırsa regresyon riski yüksek. Ayr
 **Tahminî efor:** 40+ ürün × 5–10 dk araştırma = ~5–7 saat data entry + 2 saat schema implementation.
 
 ### B. Cilt Profilim State Sync (TASK 7 + 8)
-**Durum:** Yapılmadı. Sebep: Mevcut kod 4 farklı localStorage anahtarı kullanıyor (`SKIN_KEY` in home-routine.js, `cosmoskin_routine_preferences`, `cosmoskin_profile`, `STORAGE_ROUTINE` in mobile-redesign.js). Tek bir konsolide source-of-truth'a geçmek için her tüketici noktayı (`/account/profile.html`, `/account/routines.html`, `/account/routine-profile.html`, smart routine widget, mobile-redesign account widget) tek tek migrate etmek gerekiyor.
+**Durum:** Yapılmadı. Sebep: Mevcut kod 4 farklı localStorage anahtarı kullanıyor (`SKIN_KEY` in home-routine.js, `cosmoskin_routine_preferences`, `cosmoskin_profile`, `STORAGE_ROUTINE` in mobile-redesign.js). Tek bir konsolide source-of-truth'a geçmek için her tüketici noktayı (`/account/profile.html`, `/account/routines/`, `/account/routine-profile/`, smart routine widget, mobile-redesign account widget) tek tek migrate etmek gerekiyor.
 
 **Önerilen yol:**
 1. Tek modül: `assets/skin-profile-store.js` — read/write/subscribe API'si, localStorage key `cosmoskin_skin_profile`.
@@ -125,7 +125,7 @@ Aşağıdaki kalemler tek bir geçişte yapılırsa regresyon riski yüksek. Ayr
 **Tahminî efor:** 1 günlük focused work + UI smoke testing.
 
 ### C. Side-tab UX (TASK 3) — In-Page Transition Hissi
-**Durum:** Yapılmadı. Mevcut `/account/routines.html` zaten tek-page; ama `/account/profile.html`, `/account/orders.html`, `/account/returns.html` ayrı HTML dosyaları, bu yüzden tab geçişi tam page reload veriyor.
+**Durum:** Yapılmadı. Mevcut `/account/routines/` zaten tek-page; ama `/account/profile.html`, `/account/orders.html`, `/account/returns.html` ayrı HTML dosyaları, bu yüzden tab geçişi tam page reload veriyor.
 
 **Önerilen yol:**
 - Hafif client-side router (sayfa-içi `<section data-tab="...">` blokları + `pushState`), veya
@@ -143,7 +143,7 @@ Aşağıdaki kalemler tek bir geçişte yapılırsa regresyon riski yüksek. Ayr
 
 **Önerilen yol:** Kullanıcı yerel server kurup (`python3 -m http.server 7700`) Chrome DevTools'ta 360/390/430/768/1280 px'de aşağıdaki sayfaları gezsin:
 - /, /allproducts.html, /cart.html, /checkout.html
-- /account/profile.html, /account/routines.html
+- /account/profile.html, /account/routines/
 - /collections/glow.html, /collections/sensitivity.html
 - En az 3 brand sayfası (cosrx, anua, beauty-of-joseon)
 - En az 3 PDP

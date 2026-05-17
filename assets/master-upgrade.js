@@ -214,7 +214,6 @@
   }
 
   function patchLinks() {
-    document.querySelectorAll('a[href*="/account/routines.html"]').forEach(function (a) { a.href = a.href.replace('/account/routines.html', '/account/routines.html'); });
     document.querySelectorAll('.brand-ribbon__item[href*="/collections/"], .brand-strip a[href*="/collections/"]').forEach(function (a) {
       var label = a.getAttribute('aria-label') || a.textContent || a.href.split('/').pop().replace('.html', '');
       a.href = '/brands.html#brand-' + brandSlug(label);

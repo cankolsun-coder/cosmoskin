@@ -4,15 +4,15 @@
 Bu güncelleme, son kontrolde görülen Rutinler akışı, homepage hover/search/routine selector, ürün fiyat tipografisi ve sepet satırı düzeni hatalarını hedefler. Global header ve footer yeniden tasarlanmadı; mevcut yapı korunarak noktasal CSS/JS düzeltmeleri yapıldı.
 
 ## Ana routing değişiklikleri
-- Ana Rutinler rotası temiz URL olarak `/account/routines.html` yapıldı.
-- `/account/routines.html` dosyası korunarak uyumluluk sağlandı.
-- `/account/routines.htmlindex.html` eklendi; temiz URL/dizin index senaryosunda da çalışır.
+- Ana Rutinler rotası temiz URL olarak `/account/routines/` yapıldı.
+- `/account/routines/` dosyası korunarak uyumluluk sağlandı.
+- `/account/routines/index.html` eklendi; temiz URL/dizin index senaryosunda da çalışır.
 - `_redirects` içinde eski ve yardımcı rutin rotaları temiz Rutinler rotasına bağlandı.
-- Global HTML ve JS içindeki eski `/routine.html` linkleri `/account/routines.html` rotasına taşındı.
+- Global HTML ve JS içindeki eski `/routine.html` linkleri `/account/routines/` rotasına taşındı.
 - Account içindeki rutin alt sayfa linkleri, tek Rutinler ekranı içinde query tab mantığına bağlandı:
-  - `/account/routines.html?view=profile`
-  - `/account/routines.html?view=favorites`
-  - `/account/routines.html?view=history`
+  - `/account/routines/?view=profile`
+  - `/account/routines/?view=favorites`
+  - `/account/routines/?view=history`
 
 ## Rutinler sayfa geçişi
 - Rutinler alanında sidebar geçişleri gerçek ayrı sayfa hissi yerine aynı sayfa içinde çalışacak şekilde History API ile düzenlendi.
@@ -26,7 +26,7 @@ Bu güncelleme, son kontrolde görülen Rutinler akışı, homepage hover/search
 - Ürün kartları gerçek ürün URL, fiyat, marka, ürün adı ve görsel değerleriyle render edilir.
 
 ## Homepage Akıllı Rutin bağlantısı
-- Homepage `Rutini Gör` akışı `/account/routines.html` rotasına bağlandı.
+- Homepage `Rutini Gör` akışı `/account/routines/` rotasına bağlandı.
 - Seçimler şu localStorage anahtarları üzerinden korunur:
   - `cosmoskin_pending_routine_preferences`
   - `cosmoskin_routine_preferences`
@@ -95,7 +95,7 @@ Bu güncelleme, son kontrolde görülen Rutinler akışı, homepage hover/search
   - `assets/account-dashboard.js`
   - `js/search.js`
 - Eski `/routine.html` linkleri aktif HTML/JS/XML dosyalarından temizlendi.
-- Hatalı `/collections/account/routines.html` oluşumu kontrol edilip temizlendi.
+- Hatalı `/collections/account/routines/` oluşumu kontrol edilip temizlendi.
 
 ## Not
 Sandbox ortamında canlı browser görsel QA çalıştırılamadı; bu nedenle son piksel kontrolünü local Live Server veya Cloudflare preview üzerinde açıp gözle kontrol etmek gerekir. Kod tarafında route/link/syntax ve statik entegrasyon kontrolleri tamamlandı.

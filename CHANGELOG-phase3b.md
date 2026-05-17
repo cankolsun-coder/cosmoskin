@@ -110,7 +110,7 @@ Mobil `brandStrip()` zaten `brandHref()` ile `/brands/[slug].html` üretiyordu �
 | `.cm-script-word` kursif tipografi | ✅ |
 | Hero arkaplan `cm-hero` stili | ✅ |
 | Primary CTA → `/allproducts.html` | ✅ |
-| Ghost CTA → `/account/routines.html` | ✅ |
+| Ghost CTA → `/account/routines/` | ✅ |
 | Ghost CTA `backdrop-filter: blur(6px)` | ✅ |
 | `aria-labelledby="cmHomeHeroTitle"` | ✅ |
 
@@ -168,9 +168,9 @@ Mobil `brandStrip()` zaten `brandHref()` ile `/brands/[slug].html` üretiyordu �
 | `aria-live="polite"` ürün listesinde | ✅ |
 | "Tüm Rutini Sepete Ekle" → `data-cm-add-routine` | ✅ |
 | "Rutini Kaydet" → `data-cm-save-routine` | ✅ |
-| "Rutini Gör" → `/account/routines.html#routine-commerce` | ✅ |
+| "Rutini Gör" → `/account/routines/#routine-commerce` | ✅ |
 | Compact CSS görsel iyileştirme | ✅ |
-| "Detaylı Gör" → `/account/routines.html` | ✅ |
+| "Detaylı Gör" → `/account/routines/` | ✅ |
 
 ### TASK 7 — COSMOSKIN Edit
 
@@ -202,13 +202,13 @@ Mobil `brandStrip()` zaten `brandHref()` ile `/brands/[slug].html` üretiyordu �
 | Aksiyon | Durum |
 |---------|-------|
 | "ALIŞVERİŞE BAŞLA" → `/allproducts.html` | ✅ |
-| "RUTİNİNİ KEŞFET" → `/account/routines.html` | ✅ |
+| "RUTİNİNİ KEŞFET" → `/account/routines/` | ✅ |
 | "Tümünü Gör" (kategori) → `/allproducts.html` | ✅ |
 | "Tümünü Gör" (bestsellers) → `/allproducts.html` | ✅ |
-| "Detaylı Gör" (rutin) → `/account/routines.html` | ✅ |
+| "Detaylı Gör" (rutin) → `/account/routines/` | ✅ |
 | "Tüm Rutini Sepete Ekle" → `data-cm-add-routine` | ✅ |
 | "Rutini Kaydet" → `data-cm-save-routine` | ✅ |
-| "Rutini Gör" → `/account/routines.html#routine-commerce` | ✅ |
+| "Rutini Gör" → `/account/routines/#routine-commerce` | ✅ |
 | Edit CTA → `/products/beauty-of-joseon-relief-sun-spf50.html` | ✅ |
 | Brand strip → `/brands/[slug].html` | ✅ |
 | Desktop brand ribbon (Thank You Farmer) → `/brands/thank-you-farmer.html` | ✅ |

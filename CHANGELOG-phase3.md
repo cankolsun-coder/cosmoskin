@@ -114,13 +114,13 @@ Bölüm başlığı CSS kuralları güncellendi: `font-size: 22px`, `letter-spac
 | Aksiyon | Durum |
 |---------|-------|
 | "ALIŞVERİŞE BAŞLA" → `/allproducts.html` | ✅ |
-| "RUTİNİNİ KEŞFET" → `/account/routines.html` | ✅ |
+| "RUTİNİNİ KEŞFET" → `/account/routines/` | ✅ |
 | "Tümünü Gör" (kategori) → `/allproducts.html` | ✅ |
 | "Tümünü Gör" (bestsellers) → `/allproducts.html` | ✅ |
-| "Detaylı Gör" (rutin) → `/account/routines.html` | ✅ |
+| "Detaylı Gör" (rutin) → `/account/routines/` | ✅ |
 | "Tüm Rutini Sepete Ekle" → `data-cm-add-routine` JS handler | ✅ |
 | "Rutini Kaydet" → `data-cm-save-routine` localStorage handler | ✅ |
-| "Rutini Gör" → `/account/routines.html#routine-commerce` | ✅ |
+| "Rutini Gör" → `/account/routines/#routine-commerce` | ✅ |
 | COSMOSKIN Edit CTA → `/products/beauty-of-joseon-relief-sun-spf50.html` | ✅ |
 | Brand strip logoları → `/brands/[slug].html` | ✅ |
 | Ürün kartı (görsel + başlık) → PDP | ✅ |
@@ -208,7 +208,7 @@ HTTP 200 doğrulaması (yerel sunucu):
 - ✅ `/account/returns.html`
 - ✅ `/collections/cleanse.html`
 - ✅ `/collections/masks.html`
-- ✅ `/account/routines.html`
+- ✅ `/account/routines/`
 
 ---
 

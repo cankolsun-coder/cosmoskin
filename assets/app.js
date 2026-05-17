@@ -499,7 +499,7 @@
     { label: 'Medicube', type: 'Marka', url: '/collections/medicube.html', keywords: 'marka medicube zero pore pad', meta: 'Gözenek ve akne odaklı bakım', badge: 'Marka' },
     { label: 'Mediheal', type: 'Marka', url: '/collections/mediheal.html', keywords: 'marka mediheal sheet mask nmf aquaring', meta: 'Sheet mask ve nem yoğunlaşması', badge: 'Marka' },
     { label: 'Some By Mi', type: 'Marka', url: '/collections/some-by-mi.html', keywords: 'marka some by mi aha bha miracle', meta: 'AHA BHA Miracle serisi', badge: 'Marka' },
-    { label: 'Rutinler', type: 'Sayfa', url: '/account/routines.html', keywords: 'rutinler routine cilt bakim rutini sabah aksam', meta: 'Hazır sabah-akşam akışları', badge: 'Sayfa' },
+    { label: 'Rutinler', type: 'Sayfa', url: '/account/routines/', keywords: 'rutinler routine cilt bakim rutini sabah aksam', meta: 'Hazır sabah-akşam akışları', badge: 'Sayfa' },
     { label: 'Destek Merkezi', type: 'Sayfa', url: '/contact.html', keywords: 'destek merkez iletisim yardim partnership', meta: 'İletişim ve iş ortaklığı formları', badge: 'Sayfa' }
   ];
 
@@ -1357,7 +1357,7 @@ function broadcastFavoritesChange() {
     if (path.includes('/collections/hydrate')) return 'hydrate';
     if (path.includes('/collections/treat')) return 'treat';
     if (path.includes('/collections/protect')) return 'protect';
-    if (path.includes('/account/routines.html')) return 'routine';
+    if (path.includes('/account/routines/')) return 'routine';
     if (path.includes('/collections/care')) return 'care';
     return 'default';
   }

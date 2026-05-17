@@ -33,7 +33,7 @@ if (!window.supabase?.createClient) throw new Error('Hesap yüklenemedi: Supabas
 Hatalar artık ayrışmış: hangi koşulun eksik olduğunu söylüyor (config mi yoksa Supabase SDK'sı mı). Mevcut hata UI'sı (`<div class="cs-loading-card is-error">`) bu mesajları gösterir.
 
 ### 3. `saveSkin()` canonical localStorage'a yazmıyordu
-**Sebep:** `saveSkin()` yalnızca `state.client.auth.updateUser({ data: payload })` çağırıyordu. `cosmoskin_skin_profile` localStorage'ı güncellenmiyor, dolayısıyla `/account/routines.html`, `/account/routine-profile.html` ve `/account/profile.html` üst widget'ı senkron olmuyordu.
+**Sebep:** `saveSkin()` yalnızca `state.client.auth.updateUser({ data: payload })` çağırıyordu. `cosmoskin_skin_profile` localStorage'ı güncellenmiyor, dolayısıyla `/account/routines/`, `/account/routine-profile/` ve `/account/profile.html` üst widget'ı senkron olmuyordu.
 
 **Fix:** [assets/account-dashboard.js:684-712](assets/account-dashboard.js)
 - `saveSkin()` artık Supabase update sonrası `syncCanonicalSkinProfile(payload)` çağırıyor.
@@ -90,8 +90,8 @@ Yerel statik server (`python3 -m http.server`) `/api/*` endpoint'lerine hizmet v
                 ▼              ▼                       ▼
    account/profile.html  routines.js               (future consumers)
    widget üst kart        view=profile form
-   (data-skin-profile-    /account/routines.html
-    widget)               /account/routine-profile.html
+   (data-skin-profile-    /account/routines/
+    widget)               /account/routine-profile/
 ```
 
 Üç farklı consumer aynı canonical key'i okuyor. Save'ten sonra:
@@ -161,7 +161,7 @@ python3 -m http.server 7700
 5. Sayfayı refresh et (`Cmd+R`).
 6. Form alanlarının seçili kaldığını doğrula (özellikle "Hassasiyet"in `Orta` olduğunu — bu summary.js fix'ini test ediyor).
 7. Profilim sayfasının üst kısmındaki "CİLT PROFİLİM" widget'ı "Kuru cilt · Orta hassasiyet · ..." göstermeli.
-8. Yeni sekme aç → `http://localhost:8788/account/routines.html?view=profile` → aynı seçimlerin form'da yüklü olduğunu doğrula.
+8. Yeni sekme aç → `http://localhost:8788/account/routines/?view=profile` → aynı seçimlerin form'da yüklü olduğunu doğrula.
 9. Routines profilinde değer değiştir, kaydet → ana sekmeye dön; widget canlı güncellenmeli (storage event).
 
 ### Hata senaryosu testi

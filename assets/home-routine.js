@@ -139,7 +139,7 @@
     tags = [...new Set(tags.concat((concerns || []).map(c => LABELS.concern[c]).filter(Boolean)))].slice(0,4);
     const total = items.reduce((sum, item) => sum + item.price, 0);
     const bundleName = title.replace('rutini','seti').replace('rutin','set');
-    const route = goal === 'glow' || selected.has('tone') ? '/account/routines.html' : goal === 'barrier' || selected.has('sensitivity') ? '/account/routines.html' : goal === 'hydration' || selected.has('dehydration') ? '/account/routines.html' : '/account/routines.html';
+    const route = goal === 'glow' || selected.has('tone') ? '/account/routines/' : goal === 'barrier' || selected.has('sensitivity') ? '/account/routines/' : goal === 'hydration' || selected.has('dehydration') ? '/account/routines/' : '/account/routines/';
     return { items, title, analysis, summary, tags, total, bundleName, route, meta: `${items.length} ürün · ${money(total)}` };
   }
 

@@ -37,11 +37,11 @@
 
 **Test akışı:**
 ```
-1. /account/routines.html?view=profile → Cilt Tipi 'kuru' seç, Hedef 'nem' seç, Kaydet
+1. /account/routines/?view=profile → Cilt Tipi 'kuru' seç, Hedef 'nem' seç, Kaydet
 2. Refresh → seçimler form üstünde aynen.
 3. /account/profile.html → "Cilt Profilim" widget'ı "Kuru cilt · ... · Hedefler: Nem" gösterir.
 4. localStorage.getItem('cosmoskin_skin_profile') → JSON canonical schema.
-5. Başka tab'da /account/routines.html aç → orijinal tab'daki widget canlı update olur.
+5. Başka tab'da /account/routines/ aç → orijinal tab'daki widget canlı update olur.
 ```
 
 ## 2. /account/profile.html Skin Profile Widget
@@ -51,7 +51,7 @@
 - Loyalty kartının yanına yeni `cs-skin-profile-card` widget'ı eklendi (`data-skin-profile-widget` attribute).
 - Inline `<script>` ile widget hydration: `CosmoskinSkinProfile.get()` ile başlangıç render, `subscribe()` ile real-time update.
 - Etiket sözlüğü Turkish: `SKIN_LABELS`, `SENS_LABELS`, `GOAL_LABELS`, `STYLE_LABELS`.
-- Boş state: "Profilini oluştur" + CTA → `/account/routines.html?view=profile`.
+- Boş state: "Profilini oluştur" + CTA → `/account/routines/?view=profile`.
 - Dolu state: skin type başlık, sensitivity + routine style alt satır, hedefler ve `Son güncelleme:` zaman damgası (Intl Turkish date format).
 
 **Değişen dosya:** `assets/account-premium.css`
@@ -79,7 +79,7 @@ Bu, kullanıcının açıkça yasakladığı fake ingredient content'i.
 
 **Değişen dosya:** `index.html:162-163`
 
-**Cilt Tipi öncesi:** Karma Cilt ve Normal Cilt `/account/routines.html`'e (yanlış).
+**Cilt Tipi öncesi:** Karma Cilt ve Normal Cilt `/account/routines/`'e (yanlış).
 **Cilt Tipi şimdi:**
 | Etiket | Hedef |
 |--------|-------|
@@ -110,7 +110,7 @@ Tüm hedef dosyalar mevcut (12/12 OK), yeni route yaratılmadı.
 - Yasak listesi (fake data, desktop kırma, demo project, emoji)
 - Real product data source-of-truth bilgisi
 - Skin profile canonical key + API
-- Route haritası (canonical `/account/routines.html`, dropdown rules)
+- Route haritası (canonical `/account/routines/`, dropdown rules)
 - Mobile rendering notu
 - Verification protokolü
 
@@ -165,7 +165,7 @@ python3 -m http.server 7700 --directory .
 ```
 
 **Test 1 — Skin profile persist:**
-1. `http://localhost:7700/account/routines.html?view=profile`
+1. `http://localhost:7700/account/routines/?view=profile`
 2. Cilt Tipi → Kuru seç, Hedef → Nem seç, Yoğunluk → Dengeli seç
 3. "Kaydet" tıkla
 4. Refresh sayfayı (`Cmd+R`)
@@ -179,7 +179,7 @@ python3 -m http.server 7700 --directory .
 
 **Test 3 — Dropdown:**
 1. Home (`/`) → header'da Kategoriler hover
-2. Cilt Tipi alt başlığındaki 6 link → her biri ilgili `/collections/*.html`'e gitmeli, hiçbiri `/account/routines.html`'e değil.
+2. Cilt Tipi alt başlığındaki 6 link → her biri ilgili `/collections/*.html`'e gitmeli, hiçbiri `/account/routines/`'e değil.
 
 **Test 4 — PDP:**
 1. `/products/cosrx-advanced-snail-96-mucin-essence.html` aç
@@ -189,7 +189,7 @@ python3 -m http.server 7700 --directory .
 
 **Test 5 — Mobile no-horizontal-scroll:**
 1. DevTools mobile → 360px
-2. Anasayfa, /allproducts.html, /account/routines.html — yatay scroll yok mu?
+2. Anasayfa, /allproducts.html, /account/routines/ — yatay scroll yok mu?
 
 ---
 
