@@ -9,6 +9,23 @@ function normalizeStatus(status) {
   return 'active';
 }
 
+function applyInventoryStatusPayload(payload, status) {
+  if (status === undefined) return;
+  const normalized = String(status || '').trim();
+  if (normalized === 'out_of_stock') {
+    payload.status = 'active';
+    payload.stock_on_hand = 0;
+    payload.allow_backorder = false;
+    return;
+  }
+  if (normalized === 'preorder') {
+    payload.status = 'active';
+    payload.allow_backorder = true;
+    return;
+  }
+  payload.status = normalizeStatus(normalized);
+}
+
 export async function onRequestGet(context) {
   try {
     assertAdmin(context);
@@ -41,7 +58,7 @@ export async function onRequestPatch(context) {
     if (body.stock_qty !== undefined || body.stock_on_hand !== undefined) payload.stock_on_hand = Number(body.stock_on_hand ?? body.stock_qty ?? 0);
     if (body.reserved_qty !== undefined || body.stock_reserved !== undefined) payload.stock_reserved = Number(body.stock_reserved ?? body.reserved_qty ?? 0);
     if (body.low_stock_threshold !== undefined) payload.low_stock_threshold = Number(body.low_stock_threshold || 5);
-    if (body.status !== undefined) payload.status = normalizeStatus(body.status);
+    applyInventoryStatusPayload(payload, body.status);
     if (body.sku !== undefined) payload.sku = String(body.sku || '').trim() || null;
     payload.updated_at = new Date().toISOString();
     await updateRows(context, 'product_inventory', { product_slug: body.product_slug }, payload);
@@ -59,11 +76,11 @@ export async function onRequestPost(context) {
     const row = await insertRow(context, 'product_inventory', {
       product_slug: body.product_slug,
       sku: body.sku || body.product_slug.toUpperCase().replace(/-/g, '_'),
-      stock_on_hand: Number(body.stock_on_hand ?? body.stock_qty ?? 0),
+      stock_on_hand: body.status === 'out_of_stock' ? 0 : Number(body.stock_on_hand ?? body.stock_qty ?? 0),
       stock_reserved: Number(body.stock_reserved ?? body.reserved_qty ?? 0),
       low_stock_threshold: Number(body.low_stock_threshold || 5),
-      allow_backorder: Boolean(body.allow_backorder),
-      status: normalizeStatus(body.status || 'active')
+      allow_backorder: body.status === 'preorder' ? true : Boolean(body.allow_backorder),
+      status: body.status === 'out_of_stock' || body.status === 'preorder' ? 'active' : normalizeStatus(body.status || 'active')
     });
     return json({ ok: true, inventory: row });
   } catch (error) {

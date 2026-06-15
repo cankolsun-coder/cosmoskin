@@ -486,14 +486,16 @@
         if (!res.ok) throw new Error('inventory unavailable');
         data = await res.json();
       }
-      if (data && data.can_purchase === false) {
-        setStatus('Sepetinizdeki bir ürün artık stokta bulunmuyor. Devam etmek için sepetinizi güncelleyin.', 'error');
+      var blocked = data && ((data.items || []).find(function (item) { return item && item.can_purchase === false; }) || data.can_purchase === false);
+      if (blocked) {
+        setStatus((blocked && blocked.message) || 'Sepetinizdeki bir ürün artık stokta bulunmuyor. Devam etmek için sepetinizi güncelleyin.', 'error');
         return false;
       }
       return true;
     } catch (_) {
-      inventoryWarning = 'Stok bilgisi şu anda canlı olarak doğrulanamadı; ödeme oluşturulurken sunucu tarafında tekrar kontrol edilecek.';
-      return true;
+      inventoryWarning = 'Stok bilgisi doğrulanamadı. Lütfen sepetinizi kontrol edip tekrar deneyin.';
+      setStatus(inventoryWarning, 'error');
+      return false;
     }
   }
   function bankConfig() {

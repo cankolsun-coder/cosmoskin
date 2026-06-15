@@ -904,7 +904,7 @@ function broadcastFavoritesChange() {
 
   function cartStockCheck(item, nextQty) {
     const api = getStockApi();
-    if (!api || typeof api.canBuy !== 'function') return { ok: true, unknown: true };
+    if (!api || typeof api.canBuy !== 'function') return { ok: false, unknown: true, message: 'Stok bilgisi doğrulanamadı. Lütfen tekrar deneyin.' };
     return api.canBuy(item.slug || item.id, nextQty || item.qty || 1);
   }
 
@@ -1114,7 +1114,15 @@ function broadcastFavoritesChange() {
 
   window.COSMOSKIN_CART_API = {
     addItems: addCartItems,
-    getItems: () => state.cart.slice()
+    getItems: () => state.cart.slice(),
+    clear: () => {
+      state.cart = [];
+      persistCart();
+      renderCart();
+      renderCheckout();
+      window.dispatchEvent(new CustomEvent('cosmoskin:cart-updated', { detail: { items: [] } }));
+      document.dispatchEvent(new CustomEvent('cosmoskin:cart-updated', { detail: { items: [] } }));
+    }
   };
   window.initCartButtons = initCartButtons;
   window.initFavoriteButtons = initFavoriteButtons;
@@ -1601,20 +1609,24 @@ function broadcastFavoritesChange() {
         setProductQueryParam('');
       });
 
-      detailShell.querySelector('[data-detail-add-cart]')?.addEventListener('click', () => {
+      detailShell.querySelector('[data-detail-add-cart]')?.addEventListener('click', async () => {
         const item = {
           id: product.id,
+          slug: product.slug || product.id,
+          product_slug: product.slug || product.id,
           name: product.name,
           brand: product.brand,
           price: Number(product.price || 0),
           image: product.image,
-          qty: 1
+          url: product.url,
+          qty: 1,
+          quantity: 1
         };
-        const found = state.cart.find((entry) => entry.id === item.id);
-        if (found) found.qty += 1;
-        else state.cart.push(item);
-        persistCart();
-        openDrawer(cartDrawer);
+        if (window.COSMOSKIN_STOCK?.validateAdd) {
+          const allowed = await window.COSMOSKIN_STOCK.validateAdd(item);
+          if (!allowed) return;
+        }
+        addCartItems([item], { openDrawer: true });
       });
 
       $$('.collection-detail-tab', detailShell).forEach((tab) => {

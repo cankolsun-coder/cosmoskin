@@ -336,7 +336,7 @@
   function stockInfo(slug) {
     var api = window.COSMOSKIN_STOCK;
     var inv = api && typeof api.getInventory === 'function' ? api.getInventory(slug) : null;
-    if (!inv) return { state: 'checking', label: 'Stok kontrol ediliyor', line: 'Stok bilgisi canlı olarak kontrol ediliyor.', canBuy: true };
+    if (!inv) return { state: 'checking', label: 'Stok kontrol ediliyor', line: 'Stok bilgisi doğrulanmadan satın alma yapılamaz.', canBuy: false, available: 0 };
     var available = Number(inv.available_stock || 0);
     var inactive = inv.status && inv.status !== 'active';
     var out = inactive || (inv.status === 'active' && !inv.allow_backorder && available <= 0);
@@ -348,7 +348,8 @@
   function stockQuantityLimit(slug) {
     var api = window.COSMOSKIN_STOCK;
     var inv = api && typeof api.getInventory === 'function' ? api.getInventory(slug) : null;
-    if (!inv || inv.allow_backorder) return Infinity;
+    if (!inv) return 0;
+    if (inv.allow_backorder) return Infinity;
     var available = Number(inv.available_stock || 0);
     return Number.isFinite(available) ? Math.max(0, available) : Infinity;
   }
@@ -379,12 +380,13 @@
       }).catch(function () { if (statusEl) statusEl.textContent = 'Stok kontrolü tamamlanamadı. Lütfen tekrar dene.'; });
       return;
     }
-    done();
+    if (statusEl) statusEl.textContent = 'Stok bilgisi doğrulanamadı. Lütfen tekrar deneyin.';
+    toast('Stok bilgisi doğrulanamadı.');
   }
 
   function collectSlugs(root) {
-    return Array.prototype.slice.call((root || document).querySelectorAll('[data-product-slug], [data-cm-add-cart], [data-favorite-id]')).map(function (node) {
-      return extractSlug(node.getAttribute('data-cm-add-cart') || node.dataset.productSlug || node.dataset.favoriteId || node.dataset.slug || node.dataset.id || '');
+    return Array.prototype.slice.call((root || document).querySelectorAll('[data-product-slug], [data-cm-add-cart], [data-add-cart], [data-buy-now], [data-favorite-id]')).map(function (node) {
+      return extractSlug(node.getAttribute('data-cm-add-cart') || node.getAttribute('data-add-cart') || node.getAttribute('data-buy-now') || node.dataset.productSlug || node.dataset.favoriteId || node.dataset.slug || node.dataset.id || '');
     }).filter(Boolean);
   }
 
@@ -418,14 +420,15 @@
       link.hidden = info.canBuy;
       link.setAttribute('aria-hidden', info.canBuy ? 'true' : 'false');
     });
-    Array.prototype.slice.call(root.querySelectorAll('[data-cm-add-cart]')).forEach(function (btn) {
-      var slug = extractSlug(btn.getAttribute('data-cm-add-cart') || btn.dataset.productSlug || '');
+    Array.prototype.slice.call(root.querySelectorAll('[data-cm-add-cart], [data-add-cart], [data-buy-now]')).forEach(function (btn) {
+      var slug = extractSlug(btn.getAttribute('data-cm-add-cart') || btn.getAttribute('data-add-cart') || btn.getAttribute('data-buy-now') || btn.dataset.productSlug || '');
+      if (!btn.dataset.originalText) btn.dataset.originalText = btn.textContent.trim() || (btn.hasAttribute('data-buy-now') ? 'Hemen Al' : 'Sepete Ekle');
       var info = stockInfo(slug);
       btn.disabled = !info.canBuy;
       btn.setAttribute('aria-disabled', info.canBuy ? 'false' : 'true');
       btn.classList.toggle('is-stock-disabled', !info.canBuy);
       if (!info.canBuy && !btn.classList.contains('cm-card-bag')) btn.textContent = 'Stokta Yok';
-      else if (info.canBuy && /stokta yok/i.test(btn.textContent)) btn.textContent = 'Sepete Ekle';
+      else if (info.canBuy && /stokta yok|stok kontrol/i.test(btn.textContent)) btn.textContent = btn.dataset.originalText || (btn.hasAttribute('data-buy-now') ? 'Hemen Al' : 'Sepete Ekle');
     });
   }
 
@@ -1181,7 +1184,7 @@
     };
     if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.validateAdd === 'function') {
       window.COSMOSKIN_STOCK.validateAdd(payload).then(function (ok) { if (ok) finish(); else applyInventory(document); }).catch(function () { toast('Stok kontrolü tamamlanamadı.'); });
-    } else finish();
+    } else { toast('Stok bilgisi doğrulanamadı.'); applyInventory(document); }
   }
 
   function updateCartQty(slug, delta) {

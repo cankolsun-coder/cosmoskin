@@ -1,4 +1,4 @@
-import { insertRow, selectRows, updateRows } from './supabase.js';
+import { insertRow, selectRows, updateRows, rpc } from './supabase.js';
 import { catalog, products } from './catalog.js';
 import { sendRestockEmail } from './restock-email.js';
 
@@ -251,18 +251,30 @@ function reservationExpiry(minutes = 15) {
   return new Date(Date.now() + Math.max(1, Number(minutes || 15)) * 60 * 1000).toISOString();
 }
 
-export async function reserveInventoryForOrder(context, orderId, cart = [], options = {}) {
-  if (!orderId) throw Object.assign(new Error('order_id gerekli.'), { status: 400 });
-  const normalizedItems = (cart || []).map((item) => ({
-    product_slug: normalizeSlug(item.product_slug || item.slug || item.product_id || item.id),
-    quantity: Math.max(1, Math.floor(Number(item.quantity ?? item.qty ?? 1) || 1)),
-    product_name: item.product_name || item.name || item.product_slug || item.id || 'Ürün'
-  })).filter((item) => item.product_slug && item.quantity > 0);
-  if (!normalizedItems.length) throw Object.assign(new Error('Rezervasyon için ürün bulunamadı.'), { status: 400 });
+function shouldFallbackToLegacyReservation(error) {
+  return /reserve_product_inventory|schema cache|function .* does not exist|Could not find/i.test(String(error?.message || ''));
+}
 
-  const created = [];
-  const expiresAt = options.expires_at || reservationExpiry(options.minutes || 15);
-  for (const item of normalizedItems) {
+async function reserveInventoryRow(context, item) {
+  try {
+    const result = await rpc(context, 'reserve_product_inventory', {
+      p_product_slug: item.product_slug,
+      p_quantity: item.quantity
+    });
+    const row = Array.isArray(result) ? result[0] : result;
+    if (!row) {
+      const current = (await getInventoryRows(context, [item.product_slug]).catch(() => []))[0];
+      const available = Number(current?.available_stock || 0);
+      const message = available <= 0
+        ? 'Bu ürün şu anda stokta yok. Favorilerine ekleyerek tekrar geldiğinde haber alabilirsin.'
+        : `Bu ürün için şu anda yalnızca ${available} adet satın alınabilir.`;
+      throw Object.assign(new Error(message), { status: 409, code: 'INSUFFICIENT_STOCK', available_stock: available, product_slug: item.product_slug });
+    }
+    return normalizeInventoryRow(row);
+  } catch (error) {
+    if (!shouldFallbackToLegacyReservation(error)) throw error;
+    // Fallback for environments where the 20260616 RPC migration has not been applied yet.
+    // Keep server-side validation mandatory, but apply the migration to make this reservation fully atomic.
     const current = (await getInventoryRows(context, [item.product_slug]))[0];
     if (!current) throw Object.assign(new Error(`${item.product_name} için stok kaydı bulunamadı.`), { status: 409 });
     if (current.status !== 'active') throw Object.assign(new Error(`${item.product_name} şu anda satışta değil.`), { status: 409 });
@@ -276,6 +288,23 @@ export async function reserveInventoryForOrder(context, orderId, cart = [], opti
       stock_reserved: current.stock_reserved + item.quantity,
       updated_at: new Date().toISOString()
     });
+    return normalizeInventoryRow({ ...current, stock_reserved: current.stock_reserved + item.quantity });
+  }
+}
+
+export async function reserveInventoryForOrder(context, orderId, cart = [], options = {}) {
+  if (!orderId) throw Object.assign(new Error('order_id gerekli.'), { status: 400 });
+  const normalizedItems = (cart || []).map((item) => ({
+    product_slug: normalizeSlug(item.product_slug || item.slug || item.product_id || item.id),
+    quantity: Math.max(1, Math.floor(Number(item.quantity ?? item.qty ?? 1) || 1)),
+    product_name: item.product_name || item.name || item.product_slug || item.id || 'Ürün'
+  })).filter((item) => item.product_slug && item.quantity > 0);
+  if (!normalizedItems.length) throw Object.assign(new Error('Rezervasyon için ürün bulunamadı.'), { status: 400 });
+
+  const created = [];
+  const expiresAt = options.expires_at || reservationExpiry(options.minutes || 15);
+  for (const item of normalizedItems) {
+    const current = await reserveInventoryRow(context, item);
     const reservation = await insertRow(context, 'inventory_reservations', {
       order_id: orderId,
       session_id: options.session_id || null,
