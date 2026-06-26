@@ -38,6 +38,18 @@ create table if not exists public.customer_preferences (
   constraint customer_preferences_identity check (user_id is not null or email is not null)
 );
 
+-- Repair columns when this idempotent bridge migration is re-run against a partially-created/existing table.
+alter table public.customer_preferences add column if not exists email text;
+alter table public.customer_preferences add column if not exists newsletter_opt_in boolean not null default false;
+alter table public.customer_preferences add column if not exists marketing_email_opt_in boolean not null default false;
+alter table public.customer_preferences add column if not exists stock_alert_opt_in boolean not null default false;
+alter table public.customer_preferences add column if not exists routine_reminder_opt_in boolean not null default false;
+alter table public.customer_preferences add column if not exists birthday_benefit_opt_in boolean not null default false;
+alter table public.customer_preferences add column if not exists preferred_language text not null default 'tr';
+alter table public.customer_preferences add column if not exists metadata jsonb not null default '{}'::jsonb;
+alter table public.customer_preferences add column if not exists created_at timestamptz not null default now();
+alter table public.customer_preferences add column if not exists updated_at timestamptz not null default now();
+
 create unique index if not exists customer_preferences_user_unique on public.customer_preferences(user_id) where user_id is not null;
 create unique index if not exists customer_preferences_email_unique on public.customer_preferences(lower(email)) where email is not null;
 
@@ -340,6 +352,22 @@ create table if not exists public.order_legal_snapshots (
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+-- Repair columns when this migration is re-run after a failed/partial attempt or against a legacy table.
+alter table public.order_legal_snapshots add column if not exists order_id uuid;
+alter table public.order_legal_snapshots add column if not exists user_id uuid;
+alter table public.order_legal_snapshots add column if not exists email text;
+alter table public.order_legal_snapshots add column if not exists document_key text;
+alter table public.order_legal_snapshots add column if not exists document_title text;
+alter table public.order_legal_snapshots add column if not exists document_version text;
+alter table public.order_legal_snapshots add column if not exists document_hash text;
+alter table public.order_legal_snapshots add column if not exists document_url text;
+alter table public.order_legal_snapshots add column if not exists accepted_at timestamptz;
+alter table public.order_legal_snapshots add column if not exists ip_address text;
+alter table public.order_legal_snapshots add column if not exists user_agent text;
+alter table public.order_legal_snapshots add column if not exists source text not null default 'checkout';
+alter table public.order_legal_snapshots add column if not exists metadata jsonb not null default '{}'::jsonb;
+alter table public.order_legal_snapshots add column if not exists created_at timestamptz not null default now();
+
 create index if not exists order_legal_snapshots_order_idx on public.order_legal_snapshots(order_id);
 
 create table if not exists public.order_legal_consents (
@@ -361,8 +389,26 @@ create table if not exists public.order_legal_consents (
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+-- Repair columns when this migration is re-run after a failed/partial attempt or against a legacy table.
+alter table public.order_legal_consents add column if not exists order_id uuid;
+alter table public.order_legal_consents add column if not exists user_id uuid;
+alter table public.order_legal_consents add column if not exists email text;
+alter table public.order_legal_consents add column if not exists consent_type text;
+alter table public.order_legal_consents add column if not exists accepted boolean not null default false;
+alter table public.order_legal_consents add column if not exists document_key text;
+alter table public.order_legal_consents add column if not exists document_title text;
+alter table public.order_legal_consents add column if not exists document_version text;
+alter table public.order_legal_consents add column if not exists document_hash text;
+alter table public.order_legal_consents add column if not exists document_url text;
+alter table public.order_legal_consents add column if not exists accepted_at timestamptz not null default now();
+alter table public.order_legal_consents add column if not exists ip_address text;
+alter table public.order_legal_consents add column if not exists user_agent text;
+alter table public.order_legal_consents add column if not exists source text not null default 'checkout';
+alter table public.order_legal_consents add column if not exists metadata jsonb not null default '{}'::jsonb;
+alter table public.order_legal_consents add column if not exists created_at timestamptz not null default now();
+
 create index if not exists order_legal_consents_order_idx on public.order_legal_consents(order_id);
-create index if not exists order_legal_consents_email_idx on public.order_legal_consents(lower(email));
+create index if not exists order_legal_consents_email_idx on public.order_legal_consents(lower(email)) where email is not null;
 
 create table if not exists public.shipping_settings (
   id uuid primary key default gen_random_uuid(),
