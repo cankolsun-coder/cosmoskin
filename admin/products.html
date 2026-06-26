@@ -1,72 +1,77 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow, noarchive" name="robots"/>
 <title>Ürünler · COSMOSKIN Admin</title>
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511-admin-unified" />
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/favicon.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/admin-inventory.css?v=20260511-admin-unified" rel="stylesheet"/>
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
+<link href="/assets/admin-runtime.css?v=20260616-security" rel="stylesheet"/>
+<script defer="" src="/assets/admin-runtime.js?v=20260616-security"></script>
+<meta content="Ürünler · COSMOSKIN Admin sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description"/>
+<link href="https://www.cosmoskin.com.tr/admin/products.html" rel="canonical"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
 <div class="cs-admin-shell">
-  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
-    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
-    <nav class="cs-sidebar-nav" aria-label="Admin menüsü"><a href="/admin/index.html">Panel</a>
-      <a href="/admin/inventory.html">Stok</a>
-      <a href="/admin/orders/">Siparişler</a>
-      <a href="/admin/shipments.html">Kargo</a>
-      <a href="/admin/returns.html">İade</a>
-      <a class="is-active" href="/admin/products.html">Ürünler</a>
-      <a href="/admin/customers.html">Müşteriler</a>
-      <a href="/admin/reviews/">Yorumlar</a>
-      <a href="/admin/email-logs.html">E-posta Logları</a>
-      <a href="/admin/invoices.html">Faturalar</a>
-      <a href="/admin/suppliers.html">Tedarikçiler</a>
-      <a href="/admin/compliance.html">Uyumluluk</a>
-      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
-      <a href="/admin/admin-users.html">Admin Rolleri</a></nav>
-    <section class="cs-session-card" aria-label="Güvenlik notu">
-      <strong>Güvenli admin oturumu</strong>
-      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
-    </section>
-  </aside>
-  <main class="cs-admin-main">
-    <header class="cs-admin-topbar">
-      <div>
-        <p class="cs-kicker">Katalog Operasyonu</p>
-        <h1>Ürünler</h1>
-        <p>Ürün, SKU ve satış durumu yönetimini COSMOSKIN admin tasarım sistemi içinde izleyin.</p>
-      </div>
-      
-    </header>
-    <section class="cs-toolbar" aria-label="Ürün yönetimi erişimi">
-      <label class="cs-search" for="adminToken">Admin Token<input id="adminToken" placeholder="ADMIN_TOKEN" type="password" autocomplete="off" /></label>
-      <label class="cs-search" for="adminProductSearch">Ara<input id="adminProductSearch" placeholder="Ürün, marka veya slug" type="search" /></label>
-      <div class="cs-filter-row"><button class="cs-btn cs-btn-dark" id="adminProductLoad" type="button">Ürünleri Yükle</button><a class="cs-btn" href="/admin/inventory.html">Gelişmiş Stok Yönetimi</a></div>
-      <p class="cs-auth-note" aria-live="polite">Bu ekran ürün API entegrasyonu için korunur; kapsamlı stok/lot işlemleri Stok modülünde yapılır.</p>
-    </section>
-    <section class="cs-summary-grid" aria-label="Ürün özeti">
-      <article class="cs-summary-card"><span>Toplam stok</span><strong id="adminStockCount">—</strong></article>
-      <article class="cs-summary-card"><span>Az stok</span><strong id="adminLowStockCount">—</strong></article>
-      <article class="cs-summary-card"><span>Satışa kapalı</span><strong id="adminInactiveCount">—</strong></article>
-      <article class="cs-summary-card"><span>Operasyon</span><strong>API</strong><small>Gerçek veriden okunur.</small></article>
-    </section>
-    <section class="cs-table-card">
-      <div class="cs-section-head"><div><h2>Ürün Kayıtları</h2><p>SKU, durum ve basit stok alanlarını hızlı düzenleyin.</p></div></div>
-      <div class="cs-table-wrap"><table class="cs-inventory-table"><thead><tr><th>Ürün</th><th>Marka</th><th>Stok</th><th>Durum</th><th>SKU</th><th>Aksiyon</th></tr></thead><tbody id="adminProductsBody"><tr><td colspan="6">Ürünler yüklenmedi.</td></tr></tbody></table></div>
-    </section>
+<aside aria-label="Admin menüsü" class="cs-admin-sidebar">
+<a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
+<nav aria-label="Admin menüsü" class="cs-sidebar-nav"><a href="/admin/index.html">Panel</a>
+<a href="/admin/inventory.html">Stok</a>
+<a href="/admin/orders/">Siparişler</a>
+<a href="/admin/shipments.html">Kargo</a>
+<a href="/admin/returns.html">İade</a>
+<a class="is-active" href="/admin/products.html">Ürünler</a>
+<a href="/admin/customers.html">Müşteriler</a>
+<a href="/admin/reviews/">Yorumlar</a>
+<a href="/admin/email-logs.html">E-posta Logları</a>
+<a href="/admin/invoices.html">Faturalar</a>
+<a href="/admin/suppliers.html">Tedarikçiler</a>
+<a href="/admin/compliance.html">Uyumluluk</a>
+<a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+<a href="/admin/admin-users.html">Admin Rolleri</a></nav>
+<section aria-label="Güvenlik notu" class="cs-session-card">
+<strong>Güvenli admin oturumu</strong>
+<p>Admin token kısa ömürlü, imzalı bir oturuma dönüştürülür; kaynak kodda veya kalıcı tarayıcı depolamasında tutulmaz.</p>
+</section>
+</aside>
+<main class="cs-admin-main">
+<header class="cs-admin-topbar">
+<div>
+<p class="cs-kicker">Katalog Operasyonu</p>
+<h1>Ürünler</h1>
+<p>Ürün, SKU ve satış durumu yönetimini COSMOSKIN admin tasarım sistemi içinde izleyin.</p>
+</div>
+</header>
+<section aria-label="Ürün yönetimi erişimi" class="cs-toolbar">
+<label class="cs-search" for="adminToken">Admin Token<input autocomplete="off" id="adminToken" placeholder="ADMIN_TOKEN" type="password"/></label>
+<label class="cs-search" for="adminProductSearch">Ara<input id="adminProductSearch" placeholder="Ürün, marka veya slug" type="search"/></label>
+<div class="cs-filter-row"><button class="cs-btn cs-btn-dark" id="adminProductLoad" type="button">Ürünleri Yükle</button><a class="cs-btn" href="/admin/inventory.html">Gelişmiş Stok Yönetimi</a></div>
+<p aria-live="polite" class="cs-auth-note">Bu ekran ürün API entegrasyonu için korunur; kapsamlı stok/lot işlemleri Stok modülünde yapılır.</p>
+</section>
+<section aria-label="Ürün özeti" class="cs-summary-grid">
+<article class="cs-summary-card"><span>Toplam stok</span><strong id="adminStockCount">—</strong></article>
+<article class="cs-summary-card"><span>Az stok</span><strong id="adminLowStockCount">—</strong></article>
+<article class="cs-summary-card"><span>Satışa kapalı</span><strong id="adminInactiveCount">—</strong></article>
+<article class="cs-summary-card"><span>Operasyon</span><strong>API</strong><small>Gerçek veriden okunur.</small></article>
+</section>
+<section class="cs-table-card">
+<div class="cs-section-head"><div><h2>Ürün Kayıtları</h2><p>SKU, durum ve basit stok alanlarını hızlı düzenleyin.</p></div></div>
+<div class="cs-table-wrap"><table class="cs-inventory-table"><thead><tr><th>Ürün</th><th>Marka</th><th>Stok</th><th>Durum</th><th>SKU</th><th>Aksiyon</th></tr></thead><tbody id="adminProductsBody"><tr><td colspan="6">Ürünler yüklenmedi.</td></tr></tbody></table></div>
+</section>
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
-<script src="/assets/admin-products.js?v=20260511-admin-unified" defer></script>
-  </main>
+<script defer="" src="/assets/admin-products.js?v=20260511-admin-unified"></script>
+</main>
 </div>
-<div class="cs-toast-stack" id="inventoryToasts" aria-live="polite"></div>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+<div aria-live="polite" class="cs-toast-stack" id="inventoryToasts"></div>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

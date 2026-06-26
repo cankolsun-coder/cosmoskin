@@ -1,0 +1,11 @@
+{
+  "name": "cosmoskin-local-qa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "browser": "node run-browser-qa.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.52.0"
+  }
+}

@@ -4,7 +4,7 @@ import { assertAdmin, adminError } from '../_lib/admin.js';
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const rows = await selectRows(context, 'orders', {
       select: 'customer_email,customer_first_name,customer_last_name,total_amount,payment_status,created_at',
       order: 'created_at.desc',

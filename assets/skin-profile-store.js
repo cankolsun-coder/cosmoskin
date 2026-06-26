@@ -20,10 +20,10 @@
  * just projects into the canonical shape so widgets read one consistent value.
  *
  * API:
- *   window.CosmoskinSkinProfile.get()                -> profile object
- *   window.CosmoskinSkinProfile.save(partial)        -> profile object (broadcasts change)
- *   window.CosmoskinSkinProfile.subscribe(fn)        -> unsubscribe function
- *   window.CosmoskinSkinProfile.clear()              -> {}
+ *   window.COSMOSKINSkinProfile.get()                -> profile object
+ *   window.COSMOSKINSkinProfile.save(partial)        -> profile object (broadcasts change)
+ *   window.COSMOSKINSkinProfile.subscribe(fn)        -> unsubscribe function
+ *   window.COSMOSKINSkinProfile.clear()              -> {}
  */
 (function () {
   'use strict';
@@ -179,7 +179,7 @@
     }
   });
 
-  window.CosmoskinSkinProfile = {
+  window.COSMOSKINSkinProfile = {
     get: get,
     save: save,
     clear: clear,

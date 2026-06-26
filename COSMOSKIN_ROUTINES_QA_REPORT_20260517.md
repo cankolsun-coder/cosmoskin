@@ -48,7 +48,7 @@
 - Added rewrites for extensionless account routine routes.
 
 ## Data Flow Changes
-- Canonical skin profile remains `cosmoskin_skin_profile` through `window.CosmoskinSkinProfile`.
+- Canonical skin profile remains `cosmoskin_skin_profile` through `window.COSMOSKINSkinProfile`.
 - Legacy routine keys are still read for compatibility:
   - `cosmoskin_routine_profile`
   - `cosmoskin_routine_active`

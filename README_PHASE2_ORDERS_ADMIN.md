@@ -71,7 +71,7 @@ Gerekli env:
 
 ```text
 BREVO_API_KEY=...
-CONTACT_FROM_EMAIL=info@cosmoskin.com.tr
+CONTACT_FROM_EMAIL=destek@cosmoskin.com.tr
 BREVO_SENDER_NAME=COSMOSKIN
 PUBLIC_SITE_URL=https://www.cosmoskin.com.tr
 ```

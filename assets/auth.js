@@ -684,6 +684,18 @@ bindOpenAuthButtons();
 bindPasswordToggles();
 bindPasswordMeter();
 
+try {
+  const authMode = new URLSearchParams(window.location.search).get('auth');
+  if (authMode === 'register' || authMode === 'signup') {
+    window.setTimeout(() => {
+      saveReturnTo();
+      openAccountModal('registerPanel');
+    }, 120);
+  }
+} catch (error) {
+  console.warn('auth query handling warning:', error);
+}
+
 
 // -----------------------------
 // Checkout validation UX (Phase 2)

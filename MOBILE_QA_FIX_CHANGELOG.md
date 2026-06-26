@@ -37,7 +37,7 @@
 - `assets/mobile-redesign.js`
 - `assets/mobile-redesign.css`
 - `assets/mobile.js`
-- Global metin düzeltmeleri: HTML/JS/CSS/JSON içindeki hatalı “Cosmoskin / Cosmo Skin / COSMO SKIN” kullanımları “COSMOSKIN” olarak standardize edildi.
+- Global metin düzeltmeleri: HTML/JS/CSS/JSON içindeki hatalı “COSMOSKIN / Cosmo Skin / COSMOSKIN” kullanımları “COSMOSKIN” olarak standardize edildi.
 
 ## Test edilen sayfalar
 - `index.html`

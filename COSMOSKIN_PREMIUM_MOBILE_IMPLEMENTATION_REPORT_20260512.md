@@ -15,7 +15,7 @@ Yeni route/fallback sayfaları:
 - `explore.html`
 - `favorites.html`
 - `routine.html`
-- `akilli-rutin.html`
+- `/account/routines/`
 - `journal.html`
 - `collections/bestsellers.html`
 - `account/index.html`
@@ -55,7 +55,7 @@ Koleksiyon ve arama sayfaları mobilde ortak listing renderer ile çalışır. F
 Mobil hesap ekranı profil kartı, hızlı işlem kartları, gerçek local kullanıcı state’i varsa profil bilgileri, yoksa giriş yönlendirmesi, sipariş placeholder yerine local order state okuma mantığıyla düzenlendi. Fake sipariş datası eklenmedi.
 
 ## K) Akıllı Rutin
-`routine.html` ve `akilli-rutin.html` eklendi. Cilt tipi, hedef ve gündüz/akşam seçimleri çalışan state yapısına bağlandı. Rutin önerileri mevcut gerçek ürün datasından seçilir; sepete ekleme stok kontrolünden geçer.
+`routine.html` ve `/account/routines/` eklendi. Cilt tipi, hedef ve gündüz/akşam seçimleri çalışan state yapısına bağlandı. Rutin önerileri mevcut gerçek ürün datasından seçilir; sepete ekleme stok kontrolünden geçer.
 
 ## L) PDP
 Mobil PDP top alanı referansa yaklaştırıldı: büyük ürün görseli, floating back/share/zoom, marka, başlık, fiyat, stok state, benefit satırları, trust chips, adet stepper, favori, sticky sepete ekle ve alt accordions.
@@ -79,7 +79,7 @@ Mobil arama inputları `/search.html?q=` parametresiyle çalışır. Eski `href=
 Temel değişiklikler:
 - `assets/mobile-redesign.css`
 - `assets/mobile-redesign.js`
-- `categories.html`, `explore.html`, `favorites.html`, `routine.html`, `akilli-rutin.html`, `journal.html`, `collections/bestsellers.html`, `account/index.html`
+- `categories.html`, `explore.html`, `favorites.html`, `routine.html`, `/account/routines/`, `journal.html`, `collections/bestsellers.html`, `account/index.html`
 - `search.html`
 - Public HTML dosyalarında cache-busting versiyon referansları.
 

@@ -1,59 +1,125 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<title>Akıllı Rutin | COSMOSKIN</title>
-<meta name="description" content="COSMOSKIN akıllı rutin seçimi: cilt tipi, hedef ve rutin adımları." />
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="theme-color" content="#f2ece4" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="icon" href="/favicon.png" sizes="32x32" type="image/png" />
-<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-<link rel="stylesheet" href="/assets/style.css?v=20260503-fav-cart-pdp" />
-<link rel="stylesheet" href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" />
-<link rel="stylesheet" href="/assets/mobile.css?v=20260425f" />
-<link rel="stylesheet" href="/assets/phase6-commerce.css?v=20260503-ratingux" />
-<link rel="stylesheet" href="/assets/mobile-redesign.css?v=20260512-reference-ui" />
-<style>
-  body{margin:0;background:#fbf8f2;color:#111;font-family:"Plus Jakarta Sans",Arial,sans-serif;}
-  .fallback-shell{min-height:100vh;display:flex;flex-direction:column;}
-  .fallback-header{height:76px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(17,17,17,.08);background:#fbf8f2;position:sticky;top:0;z-index:5;}
-  .fallback-logo{font-family:"Cormorant Garamond",Georgia,serif;letter-spacing:.18em;font-size:28px;text-decoration:none;color:#111;}
-  .fallback-main{max-width:1120px;width:min(100% - 40px,1120px);margin:0 auto;padding:56px 0 88px;}
-  .fallback-kicker{letter-spacing:.18em;color:#b58a4a;text-transform:uppercase;font-size:12px;font-weight:700;margin:0 0 12px;}
-  h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(42px,8vw,74px);line-height:.94;margin:0 0 18px;font-weight:400;}
-  .fallback-copy{max-width:620px;color:#6f6a63;font-size:18px;line-height:1.75;margin:0 0 28px;}
-  .fallback-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-top:34px;}
-  .fallback-card{background:rgba(255,255,255,.78);border:1px solid rgba(17,17,17,.10);border-radius:22px;padding:22px;text-decoration:none;color:#111;box-shadow:0 18px 40px rgba(20,15,10,.06);}
-  .fallback-card strong{display:block;font-size:17px;margin-bottom:8px;}
-  .fallback-card span{color:#6f6a63;font-size:14px;line-height:1.5;}
-  .fallback-cta{display:inline-flex;align-items:center;gap:10px;background:#111;color:#fff;border-radius:999px;padding:14px 22px;text-decoration:none;font-weight:700;}
-  .fallback-footer{margin-top:auto;padding:28px;text-align:center;color:#6f6a63;border-top:1px solid rgba(17,17,17,.08);}
-</style>
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Akıllı Cilt Bakım Rutini | COSMOSKIN</title>
+<meta content="Cilt tipini, hedefini ve hassasiyetini seç; canlı stokla doğrulanan sabah ve akşam bakım rutinini adım adım oluştur." name="description"/>
+<link href="https://www.cosmoskin.com.tr/account/routines/" rel="canonical"/>
+<meta content="index,follow" name="robots"/>
+<meta content="#f2ece4" name="theme-color"/>
+<link href="/favicon.png" rel="icon" sizes="32x32" type="image/png"/>
+<link href="/assets/style.css?v=20260503-fav-cart-pdp" rel="stylesheet"/>
+<link href="/assets/smart-routine.css?v=20260616-live-stock" rel="stylesheet"/>
+<link href="/assets/smart-routine-wizard.css?v=20260616" rel="stylesheet"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
-<body>
-<div class="fallback-shell">
-  <header class="fallback-header"><a class="fallback-logo" href="/index.html">COSMOSKIN</a></header>
-  <main class="fallback-main">
-    <p class="fallback-kicker">Akıllı Rutin</p>
-    <h1>Akıllı Rutin Seçimi</h1>
-    <p class="fallback-copy">Mobilde aynı akıllı rutin deneyimi bu alternatif rota üzerinden de çalışır.</p>
-    <a class="fallback-cta" href="/account/routines/">Rutini Başlat</a>
-    <div class="fallback-grid"><a class="fallback-card" href="/account/routines/"><strong>Rutini Başlat</strong><span>Ana akıllı rutin sayfasını aç.</span></a><a class="fallback-card" href="/collections/barrier.html"><strong>Bariyer</strong><span>Bariyer destek ürünleri.</span></a><a class="fallback-card" href="/collections/hydration.html"><strong>Nem</strong><span>Nem odaklı ürünler.</span></a><a class="fallback-card" href="/collections/glow.html"><strong>Işıltı</strong><span>Işıltı odaklı ürünler.</span></a></div>
-  </main>
-  <footer class="fallback-footer">COSMOSKIN — Seçilmiş Kore Cilt Bakımı</footer>
+<body class="smart-routine-page" data-wizard-step="1">
+<a class="sr-skip-link" href="#smart-routine">Akıllı rutin sorularına geç</a>
+<header class="sr-page-header"><a aria-label="COSMOSKIN ana sayfa" class="sr-page-logo" href="/index.html">COSMOSKIN</a><nav aria-label="Sayfa bağlantıları"><a href="/allproducts.html">Ürünler</a><a href="/contact.html">Destek</a></nav></header>
+<main>
+<section aria-labelledby="wizardHeading" class="sr-wizard-intro">
+<p>AKILLI RUTİN</p><h2 id="wizardHeading">Altı kısa adım, stokla doğrulanan kişisel rutin.</h2>
+<div aria-label="Akıllı rutin ilerlemesi" aria-valuemax="6" aria-valuemin="1" aria-valuenow="1" class="sr-wizard-progress" role="progressbar"><span data-wizard-progress-bar=""></span></div>
+<p data-wizard-progress-text="">1 / 6 · Cilt tipi</p>
+</section>
+<div class="sr-extra-step" data-wizard-extra="3" hidden="">
+<p class="sr-extra-kicker">3 · Hassasiyet</p><h2>Cildin yeni ürünlere nasıl tepki verir?</h2>
+<div class="sr-choice-grid"><button data-wizard-sensitivity="dusuk" type="button">Düşük<small>Genellikle kolay adapte olur</small></button><button data-wizard-sensitivity="orta" type="button">Orta<small>Bazen kızarıklık veya kuruluk olur</small></button><button data-wizard-sensitivity="yuksek" type="button">Yüksek<small>Kolay irrite olur; nazik seçim ister</small></button></div>
 </div>
-<script src="/assets/products-data.js?v=20260424a"></script>
+<div class="sr-extra-step" data-wizard-extra="4" hidden="">
+<p class="sr-extra-kicker">4 · Rutin deneyimi</p><h2>Bakım rutinin ne kadar oturmuş?</h2>
+<div class="sr-choice-grid"><button data-wizard-experience="baslangic" type="button">Yeni başlıyorum<small>Temel ve düşük riskli öneriler</small></button><button data-wizard-experience="temel" type="button">Temel rutinim var<small>Temizleme, nem ve koruma biliyorum</small></button><button data-wizard-experience="aktif" type="button">Aktif içerik kullanıyorum<small>Hedefe yönelik ürünlere alışığım</small></button></div>
+</div>
+<div class="sr-extra-step" data-wizard-extra="5" hidden="">
+<p class="sr-extra-kicker">5 · Rutin tercihi</p><h2>Nasıl bir rutin görmek istersin?</h2>
+<div class="sr-choice-grid"><button data-wizard-preference="temel" type="button">Temel rutin<small>Daha sade ve başlangıç dostu</small></button><button data-wizard-preference="tam" type="button">Tam rutin<small>Hazırlık ve hedef bakım adımlarıyla</small></button></div>
+</div>
+<div aria-label="Akıllı rutin adım kontrolleri" class="sr-wizard-nav"><button data-wizard-back="" disabled="" type="button">Geri</button><button data-wizard-restart="" type="button">Baştan Başla</button><button data-wizard-next="" type="button">Devam Et</button></div>
+<section aria-labelledby="smartRoutineTitle" class="smart-routine reveal" id="smart-routine">
+<div class="container">
+<div class="smart-routine__shell">
+<div class="smart-routine__left">
+<p class="smart-routine__eyebrow">AKILLI RUTİN SEÇİMİ</p>
+<h1 class="smart-routine__title" id="smartRoutineTitle">Cildin için güvenli ve uygulanabilir rutini adım adım oluşturalım.</h1>
+<p class="smart-routine__lede">Cilt hedefini seç, sabah ve akşam kullanabileceğin ürünleri doğru sırayla önerelim.</p>
+<span class="smart-routine__badge"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/sparkle.png"/> Kişiselleştirilmiş seçim</span><div aria-label="Cilt tipi seçimi" class="smart-routine__panel" data-wizard-panel="skin">
+<p class="smart-routine__skin-title">Cilt tipini seç</p>
+<div class="smart-routine__skin-types" data-sr-skins=""></div>
+</div><div aria-label="Cilt hedefi seçimi" class="smart-routine__panel" data-wizard-panel="goal">
+<h3 class="smart-routine__panel-title"><span class="smart-routine__number">1</span> Cilt hedefini seç</h3>
+<div class="smart-routine__goals" data-sr-goals=""></div>
+<div class="smart-routine__selection-line">
+<span class="smart-routine__selected-count" data-sr-selected-count="">2 hedef seçildi</span>
+<button class="smart-routine__clear" data-sr-clear-goals="" type="button">Temizle</button>
+</div>
+</div>
+</div>
+<div class="smart-routine__middle">
+<h3 class="smart-routine__column-title"><span class="smart-routine__number">2</span><span>Rutin adımları<small>Bilimsel sıralama ile maksimum etki</small></span></h3>
+<div class="smart-routine__steps" data-sr-steps=""></div>
+<div class="smart-routine__note">
+<img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/target-match.png"/>
+<span>Seçtiğin hedefler ve cilt tipine göre bu sıralama senin için oluşturuldu.</span>
+</div>
+</div>
+<div class="smart-routine__right">
+<div class="smart-routine__right-head">
+<h3 class="smart-routine__routine-title"><span class="smart-routine__number">3</span> Senin için önerilen rutin <span class="smart-routine__routine-subtitle" data-sr-routine-subtitle="">Kuru cilt için Nem + Bariyer odağı</span></h3>
+<span class="smart-routine__match"><span data-sr-match="">%96 eşleşme</span> <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/sparkle.png"/></span>
+</div>
+<div class="smart-routine__daypart smart-routine__daypart--day">
+<h4 class="smart-routine__daypart-title"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/sun.png"/> GÜNDÜZ</h4>
+<div aria-live="polite" class="smart-routine__product-flow" data-sr-day-products=""></div>
+</div>
+<div class="smart-routine__daypart smart-routine__daypart--night">
+<h4 class="smart-routine__daypart-title"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/moon.png"/> GECE</h4>
+<div aria-live="polite" class="smart-routine__product-flow" data-sr-night-products=""></div>
+</div>
+<div class="smart-routine__bundle-offer" data-sr-offer="" hidden="">
+<div class="smart-routine__offer-icon">%</div>
+<div><strong>Rutin Set Avantajı</strong><span>Gündüz + gece rutininde 2+ üründe sepette %10 avantaj.</span></div>
+<b>-234 TL</b>
+</div>
+<div aria-label="Rutin özeti" class="smart-routine__meta-grid">
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/heart.png"/><div><span>Rutin Toplamı</span><strong data-sr-total="">2.340 TL</strong><small data-sr-original-total=""></small></div></div>
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/sparkle.png"/><div><span>Rutin Avantajı</span><strong data-sr-discount="">-234 TL</strong></div></div>
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/clock.png"/><div><span>Tahmini</span><strong data-sr-time="">3 dakikada hazır</strong></div></div>
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/stock-check.png"/><div><span>Stokta</span><strong data-sr-stock="">✓</strong></div></div>
+</div>
+<div class="smart-routine__safety" role="note"><strong>Güvenli başlangıç:</strong> Yeni ürünleri yama testiyle ve kademeli olarak rutine ekle. Bu araç tıbbi tavsiye değildir; tanı veya tedavi önerisi sunmaz. Kalıcı ya da şiddetli cilt sorunlarında dermatoloğa başvur.</div><div class="smart-routine__actions">
+<button class="smart-routine__btn smart-routine__btn--primary" data-sr-add-cart="" type="button">Tüm Rutini Sepete Ekle <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/bag.png"/></button>
+<button class="smart-routine__btn smart-routine__btn--secondary" data-sr-save="" type="button">Rutini Kaydet <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/heart.png"/></button>
+<button class="smart-routine__btn smart-routine__btn--secondary smart-routine__btn--view" data-sr-view-routine="" type="button">Rutini Gör <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/arrow-right.png"/></button>
+<button class="smart-routine__btn smart-routine__btn--secondary" data-wizard-edit="" type="button">Yanıtları Düzenle</button></div>
+<button class="smart-routine__tertiary" data-sr-show-alternatives="" type="button">Alternatifleri Gör <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/arrow-right.png"/></button>
+<p class="smart-routine__privacy"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/lock.png"/> Bilgilerin gizli ve güvenlidir.</p>
+</div>
+<div aria-label="Akıllı rutin güven bilgileri" class="smart-routine__trustbar">
+<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/clock.png"/><div><strong>3 Dakikada Hazır</strong><span>Hızlı ve kolay rutin önerisi</span></div></div>
+<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/editor-star.png"/><div><strong>Seçilmiş Ürün Havuzu</strong><span>COSMOSKIN ürün seçkisi içinden</span></div></div>
+<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/target-match.png"/><div><strong>Cilt Hedefine Göre</strong><span>Seçimlerin ve canlı stokla eşleşir</span></div></div>
+<div class="smart-routine__trust-item smart-routine__trust-item--avatars"><div aria-hidden="true" class="smart-routine__avatars"><span class="smart-routine__avatar">C</span><span class="smart-routine__avatar">S</span><span class="smart-routine__avatar">K</span></div><div><strong>Akıllı Rutin</strong><span>Tekrarlayan ürünleri ayırır</span></div></div>
+</div>
+</div>
+</div>
+<div aria-hidden="true" aria-label="Alternatif rutin ürünleri" aria-modal="true" class="smart-routine__modal" data-sr-alternative-modal="" role="dialog">
+<div class="smart-routine__modal-card">
+<div class="smart-routine__modal-head">
+<div><h3>Alternatifleri Gör</h3><p>Her adım için aynı veri kaynağından gelen uygun ürünleri seçebilirsin.</p></div>
+<button aria-label="Alternatifleri kapat" class="smart-routine__modal-close" data-sr-modal-close="" type="button">×</button>
+</div>
+<div class="smart-routine__alternatives" data-sr-alternatives=""></div>
+</div>
+</div>
+</section>
+</main>
+<footer class="sr-page-footer"><a href="/legal/kvkk-aydinlatma-metni.html">KVKK</a><a href="/contact.html">Destek</a><span>© 2026 COSMOSKIN</span></footer>
+<script src="/assets/products-data.js?v=20260616"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
-<script src="/assets/commerce.js?v=20260418d"></script>
-<script defer src="/assets/phase6-commerce.js?v=20260616-stockfix"></script>
-<script defer src="/assets/inventory-client.js?v=20260616-stockfix"></script>
-<script defer src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>
-<script defer src="/assets/mobile-redesign.js?v=20260616-stockfix"></script>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
-</body>
-</html>
+<script defer="" src="/assets/phase6-commerce.js?v=20260616-stockfix"></script>
+<script defer="" src="/assets/inventory-client.js?v=20260616-remediation"></script>
+<script defer="" src="/assets/js/smart-routine.js?v=20260616-remediation"></script>
+<script defer="" src="/assets/smart-routine-wizard.js?v=20260616"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
+</body></html>

@@ -1,0 +1,7 @@
+[browser-qa] flow: admin-login-overflow
+{
+  "assertions": 1,
+  "passed": 1,
+  "failed": 0,
+  "evidence": "/mnt/data/cosmoskin_remediation/working/cosmoskin/qa/evidence/browser-qa-results.json"
+}

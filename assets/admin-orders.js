@@ -47,7 +47,7 @@
   var DETAIL_TABS = [
     ['summary', 'Özet'], ['items', 'Ürünler'], ['shipment', 'Kargo'], ['payment', 'Ödeme'], ['invoice', 'Fatura'], ['returns', 'İade / Refund'], ['emails', 'E-postalar'], ['history', 'Geçmiş'], ['notes', 'Notlar']
   ];
-  var CARRIERS = ['Yurtiçi Kargo', 'Aras Kargo', 'MNG Kargo', 'Sürat Kargo', 'Hepsijet', 'Kolay Gelsin', 'UPS', 'DHL', 'Other'];
+  var CARRIERS = ['Yurtiçi Kargo', 'Aras Kargo', 'MNG Kargo', 'Sürat Kargo', 'Hepsijet', 'Kolay Gelsin', 'UPS', 'DHL eCommerce', 'DHL', 'Other'];
 
   var state = {
     orders: [],
@@ -570,7 +570,7 @@
       '<label>Sipariş durumu<select name="status">' + optionsHtml(ORDER_STATUSES.filter(notAll), order.status || 'pending') + '</select></label>' +
       '<label>Ödeme durumu<select name="payment_status">' + optionsHtml(PAYMENT_STATUSES.filter(notAll), order.payment_status || 'pending') + '</select></label>' +
       '<label>Operasyon durumu<select name="fulfillment_status">' + optionsHtml(FULFILLMENT_STATUSES.filter(notAll), order.fulfillment_status || 'unfulfilled') + '</select></label>' +
-      '<label class="span-2">Operasyon notu<textarea name="message" placeholder="Bu not order_status_events geçmişine yazılır."></textarea></label>' +
+      '<label class="span-2">Sipariş notu<textarea name="message" placeholder="Bu not order_status_events geçmişine yazılır."></textarea></label>' +
       '</div><div class="cs-warning">Manuel ödeme düzeltmeleri ödeme sağlayıcısından gerçek zamanlı doğrulama yapmaz; yalnızca operasyonel düzeltme kaydı oluşturur.</div><div class="cs-form-actions"><span class="cs-muted">Riskli durumlar onay modalı ile korunur.</span><button class="cs-btn cs-btn-dark" type="submit">Durumu Kaydet</button></div></form></details>';
   }
   function notAll(pair) { return pair[0] !== 'all' && pair[0] !== 'none'; }
@@ -597,7 +597,7 @@
       '<label class="span-2">Takip URL<input name="tracking_url" type="url" value="' + attr(shipment && shipment.tracking_url || '') + '" placeholder="https://" /></label>' +
       '<label>Kargo durumu<select name="shipment_status"><option value="shipped">Kargoda</option><option value="delivered">Teslim Edildi</option><option value="failed">Başarısız</option><option value="returned">Geri Döndü</option></select></label>' +
       '<label>Gönderim tarihi<input name="shipped_at" type="datetime-local" /></label>' +
-      '<label class="span-2">Operasyon notu<textarea name="message" placeholder="Kargo hareket notu"></textarea></label>' +
+      '<label class="span-2">Sipariş notu<textarea name="message" placeholder="Kargo hareket notu"></textarea></label>' +
       '<label class="cs-check span-2"><input type="checkbox" name="suppress_customer_email" /> Müşteriye e-posta gönderme</label>' +
       '</div><div class="cs-form-actions"><span class="cs-muted">Kargo bilgisi kaydedildiğinde müşteri e-postası varsayılan olarak açıktır.</span><button class="cs-btn cs-btn-dark" type="submit">Kargo Bilgisini Kaydet</button></div></form><div class="cs-action-row"><button class="cs-btn" type="button" data-order-action="mark_shipped">Kargoya verildi işaretle</button><button class="cs-btn cs-btn-danger" type="button" data-order-action="mark_delivered">Teslim edildi işaretle</button><button class="cs-btn" type="button" data-resend-email="shipment_created">Kargo e-postasını tekrar gönder</button></div></section>' + renderShipmentEvents(order);
   }
@@ -620,7 +620,7 @@
     return '<section class="cs-detail-card"><h3>Fatura</h3>' + (invoices.length ? '<div class="cs-record-list">' + invoices.map(function (inv) { return '<article class="cs-record"><div class="cs-record-head"><strong>' + escapeHtml(inv.invoice_number || 'Fatura kaydı') + '</strong>' + renderBadge('invoice', inv.invoice_status || 'pending') + '</div><small>' + escapeHtml(inv.invoice_type || 'manual') + ' · ' + escapeHtml(inv.provider || 'Sağlayıcı yok') + ' · Ref: ' + escapeHtml(inv.provider_reference || '—') + ' · ' + escapeHtml(formatDate(inv.issued_at || inv.created_at)) + '</small>' + (inv.pdf_url ? '<a class="cs-btn cs-btn-sm cs-btn-dark" href="' + attr(inv.pdf_url) + '" target="_blank" rel="noopener">PDF Aç</a>' : '') + (inv.error_message ? '<div class="cs-error-box">' + escapeHtml(inv.error_message) + '</div>' : '') + '</article>'; }).join('') + '</div>' : '<p>Fatura kaydı yok.</p>') + '</section>' +
       '<details class="cs-op-form"><summary>Fatura Kaydı Ekle</summary><form id="invoiceCreateForm" data-order-id="' + attr(order.id) + '"><div class="cs-warning">Fatura sağlayıcı entegrasyonu yapılandırılmadan resmi e-Fatura/e-Arşiv oluşturulmaz.</div><div class="cs-form-grid">' +
       '<label>Fatura tipi<select name="invoice_type"><option value="e_arsiv">e-Arşiv</option><option value="e_fatura">e-Fatura</option><option value="manual">Manuel</option></select></label><label>Durum<select name="invoice_status"><option value="pending">Bekliyor</option><option value="issued">Oluşturuldu</option><option value="failed">Başarısız</option><option value="cancelled">İptal Edildi</option></select></label>' +
-      '<label>Fatura No<input name="invoice_number" placeholder="FTR-..." /></label><label>PDF URL<input name="pdf_url" type="url" placeholder="https://" /></label><label>Sağlayıcı<input name="provider" placeholder="manual / Paraşüt / Mikro" /></label><label>Sağlayıcı Referansı<input name="provider_reference" placeholder="Opsiyonel" /></label><label class="span-2">Not<textarea name="note" placeholder="Operasyon notu"></textarea></label></div><div class="cs-form-actions"><span class="cs-muted">Sahte resmi fatura başarı durumu üretilmez.</span><button class="cs-btn cs-btn-dark" type="submit">Fatura Kaydı Ekle</button></div></form></details>';
+      '<label>Fatura No<input name="invoice_number" placeholder="FTR-..." /></label><label>PDF URL<input name="pdf_url" type="url" placeholder="https://" /></label><label>Sağlayıcı<input name="provider" placeholder="manual / Paraşüt / Mikro" /></label><label>Sağlayıcı Referansı<input name="provider_reference" placeholder="Opsiyonel" /></label><label class="span-2">Not<textarea name="note" placeholder="Sipariş notu"></textarea></label></div><div class="cs-form-actions"><span class="cs-muted">Sahte resmi fatura başarı durumu üretilmez.</span><button class="cs-btn cs-btn-dark" type="submit">Fatura Kaydı Ekle</button></div></form></details>';
   }
   function renderReturnTab(order) {
     var returns = order.return_requests || [];

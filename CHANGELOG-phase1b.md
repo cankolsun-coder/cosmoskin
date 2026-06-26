@@ -35,7 +35,7 @@
 ---
 
 ### BUG-003 — YÜKSEK: `assets/mobile-redesign.js` ödeme logoları düzeltildi
-**Sorun:** Mobil footer'daki ödeme logoları yanlış dizinden yükleniyordu (`/assets/payment/`); Troy logosunu eksikti; American Express dosya adı hatalıydı.  
+**Sorun:** Mobil footer'daki ödeme logoları yanlış dizinden yükleniyordu (`/assets/payment/`); Troy logosunu eksikti; Legacy card brand dosya adı hatalıydı.  
 **Düzeltme:**
 
 | Önce | Sonra |

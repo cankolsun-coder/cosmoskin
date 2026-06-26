@@ -42,7 +42,7 @@
 - Footer artık sayfada **bir kere** çıkıyor (sadece home ve categories). Diğer mobil sayfalar zaten footer enjekte etmiyor; onlar için legacy `padding-bottom: 94px + safe-area` korundu.
 
 ### 3. Ödeme Logoları
-- Mobil footer `cm-payment-block` ile sarmalandı: krem-üzerinde beyaz çiplerle Visa / Mastercard / American Express logoları.
+- Mobil footer `cm-payment-block` ile sarmalandı: krem-üzerinde beyaz çiplerle Visa / Mastercard / Legacy card brand logoları.
 - Yol birleştirildi: artık masaüstü ile aynı `assets/img/payments/*.svg` set kullanılıyor (`visa.svg`, `mastercard.svg`, `american-express.svg`).
 - `filter: brightness(0) invert(1)` agresif renksizleştirme **kaldırıldı** (`filter: none !important`).
 - Her logo: 26px height, beyaz arka plan, 6px border-radius, `object-fit: contain` — Troy artık footer'da gösterilmiyor (kullanıcı yalnızca Visa/Mastercard/Amex istemişti).
@@ -124,7 +124,7 @@ Preview MCP sandbox'ı kullanıcının `Documents/GitHub/cosmoskin` dizinine eri
 ```bash
 cd /Users/can/Documents/GitHub/cosmoskin
 python3 -m http.server 7700
-# tarayıcıda: http://localhost:7700/index.html
+# tarayıcıda: http://local-dev-host:7700/index.html
 # Chrome DevTools > Toggle device toolbar > 360px / 390px / 430px / 768px
 ```
 

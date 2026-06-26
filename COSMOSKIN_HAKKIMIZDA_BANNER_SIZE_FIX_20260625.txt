@@ -1,0 +1,23 @@
+COSMOSKIN Hakkımızda Banner Size Fix - 2026-06-25
+
+Scope:
+- Correction pass limited to the black closing slogan/banner section on hakkimizda.html.
+- No header, footer, payment, routine, product, cart, checkout, category, account, or legal content was changed.
+
+Files modified:
+- assets/style.css
+- assets/cosmoskin-fixes.css
+- assets/legal-site.css
+
+Change summary:
+- Reduced the Hakkımızda closing banner visual weight.
+- Reduced desktop slogan text from the previous large clamp to a smaller readable clamp.
+- Reduced banner padding and border radius.
+- Added a max-width and centered layout so the banner no longer dominates very wide screens.
+- Reduced CTA button height/padding inside the banner.
+- Added mobile-specific sizing to keep it readable without overflow.
+
+QA:
+- hakkimizda.html content was not edited.
+- Header/footer consistency files were not structurally changed.
+- Only scoped .cs-about-closing CSS rules were adjusted.

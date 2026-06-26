@@ -110,7 +110,7 @@
   background:
     linear-gradient(90deg, rgba(250,246,240,.98) 0%, rgba(250,246,240,.92) 29%, rgba(250,246,240,.48) 48%, rgba(250,246,240,.08) 67%, rgba(239,229,217,.16) 100%),
     linear-gradient(180deg, rgba(255,255,255,.1) 0%, rgba(246,238,228,.76) 100%),
-    url('/assets/img/hero/hero-bg.png') center bottom/cover no-repeat;
+    url('/assets/img/hero/hero-bg.webp') center bottom/cover no-repeat;
 }
 .home-hero__canvas::after{
   content:"";
@@ -486,7 +486,7 @@
     padding-top:34px;
     background:
       linear-gradient(180deg, rgba(250,246,240,.99) 0%, rgba(250,246,240,.9) 43%, rgba(250,246,240,.28) 70%, rgba(239,229,217,.18) 100%),
-      url('/assets/img/hero/hero-bg.png') 68% bottom/auto 100% no-repeat;
+      url('/assets/img/hero/hero-bg.webp') 68% bottom/auto 100% no-repeat;
   }
   .home-hero__grid{display:block}
   .home-hero__copy{max-width:none;padding-bottom:0}
@@ -556,7 +556,7 @@
   background:
     linear-gradient(90deg, rgba(250,246,240,.96) 0%, rgba(250,246,240,.88) 31%, rgba(250,246,240,.44) 50%, rgba(250,246,240,.08) 69%, rgba(250,246,240,0) 100%),
     linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(241,232,220,.28) 100%),
-    url('/assets/img/hero/hero-bg-cosmoskin-stone.png') center center/cover no-repeat;
+    url('/assets/img/hero/hero-bg-cosmoskin-stone.webp') center center/cover no-repeat;
 }
 .home-hero__canvas::after{
   z-index:0;
@@ -589,7 +589,7 @@
     padding-top:34px;
     background:
       linear-gradient(180deg, rgba(250,246,240,.98) 0%, rgba(250,246,240,.88) 43%, rgba(250,246,240,.18) 73%, rgba(250,246,240,0) 100%),
-      url('/assets/img/hero/hero-bg-cosmoskin-stone.png') 61% center/cover no-repeat;
+      url('/assets/img/hero/hero-bg-cosmoskin-stone.webp') 61% center/cover no-repeat;
   }
   .home-hero__grid{min-height:560px;}
   .home-hero h1{font-size:clamp(3rem,12.5vw,4.4rem);line-height:.96;}

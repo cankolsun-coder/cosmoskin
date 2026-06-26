@@ -8,7 +8,7 @@ function todayStartIso() { const d = new Date(); d.setHours(0,0,0,0); return d.t
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const [orders, inventory, alerts, emails, returns, payments, shipments, lots] = await Promise.all([
       selectRows(context, 'orders', { select: 'id,status,payment_status,fulfillment_status,total_amount,currency,created_at,delivered_at', order: 'created_at.desc', limit: '500' }).catch(() => []),
       selectRows(context, 'product_inventory', { select: 'product_slug,stock_on_hand,stock_reserved,low_stock_threshold,status', limit: '500' }).catch(() => []),

@@ -26,14 +26,14 @@
     updatedAt:     ISO string
   }
   ```
-- **Public API:** `window.CosmoskinSkinProfile.get() / save(partial) / subscribe(fn) / clear() / normalize(partial)`
+- **Public API:** `window.COSMOSKINSkinProfile.get() / save(partial) / subscribe(fn) / clear() / normalize(partial)`
 - **Migration:** İlk read'de eski 4 anahtar (`cosmoskin_routine_active`, `cosmoskin_routine_profile`, `cosmoskin_routine_preferences`, `cosmoskin_pending_routine_preferences`) okunur, canonical'a yazılır. Eski anahtarlar silinmez (legacy modüller hâlâ yazıyor) — store sadece doğru shape'i sunar.
 - **Cross-tab sync:** `storage` event listener — başka sekmede save edilirse bu sekmedeki widget'lar canlı güncellenir.
 - **Custom event:** `cosmoskin:skin-profile-change` → DOM seviyesinde dinlenebilir.
 
 **routines.js entegrasyonu:**
-- `getRoutinePreferences()` artık önce `CosmoskinSkinProfile.get()` okur, eski okuma path'i fallback olarak korunur. Canonical değer varsa eski preferences üzerine projeksiyon yapar.
-- `saveRoutinePreferences()` artık her save'de `CosmoskinSkinProfile.save()` da çağırıyor. Cilt Profilim formu kaydedildiğinde canonical key güncellenir ve abonelere broadcast yapılır.
+- `getRoutinePreferences()` artık önce `COSMOSKINSkinProfile.get()` okur, eski okuma path'i fallback olarak korunur. Canonical değer varsa eski preferences üzerine projeksiyon yapar.
+- `saveRoutinePreferences()` artık her save'de `COSMOSKINSkinProfile.save()` da çağırıyor. Cilt Profilim formu kaydedildiğinde canonical key güncellenir ve abonelere broadcast yapılır.
 
 **Test akışı:**
 ```
@@ -49,7 +49,7 @@
 **Değişen dosya:** `account/profile.html`
 
 - Loyalty kartının yanına yeni `cs-skin-profile-card` widget'ı eklendi (`data-skin-profile-widget` attribute).
-- Inline `<script>` ile widget hydration: `CosmoskinSkinProfile.get()` ile başlangıç render, `subscribe()` ile real-time update.
+- Inline `<script>` ile widget hydration: `COSMOSKINSkinProfile.get()` ile başlangıç render, `subscribe()` ile real-time update.
 - Etiket sözlüğü Turkish: `SKIN_LABELS`, `SENS_LABELS`, `GOAL_LABELS`, `STYLE_LABELS`.
 - Boş state: "Profilini oluştur" + CTA → `/account/routines/?view=profile`.
 - Dolu state: skin type başlık, sensitivity + routine style alt satır, hedefler ve `Son güncelleme:` zaman damgası (Intl Turkish date format).
@@ -152,7 +152,7 @@ Tüm hedef dosyalar mevcut (12/12 OK), yeni route yaratılmadı.
 | PDP yeni honest fallback text | ✓ 37 dosyada |
 | `skin-profile-store.js` wired in 8 ilgili HTML | ✓ |
 | `CLAUDE.md` mevcut | ✓ |
-| `CosmoskinSkinProfile` API exports (get/save/subscribe/clear/normalize) | ✓ |
+| `COSMOSKINSkinProfile` API exports (get/save/subscribe/clear/normalize) | ✓ |
 | routines.js → store entegrasyon kod path | ✓ (lines 97, 118) |
 
 ---
@@ -165,7 +165,7 @@ python3 -m http.server 7700 --directory .
 ```
 
 **Test 1 — Skin profile persist:**
-1. `http://localhost:7700/account/routines/?view=profile`
+1. `http://local-dev-host:7700/account/routines/?view=profile`
 2. Cilt Tipi → Kuru seç, Hedef → Nem seç, Yoğunluk → Dengeli seç
 3. "Kaydet" tıkla
 4. Refresh sayfayı (`Cmd+R`)
@@ -174,7 +174,7 @@ python3 -m http.server 7700 --directory .
 7. Schema doğru olmalı: `{ skinType:'kuru', primaryGoal:'nem', routineStyle:'dengeli', ... }`
 
 **Test 2 — Cross-page sync:**
-1. Test 1'i tamamladıktan sonra → `http://localhost:7700/account/profile.html`
+1. Test 1'i tamamladıktan sonra → `http://local-dev-host:7700/account/profile.html`
 2. Sağdaki "CİLT PROFİLİM" kartı "Kuru cilt · Dengeli rutin", "Hedefler: Nem" göstermeli, "Son güncelleme: ..." damgası olmalı.
 
 **Test 3 — Dropdown:**

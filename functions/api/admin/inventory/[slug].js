@@ -4,7 +4,7 @@ import { assertAdminInventoryPayload, normalizeSlug, setInventory } from '../../
 
 export async function onRequestPatch(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const slug = normalizeSlug(context.params?.slug || '');
     const body = await readJsonBody(context);
     const payload = assertAdminInventoryPayload(body);

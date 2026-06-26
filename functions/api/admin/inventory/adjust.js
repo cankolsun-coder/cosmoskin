@@ -4,7 +4,7 @@ import { adjustInventory } from '../../_lib/inventory.js';
 
 export async function onRequestPost(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await readJsonBody(context);
     const inventory = await adjustInventory(context, body);
     return json({ ok: true, inventory, message: 'Stok bilgisi güncellendi.' });

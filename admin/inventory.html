@@ -1,118 +1,117 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow, noarchive" name="robots"/>
 <title>Stok Yönetimi | COSMOSKIN Admin</title>
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511-admin-unified" />
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/favicon.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/admin-inventory.css?v=20260511-admin-unified" rel="stylesheet"/>
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
+<link href="/assets/admin-runtime.css?v=20260616-security" rel="stylesheet"/>
+<script defer="" src="/assets/admin-runtime.js?v=20260616-security"></script>
+<meta content="Stok Yönetimi sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description"/>
+<link href="https://www.cosmoskin.com.tr/admin/inventory.html" rel="canonical"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
 <div class="cs-admin-auth" id="inventoryLogin">
-  <section class="cs-auth-card">
-    <p class="cs-kicker">COSMOSKIN Admin</p>
-    <h1>Stok Yönetimi</h1>
-    <p>Ürün stoğunu, düşük stok eşiğini, SKU bilgisini ve stok hareketlerini güvenli admin token ile yönet.</p>
-    <label>Admin Token<input id="inventoryToken" type="password" autocomplete="off" placeholder="ADMIN_TOKEN" /></label>
-    <button id="inventoryLoginBtn" type="button">Panele Gir</button>
-    <p class="cs-auth-note" id="inventoryLoginStatus" aria-live="polite">Token sadece bu tarayıcı oturumunda saklanır.</p>
-  </section>
+<section class="cs-auth-card">
+<p class="cs-kicker">COSMOSKIN Admin</p>
+<h2>Stok Yönetimi</h2>
+<p>Ürün stoğunu, düşük stok eşiğini, SKU bilgisini ve stok hareketlerini güvenli admin token ile yönet.</p>
+<label>Admin Token<input autocomplete="off" id="inventoryToken" placeholder="ADMIN_TOKEN" type="password"/></label>
+<button id="inventoryLoginBtn" type="button">Panele Gir</button>
+<p aria-live="polite" class="cs-auth-note" id="inventoryLoginStatus">Token sadece bu tarayıcı oturumunda saklanır.</p>
+</section>
 </div>
-
 <div class="cs-admin-shell is-hidden" id="inventoryApp">
-  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
-    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
-    <nav class="cs-sidebar-nav" aria-label="Admin menüsü"><a href="/admin/index.html">Panel</a>
-      <a class="is-active" href="/admin/inventory.html">Stok</a>
-      <a href="/admin/orders/">Siparişler</a>
-      <a href="/admin/shipments.html">Kargo</a>
-      <a href="/admin/returns.html">İade</a>
-      <a href="/admin/products.html">Ürünler</a>
-      <a href="/admin/customers.html">Müşteriler</a>
-      <a href="/admin/reviews/">Yorumlar</a>
-      <a href="/admin/email-logs.html">E-posta Logları</a>
-      <a href="/admin/invoices.html">Faturalar</a>
-      <a href="/admin/suppliers.html">Tedarikçiler</a>
-      <a href="/admin/compliance.html">Uyumluluk</a>
-      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
-      <a href="/admin/admin-users.html">Admin Rolleri</a></nav>
-    <section class="cs-session-card" aria-label="Güvenlik notu">
-      <strong>Güvenli admin oturumu</strong>
-      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
-    </section>
-  </aside>
-
-  <main class="cs-admin-main">
-    <header class="cs-admin-topbar">
-      <div>
-        <p class="cs-kicker">Operasyon</p>
-        <h1>Stok Yönetimi</h1>
-        <p>Dinamik stok Supabase üzerinden okunur; HTML içindeki ürün verisi sadece katalog bilgisi olarak kalır.</p>
-      </div>
-      <div class="cs-admin-actions">
-        <button id="inventoryRefresh" type="button">Yenile</button>
-        <button id="inventoryLogout" type="button">Çıkış</button>
-      </div>
-    </header>
-
-    <section class="cs-summary-grid" id="inventorySummary">
-      <article><span>Toplam ürün</span><strong>0</strong></article>
-      <article><span>Stokta</span><strong>0</strong></article>
-      <article><span>Düşük stok</span><strong>0</strong></article>
-      <article><span>Stokta yok</span><strong>0</strong></article>
-    </section>
-
-    <section class="cs-toolbar">
-      <label class="cs-search">Ara<input id="inventorySearch" type="search" placeholder="Ürün adı, marka, SKU, slug" /></label>
-      <div class="cs-filter-row" role="tablist" aria-label="Stok filtreleri">
-        <button class="is-active" type="button" data-inventory-filter="all">Tümü</button>
-        <button type="button" data-inventory-filter="in_stock">Stokta</button>
-        <button type="button" data-inventory-filter="low_stock">Düşük Stok</button>
-        <button type="button" data-inventory-filter="out_of_stock">Stokta Yok</button>
-        <button type="button" data-inventory-filter="inactive">Pasif</button>
-      </div>
-      <p id="inventoryStatus" aria-live="polite"></p>
-    </section>
-
-    <section class="cs-table-card">
-      <div class="cs-table-wrap">
-        <table class="cs-inventory-table">
-          <thead>
-            <tr>
-              <th>Ürün</th>
-              <th>SKU</th>
-              <th>Stok</th>
-              <th>Rezerve</th>
-              <th>Satılabilir</th>
-              <th>Eşik</th>
-              <th>Durum</th>
-              <th>Güncellendi</th>
-              <th>Aksiyon</th>
-            </tr>
-          </thead>
-          <tbody id="inventoryBody"><tr><td colspan="9">Ürünler yüklenmedi.</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+<aside aria-label="Admin menüsü" class="cs-admin-sidebar">
+<a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
+<nav aria-label="Admin menüsü" class="cs-sidebar-nav"><a href="/admin/index.html">Panel</a>
+<a class="is-active" href="/admin/inventory.html">Stok</a>
+<a href="/admin/orders/">Siparişler</a>
+<a href="/admin/shipments.html">Kargo</a>
+<a href="/admin/returns.html">İade</a>
+<a href="/admin/products.html">Ürünler</a>
+<a href="/admin/customers.html">Müşteriler</a>
+<a href="/admin/reviews/">Yorumlar</a>
+<a href="/admin/email-logs.html">E-posta Logları</a>
+<a href="/admin/invoices.html">Faturalar</a>
+<a href="/admin/suppliers.html">Tedarikçiler</a>
+<a href="/admin/compliance.html">Uyumluluk</a>
+<a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+<a href="/admin/admin-users.html">Admin Rolleri</a></nav>
+<section aria-label="Güvenlik notu" class="cs-session-card">
+<strong>Güvenli admin oturumu</strong>
+<p>Admin token kısa ömürlü, imzalı bir oturuma dönüştürülür; kaynak kodda veya kalıcı tarayıcı depolamasında tutulmaz.</p>
+</section>
+</aside>
+<main class="cs-admin-main">
+<header class="cs-admin-topbar">
+<div>
+<p class="cs-kicker">Operasyon</p>
+<h1>Stok Yönetimi</h1>
+<p>Dinamik stok Supabase üzerinden okunur; HTML içindeki ürün verisi sadece katalog bilgisi olarak kalır.</p>
 </div>
-
-<div class="cs-drawer" id="inventoryDrawer" aria-hidden="true">
-  <div class="cs-drawer-backdrop" data-close-drawer></div>
-  <aside class="cs-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="inventoryDrawerTitle">
-    <button class="cs-drawer-close" type="button" data-close-drawer>Kapat</button>
-    <div id="inventoryDrawerContent"></div>
-  </aside>
+<div class="cs-admin-actions">
+<button id="inventoryRefresh" type="button">Yenile</button>
+<button id="inventoryLogout" type="button">Çıkış</button>
 </div>
-
+</header>
+<section class="cs-summary-grid" id="inventorySummary">
+<article><span>Toplam ürün</span><strong>0</strong></article>
+<article><span>Stokta</span><strong>0</strong></article>
+<article><span>Düşük stok</span><strong>0</strong></article>
+<article><span>Stokta yok</span><strong>0</strong></article>
+</section>
+<section class="cs-toolbar">
+<label class="cs-search">Ara<input id="inventorySearch" placeholder="Ürün adı, marka, SKU, slug" type="search"/></label>
+<div aria-label="Stok filtreleri" class="cs-filter-row" role="tablist">
+<button class="is-active" data-inventory-filter="all" type="button">Tümü</button>
+<button data-inventory-filter="in_stock" type="button">Stokta</button>
+<button data-inventory-filter="low_stock" type="button">Düşük Stok</button>
+<button data-inventory-filter="out_of_stock" type="button">Stokta Yok</button>
+<button data-inventory-filter="inactive" type="button">Pasif</button>
+</div>
+<p aria-live="polite" id="inventoryStatus"></p>
+</section>
+<section class="cs-table-card">
+<div class="cs-table-wrap">
+<table class="cs-inventory-table">
+<thead>
+<tr>
+<th>Ürün</th>
+<th>SKU</th>
+<th>Stok</th>
+<th>Rezerve</th>
+<th>Satılabilir</th>
+<th>Eşik</th>
+<th>Durum</th>
+<th>Güncellendi</th>
+<th>Aksiyon</th>
+</tr>
+</thead>
+<tbody id="inventoryBody"><tr><td colspan="9">Ürünler yüklenmedi.</td></tr></tbody>
+</table>
+</div>
+</section>
+</main>
+</div>
+<div aria-hidden="true" class="cs-drawer" id="inventoryDrawer">
+<div class="cs-drawer-backdrop" data-close-drawer=""></div>
+<aside aria-labelledby="inventoryDrawerTitle" aria-modal="true" class="cs-drawer-panel" role="dialog">
+<button class="cs-drawer-close" data-close-drawer="" type="button">Kapat</button>
+<div id="inventoryDrawerContent"></div>
+</aside>
+</div>
 <div class="cs-toast-stack" id="inventoryToasts"></div>
-<script src="/assets/admin-inventory.js?v=20260511-admin-unified" defer></script>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+<script defer="" src="/assets/admin-inventory.js?v=20260511-admin-unified"></script>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

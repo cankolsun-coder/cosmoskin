@@ -1,58 +1,63 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow, noarchive" name="robots"/>
 <title>Admin Rolleri · COSMOSKIN Admin</title>
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511-admin-unified" />
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/favicon.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/admin-inventory.css?v=20260511-admin-unified" rel="stylesheet"/>
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
+<link href="/assets/admin-runtime.css?v=20260616-security" rel="stylesheet"/>
+<script defer="" src="/assets/admin-runtime.js?v=20260616-security"></script>
+<meta content="Admin Rolleri · COSMOSKIN Admin sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description"/>
+<link href="https://www.cosmoskin.com.tr/admin/admin-users.html" rel="canonical"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
 <div class="cs-admin-shell">
-  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
-    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
-    <nav class="cs-sidebar-nav" aria-label="Admin menüsü"><a href="/admin/index.html">Panel</a>
-      <a href="/admin/inventory.html">Stok</a>
-      <a href="/admin/orders/">Siparişler</a>
-      <a href="/admin/shipments.html">Kargo</a>
-      <a href="/admin/returns.html">İade</a>
-      <a href="/admin/products.html">Ürünler</a>
-      <a href="/admin/customers.html">Müşteriler</a>
-      <a href="/admin/reviews/">Yorumlar</a>
-      <a href="/admin/email-logs.html">E-posta Logları</a>
-      <a href="/admin/invoices.html">Faturalar</a>
-      <a href="/admin/suppliers.html">Tedarikçiler</a>
-      <a href="/admin/compliance.html">Uyumluluk</a>
-      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
-      <a class="is-active" href="/admin/admin-users.html">Admin Rolleri</a></nav>
-    <section class="cs-session-card" aria-label="Güvenlik notu">
-      <strong>Güvenli admin oturumu</strong>
-      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
-    </section>
-  </aside>
-  <main class="cs-admin-main">
-    <header class="cs-admin-topbar">
-      <div>
-        <p class="cs-kicker">Admin Yetkilendirme Temeli</p>
-        <h1>Admin Rolleri</h1>
-        <p>ADMIN_TOKEN MVP uyumluluğu korunurken admin rol kayıtlarının temelini yönetin.</p>
-      </div>
-      
-    </header>
-    <section class="cs-toolbar"><label class="cs-search">Admin Token<input data-admin-token type="password" autocomplete="off" placeholder="ADMIN_TOKEN" /></label><div class="cs-filter-row"><button id="phase3Load" class="cs-btn cs-btn-dark" type="button">Yükle</button></div><p data-phase3-status aria-live="polite">Production TODO: token yerine authenticated admin users + RBAC.</p></section>
-    <section class="cs-table-card"><div class="cs-section-head"><div><h2>Rol Kaydı</h2><p>Bu ekran gerçek login değildir; RBAC veri temelini hazırlar.</p></div></div><form id="phase3UserForm" class="cs-adjust-form"><div class="cs-form-grid"><label>E-posta<input name="email" type="email" required /></label><label>Rol<select name="role"><option value="owner">Sahip</option><option value="operations" selected>Operasyon</option><option value="warehouse">Depo</option><option value="customer_support">Müşteri Destek</option><option value="content_editor">İçerik Editörü</option></select></label></div><button class="cs-btn cs-btn-dark" type="submit">Rol Kaydı Ekle</button></form></section>
-    <section class="cs-table-card"><div class="cs-table-wrap"><table class="cs-inventory-table"><thead><tr><th>E-posta</th><th>Rol</th><th>Durum</th><th>Güncelleme</th></tr></thead><tbody id="phase3UsersBody"><tr><td colspan="4">Liste yüklenmedi.</td></tr></tbody></table></div></section>
-<div class="cs-drawer" id="phase3Drawer" aria-hidden="true"><div class="cs-drawer-backdrop" data-close-phase3-drawer></div><aside class="cs-drawer-panel" role="dialog" aria-modal="true"><button class="cs-drawer-close" type="button" data-close-phase3-drawer>Kapat</button><div id="phase3DrawerContent"></div></aside></div>
-<script src="/assets/admin-phase3.js?v=20260511-admin-unified" defer></script>
-  </main>
+<aside aria-label="Admin menüsü" class="cs-admin-sidebar">
+<a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
+<nav aria-label="Admin menüsü" class="cs-sidebar-nav"><a href="/admin/index.html">Panel</a>
+<a href="/admin/inventory.html">Stok</a>
+<a href="/admin/orders/">Siparişler</a>
+<a href="/admin/shipments.html">Kargo</a>
+<a href="/admin/returns.html">İade</a>
+<a href="/admin/products.html">Ürünler</a>
+<a href="/admin/customers.html">Müşteriler</a>
+<a href="/admin/reviews/">Yorumlar</a>
+<a href="/admin/email-logs.html">E-posta Logları</a>
+<a href="/admin/invoices.html">Faturalar</a>
+<a href="/admin/suppliers.html">Tedarikçiler</a>
+<a href="/admin/compliance.html">Uyumluluk</a>
+<a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+<a class="is-active" href="/admin/admin-users.html">Admin Rolleri</a></nav>
+<section aria-label="Güvenlik notu" class="cs-session-card">
+<strong>Güvenli admin oturumu</strong>
+<p>Admin token kısa ömürlü, imzalı bir oturuma dönüştürülür; kaynak kodda veya kalıcı tarayıcı depolamasında tutulmaz.</p>
+</section>
+</aside>
+<main class="cs-admin-main">
+<header class="cs-admin-topbar">
+<div>
+<p class="cs-kicker">Admin Yetkilendirme Temeli</p>
+<h1>Admin Rolleri</h1>
+<p>ADMIN_TOKEN MVP uyumluluğu korunurken admin rol kayıtlarının temelini yönetin.</p>
 </div>
-<div class="cs-toast-stack" id="inventoryToasts" aria-live="polite"></div>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+</header>
+<section class="cs-toolbar"><label class="cs-search">Admin Token<input autocomplete="off" data-admin-token="" placeholder="ADMIN_TOKEN" type="password"/></label><div class="cs-filter-row"><button class="cs-btn cs-btn-dark" id="phase3Load" type="button">Yükle</button></div><p aria-live="polite" data-phase3-status="">Admin erişimi imzalı oturum ve RBAC ile yönetilmelidir.</p></section>
+<section class="cs-table-card"><div class="cs-section-head"><div><h2>Rol Kaydı</h2><p>Bu ekran gerçek login değildir; RBAC veri temelini hazırlar.</p></div></div><form class="cs-adjust-form" id="phase3UserForm"><div class="cs-form-grid"><label>E-posta<input name="email" required="" type="email"/></label><label>Rol<select name="role"><option value="owner">Sahip</option><option selected="" value="operations">Operasyon</option><option value="warehouse">Depo</option><option value="customer_support">Müşteri Destek</option><option value="content_editor">İçerik Editörü</option></select></label></div><button class="cs-btn cs-btn-dark" type="submit">Rol Kaydı Ekle</button></form></section>
+<section class="cs-table-card"><div class="cs-table-wrap"><table class="cs-inventory-table"><thead><tr><th>E-posta</th><th>Rol</th><th>Durum</th><th>Güncelleme</th></tr></thead><tbody id="phase3UsersBody"><tr><td colspan="4">Liste yüklenmedi.</td></tr></tbody></table></div></section>
+<div aria-hidden="true" class="cs-drawer" id="phase3Drawer"><div class="cs-drawer-backdrop" data-close-phase3-drawer=""></div><aside aria-modal="true" class="cs-drawer-panel" role="dialog"><button class="cs-drawer-close" data-close-phase3-drawer="" type="button">Kapat</button><div id="phase3DrawerContent"></div></aside></div>
+<script defer="" src="/assets/admin-phase3.js?v=20260511-admin-unified"></script>
+</main>
+</div>
+<div aria-live="polite" class="cs-toast-stack" id="inventoryToasts"></div>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

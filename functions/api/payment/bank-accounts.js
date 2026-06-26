@@ -1,29 +1,27 @@
-import { selectRows } from '../_lib/supabase.js';
+import { getValidatedBankAccounts } from '../_lib/bank-accounts.js';
 import { json } from '../_lib/response.js';
 
-function normalizeAccount(row = {}) {
-  return {
-    id: row.id || null,
-    bankName: row.bank_name || row.bankName || '',
-    accountName: row.account_holder || row.accountName || '',
-    iban: row.iban || '',
-    branch: row.branch || row.branch_name || '',
-    currency: row.currency || 'TRY'
-  };
-}
+const NO_STORE = { 'Cache-Control': 'no-store, max-age=0', Pragma: 'no-cache' };
 
 export async function onRequestGet(context) {
   try {
-    const rows = await selectRows(context, 'payment_bank_accounts', {
-      select: 'id,bank_name,account_holder,iban,branch,currency,is_active,sort_order',
-      is_active: 'eq.true',
-      order: 'sort_order.asc,created_at.asc',
-      limit: '3'
-    }).catch(() => []);
-
-    const accounts = (rows || []).map(normalizeAccount).filter((account) => account.bankName && account.accountName && account.iban);
-    return json({ ok: true, account: accounts[0] || null, accounts });
+    const accounts = await getValidatedBankAccounts(context, 3);
+    const account = accounts[0] || null;
+    return json({
+      ok: true,
+      configured: Boolean(account),
+      account,
+      accounts,
+      message: account ? null : 'Havale/EFT ödeme bilgileri henüz kullanıma hazır değil.'
+    }, { headers: NO_STORE });
   } catch (error) {
-    return json({ ok: false, account: null, accounts: [], error: 'Banka hesap bilgileri alınamadı.' }, { status: 500 });
+    console.error('bank account configuration read failed:', { message: String(error?.message || 'unknown').slice(0, 180) });
+    return json({
+      ok: false,
+      configured: false,
+      account: null,
+      accounts: [],
+      error: 'Havale/EFT bilgileri şu anda doğrulanamıyor. Lütfen daha sonra tekrar deneyin.'
+    }, { status: 503, headers: NO_STORE });
   }
 }

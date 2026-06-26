@@ -196,9 +196,9 @@
   .cm-searchbar input::placeholder { color: #8a837b; }
 
   .cm-page-title,
-  .cm-list-head h1,
-  .cm-cart-title h1,
-  .cm-checkout-title h1 {
+  .cm-list-head h2,
+  .cm-cart-title h2,
+  .cm-checkout-title h2 {
     margin: 10px 0 6px;
     font-family: var(--cm-serif);
     font-size: 43px;
@@ -812,7 +812,7 @@
   .cm-checkout-steps .is-active b { background: var(--cm-gold); border-color: var(--cm-gold); }
 
   .cm-routine-title-ref { text-align: center; padding: 12px 0 20px; }
-  .cm-routine-title-ref h1 { margin: 0; font-family: var(--cm-serif); font-size: 38px; font-weight: 500; letter-spacing: -.045em; }
+  .cm-routine-title-ref h2 { margin: 0; font-family: var(--cm-serif); font-size: 38px; font-weight: 500; letter-spacing: -.045em; }
   .cm-routine-title-ref p { margin: 8px 0 0; color: var(--cm-muted); font-size: 14px; }
   .cm-step-block { margin: 0 0 22px; }
   .cm-step-block h2,
@@ -1579,8 +1579,8 @@
     padding-right: 22px;
   }
 
-  .cm-mobile-cart .cm-cart-title h1,
-  .cm-mobile-checkout .cm-checkout-title h1 {
+  .cm-mobile-cart .cm-cart-title h2,
+  .cm-mobile-checkout .cm-checkout-title h2 {
     font-size: 44px;
     letter-spacing: -.055em;
   }
@@ -1867,8 +1867,8 @@
   }
 
   @media (max-width: 430px) {
-    .cm-mobile-cart .cm-cart-title h1,
-    .cm-mobile-checkout .cm-checkout-title h1 { font-size: 40px; }
+    .cm-mobile-cart .cm-cart-title h2,
+    .cm-mobile-checkout .cm-checkout-title h2 { font-size: 40px; }
     .cm-cart-list { gap: 14px; }
     .cm-cart-row--ref { grid-template-columns: 42% minmax(0,1fr); }
     .cm-cart-row--ref .cm-cart-row__img { min-height: 134px; }
@@ -2028,7 +2028,7 @@
     overflow: hidden;
     background:
       linear-gradient(180deg, rgba(250,246,240,.99) 0%, rgba(250,246,240,.90) 42%, rgba(250,246,240,.20) 72%, rgba(239,229,217,.10) 100%),
-      url('/assets/img/hero/hero-bg.png') 68% bottom / auto 100% no-repeat;
+      url('/assets/img/hero/hero-bg.webp') 68% bottom / auto 100% no-repeat;
   }
   .cm-hero-ref--desktop-match::after {
     background: radial-gradient(circle at 18% 24%, rgba(255,255,255,.42), transparent 34%);
@@ -3214,7 +3214,7 @@
   .cm-mobile-cart .cm-cart-title {
     padding: 14px 18px 10px !important;
   }
-  .cm-mobile-cart .cm-cart-title h1 {
+  .cm-mobile-cart .cm-cart-title h2 {
     margin-top: 8px;
     font-size: clamp(38px, 10.8vw, 46px) !important;
   }
@@ -3319,7 +3319,7 @@
     font-weight: 850;
     letter-spacing: .22em;
   }
-  .cm-auth-hero h1 {
+  .cm-auth-hero h2 {
     margin: 0;
     font-family: var(--cm-serif);
     font-size: clamp(40px, 11vw, 52px);
@@ -3592,3 +3592,39 @@
     margin-top: 0 !important;
   }
 }
+
+
+/* COSMOSKIN Phase 2 legal/payment trust foundation */
+.brand .brand-word,.cm-wordmark,.cm-footer-logo{font-family:'Plus Jakarta Sans',Arial,sans-serif;letter-spacing:.22em;font-weight:700;color:#17120f;text-decoration:none}.brand img.brand-logo{display:block!important}.payment-logos,.cm-payment-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.payment-logo{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:34px;padding:4px 8px;border:1px solid rgba(42,32,24,.12);border-radius:12px;background:rgba(255,255,255,.72);box-shadow:0 8px 20px rgba(42,32,24,.05)}.payment-logo img,.cm-payment-row img{max-width:92px;max-height:26px;object-fit:contain}.payment-logo--iyzico img{max-width:96px}.footer-trustline,.cs-phase2-footer-trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;font-size:12px;color:#6d6258}.footer-trustline span,.cs-phase2-footer-trust span{border:1px solid rgba(42,32,24,.10);background:rgba(255,250,244,.74);border-radius:999px;padding:7px 10px}.cs-legal-trust-grid,.cs-payment-trust-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}.cs-legal-trust-grid span,.cs-payment-trust-grid span{display:grid;gap:4px;border:1px solid rgba(42,32,24,.10);border-radius:18px;background:#fffaf4;padding:16px;box-shadow:0 14px 40px rgba(42,32,24,.06)}.cs-legal-trust-grid b,.cs-payment-trust-grid b{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#17120f}.cs-info-card,.cs-payment-card{border:1px solid rgba(42,32,24,.10);border-radius:24px;background:#fffaf4;padding:22px;box-shadow:0 18px 48px rgba(42,32,24,.07);margin:18px 0}.cs-bank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.cs-bank-card{border:1px solid rgba(42,32,24,.10);border-radius:18px;padding:16px;background:#fff}.cs-bank-card dl{display:grid;gap:8px;margin:12px 0 0}.cs-bank-card dt{font-size:12px;color:#7f7266}.cs-bank-card dd{margin:0;font-weight:700;overflow-wrap:anywhere}.cs-footer-contact span,.footer-col span{display:block;margin:.35rem 0;color:inherit}@media(max-width:720px){.payment-logos,.cm-payment-row{gap:6px}.payment-logo{min-width:48px;height:32px;padding:3px 6px}.payment-logo img,.cm-payment-row img{max-width:82px}.cs-legal-trust-grid,.cs-payment-trust-grid,.cs-bank-grid{grid-template-columns:1fr}.cs-info-card,.cs-payment-card{border-radius:20px;padding:18px}.footer-trustline,.cs-phase2-footer-trust{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}}
+
+
+/* COSMOSKIN Phase 2 correction: mobile shell keeps the approved logo lockup and clean footer. */
+@media (max-width: 767px) {
+  body.cm-mobile-active .cm-header-brandlock{justify-self:center;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:0;text-decoration:none;color:#111;white-space:nowrap;}
+  body.cm-mobile-active .cm-header-brandlock .cm-brand-logo{display:block!important;width:28px;height:28px;object-fit:contain;flex:0 0 auto;}
+  body.cm-mobile-active .cm-header-brandlock .cm-wordmark{justify-self:auto!important;text-align:left!important;font-family:var(--cm-serif, Georgia, serif)!important;font-size:clamp(21px,5.8vw,27px)!important;letter-spacing:.16em!important;transform:translateX(.04em)!important;}
+  body.cm-mobile-active .cm-footer-brandlock{display:inline-flex;align-items:center;justify-content:center;gap:10px;color:inherit;text-decoration:none;}
+  body.cm-mobile-active .cm-footer-brandlock .cm-brand-logo{display:block!important;width:30px;height:30px;object-fit:contain;filter:none;}
+  body.cm-mobile-active .cm-footer-security-block{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.10);}
+  body.cm-mobile-active .cm-footer-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  body.cm-mobile-active .cm-footer-badges span,body.cm-mobile-active .cm-footer-badges a{display:inline-flex;align-items:center;min-height:32px;padding:0 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);font-size:11px;color:rgba(255,255,255,.82);text-decoration:none;}
+  body.cm-mobile-active .cm-payment-block p{margin:8px 0 0;font-size:12px;color:rgba(255,255,255,.72);}
+  body.cm-mobile-active .cm-payment-row img[alt="iyzico ile Öde"]{width:86px!important;max-width:86px!important;}
+}
+
+
+/* COSMOSKIN approved header logo lockup override */
+.brand img.brand-logo{display:block!important;}
+.brand .brand-word{font-family:var(--serif)!important;font-size:24px!important;font-weight:400!important;letter-spacing:.42em!important;color:#18130f!important;text-decoration:none!important;}
+.footer .brand-word{font-family:var(--serif)!important;}
+
+/* COSMOSKIN footer brand contrast correction */
+.header .brand .brand-word{font-family:var(--serif)!important;font-size:24px!important;font-weight:400!important;letter-spacing:.42em!important;color:#18130f!important;text-decoration:none!important;}
+.footer .brand .brand-word{font-family:var(--serif)!important;color:#ede6dc!important;text-decoration:none!important;}
+
+/* COSMOSKIN mobile footer contact correction — 20260625 */
+body.cm-mobile-active .cm-footer-contact{display:grid;gap:9px;margin:18px 0 0;padding-top:16px;border-top:1px solid rgba(255,255,255,.10);}
+body.cm-mobile-active .cm-footer-contact a,body.cm-mobile-active .cm-footer-contact span{color:rgba(255,255,255,.78);font-size:12px;line-height:1.5;text-decoration:none;}
+body.cm-mobile-active .cm-footer-contact span{color:rgba(255,255,255,.88);}
+body.cm-mobile-active .cm-footer-socials{display:flex;gap:8px;margin-top:4px;}
+body.cm-mobile-active .cm-footer-socials a{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.055);font-size:10px;font-weight:800;letter-spacing:.12em;}

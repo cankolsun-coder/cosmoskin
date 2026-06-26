@@ -228,8 +228,8 @@
   }
 
   function normalizeSkinProfile(source) {
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.normalize === 'function') {
-      try { return window.CosmoskinSkinProfile.normalize(source || {}); } catch (_) {}
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.normalize === 'function') {
+      try { return window.COSMOSKINSkinProfile.normalize(source || {}); } catch (_) {}
     }
     source = source || {};
     return {
@@ -258,15 +258,15 @@
   }
 
   function getCanonicalSkinProfile() {
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.get === 'function') {
-      try { return normalizeSkinProfile(window.CosmoskinSkinProfile.get()); } catch (_) {}
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.get === 'function') {
+      try { return normalizeSkinProfile(window.COSMOSKINSkinProfile.get()); } catch (_) {}
     }
     try { return normalizeSkinProfile(JSON.parse(localStorage.getItem('cosmoskin_skin_profile') || '{}')); } catch (_) { return {}; }
   }
 
   function hasSkinProfile(profile) {
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.isNonEmpty === 'function') {
-      try { return window.CosmoskinSkinProfile.isNonEmpty(profile || {}); } catch (_) {}
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.isNonEmpty === 'function') {
+      try { return window.COSMOSKINSkinProfile.isNonEmpty(profile || {}); } catch (_) {}
     }
     profile = normalizeSkinProfile(profile || {});
     return Boolean(profile.skinType || profile.sensitivity || profile.primaryGoal || profile.secondaryGoal || profile.routineStyle);
@@ -772,10 +772,10 @@
       updatedAt: source.skin_profile_updated_at || source.updatedAt || source.updated_at || new Date().toISOString()
     };
     if (!hasSkinProfile(profilePartial)) return;
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.save === 'function') {
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.save === 'function') {
       try {
-        if (typeof window.CosmoskinSkinProfile.merge === 'function') window.CosmoskinSkinProfile.merge(profilePartial);
-        else window.CosmoskinSkinProfile.save(profilePartial);
+        if (typeof window.COSMOSKINSkinProfile.merge === 'function') window.COSMOSKINSkinProfile.merge(profilePartial);
+        else window.COSMOSKINSkinProfile.save(profilePartial);
         return;
       } catch (e) {}
     }

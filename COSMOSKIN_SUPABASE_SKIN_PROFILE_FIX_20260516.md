@@ -39,7 +39,7 @@ Hatalar artık ayrışmış: hangi koşulun eksik olduğunu söylüyor (config m
 - `saveSkin()` artık Supabase update sonrası `syncCanonicalSkinProfile(payload)` çağırıyor.
 - Yeni helper `syncCanonicalSkinProfile(source)`:
   - `payload.skin_type / skin_sensitivity / routine_goal / skin_concerns / routine_style` → canonical shape `{skinType, sensitivity, primaryGoal, secondaryGoal, routineStyle, updatedAt}`'a maple ediyor.
-  - `window.CosmoskinSkinProfile.save()` varsa onu kullanıyor (store içindeki `cosmoskin:skin-profile-change` event'ini de tetikliyor).
+  - `window.COSMOSKINSkinProfile.save()` varsa onu kullanıyor (store içindeki `cosmoskin:skin-profile-change` event'ini de tetikliyor).
   - Yoksa fallback olarak direkt `localStorage.setItem('cosmoskin_skin_profile', …)` + manuel event dispatch.
 - `loadSummary()` (init load veya save sonrası refresh) sonunda da `syncCanonicalSkinProfile(state.summary.user)` çağrılıyor → Supabase'den gelen veri canonical key'e iniyor. Böylece login'den sonra ilk yüklemede de widget hazır.
 
@@ -139,18 +139,18 @@ Yerel statik server (`python3 -m http.server`) `/api/*` endpoint'lerine hizmet v
 ```bash
 cd /Users/can/Documents/GitHub/cosmoskin
 npx wrangler pages dev . --compatibility-date=2024-06-01
-# wrangler default port 8788; siteler http://localhost:8788
+# wrangler default port 8788; siteler http://local-dev-host:8788
 ```
 
 ### Yerel test (sadece statik UI, /api yoksa "yüklenemedi" hatası beklenir)
 ```bash
 cd /Users/can/Documents/GitHub/cosmoskin
 python3 -m http.server 7700
-# http://localhost:7700 — login flow ve /account/profile.html /api hatası gösterir; bu beklenen.
+# http://local-dev-host:7700 — login flow ve /account/profile.html /api hatası gösterir; bu beklenen.
 ```
 
 ### Test akışı (wrangler ile, login'li)
-1. `http://localhost:8788/account/profile.html` aç → "Cilt Profilim" tabına git.
+1. `http://local-dev-host:8788/account/profile.html` aç → "Cilt Profilim" tabına git.
 2. Cilt Tipi: **Kuru**, Hassasiyet: **Orta**, Hedef: **Nem**, bir concern işaretle.
 3. "Kaydet"e tıkla → "Cilt profiliniz güncellendi." toast'u görmeli.
 4. DevTools Console:
@@ -161,7 +161,7 @@ python3 -m http.server 7700
 5. Sayfayı refresh et (`Cmd+R`).
 6. Form alanlarının seçili kaldığını doğrula (özellikle "Hassasiyet"in `Orta` olduğunu — bu summary.js fix'ini test ediyor).
 7. Profilim sayfasının üst kısmındaki "CİLT PROFİLİM" widget'ı "Kuru cilt · Orta hassasiyet · ..." göstermeli.
-8. Yeni sekme aç → `http://localhost:8788/account/routines/?view=profile` → aynı seçimlerin form'da yüklü olduğunu doğrula.
+8. Yeni sekme aç → `http://local-dev-host:8788/account/routines/?view=profile` → aynı seçimlerin form'da yüklü olduğunu doğrula.
 9. Routines profilinde değer değiştir, kaydet → ana sekmeye dön; widget canlı güncellenmeli (storage event).
 
 ### Hata senaryosu testi
@@ -176,7 +176,7 @@ python3 -m http.server 7700
 | Yer | Okur (key) | Yazar (key) |
 |-----|------------|-------------|
 | Supabase `user_metadata` | server (`functions/api/account/summary.js`) | `account-dashboard.js` `state.client.auth.updateUser()` |
-| `cosmoskin_skin_profile` localStorage | `CosmoskinSkinProfile.get()`, `routines.js getRoutinePreferences()`, profile widget inline script | `CosmoskinSkinProfile.save()`, `account-dashboard.js syncCanonicalSkinProfile()`, `routines.js saveRoutinePreferences()` |
+| `cosmoskin_skin_profile` localStorage | `COSMOSKINSkinProfile.get()`, `routines.js getRoutinePreferences()`, profile widget inline script | `COSMOSKINSkinProfile.save()`, `account-dashboard.js syncCanonicalSkinProfile()`, `routines.js saveRoutinePreferences()` |
 | Legacy keys (`cosmoskin_routine_active`, `cosmoskin_routine_profile`, ...) | sadece migration (read-only first-load) | `routines.js`, `smart-routine.js` (backward compat, store legacy modülleri bozmamak için bunları silmez) |
 
 Canonical key her save'de yazılıyor, her okuma noktasında öncelikli kaynak. Legacy keys cleanup yapılmadı çünkü mobile-redesign.js + smart-routine.js + home-routine.js hâlâ onları kullanıyor; migration ile her zaman canonical'a düşürüyoruz.

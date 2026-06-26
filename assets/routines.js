@@ -131,15 +131,15 @@
   }
 
   function canonicalProfile() {
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.get === 'function') {
-      try { return window.CosmoskinSkinProfile.get() || {}; } catch (e) {}
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.get === 'function') {
+      try { return window.COSMOSKINSkinProfile.get() || {}; } catch (e) {}
     }
     return readJSON('cosmoskin_skin_profile', {}) || {};
   }
 
   function hasProfileData(profile) {
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.isNonEmpty === 'function') {
-      try { return window.CosmoskinSkinProfile.isNonEmpty(profile || {}); } catch (e) {}
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.isNonEmpty === 'function') {
+      try { return window.COSMOSKINSkinProfile.isNonEmpty(profile || {}); } catch (e) {}
     }
     profile = profile || {};
     return Boolean(profile.skinType || profile.selectedSkinType || profile.skin_type || profile.primaryGoal || profile.routine_goal || (Array.isArray(profile.selectedGoals) && profile.selectedGoals.length));
@@ -152,10 +152,10 @@
   function syncProfileFromSummary(summary) {
     var profile = profileFromAccountUser(summary && summary.user);
     if (!hasProfileData(profile)) return;
-    if (window.CosmoskinSkinProfile) {
+    if (window.COSMOSKINSkinProfile) {
       try {
-        if (typeof window.CosmoskinSkinProfile.merge === 'function') window.CosmoskinSkinProfile.merge(profile);
-        else if (typeof window.CosmoskinSkinProfile.save === 'function') window.CosmoskinSkinProfile.save(profile);
+        if (typeof window.COSMOSKINSkinProfile.merge === 'function') window.COSMOSKINSkinProfile.merge(profile);
+        else if (typeof window.COSMOSKINSkinProfile.save === 'function') window.COSMOSKINSkinProfile.save(profile);
         return;
       } catch (e) {}
     }
@@ -164,8 +164,8 @@
 
   function getRoutinePreferences() {
     var canonical = null;
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.get === 'function') {
-      try { canonical = window.CosmoskinSkinProfile.get(); } catch (e) { canonical = null; }
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.get === 'function') {
+      try { canonical = window.COSMOSKINSkinProfile.get(); } catch (e) { canonical = null; }
     }
     var source = readJSON(KEYS.active, null) || readJSON(KEYS.profile, null) || readJSON(KEYS.preferences, null) || readJSON(KEYS.pending, null);
     if (routineState.summary && routineState.summary.user && hasProfileData(profileFromAccountUser(routineState.summary.user))) {
@@ -195,9 +195,9 @@
     writeJSON(KEYS.profile, normalized);
     writeJSON(KEYS.preferences, normalized);
     if (options && options.active !== false) writeJSON(KEYS.active, normalized);
-    if (window.CosmoskinSkinProfile && typeof window.CosmoskinSkinProfile.save === 'function') {
+    if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.save === 'function') {
       try {
-        window.CosmoskinSkinProfile.save({
+        window.COSMOSKINSkinProfile.save({
           skinType: normalized.selectedSkinType,
           sensitivity: normalized.sensitivity,
           primaryGoal: (normalized.selectedGoals || [])[0] || '',

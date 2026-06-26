@@ -1,0 +1,11 @@
+{
+  "description": "Use the token from a completed iyzico sandbox Checkout Form payment.",
+  "token": "{{IYZICO_SANDBOX_SUCCESS_TOKEN}}",
+  "expectedRedirect": "/payment/success.html",
+  "expectedDatabase": {
+    "orders.payment_status": "paid",
+    "payments.status": "paid",
+    "inventory_reservations.status": "converted",
+    "payment_events.payment_success.processed": 1
+  }
+}

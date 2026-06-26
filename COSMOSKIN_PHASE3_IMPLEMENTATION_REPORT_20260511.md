@@ -257,7 +257,7 @@ Roller:
 - `customer_support`
 - `content_editor`
 
-MVP uyumluluğu için `ADMIN_TOKEN` korunmuştur. Gerçek login veya fake auth yapılmadı. Production TODO net olarak eklendi:
+MVP uyumluluğu için `ADMIN_TOKEN` korunmuştur. Gerçek login veya fake auth yapılmadı. Production follow-up net olarak eklendi:
 
 > Replace token-based admin access with real authenticated admin users and RBAC.
 

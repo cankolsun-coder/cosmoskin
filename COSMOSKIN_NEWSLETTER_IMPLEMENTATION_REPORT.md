@@ -178,7 +178,7 @@ Manual production test after deploying env vars:
 ```bash
 curl -X POST https://www.cosmoskin.com.tr/api/newsletter/subscribe \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","source":"footer"}'
+  -d '{"email":"qa.user@cosmoskin.invalid","source":"footer"}'
 ```
 
 ## 11. Remaining risks

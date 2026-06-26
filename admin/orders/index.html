@@ -1,165 +1,161 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow, noarchive" name="robots"/>
 <title>Sipariş Operasyonları · COSMOSKIN Admin</title>
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-orders.css?v=20260511-admin-unified" />
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/favicon.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/admin-orders.css?v=20260511-admin-unified" rel="stylesheet"/>
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
+<link href="/assets/admin-runtime.css?v=20260616-security" rel="stylesheet"/>
+<script defer="" src="/assets/admin-runtime.js?v=20260616-security"></script>
+<meta content="Sipariş Operasyonları · COSMOSKIN Admin sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description"/>
+<link href="https://www.cosmoskin.com.tr/admin/orders/index.html" rel="canonical"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
 <div class="cs-admin-auth" id="loginView">
-  <section class="cs-auth-card" aria-labelledby="loginTitle">
-    <p class="cs-kicker">COSMOSKIN Admin</p>
-    <h1 id="loginTitle">Sipariş Operasyonları</h1>
-    <p>Sipariş, ödeme, kargo, fatura, iade ve e-posta akışlarını güvenli admin oturumuyla yönetin.</p>
-    <label for="tokenInput">Admin Token</label>
-    <input id="tokenInput" type="password" autocomplete="off" placeholder="ADMIN_TOKEN" />
-    <button id="loginBtn" class="cs-btn cs-btn-dark" type="button">Panele Gir</button>
-    <p class="cs-auth-note" id="loginError" aria-live="polite">Token yalnızca bu tarayıcı oturumunda saklanır.</p>
-  </section>
+<section aria-labelledby="loginTitle" class="cs-auth-card">
+<p class="cs-kicker">COSMOSKIN Admin</p>
+<h2 id="loginTitle">Sipariş Operasyonları</h2>
+<p>Sipariş, ödeme, kargo, fatura, iade ve e-posta akışlarını güvenli admin oturumuyla yönetin.</p>
+<label for="tokenInput">Admin Token</label>
+<input autocomplete="off" id="tokenInput" placeholder="ADMIN_TOKEN" type="password"/>
+<button class="cs-btn cs-btn-dark" id="loginBtn" type="button">Panele Gir</button>
+<p aria-live="polite" class="cs-auth-note" id="loginError">Token yalnızca bu tarayıcı oturumunda saklanır.</p>
+</section>
 </div>
-
 <div class="cs-admin-shell is-hidden" id="appView">
-  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
-    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
-    <nav class="cs-sidebar-nav">
-      <a href="/admin/index.html">Panel</a>
-      <a href="/admin/inventory.html">Stok</a>
-      <a class="is-active" href="/admin/orders/">Siparişler</a>
-      <a href="/admin/shipments.html">Kargo</a>
-      <a href="/admin/returns.html">İade</a>
-      <a href="/admin/products.html">Ürünler</a>
-      <a href="/admin/customers.html">Müşteriler</a>
-      <a href="/admin/reviews/">Yorumlar</a>
-      <a href="/admin/email-logs.html">E-posta Logları</a>
-      <a href="/admin/invoices.html">Faturalar</a>
-      <a href="/admin/suppliers.html">Tedarikçiler</a>
-      <a href="/admin/compliance.html">Uyumluluk</a>
-      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
-      <a href="/admin/admin-users.html">Admin Rolleri</a>
-    </nav>
-    <section class="cs-session-card" aria-label="Güvenlik notu">
-      <strong>Güvenli admin oturumu</strong>
-      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
-    </section>
-  </aside>
-
-  <main class="cs-admin-main">
-    <header class="cs-admin-topbar">
-      <div>
-        <p class="cs-kicker">Operasyon Merkezi</p>
-        <h1>Sipariş Operasyonları</h1>
-        <p>Sipariş, ödeme, kargo, fatura, iade ve e-posta akışlarını tek panelden yönetin.</p>
-      </div>
-      <div class="cs-admin-actions">
-        <span class="cs-chip cs-chip-secure">Admin oturumu aktif</span>
-        <span class="cs-chip" id="syncChip" aria-live="polite">Henüz senkron yok</span>
-        <button id="refreshBtn" class="cs-btn" type="button">Yenile</button>
-        <button id="logoutBtn" class="cs-btn cs-btn-ghost" type="button">Çıkış</button>
-      </div>
-    </header>
-
-    <section class="cs-summary-grid" id="summaryGrid" aria-label="Operasyon özeti"></section>
-
-    <section class="cs-tabs-card" aria-label="Stok yönetimi notu">
-      <p class="cs-muted"><strong>Stok notu:</strong> Bu ekrandaki ürün adedi sipariş kalemi miktarıdır. Ürün stoğunu değiştirmek için <a href="/admin/inventory.html">Stok Yönetimi</a> sayfasını kullanın.</p>
-    </section>
-
-    <section class="cs-tabs-card" aria-label="Sipariş kategorileri">
-      <div class="cs-primary-tabs" id="primaryTabs" role="tablist" aria-label="Sipariş operasyon sekmeleri"></div>
-    </section>
-
-    <section class="cs-toolbar" aria-label="Sipariş filtreleri">
-      <div class="cs-toolbar-head">
-        <label class="cs-search" for="searchInput">Arama
-          <input id="searchInput" type="search" placeholder="Sipariş no, müşteri, e-posta, takip no veya ürün" autocomplete="off" />
-        </label>
-        <button class="cs-btn cs-filter-toggle" id="filterToggle" type="button" aria-expanded="false" aria-controls="filtersPanel">Filtreler</button>
-      </div>
-      <div class="cs-filter-panel" id="filtersPanel">
-        <label>Tarih başlangıcı<input id="dateFromFilter" type="date" /></label>
-        <label>Tarih bitişi<input id="dateToFilter" type="date" /></label>
-        <label>Sipariş durumu<select id="orderStatusFilter"></select></label>
-        <label>Ödeme durumu<select id="paymentStatusFilter"></select></label>
-        <label>Operasyon durumu<select id="fulfillmentStatusFilter"></select></label>
-        <label>Kargo firması<input id="carrierFilter" type="search" placeholder="Yurtiçi, Aras..." /></label>
-        <label>Fatura durumu<select id="invoiceStatusFilter"></select></label>
-        <label>İade durumu<select id="returnStatusFilter"></select></label>
-        <label>E-posta durumu<select id="emailStatusFilter"></select></label>
-        <label>Minimum tutar<input id="minTotalFilter" type="number" min="0" step="0.01" placeholder="0" /></label>
-        <label>Maksimum tutar<input id="maxTotalFilter" type="number" min="0" step="0.01" placeholder="0" /></label>
-        <label>Sıralama<select id="sortFilter"></select></label>
-      </div>
-      <div class="cs-toolbar-footer">
-        <p id="resultPill" class="cs-muted" aria-live="polite">0 kayıt</p>
-        <div class="cs-toolbar-buttons">
-          <button id="applyFiltersBtn" class="cs-btn cs-btn-dark" type="button">Filtrele</button>
-          <button id="clearFiltersBtn" class="cs-btn cs-btn-ghost" type="button">Temizle</button>
-        </div>
-      </div>
-    </section>
-
-    <section class="cs-table-card" aria-labelledby="ordersTitle">
-      <div class="cs-section-head">
-        <div>
-          <h2 id="ordersTitle">Sipariş Listesi</h2>
-          <p>Satır seçimi sipariş detay panelini açar. Mobilde tablo yerine operasyon kartları gösterilir.</p>
-        </div>
-        <button id="loadMoreBtn" class="cs-btn cs-btn-ghost is-hidden" type="button">Daha Fazla Yükle</button>
-      </div>
-      <div class="cs-table-wrap" id="tableWrap">
-        <table class="cs-orders-table">
-          <thead>
-            <tr>
-              <th>Sipariş No</th>
-              <th>Tarih</th>
-              <th>Müşteri</th>
-              <th>Tutar</th>
-              <th>Ödeme</th>
-              <th>Operasyon</th>
-              <th>Kargo</th>
-              <th>Fatura</th>
-              <th>İade</th>
-              <th>Aksiyon</th>
-            </tr>
-          </thead>
-          <tbody id="ordersTableBody"></tbody>
-        </table>
-      </div>
-      <div class="cs-mobile-orders" id="ordersCards" aria-label="Mobil sipariş listesi"></div>
-      <div class="cs-state-box is-hidden" id="emptyState"></div>
-    </section>
-  </main>
+<aside aria-label="Admin menüsü" class="cs-admin-sidebar">
+<a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
+<nav class="cs-sidebar-nav">
+<a href="/admin/index.html">Panel</a>
+<a href="/admin/inventory.html">Stok</a>
+<a class="is-active" href="/admin/orders/">Siparişler</a>
+<a href="/admin/shipments.html">Kargo</a>
+<a href="/admin/returns.html">İade</a>
+<a href="/admin/products.html">Ürünler</a>
+<a href="/admin/customers.html">Müşteriler</a>
+<a href="/admin/reviews/">Yorumlar</a>
+<a href="/admin/email-logs.html">E-posta Logları</a>
+<a href="/admin/invoices.html">Faturalar</a>
+<a href="/admin/suppliers.html">Tedarikçiler</a>
+<a href="/admin/compliance.html">Uyumluluk</a>
+<a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+<a href="/admin/admin-users.html">Admin Rolleri</a>
+</nav>
+<section aria-label="Güvenlik notu" class="cs-session-card">
+<strong>Güvenli admin oturumu</strong>
+<p>Admin token kısa ömürlü, imzalı bir oturuma dönüştürülür; kaynak kodda veya kalıcı tarayıcı depolamasında tutulmaz.</p>
+</section>
+</aside>
+<main class="cs-admin-main">
+<header class="cs-admin-topbar">
+<div>
+<p class="cs-kicker">Operasyon Merkezi</p>
+<h1>Sipariş Operasyonları</h1>
+<p>Sipariş, ödeme, kargo, fatura, iade ve e-posta akışlarını tek panelden yönetin.</p>
 </div>
-
-<div class="cs-detail-shell" id="detailShell" aria-hidden="true">
-  <div class="cs-detail-backdrop" data-close-detail></div>
-  <aside class="cs-detail-drawer" role="dialog" aria-modal="true" aria-labelledby="detailTitle" tabindex="-1">
-    <div id="detailContent" class="cs-detail-content"></div>
-  </aside>
+<div class="cs-admin-actions">
+<span class="cs-chip cs-chip-secure">Admin oturumu aktif</span>
+<span aria-live="polite" class="cs-chip" id="syncChip">Henüz senkron yok</span>
+<button class="cs-btn" id="refreshBtn" type="button">Yenile</button>
+<button class="cs-btn cs-btn-ghost" id="logoutBtn" type="button">Çıkış</button>
 </div>
-
-<div class="cs-confirm" id="confirmModal" aria-hidden="true">
-  <div class="cs-confirm-backdrop" data-confirm-cancel></div>
-  <section class="cs-confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmBody" tabindex="-1">
-    <h2 id="confirmTitle">İşlemi onayla</h2>
-    <p id="confirmBody">Devam etmek istiyor musunuz?</p>
-    <div class="cs-confirm-actions">
-      <button class="cs-btn cs-btn-ghost" type="button" data-confirm-cancel>Vazgeç</button>
-      <button class="cs-btn cs-btn-dark" type="button" data-confirm-accept>Onayla</button>
-    </div>
-  </section>
+</header>
+<section aria-label="Operasyon özeti" class="cs-summary-grid" id="summaryGrid"></section>
+<section aria-label="Stok yönetimi notu" class="cs-tabs-card">
+<p class="cs-muted"><strong>Stok notu:</strong> Bu ekrandaki ürün adedi sipariş kalemi miktarıdır. Ürün stoğunu değiştirmek için <a href="/admin/inventory.html">Stok Yönetimi</a> sayfasını kullanın.</p>
+</section>
+<section aria-label="Sipariş kategorileri" class="cs-tabs-card">
+<div aria-label="Sipariş operasyon sekmeleri" class="cs-primary-tabs" id="primaryTabs" role="tablist"></div>
+</section>
+<section aria-label="Sipariş filtreleri" class="cs-toolbar">
+<div class="cs-toolbar-head">
+<label class="cs-search" for="searchInput">Arama
+          <input autocomplete="off" id="searchInput" placeholder="Sipariş no, müşteri, e-posta, takip no veya ürün" type="search"/>
+</label>
+<button aria-controls="filtersPanel" aria-expanded="false" class="cs-btn cs-filter-toggle" id="filterToggle" type="button">Filtreler</button>
 </div>
-
-<div class="cs-toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
-<script src="/assets/admin-orders.js?v=20260511-admin-unified" defer></script>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+<div class="cs-filter-panel" id="filtersPanel">
+<label>Tarih başlangıcı<input id="dateFromFilter" type="date"/></label>
+<label>Tarih bitişi<input id="dateToFilter" type="date"/></label>
+<label>Sipariş durumu<select id="orderStatusFilter"></select></label>
+<label>Ödeme durumu<select id="paymentStatusFilter"></select></label>
+<label>Operasyon durumu<select id="fulfillmentStatusFilter"></select></label>
+<label>Kargo firması<input id="carrierFilter" placeholder="Yurtiçi, Aras..." type="search"/></label>
+<label>Fatura durumu<select id="invoiceStatusFilter"></select></label>
+<label>İade durumu<select id="returnStatusFilter"></select></label>
+<label>E-posta durumu<select id="emailStatusFilter"></select></label>
+<label>Minimum tutar<input id="minTotalFilter" min="0" placeholder="0" step="0.01" type="number"/></label>
+<label>Maksimum tutar<input id="maxTotalFilter" min="0" placeholder="0" step="0.01" type="number"/></label>
+<label>Sıralama<select id="sortFilter"></select></label>
+</div>
+<div class="cs-toolbar-footer">
+<p aria-live="polite" class="cs-muted" id="resultPill">0 kayıt</p>
+<div class="cs-toolbar-buttons">
+<button class="cs-btn cs-btn-dark" id="applyFiltersBtn" type="button">Filtrele</button>
+<button class="cs-btn cs-btn-ghost" id="clearFiltersBtn" type="button">Temizle</button>
+</div>
+</div>
+</section>
+<section aria-labelledby="ordersTitle" class="cs-table-card">
+<div class="cs-section-head">
+<div>
+<h2 id="ordersTitle">Sipariş Listesi</h2>
+<p>Satır seçimi sipariş detay panelini açar. Mobilde tablo yerine operasyon kartları gösterilir.</p>
+</div>
+<button class="cs-btn cs-btn-ghost is-hidden" id="loadMoreBtn" type="button">Daha Fazla Yükle</button>
+</div>
+<div class="cs-table-wrap" id="tableWrap">
+<table class="cs-orders-table">
+<thead>
+<tr>
+<th>Sipariş No</th>
+<th>Tarih</th>
+<th>Müşteri</th>
+<th>Tutar</th>
+<th>Ödeme</th>
+<th>Operasyon</th>
+<th>Kargo</th>
+<th>Fatura</th>
+<th>İade</th>
+<th>Aksiyon</th>
+</tr>
+</thead>
+<tbody id="ordersTableBody"></tbody>
+</table>
+</div>
+<div aria-label="Mobil sipariş listesi" class="cs-mobile-orders" id="ordersCards"></div>
+<div class="cs-state-box is-hidden" id="emptyState"></div>
+</section>
+</main>
+</div>
+<div aria-hidden="true" class="cs-detail-shell" id="detailShell">
+<div class="cs-detail-backdrop" data-close-detail=""></div>
+<aside aria-labelledby="detailTitle" aria-modal="true" class="cs-detail-drawer" role="dialog" tabindex="-1">
+<div class="cs-detail-content" id="detailContent"></div>
+</aside>
+</div>
+<div aria-hidden="true" class="cs-confirm" id="confirmModal">
+<div class="cs-confirm-backdrop" data-confirm-cancel=""></div>
+<section aria-describedby="confirmBody" aria-labelledby="confirmTitle" aria-modal="true" class="cs-confirm-card" role="dialog" tabindex="-1">
+<h2 id="confirmTitle">İşlemi onayla</h2>
+<p id="confirmBody">Devam etmek istiyor musunuz?</p>
+<div class="cs-confirm-actions">
+<button class="cs-btn cs-btn-ghost" data-confirm-cancel="" type="button">Vazgeç</button>
+<button class="cs-btn cs-btn-dark" data-confirm-accept="" type="button">Onayla</button>
+</div>
+</section>
+</div>
+<div aria-atomic="false" aria-live="polite" class="cs-toast-stack" id="toastStack"></div>
+<script defer="" src="/assets/admin-orders.js?v=20260511-admin-unified"></script>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

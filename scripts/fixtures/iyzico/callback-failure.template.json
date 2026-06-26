@@ -1,0 +1,11 @@
+{
+  "description": "Use the token from a failed or cancelled iyzico sandbox Checkout Form payment.",
+  "token": "{{IYZICO_SANDBOX_FAILURE_TOKEN}}",
+  "expectedRedirect": "/payment/failure.html",
+  "expectedDatabase": {
+    "orders.payment_status": "failed",
+    "payments.status": "failed",
+    "inventory_reservations.status": "released",
+    "payment_events.payment_failed.processed": 1
+  }
+}

@@ -172,8 +172,8 @@ Tespit edilen her defect ayrı bir focused fix pass'iyle ele alınabilir.
 **Manuel test komutu:**
 ```bash
 cd /Users/can/Documents/GitHub/cosmoskin && python3 -m http.server 7700
-# http://localhost:7700/ → Cilt Tipi dropdown'unu aç, link'leri test et
-# http://localhost:7700/routine.html → Kayıt Ol link'ine hover (yeni href görünmeli)
+# http://local-dev-host:7700/ → Cilt Tipi dropdown'unu aç, link'leri test et
+# http://local-dev-host:7700/routine.html → Kayıt Ol link'ine hover (yeni href görünmeli)
 # Bestseller kartlarına bak → fiyatlar 16px civarı olmalı
 ```
 

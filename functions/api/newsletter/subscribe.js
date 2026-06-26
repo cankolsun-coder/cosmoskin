@@ -12,6 +12,14 @@ function normalizeEmail(value = '') {
   return String(value || '').trim().toLowerCase();
 }
 
+function isEmail(value = '') {
+  return EMAIL_RE.test(String(value || '').trim());
+}
+
+function newsletterSenderEmail(env = {}) {
+  return String(env.NEWSLETTER_FROM_EMAIL || env.BREVO_SENDER_EMAIL || '').trim().toLowerCase();
+}
+
 function cleanSource(value = 'footer') {
   const source = String(value || 'footer').trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 48);
   return source || 'footer';
@@ -40,10 +48,10 @@ async function sendWelcomeEmail(env, email) {
   if (!env.BREVO_API_KEY) {
     throw new Error('BREVO_API_KEY eksik. Welcome email gönderilemedi.');
   }
-  const senderEmail = String(env.BREVO_SENDER_EMAIL || '').trim();
-  const senderName = String(env.BREVO_SENDER_NAME || 'COSMOSKIN Journal').trim();
-  if (senderEmail !== 'newsletter@cosmoskin.com.tr') {
-    throw new Error('BREVO_SENDER_EMAIL newsletter@cosmoskin.com.tr olarak yapılandırılmalı.');
+  const senderEmail = newsletterSenderEmail(env);
+  const senderName = String(env.NEWSLETTER_SENDER_NAME || env.BREVO_SENDER_NAME || 'COSMOSKIN Journal').trim();
+  if (!isEmail(senderEmail)) {
+    throw new Error('NEWSLETTER_FROM_EMAIL veya BREVO_SENDER_EMAIL geçerli bir e-posta olmalıdır.');
   }
 
   const rendered = renderNewsletterWelcomeEmail({ email, env });
@@ -92,7 +100,7 @@ export async function onRequestPost(context) {
   if (!context.env.SUPABASE_URL || !context.env.SUPABASE_SERVICE_ROLE_KEY) {
     return json({ ok: false, code: 'server_misconfig', error: 'Newsletter veritabanı yapılandırması eksik.' }, { status: 503 });
   }
-  if (!context.env.BREVO_API_KEY || context.env.BREVO_SENDER_EMAIL !== 'newsletter@cosmoskin.com.tr') {
+  if (!context.env.BREVO_API_KEY || !isEmail(newsletterSenderEmail(context.env))) {
     return json({ ok: false, code: 'server_misconfig', error: 'Newsletter e-posta gönderimi yapılandırması eksik.' }, { status: 503 });
   }
 
@@ -118,7 +126,9 @@ export async function onRequestPost(context) {
       email,
       source,
       status: 'subscribed',
-      confirmed_at: now
+      confirmed_at: now,
+      marketing_email_opt_in: false,
+      consent_source: source
     });
 
     await insertRows(context, 'consent_records', [{
@@ -126,13 +136,7 @@ export async function onRequestPost(context) {
       consent_type: 'newsletter_opt_in',
       status: 'accepted',
       source: 'newsletter_'+source,
-      metadata: { source }
-    }, {
-      email,
-      consent_type: 'marketing_email_opt_in',
-      status: 'accepted',
-      source: 'newsletter_'+source,
-      metadata: { source, note: 'Newsletter opt-in implies journal communication only until preference-center is implemented.' }
+      metadata: { source, legal_version: 'checkout-20260626', note: 'Newsletter consent is recorded separately from commercial marketing consent.' }
     }]).catch((error) => console.error('newsletter consent record failed', { message: error.message }));
     await recordCrmEvent(context, { event_type: 'newsletter_subscribed', email, metadata: { source } });
 

@@ -1,0 +1,270 @@
+{
+  "root": "/mnt/data/cosmoskin_work/cosmoskin-hakkimizda-banner-size-fix-20260625",
+  "checks": {
+    "css_structural_parse": {
+      "passed": true,
+      "files": 30,
+      "issues": []
+    },
+    "sql_lexical_safety": {
+      "passed": true,
+      "files": 24,
+      "issues": []
+    },
+    "environment_reference_coverage": {
+      "passed": true,
+      "referenced": 56,
+      "defined": 64,
+      "missing": [],
+      "references": {
+        "ADMIN_ALLOW_LEGACY_TOKEN": [
+          "scripts/check-environment.mjs"
+        ],
+        "ADMIN_TOKEN": [
+          "functions/api/_lib/admin.js"
+        ],
+        "ALLOW_DESTRUCTIVE_TEST": [
+          "scripts/test-inventory-concurrency.mjs"
+        ],
+        "BREVO_API_KEY": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/_lib/brevo.js",
+          "functions/api/_lib/order-email.js",
+          "functions/api/_lib/restock-email.js",
+          "functions/api/admin/orders.js",
+          "functions/api/admin/orders/[id]/shipments.js",
+          "functions/api/admin/refunds.js",
+          "functions/api/admin/returns.js",
+          "functions/api/contact.js",
+          "functions/api/iyzico-callback.js",
+          "functions/api/newsletter/subscribe.js",
+          "functions/api/returns.js",
+          "functions/api/routine-reminders.js"
+        ],
+        "BREVO_LIST_CARE_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_CLEANSE_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_CUSTOMERS_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_HIGH_VALUE_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_HYDRATE_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_PROTECT_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_REORDER_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_ROUTINE_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_LIST_TREAT_ID": [
+          "functions/api/_lib/brevo.js"
+        ],
+        "BREVO_SENDER_EMAIL": [
+          "functions/api/_lib/restock-email.js",
+          "functions/api/newsletter/subscribe.js"
+        ],
+        "BREVO_SENDER_NAME": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/_lib/order-email.js",
+          "functions/api/_lib/restock-email.js",
+          "functions/api/newsletter/subscribe.js",
+          "functions/api/routine-reminders.js"
+        ],
+        "CHROMIUM_PATH": [
+          "qa/run-browser-qa.mjs"
+        ],
+        "CONTACT_FROM_EMAIL": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/_lib/order-email.js",
+          "functions/api/_lib/restock-email.js",
+          "functions/api/contact.js",
+          "functions/api/routine-reminders.js"
+        ],
+        "CONTACT_TO_EMAIL": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/contact.js",
+          "functions/api/routine-reminders.js"
+        ],
+        "COSMOSKIN_PLAYWRIGHT_CORE": [
+          "qa/run-browser-qa.mjs"
+        ],
+        "CRON_BATCH_LIMIT": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/cron/recalculate-memberships.js"
+        ],
+        "CRON_SECRET": [
+          "functions/api/cron/birthday-benefits.js",
+          "functions/api/cron/points-expiry.js",
+          "functions/api/cron/recalculate-memberships.js",
+          "functions/api/cron/release-expired-inventory.js"
+        ],
+        "DHL_ACCOUNT_NUMBER": [
+          "functions/api/_lib/shipping-providers.js"
+        ],
+        "DHL_API_BASE_URL": [
+          "functions/api/_lib/shipping-providers.js"
+        ],
+        "DHL_API_KEY": [
+          "functions/api/_lib/shipping-providers.js"
+        ],
+        "DHL_API_SECRET": [
+          "functions/api/_lib/shipping-providers.js"
+        ],
+        "DHL_CLIENT_ID": [
+          "functions/api/_lib/shipping-providers.js"
+        ],
+        "DHL_WEBHOOK_SECRET": [
+          "functions/api/dhl/webhook.js"
+        ],
+        "EARCHIVE_PROVIDER": [
+          "functions/api/invoices/qnb-create.js",
+          "functions/api/iyzico-callback.js"
+        ],
+        "EFT_RESERVATION_MINUTES": [
+          "functions/api/create-checkout.js"
+        ],
+        "IYZICO_API_KEY": [
+          "functions/api/_lib/iyzico.js",
+          "functions/api/create-checkout.js",
+          "functions/api/iyzico-callback.js"
+        ],
+        "IYZICO_BASE_URL": [
+          "functions/api/_lib/iyzico.js"
+        ],
+        "IYZICO_CALLBACK_URL": [
+          "scripts/replay-iyzico-callback.mjs"
+        ],
+        "IYZICO_SECRET_KEY": [
+          "functions/api/_lib/iyzico.js",
+          "functions/api/create-checkout.js",
+          "functions/api/iyzico-callback.js"
+        ],
+        "IYZICO_TEST_TOKEN": [
+          "scripts/replay-iyzico-callback.mjs"
+        ],
+        "IYZICO_TIMEOUT_MS": [
+          "functions/api/_lib/iyzico.js"
+        ],
+        "NEWSLETTER_FROM_EMAIL": [
+          "functions/api/_lib/order-email.js",
+          "functions/api/_lib/restock-email.js",
+          "functions/api/newsletter/subscribe.js"
+        ],
+        "NEWSLETTER_SENDER_NAME": [
+          "functions/api/newsletter/subscribe.js"
+        ],
+        "ORDER_FROM_EMAIL": [
+          "functions/api/_lib/order-email.js",
+          "functions/api/_lib/restock-email.js"
+        ],
+        "ORDER_SENDER_NAME": [
+          "functions/api/_lib/order-email.js"
+        ],
+        "PARTNERSHIP_TO_EMAIL": [
+          "functions/api/contact.js"
+        ],
+        "PUBLIC_SITE_URL": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/_lib/inventory.js",
+          "functions/api/_lib/newsletter-email.js",
+          "functions/api/_lib/order-email.js",
+          "functions/api/_lib/restock-email.js",
+          "functions/api/auth/register.js",
+          "functions/api/contact.js",
+          "functions/api/create-checkout.js",
+          "functions/api/routine-reminders.js"
+        ],
+        "QA_FLOW_FILTER": [
+          "qa/run-browser-qa.mjs"
+        ],
+        "QA_MATRIX_LIMIT": [
+          "qa/run-browser-qa.mjs"
+        ],
+        "QA_SKIP_MATRIX": [
+          "qa/run-browser-qa.mjs"
+        ],
+        "QA_VIEWPORT_FILTER": [
+          "qa/run-browser-qa.mjs"
+        ],
+        "QNB_API_BASE_URL": [
+          "functions/api/invoices/qnb-create.js"
+        ],
+        "QNB_CLIENT_ID": [
+          "functions/api/invoices/qnb-create.js"
+        ],
+        "QNB_CLIENT_SECRET": [
+          "functions/api/invoices/qnb-create.js"
+        ],
+        "REMINDER_CRON_SECRET": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/routine-reminders.js"
+        ],
+        "REQUIRE_CLOUDFLARE_ACCESS": [
+          "scripts/check-environment.mjs"
+        ],
+        "SITE_URL": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/_lib/newsletter-email.js",
+          "functions/api/_lib/order-email.js",
+          "functions/api/_lib/restock-email.js",
+          "functions/api/contact.js",
+          "functions/api/routine-reminders.js"
+        ],
+        "SUPABASE_ANON_KEY": [
+          "functions/api/auth/register.js"
+        ],
+        "SUPABASE_SERVICE_ROLE_KEY": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/_lib/supabase.js",
+          "functions/api/auth/register.js",
+          "functions/api/create-checkout.js",
+          "functions/api/newsletter/subscribe.js",
+          "functions/api/reviews/[[path]].js",
+          "scripts/reconcile-inventory.mjs",
+          "scripts/test-inventory-concurrency.mjs"
+        ],
+        "SUPABASE_URL": [
+          "automation/cron-reminders/worker.js",
+          "functions/api/_lib/supabase.js",
+          "functions/api/auth/register.js",
+          "functions/api/create-checkout.js",
+          "functions/api/newsletter/subscribe.js",
+          "functions/api/reviews/[[path]].js",
+          "scripts/reconcile-inventory.mjs",
+          "scripts/test-inventory-concurrency.mjs"
+        ],
+        "TEST_INVENTORY_SLUG": [
+          "scripts/test-inventory-concurrency.mjs"
+        ],
+        "TURNSTILE_SECRET_KEY": [
+          "functions/api/contact.js"
+        ]
+      }
+    },
+    "secret_scan": {
+      "passed": true,
+      "files_scanned": 854,
+      "issues": []
+    },
+    "readiness_artifacts": {
+      "passed": true,
+      "issues": [],
+      "required": [
+        "scripts/replay-iyzico-callback.mjs",
+        "supabase/verification/20260616_prelaunch_verification.sql",
+        "supabase/rollback/20260616_prelaunch_recovery.sql"
+      ]
+    }
+  },
+  "passed": 5,
+  "failed": 0
+}

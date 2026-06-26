@@ -1,0 +1,21 @@
+button.is-admin-loading,
+[role="button"].is-admin-loading {
+  cursor: wait !important;
+  opacity: .68;
+}
+button.is-admin-loading::after {
+  content: "";
+  display: inline-block;
+  width: .85em;
+  height: .85em;
+  margin-left: .5em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  vertical-align: -.1em;
+  animation: cs-admin-spin .7s linear infinite;
+}
+@keyframes cs-admin-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  button.is-admin-loading::after { animation-duration: 1.6s; }
+}

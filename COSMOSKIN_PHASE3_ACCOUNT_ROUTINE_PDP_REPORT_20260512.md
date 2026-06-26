@@ -168,7 +168,7 @@ Yapılan testler:
   - `/index.html`
   - `/account/profile.html`
   - `/routine.html`
-  - `/akilli-rutin.html`
+  - `/account/routines/`
   - `/products/skin1004-madagascar-centella-ampoule.html`
   - `/products/cosrx-low-ph-good-morning-gel-cleanser.html`
   - `/favorites.html`

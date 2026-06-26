@@ -125,7 +125,7 @@ function buildHeader(){
 
 /* ── SEARCH BAR ── */
 var _phIdx = 0, _phTimer = null;
-function rotatePlaceholder(span){
+function rotateHint(span){
   _phTimer = setInterval(function(){
     span.style.opacity = '0';
     setTimeout(function(){
@@ -151,7 +151,7 @@ function buildSearchBar(){
     '</a>';
 
   header.after(bar);
-  rotatePlaceholder(bar.querySelector('.m-search-bar__placeholder'));
+  rotateHint(bar.querySelector('.m-search-bar__placeholder'));
 }
 
 /* ── CATEGORIES ── */

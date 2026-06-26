@@ -143,7 +143,7 @@ const CosmoSearch = (() => {
         : '';
       const priceStr = formattedPrice ? ' \u00b7 ' + formattedPrice : '';
       return '<a class="srch-item" href="' + esc(p.url) + '" role="option" data-idx="' + i + '" aria-selected="false">' +
-        '<img class="srch-item-img" src="' + esc(p.image) + '" alt="" loading="lazy" width="44" height="44" onerror="this.style.opacity=\'.15\'">' +
+        '<img class="srch-item-img" src="' + esc(p.image) + '" alt="' + esc(p.brand + ' ' + p.name) + '" loading="lazy" width="44" height="44" onerror="this.style.opacity=\'.15\'">' +
         '<div class="srch-item-body">' +
           '<span class="srch-item-name">' + hiName + '</span>' +
           '<span class="srch-item-meta">' + esc(p.brand) + ' \u00b7 ' + esc(p.category) + priceStr + '</span>' +

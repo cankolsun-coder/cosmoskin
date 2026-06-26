@@ -35,10 +35,10 @@
 
 # Phase 3 legal readiness canonical paths
 /kvkk-aydinlatma.html /legal/kvkk-aydinlatma-metni.html 301
-/mesafeli-satis.html /legal/mesafeli-satis-sozlesmesi.html 302
-/on-bilgilendirme.html /legal/on-bilgilendirme-formu.html 302
-/iade-degisim.html /legal/iade-ve-cayma-politikasi.html 302
-/teslimat-kargo.html /legal/teslimat-ve-kargo.html 302
+/mesafeli-satis.html /legal/mesafeli-satis-sozlesmesi.html 301
+/on-bilgilendirme.html /legal/on-bilgilendirme-formu.html 301
+/iade-degisim.html /legal/iade-ve-cayma-politikasi.html 301
+/teslimat-kargo.html /legal/teslimat-ve-kargo.html 301
 
 
 # Routine routes: canonical slash directories. Legacy paths redirect once.

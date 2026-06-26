@@ -1,0 +1,110 @@
+{
+  "generatedAt": "2026-06-16T10:25:19.087Z",
+  "environment": {
+    "browser": "Chromium",
+    "executable": "/usr/bin/chromium",
+    "baseUrl": "http://127.0.0.1:38421",
+    "mocks": "Local deterministic API and Supabase browser fixtures; no external production services"
+  },
+  "viewports": [
+    {
+      "name": "360x800",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "430x932",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "name": "768x1024",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "1024x768",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "name": "1366x768",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "name": "1440x900",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "matrixPages": [
+    {
+      "name": "homepage",
+      "url": "/index.html"
+    },
+    {
+      "name": "listing",
+      "url": "/allproducts.html"
+    },
+    {
+      "name": "pdp",
+      "url": "/products/beauty-of-joseon-relief-sun-spf50.html"
+    },
+    {
+      "name": "cart",
+      "url": "/cart.html"
+    },
+    {
+      "name": "checkout",
+      "url": "/checkout.html"
+    },
+    {
+      "name": "smart-routine",
+      "url": "/account/routines/"
+    },
+    {
+      "name": "account",
+      "url": "/account/index.html"
+    },
+    {
+      "name": "admin",
+      "url": "/admin/index.html"
+    },
+    {
+      "name": "payment-success",
+      "url": "/payment/success.html"
+    },
+    {
+      "name": "payment-failure",
+      "url": "/payment/failure.html"
+    },
+    {
+      "name": "legal",
+      "url": "/legal/kvkk-aydinlatma-metni.html"
+    }
+  ],
+  "assertions": 1,
+  "passed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "test": "flow:cart-quantity-remove-empty",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P0-003",
+        "CS-P3-031"
+      ]
+    }
+  ]
+}

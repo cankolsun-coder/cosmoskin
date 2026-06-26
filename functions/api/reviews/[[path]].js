@@ -1,5 +1,7 @@
 import { json } from '../_lib/response.js';
 import { getUserFromAccessToken, deleteStorageObject } from '../_lib/supabase.js';
+import { assertAdmin } from '../_lib/admin.js';
+import { assertRateLimit } from '../_lib/security.js';
 import {
   getCatalogProductByHandle,
   getCatalogProductByName,
@@ -270,16 +272,9 @@ async function requireUser(context) {
   return { ok: true, user };
 }
 
-function requireAdmin(context) {
-  const expected = String(context.env.ADMIN_TOKEN || '');
-  if (!expected) {
-    return json({ ok: false, error: 'Admin token tanimli degil.' }, { status: 503 });
-  }
-  const received = String(context.request.headers.get('X-Admin-Token') || '').trim();
-  if (!received || received !== expected) {
-    return json({ ok: false, error: 'Token gecersiz veya eksik.' }, { status: 401 });
-  }
-  return null;
+async function requireAdmin(context) {
+  await assertAdmin(context);
+  return true;
 }
 
 function buildDisplayName(user) {
@@ -296,13 +291,13 @@ function sanitizeReviewPayload(payload = {}) {
     resolveProduct(payload.product_slug || payload.product_id || payload.product || '') ||
     resolveProduct(payload);
 
-  return { title, body, rating, product, images: sanitizeImages(payload.images) };
+  return { title, body, rating, product, images: [] };
 }
 
 function validateReviewPayload(payload = {}) {
   if (!payload.product?.slug) return 'Gecerli bir urun bulunamadi.';
-  if (!payload.title || payload.title.length < 3 || payload.title.length > 100) {
-    return 'Baslik 3 ile 100 karakter arasinda olmali.';
+  if (payload.title && (payload.title.length < 3 || payload.title.length > 100)) {
+    return 'Başlık boş bırakılabilir veya 3 ile 100 karakter arasında olmalıdır.';
   }
   if (!payload.body || payload.body.length < 10 || payload.body.length > 2000) {
     return 'Yorum 10 ile 2000 karakter arasinda olmali.';
@@ -376,6 +371,7 @@ async function hasPurchasedProduct(context, userId, product) {
 }
 
 async function handlePublicList(context) {
+  assertRateLimit(context, 'reviews-list', 90, 10 * 60 * 1000);
   const { user } = await getUserFromRequest(context);
   const url = new URL(context.request.url);
   const product =
@@ -443,6 +439,7 @@ async function handlePublicList(context) {
 }
 
 async function handleCreateReview(context) {
+  assertRateLimit(context, 'reviews-create', 5, 60 * 60 * 1000);
   const required = await requireUser(context);
   if (!required.ok) return required.response;
 
@@ -503,6 +500,7 @@ async function handleCreateReview(context) {
 }
 
 async function handleUpdateReview(context, reviewId) {
+  assertRateLimit(context, 'reviews-update', 10, 60 * 60 * 1000);
   const required = await requireUser(context);
   if (!required.ok) return required.response;
 
@@ -575,7 +573,68 @@ async function handleCreateImages(context) {
   });
 }
 
+
+async function uploadReviewPhoto(context, reviewId) {
+  assertRateLimit(context, 'reviews-photo-upload', 10, 60 * 60 * 1000);
+  const required = await requireUser(context);
+  if (!required.ok) return required.response;
+  const review = await getReviewById(context, reviewId);
+  if (!review || review.user_id !== required.user.id) {
+    return json({ ok: false, error: 'Yorum bulunamadı.' }, { status: 404 });
+  }
+  const existingImages = Array.isArray(review.review_images) ? review.review_images : [];
+  if (existingImages.length >= 5) return validationError('Bir yoruma en fazla 5 görsel eklenebilir.', 'photo_limit');
+
+  const contentType = context.request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('multipart/form-data')) {
+    return validationError('Görsel yükleme isteği multipart/form-data olmalıdır.', 'invalid_content_type', 415);
+  }
+  const form = await context.request.formData();
+  const file = form.get('image');
+  if (!(file instanceof File)) return validationError('Görsel dosyası gerekli.', 'missing_image');
+  const allowed = new Map([['image/jpeg','jpg'],['image/png','png'],['image/webp','webp']]);
+  const extension = allowed.get(String(file.type || '').toLowerCase());
+  if (!extension) return validationError('Yalnızca JPEG, PNG veya WebP görsel yükleyebilirsiniz.', 'invalid_image_type');
+  if (file.size <= 0 || file.size > 5 * 1024 * 1024) return validationError('Görsel boyutu en fazla 5 MB olabilir.', 'image_too_large');
+
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const signatures = {
+    jpg: bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff,
+    png: bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47,
+    webp: String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP'
+  };
+  if (!signatures[extension]) return validationError('Dosya içeriği bildirilen görsel türüyle eşleşmiyor.', 'invalid_image_signature');
+
+  const { url, serviceRoleKey } = getSupabaseConfig(context);
+  const objectPath = `${required.user.id}/${reviewId}/${crypto.randomUUID()}.${extension}`;
+  const upload = await fetch(`${url}/storage/v1/object/review-images/${objectPath.split('/').map(encodeURIComponent).join('/')}`, {
+    method: 'POST',
+    headers: {
+      apikey: serviceRoleKey,
+      Authorization: `Bearer ${serviceRoleKey}`,
+      'Content-Type': file.type,
+      'x-upsert': 'false'
+    },
+    body: bytes
+  });
+  if (!upload.ok) {
+    console.error('review_image_upload_failed', { status: upload.status, reviewId });
+    return json({ ok: false, error: 'Görsel şu anda yüklenemedi.' }, { status: 503 });
+  }
+  const publicUrl = `${url}/storage/v1/object/public/review-images/${objectPath.split('/').map(encodeURIComponent).join('/')}`;
+  const row = await insertRow(context, 'review_images', {
+    review_id: reviewId,
+    storage_path: objectPath,
+    public_url: publicUrl,
+    status: 'pending',
+    width: null,
+    height: null
+  });
+  return json({ ok: true, review_id: reviewId, image: mapImage(row) }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
+}
+
 async function handleHelpful(context) {
+  assertRateLimit(context, 'reviews-helpful', 30, 10 * 60 * 1000);
   const required = await requireUser(context);
   if (!required.ok) return required.response;
 
@@ -612,8 +671,7 @@ async function handleHelpful(context) {
 }
 
 async function handleAdminList(context) {
-  const authError = requireAdmin(context);
-  if (authError) return authError;
+  await requireAdmin(context);
 
   const rows = await selectRows(context, 'reviews', {
     select: REVIEW_SELECT_WITH_IMAGES,
@@ -627,8 +685,7 @@ async function handleAdminList(context) {
 }
 
 async function handleAdminReviewUpdate(context, reviewId) {
-  const authError = requireAdmin(context);
-  if (authError) return authError;
+  await requireAdmin(context);
 
   let payload;
   try {
@@ -663,15 +720,13 @@ async function handleAdminReviewUpdate(context, reviewId) {
 }
 
 async function handleAdminReviewDelete(context, reviewId) {
-  const authError = requireAdmin(context);
-  if (authError) return authError;
+  await requireAdmin(context);
   await deleteRows(context, 'reviews', { id: reviewId });
   return json({ ok: true, deleted: true });
 }
 
 async function handleAdminImageUpdate(context, reviewId, imageId) {
-  const authError = requireAdmin(context);
-  if (authError) return authError;
+  await requireAdmin(context);
 
   let payload;
   try {
@@ -706,8 +761,7 @@ async function handleAdminImageUpdate(context, reviewId, imageId) {
 }
 
 async function handleAdminImageDelete(context, reviewId, imageId) {
-  const authError = requireAdmin(context);
-  if (authError) return authError;
+  await requireAdmin(context);
   const rows = await selectRows(context, 'review_images', {
     select: 'id,storage_path,public_url',
     id: `eq.${imageId}`,
@@ -734,8 +788,7 @@ export async function onRequest(context) {
     }
 
     if (parts[0] === 'images') {
-      if (method === 'POST') return await handleCreateImages(context);
-      return methodNotAllowed(['POST']);
+      return json({ ok: false, error: 'Bu eski görsel endpointi artık kullanılmıyor.' }, { status: 410 });
     }
 
     if (parts[0] === 'helpful') {
@@ -764,6 +817,11 @@ export async function onRequest(context) {
       return json({ ok: false, error: 'Gecersiz admin endpointi.' }, { status: 404 });
     }
 
+    if (parts.length === 2 && parts[1] === 'images') {
+      if (method === 'POST') return await uploadReviewPhoto(context, parts[0]);
+      return methodNotAllowed(['POST']);
+    }
+
     if (parts.length === 1) {
       if (method === 'PATCH') return await handleUpdateReview(context, parts[0]);
       return methodNotAllowed(['PATCH']);
@@ -771,6 +829,9 @@ export async function onRequest(context) {
 
     return json({ ok: false, error: 'Gecersiz review endpointi.' }, { status: 404 });
   } catch (error) {
-    return json({ ok: false, error: error.message || 'Review islemi basarisiz.' }, { status: 500 });
+    const status = Number(error?.status) || 500;
+    if (status >= 500) console.error('review_request_failed', { status, name: error?.name || 'Error' });
+    const message = status >= 500 ? 'Yorum işlemi şu anda tamamlanamadı.' : (error?.message || 'Yorum işlemi tamamlanamadı.');
+    return json({ ok: false, error: message }, { status, headers: { 'Cache-Control': 'no-store' } });
   }
 }

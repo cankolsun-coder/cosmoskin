@@ -1,0 +1,924 @@
+{
+  "totalChangedFiles": 229,
+  "addedFiles": 26,
+  "removedFiles": 2,
+  "modifiedFiles": 201,
+  "files": [
+    {
+      "status": " D",
+      "path": ".claude/launch.json"
+    },
+    {
+      "status": " D",
+      "path": ".claude/serve.rb"
+    },
+    {
+      "status": " M",
+      "path": "_headers"
+    },
+    {
+      "status": " M",
+      "path": "account/index.html"
+    },
+    {
+      "status": " M",
+      "path": "account/order-detail.html"
+    },
+    {
+      "status": " M",
+      "path": "account/orders.html"
+    },
+    {
+      "status": " M",
+      "path": "account/preview-test.html"
+    },
+    {
+      "status": " M",
+      "path": "account/profile.html"
+    },
+    {
+      "status": " M",
+      "path": "account/returns.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/admin-reviews.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/admin-users.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/compliance.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/coupons.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/customers.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/email-logs.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/index.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/inventory.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/invoices.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/legal-settings.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/orders.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/orders/index.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/products.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/returns.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/reviews.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/reviews/index.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/shipments.html"
+    },
+    {
+      "status": " M",
+      "path": "admin/suppliers.html"
+    },
+    {
+      "status": " M",
+      "path": "/account/routines/"
+    },
+    {
+      "status": " M",
+      "path": "allproducts.html"
+    },
+    {
+      "status": " M",
+      "path": "assets/admin-inventory.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/app.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/checkout-flow.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/commerce.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/homepage-phase4.css"
+    },
+    {
+      "status": " M",
+      "path": "assets/inventory-client.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/js/smart-routine.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/master-upgrade.css"
+    },
+    {
+      "status": " M",
+      "path": "assets/master-upgrade.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/mobile-redesign.css"
+    },
+    {
+      "status": " M",
+      "path": "assets/mobile-redesign.js"
+    },
+    {
+      "status": " M",
+      "path": "assets/reviews-widget.js"
+    },
+    {
+      "status": " M",
+      "path": "auth/callback.html"
+    },
+    {
+      "status": " M",
+      "path": "auth/reset.html"
+    },
+    {
+      "status": " M",
+      "path": "brands.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/anua.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/beauty-of-joseon.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/by-wishtrend.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/cosrx.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/dr-jart.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/goodal.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/im-from.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/innisfree.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/isntree.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/laneige.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/medicube.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/mediheal.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/round-lab.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/skin1004.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/some-by-mi.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/thank-you-farmer.html"
+    },
+    {
+      "status": " M",
+      "path": "brands/torriden.html"
+    },
+    {
+      "status": " M",
+      "path": "cart.html"
+    },
+    {
+      "status": " M",
+      "path": "categories.html"
+    },
+    {
+      "status": " M",
+      "path": "checkout.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/acne-balance.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/akneye-egilimli-cilt.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/anua.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/barrier.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/beauty-of-joseon.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/bestsellers.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/blemish.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/by-wishtrend.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/care.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/cleanse.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/cosrx.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/dr-jart.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/glow.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/goodal.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/hassas-cilt.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/hydrate.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/hydration.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/im-from.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/innisfree.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/isntree.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/karma-cilt.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/kuru-cilt.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/laneige.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/masks.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/medicube.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/mediheal.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/normal-cilt.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/pore-sebum.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/protect.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/round-lab.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/routine.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/sensitivity.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/skin1004.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/some-by-mi.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/thank-you-farmer.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/torriden.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/treat.html"
+    },
+    {
+      "status": " M",
+      "path": "collections/yagli-cilt.html"
+    },
+    {
+      "status": " M",
+      "path": "contact.html"
+    },
+    {
+      "status": " M",
+      "path": "explore.html"
+    },
+    {
+      "status": " M",
+      "path": "favorites.html"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/_lib/admin.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/_lib/catalog.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/_lib/inventory.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/_lib/iyzico.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/_lib/supabase.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/compliance.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/coupons.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/customers.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/dashboard.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/email-logs.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/inventory.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/inventory/[slug].js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/inventory/[slug]/movements.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/inventory/adjust.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/invoices.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/lots.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/orders.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/orders/[id].js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/orders/[id]/emails.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/orders/[id]/shipments.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/orders/[id]/status.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/products.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/refunds.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/returns.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/shipments.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/suppliers.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/admin/users.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/coupons/validate.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/create-checkout.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/inventory.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/inventory/check.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/iyzico-callback.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/order-tracking.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/payment/bank-accounts.js"
+    },
+    {
+      "status": " M",
+      "path": "functions/api/reviews/[[path]].js"
+    },
+    {
+      "status": " M",
+      "path": "iade-degisim.html"
+    },
+    {
+      "status": " M",
+      "path": "index.html"
+    },
+    {
+      "status": " M",
+      "path": "journal.html"
+    },
+    {
+      "status": " M",
+      "path": "js/search.js"
+    },
+    {
+      "status": " M",
+      "path": "legal/acik-riza-metni.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/cerez-politikasi.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/iade-ve-cayma-politikasi.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/kvkk-aydinlatma-metni.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/mesafeli-satis-sozlesmesi.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/on-bilgilendirme-formu.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/teslimat-ve-kargo.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/ticari-elektronik-ileti-izni.html"
+    },
+    {
+      "status": " M",
+      "path": "legal/uyelik-sozlesmesi.html"
+    },
+    {
+      "status": " M",
+      "path": "mesafeli-satis.html"
+    },
+    {
+      "status": " M",
+      "path": "on-bilgilendirme.html"
+    },
+    {
+      "status": " M",
+      "path": "order-tracking.html"
+    },
+    {
+      "status": " M",
+      "path": "payment/failure.html"
+    },
+    {
+      "status": " M",
+      "path": "payment/success.html"
+    },
+    {
+      "status": " M",
+      "path": "products/anua-heartleaf-77-soothing-toner.html"
+    },
+    {
+      "status": " M",
+      "path": "products/anua-heartleaf-pore-control-cleansing-oil.html"
+    },
+    {
+      "status": " M",
+      "path": "products/beauty-of-joseon-dynasty-cream.html"
+    },
+    {
+      "status": " M",
+      "path": "products/beauty-of-joseon-glow-deep-serum.html"
+    },
+    {
+      "status": " M",
+      "path": "products/beauty-of-joseon-glow-serum-propolis-niacinamide.html"
+    },
+    {
+      "status": " M",
+      "path": "products/beauty-of-joseon-green-plum-refreshing-cleanser.html"
+    },
+    {
+      "status": " M",
+      "path": "products/beauty-of-joseon-relief-sun-spf50.html"
+    },
+    {
+      "status": " M",
+      "path": "products/by-wishtrend-pure-vitamin-c-21-5-serum.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-acne-pimple-master-patch.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-advanced-snail-96-mucin-essence.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-advanced-snail-96-mucin-power-essence.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-aha-bha-clarifying-treatment-toner.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-low-ph-good-morning-gel-cleanser.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-oil-free-ultra-moisturizing-lotion.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-salicylic-acid-daily-gentle-cleanser.html"
+    },
+    {
+      "status": " M",
+      "path": "products/cosrx-the-vitamin-c-23-serum.html"
+    },
+    {
+      "status": " M",
+      "path": "products/dr-jart-ceramidin-cream.html"
+    },
+    {
+      "status": " M",
+      "path": "products/goodal-green-tangerine-vitamin-c-serum.html"
+    },
+    {
+      "status": " M",
+      "path": "products/im-from-rice-toner.html"
+    },
+    {
+      "status": " M",
+      "path": "products/innisfree-super-volcanic-clay-mask.html"
+    },
+    {
+      "status": " M",
+      "path": "products/isntree-hyaluronic-acid-watery-sun-gel.html"
+    },
+    {
+      "status": " M",
+      "path": "products/laneige-water-sleeping-mask.html"
+    },
+    {
+      "status": " M",
+      "path": "products/medicube-collagen-night-wrapping-mask.html"
+    },
+    {
+      "status": " M",
+      "path": "products/medicube-zero-pore-pad.html"
+    },
+    {
+      "status": " M",
+      "path": "products/mediheal-nmf-aquaring-sheet-mask.html"
+    },
+    {
+      "status": " M",
+      "path": "products/round-lab-1025-dokdo-cleanser.html"
+    },
+    {
+      "status": " M",
+      "path": "products/round-lab-birch-juice-sunscreen.html"
+    },
+    {
+      "status": " M",
+      "path": "products/round-lab-dokdo-toner.html"
+    },
+    {
+      "status": " M",
+      "path": "products/round-lab-soybean-nourishing-cream.html"
+    },
+    {
+      "status": " M",
+      "path": "products/skin1004-centella-toning-toner.html"
+    },
+    {
+      "status": " M",
+      "path": "products/skin1004-hyalu-cica-water-fit-sun-serum.html"
+    },
+    {
+      "status": " M",
+      "path": "products/skin1004-madagascar-centella-ampoule.html"
+    },
+    {
+      "status": " M",
+      "path": "products/some-by-mi-aha-bha-miracle-toner.html"
+    },
+    {
+      "status": " M",
+      "path": "products/torriden-dive-in-hyaluronic-acid-serum.html"
+    },
+    {
+      "status": " M",
+      "path": "products/torriden-dive-in-serum.html"
+    },
+    {
+      "status": " M",
+      "path": "products/torriden-dive-in-watery-moisture-sun-cream.html"
+    },
+    {
+      "status": " M",
+      "path": "products/torriden-solid-in-ceramide-cream.html"
+    },
+    {
+      "status": " M",
+      "path": "robots.txt"
+    },
+    {
+      "status": " M",
+      "path": "routine.html"
+    },
+    {
+      "status": " M",
+      "path": "rutinler.html"
+    },
+    {
+      "status": " M",
+      "path": "search.html"
+    },
+    {
+      "status": " M",
+      "path": "snippets/reviews-component-ready.html"
+    },
+    {
+      "status": " M",
+      "path": "supabase-email-template.html"
+    },
+    {
+      "status": " M",
+      "path": "teslimat-kargo.html"
+    },
+    {
+      "status": " M",
+      "path": "wrangler.toml"
+    },
+    {
+      "status": "??",
+      "path": ".env.example"
+    },
+    {
+      "status": "??",
+      "path": "assets/admin-runtime.css"
+    },
+    {
+      "status": "??",
+      "path": "assets/admin-runtime.js"
+    },
+    {
+      "status": "??",
+      "path": "assets/img/hero/hero-bg-cosmoskin-stone.webp"
+    },
+    {
+      "status": "??",
+      "path": "assets/img/hero/hero-bg.webp"
+    },
+    {
+      "status": "??",
+      "path": "assets/img/home/editorial-phase4.webp"
+    },
+    {
+      "status": "??",
+      "path": "assets/img/home/mobile-hero-cosmoskin.webp"
+    },
+    {
+      "status": "??",
+      "path": "assets/pdp-quantity.css"
+    },
+    {
+      "status": "??",
+      "path": "assets/pdp-quantity.js"
+    },
+    {
+      "status": "??",
+      "path": "assets/smart-routine-wizard.css"
+    },
+    {
+      "status": "??",
+      "path": "assets/smart-routine-wizard.js"
+    },
+    {
+      "status": "??",
+      "path": "functions/api/_lib/bank-accounts.js"
+    },
+    {
+      "status": "??",
+      "path": "functions/api/_lib/http.js"
+    },
+    {
+      "status": "??",
+      "path": "functions/api/admin/bank-accounts.js"
+    },
+    {
+      "status": "??",
+      "path": "functions/api/admin/inventory/health.js"
+    },
+    {
+      "status": "??",
+      "path": "functions/api/admin/session.js"
+    },
+    {
+      "status": "??",
+      "path": "functions/api/cron/"
+    },
+    {
+      "status": "??",
+      "path": "qa/"
+    },
+    {
+      "status": "??",
+      "path": "scripts/"
+    },
+    {
+      "status": "??",
+      "path": "supabase/migrations/20260616_inventory_reservation_hardening.sql"
+    },
+    {
+      "status": "??",
+      "path": "supabase/migrations/20260616_payment_bank_and_callback_hardening.sql"
+    },
+    {
+      "status": "??",
+      "path": "supabase/migrations/20260616_rls_security_hardening.sql"
+    },
+    {
+      "status": "??",
+      "path": "supabase/rollback/"
+    },
+    {
+      "status": "??",
+      "path": "supabase/test/"
+    },
+    {
+      "status": "??",
+      "path": "supabase/verification/"
+    },
+    {
+      "status": "??",
+      "path": "tests/"
+    }
+  ]
+}

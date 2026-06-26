@@ -1,0 +1,970 @@
+{
+  "generatedAt": "2026-06-16T11:38:33.930299+00:00",
+  "environment": {
+    "browser": "Chromium 144.0.7559.96",
+    "mode": "headless",
+    "fixtures": "Deterministic local API/Supabase fixtures; no external production services"
+  },
+  "totals": {
+    "tests": 86,
+    "passed": 86,
+    "failed": 0,
+    "matrix": 77,
+    "flows": 9
+  },
+  "viewports": [
+    {
+      "viewport": "1024x768",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "homepage",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "listing",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "pdp",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "cart",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "checkout",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "smart-routine",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "account",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "admin",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-success",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-failure",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "legal",
+          "h1": 1,
+          "scrollWidth": 1024,
+          "clientWidth": 1024,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "viewport": "1366x768",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "homepage",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "listing",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "pdp",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "cart",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "checkout",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "smart-routine",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "account",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "admin",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-success",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-failure",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "legal",
+          "h1": 1,
+          "scrollWidth": 1366,
+          "clientWidth": 1366,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "viewport": "1440x900",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "homepage",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "listing",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "pdp",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "cart",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "checkout",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "smart-routine",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "account",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "admin",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-success",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-failure",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "legal",
+          "h1": 1,
+          "scrollWidth": 1440,
+          "clientWidth": 1440,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "viewport": "360x800",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "homepage",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "listing",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "pdp",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "cart",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "checkout",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "smart-routine",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "account",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "admin",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-success",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-failure",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "legal",
+          "h1": 1,
+          "scrollWidth": 360,
+          "clientWidth": 360,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "viewport": "390x844",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "homepage",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "listing",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "pdp",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "cart",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "checkout",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "smart-routine",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "account",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "admin",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-success",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-failure",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "legal",
+          "h1": 1,
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "viewport": "430x932",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "homepage",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "listing",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "pdp",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "cart",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "checkout",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "smart-routine",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "account",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "admin",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-success",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-failure",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "legal",
+          "h1": 1,
+          "scrollWidth": 430,
+          "clientWidth": 430,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "viewport": "768x1024",
+      "tests": 11,
+      "passed": 11,
+      "failed": 0,
+      "pages": [
+        {
+          "page": "homepage",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "listing",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "pdp",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "cart",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "checkout",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "smart-routine",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "account",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "admin",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-success",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "payment-failure",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        },
+        {
+          "page": "legal",
+          "h1": 1,
+          "scrollWidth": 768,
+          "clientWidth": 768,
+          "consoleErrors": 0,
+          "pageErrors": 0,
+          "failedRequests": 0,
+          "passed": true
+        }
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "test": "flow:admin-login-overflow",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P1-008",
+        "CS-P1-009",
+        "CS-P2-026",
+        "CS-P3-033"
+      ]
+    },
+    {
+      "test": "flow:auth-login-register-reset-pages",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-024"
+      ]
+    },
+    {
+      "test": "flow:cart-quantity-remove-empty",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P0-003",
+        "CS-P3-031"
+      ]
+    },
+    {
+      "test": "flow:checkout-eft-missing-bank-blocked",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P0-001"
+      ]
+    },
+    {
+      "test": "flow:checkout-eft-valid-bank-copy",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P0-001",
+        "CS-P1-007",
+        "CS-P1-016"
+      ]
+    },
+    {
+      "test": "flow:checkout-validation-free-shipping-card",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P0-004",
+        "CS-P1-006",
+        "CS-P1-009",
+        "CS-P2-025"
+      ]
+    },
+    {
+      "test": "flow:mobile-menu-search-escape",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-027"
+      ]
+    },
+    {
+      "test": "flow:pdp-quantity-favorite-cart",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P1-014",
+        "CS-P2-028",
+        "CS-P0-003"
+      ]
+    },
+    {
+      "test": "flow:smart-routine-six-step-back-restart-add",
+      "passed": true,
+      "details": {
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P0-005",
+        "CS-P1-011",
+        "CS-P1-012",
+        "CS-P1-013"
+      ]
+    }
+  ],
+  "consoleErrors": 0,
+  "pageErrors": 0,
+  "failedRequests": 0
+}

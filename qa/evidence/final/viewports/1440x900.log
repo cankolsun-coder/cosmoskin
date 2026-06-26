@@ -1,0 +1,17 @@
+[browser-qa] 1: 1440x900 homepage
+[browser-qa] 2: 1440x900 listing
+[browser-qa] 3: 1440x900 pdp
+[browser-qa] 4: 1440x900 cart
+[browser-qa] 5: 1440x900 checkout
+[browser-qa] 6: 1440x900 smart-routine
+[browser-qa] 7: 1440x900 account
+[browser-qa] 8: 1440x900 admin
+[browser-qa] 9: 1440x900 payment-success
+[browser-qa] 10: 1440x900 payment-failure
+[browser-qa] 11: 1440x900 legal
+{
+  "assertions": 11,
+  "passed": 11,
+  "failed": 0,
+  "evidence": "/mnt/data/cosmoskin_remediation/working/cosmoskin/qa/evidence/browser-qa-results.json"
+}

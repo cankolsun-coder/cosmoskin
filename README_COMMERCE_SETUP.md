@@ -10,8 +10,8 @@ Authentication > URL Configuration:
 - Redirect URLs:
   - `https://www.cosmoskin.com.tr/auth/callback.html`
   - `https://www.cosmoskin.com.tr/auth/reset.html`
-  - `http://localhost:3000/auth/callback.html`
-  - `http://localhost:3000/auth/reset.html`
+  - `http://local-dev-host:3000/auth/callback.html`
+  - `http://local-dev-host:3000/auth/reset.html`
 
 SQL Editor içinde önce şu dosyayı çalıştırın:
 

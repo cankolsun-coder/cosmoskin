@@ -9,7 +9,7 @@ const STATUSES = new Set(['active','disabled','invited']);
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const users = await selectRows(context, 'admin_users', { select: 'id,email,role,status,created_at,updated_at', order: 'email.asc' }).catch(() => []);
     return json({ ok: true, users, note: 'MVP uyumluluğu için ADMIN_TOKEN korunur. Production için authenticated admin users + RBAC kurulmalıdır.' });
   } catch (error) { return adminError(error, 'Admin kullanıcıları alınamadı.'); }
@@ -17,7 +17,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await readJsonBody(context);
     const email = normalizeEmail(body.email);
     const role = cleanText(body.role || 'operations', 40);
@@ -30,7 +30,7 @@ export async function onRequestPost(context) {
 
 export async function onRequestPatch(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await readJsonBody(context);
     if (!body.id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });
     const payload = { updated_at: new Date().toISOString() };

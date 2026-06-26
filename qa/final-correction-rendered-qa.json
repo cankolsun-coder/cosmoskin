@@ -1,0 +1,26 @@
+{
+  "trustlineCount": 0,
+  "paymentAlts": [
+    "Visa",
+    "Mastercard",
+    "Troy",
+    "iyzico ile Öde"
+  ],
+  "etbisFooterCount": 1,
+  "footerHasDhlChip": false,
+  "footerHasFreeShippingChip": false,
+  "footerHasKepChip": false,
+  "footerHasAmex": false,
+  "contactTexts": "",
+  "socialHrefs": [
+    "https://instagram.com/cosmoskin.tr",
+    "https://www.tiktok.com/@cosmoskin.tr"
+  ],
+  "securityBadges": [
+    "256-bit SSL koruması",
+    "Güvenli sanal POS",
+    "Sipariş e-posta bilgilendirmesi",
+    "Teslimat & iade sayfaları",
+    "ETBİS’e kayıtlıdır"
+  ]
+}

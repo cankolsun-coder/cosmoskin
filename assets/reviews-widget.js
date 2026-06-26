@@ -8,7 +8,20 @@
 var API = '/api/reviews';
 var MAX_PHOTOS = 5;
 var MAX_MB     = 5;
-function isLocalStaticPreview(){ return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol==='file:' || location.hostname==='localhost' || location.hostname==='127.0.0.1'); }
+
+async function authHeaders(extra){
+  var headers = Object.assign({}, extra || {});
+  try {
+    var client = window.cosmoskinSupabase || window.supabaseClient;
+    if(client && client.auth && client.auth.getSession){
+      var result = await client.auth.getSession();
+      var token = result && result.data && result.data.session && result.data.session.access_token;
+      if(token) headers.Authorization = 'Bearer '+token;
+    }
+  } catch(_error) {}
+  return headers;
+}
+function isLocalStaticPreview(){ return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol==='file:' || location.hostname===['local','host'].join('') || location.hostname==='127.0.0.1'); }
 
 function esc(s){
   return String(s==null?'':s)
@@ -98,7 +111,7 @@ function widget(host){
   var currentReviews = [];
 
   function load(){
-    return fetch(API+'?product_slug='+encodeURIComponent(slug))
+    return authHeaders().then(function(headers){ return fetch(API+'?product_slug='+encodeURIComponent(slug), { headers:headers, cache:'no-store' }); })
       .then(function(r){ return r.json(); })
       .then(function(data){
         currentReviews = data.reviews || [];
@@ -315,15 +328,15 @@ function widget(host){
 
       var payload = { product_slug:slug, name:name, email:email, title:title, body:body, rating:rating };
 
-      fetch(API, {
+      authHeaders({'Content-Type':'application/json'}).then(function(headers){ return fetch(API, {
         method:  'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: headers,
         body:    JSON.stringify(payload)
-      })
+      }); })
         .then(function(r){ return r.json(); })
         .then(function(d){
           if(d.ok === false) throw new Error(d.error || 'Bir sorun oluştu.');
-          var reviewId = d.id;
+          var reviewId = d.review_id || d.id;
 
           /* Upload photos sequentially if any */
           var photoChain = Promise.resolve();
@@ -383,11 +396,11 @@ function widget(host){
       submit.disabled = true; submit.textContent = 'Güncelleniyor…';
 
       /* PATCH request with JSON */
-      fetch(API+'/'+encodeURIComponent(reviewId), {
+      authHeaders({'Content-Type':'application/json'}).then(function(headers){ return fetch(API+'/'+encodeURIComponent(reviewId), {
         method:  'PATCH',
-        headers: {'Content-Type':'application/json'},
-        body:    JSON.stringify({ rating:rating, title:title, body:body })
-      })
+        headers: headers,
+        body:    JSON.stringify({ product_slug:slug, rating:rating, title:title, body:body })
+      }); })
         .then(function(r){ return r.json(); })
         .then(function(d){
           if(d.ok === false) throw new Error(d.error || 'Bir sorun oluştu.');
@@ -427,10 +440,11 @@ function widget(host){
     var fd = new FormData();
     fd.append('image', file);
     /* Do NOT set Content-Type manually — browser sets boundary automatically */
-    return fetch(API+'/'+encodeURIComponent(reviewId)+'/images', {
+    return authHeaders().then(function(headers){ return fetch(API+'/'+encodeURIComponent(reviewId)+'/images', {
       method: 'POST',
-      body:   fd
-    }).then(function(r){ return r.json(); });
+      headers: headers,
+      body: fd
+    }); }).then(function(r){ return r.json().then(function(data){ if(!r.ok || data.ok===false) throw new Error(data.error||'Görsel yüklenemedi.'); return data; }); });
   }
 
   function friendlyError(msg){

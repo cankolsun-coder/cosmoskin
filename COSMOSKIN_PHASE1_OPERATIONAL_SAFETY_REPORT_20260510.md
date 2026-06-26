@@ -240,7 +240,7 @@ Not: Bu ZIP içine hiçbir gerçek secret değeri eklenmedi.
 - Tüm `functions`, `assets` ve `js` klasörlerindeki JS dosyaları için `node --check`: başarılı.
 - `alert(` grep kontrolü: yeni uygulama kodunda alert popup kullanılmadı; sadece mevcut rapor dokümanlarında metin olarak geçti.
 - Secret grep kontrolü: gerçek secret değeri bulunmadı; yalnızca env değişken adları ve dokümantasyon örnekleri mevcut.
-- Placeholder key grep kontrolü: yeni secret placeholder değeri eklenmedi.
+- Hint key grep kontrolü: yeni secret placeholder değeri eklenmedi.
 - ZIP integrity testi: teslim edilen ZIP için başarılı çalıştırıldı.
 
 Yapısal/manuel doğrulama notları:

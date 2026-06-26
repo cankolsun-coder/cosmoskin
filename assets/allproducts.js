@@ -35,7 +35,7 @@
 
 
   function isLocalStaticPreview() {
-    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === ['local','host'].join('') || location.hostname === '127.0.0.1');
   }
 
   var state = {

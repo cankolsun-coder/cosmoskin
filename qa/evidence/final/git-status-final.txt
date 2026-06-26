@@ -1,0 +1,235 @@
+ D .claude/launch.json
+ D .claude/serve.rb
+ M _headers
+ M account/index.html
+ M account/order-detail.html
+ M account/orders.html
+ M account/preview-test.html
+ M account/profile.html
+ M account/returns.html
+ M admin/admin-reviews.html
+ M admin/admin-users.html
+ M admin/compliance.html
+ M admin/coupons.html
+ M admin/customers.html
+ M admin/email-logs.html
+ M admin/index.html
+ M admin/inventory.html
+ M admin/invoices.html
+ M admin/legal-settings.html
+ M admin/orders.html
+ M admin/orders/index.html
+ M admin/products.html
+ M admin/returns.html
+ M admin/reviews.html
+ M admin/reviews/index.html
+ M admin/shipments.html
+ M admin/suppliers.html
+ M /account/routines/
+ M allproducts.html
+ M assets/admin-inventory.js
+ M assets/app.js
+ M assets/checkout-flow.js
+ M assets/commerce.js
+ M assets/homepage-phase4.css
+ M assets/inventory-client.js
+ M assets/js/smart-routine.js
+ M assets/master-upgrade.css
+ M assets/master-upgrade.js
+ M assets/mobile-redesign.css
+ M assets/mobile-redesign.js
+ M assets/reviews-widget.js
+ M auth/callback.html
+ M auth/reset.html
+ M brands.html
+ M brands/anua.html
+ M brands/beauty-of-joseon.html
+ M brands/by-wishtrend.html
+ M brands/cosrx.html
+ M brands/dr-jart.html
+ M brands/goodal.html
+ M brands/im-from.html
+ M brands/innisfree.html
+ M brands/isntree.html
+ M brands/laneige.html
+ M brands/medicube.html
+ M brands/mediheal.html
+ M brands/round-lab.html
+ M brands/skin1004.html
+ M brands/some-by-mi.html
+ M brands/thank-you-farmer.html
+ M brands/torriden.html
+ M cart.html
+ M categories.html
+ M checkout.html
+ M collections/acne-balance.html
+ M collections/akneye-egilimli-cilt.html
+ M collections/anua.html
+ M collections/barrier.html
+ M collections/beauty-of-joseon.html
+ M collections/bestsellers.html
+ M collections/blemish.html
+ M collections/by-wishtrend.html
+ M collections/care.html
+ M collections/cleanse.html
+ M collections/cosrx.html
+ M collections/dr-jart.html
+ M collections/glow.html
+ M collections/goodal.html
+ M collections/hassas-cilt.html
+ M collections/hydrate.html
+ M collections/hydration.html
+ M collections/im-from.html
+ M collections/innisfree.html
+ M collections/isntree.html
+ M collections/karma-cilt.html
+ M collections/kuru-cilt.html
+ M collections/laneige.html
+ M collections/masks.html
+ M collections/medicube.html
+ M collections/mediheal.html
+ M collections/normal-cilt.html
+ M collections/pore-sebum.html
+ M collections/protect.html
+ M collections/round-lab.html
+ M collections/routine.html
+ M collections/sensitivity.html
+ M collections/skin1004.html
+ M collections/some-by-mi.html
+ M collections/thank-you-farmer.html
+ M collections/torriden.html
+ M collections/treat.html
+ M collections/yagli-cilt.html
+ M contact.html
+ M explore.html
+ M favorites.html
+ M functions/api/_lib/admin.js
+ M functions/api/_lib/catalog.js
+ M functions/api/_lib/inventory.js
+ M functions/api/_lib/iyzico.js
+ M functions/api/_lib/supabase.js
+ M functions/api/admin/compliance.js
+ M functions/api/admin/coupons.js
+ M functions/api/admin/customers.js
+ M functions/api/admin/dashboard.js
+ M functions/api/admin/email-logs.js
+ M functions/api/admin/inventory.js
+ M functions/api/admin/inventory/[slug].js
+ M functions/api/admin/inventory/[slug]/movements.js
+ M functions/api/admin/inventory/adjust.js
+ M functions/api/admin/invoices.js
+ M functions/api/admin/lots.js
+ M functions/api/admin/orders.js
+ M functions/api/admin/orders/[id].js
+ M functions/api/admin/orders/[id]/emails.js
+ M functions/api/admin/orders/[id]/shipments.js
+ M functions/api/admin/orders/[id]/status.js
+ M functions/api/admin/products.js
+ M functions/api/admin/refunds.js
+ M functions/api/admin/returns.js
+ M functions/api/admin/shipments.js
+ M functions/api/admin/suppliers.js
+ M functions/api/admin/users.js
+ M functions/api/coupons/validate.js
+ M functions/api/create-checkout.js
+ M functions/api/inventory.js
+ M functions/api/inventory/check.js
+ M functions/api/iyzico-callback.js
+ M functions/api/order-tracking.js
+ M functions/api/payment/bank-accounts.js
+ M functions/api/reviews/[[path]].js
+ M iade-degisim.html
+ M index.html
+ M journal.html
+ M js/search.js
+ M legal/acik-riza-metni.html
+ M legal/cerez-politikasi.html
+ M legal/iade-ve-cayma-politikasi.html
+ M legal/kvkk-aydinlatma-metni.html
+ M legal/mesafeli-satis-sozlesmesi.html
+ M legal/on-bilgilendirme-formu.html
+ M legal/teslimat-ve-kargo.html
+ M legal/ticari-elektronik-ileti-izni.html
+ M legal/uyelik-sozlesmesi.html
+ M mesafeli-satis.html
+ M on-bilgilendirme.html
+ M order-tracking.html
+ M payment/failure.html
+ M payment/success.html
+ M products/anua-heartleaf-77-soothing-toner.html
+ M products/anua-heartleaf-pore-control-cleansing-oil.html
+ M products/beauty-of-joseon-dynasty-cream.html
+ M products/beauty-of-joseon-glow-deep-serum.html
+ M products/beauty-of-joseon-glow-serum-propolis-niacinamide.html
+ M products/beauty-of-joseon-green-plum-refreshing-cleanser.html
+ M products/beauty-of-joseon-relief-sun-spf50.html
+ M products/by-wishtrend-pure-vitamin-c-21-5-serum.html
+ M products/cosrx-acne-pimple-master-patch.html
+ M products/cosrx-advanced-snail-96-mucin-essence.html
+ M products/cosrx-advanced-snail-96-mucin-power-essence.html
+ M products/cosrx-aha-bha-clarifying-treatment-toner.html
+ M products/cosrx-low-ph-good-morning-gel-cleanser.html
+ M products/cosrx-oil-free-ultra-moisturizing-lotion.html
+ M products/cosrx-salicylic-acid-daily-gentle-cleanser.html
+ M products/cosrx-the-vitamin-c-23-serum.html
+ M products/dr-jart-ceramidin-cream.html
+ M products/goodal-green-tangerine-vitamin-c-serum.html
+ M products/im-from-rice-toner.html
+ M products/innisfree-super-volcanic-clay-mask.html
+ M products/isntree-hyaluronic-acid-watery-sun-gel.html
+ M products/laneige-water-sleeping-mask.html
+ M products/medicube-collagen-night-wrapping-mask.html
+ M products/medicube-zero-pore-pad.html
+ M products/mediheal-nmf-aquaring-sheet-mask.html
+ M products/round-lab-1025-dokdo-cleanser.html
+ M products/round-lab-birch-juice-sunscreen.html
+ M products/round-lab-dokdo-toner.html
+ M products/round-lab-soybean-nourishing-cream.html
+ M products/skin1004-centella-toning-toner.html
+ M products/skin1004-hyalu-cica-water-fit-sun-serum.html
+ M products/skin1004-madagascar-centella-ampoule.html
+ M products/some-by-mi-aha-bha-miracle-toner.html
+ M products/torriden-dive-in-hyaluronic-acid-serum.html
+ M products/torriden-dive-in-serum.html
+ M products/torriden-dive-in-watery-moisture-sun-cream.html
+ M products/torriden-solid-in-ceramide-cream.html
+ M robots.txt
+ M routine.html
+ M rutinler.html
+ M search.html
+ M snippets/reviews-component-ready.html
+ M supabase-email-template.html
+ M teslimat-kargo.html
+ M wrangler.toml
+?? .env.example
+?? COSMOSKIN_AUDIT_CLOSURE_MATRIX.md
+?? COSMOSKIN_MANUAL_QA_REPORT.md
+?? COSMOSKIN_PRODUCTION_DEPLOYMENT_CHECKLIST.md
+?? COSMOSKIN_REMAINING_RISKS.md
+?? COSMOSKIN_REMEDIATION_CHANGELOG.md
+?? COSMOSKIN_TEST_RESULTS.md
+?? assets/admin-runtime.css
+?? assets/admin-runtime.js
+?? assets/img/hero/hero-bg-cosmoskin-stone.webp
+?? assets/img/hero/hero-bg.webp
+?? assets/img/home/editorial-phase4.webp
+?? assets/img/home/mobile-hero-cosmoskin.webp
+?? assets/pdp-quantity.css
+?? assets/pdp-quantity.js
+?? assets/smart-routine-wizard.css
+?? assets/smart-routine-wizard.js
+?? functions/api/_lib/bank-accounts.js
+?? functions/api/_lib/http.js
+?? functions/api/admin/bank-accounts.js
+?? functions/api/admin/inventory/health.js
+?? functions/api/admin/session.js
+?? functions/api/cron/
+?? qa/
+?? scripts/
+?? supabase/migrations/20260616_inventory_reservation_hardening.sql
+?? supabase/migrations/20260616_payment_bank_and_callback_hardening.sql
+?? supabase/migrations/20260616_rls_security_hardening.sql
+?? supabase/rollback/
+?? supabase/test/
+?? supabase/verification/
+?? tests/

@@ -20,6 +20,7 @@
  */
 
 import { json } from '../_lib/response.js';
+import { upsertRow, insertRows } from '../_lib/supabase.js';
 
 const PASSWORD_RULES = [
   { code: 'length', test: (p) => p.length >= 8,                                message: 'Şifre en az 8 karakter olmalı.' },
@@ -140,6 +141,37 @@ export async function onRequestPost(context) {
     token_type: body.token_type,
     user: body.user
   } : null;
+
+  if (body?.user?.id) {
+    await upsertRow(context, 'profiles', {
+      id: body.user.id,
+      email,
+      first_name: firstName,
+      last_name: lastName,
+      marketing_email_opt_in: body.marketing_email_opt_in === true,
+      newsletter_opt_in: body.newsletter_opt_in === true,
+      metadata: { source: 'auth_register_endpoint' }
+    }, 'id').catch((error) => console.error('profile upsert after signup failed:', { message: error.message }));
+    await insertRows(context, 'consent_records', [{
+      user_id: body.user.id,
+      email,
+      consent_type: 'kvkk_acknowledged',
+      status: 'acknowledged',
+      source: 'account_register',
+      document_key: 'kvkk-aydinlatma-metni',
+      document_version: 'checkout-20260626',
+      metadata: { page: 'account_register', note: 'Account registration KVKK notice acknowledged.' }
+    }, {
+      user_id: body.user.id,
+      email,
+      consent_type: 'membership_terms',
+      status: 'accepted',
+      source: 'account_register',
+      document_key: 'uyelik-sozlesmesi',
+      document_version: 'checkout-20260626',
+      metadata: { page: 'account_register' }
+    }]).catch((error) => console.error('registration consent record failed:', { message: error.message }));
+  }
 
   return json({
     ok: true,

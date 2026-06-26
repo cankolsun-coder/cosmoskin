@@ -1,0 +1,28 @@
+{
+  "out": "/mnt/data/cosmoskin_remediation/working/cosmoskin/qa/evidence/final/final-static-audit.json",
+  "counts": {
+    "files": 753,
+    "html": 160,
+    "js": 121,
+    "css": 28,
+    "sql": 22,
+    "json": 45
+  },
+  "issue_counts": {
+    "js_syntax": 0,
+    "json_parse": 0,
+    "html_parse": 0,
+    "missing_local_refs": 0,
+    "duplicate_ids": 0,
+    "duplicate_scripts": 0,
+    "img_alt_missing": 0,
+    "img_alt_empty": 0,
+    "h1_issues": 0,
+    "meta_description_missing": 0,
+    "canonical_missing": 0,
+    "jsonld_parse": 0,
+    "admin_missing_noindex": 0,
+    "frontend_api_without_route": 0,
+    "product_consistency": 0
+  }
+}

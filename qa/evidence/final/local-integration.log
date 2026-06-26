@@ -1,0 +1,98 @@
+TAP version 13
+# atomic inventory RPC unavailable: {
+#   operation: 'reserve',
+#   migration: '20260616_inventory_reservation_hardening.sql'
+# }
+# Subtest: Turkish IBAN normalization and MOD-97 validation
+ok 1 - Turkish IBAN normalization and MOD-97 validation
+  ---
+  duration_ms: 4.860475
+  type: 'test'
+  ...
+# Subtest: free-shipping coupon overrides shipping without negative totals
+ok 2 - free-shipping coupon overrides shipping without negative totals
+  ---
+  duration_ms: 1.461404
+  type: 'test'
+  ...
+# Subtest: EFT reservation duration is centrally bounded
+ok 3 - EFT reservation duration is centrally bounded
+  ---
+  duration_ms: 0.267326
+  type: 'test'
+  ...
+# Subtest: inventory rules distinguish missing, stock-zero, stock-one quantity-two and active stock
+ok 4 - inventory rules distinguish missing, stock-zero, stock-one quantity-two and active stock
+  ---
+  duration_ms: 1.445986
+  type: 'test'
+  ...
+# Subtest: atomic inventory RPC success and idempotent release/conversion responses
+ok 5 - atomic inventory RPC success and idempotent release/conversion responses
+  ---
+  duration_ms: 52.619501
+  type: 'test'
+  ...
+# Subtest: missing atomic RPC fails closed with operational error
+ok 6 - missing atomic RPC fails closed with operational error
+  ---
+  duration_ms: 4.900492
+  type: 'test'
+  ...
+# Subtest: deterministic local concurrency model: two stock-one attempts yield one reservation
+ok 7 - deterministic local concurrency model: two stock-one attempts yield one reservation
+  ---
+  duration_ms: 1.150926
+  type: 'test'
+  ...
+# Subtest: coupon API: valid free shipping, invalid and expired outcomes
+ok 8 - coupon API: valid free shipping, invalid and expired outcomes
+  ---
+  duration_ms: 12.851149
+  type: 'test'
+  ...
+# Subtest: checkout blocks missing EFT bank account before inventory reservation or order creation
+ok 9 - checkout blocks missing EFT bank account before inventory reservation or order creation
+  ---
+  duration_ms: 5.14736
+  type: 'test'
+  ...
+# Subtest: admin signed session is accepted and raw legacy token is disabled by default
+ok 10 - admin signed session is accepted and raw legacy token is disabled by default
+  ---
+  duration_ms: 40.298357
+  type: 'test'
+  ...
+# Subtest: unauthorized admin mutation is rejected server-side before database access
+ok 11 - unauthorized admin mutation is rejected server-side before database access
+  ---
+  duration_ms: 2.041439
+  type: 'test'
+  ...
+# Subtest: callback source contains no direct inventory read/update fallback and uses atomic processor
+ok 12 - callback source contains no direct inventory read/update fallback and uses atomic processor
+  ---
+  duration_ms: 4.433221
+  type: 'test'
+  ...
+# Subtest: payment migration protects paid orders from expiry and exposes service-role-only processors
+ok 13 - payment migration protects paid orders from expiry and exposes service-role-only processors
+  ---
+  duration_ms: 2.636179
+  type: 'test'
+  ...
+# Subtest: Smart Routine uses live inventory and warns rather than silently skipping changed products
+ok 14 - Smart Routine uses live inventory and warns rather than silently skipping changed products
+  ---
+  duration_ms: 3.872936
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 429.110529

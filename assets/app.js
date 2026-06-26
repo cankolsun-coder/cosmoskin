@@ -374,12 +374,9 @@
   document.querySelectorAll('[data-favorites-link]').forEach((link) => {
     if (link.dataset.favoritesGuardBound) return;
     link.dataset.favoritesGuardBound = 'true';
-    link.addEventListener('click', async (event) => {
+    link.addEventListener('click', (event) => {
       event.preventDefault();
-      const allowed = await ensureFavoriteAuth('Favorilerinizi görüntülemek için önce giriş yapmalısınız.');
-      if (allowed) {
-        window.location.href = link.getAttribute('href') || '/account/profile.html#favorites';
-      }
+      window.location.href = link.getAttribute('href') || '/favorites.html';
     });
   });
 
@@ -816,10 +813,6 @@ function broadcastFavoritesChange() {
     const normalized = normalizeFavoriteItem(item);
     if (!normalized?.id) return;
     const alreadyFavorite = isFavorite(normalized.id);
-    if (!alreadyFavorite) {
-      const allowed = await ensureFavoriteAuth();
-      if (!allowed) return;
-    }
     if (alreadyFavorite) {
       state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
       showFavoriteToast('Favorilerden çıkarıldı');
@@ -1028,7 +1021,7 @@ function broadcastFavoritesChange() {
           price: Number(btn.dataset.price),
           image: btn.dataset.image,
           url: btn.dataset.url || btn.closest('.product-card')?.querySelector('.product-media')?.getAttribute('href') || window.location.pathname,
-          qty: 1
+          qty: Math.max(1, Math.floor(Number(btn.dataset.quantity || 1) || 1))
         };
         if (window.COSMOSKIN_STOCK?.validateAdd) {
           btn.disabled = true;

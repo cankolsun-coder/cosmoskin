@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://www.cosmoskin.com.tr/</loc></url>
-  <url><loc>https://www.cosmoskin.com.tr/search.html</loc></url>
-  <url><loc>https://www.cosmoskin.com.tr/account/routines/</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/allproducts.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/categories.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/brands.html</loc></url>
   <url><loc>https://www.cosmoskin.com.tr/contact.html</loc></url>
-  <url><loc>https://www.cosmoskin.com.tr/account/returns.html</loc></url>
   <url><loc>https://www.cosmoskin.com.tr/products/anua-heartleaf-77-soothing-toner.html</loc></url>
   <url><loc>https://www.cosmoskin.com.tr/products/anua-heartleaf-pore-control-cleansing-oil.html</loc></url>
   <url><loc>https://www.cosmoskin.com.tr/products/beauty-of-joseon-relief-sun-spf50.html</loc></url>
@@ -64,4 +64,18 @@
   <url><loc>https://www.cosmoskin.com.tr/collections/thank-you-farmer.html</loc></url>
   <url><loc>https://www.cosmoskin.com.tr/collections/torriden.html</loc></url>
   <url><loc>https://www.cosmoskin.com.tr/collections/treat.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/hakkimizda.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/teslimat-ve-kargo.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/iade-ve-cayma-politikasi.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/on-bilgilendirme-formu.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/mesafeli-satis-sozlesmesi.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/kvkk-aydinlatma-metni.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/cerez-politikasi.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/ticari-elektronik-ileti-izni.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/acik-riza-metni.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/uyelik-sozlesmesi.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/veri-sahibi-basvuru-formu.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/gizlilik-ve-guvenlik-politikasi.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/cosmoskin-club.html</loc></url>
+  <url><loc>https://www.cosmoskin.com.tr/legal/cosmoskin-club-kurallari.html</loc></url>
 </urlset>

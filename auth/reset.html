@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Şifre Sıfırlama | COSMOSKIN</title>
-  <meta name="robots" content="noindex">
-  <link rel="icon" href="/favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/style.css?v=20260418f">
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Şifre Sıfırlama | COSMOSKIN</title>
+<meta content="noindex, nofollow, noarchive" name="robots"/>
+<link href="/favicon.png" rel="icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/style.css?v=20260418f" rel="stylesheet"/>
+<style>
     body{display:flex;flex-direction:column;min-height:100dvh;justify-content:center;align-items:center;padding:40px 20px;background:linear-gradient(180deg,#f8f3ed 0%,#f3ece3 60%,#f0e8de 100%);}
     .reset-card{width:min(480px,100%);background:#fffdf9;border:1px solid var(--line);border-radius:32px;box-shadow:0 32px 80px rgba(19,14,10,.09);overflow:hidden;}
     .reset-bar{height:3px;background:linear-gradient(90deg,#b89b72,#d4b88a);}
@@ -32,82 +32,79 @@
     .reset-foot a{color:#b89b72;text-decoration:none;}
     .reset-success-icon{width:56px;height:56px;border-radius:50%;background:#edf7f1;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 24px;}
   </style>
-<link rel="stylesheet" href="/assets/mobile.css?v=20260425f"/>
-<link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet"/>
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/assets/mobile.css?v=20260425f" rel="stylesheet">
+<link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet">
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet">
+<meta content="Şifre Sıfırlama sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description">
+<link href="https://www.cosmoskin.com.tr/auth/reset.html" rel="canonical">
+</link></meta></link></link></link></meta><link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
-
 <div class="reset-card">
-  <div class="reset-bar"></div>
-  <div class="reset-body">
-    <a href="/index.html" class="reset-brand">
-      <img src="/assets/logo-mark.png" alt="COSMOSKIN">
-      <span>COSMOSKIN</span>
-    </a>
-
-    <!-- STEP 1: E-posta isteme formu -->
-    <div id="stepRequest">
-      <div style="text-align:center;">
-        <div class="reset-icon">✉</div>
-        <span class="reset-label">Şifre Sıfırlama</span>
-        <h1 class="reset-heading">Şifrenizi mi unuttunuz?</h1>
-        <p class="reset-text">E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.</p>
-      </div>
-      <div class="reset-field">
-        <label class="reset-label-field">E-posta Adresi</label>
-        <input class="reset-input" id="resetEmail" type="email" placeholder="ornek@eposta.com" autocomplete="email">
-      </div>
-      <div class="reset-actions">
-        <button class="btn btn-primary" id="requestBtn" onclick="sendResetLink()" style="min-height:48px;">Sıfırlama Bağlantısı Gönder</button>
-        <a href="/index.html" class="btn btn-secondary" style="min-height:48px;">Geri Dön</a>
-      </div>
-      <div class="reset-status" id="requestStatus"></div>
-    </div>
-
-    <!-- STEP 2: Yeni şifre belirleme (sadece linkten döndüğünde gösterilir) -->
-    <div id="stepUpdate" style="display:none;">
-      <div style="text-align:center;">
-        <div class="reset-icon">🔐</div>
-        <span class="reset-label">Yeni Şifre</span>
-        <h1 class="reset-heading">Yeni şifrenizi belirleyin</h1>
-        <p class="reset-text">Güçlü bir şifre seçin. En az 8 karakter, harf ve rakam içermeli.</p>
-      </div>
-      <div class="reset-field">
-        <label class="reset-label-field">Yeni Şifre</label>
-        <div class="password-wrap">
-          <input class="reset-input" id="newPassword" type="password" minlength="8" placeholder="En az 8 karakter" autocomplete="new-password" style="padding-right:82px;">
-          <button class="password-toggle" type="button" onclick="togglePassword()">Göster</button>
-        </div>
-      </div>
-      <div class="reset-field">
-        <label class="reset-label-field">Şifre Tekrar</label>
-        <input class="reset-input" id="confirmPassword" type="password" minlength="8" placeholder="Şifrenizi tekrar girin" autocomplete="new-password">
-      </div>
-      <div class="reset-actions">
-        <button class="btn btn-primary" id="updateBtn" onclick="updatePassword()" style="min-height:48px;">Şifremi Güncelle</button>
-      </div>
-      <div class="reset-status" id="updateStatus"></div>
-    </div>
-
-    <!-- STEP 3: Başarı mesajı -->
-    <div id="stepSuccess" style="display:none;text-align:center;">
-      <div class="reset-success-icon">✓</div>
-      <span class="reset-label">İşlem Tamamlandı</span>
-      <h1 class="reset-heading">Şifreniz güncellendi</h1>
-      <p class="reset-text">Yeni şifrenizle giriş yapabilirsiniz.</p>
-      <div class="reset-actions">
-        <a href="/index.html?openAuth=login" class="btn btn-primary" style="min-height:48px;">Giriş Yap</a>
-        <a href="/index.html" class="btn btn-secondary" style="min-height:48px;">Anasayfaya Dön</a>
-      </div>
-    </div>
-
-  </div>
-  <div class="reset-foot">
-    Yardım için: <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a>
-  </div>
+<div class="reset-bar"></div>
+<div class="reset-body">
+<a class="reset-brand" href="/index.html">
+<img alt="COSMOSKIN" src="/assets/img/brand/cosmoskin-wordmark.svg"/>
+<span>COSMOSKIN</span>
+</a>
+<!-- STEP 1: E-posta isteme formu -->
+<div id="stepRequest">
+<div style="text-align:center;">
+<div class="reset-icon">✉</div>
+<span class="reset-label">Şifre Sıfırlama</span>
+<h1 class="reset-heading">Şifrenizi mi unuttunuz?</h1>
+<p class="reset-text">E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.</p>
 </div>
-
+<div class="reset-field">
+<label class="reset-label-field">E-posta Adresi</label>
+<input autocomplete="email" class="reset-input" id="resetEmail" placeholder="ornek@eposta.com" type="email"/>
+</div>
+<div class="reset-actions">
+<button class="btn btn-primary" id="requestBtn" onclick="sendResetLink()" style="min-height:48px;">Sıfırlama Bağlantısı Gönder</button>
+<a class="btn btn-secondary" href="/index.html" style="min-height:48px;">Geri Dön</a>
+</div>
+<div class="reset-status" id="requestStatus"></div>
+</div>
+<!-- STEP 2: Yeni şifre belirleme (sadece linkten döndüğünde gösterilir) -->
+<div id="stepUpdate" style="display:none;">
+<div style="text-align:center;">
+<div class="reset-icon">🔐</div>
+<span class="reset-label">Yeni Şifre</span>
+<h2 class="reset-heading">Yeni şifrenizi belirleyin</h2>
+<p class="reset-text">Güçlü bir şifre seçin. En az 8 karakter, harf ve rakam içermeli.</p>
+</div>
+<div class="reset-field">
+<label class="reset-label-field">Yeni Şifre</label>
+<div class="password-wrap">
+<input autocomplete="new-password" class="reset-input" id="newPassword" minlength="8" placeholder="En az 8 karakter" style="padding-right:82px;" type="password"/>
+<button class="password-toggle" onclick="togglePassword()" type="button">Göster</button>
+</div>
+</div>
+<div class="reset-field">
+<label class="reset-label-field">Şifre Tekrar</label>
+<input autocomplete="new-password" class="reset-input" id="confirmPassword" minlength="8" placeholder="Şifrenizi tekrar girin" type="password"/>
+</div>
+<div class="reset-actions">
+<button class="btn btn-primary" id="updateBtn" onclick="updatePassword()" style="min-height:48px;">Şifremi Güncelle</button>
+</div>
+<div class="reset-status" id="updateStatus"></div>
+</div>
+<!-- STEP 3: Başarı mesajı -->
+<div id="stepSuccess" style="display:none;text-align:center;">
+<div class="reset-success-icon">✓</div>
+<span class="reset-label">İşlem Tamamlandı</span>
+<h2 class="reset-heading">Şifreniz güncellendi</h2>
+<p class="reset-text">Yeni şifrenizle giriş yapabilirsiniz.</p>
+<div class="reset-actions">
+<a class="btn btn-primary" href="/index.html?openAuth=login" style="min-height:48px;">Giriş Yap</a>
+<a class="btn btn-secondary" href="/index.html" style="min-height:48px;">Anasayfaya Dön</a>
+</div>
+</div>
+</div>
+<div class="reset-foot">
+    Yardım için: <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a>
+</div>
+</div>
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -185,9 +182,10 @@
 })();
 </script>
 <script src="/assets/mobile.js?v=20260425f"></script>
-<script src="/assets/mobile-redesign.js?v=20260616-stockfix" defer></script>
-<script src="/assets/inventory-client.js?v=20260616-stockfix" defer></script>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+<script defer="" src="/assets/mobile-redesign.js?v=20260616-stockfix"></script>
+<script defer="" src="/assets/inventory-client.js?v=20260616-stockfix"></script>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

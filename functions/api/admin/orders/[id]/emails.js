@@ -6,7 +6,7 @@ const SAFE_RESEND_TYPES = new Set(['shipment_created', 'shipment_updated', 'ship
 
 export async function onRequestPost(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const id = context.params?.id || '';
     const body = await readJsonBody(context);
     const emailType = String(body.email_type || body.type || 'shipment_created').trim();

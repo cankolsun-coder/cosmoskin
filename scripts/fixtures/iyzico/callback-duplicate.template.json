@@ -1,0 +1,10 @@
+{
+  "description": "Replay the same successful sandbox token twice with --repeat=2.",
+  "token": "{{IYZICO_SANDBOX_SUCCESS_TOKEN}}",
+  "repeat": 2,
+  "expectedDatabase": {
+    "inventoryDeductionCount": 1,
+    "processedPaymentSuccessEventCount": 1,
+    "duplicateEventOrStatusNote": true
+  }
+}

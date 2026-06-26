@@ -387,3 +387,81 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     max-width: calc(100vw - 24px) !important;
   }
 }
+
+/* Accessible text that remains available to assistive technologies. */
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+/* Official payment marks: consistent container alignment without distorting proportions. */
+.payment-logos .payment-logo{display:inline-flex;align-items:center;justify-content:center;width:76px;min-width:76px;height:42px;padding:8px 10px;box-sizing:border-box}
+.payment-logos .payment-logo img{display:block!important;width:100%!important;height:24px!important;max-width:58px!important;object-fit:contain!important;transform:none!important}
+.payment-logos .payment-logo--mastercard img{max-width:48px!important}.payment-logos 
+@media(max-width:420px){.payment-logos{gap:8px!important}.payment-logos .payment-logo{width:68px;min-width:68px;height:40px;padding:7px 8px}}
+
+
+/* COSMOSKIN approved header logo lockup override */
+.brand img.brand-logo{display:block!important;}
+.brand .brand-word{font-family:var(--serif)!important;font-size:24px!important;font-weight:400!important;letter-spacing:.42em!important;color:#18130f!important;text-decoration:none!important;}
+.footer .brand-word{font-family:var(--serif)!important;}
+
+/* COSMOSKIN footer brand contrast correction */
+.header .brand .brand-word{font-family:var(--serif)!important;font-size:24px!important;font-weight:400!important;letter-spacing:.42em!important;color:#18130f!important;text-decoration:none!important;}
+.footer .brand .brand-word{font-family:var(--serif)!important;color:#ede6dc!important;text-decoration:none!important;}
+
+/* COSMOSKIN header parity hotfix — keep all page headers aligned with index.html — 20260625 */
+.header .brand{
+  gap:22px!important;
+  align-items:center!important;
+}
+.header .brand img.brand-logo,
+.header .brand .brand-logo{
+  display:block!important;
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+  object-fit:contain!important;
+  transform:none!important;
+}
+.header .brand .brand-word{
+  font-family:var(--serif)!important;
+  font-size:24px!important;
+  font-weight:400!important;
+  line-height:1!important;
+  letter-spacing:.42em!important;
+  color:#18130f!important;
+  text-decoration:none!important;
+  white-space:nowrap!important;
+}
+.cm-header-brandlock .cm-brand-logo{
+  display:block!important;
+  width:46px!important;
+  height:46px!important;
+  flex:0 0 46px!important;
+  object-fit:contain!important;
+  transform:none!important;
+}
+.cm-header-brandlock .cm-wordmark{
+  font-family:var(--serif)!important;
+  font-size:24px!important;
+  font-weight:400!important;
+  line-height:1!important;
+  letter-spacing:.42em!important;
+  color:#18130f!important;
+  text-decoration:none!important;
+  white-space:nowrap!important;
+}
+@media(max-width:940px){
+  .header .brand,.cm-header-brandlock{gap:14px!important;}
+  .header .brand img.brand-logo,
+  .header .brand .brand-logo,
+  .cm-header-brandlock .cm-brand-logo{width:38px!important;height:38px!important;flex-basis:38px!important;}
+  .header .brand .brand-word,
+  .cm-header-brandlock .cm-wordmark{font-size:22px!important;letter-spacing:.34em!important;}
+}
+@media(max-width:720px){
+  .header .brand,.cm-header-brandlock{gap:10px!important;}
+  .header .brand img.brand-logo,
+  .header .brand .brand-logo,
+  .cm-header-brandlock .cm-brand-logo{width:30px!important;height:30px!important;flex-basis:30px!important;}
+  .header .brand .brand-word,
+  .cm-header-brandlock .cm-wordmark{font-size:20px!important;letter-spacing:.22em!important;}
+}

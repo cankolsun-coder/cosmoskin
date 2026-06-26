@@ -32,6 +32,18 @@
     return true;
   }
 
+  function checkoutIdempotencyKey() {
+    const storageKey = 'cosmoskin_legacy_checkout_idempotency_v1';
+    let key = sessionStorage.getItem(storageKey) || '';
+    if (!/^[A-Za-z0-9_-]{16,80}$/.test(key)) {
+      key = (window.crypto && typeof window.crypto.randomUUID === 'function')
+        ? window.crypto.randomUUID()
+        : `cs_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+      sessionStorage.setItem(storageKey, key);
+    }
+    return key;
+  }
+
   function readCouponCode() {
     try {
       const stored = JSON.parse(localStorage.getItem('cosmoskin_coupon_state_v1') || 'null');
@@ -177,6 +189,8 @@
     customer.newsletter_opt_in = Boolean(fd.get('newsletter_opt_in'));
     const payload = {
       accessToken: session?.access_token || null,
+      payment_method: 'card',
+      idempotency_key: checkoutIdempotencyKey(),
       cart,
       customer,
       coupon_code: customer.coupon_code || customer.couponCode || readCouponCode() || null

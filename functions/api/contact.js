@@ -73,7 +73,7 @@ function getBrandAssets(env) {
   const siteUrl = getSiteUrl(env);
   return {
     siteUrl,
-    logoUrl: `${siteUrl}/assets/logo-mark.png`,
+    logoUrl: `${siteUrl}/assets/img/brand/cosmoskin-wordmark.svg`,
     supportUrl: `${siteUrl}/contact.html`,
     shopUrl: `${siteUrl}/account/routines/`,
     instagramUrl: 'https://instagram.com/cosmoskin.tr',
@@ -375,6 +375,24 @@ function validateEmail(email = '') {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim());
 }
 
+async function verifyTurnstile(context, token) {
+  const secret = String(context.env.TURNSTILE_SECRET_KEY || '').trim();
+  if (!secret) return { ok: true, skipped: true };
+  if (!token) return { ok: false, code: 'missing_turnstile' };
+  const ip = context.request.headers.get('CF-Connecting-IP') || context.request.headers.get('x-forwarded-for') || '';
+  const form = new FormData();
+  form.append('secret', secret);
+  form.append('response', token);
+  if (ip) form.append('remoteip', ip);
+  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form });
+  const data = await res.json().catch(() => ({}));
+  return { ok: Boolean(res.ok && data.success), code: data['error-codes'] || 'turnstile_failed' };
+}
+
+function consentAccepted(value) {
+  return value === true || value === 'true' || value === 'on' || value === '1' || value === 'accepted';
+}
+
 function buildSupportData(values, config) {
   const firstName = values.first_name.trim();
   const lastName = values.last_name.trim();
@@ -382,10 +400,14 @@ function buildSupportData(values, config) {
   const topic = values.topic.trim();
   const reference = values.reference.trim();
   const message = values.message.trim();
+  const privacyAcknowledged = consentAccepted(values.privacy_acknowledged) || consentAccepted(values.kvkk_acknowledged);
   const fullName = `${firstName} ${lastName}`.trim();
 
   if (!firstName || !lastName || !email || !topic || !message) {
     throw new Error('Lütfen zorunlu alanları doldurun.');
+  }
+  if (!privacyAcknowledged) {
+    throw new Error('KVKK aydınlatma metni onayı zorunludur.');
   }
 
   if (!validateEmail(email)) {
@@ -401,6 +423,7 @@ function buildSupportData(values, config) {
     topic,
     reference,
     message,
+    privacyAcknowledged,
     referenceCode: createReferenceCode(config.referencePrefix),
     submittedAt: formatDateTR(new Date())
   };
@@ -413,9 +436,13 @@ function buildPartnershipData(values, config) {
   const requestType = values.request_type.trim();
   const region = values.region.trim();
   const message = values.message.trim();
+  const privacyAcknowledged = consentAccepted(values.privacy_acknowledged) || consentAccepted(values.kvkk_acknowledged);
 
   if (!company || !name || !email || !requestType || !message) {
     throw new Error('Lütfen zorunlu alanları doldurun.');
+  }
+  if (!privacyAcknowledged) {
+    throw new Error('KVKK aydınlatma metni onayı zorunludur.');
   }
 
   if (!validateEmail(email)) {
@@ -430,6 +457,7 @@ function buildPartnershipData(values, config) {
     requestType,
     region,
     message,
+    privacyAcknowledged,
     referenceCode: createReferenceCode(config.referencePrefix),
     submittedAt: formatDateTR(new Date())
   };
@@ -448,6 +476,11 @@ export async function onRequestPost(context) {
 
     if (!context.env.BREVO_API_KEY || !context.env.CONTACT_FROM_EMAIL) {
       throw new Error(`Eksik environment variable. Gerekli alanlar: BREVO_API_KEY ve CONTACT_FROM_EMAIL. Fallback: ${config.fallback}`);
+    }
+
+    const turnstile = await verifyTurnstile(context, String(formData.get('cf-turnstile-response') || ''));
+    if (!turnstile.ok) {
+      return json({ ok: false, message: 'Güvenlik doğrulaması tamamlanamadı. Lütfen tekrar deneyin.' }, 400);
     }
 
     const values = Object.fromEntries(Array.from(formData.entries()).map(([key, value]) => [key, String(value || '')]));
@@ -486,12 +519,13 @@ export async function onRequestPost(context) {
     });
   } catch (error) {
     const fallback = 'destek@cosmoskin.com.tr';
-    const message = String(error.message || 'Şu anda form kullanılamıyor.');
+    const rawMessage = String(error.message || 'Şu anda form kullanılamıyor.');
+    const isOperational = /Brevo error|environment variable|CONTACT_FROM_EMAIL|BREVO_API_KEY/i.test(rawMessage);
     return json({
       ok: false,
-      message: message.includes('Brevo error')
+      message: isOperational
         ? `Şu anda form kullanılamıyor. Lütfen ${fallback} üzerinden iletişime geçin.`
-        : message
-    }, 500);
+        : rawMessage
+    }, isOperational ? 503 : 400);
   }
 }

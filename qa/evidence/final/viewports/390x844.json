@@ -1,0 +1,394 @@
+{
+  "generatedAt": "2026-06-16T11:31:48.163Z",
+  "environment": {
+    "browser": "Chromium",
+    "executable": "/usr/bin/chromium",
+    "baseUrl": "http://127.0.0.1:42485",
+    "mocks": "Local deterministic API and Supabase browser fixtures; no external production services"
+  },
+  "viewports": [
+    {
+      "name": "360x800",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "name": "390x844",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "430x932",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "name": "768x1024",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "1024x768",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "name": "1366x768",
+      "width": 1366,
+      "height": 768
+    },
+    {
+      "name": "1440x900",
+      "width": 1440,
+      "height": 900
+    }
+  ],
+  "matrixPages": [
+    {
+      "name": "homepage",
+      "url": "/index.html"
+    },
+    {
+      "name": "listing",
+      "url": "/allproducts.html"
+    },
+    {
+      "name": "pdp",
+      "url": "/products/beauty-of-joseon-relief-sun-spf50.html"
+    },
+    {
+      "name": "cart",
+      "url": "/cart.html"
+    },
+    {
+      "name": "checkout",
+      "url": "/checkout.html"
+    },
+    {
+      "name": "smart-routine",
+      "url": "/account/routines/"
+    },
+    {
+      "name": "account",
+      "url": "/account/index.html"
+    },
+    {
+      "name": "admin",
+      "url": "/admin/index.html"
+    },
+    {
+      "name": "payment-success",
+      "url": "/payment/success.html"
+    },
+    {
+      "name": "payment-failure",
+      "url": "/payment/failure.html"
+    },
+    {
+      "name": "legal",
+      "url": "/legal/kvkk-aydinlatma-metni.html"
+    }
+  ],
+  "assertions": 11,
+  "passed": 11,
+  "failed": 0,
+  "results": [
+    {
+      "test": "matrix:390x844:homepage",
+      "passed": true,
+      "details": {
+        "url": "/index.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:listing",
+      "passed": true,
+      "details": {
+        "url": "/allproducts.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:pdp",
+      "passed": true,
+      "details": {
+        "url": "/products/beauty-of-joseon-relief-sun-spf50.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:cart",
+      "passed": true,
+      "details": {
+        "url": "/cart.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 1,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:checkout",
+      "passed": true,
+      "details": {
+        "url": "/checkout.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:smart-routine",
+      "passed": true,
+      "details": {
+        "url": "/account/routines/",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:account",
+      "passed": true,
+      "details": {
+        "url": "/account/index.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:admin",
+      "passed": true,
+      "details": {
+        "url": "/admin/index.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:payment-success",
+      "passed": true,
+      "details": {
+        "url": "/payment/success.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 1,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:payment-failure",
+      "passed": true,
+      "details": {
+        "url": "/payment/failure.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 1,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    },
+    {
+      "test": "matrix:390x844:legal",
+      "passed": true,
+      "details": {
+        "url": "/legal/kvkk-aydinlatma-metni.html",
+        "navigationError": null,
+        "metrics": {
+          "scrollWidth": 390,
+          "clientWidth": 390,
+          "h1": 1,
+          "unnamedVisibleControls": 0,
+          "inputsClipped": 0
+        },
+        "pageErrors": [],
+        "consoleErrors": [],
+        "failedRequests": []
+      },
+      "relatedAuditIds": [
+        "CS-P2-019",
+        "CS-P2-021",
+        "CS-P2-022",
+        "CS-P2-024",
+        "CS-P2-027",
+        "CS-P3-033",
+        "CS-P3-034"
+      ]
+    }
+  ]
+}

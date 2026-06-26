@@ -26,7 +26,15 @@
   var bankAccountSyncInFlight = false;
   var bankAccountSyncLoaded = false;
   var liveBankAccount = null;
+  var liveBankAccounts = [];
+  var liveBankAccountError = '';
+  var couponRevalidationInFlight = false;
 
+
+  function newIdempotencyKey() {
+    try { if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID(); } catch (_) {}
+    return 'cs_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  }
 
   function $(selector, root) { return (root || document).querySelector(selector); }
   function $all(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
@@ -53,6 +61,14 @@
     return Number(String(value || '').replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
   }
   function digits(value) { return String(value || '').replace(/\D/g, ''); }
+  function validTurkishIdentity(value) {
+    var d = digits(value);
+    if (!/^\d{11}$/.test(d) || d.charAt(0) === '0') return false;
+    var n = d.split('').map(Number);
+    var odd = n[0] + n[2] + n[4] + n[6] + n[8];
+    var even = n[1] + n[3] + n[5] + n[7];
+    return n[9] === ((odd * 7 - even) % 10) && n[10] === (n.slice(0, 10).reduce(function (sum, item) { return sum + item; }, 0) % 10);
+  }
   function slugFrom(value) {
     return String(value || '')
       .trim()
@@ -200,17 +216,24 @@
     var data = await res.json().catch(function () { return {}; });
     return (Array.isArray(data.addresses) ? data.addresses : []).map(normalizeAddress).filter(addressHasContent);
   }
-  async function fetchBankAccountConfig() {
-    if (bankAccountSyncInFlight || bankAccountSyncLoaded) return liveBankAccount;
+  async function fetchBankAccountConfig(options) {
+    options = options || {};
+    if (bankAccountSyncInFlight) return liveBankAccount;
+    if (bankAccountSyncLoaded && !options.force) return liveBankAccount;
     bankAccountSyncInFlight = true;
+    liveBankAccountError = '';
     try {
-      var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/payment/bank-accounts');
-      if (!res.ok) throw new Error('bank accounts unavailable');
+      var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/payment/bank-accounts', { cache: 'no-store' });
       var data = await res.json().catch(function () { return {}; });
+      if (!res.ok || data.ok === false) throw new Error(data.error || 'Havale/EFT bilgileri doğrulanamadı.');
       var account = Array.isArray(data.accounts) ? data.accounts[0] : data.account;
-      if (account) liveBankAccount = account;
+      liveBankAccount = account && data.configured !== false ? account : null;
+      if (!liveBankAccount) liveBankAccountError = data.message || 'Havale/EFT ödeme bilgileri henüz kullanıma hazır değil.';
       bankAccountSyncLoaded = true;
-    } catch (_) {
+    } catch (error) {
+      liveBankAccount = null;
+      liveBankAccounts = [];
+      liveBankAccountError = error.message || 'Havale/EFT bilgileri şu anda doğrulanamıyor.';
       bankAccountSyncLoaded = true;
     } finally {
       bankAccountSyncInFlight = false;
@@ -219,17 +242,26 @@
   }
   function loadState() {
     var saved = readJSON(STORAGE_KEY, {});
-    return Object.assign({
+    var loaded = Object.assign({
       step: 'delivery',
       shippingMethod: 'standard',
       paymentMethod: 'card',
       delivery: { country: 'Türkiye' },
       invoice: { type: 'individual', sameAsDelivery: true },
-      payment: { cardLast4: '', cardHolder: '' },
-      legal: { sales: false, kvkk: false },
-      coupon: { code: '', discount: 0, label: '' },
+      payment: {},
+      legal: { preInformation: false, distanceSales: false, privacy: false, sales: false, kvkk: false, marketing: false },
+      coupon: { code: '', type: '', discount: 0, freeShipping: false, label: '' },
+      idempotencyKey: newIdempotencyKey(),
       order: null
     }, saved || {});
+    if (!/^[A-Za-z0-9_-]{16,80}$/.test(String(loaded.idempotencyKey || ''))) loaded.idempotencyKey = newIdempotencyKey();
+    loaded.legal = Object.assign({ preInformation: false, distanceSales: false, privacy: false, sales: false, kvkk: false, marketing: false }, loaded.legal || {});
+    if (loaded.legal.sales && !loaded.legal.preInformation && !loaded.legal.distanceSales) {
+      loaded.legal.preInformation = true;
+      loaded.legal.distanceSales = true;
+    }
+    if (loaded.legal.kvkk && !loaded.legal.privacy) loaded.legal.privacy = true;
+    return loaded;
   }
   function saveState() {
     writeSession(STORAGE_KEY, state);
@@ -299,15 +331,17 @@
   }
   function totals() {
     var subtotal = cart.items.reduce(function (sum, item) { return sum + (item.price * item.qty); }, 0);
-    var discount = Math.min(subtotal, Number(state.coupon && state.coupon.discount || 0));
+    var discount = Math.max(0, Math.min(subtotal, Number(state.coupon && state.coupon.discount || 0)));
     var discounted = Math.max(0, subtotal - discount);
+    var freeShipping = Boolean(state.coupon && state.coupon.freeShipping);
     var shipping = 0;
-    if (discounted > 0) {
-      if (state.shippingMethod === 'express') shipping = discounted >= FREE_SHIPPING ? EXPRESS_FEE : STANDARD_SHIPPING + EXPRESS_FEE;
+    if (discounted > 0 && !freeShipping) {
+      if (state.shippingMethod === 'express') shipping = (discounted >= FREE_SHIPPING ? 0 : STANDARD_SHIPPING) + EXPRESS_FEE;
       else shipping = discounted >= FREE_SHIPPING ? 0 : STANDARD_SHIPPING;
     }
+    shipping = Math.max(0, shipping);
     var vat = discounted - (discounted / 1.20);
-    return { subtotal: subtotal, discount: discount, discounted: discounted, shipping: shipping, vat: vat, total: discounted + shipping };
+    return { subtotal: subtotal, discount: discount, discounted: discounted, shipping: shipping, vat: vat, total: Math.max(0, discounted + shipping), freeShipping: freeShipping };
   }
   function stepFromUrl() {
     var url = new URL(window.location.href);
@@ -434,6 +468,7 @@
       });
       if (field('invoiceEmail') && field('invoiceEmail').value && !validEmail(field('invoiceEmail').value)) { errorFor(field('invoiceEmail'), 'Geçerli bir e-posta girin.'); ok = false; }
       if (field('invoicePhone') && field('invoicePhone').value && !validPhone(field('invoicePhone').value)) { errorFor(field('invoicePhone'), 'Türkiye formatında telefon girin.'); ok = false; }
+      if (field('invoiceIdentity') && field('invoiceIdentity').value && !validTurkishIdentity(field('invoiceIdentity').value)) { errorFor(field('invoiceIdentity'), 'Geçerli 11 haneli T.C. kimlik numarası girin.'); ok = false; }
     }
     if (!state.invoice.sameAsDelivery) {
       ['invoiceAddress', 'invoiceCity', 'invoiceDistrict', 'invoicePostalCode'].forEach(function (name) {
@@ -444,27 +479,34 @@
     if (!ok) setStatus('Lütfen zorunlu alanları kontrol edin.', 'error');
     return ok;
   }
-  function validatePayment() {
+  async function validatePayment() {
     clearErrors();
     var ok = true;
     var form = byId('csCheckoutPaymentForm');
     var data = collectForm(form);
     state.paymentMethod = data.paymentMethod || state.paymentMethod || 'card';
-    state.legal.sales = Boolean(data.legalSales);
-    state.legal.kvkk = Boolean(data.legalKvkk);
-    if (state.paymentMethod === 'card') {
-      var cardNumber = digits(data.cardNumber);
-      state.payment.cardHolder = data.cardHolder || '';
-      state.payment.cardLast4 = cardNumber.slice(-4);
-      if (!data.cardHolder) { errorFor(field('cardHolder'), 'Kart üzerindeki ismi girin.'); ok = false; }
-      if (cardNumber.length < 13 || cardNumber.length > 19) { errorFor(field('cardNumber'), 'Kart numarasını kontrol edin.'); ok = false; }
-      if (!/^\d{2}\/\d{2}$/.test(data.cardExpiry || '')) { errorFor(field('cardExpiry'), 'AA/YY formatında girin.'); ok = false; }
-      if (!/^\d{3,4}$/.test(digits(data.cardCvv))) { errorFor(field('cardCvv'), 'CVV 3 veya 4 haneli olmalıdır.'); ok = false; }
+    state.legal.preInformation = Boolean(data.legalPreInformation);
+    state.legal.distanceSales = Boolean(data.legalDistanceSales);
+    state.legal.privacy = Boolean(data.legalPrivacy);
+    state.legal.sales = state.legal.preInformation && state.legal.distanceSales;
+    state.legal.kvkk = state.legal.privacy;
+    state.legal.marketing = Boolean(data.marketingEmailOptIn);
+    if (state.paymentMethod === 'bank_transfer') {
+      await fetchBankAccountConfig({ force: true });
+      if (!bankConfig().configured) {
+        setStatus(liveBankAccountError || 'Havale/EFT ödeme bilgileri hazır olmadığı için sipariş oluşturulamıyor. Lütfen başka bir ödeme yöntemi seçin.', 'error');
+        ok = false;
+      }
     }
-    if (!state.legal.sales) { errorFor(field('legalSales'), 'Devam etmek için yasal metinleri onaylayın.'); ok = false; }
-    if (!state.legal.kvkk) { errorFor(field('legalKvkk'), 'KVKK bilgilendirmesini onaylayın.'); ok = false; }
+    if (state.paymentMethod === 'card' && state.invoice.type !== 'corporate' && !validTurkishIdentity(state.invoice.identity)) {
+      setStatus('Kartlı ödeme ile bireysel fatura için T.C. kimlik numarası zorunludur. Lütfen Fatura Bilgileri adımına dönüp alanı doldurun.', 'error');
+      ok = false;
+    }
+    if (!state.legal.preInformation) { errorFor(field('legalPreInformation'), 'Devam etmek için Ön Bilgilendirme Formu kabul edilmelidir.'); ok = false; }
+    if (!state.legal.distanceSales) { errorFor(field('legalDistanceSales'), 'Devam etmek için Mesafeli Satış Sözleşmesi kabul edilmelidir.'); ok = false; }
+    if (!state.legal.privacy) { errorFor(field('legalPrivacy'), 'KVKK Aydınlatma Metni bilgilendirmesini işaretleyin.'); ok = false; }
     saveState();
-    if (!ok) setStatus('Lütfen ödeme ve yasal onay alanlarını kontrol edin.', 'error');
+    if (!ok && state.paymentMethod !== 'bank_transfer') setStatus('Lütfen ödeme ve yasal onay alanlarını kontrol edin.', 'error');
     return ok;
   }
   async function validateStockSoft() {
@@ -498,20 +540,40 @@
       return false;
     }
   }
-  function bankConfig() {
-    var checkout = (window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.checkout) || {};
-    var bank = liveBankAccount || checkout.bankTransfer || window.COSMOSKIN_BANK_TRANSFER || {};
+  function normalizeIban(value) { return String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }
+  function validTurkishIban(value) {
+    var iban = normalizeIban(value);
+    if (!/^TR\d{24}$/.test(iban)) return false;
+    var rearranged = iban.slice(4) + iban.slice(0, 4);
+    var numeric = '';
+    for (var i = 0; i < rearranged.length; i += 1) {
+      var ch = rearranged.charAt(i);
+      numeric += /[A-Z]/.test(ch) ? String(ch.charCodeAt(0) - 55) : ch;
+    }
+    var remainder = 0;
+    for (var j = 0; j < numeric.length; j += 1) remainder = (remainder * 10 + Number(numeric.charAt(j))) % 97;
+    return remainder === 1;
+  }
+  function normalizeBankAccountUi(bank) {
+    bank = bank || {};
+    var accountName = bank.accountName || bank.account_holder || bank.accountHolder || bank.recipient || '';
     var bankName = bank.bankName || bank.bank_name || bank.bank || '';
-    var accountName = bank.accountName || bank.account_holder || bank.recipient || '';
-    var iban = bank.iban || '';
-    return {
-      bankName: bankName,
-      accountName: accountName,
-      iban: iban,
-      branch: bank.branch || bank.branch_name || '',
-      currency: bank.currency || 'TRY',
-      configured: Boolean(bankName && accountName && iban)
-    };
+    var iban = bank.iban || bank.IBAN || '';
+    var branch = bank.branch || bank.branch_name || '';
+    return { bankName: bankName, accountName: accountName, iban: iban, branch: branch, configured: Boolean(bankName && accountName && iban) };
+  }
+  function bankAccountsConfig() {
+    var checkout = (window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.checkout) || {};
+    var configured = (liveBankAccounts && liveBankAccounts.length ? liveBankAccounts : ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.bankAccounts) || checkout.bankAccounts || window.COSMOSKIN_BANK_ACCOUNTS || []));
+    if (!Array.isArray(configured) || !configured.length) configured = [liveBankAccount || checkout.bankTransfer || window.COSMOSKIN_BANK_TRANSFER || {}];
+    return configured.map(normalizeBankAccountUi).filter(function (bank) { return bank.configured; });
+  }
+  function bankConfig() {
+    var accounts = bankAccountsConfig();
+    var primary = accounts[0] || normalizeBankAccountUi({});
+    primary.accounts = accounts;
+    primary.configured = accounts.length > 0;
+    return primary;
   }
   function paymentLabel() { return state.paymentMethod === 'bank_transfer' ? 'Havale / EFT' : 'Kredi Kartı'; }
   function shippingInfo() {
@@ -537,15 +599,17 @@
       invoice_type: invoiceType,
       address: state.delivery.address,
       cargo_note: '',
-      kvkk_acknowledged: true,
-      preliminary_information_accepted: true,
-      distance_sales_accepted: true
+      kvkk_acknowledged: Boolean(state.legal.privacy),
+      preliminary_information_accepted: Boolean(state.legal.preInformation),
+      distance_sales_accepted: Boolean(state.legal.distanceSales),
+      marketing_email_opt_in: Boolean(state.legal.marketing)
     };
   }
   function checkoutPayload() {
     var t = totals();
     return {
       payment_method: state.paymentMethod,
+      idempotency_key: state.idempotencyKey,
       cart: cart.items.map(function (item) {
         return { id: item.slug || item.id, slug: item.slug || item.id, product_slug: item.slug || item.id, quantity: item.qty, qty: item.qty };
       }),
@@ -556,7 +620,18 @@
       totals: t,
       coupon_code: state.coupon.code || null,
       legal_approved_at: new Date().toISOString(),
-      legal: { sales: Boolean(state.legal.sales), kvkk: Boolean(state.legal.kvkk) }
+      legal: {
+        pre_information: Boolean(state.legal.preInformation),
+        distance_sales: Boolean(state.legal.distanceSales),
+        privacy: Boolean(state.legal.privacy),
+        marketing: Boolean(state.legal.marketing),
+        pre_information_version: 'checkout-20260622',
+        distance_sales_version: 'checkout-20260622',
+        privacy_notice_version: 'checkout-20260622',
+        accepted_terms_at: new Date().toISOString(),
+        accepted_privacy_at: new Date().toISOString(),
+        marketing_consent_at: state.legal.marketing ? new Date().toISOString() : null
+      }
     };
   }
   async function accessToken() {
@@ -580,8 +655,13 @@
   async function submitOrder() {
     if (submitLocked) return;
     submitLocked = true;
+    renderSummary();
     setStatus(state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor...' : 'Ödeme başlatılıyor...', '');
     try {
+      if (state.paymentMethod === 'bank_transfer') {
+        await fetchBankAccountConfig({ force: true });
+        if (!bankConfig().configured) throw new Error(liveBankAccountError || 'Havale/EFT ödeme bilgileri doğrulanamadı. Sipariş oluşturulmadı.');
+      }
       var payload = checkoutPayload();
       payload.accessToken = await accessToken();
       var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/create-checkout', {
@@ -590,7 +670,11 @@
         body: JSON.stringify(payload)
       });
       var data = await res.json().catch(function () { return {}; });
-      if (!res.ok || data.ok === false) throw new Error(data.error || 'İşlem başlatılamadı.');
+      if (!res.ok || data.ok === false) {
+        var requestError = new Error(data.error || 'İşlem başlatılamadı.');
+        requestError.code = data.code || '';
+        throw requestError;
+      }
       if (state.paymentMethod === 'bank_transfer') {
         state.order = {
           orderId: data.orderId || data.order_id || '',
@@ -599,7 +683,8 @@
           paymentStatus: 'awaiting_transfer',
           email: state.delivery.email,
           totals: totals(),
-          bank: bankConfig()
+          bank: data.bankAccount || data.bank_account || bankConfig(),
+          paymentDeadline: data.paymentDeadline || data.payment_deadline || null
         };
         saveState();
         writeSession(ORDER_KEY, state.order);
@@ -618,6 +703,10 @@
       }
       throw new Error('Ödeme sağlayıcı yönlendirmesi alınamadı.');
     } catch (error) {
+      if (['CHECKOUT_ATTEMPT_CLOSED', 'PAYMENT_INITIALIZE_FAILED', 'IDEMPOTENCY_CONFLICT'].indexOf(error.code) !== -1) {
+        state.idempotencyKey = newIdempotencyKey();
+        saveState();
+      }
       setStatus(state.paymentMethod === 'bank_transfer'
         ? (error.message || 'Havale/EFT siparişiniz oluşturulamadı. Lütfen tekrar deneyin.')
         : (error.message || 'Ödeme başlatılamadı. Lütfen tekrar deneyin.'), 'error');
@@ -639,35 +728,41 @@
     host.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return true;
   }
-  async function applyCoupon() {
+  async function applyCoupon(options) {
+    options = options || {};
     var input = byId('csCouponInput');
-    var code = input ? input.value.trim().toUpperCase() : '';
-    state.coupon = { code: code, discount: 0, label: '' };
+    var code = input ? input.value.trim().toUpperCase() : String(state.coupon && state.coupon.code || '').trim().toUpperCase();
+    state.coupon = { code: code, type: '', discount: 0, freeShipping: false, label: '' };
     if (!code) {
       saveState();
       renderSummary();
-      setStatus('Kupon kodu temizlendi.', '');
+      if (!options.silent) setStatus('Kupon kodu temizlendi.', '');
       return;
     }
     try {
       var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code, cart: cart.items.map(function (item) { return item.original || item; }) })
+        body: JSON.stringify({ code: code, shipping_method: state.shippingMethod, cart: cart.items.map(function (item) { return { slug: item.slug || item.id, quantity: item.qty }; }) })
       });
       var data = await res.json().catch(function () { return {}; });
       if (!res.ok || data.ok === false) throw new Error(data.error || 'Kupon doğrulanamadı.');
       var discount = num(data.discountAmount || data.discount_amount || data.discount || 0);
-      state.coupon = { code: code, discount: discount, label: data.discountLabel || data.label || '' };
+      state.coupon = { code: code, type: data.type || '', discount: discount, freeShipping: Boolean(data.freeShipping), label: data.discountLabel || data.label || '' };
       saveState();
       renderSummary();
-      setStatus(discount > 0 ? 'Kupon uygulandı.' : 'Kupon ödeme oluşturulurken sunucu tarafında doğrulanacak.', 'success');
+      if (!options.silent) setStatus(data.freeShipping ? 'Ücretsiz kargo kuponu uygulandı.' : 'Kupon uygulandı.', 'success');
     } catch (error) {
-      state.coupon = { code: code, discount: 0, label: '' };
+      state.coupon = { code: code, type: '', discount: 0, freeShipping: false, label: '' };
       saveState();
       renderSummary();
-      setStatus(error.message || 'Kupon doğrulanamadı.', 'error');
+      setStatus(options.silent ? 'Sepet değiştiği için kupon kaldırıldı: ' + (error.message || 'Kupon artık geçerli değil.') : (error.message || 'Kupon doğrulanamadı.'), 'error');
     }
+  }
+  async function revalidateCouponAfterCartChange() {
+    if (couponRevalidationInFlight || !state.coupon || !state.coupon.code) return;
+    couponRevalidationInFlight = true;
+    try { await applyCoupon({ silent: true }); } finally { couponRevalidationInFlight = false; }
   }
   function renderStepper() {
     var current = STEPS.indexOf(state.step);
@@ -764,7 +859,7 @@
     var html = '';
     if (individual) {
       html += input('invoiceName', 'Ad Soyad', inv.name, { full: true });
-      html += input('invoiceIdentity', 'T.C. Kimlik No (opsiyonel)', inv.identity, { inputmode: 'numeric', maxlength: 11 });
+      html += input('invoiceIdentity', 'T.C. Kimlik No (kartlı ödeme için zorunlu)', inv.identity, { inputmode: 'numeric', maxlength: 11 });
       html += input('invoiceEmail', 'E-posta', inv.email, { type: 'email' });
       html += input('invoicePhone', 'Telefon', inv.phone, { inputmode: 'tel', full: !same });
     } else {
@@ -793,7 +888,11 @@
       paymentOptionHtml('card', 'Kart ile Ödeme', '3D Secure doğrulamasıyla güvenli ödeme', 'Kredi kartı') +
       paymentOptionHtml('bank_transfer', 'Havale / EFT', 'Sipariş oluşturulur, ödeme onayı beklenir', 'Ödeme bekleniyor') +
       '</div>' + paymentMethodPanelHtml() + '</div>' +
-      '<div class="cs-checkout-legal-panel"><h3>Yasal Onaylar</h3><label class="cs-checkout-checkbox"><input type="checkbox" name="legalSales" ' + (state.legal.sales ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalSales-error"><span><a href="/legal/on-bilgilendirme-formu.html" target="_blank" rel="noopener">Ön Bilgilendirme Formu</a> ve <a href="/legal/mesafeli-satis-sozlesmesi.html" target="_blank" rel="noopener">Mesafeli Satış Sözleşmesi</a>’ni okudum, anladım ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalSales-error"></div><label class="cs-checkout-checkbox"><input type="checkbox" name="legalKvkk" ' + (state.legal.kvkk ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalKvkk-error"><span><a href="/legal/kvkk-aydinlatma-metni.html" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a>’ni okudum ve anladım.</span></label><div class="cs-checkout-error" id="cs-legalKvkk-error"></div></div>' +
+      '<div class="cs-checkout-legal-panel"><h3>Yasal Onaylar</h3>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPreInformation" ' + (state.legal.preInformation ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPreInformation-error"><span><a href="/legal/on-bilgilendirme-formu.html" data-legal-document="on-bilgilendirme-formu" data-legal-version="checkout-20260626">Ön Bilgilendirme Formu</a>’nu okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalPreInformation-error"></div>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalDistanceSales" ' + (state.legal.distanceSales ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalDistanceSales-error"><span><a href="/legal/mesafeli-satis-sozlesmesi.html" data-legal-document="mesafeli-satis-sozlesmesi" data-legal-version="checkout-20260626">Mesafeli Satış Sözleşmesi</a>’ni okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalDistanceSales-error"></div>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPrivacy" ' + (state.legal.privacy ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPrivacy-error"><span><a href="/legal/kvkk-aydinlatma-metni.html" data-legal-document="kvkk-aydinlatma-metni" data-legal-version="checkout-20260626">KVKK Aydınlatma Metni</a> kapsamında kişisel verilerimin işlenmesine ilişkin bilgilendirildim.</span></label><div class="cs-checkout-error" id="cs-legalPrivacy-error"></div>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="marketingEmailOptIn" ' + (state.legal.marketing ? 'checked' : '') + ' aria-invalid="false"><span>COSMOSKIN tarafından kampanya, indirim, ürün önerileri ve bilgilendirme amaçlı ticari elektronik ileti gönderilmesini kabul ediyorum. <a href="/legal/ticari-elektronik-ileti-izni.html" data-legal-document="ticari-elektronik-ileti-izni" data-legal-version="checkout-20260626">Detaylar</a>.</span></label></div>' +
       '</form><div id="csIyzicoHost"></div></section>';
   }
   function paymentOptionHtml(value, title, desc, meta) {
@@ -801,28 +900,21 @@
   }
   function paymentMethodPanelHtml() {
     if (state.paymentMethod === 'bank_transfer') return bankPanelHtml();
-    return '<div class="cs-checkout-form-grid">' +
-      input('cardHolder', 'Kart Üzerindeki İsim', state.payment.cardHolder, { full: true, autocomplete: 'cc-name', placeholder: 'Ad Soyad' }) +
-      input('cardNumber', 'Kart Numarası', '', { full: true, inputmode: 'numeric', autocomplete: 'cc-number', placeholder: '0000 0000 0000 0000', maxlength: 23 }) +
-      input('cardExpiry', 'Son Kullanma Tarihi', '', { inputmode: 'numeric', autocomplete: 'cc-exp', placeholder: 'AA/YY', maxlength: 5 }) +
-      input('cardCvv', 'CVV', '', { inputmode: 'numeric', autocomplete: 'cc-csc', placeholder: '123', maxlength: 4 }) +
-      '<div class="cs-card-icons cs-checkout-field is-full"><img src="/assets/img/payments/visa.svg" alt="Visa"><img src="/assets/img/payments/mastercard.svg" alt="Mastercard"><img src="/assets/img/payments/troy.svg" alt="Troy"></div>' +
-      '<p class="cs-checkout-note cs-checkout-field is-full">Ödemeniz bankanızın 3D Secure doğrulamasıyla tamamlanacaktır. Kart numarası, CVV veya son kullanma tarihi tarayıcı depolamasına kaydedilmez.</p>' +
-      '</div>';
+    return '<div class="cs-checkout-secure-transition" role="status">' +
+      '<span class="cs-checkout-secure-transition__icon">' + icon('lock') + '</span>' +
+      '<div><h3>Güvenli kart ödemesi</h3><p>Kart bilgileriniz COSMOSKIN tarafından alınmaz veya saklanmaz. Siparişinizi onayladığınızda ödeme, iyzico’nun güvenli ödeme arayüzünde tamamlanır.</p></div>' +
+      '</div><div class="cs-card-icons" role="img" aria-label="Visa, Mastercard ve  kartları desteklenir"><img src="/assets/img/payments/visa.svg" alt="Visa"><img src="/assets/img/payments/mastercard.svg" alt="Mastercard"><img src="/assets/img/payments/iyzico-monochrome.svg" alt="iyzico ile Öde"></div>';
   }
   function bankPanelHtml() {
     var bank = bankConfig();
-    var lines = [
-      ['Banka Adı', bank.bankName || 'Banka bilgisi yapılandırılmadı'],
-      ['Alıcı Ünvanı', bank.accountName || 'Sipariş sonrası paylaşılacak'],
-      ['IBAN', bank.iban || 'IBAN henüz yapılandırılmadı'],
-      ['Para Birimi', bank.currency || 'TRY']
-    ];
-    if (bank.branch) lines.push(['Şube / Hesap No', bank.branch]);
-    return '<div class="cs-checkout-bank-panel"><h3>Havale / EFT ile Ödeme</h3><p class="cs-checkout-note">Siparişiniz oluşturulduktan sonra ödeme onayı beklenir. Lütfen açıklama alanına sipariş numaranızı yazın.</p>' +
-      (!bank.configured ? '<p class="cs-checkout-status is-error">Canlı banka hesap bilgisi henüz yapılandırılmadı. Bu alan yapılandırıldığında müşteriye IBAN gösterilir.</p>' : '') +
-      lines.map(function (line) { return '<div class="cs-checkout-bank-line"><span>' + esc(line[0]) + '</span><strong>' + esc(line[1]) + '</strong>' + (line[0] === 'IBAN' ? '<button class="cs-checkout-secondary" data-copy-iban type="button" ' + (!bank.iban ? 'disabled' : '') + '>Kopyala</button>' : '<i></i>') + '</div>'; }).join('') +
-      '<p class="cs-checkout-note">Ödeme onaylandıktan sonra siparişiniz hazırlanmaya alınır. Havale/EFT siparişi otomatik olarak “ödendi” kabul edilmez.</p></div>';
+    var accounts = bank.accounts || [];
+    var accountCards = accounts.map(function (account, index) {
+      var lines = [['Banka Adı', account.bankName], ['Alıcı Ünvanı', account.accountName], ['IBAN', account.iban], ['Şube', account.branch || 'Maltepe Çarşı']];
+      return '<article class="cs-checkout-bank-account" data-bank-index="' + index + '"><h4>' + esc(account.bankName) + '</h4>' + lines.map(function (line) { return '<div class="cs-checkout-bank-line"><span>' + esc(line[0]) + '</span><strong>' + esc(line[1]) + '</strong>' + (line[0] === 'IBAN' ? '<button class="cs-checkout-secondary" data-copy-iban type="button">Kopyala</button>' : '<i></i>') + '</div>'; }).join('') + '</article>';
+    }).join('');
+    return '<div class="cs-checkout-bank-panel"><h3>Havale / EFT ile Ödeme</h3><p class="cs-checkout-note">Ödeme açıklamasına sipariş numaranızı yazmanız gerekmektedir.</p>' +
+      (!bank.configured ? '<p class="cs-checkout-status is-error">' + esc(liveBankAccountError || 'Havale/EFT ödeme bilgileri henüz kullanıma hazır değil. Bu yöntemle sipariş oluşturulamaz.') + '</p>' : '<div class="cs-checkout-bank-accounts">' + accountCards + '</div>') +
+      '<p class="cs-checkout-note">Havale/EFT siparişleri, ödeme onaylandıktan sonra hazırlık sürecine alınır.</p><p class="cs-checkout-note">Ödeme, sipariş oluşturulduktan sonra 24 saat içinde tamamlanmalıdır. Bu süre içinde ödeme yapılmayan siparişler iptal edilebilir.</p></div>';
   }
   function renderReview() {
     var ship = shippingInfo();
@@ -840,7 +932,7 @@
       reviewCard('Fatura Bilgileri', 'delivery', invoiceReviewRows()) +
       reviewCard('Ödeme Yöntemi', 'payment', paymentReviewRows()) +
       reviewCard('Ürünler', 'delivery', cart.items.map(function (item) { return [item.name, item.qty + ' adet · ' + money(item.price * item.qty)]; })) +
-      '<div class="cs-checkout-review-card"><header><h3>Yasal Onaylar</h3><button class="cs-checkout-edit" type="button" data-go-step="payment">Düzenle</button></header><p>Ön Bilgilendirme Formu, Mesafeli Satış Sözleşmesi ve KVKK Aydınlatma Metni onaylandı.</p></div>' +
+      '<div class="cs-checkout-review-card"><header><h3>Yasal Onaylar</h3><button class="cs-checkout-edit" type="button" data-go-step="payment">Düzenle</button></header><p>Ön Bilgilendirme Formu, Mesafeli Satış Sözleşmesi ve KVKK Aydınlatma Metni onaylandı. Ticari elektronik ileti izni yalnızca ayrıca seçildiyse geçerlidir.</p></div>' +
       '</div></section>';
   }
   function reviewCard(title, step, rows) {
@@ -855,13 +947,15 @@
         ['Vergi Numarası', state.invoice.taxNumber],
         ['E-posta', state.invoice.corporateEmail],
         ['E-Fatura', state.invoice.eInvoice ? 'Evet' : 'Hayır'],
-        ['Adres', state.invoice.sameAsDelivery ? 'Teslimat adresiyle aynı' : state.invoice.address]
+        ['Adres', state.invoice.sameAsDelivery ? 'Teslimat adresiyle aynı' : state.invoice.address],
+        ['İl / İlçe', state.invoice.sameAsDelivery ? ((state.delivery.city || '') + ' / ' + (state.delivery.district || '')) : ((state.invoice.city || '') + ' / ' + (state.invoice.district || ''))],
+        ['Posta Kodu', state.invoice.sameAsDelivery ? state.delivery.postalCode : state.invoice.postalCode]
       ];
     }
     return [
       ['Fatura Tipi', 'Bireysel'],
       ['Ad Soyad', state.invoice.name],
-      ['T.C. Kimlik No', state.invoice.identity || 'Opsiyonel'],
+      ['T.C. Kimlik No', state.invoice.identity || (state.paymentMethod === 'card' ? 'Kartlı ödeme için zorunlu' : 'Opsiyonel')],
       ['E-posta', state.invoice.email],
       ['Telefon', state.invoice.phone],
       ['Adres', state.invoice.sameAsDelivery ? 'Teslimat adresiyle aynı' : state.invoice.address]
@@ -869,7 +963,7 @@
   }
   function paymentReviewRows() {
     if (state.paymentMethod === 'bank_transfer') return [['Ödeme Yöntemi', 'Havale / EFT'], ['Durum', 'Ödeme bekleniyor'], ['Not', 'Açıklama alanına sipariş numarası yazılmalıdır.']];
-    return [['Ödeme Yöntemi', 'Kredi Kartı'], ['Kart', '**** **** **** ' + (state.payment.cardLast4 || '----')], ['Güvenlik', '3D Secure']];
+    return [['Ödeme Yöntemi', 'Kredi Kartı'], ['Ödeme Arayüzü', 'iyzico güvenli ödeme'], ['Güvenlik', '3D Secure']];
   }
   function renderSuccess() {
     var order = state.order || readJSON(ORDER_KEY, null) || {};
@@ -891,9 +985,9 @@
           ['Ödeme Yöntemi', 'Kredi Kartı'],
           ['Ödeme Durumu', order.paymentStatus === 'paid' ? 'Ödendi' : 'Ödeme sağlayıcı onayı bekleniyor']
         ];
-    return '<section class="cs-checkout-card cs-checkout-success"><div class="cs-checkout-success-mark">' + icon('check') + '</div><h2>' + (isBank ? 'Siparişiniz Oluşturuldu' : 'Siparişiniz Alındı') + '</h2><p>' + (isBank ? 'Havale/EFT ödemeniz bekleniyor. Lütfen ödeme açıklamasına sipariş numaranızı yazın.' : 'Teşekkür ederiz. Siparişiniz oluşturuldu; ödeme durumu sağlayıcı dönüşüne göre güncellenir.') + '</p><div class="cs-checkout-success-grid">' +
+    return '<section class="cs-checkout-card cs-checkout-success"><div class="cs-checkout-success-mark">' + icon('check') + '</div><h2>' + (isBank ? 'Siparişiniz Oluşturuldu' : 'Siparişiniz Alındı') + '</h2><p>' + (isBank ? 'Havale/EFT ödemeniz bekleniyor. Lütfen ödeme açıklamasına sipariş numaranızı yazın.' : 'Siparişiniz alındı. Elektronik faturanız hazırlanarak kayıtlı e-posta adresinize gönderilecektir.') + '</p><div class="cs-checkout-success-grid">' +
       rows.map(function (row) { return '<div class="cs-checkout-success-row"><span>' + esc(row[0]) + '</span><strong>' + esc(row[1]) + '</strong></div>'; }).join('') +
-      '</div><div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/account/profile.html?tab=orders">Siparişlerime Git</a><a class="cs-checkout-secondary" href="/allproducts.html">Alışverişe Devam Et</a></div></section>';
+      '</div>' + (isBank && order.paymentDeadline ? '<p class="cs-checkout-note"><strong>Ödeme son zamanı:</strong> ' + esc(new Intl.DateTimeFormat('tr-TR', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(order.paymentDeadline))) + '</p>' : '') + '<div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/account/profile.html?tab=orders">Siparişlerime Git</a><a class="cs-checkout-secondary" href="/order-tracking.html">Siparişi Takip Et</a><a class="cs-checkout-secondary" href="/contact.html">Destek Al</a></div></section>';
   }
   function renderContent() {
     var host = byId('csCheckoutContent');
@@ -914,7 +1008,7 @@
     var t = totals();
     host.innerHTML = '<div class="cs-checkout-summary-head"><h2>Sipariş Özeti</h2><span class="cs-checkout-secure">KDV dahil</span></div>' +
       '<div class="cs-checkout-summary-items">' + (cart.items.length ? cart.items.map(function (item) {
-        return '<article class="cs-checkout-item"><a href="' + esc(item.url) + '"><img src="' + esc(item.image || '/assets/logo-mark.png') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div><strong>' + esc(item.brand) + '<br>' + esc(item.name) + '</strong><span>' + esc(item.size || 'KDV dahil') + '</span><span>Adet: ' + item.qty + '</span></div><b>' + money(item.price * item.qty) + '</b></article>';
+        return '<article class="cs-checkout-item"><a href="' + esc(item.url) + '"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div><strong>' + esc(item.brand) + '<br>' + esc(item.name) + '</strong><span>' + esc(item.size || 'KDV dahil') + '</span><span>Adet: ' + item.qty + '</span></div><b>' + money(item.price * item.qty) + '</b></article>';
       }).join('') : '<p class="cs-checkout-note">Sepetin boş.</p>') + '</div>' +
       totalRow('Ara Toplam', money(t.subtotal)) +
       (t.discount ? totalRow('İndirim', '-' + money(t.discount)) : '') +
@@ -923,9 +1017,10 @@
       totalRow('Toplam', money(t.total), true) +
       '<div class="cs-checkout-discount"><label class="cs-checkout-label" for="csCouponInput">İndirim Kodu</label><div class="cs-checkout-discount-row"><input class="cs-checkout-input" id="csCouponInput" value="' + esc(state.coupon.code || '') + '" placeholder="İndirim kodunuz"><button class="cs-checkout-secondary" id="csCouponApply" type="button">Uygula</button></div></div>';
     if (!action) return;
-    var label = state.step === 'delivery' ? 'Ödeme Adımına Geç' : state.step === 'payment' ? 'Kontrol Et' : state.step === 'review' ? (state.paymentMethod === 'bank_transfer' ? 'Siparişi Oluştur' : 'Siparişi Onayla ve Öde') : 'Alışverişe Devam Et';
-    action.textContent = label;
-    action.disabled = submitLocked || (!cart.items.length && state.step !== 'success');
+    var label = state.step === 'delivery' ? 'Ödeme Adımına Geç' : state.step === 'payment' ? 'Kontrol Et' : state.step === 'review' ? (state.paymentMethod === 'bank_transfer' ? 'Siparişi Oluştur' : 'Siparişi Onayla ve Güvenli Ödemeye Geç') : 'Alışverişe Devam Et';
+    action.textContent = submitLocked ? (state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor…' : 'Güvenli ödeme hazırlanıyor…') : label;
+    action.disabled = submitLocked || (!cart.items.length && state.step !== 'success') || (state.paymentMethod === 'bank_transfer' && state.step !== 'delivery' && !bankConfig().configured);
+    action.setAttribute('aria-busy', submitLocked ? 'true' : 'false');
     var note = byId('csCheckoutActionNote');
     if (note) note.textContent = state.step === 'review' && state.paymentMethod === 'bank_transfer'
       ? 'Havale/EFT siparişleri ödeme bekleniyor durumuyla oluşturulur.'
@@ -980,8 +1075,6 @@
       invoiceName: 'name', invoiceIdentity: 'identity', invoiceEmail: 'email', invoicePhone: 'phone', invoiceAddress: 'address', invoiceCity: 'city', invoiceDistrict: 'district', invoicePostalCode: 'postalCode', companyTitle: 'company', taxOffice: 'taxOffice', taxNumber: 'taxNumber', corporateEmail: 'corporateEmail', eInvoice: 'eInvoice'
     };
     if (invoiceMap[target.name]) state.invoice[invoiceMap[target.name]] = value;
-    if (target.name === 'cardHolder') state.payment.cardHolder = String(value || '');
-    if (target.name === 'cardNumber') state.payment.cardLast4 = digits(value).slice(-4);
     saveState();
   }
 
@@ -1053,22 +1146,21 @@
       }
       var copyIban = event.target.closest('[data-copy-iban]');
       if (copyIban) {
-        var iban = bankConfig().iban;
-        if (iban && navigator.clipboard) {
+        var iban = normalizeIban(bankConfig().iban);
+        try {
+          if (!iban || !navigator.clipboard || !navigator.clipboard.writeText) throw new Error('clipboard unavailable');
           await navigator.clipboard.writeText(iban);
           copyIban.textContent = 'IBAN kopyalandı';
+          setStatus('IBAN panoya kopyalandı.', 'success');
+        } catch (_) {
+          copyIban.textContent = 'Kopyalanamadı';
+          setStatus('IBAN otomatik kopyalanamadı. Lütfen IBAN’ı seçerek manuel kopyalayın.', 'error');
         }
       }
     });
     document.addEventListener('input', function (event) {
       var target = event.target;
       if (!target || !target.name) return;
-      if (target.name === 'cardNumber') target.value = digits(target.value).slice(0, 19).replace(/(.{4})/g, '$1 ').trim();
-      if (target.name === 'cardExpiry') {
-        var d = digits(target.value).slice(0, 4);
-        target.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
-      }
-      if (target.name === 'cardCvv') target.value = digits(target.value).slice(0, 4);
       syncStateFromField(target);
     });
     document.addEventListener('change', function (event) {
@@ -1081,9 +1173,13 @@
         saveState();
         render({ skipAuth: true });
       }
-      if (target.name === 'legalSales' || target.name === 'legalKvkk') {
-        state.legal.sales = Boolean(field('legalSales') && field('legalSales').checked);
-        state.legal.kvkk = Boolean(field('legalKvkk') && field('legalKvkk').checked);
+      if (target.name === 'legalPreInformation' || target.name === 'legalDistanceSales' || target.name === 'legalPrivacy' || target.name === 'marketingEmailOptIn') {
+        state.legal.preInformation = Boolean(field('legalPreInformation') && field('legalPreInformation').checked);
+        state.legal.distanceSales = Boolean(field('legalDistanceSales') && field('legalDistanceSales').checked);
+        state.legal.privacy = Boolean(field('legalPrivacy') && field('legalPrivacy').checked);
+        state.legal.sales = state.legal.preInformation && state.legal.distanceSales;
+        state.legal.kvkk = state.legal.privacy;
+        state.legal.marketing = Boolean(field('marketingEmailOptIn') && field('marketingEmailOptIn').checked);
         saveState();
       }
     });
@@ -1093,7 +1189,7 @@
       render();
     });
     window.addEventListener('storage', function () { render(); });
-    document.addEventListener('cosmoskin:cart:updated', function () { render(); });
+    document.addEventListener('cosmoskin:cart:updated', function () { render(); revalidateCouponAfterCartChange(); });
   }
   async function nextAction() {
     if (state.step === 'delivery') {
@@ -1103,7 +1199,7 @@
       return;
     }
     if (state.step === 'payment') {
-      if (!validatePayment()) return;
+      if (!await validatePayment()) return;
       setStep('review');
       return;
     }

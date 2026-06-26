@@ -1,0 +1,17 @@
+[browser-qa] 1: 430x932 homepage
+[browser-qa] 2: 430x932 listing
+[browser-qa] 3: 430x932 pdp
+[browser-qa] 4: 430x932 cart
+[browser-qa] 5: 430x932 checkout
+[browser-qa] 6: 430x932 smart-routine
+[browser-qa] 7: 430x932 account
+[browser-qa] 8: 430x932 admin
+[browser-qa] 9: 430x932 payment-success
+[browser-qa] 10: 430x932 payment-failure
+[browser-qa] 11: 430x932 legal
+{
+  "assertions": 11,
+  "passed": 11,
+  "failed": 0,
+  "evidence": "/mnt/data/cosmoskin_remediation/working/cosmoskin/qa/evidence/browser-qa-results.json"
+}

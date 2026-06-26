@@ -3782,7 +3782,7 @@ button[disabled] { opacity: 0.72; cursor: wait; }
 .payment-logo{display:inline-flex;align-items:center;justify-content:center;min-width:76px;height:44px;padding:8px 12px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,.05)}
 .payment-logo svg{display:block;width:100%;height:100%}
 .payment-logo--visa{min-width:84px}
-.payment-logo--amex{min-width:88px}
+
 .footer-badges{display:flex;flex-wrap:wrap;gap:10px}
 .footer-badges span{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;border:1px solid rgba(237,230,220,.12);background:rgba(255,255,255,.04);font-size:12px;color:#ede6dc}
 .footer-meta-copy{margin:14px 0 0;font-size:13px;line-height:1.75;color:rgba(237,230,220,.76);max-width:64ch}
@@ -3965,7 +3965,7 @@ button[disabled] { opacity: 0.72; cursor: wait; }
   padding:8px 14px;
 }
 .payment-logo--visa{min-width:96px}
-.payment-logo--amex{min-width:102px}
+
 @media (max-width:1280px){
   .mega--discovery{
     grid-template-columns:repeat(4,minmax(140px,1fr));
@@ -7590,20 +7590,83 @@ body.checkout-cart-empty .checkout-empty-state a{display:inline-flex;margin-top:
   object-fit:contain;
 }
 .footer .payment-logo--visa{width:76px;min-width:76px;}
-.footer .payment-logo--amex{width:76px;min-width:76px;}
-.footer .payment-logo--troy{width:76px;min-width:76px;}
+.footer 
+.footer 
 .footer .payment-logo--mastercard img{transform:scale(1.04);}
-.footer .payment-logo--amex img{transform:scale(1.06);}
-.footer .payment-logo--troy img{transform:scale(1.08);}
+.footer 
+.footer 
 @media (max-width:540px){
   .footer .payment-logos{gap:8px;}
-  .footer .payment-logo,.footer .payment-logo--visa,.footer .payment-logo--amex,.footer .payment-logo--troy{
-    width:62px;
-    min-width:62px;
-    height:36px;
-    border-radius:10px;
-    padding:6px 9px;
-  }
+  .footer .payment-logo,.footer .payment-logo--visa,.footer 
 }
 
 .home-hero h1 .home-hero__line{white-space:nowrap !important;}
+
+
+/* COSMOSKIN Phase 2 legal/payment trust foundation */
+.brand .brand-word,.cm-wordmark,.cm-footer-logo{font-family:'Plus Jakarta Sans',Arial,sans-serif;letter-spacing:.22em;font-weight:700;color:#17120f;text-decoration:none}.brand img.brand-logo{display:none!important}.payment-logos,.cm-payment-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.payment-logo{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:34px;padding:4px 8px;border:1px solid rgba(42,32,24,.12);border-radius:12px;background:rgba(255,255,255,.72);box-shadow:0 8px 20px rgba(42,32,24,.05)}.payment-logo img,.cm-payment-row img{max-width:92px;max-height:26px;object-fit:contain}.payment-logo--iyzico img{max-width:96px}.footer-trustline,.cs-phase2-footer-trust{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;font-size:12px;color:#6d6258}.footer-trustline span,.cs-phase2-footer-trust span{border:1px solid rgba(42,32,24,.10);background:rgba(255,250,244,.74);border-radius:999px;padding:7px 10px}.cs-legal-trust-grid,.cs-payment-trust-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:24px 0}.cs-legal-trust-grid span,.cs-payment-trust-grid span{display:grid;gap:4px;border:1px solid rgba(42,32,24,.10);border-radius:18px;background:#fffaf4;padding:16px;box-shadow:0 14px 40px rgba(42,32,24,.06)}.cs-legal-trust-grid b,.cs-payment-trust-grid b{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#17120f}.cs-info-card,.cs-payment-card{border:1px solid rgba(42,32,24,.10);border-radius:24px;background:#fffaf4;padding:22px;box-shadow:0 18px 48px rgba(42,32,24,.07);margin:18px 0}.cs-bank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.cs-bank-card{border:1px solid rgba(42,32,24,.10);border-radius:18px;padding:16px;background:#fff}.cs-bank-card dl{display:grid;gap:8px;margin:12px 0 0}.cs-bank-card dt{font-size:12px;color:#7f7266}.cs-bank-card dd{margin:0;font-weight:700;overflow-wrap:anywhere}.cs-footer-contact span,.footer-col span{display:block;margin:.35rem 0;color:inherit}@media(max-width:720px){.payment-logos,.cm-payment-row{gap:6px}.payment-logo{min-width:48px;height:32px;padding:3px 6px}.payment-logo img,.cm-payment-row img{max-width:82px}.cs-legal-trust-grid,.cs-payment-trust-grid,.cs-bank-grid{grid-template-columns:1fr}.cs-info-card,.cs-payment-card{border-radius:20px;padding:18px}.footer-trustline,.cs-phase2-footer-trust{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}}
+
+
+/* COSMOSKIN footer/contact/edit correction — 20260625 */
+.footer .brand img.brand-logo,
+.header .brand img.brand-logo,
+.brand img.brand-logo{display:block!important;}
+.footer-trustline,
+.cs-phase2-footer-trust{display:none!important;}
+.footer .footer-payment-block,
+.footer .footer-security-block{min-height:auto;}
+.footer .payment-logos{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:12px;}
+.footer .payment-logo{width:92px!important;min-width:92px!important;height:52px!important;padding:10px 14px!important;border-radius:16px!important;background:#fff!important;border:1px solid rgba(237,230,220,.20)!important;box-shadow:0 10px 24px rgba(0,0,0,.14), inset 0 1px 0 rgba(255,255,255,.92)!important;}
+.footer .payment-logo img{display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:30px!important;object-fit:contain!important;filter:none!important;}
+.footer .payment-logo--iyzico{width:132px!important;min-width:132px!important;}
+.footer .payment-logo--iyzico img{max-height:28px!important;}
+.footer .payment-logo--troy img{max-height:28px!important;}
+.footer .footer-badges{display:flex;flex-wrap:wrap;gap:10px;max-width:620px;}
+.footer .footer-badges span,
+.footer .footer-badges a.footer-etbis-badge{display:inline-flex;align-items:center;min-height:34px;padding:0 13px;border-radius:999px;border:1px solid rgba(237,230,220,.14);background:rgba(255,255,255,.045);font-size:12px;color:#ede6dc;text-decoration:none;line-height:1;}
+.footer .footer-badges a.footer-etbis-badge{border-color:rgba(196,151,88,.35);background:rgba(196,151,88,.10);}
+.footer .footer-badges a.footer-etbis-badge:hover{background:rgba(196,151,88,.18);}
+.footer-socials{display:flex!important;align-items:center;gap:9px;margin-top:10px;}
+.footer-social-link{display:inline-flex!important;align-items:center;justify-content:center;width:30px;height:30px;border-radius:999px;border:1px solid rgba(237,230,220,.16);background:rgba(255,255,255,.045);color:#ede6dc!important;text-decoration:none!important;font-size:10px!important;font-weight:800!important;letter-spacing:.12em;line-height:1;}
+.footer-social-link:hover{background:rgba(237,230,220,.11);border-color:rgba(237,230,220,.28);}
+.editorial-phase4__visual img{aspect-ratio:4/3!important;object-fit:cover!important;object-position:center center!important;width:100%!important;height:auto!important;}
+.cs-support-page{padding-top:58px;}
+.cs-support-hero__actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+.cs-support-pathways{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0;}
+.cs-support-pathway{display:grid;gap:8px;padding:18px;border:1px solid rgba(35,27,20,.10);border-radius:22px;background:rgba(255,252,247,.84);box-shadow:0 14px 42px rgba(30,22,16,.055);text-decoration:none;color:#17120f;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;}
+.cs-support-pathway:hover{transform:translateY(-2px);border-color:rgba(35,27,20,.18);box-shadow:0 18px 50px rgba(30,22,16,.085);}
+.cs-support-pathway strong{font-size:15px;letter-spacing:-.01em;}
+.cs-support-pathway span{color:#6b5f55;font-size:13px;line-height:1.62;}
+.cs-support-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(320px,.92fr);gap:24px;margin-top:24px;align-items:start;}
+.cs-support-side{display:grid;gap:24px;}
+.cs-support-card--order{background:linear-gradient(180deg,rgba(255,252,247,.94),rgba(250,244,236,.88));}
+.cs-form-helper,.cs-support-note{margin:0;color:#76685d;font-size:13px;line-height:1.65;}
+.cs-form-grid--single{grid-template-columns:1fr;}
+.cs-support-channel-grid{grid-template-columns:1fr!important;}
+.cs-support-channels .cs-info-tile{padding:15px 16px;}
+@media(max-width:860px){
+  .cs-support-pathways{grid-template-columns:1fr;}
+  .cs-support-layout{grid-template-columns:1fr;}
+}
+@media(max-width:720px){
+  .footer .payment-logos{gap:9px;}
+  .footer .payment-logo{width:76px!important;min-width:76px!important;height:46px!important;padding:8px 10px!important;}
+  .footer .payment-logo--iyzico{width:116px!important;min-width:116px!important;}
+  .footer .footer-badges{gap:8px;}
+  .footer .footer-badges span,.footer .footer-badges a.footer-etbis-badge{min-height:32px;font-size:11px;padding:0 10px;}
+  .footer-social-link{width:28px;height:28px;}
+  .editorial-phase4__visual img{aspect-ratio:4/3!important;}
+}
+body.cm-mobile-active .cm-payment-row{gap:9px!important;}
+body.cm-mobile-active .cm-payment-row .payment-logo{width:72px!important;min-width:72px!important;height:42px!important;padding:7px 9px!important;border-radius:13px!important;}
+body.cm-mobile-active .cm-payment-row .payment-logo--iyzico{width:106px!important;min-width:106px!important;}
+
+/* COSMOSKIN payment logo visual scale correction — 20260625 */
+.footer .payment-logo--visa img{transform:scale(1.85)!important;}
+.footer .payment-logo--mastercard img{transform:scale(1.38)!important;}
+.footer .payment-logo--troy img{transform:scale(1.38)!important;}
+.footer .payment-logo--iyzico img{transform:scale(1.10)!important;}
+.cm-payment-row .payment-logo--visa img{transform:scale(1.72)!important;}
+.cm-payment-row .payment-logo--mastercard img{transform:scale(1.30)!important;}
+.cm-payment-row .payment-logo--troy img{transform:scale(1.30)!important;}
+.cm-payment-row .payment-logo--iyzico img{transform:scale(1.04)!important;}

@@ -23,9 +23,9 @@ This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain
 ## Skin profile state
 - **Canonical localStorage key:** `cosmoskin_skin_profile`
 - **Schema:** `{ skinType, sensitivity, primaryGoal, secondaryGoal, routineStyle, updatedAt }`
-- **API:** `window.CosmoskinSkinProfile.get() / save(partial) / subscribe(fn) / clear()` — provided by `/assets/skin-profile-store.js`.
+- **API:** `window.COSMOSKINSkinProfile.get() / save(partial) / subscribe(fn) / clear()` — provided by `/assets/skin-profile-store.js`.
 - Legacy keys (`cosmoskin_routine_profile`, `cosmoskin_routine_active`, `cosmoskin_routine_preferences`, `cosmoskin_pending_routine_preferences`) are still written by older modules; the store reads from them on first load and migrates into the canonical key.
-- Any new consumer (account widget, recommendation engine, routine builder) must read via `CosmoskinSkinProfile.get()` and subscribe via `CosmoskinSkinProfile.subscribe()`.
+- Any new consumer (account widget, recommendation engine, routine builder) must read via `COSMOSKINSkinProfile.get()` and subscribe via `COSMOSKINSkinProfile.subscribe()`.
 
 ## Routes
 - `/account/routines/` is THE canonical Rutinler page. All legacy aliases (`/routine.html`, `/rutinler.html`, `/collections/routine.html`) redirect once to it with 302 rules.

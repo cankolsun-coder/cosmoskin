@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from './http.js';
+
 function getBaseUrl(env) {
   return (env.IYZICO_BASE_URL || 'https://api.iyzipay.com').replace(/\/$/, '');
 }
@@ -28,11 +30,11 @@ async function buildHeaders(path, env, bodyString = '') {
 
 export async function iyzicoRequest(path, env, payload) {
   const bodyString = payload ? JSON.stringify(payload) : '';
-  const response = await fetch(`${getBaseUrl(env)}${path}`, {
+  const response = await fetchWithTimeout(`${getBaseUrl(env)}${path}`, {
     method: 'POST',
     headers: await buildHeaders(path, env, bodyString),
     body: bodyString
-  });
+  }, Number(env.IYZICO_TIMEOUT_MS || 15000), 'iyzico servisi zaman aşımına uğradı.');
   const text = await response.text();
   let data = {};
   try { data = JSON.parse(text); } catch { data = { raw: text }; }

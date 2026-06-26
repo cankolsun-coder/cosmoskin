@@ -45,7 +45,7 @@ async function handleTracking(context, input = {}) {
   assertRateLimit(context, 'order-tracking', 12, 10 * 60 * 1000);
   const orderNumber = cleanOrderNumber(input.order_number || input.orderNumber);
   const email = normalizeEmail(input.email);
-  if (!orderNumber || !email) return json({ ok: false, error: 'Sipariş numarası ve e-posta gerekli.' }, { status: 400 });
+  if (!orderNumber || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return json({ ok: false, error: 'Sipariş numarası ve e-posta bilgilerini kontrol edin.' }, { status: 400, headers: { 'Cache-Control': 'no-store' } });
   const rows = await selectRows(context, 'orders', {
     select: 'id,order_number,status,payment_status,fulfillment_status,currency,total_amount,customer_email,created_at,paid_at,fulfilled_at,delivered_at',
     order_number: `eq.${orderNumber}`,
@@ -53,13 +53,13 @@ async function handleTracking(context, input = {}) {
     limit: '1'
   }).catch(() => []);
   const order = rows?.[0] || null;
-  if (!order) return json({ ok: false, error: 'Bu bilgilerle eşleşen bir sipariş bulunamadı.' }, { status: 404 });
+  if (!order) return json({ ok: false, error: 'Sipariş bilgileri doğrulanamadı. Lütfen bilgilerinizi kontrol edin.' }, { status: 404, headers: { 'Cache-Control': 'no-store' } });
   const [items, shipments, invoices] = await Promise.all([
     selectRows(context, 'order_items', { select: 'product_slug,product_id,product_name,brand,quantity,image', order_id: `eq.${order.id}`, order: 'created_at.asc' }).catch(() => []),
     selectRows(context, 'shipments', { select: 'status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,updated_at,created_at', order_id: `eq.${order.id}`, order: 'created_at.desc', limit: '1' }).catch(() => []),
     selectRows(context, 'invoice_records', { select: 'invoice_status,invoice_number,pdf_url', order_id: `eq.${order.id}`, order: 'created_at.desc' }).catch(() => [])
   ]);
-  return json({ ok: true, order: publicOrder(order, items, shipments, invoices) });
+  return json({ ok: true, order: publicOrder(order, items, shipments, invoices) }, { headers: { 'Cache-Control': 'no-store' } });
 }
 
 export async function onRequestGet(context) {
@@ -67,17 +67,21 @@ export async function onRequestGet(context) {
     const url = new URL(context.request.url);
     return await handleTracking(context, { order_number: url.searchParams.get('order_number'), email: url.searchParams.get('email') });
   } catch (error) {
-    console.error('guest order tracking failed:', error);
+    console.error('guest_order_tracking_failed', { status: error?.status || 500 });
     return json({ ok: false, error: 'Sipariş takibi şu anda alınamadı.' }, { status: 500 });
   }
 }
 
 export async function onRequestPost(context) {
   try {
+    const contentType = context.request.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+      return json({ ok: false, error: 'İstek JSON formatında olmalıdır.' }, { status: 415, headers: { 'Cache-Control': 'no-store' } });
+    }
     const body = await context.request.json().catch(() => ({}));
     return await handleTracking(context, body);
   } catch (error) {
-    console.error('guest order tracking failed:', error);
+    console.error('guest_order_tracking_failed', { status: error?.status || 500 });
     return json({ ok: false, error: 'Sipariş takibi şu anda alınamadı.' }, { status: 500 });
   }
 }

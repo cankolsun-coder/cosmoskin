@@ -1,90 +1,95 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow, noarchive" name="robots"/>
 <title>Operasyon Paneli · COSMOSKIN Admin</title>
-<link rel="icon" href="/favicon.png" type="image/png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="/assets/admin-inventory.css?v=20260511-admin-unified" />
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/favicon.png" rel="icon" type="image/png"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/admin-inventory.css?v=20260511-admin-unified" rel="stylesheet"/>
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
+<link href="/assets/admin-runtime.css?v=20260616-security" rel="stylesheet"/>
+<script defer="" src="/assets/admin-runtime.js?v=20260616-security"></script>
+<meta content="Operasyon Paneli · COSMOSKIN Admin sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description"/>
+<link href="https://www.cosmoskin.com.tr/admin/index.html" rel="canonical"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
 <div class="cs-admin-shell">
-  <aside class="cs-admin-sidebar" aria-label="Admin menüsü">
-    <a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
-    <nav class="cs-sidebar-nav" aria-label="Admin menüsü"><a class="is-active" href="/admin/index.html">Panel</a>
-      <a href="/admin/inventory.html">Stok</a>
-      <a href="/admin/orders/">Siparişler</a>
-      <a href="/admin/shipments.html">Kargo</a>
-      <a href="/admin/returns.html">İade</a>
-      <a href="/admin/products.html">Ürünler</a>
-      <a href="/admin/customers.html">Müşteriler</a>
-      <a href="/admin/reviews/">Yorumlar</a>
-      <a href="/admin/email-logs.html">E-posta Logları</a>
-      <a href="/admin/invoices.html">Faturalar</a>
-      <a href="/admin/suppliers.html">Tedarikçiler</a>
-      <a href="/admin/compliance.html">Uyumluluk</a>
-      <a href="/admin/legal-settings.html">Yasal Ayarlar</a>
-      <a href="/admin/admin-users.html">Admin Rolleri</a></nav>
-    <section class="cs-session-card" aria-label="Güvenlik notu">
-      <strong>Güvenli admin oturumu</strong>
-      <p>Tüm admin API çağrıları <code>x-admin-token</code> header’ı ile yapılır. Token kaynak kodda tutulmaz.</p>
-    </section>
-  </aside>
-  <main class="cs-admin-main">
-    <header class="cs-admin-topbar">
-      <div>
-        <p class="cs-kicker">COSMOSKIN Admin</p>
-        <h1>Operasyon Paneli</h1>
-        <p>Sipariş, stok, kargo, iade, e-posta ve fatura akışlarını tek ekrandan izleyin.</p>
-      </div>
-      
-    </header>
-    <section class="cs-toolbar" aria-label="Dashboard erişimi">
-      <label class="cs-search" for="dashToken">Admin Token<input id="dashToken" type="password" placeholder="ADMIN_TOKEN" autocomplete="off" /></label>
-      <div class="cs-filter-row"><button id="dashLoad" class="cs-btn cs-btn-dark" type="button">Özeti Yükle</button></div>
-      <p id="dashStatus" aria-live="polite">Token yalnızca bu tarayıcı oturumunda saklanır.</p>
-    </section>
-    <section class="cs-summary-grid" id="dashCards" aria-label="Operasyon özeti">
-      <article class="cs-summary-card"><span>Yeni siparişler</span><strong>—</strong><small>Endpoint erişimi bekleniyor.</small></article>
-      <article class="cs-summary-card"><span>Hazırlanacak siparişler</span><strong>—</strong><small>Gerçek sipariş verisiyle dolar.</small></article>
-      <article class="cs-summary-card"><span>Düşük stoklu ürünler</span><strong>—</strong><small>Stok endpointi doğrulanınca dolar.</small></article>
-      <article class="cs-summary-card"><span>Stokta olmayan ürünler</span><strong>—</strong><small>Satış blokajı için kritik.</small></article>
-      <article class="cs-summary-card"><span>Başarısız e-postalar</span><strong>—</strong><small>Brevo/log verisi bekleniyor.</small></article>
-      <article class="cs-summary-card"><span>İade talepleri</span><strong>—</strong><small>Müşteri destek takibi.</small></article>
-      <article class="cs-summary-card"><span>Bekleyen faturalar</span><strong>—</strong><small>Fatura sağlayıcı durumuna bağlı.</small></article>
-      <article class="cs-summary-card"><span>Kargoda olan siparişler</span><strong>—</strong><small>Fulfillment akışı.</small></article>
-    </section>
-    <section class="cs-table-card">
-      <div class="cs-section-head"><div><h2>Operasyon Kısayolları</h2><p>Günlük aksiyonları tek ekrandan açın.</p></div></div>
-      <div class="cs-filter-row">
-        <a class="cs-btn cs-btn-dark" href="/admin/orders/">Siparişleri Yönet</a>
-        <a class="cs-btn" href="/admin/inventory.html">Stok Yönetimi</a>
-        <a class="cs-btn" href="/admin/shipments.html">Kargo Operasyonları</a>
-        <a class="cs-btn" href="/admin/returns.html">İade Talepleri</a>
-        <a class="cs-btn" href="/admin/email-logs.html">E-posta Logları</a>
-        <a class="cs-btn" href="/admin/invoices.html">Faturalar</a>
-      </div>
-    </section>
-    <section class="cs-table-card">
-      <div class="cs-section-head"><div><h2>Sistem Kontrol Listesi</h2><p>Endpointler gerçek cevap verdiğinde durumlar otomatik güncellenir; eksik entegrasyonlar sahte başarı göstermez.</p></div></div>
-      <div class="cs-checklist" id="dashChecklist">
-        <article><span>Admin token aktif</span><strong>—</strong></article>
-        <article><span>Stok endpointi erişilebilir</span><strong>—</strong></article>
-        <article><span>Sipariş endpointi erişilebilir</span><strong>—</strong></article>
-        <article><span>E-posta log endpointi erişilebilir</span><strong>—</strong></article>
-        <article><span>Fatura endpointi erişilebilir</span><strong>—</strong></article>
-      </div>
-    </section>
-<script src="/assets/admin-dashboard.js?v=20260511-admin-unified" defer></script>
-  </main>
+<aside aria-label="Admin menüsü" class="cs-admin-sidebar">
+<a class="cs-brand" href="/admin/index.html"><span>C</span><strong>COSMOSKIN</strong></a>
+<nav aria-label="Admin menüsü" class="cs-sidebar-nav"><a class="is-active" href="/admin/index.html">Panel</a>
+<a href="/admin/inventory.html">Stok</a>
+<a href="/admin/orders/">Siparişler</a>
+<a href="/admin/shipments.html">Kargo</a>
+<a href="/admin/returns.html">İade</a>
+<a href="/admin/products.html">Ürünler</a>
+<a href="/admin/customers.html">Müşteriler</a>
+<a href="/admin/reviews/">Yorumlar</a>
+<a href="/admin/email-logs.html">E-posta Logları</a>
+<a href="/admin/invoices.html">Faturalar</a>
+<a href="/admin/suppliers.html">Tedarikçiler</a>
+<a href="/admin/compliance.html">Uyumluluk</a>
+<a href="/admin/legal-settings.html">Yasal Ayarlar</a>
+<a href="/admin/admin-users.html">Admin Rolleri</a></nav>
+<section aria-label="Güvenlik notu" class="cs-session-card">
+<strong>Güvenli admin oturumu</strong>
+<p>Admin token kısa ömürlü, imzalı bir oturuma dönüştürülür; kaynak kodda veya kalıcı tarayıcı depolamasında tutulmaz.</p>
+</section>
+</aside>
+<main class="cs-admin-main">
+<header class="cs-admin-topbar">
+<div>
+<p class="cs-kicker">COSMOSKIN Admin</p>
+<h1>Operasyon Paneli</h1>
+<p>Sipariş, stok, kargo, iade, e-posta ve fatura akışlarını tek ekrandan izleyin.</p>
 </div>
-<div class="cs-toast-stack" id="inventoryToasts" aria-live="polite"></div>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+</header>
+<section aria-label="Dashboard erişimi" class="cs-toolbar">
+<label class="cs-search" for="dashToken">Admin Token<input autocomplete="off" id="dashToken" placeholder="ADMIN_TOKEN" type="password"/></label>
+<div class="cs-filter-row"><button class="cs-btn cs-btn-dark" id="dashLoad" type="button">Özeti Yükle</button></div>
+<p aria-live="polite" id="dashStatus">Token yalnızca bu tarayıcı oturumunda saklanır.</p>
+</section>
+<section aria-label="Operasyon özeti" class="cs-summary-grid" id="dashCards">
+<article class="cs-summary-card"><span>Yeni siparişler</span><strong>—</strong><small>Endpoint erişimi bekleniyor.</small></article>
+<article class="cs-summary-card"><span>Hazırlanacak siparişler</span><strong>—</strong><small>Gerçek sipariş verisiyle dolar.</small></article>
+<article class="cs-summary-card"><span>Düşük stoklu ürünler</span><strong>—</strong><small>Stok endpointi doğrulanınca dolar.</small></article>
+<article class="cs-summary-card"><span>Stokta olmayan ürünler</span><strong>—</strong><small>Satış blokajı için kritik.</small></article>
+<article class="cs-summary-card"><span>Başarısız e-postalar</span><strong>—</strong><small>Brevo/log verisi bekleniyor.</small></article>
+<article class="cs-summary-card"><span>İade talepleri</span><strong>—</strong><small>Müşteri destek takibi.</small></article>
+<article class="cs-summary-card"><span>Bekleyen faturalar</span><strong>—</strong><small>Fatura sağlayıcı durumuna bağlı.</small></article>
+<article class="cs-summary-card"><span>Kargoda olan siparişler</span><strong>—</strong><small>Fulfillment akışı.</small></article>
+</section>
+<section class="cs-table-card">
+<div class="cs-section-head"><div><h2>Operasyon Kısayolları</h2><p>Günlük aksiyonları tek ekrandan açın.</p></div></div>
+<div class="cs-filter-row">
+<a class="cs-btn cs-btn-dark" href="/admin/orders/">Siparişleri Yönet</a>
+<a class="cs-btn" href="/admin/inventory.html">Stok Yönetimi</a>
+<a class="cs-btn" href="/admin/shipments.html">Kargo Operasyonları</a>
+<a class="cs-btn" href="/admin/returns.html">İade Talepleri</a>
+<a class="cs-btn" href="/admin/email-logs.html">E-posta Logları</a>
+<a class="cs-btn" href="/admin/invoices.html">Faturalar</a>
+</div>
+</section>
+<section class="cs-table-card">
+<div class="cs-section-head"><div><h2>Sistem Kontrol Listesi</h2><p>Endpointler gerçek cevap verdiğinde durumlar otomatik güncellenir; eksik entegrasyonlar sahte başarı göstermez.</p></div></div>
+<div class="cs-checklist" id="dashChecklist">
+<article><span>Admin token aktif</span><strong>—</strong></article>
+<article><span>Stok endpointi erişilebilir</span><strong>—</strong></article>
+<article><span>Sipariş endpointi erişilebilir</span><strong>—</strong></article>
+<article><span>E-posta log endpointi erişilebilir</span><strong>—</strong></article>
+<article><span>Fatura endpointi erişilebilir</span><strong>—</strong></article>
+</div>
+</section>
+<script defer="" src="/assets/admin-dashboard.js?v=20260511-admin-unified"></script>
+</main>
+</div>
+<div aria-live="polite" class="cs-toast-stack" id="inventoryToasts"></div>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

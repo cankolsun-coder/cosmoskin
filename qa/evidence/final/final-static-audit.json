@@ -1,0 +1,3717 @@
+{
+  "root": "/mnt/data/cosmoskin_remediation/working/cosmoskin",
+  "counts": {
+    "files": 753,
+    "html": 160,
+    "js": 121,
+    "css": 28,
+    "sql": 22,
+    "json": 45
+  },
+  "issues": {
+    "js_syntax": [],
+    "json_parse": [],
+    "html_parse": [],
+    "missing_local_refs": [],
+    "duplicate_ids": [],
+    "duplicate_scripts": [],
+    "img_alt_missing": [],
+    "img_alt_empty": [],
+    "h1_issues": [],
+    "meta_description_missing": [],
+    "canonical_missing": [],
+    "jsonld_parse": [],
+    "admin_missing_noindex": [],
+    "frontend_api_without_route": [],
+    "product_consistency": []
+  },
+  "inventories": {
+    "api_routes": [
+      "/api/_lib/account",
+      "/api/_lib/admin",
+      "/api/_lib/bank-accounts",
+      "/api/_lib/brevo",
+      "/api/_lib/catalog",
+      "/api/_lib/crm-events",
+      "/api/_lib/email-events",
+      "/api/_lib/http",
+      "/api/_lib/inventory",
+      "/api/_lib/iyzico",
+      "/api/_lib/newsletter-email",
+      "/api/_lib/order-email",
+      "/api/_lib/response",
+      "/api/_lib/restock-email",
+      "/api/_lib/security",
+      "/api/_lib/supabase",
+      "/api/account/addresses",
+      "/api/account/favorites",
+      "/api/account/notifications",
+      "/api/account/orders",
+      "/api/account/orders/[id]",
+      "/api/account/summary",
+      "/api/admin/bank-accounts",
+      "/api/admin/compliance",
+      "/api/admin/coupons",
+      "/api/admin/customers",
+      "/api/admin/dashboard",
+      "/api/admin/email-logs",
+      "/api/admin/inventory",
+      "/api/admin/inventory/[slug]",
+      "/api/admin/inventory/[slug]/movements",
+      "/api/admin/inventory/adjust",
+      "/api/admin/inventory/health",
+      "/api/admin/invoices",
+      "/api/admin/lots",
+      "/api/admin/orders",
+      "/api/admin/orders/[id]",
+      "/api/admin/orders/[id]/emails",
+      "/api/admin/orders/[id]/shipments",
+      "/api/admin/orders/[id]/status",
+      "/api/admin/products",
+      "/api/admin/refunds",
+      "/api/admin/returns",
+      "/api/admin/session",
+      "/api/admin/shipments",
+      "/api/admin/suppliers",
+      "/api/admin/users",
+      "/api/auth/register",
+      "/api/brevo-sync",
+      "/api/consents",
+      "/api/contact",
+      "/api/coupons/validate",
+      "/api/create-checkout",
+      "/api/crm/events",
+      "/api/cron/release-expired-inventory",
+      "/api/get-orders",
+      "/api/inventory",
+      "/api/inventory/check",
+      "/api/invoices",
+      "/api/iyzico-callback",
+      "/api/newsletter/subscribe",
+      "/api/order-tracking",
+      "/api/payment/bank-accounts",
+      "/api/product-compliance",
+      "/api/restock-alerts",
+      "/api/returns",
+      "/api/reviews/[[path]]",
+      "/api/routine-reminders",
+      "/api/shipping/track"
+    ],
+    "api_references": {
+      "/api/account/summary": [
+        "account/preview-test.html"
+      ],
+      "/api/admin/": [
+        "assets/admin-runtime.js"
+      ],
+      "/api/admin/compliance": [
+        "assets/admin-inventory.js",
+        "assets/admin-phase3.js"
+      ],
+      "/api/admin/coupons": [
+        "assets/admin-coupons.js"
+      ],
+      "/api/admin/customers": [
+        "assets/admin-customers.js"
+      ],
+      "/api/admin/dashboard": [
+        "assets/admin-dashboard.js"
+      ],
+      "/api/admin/email-logs": [
+        "assets/admin-dashboard.js",
+        "assets/admin-phase2-console.js"
+      ],
+      "/api/admin/inventory": [
+        "assets/admin-dashboard.js",
+        "assets/admin-inventory.js"
+      ],
+      "/api/admin/inventory/": [
+        "assets/admin-inventory.js"
+      ],
+      "/api/admin/inventory/adjust": [
+        "assets/admin-inventory.js"
+      ],
+      "/api/admin/invoices": [
+        "assets/admin-dashboard.js",
+        "assets/admin-orders.js",
+        "assets/admin-phase2-console.js"
+      ],
+      "/api/admin/lots": [
+        "assets/admin-inventory.js"
+      ],
+      "/api/admin/orders": [
+        "assets/admin-dashboard.js",
+        "assets/admin-orders-phase6.js",
+        "assets/admin-orders.js",
+        "assets/admin-phase2-console.js"
+      ],
+      "/api/admin/products": [
+        "assets/admin-products.js"
+      ],
+      "/api/admin/refunds": [
+        "assets/admin-orders.js"
+      ],
+      "/api/admin/returns": [
+        "assets/admin-dashboard.js",
+        "assets/admin-orders.js",
+        "assets/admin-phase2-console.js",
+        "assets/admin-returns.js"
+      ],
+      "/api/admin/session": [
+        "assets/admin-runtime.js"
+      ],
+      "/api/admin/shipments": [
+        "assets/admin-phase2-console.js"
+      ],
+      "/api/admin/suppliers": [
+        "assets/admin-phase3.js"
+      ],
+      "/api/admin/users": [
+        "assets/admin-phase3.js"
+      ],
+      "/api/contact": [
+        "contact.html"
+      ],
+      "/api/coupons/validate": [
+        "assets/master-upgrade.js",
+        "assets/mobile-redesign.js",
+        "assets/phase6-commerce.js"
+      ],
+      "/api/crm/events": [
+        "assets/cosmoskin-phase3.js"
+      ],
+      "/api/inventory": [
+        "assets/cosmoskin-phase3.js"
+      ],
+      "/api/newsletter/subscribe": [
+        "account/preview-test.html",
+        "account/profile.html",
+        "account/returns.html",
+        "account/routine-compare.html",
+        "account/routine-compare/index.html",
+        "account/routine-favorites.html",
+        "account/routine-favorites/index.html",
+        "account/routine-history.html",
+        "account/routine-history/index.html",
+        "account/routine-profile.html",
+        "account/routine-profile/index.html",
+        "account/routines.html",
+        "account/routines/index.html",
+        "allproducts.html",
+        "assets/cosmoskin-newsletter.js",
+        "brands.html",
+        "brands/anua.html",
+        "brands/beauty-of-joseon.html",
+        "brands/by-wishtrend.html",
+        "brands/cosrx.html",
+        "brands/dr-jart.html",
+        "brands/goodal.html",
+        "brands/im-from.html",
+        "brands/innisfree.html",
+        "brands/isntree.html",
+        "brands/laneige.html",
+        "brands/medicube.html",
+        "brands/mediheal.html",
+        "brands/round-lab.html",
+        "brands/skin1004.html",
+        "brands/some-by-mi.html",
+        "brands/thank-you-farmer.html",
+        "brands/torriden.html",
+        "cart.html",
+        "categories.html",
+        "checkout.html",
+        "collections/acne-balance.html",
+        "collections/akneye-egilimli-cilt.html",
+        "collections/anua.html",
+        "collections/barrier.html",
+        "collections/beauty-of-joseon.html",
+        "collections/bestsellers.html",
+        "collections/blemish.html",
+        "collections/by-wishtrend.html",
+        "collections/care.html",
+        "collections/cleanse.html",
+        "collections/cosrx.html",
+        "collections/dr-jart.html",
+        "collections/glow.html",
+        "collections/goodal.html",
+        "collections/hassas-cilt.html",
+        "collections/hydrate.html",
+        "collections/hydration.html",
+        "collections/im-from.html",
+        "collections/innisfree.html",
+        "collections/isntree.html",
+        "collections/karma-cilt.html",
+        "collections/kuru-cilt.html",
+        "collections/laneige.html",
+        "collections/masks.html",
+        "collections/medicube.html",
+        "collections/mediheal.html",
+        "collections/normal-cilt.html",
+        "collections/pore-sebum.html",
+        "collections/protect.html",
+        "collections/round-lab.html",
+        "collections/routine.html",
+        "collections/sensitivity.html",
+        "collections/skin1004.html",
+        "collections/some-by-mi.html",
+        "collections/thank-you-farmer.html",
+        "collections/torriden.html",
+        "collections/treat.html",
+        "collections/yagli-cilt.html",
+        "contact.html",
+        "favorites.html",
+        "iade-degisim.html",
+        "index.html",
+        "mesafeli-satis.html",
+        "on-bilgilendirme.html",
+        "payment/failure.html",
+        "payment/success.html",
+        "products/anua-heartleaf-77-soothing-toner.html",
+        "products/anua-heartleaf-pore-control-cleansing-oil.html",
+        "products/beauty-of-joseon-dynasty-cream.html",
+        "products/beauty-of-joseon-glow-deep-serum.html",
+        "products/beauty-of-joseon-glow-serum-propolis-niacinamide.html",
+        "products/beauty-of-joseon-green-plum-refreshing-cleanser.html",
+        "products/beauty-of-joseon-relief-sun-spf50.html",
+        "products/by-wishtrend-pure-vitamin-c-21-5-serum.html",
+        "products/cosrx-acne-pimple-master-patch.html",
+        "products/cosrx-advanced-snail-96-mucin-essence.html",
+        "products/cosrx-advanced-snail-96-mucin-power-essence.html",
+        "products/cosrx-aha-bha-clarifying-treatment-toner.html",
+        "products/cosrx-low-ph-good-morning-gel-cleanser.html",
+        "products/cosrx-oil-free-ultra-moisturizing-lotion.html",
+        "products/cosrx-salicylic-acid-daily-gentle-cleanser.html",
+        "products/cosrx-the-vitamin-c-23-serum.html",
+        "products/dr-jart-ceramidin-cream.html",
+        "products/goodal-green-tangerine-vitamin-c-serum.html",
+        "products/im-from-rice-toner.html",
+        "products/innisfree-super-volcanic-clay-mask.html",
+        "products/laneige-water-sleeping-mask.html",
+        "products/medicube-collagen-night-wrapping-mask.html",
+        "products/medicube-zero-pore-pad.html",
+        "products/mediheal-nmf-aquaring-sheet-mask.html",
+        "products/round-lab-1025-dokdo-cleanser.html",
+        "products/round-lab-birch-juice-sunscreen.html",
+        "products/round-lab-dokdo-toner.html",
+        "products/round-lab-soybean-nourishing-cream.html",
+        "products/skin1004-centella-toning-toner.html",
+        "products/skin1004-hyalu-cica-water-fit-sun-serum.html",
+        "products/skin1004-madagascar-centella-ampoule.html",
+        "products/some-by-mi-aha-bha-miracle-toner.html",
+        "products/torriden-dive-in-hyaluronic-acid-serum.html",
+        "products/torriden-dive-in-serum.html",
+        "products/torriden-dive-in-watery-moisture-sun-cream.html",
+        "products/torriden-solid-in-ceramide-cream.html",
+        "routine.html",
+        "rutinler.html",
+        "search.html",
+        "teslimat-kargo.html"
+      ],
+      "/api/order-tracking": [
+        "assets/order-tracking.js"
+      ],
+      "/api/product-compliance": [
+        "assets/cosmoskin-phase3.js"
+      ],
+      "/api/returns": [
+        "account/preview-test.html",
+        "assets/account-returns.js"
+      ],
+      "/api/reviews": [
+        "admin/reviews/index.html",
+        "assets/reviews-widget.js"
+      ],
+      "/api/reviews/admin": [
+        "assets/admin-runtime.js"
+      ]
+    },
+    "scripts_by_page": {
+      "order-tracking.html": [
+        "/assets/order-tracking.js?v=20260510phase1ops",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "on-bilgilendirme.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "index.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "supabase-email-template.html": [],
+      "favorites.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "contact.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "iade-degisim.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "journal.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "allproducts.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/allproducts.js?v=20260503b",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "rutinler.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "teslimat-kargo.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "checkout.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260517-checkout-authfix",
+        "/assets/commerce.js?v=20260502phase1",
+        "/assets/checkout-flow.js?v=20260616-stockfix",
+        "/js/search.js?v=20260424",
+        "/assets/bottom-nav.js?v=20260502phase1",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "mesafeli-satis.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "search.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "cart.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "routine.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "/account/routines/": [
+        "/assets/products-data.js?v=20260616",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-remediation",
+        "/assets/js/smart-routine.js?v=20260616-remediation",
+        "/assets/smart-routine-wizard.js?v=20260616"
+      ],
+      "explore.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "categories.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "snippets/reviews-component-ready.html": [
+        "/assets/mobile-redesign.js?v=20260616-stockfix"
+      ],
+      "products/beauty-of-joseon-relief-sun-spf50.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-acne-pimple-master-patch.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/isntree-hyaluronic-acid-watery-sun-gel.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260418d",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260502phase5",
+        "/js/reviews.js?v=20260502phase5",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/beauty-of-joseon-green-plum-refreshing-cleanser.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/skin1004-centella-toning-toner.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-salicylic-acid-daily-gentle-cleanser.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/dr-jart-ceramidin-cream.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/torriden-solid-in-ceramide-cream.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/torriden-dive-in-hyaluronic-acid-serum.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/laneige-water-sleeping-mask.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-advanced-snail-96-mucin-power-essence.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "products/beauty-of-joseon-dynasty-cream.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/torriden-dive-in-watery-moisture-sun-cream.html": [
+        "/assets/site-config.js?v=20260418a",
+        "/assets/products-data.js?v=20260424a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-advanced-snail-96-mucin-essence.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/round-lab-dokdo-toner.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/beauty-of-joseon-glow-serum-propolis-niacinamide.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/torriden-dive-in-serum.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "products/round-lab-birch-juice-sunscreen.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/innisfree-super-volcanic-clay-mask.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/beauty-of-joseon-glow-deep-serum.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/round-lab-1025-dokdo-cleanser.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/medicube-zero-pore-pad.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/skin1004-madagascar-centella-ampoule.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-low-ph-good-morning-gel-cleanser.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/round-lab-soybean-nourishing-cream.html": [
+        "/assets/site-config.js?v=20260418a",
+        "/assets/products-data.js?v=20260424a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/mediheal-nmf-aquaring-sheet-mask.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/medicube-collagen-night-wrapping-mask.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-the-vitamin-c-23-serum.html": [
+        "/assets/site-config.js?v=20260418a",
+        "/assets/products-data.js?v=20260424a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-aha-bha-clarifying-treatment-toner.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/anua-heartleaf-77-soothing-toner.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/goodal-green-tangerine-vitamin-c-serum.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/skin1004-hyalu-cica-water-fit-sun-serum.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/anua-heartleaf-pore-control-cleansing-oil.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/some-by-mi-aha-bha-miracle-toner.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/im-from-rice-toner.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/cosrx-oil-free-ultra-moisturizing-lotion.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "products/by-wishtrend-pure-vitamin-c-21-5-serum.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-page.js?v=20260503-ratingux",
+        "/js/reviews.js?v=20260503-ratingux",
+        "/js/search.js?v=20260424",
+        "/assets/product-guide.js?v=20260503-allguides",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix",
+        "/assets/pdp-quantity.js?v=20260616"
+      ],
+      "auth/reset.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "auth/callback.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/innisfree.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/beauty-of-joseon.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/thank-you-farmer.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/some-by-mi.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/round-lab.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/cosrx.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/medicube.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/skin1004.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/anua.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/dr-jart.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/isntree.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/mediheal.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/goodal.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/laneige.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/torriden.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/by-wishtrend.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "brands/im-from.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "payment/failure.html": [
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "payment/success.html": [
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/suppliers.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-phase3.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/admin-users.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-phase3.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/index.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-dashboard.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/legal-settings.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/compliance.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-phase3.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/email-logs.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-phase2-console.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/inventory.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-inventory.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/products.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/admin-products.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/admin-reviews.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/shipments.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-phase2-console.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/customers.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-customers.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/orders.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/returns.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-phase2-console.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/invoices.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-phase2-console.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/reviews.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/coupons.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-coupons.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/profile.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/account-dashboard.js?v=20260516-skin-profile-sync",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-compare.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-profile.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/index.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/order-detail.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/order-detail.js?v=20260503-order-tracking-final",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routines.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/preview-test.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/account-dashboard.js?v=20260506-account-premium",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-history.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/orders.html": [
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/returns.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/account-returns.js?v=20260502phase6",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-favorites.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/uyelik-sozlesmesi.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/on-bilgilendirme-formu.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/mesafeli-satis-sozlesmesi.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/cerez-politikasi.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/iade-ve-cayma-politikasi.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/ticari-elektronik-ileti-izni.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/kvkk-aydinlatma-metni.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/teslimat-ve-kargo.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "legal/acik-riza-metni.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/treat.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/innisfree.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/beauty-of-joseon.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/normal-cilt.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/thank-you-farmer.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/akneye-egilimli-cilt.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/some-by-mi.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/round-lab.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/glow.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/cleanse.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/cosrx.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/sensitivity.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/care.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/medicube.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/skin1004.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/masks.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/barrier.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/anua.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/dr-jart.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/acne-balance.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/isntree.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/hassas-cilt.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/mediheal.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/goodal.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/yagli-cilt.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/protect.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/laneige.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/karma-cilt.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/torriden.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/kuru-cilt.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/pore-sebum.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/routine.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/by-wishtrend.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/hydrate.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/blemish.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/hydration.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/bestsellers.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "collections/im-from.html": [
+        "/assets/products-data.js?v=20260424a",
+        "/assets/site-config.js?v=20260418a",
+        "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/product-routine.js?v=20260415a",
+        "/js/search.js?v=20260424",
+        "/assets/collection-renderer.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-favorites/index.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-compare/index.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-history/index.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routines/index.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "account/routine-profile/index.html": [
+        "https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/skin-profile-store.js?v=20260516-profile-store",
+        "/assets/routines.js?v=20260516-profile-store",
+        "/assets/site-config.js?v=20260418a",
+        "/assets/auth.js?v=20260503-phase62",
+        "/assets/app.js?v=20260616-stockfix",
+        "/assets/phase6-commerce.js?v=20260616-stockfix",
+        "/assets/commerce.js?v=20260418d",
+        "/assets/bestsellers.js?v=20260506-cards",
+        "/assets/review-summary-badges.js?v=20260503-ratings",
+        "/assets/product-routine.js?v=20260415a",
+        "/assets/home-routine.js?v=20260427routinefix",
+        "/assets/js/smart-routine.js?v=20260505-director",
+        "/js/search.js?v=20260424",
+        "/assets/mobile.js?v=20260425f",
+        "/assets/cosmoskin-newsletter.js?v=20260510-newsletter",
+        "/assets/mobile-redesign.js?v=20260616-stockfix",
+        "/assets/inventory-client.js?v=20260616-stockfix",
+        "/assets/cosmoskin-phase3.js?v=20260511-phase3",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/orders/index.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/admin-orders.js?v=20260511-admin-unified",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ],
+      "admin/reviews/index.html": [
+        "/assets/admin-runtime.js?v=20260616-security",
+        "/assets/products-data.js?v=20260424a",
+        "/assets/master-upgrade.js?v=20260513-master",
+        "/assets/routine-route-bridge.js?v=20260516-routefix"
+      ]
+    },
+    "h1_by_page": {
+      "order-tracking.html": [
+        "Siparişini güvenle takip et."
+      ],
+      "on-bilgilendirme.html": [
+        "Sipariş öncesi temel bilgilendirme"
+      ],
+      "index.html": [
+        "Cildin. Işıltın. Senin hikayen."
+      ],
+      "supabase-email-template.html": [
+        "E-posta adresinizi doğrulayın"
+      ],
+      "favorites.html": [
+        "Favorilerim"
+      ],
+      "brands.html": [
+        "Markalar"
+      ],
+      "contact.html": [
+        "İletişim akışları net şekilde ayrıldı."
+      ],
+      "iade-degisim.html": [
+        "İade ve değişim koşulları"
+      ],
+      "journal.html": [
+        "Journal"
+      ],
+      "allproducts.html": [
+        "Tüm Ürünler"
+      ],
+      "rutinler.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "teslimat-kargo.html": [
+        "Teslimat süreci ve kargo koşulları"
+      ],
+      "checkout.html": [
+        "Güvenli ödeme"
+      ],
+      "mesafeli-satis.html": [
+        "Mesafeli satış sözleşmesi özeti"
+      ],
+      "search.html": [
+        "Arama"
+      ],
+      "cart.html": [
+        "Sepetim"
+      ],
+      "routine.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "/account/routines/": [
+        "Cildin için güvenli ve uygulanabilir rutini adım adım oluşturalım."
+      ],
+      "explore.html": [
+        "Keşfet"
+      ],
+      "categories.html": [
+        "Kategoriler"
+      ],
+      "snippets/reviews-component-ready.html": [],
+      "products/beauty-of-joseon-relief-sun-spf50.html": [
+        "Relief Sun: Rice + Probiotics SPF 50+ PA++++"
+      ],
+      "products/cosrx-acne-pimple-master-patch.html": [
+        "Acne Pimple Master Patch"
+      ],
+      "products/isntree-hyaluronic-acid-watery-sun-gel.html": [
+        "Hyaluronic Acid Watery Sun Gel SPF 50+ PA++++"
+      ],
+      "products/beauty-of-joseon-green-plum-refreshing-cleanser.html": [
+        "Green Plum Refreshing Cleanser"
+      ],
+      "products/skin1004-centella-toning-toner.html": [
+        "Madagascar Centella Tone Brightening Toner"
+      ],
+      "products/cosrx-salicylic-acid-daily-gentle-cleanser.html": [
+        "Salicylic Acid Daily Gentle Cleanser"
+      ],
+      "products/dr-jart-ceramidin-cream.html": [
+        "Ceramidin Cream"
+      ],
+      "products/torriden-solid-in-ceramide-cream.html": [
+        "SOLID-IN Ceramide Cream"
+      ],
+      "products/torriden-dive-in-hyaluronic-acid-serum.html": [
+        "DIVE-IN Low Molecular Hyaluronic Acid Serum"
+      ],
+      "products/laneige-water-sleeping-mask.html": [
+        "Water Sleeping Mask"
+      ],
+      "products/cosrx-advanced-snail-96-mucin-power-essence.html": [
+        "Advanced Snail 96 Mucin Power Essence"
+      ],
+      "products/beauty-of-joseon-dynasty-cream.html": [
+        "Dynasty Cream"
+      ],
+      "products/torriden-dive-in-watery-moisture-sun-cream.html": [
+        "DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++"
+      ],
+      "products/cosrx-advanced-snail-96-mucin-essence.html": [
+        "Advanced Snail 96 Mucin Power Essence"
+      ],
+      "products/round-lab-dokdo-toner.html": [
+        "Dokdo Toner"
+      ],
+      "products/beauty-of-joseon-glow-serum-propolis-niacinamide.html": [
+        "Glow Serum: Propolis + Niacinamide"
+      ],
+      "products/torriden-dive-in-serum.html": [
+        "DIVE-IN Low Molecular Hyaluronic Acid Serum"
+      ],
+      "products/round-lab-birch-juice-sunscreen.html": [
+        "Birch Juice Moisturizing Sunscreen SPF 50+ PA++++"
+      ],
+      "products/innisfree-super-volcanic-clay-mask.html": [
+        "Super Volcanic Clay Mask 2X"
+      ],
+      "products/beauty-of-joseon-glow-deep-serum.html": [
+        "Glow Deep Serum: Rice + Arbutin"
+      ],
+      "products/round-lab-1025-dokdo-cleanser.html": [
+        "1025 Dokdo Cleanser"
+      ],
+      "products/medicube-zero-pore-pad.html": [
+        "Zero Pore Pad"
+      ],
+      "products/skin1004-madagascar-centella-ampoule.html": [
+        "Madagascar Centella Ampoule"
+      ],
+      "products/cosrx-low-ph-good-morning-gel-cleanser.html": [
+        "Low pH Good Morning Gel Cleanser"
+      ],
+      "products/round-lab-soybean-nourishing-cream.html": [
+        "Soybean Nourishing Cream"
+      ],
+      "products/mediheal-nmf-aquaring-sheet-mask.html": [
+        "NMF Aquaring Ampoule Mask"
+      ],
+      "products/medicube-collagen-night-wrapping-mask.html": [
+        "Collagen Night Wrapping Mask"
+      ],
+      "products/cosrx-the-vitamin-c-23-serum.html": [
+        "The Vitamin C 23 Serum"
+      ],
+      "products/cosrx-aha-bha-clarifying-treatment-toner.html": [
+        "AHA/BHA Clarifying Treatment Toner"
+      ],
+      "products/anua-heartleaf-77-soothing-toner.html": [
+        "Heartleaf 77% Soothing Toner"
+      ],
+      "products/goodal-green-tangerine-vitamin-c-serum.html": [
+        "Green Tangerine Vita C Dark Spot Serum"
+      ],
+      "products/skin1004-hyalu-cica-water-fit-sun-serum.html": [
+        "Hyalu-Cica Water-Fit Sun Serum SPF 50+ PA++++"
+      ],
+      "products/anua-heartleaf-pore-control-cleansing-oil.html": [
+        "Heartleaf Pore Control Cleansing Oil"
+      ],
+      "products/some-by-mi-aha-bha-miracle-toner.html": [
+        "AHA BHA PHA 30 Days Miracle Toner"
+      ],
+      "products/im-from-rice-toner.html": [
+        "Rice Toner"
+      ],
+      "products/cosrx-oil-free-ultra-moisturizing-lotion.html": [
+        "Oil-Free Ultra Moisturizing Lotion"
+      ],
+      "products/by-wishtrend-pure-vitamin-c-21-5-serum.html": [
+        "Pure Vitamin C 21.5% Advanced Serum"
+      ],
+      "auth/reset.html": [
+        "Şifrenizi mi unuttunuz?"
+      ],
+      "auth/callback.html": [
+        "E-posta doğrulanıyor…"
+      ],
+      "brands/innisfree.html": [
+        "Innisfree"
+      ],
+      "brands/beauty-of-joseon.html": [
+        "Beauty of Joseon"
+      ],
+      "brands/thank-you-farmer.html": [
+        "Thank You Farmer"
+      ],
+      "brands/some-by-mi.html": [
+        "Some By Mi"
+      ],
+      "brands/round-lab.html": [
+        "Round Lab"
+      ],
+      "brands/cosrx.html": [
+        "COSRX"
+      ],
+      "brands/medicube.html": [
+        "Medicube"
+      ],
+      "brands/skin1004.html": [
+        "SKIN1004"
+      ],
+      "brands/anua.html": [
+        "Anua"
+      ],
+      "brands/dr-jart.html": [
+        "Dr. Jart+"
+      ],
+      "brands/isntree.html": [
+        "Isntree"
+      ],
+      "brands/mediheal.html": [
+        "Mediheal"
+      ],
+      "brands/goodal.html": [
+        "Goodal"
+      ],
+      "brands/laneige.html": [
+        "Laneige"
+      ],
+      "brands/torriden.html": [
+        "Torriden"
+      ],
+      "brands/by-wishtrend.html": [
+        "By Wishtrend"
+      ],
+      "brands/im-from.html": [
+        "I'm From"
+      ],
+      "payment/failure.html": [
+        "COSMOSKIN · Ödeme tamamlanamadı"
+      ],
+      "payment/success.html": [
+        "COSMOSKIN · Ödeme alındı"
+      ],
+      "admin/suppliers.html": [
+        "Tedarikçiler"
+      ],
+      "admin/admin-users.html": [
+        "Admin Rolleri"
+      ],
+      "admin/index.html": [
+        "Operasyon Paneli"
+      ],
+      "admin/legal-settings.html": [
+        "Yasal Ayarlar"
+      ],
+      "admin/compliance.html": [
+        "Uyumluluk"
+      ],
+      "admin/email-logs.html": [
+        "E-posta Logları"
+      ],
+      "admin/inventory.html": [
+        "Stok Yönetimi"
+      ],
+      "admin/products.html": [
+        "Ürünler"
+      ],
+      "admin/admin-reviews.html": [
+        "Yorumlar · COSMOSKIN Admin"
+      ],
+      "admin/shipments.html": [
+        "Kargo Operasyonları"
+      ],
+      "admin/customers.html": [
+        "Müşteriler"
+      ],
+      "admin/orders.html": [
+        "Siparişler · COSMOSKIN Admin"
+      ],
+      "admin/returns.html": [
+        "İade Talepleri"
+      ],
+      "admin/invoices.html": [
+        "Faturalar"
+      ],
+      "admin/reviews.html": [
+        "Yorumlar · COSMOSKIN Admin"
+      ],
+      "admin/coupons.html": [
+        "Kupon ve Kampanya Yönetimi"
+      ],
+      "account/profile.html": [
+        "Merhaba, alışverişini tek yerden yönet."
+      ],
+      "account/routine-compare.html": [
+        "Rutin Karşılaştır"
+      ],
+      "account/routine-profile.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "account/index.html": [
+        "Hesabım"
+      ],
+      "account/order-detail.html": [
+        "Sipariş detayı yükleniyor"
+      ],
+      "account/routines.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "account/preview-test.html": [
+        "Merhaba, alışverişini tek yerden yönet."
+      ],
+      "account/routine-history.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "account/orders.html": [
+        "Siparişlerim"
+      ],
+      "account/returns.html": [
+        "İade talep paneli"
+      ],
+      "account/routine-favorites.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "legal/uyelik-sozlesmesi.html": [
+        "Üyelik Sözleşmesi"
+      ],
+      "legal/on-bilgilendirme-formu.html": [
+        "Ön Bilgilendirme Formu"
+      ],
+      "legal/mesafeli-satis-sozlesmesi.html": [
+        "Mesafeli Satış Sözleşmesi"
+      ],
+      "legal/cerez-politikasi.html": [
+        "Çerez Politikası"
+      ],
+      "legal/iade-ve-cayma-politikasi.html": [
+        "İade ve Cayma Politikası"
+      ],
+      "legal/ticari-elektronik-ileti-izni.html": [
+        "Ticari Elektronik İleti İzni"
+      ],
+      "legal/kvkk-aydinlatma-metni.html": [
+        "KVKK Aydınlatma Metni"
+      ],
+      "legal/teslimat-ve-kargo.html": [
+        "Teslimat ve Kargo"
+      ],
+      "legal/acik-riza-metni.html": [
+        "Açık Rıza Metni"
+      ],
+      "collections/treat.html": [
+        "Serum & Ampul"
+      ],
+      "collections/innisfree.html": [
+        "Innisfree"
+      ],
+      "collections/beauty-of-joseon.html": [
+        "Beauty of Joseon"
+      ],
+      "collections/normal-cilt.html": [
+        "Normal Cilt"
+      ],
+      "collections/thank-you-farmer.html": [
+        "Thank You Farmer"
+      ],
+      "collections/akneye-egilimli-cilt.html": [
+        "Akneye Eğilimli Cilt"
+      ],
+      "collections/some-by-mi.html": [
+        "Some By Mi"
+      ],
+      "collections/round-lab.html": [
+        "Round Lab"
+      ],
+      "collections/glow.html": [
+        "Işıltı"
+      ],
+      "collections/cleanse.html": [
+        "Temizleyiciler"
+      ],
+      "collections/cosrx.html": [
+        "COSRX"
+      ],
+      "collections/sensitivity.html": [
+        "Hassasiyet & Kızarıklık"
+      ],
+      "collections/care.html": [
+        "Nemlendiriciler"
+      ],
+      "collections/medicube.html": [
+        "Medicube"
+      ],
+      "collections/skin1004.html": [
+        "SKIN1004"
+      ],
+      "collections/masks.html": [
+        "Maskeler"
+      ],
+      "collections/barrier.html": [
+        "Bariyer Desteği"
+      ],
+      "collections/anua.html": [
+        "Anua"
+      ],
+      "collections/dr-jart.html": [
+        "Dr. Jart+"
+      ],
+      "collections/acne-balance.html": [
+        "Akne Eğilimi"
+      ],
+      "collections/isntree.html": [
+        "Isntree"
+      ],
+      "collections/hassas-cilt.html": [
+        "Hassas Cilt"
+      ],
+      "collections/mediheal.html": [
+        "Mediheal"
+      ],
+      "collections/goodal.html": [
+        "Goodal"
+      ],
+      "collections/yagli-cilt.html": [
+        "Yağlı Cilt"
+      ],
+      "collections/protect.html": [
+        "Güneş Koruyucular"
+      ],
+      "collections/laneige.html": [
+        "Laneige"
+      ],
+      "collections/karma-cilt.html": [
+        "Karma Cilt"
+      ],
+      "collections/torriden.html": [
+        "Torriden"
+      ],
+      "collections/kuru-cilt.html": [
+        "Kuru Cilt"
+      ],
+      "collections/pore-sebum.html": [
+        "Gözenek & Sebum"
+      ],
+      "collections/routine.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "collections/by-wishtrend.html": [
+        "By Wishtrend"
+      ],
+      "collections/hydrate.html": [
+        "Tonik & Essence"
+      ],
+      "collections/blemish.html": [
+        "Leke Görünümü"
+      ],
+      "collections/hydration.html": [
+        "Nem"
+      ],
+      "collections/bestsellers.html": [
+        "Çok Satanlar"
+      ],
+      "collections/im-from.html": [
+        "I'm From"
+      ],
+      "account/routine-favorites/index.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "account/routine-compare/index.html": [
+        "Rutin Karşılaştır"
+      ],
+      "account/routine-history/index.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "account/routines/index.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "account/routine-profile/index.html": [
+        "Cildine özel bakım yolculuğunu başlat."
+      ],
+      "admin/orders/index.html": [
+        "Sipariş Operasyonları"
+      ],
+      "admin/reviews/index.html": [
+        "Yorum Moderasyon Paneli"
+      ]
+    },
+    "products": {
+      "count": 35,
+      "slugs": [
+        "anua-heartleaf-77-soothing-toner",
+        "anua-heartleaf-pore-control-cleansing-oil",
+        "beauty-of-joseon-relief-sun-spf50",
+        "beauty-of-joseon-glow-serum-propolis-niacinamide",
+        "beauty-of-joseon-glow-deep-serum",
+        "beauty-of-joseon-dynasty-cream",
+        "beauty-of-joseon-green-plum-refreshing-cleanser",
+        "by-wishtrend-pure-vitamin-c-21-5-serum",
+        "cosrx-advanced-snail-96-mucin-essence",
+        "cosrx-the-vitamin-c-23-serum",
+        "cosrx-acne-pimple-master-patch",
+        "cosrx-aha-bha-clarifying-treatment-toner",
+        "cosrx-low-ph-good-morning-gel-cleanser",
+        "cosrx-salicylic-acid-daily-gentle-cleanser",
+        "cosrx-oil-free-ultra-moisturizing-lotion",
+        "dr-jart-ceramidin-cream",
+        "goodal-green-tangerine-vitamin-c-serum",
+        "im-from-rice-toner",
+        "innisfree-super-volcanic-clay-mask",
+        "isntree-hyaluronic-acid-watery-sun-gel",
+        "laneige-water-sleeping-mask",
+        "medicube-zero-pore-pad",
+        "medicube-collagen-night-wrapping-mask",
+        "mediheal-nmf-aquaring-sheet-mask",
+        "round-lab-1025-dokdo-cleanser",
+        "round-lab-dokdo-toner",
+        "round-lab-birch-juice-sunscreen",
+        "round-lab-soybean-nourishing-cream",
+        "skin1004-madagascar-centella-ampoule",
+        "skin1004-centella-toning-toner",
+        "skin1004-hyalu-cica-water-fit-sun-serum",
+        "some-by-mi-aha-bha-miracle-toner",
+        "torriden-dive-in-hyaluronic-acid-serum",
+        "torriden-solid-in-ceramide-cream",
+        "torriden-dive-in-watery-moisture-sun-cream"
+      ]
+    },
+    "environment_variables": {
+      "ADMIN_TOKEN": [
+        "functions/api/_lib/admin.js"
+      ],
+      "BREVO_API_KEY": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/_lib/brevo.js",
+        "functions/api/_lib/order-email.js",
+        "functions/api/_lib/restock-email.js",
+        "functions/api/admin/orders.js",
+        "functions/api/admin/orders/[id]/shipments.js",
+        "functions/api/admin/refunds.js",
+        "functions/api/admin/returns.js",
+        "functions/api/contact.js",
+        "functions/api/iyzico-callback.js",
+        "functions/api/newsletter/subscribe.js",
+        "functions/api/returns.js",
+        "functions/api/routine-reminders.js"
+      ],
+      "BREVO_LIST_CARE_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_CLEANSE_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_CUSTOMERS_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_HIGH_VALUE_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_HYDRATE_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_PROTECT_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_REORDER_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_ROUTINE_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_LIST_TREAT_ID": [
+        "functions/api/_lib/brevo.js"
+      ],
+      "BREVO_SENDER_EMAIL": [
+        "functions/api/_lib/restock-email.js",
+        "functions/api/newsletter/subscribe.js"
+      ],
+      "BREVO_SENDER_NAME": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/_lib/order-email.js",
+        "functions/api/_lib/restock-email.js",
+        "functions/api/newsletter/subscribe.js",
+        "functions/api/routine-reminders.js"
+      ],
+      "CONTACT_FROM_EMAIL": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/_lib/order-email.js",
+        "functions/api/_lib/restock-email.js",
+        "functions/api/contact.js",
+        "functions/api/routine-reminders.js"
+      ],
+      "CONTACT_TO_EMAIL": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/contact.js",
+        "functions/api/routine-reminders.js"
+      ],
+      "CRON_BATCH_LIMIT": [
+        "automation/cron-reminders/worker.js"
+      ],
+      "CRON_SECRET": [
+        "functions/api/cron/release-expired-inventory.js"
+      ],
+      "EARCHIVE_PROVIDER": [
+        "functions/api/iyzico-callback.js"
+      ],
+      "EFT_RESERVATION_MINUTES": [
+        "functions/api/create-checkout.js"
+      ],
+      "IYZICO_API_KEY": [
+        "functions/api/_lib/iyzico.js",
+        "functions/api/create-checkout.js",
+        "functions/api/iyzico-callback.js"
+      ],
+      "IYZICO_BASE_URL": [
+        "functions/api/_lib/iyzico.js"
+      ],
+      "IYZICO_SECRET_KEY": [
+        "functions/api/_lib/iyzico.js",
+        "functions/api/create-checkout.js",
+        "functions/api/iyzico-callback.js"
+      ],
+      "IYZICO_TIMEOUT_MS": [
+        "functions/api/_lib/iyzico.js"
+      ],
+      "NEWSLETTER_FROM_EMAIL": [
+        "functions/api/_lib/order-email.js",
+        "functions/api/_lib/restock-email.js"
+      ],
+      "ORDER_FROM_EMAIL": [
+        "functions/api/_lib/order-email.js",
+        "functions/api/_lib/restock-email.js"
+      ],
+      "ORDER_SENDER_NAME": [
+        "functions/api/_lib/order-email.js"
+      ],
+      "PARTNERSHIP_TO_EMAIL": [
+        "functions/api/contact.js"
+      ],
+      "PUBLIC_SITE_URL": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/_lib/inventory.js",
+        "functions/api/_lib/newsletter-email.js",
+        "functions/api/_lib/order-email.js",
+        "functions/api/_lib/restock-email.js",
+        "functions/api/auth/register.js",
+        "functions/api/contact.js",
+        "functions/api/create-checkout.js",
+        "functions/api/routine-reminders.js"
+      ],
+      "REMINDER_CRON_SECRET": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/routine-reminders.js"
+      ],
+      "SITE_URL": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/_lib/newsletter-email.js",
+        "functions/api/_lib/order-email.js",
+        "functions/api/_lib/restock-email.js",
+        "functions/api/contact.js",
+        "functions/api/routine-reminders.js"
+      ],
+      "SUPABASE_ANON_KEY": [
+        "functions/api/auth/register.js"
+      ],
+      "SUPABASE_SERVICE_ROLE_KEY": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/_lib/supabase.js",
+        "functions/api/auth/register.js",
+        "functions/api/create-checkout.js",
+        "functions/api/newsletter/subscribe.js",
+        "functions/api/reviews/[[path]].js"
+      ],
+      "SUPABASE_URL": [
+        "automation/cron-reminders/worker.js",
+        "functions/api/_lib/supabase.js",
+        "functions/api/auth/register.js",
+        "functions/api/create-checkout.js",
+        "functions/api/newsletter/subscribe.js",
+        "functions/api/reviews/[[path]].js"
+      ]
+    },
+    "sql_migrations": [
+      "functions/api/reviews/schema.sql",
+      "supabase/commerce-schema.sql",
+      "supabase/migrations/20260418_guest_checkout.sql",
+      "supabase/migrations/20260510_newsletter_subscribers.sql",
+      "supabase/migrations/20260510_operations_inventory_orders_shipments.sql",
+      "supabase/migrations/20260510_phase1_operational_safety.sql",
+      "supabase/migrations/20260511_phase2_invoice_returns_refunds.sql",
+      "supabase/migrations/20260511_phase3_compliance_crm_security.sql",
+      "supabase/migrations/20260517_checkout_bank_transfer_statuses.sql",
+      "supabase/migrations/20260616_atomic_inventory_reservation.sql",
+      "supabase/migrations/20260616_inventory_reservation_hardening.sql",
+      "supabase/migrations/20260616_payment_bank_and_callback_hardening.sql",
+      "supabase/migrations/20260616_rls_security_hardening.sql",
+      "supabase/phase51_reviews_hardening.sql",
+      "supabase/phase6-commerce-schema.sql",
+      "supabase/phase6-inventory-seed.sql",
+      "supabase/reviews.sql",
+      "supabase/rollback/20260616_prelaunch_recovery.sql",
+      "supabase/schema.sql",
+      "supabase/test-data.sql",
+      "supabase/test/20260616_inventory_test_setup.sql",
+      "supabase/verification/20260616_prelaunch_verification.sql"
+    ],
+    "admin_files": [
+      "admin/admin-reviews.html",
+      "admin/admin-users.html",
+      "admin/compliance.html",
+      "admin/coupons.html",
+      "admin/customers.html",
+      "admin/email-logs.html",
+      "admin/index.html",
+      "admin/inventory.html",
+      "admin/invoices.html",
+      "admin/legal-settings.html",
+      "admin/orders.html",
+      "admin/orders/index.html",
+      "admin/products.html",
+      "admin/returns.html",
+      "admin/reviews.html",
+      "admin/reviews/index.html",
+      "admin/shipments.html",
+      "admin/suppliers.html",
+      "assets/admin-coupons.js",
+      "assets/admin-customers.js",
+      "assets/admin-dashboard.js",
+      "assets/admin-inventory.css",
+      "assets/admin-inventory.js",
+      "assets/admin-orders-phase6.js",
+      "assets/admin-orders.css",
+      "assets/admin-orders.js",
+      "assets/admin-phase2-console.js",
+      "assets/admin-phase2.css",
+      "assets/admin-phase3.js",
+      "assets/admin-products.js",
+      "assets/admin-returns.js",
+      "assets/admin-runtime.css",
+      "assets/admin-runtime.js",
+      "functions/api/admin/bank-accounts.js",
+      "functions/api/admin/compliance.js",
+      "functions/api/admin/coupons.js",
+      "functions/api/admin/customers.js",
+      "functions/api/admin/dashboard.js",
+      "functions/api/admin/email-logs.js",
+      "functions/api/admin/inventory.js",
+      "functions/api/admin/inventory/[slug].js",
+      "functions/api/admin/inventory/[slug]/movements.js",
+      "functions/api/admin/inventory/adjust.js",
+      "functions/api/admin/inventory/health.js",
+      "functions/api/admin/invoices.js",
+      "functions/api/admin/lots.js",
+      "functions/api/admin/orders.js",
+      "functions/api/admin/orders/[id].js",
+      "functions/api/admin/orders/[id]/emails.js",
+      "functions/api/admin/orders/[id]/shipments.js",
+      "functions/api/admin/orders/[id]/status.js",
+      "functions/api/admin/products.js",
+      "functions/api/admin/refunds.js",
+      "functions/api/admin/returns.js",
+      "functions/api/admin/session.js",
+      "functions/api/admin/shipments.js",
+      "functions/api/admin/suppliers.js",
+      "functions/api/admin/users.js"
+    ]
+  }
+}

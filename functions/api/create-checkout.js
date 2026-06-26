@@ -3,10 +3,14 @@ import { iyzicoRequest } from './_lib/iyzico.js';
 import { catalog } from './_lib/catalog.js';
 import { releaseInventoryReservations, reserveInventoryForOrder } from './_lib/inventory.js';
 import { json } from './_lib/response.js';
+import { getPrimaryBankAccount } from './_lib/bank-accounts.js';
+import { legalDocumentKeyFromConsent, legalDocumentSnapshot } from './_lib/legal-documents.js';
 
 const VAT_RATE = 0.20;
 const FREE_SHIPPING_LIMIT = 2500;
 const SHIPPING_FEE = 119;
+const EXPRESS_SURCHARGE = 49.90;
+const DEFAULT_EFT_RESERVATION_MINUTES = 1440;
 const MAX_CART_LINES = 30;
 const MAX_TOTAL_QUANTITY = 99;
 const MAX_ITEM_QUANTITY = 10;
@@ -199,9 +203,9 @@ async function validateInventory(context, cart) {
   }
 }
 
-async function applyCoupon(context, cart, subtotal, couponCode) {
+async function applyCoupon(context, cart, subtotal, couponCode, customer = {}) {
   const code = String(couponCode || '').trim().toUpperCase();
-  if (!code) return { code: null, discount: 0, label: null };
+  if (!code) return { code: null, type: null, discount: 0, freeShipping: false, label: null };
   const rows = await selectRows(context, 'coupons', {
     select: '*',
     code: `eq.${code}`,
@@ -214,26 +218,57 @@ async function applyCoupon(context, cart, subtotal, couponCode) {
   if (coupon.starts_at && new Date(coupon.starts_at).getTime() > now) throw new CheckoutError('Kupon henüz aktif değil.', 400, 'COUPON_NOT_STARTED');
   if (coupon.ends_at && new Date(coupon.ends_at).getTime() < now) throw new CheckoutError('Kupon süresi dolmuş.', 400, 'COUPON_EXPIRED');
   if (Number(coupon.min_subtotal || 0) > subtotal) throw new CheckoutError(`Bu kupon için minimum sepet tutarı ₺${Number(coupon.min_subtotal).toFixed(0)}.`, 400, 'COUPON_MIN_SUBTOTAL');
+  const usageLimit = Number(coupon.usage_limit || 0);
+  if (usageLimit > 0) {
+    const used = await selectRows(context, 'coupon_redemptions', { select: 'id', coupon_id: `eq.${coupon.id}`, limit: String(usageLimit) }).catch(() => []);
+    if ((used || []).length >= usageLimit) throw new CheckoutError('Bu kuponun kullanım limiti dolmuş.', 400, 'COUPON_USAGE_LIMIT');
+  }
+  const perCustomerLimit = Math.max(0, Number(coupon.per_customer_limit || 0));
+  const customerEmail = String(customer.email || '').trim().toLowerCase();
+  if (perCustomerLimit > 0 && customerEmail) {
+    const usedByCustomer = await selectRows(context, 'coupon_redemptions', { select: 'id', coupon_id: `eq.${coupon.id}`, customer_email: `eq.${customerEmail}`, limit: String(perCustomerLimit) }).catch(() => []);
+    if ((usedByCustomer || []).length >= perCustomerLimit) throw new CheckoutError('Bu kupon için kullanım hakkınızı tamamladınız.', 400, 'COUPON_CUSTOMER_LIMIT');
+  }
   let discount = 0;
-  const couponType = coupon.discount_type || coupon.type;
+  const couponType = String(coupon.discount_type || coupon.type || '').trim().toLowerCase();
   const couponValue = coupon.discount_value ?? coupon.value;
   const couponMax = coupon.max_discount_amount ?? coupon.max_discount;
+  const freeShipping = couponType === 'free_shipping';
   if (couponType === 'percent') discount = subtotal * (Number(couponValue || 0) / 100);
-  else if (couponType === 'free_shipping') discount = 0;
-  else discount = Number(couponValue || 0);
+  else if (!freeShipping) discount = Number(couponValue || 0);
   if (couponMax) discount = Math.min(discount, Number(couponMax));
   discount = Math.max(0, Math.min(subtotal, normalizeMoney(discount)));
-  return { code, discount, label: couponType === 'percent' ? `%${Number(couponValue || 0)} indirim` : (couponType === 'free_shipping' ? 'Ücretsiz kargo' : `₺${discount.toFixed(0)} indirim`) };
+  return {
+    code,
+    type: couponType,
+    discount,
+    freeShipping,
+    label: couponType === 'percent' ? `%${Number(couponValue || 0)} indirim` : (freeShipping ? 'Ücretsiz kargo' : `₺${discount.toFixed(0)} indirim`)
+  };
 }
 
-function calculateTotalsWithCoupon(cart, coupon) {
+function normalizeShippingMethod(value) {
+  return String(value || 'standard').toLowerCase() === 'express' ? 'express' : 'standard';
+}
+
+function calculateTotalsWithCoupon(cart, coupon, shippingMethod = 'standard') {
   const subtotal = normalizeMoney(cart.reduce((sum, item) => sum + item.line_total, 0));
-  const discount = normalizeMoney(coupon?.discount || 0);
+  const discount = normalizeMoney(Math.max(0, Math.min(subtotal, coupon?.discount || 0)));
   const discountedSubtotal = normalizeMoney(Math.max(0, subtotal - discount));
-  const shipping = discountedSubtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_FEE;
+  let shipping = 0;
+  if (discountedSubtotal > 0 && !coupon?.freeShipping) {
+    const standardFee = discountedSubtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_FEE;
+    shipping = normalizeMoney(standardFee + (normalizeShippingMethod(shippingMethod) === 'express' ? EXPRESS_SURCHARGE : 0));
+  }
   const vat = normalizeMoney((discountedSubtotal * VAT_RATE) / (1 + VAT_RATE));
-  const total = normalizeMoney(discountedSubtotal + shipping);
+  const total = normalizeMoney(Math.max(0, discountedSubtotal + shipping));
   return { subtotal, discount, shipping, vat, total };
+}
+
+function getEftReservationMinutes(env = {}) {
+  const configured = Number(env.EFT_RESERVATION_MINUTES || DEFAULT_EFT_RESERVATION_MINUTES);
+  if (!Number.isFinite(configured)) return DEFAULT_EFT_RESERVATION_MINUTES;
+  return Math.max(30, Math.min(10080, Math.floor(configured)));
 }
 
 function createOrderNumber() {
@@ -341,51 +376,118 @@ async function recordCheckoutConsents(context, { user, email, consents, orderId 
 }
 
 
-async function recordOrderLegalConsents(context, { orderId, consents, request }) {
+async function recordOrderLegalConsents(context, { orderId, user, email, consents, request }) {
   if (!orderId) return;
   const acceptedAt = new Date().toISOString();
   const ip = getClientIp(request);
   const userAgent = getUserAgent(request);
-  const rows = [
-    ['kvkk_acknowledged', consents.kvkk_acknowledged, 'KVKK Aydınlatma Metni'],
-    ['preliminary_information_accepted', consents.preliminary_information_accepted, 'Ön Bilgilendirme Formu'],
-    ['distance_sales_accepted', consents.distance_sales_accepted, 'Mesafeli Satış Sözleşmesi']
-  ].map(([consent_type, accepted, document_title]) => ({
-    order_id: orderId,
-    consent_type,
-    accepted: Boolean(accepted),
-    accepted_at: acceptedAt,
-    ip_address: ip,
-    user_agent: userAgent,
-    document_version: 'checkout-20260517',
-    metadata: { document_title, source: 'checkout.html' }
-  }));
+  const consentSpecs = [
+    ['kvkk_acknowledged', consents.kvkk_acknowledged],
+    ['preliminary_information_accepted', consents.preliminary_information_accepted],
+    ['distance_sales_accepted', consents.distance_sales_accepted]
+  ];
+  const rows = [];
+  const snapshots = [];
+  for (const [consent_type, accepted] of consentSpecs) {
+    const key = legalDocumentKeyFromConsent(consent_type);
+    const doc = await legalDocumentSnapshot(key);
+    const base = {
+      order_id: orderId,
+      user_id: user?.id || null,
+      email: email || null,
+      document_key: doc.key,
+      document_title: doc.title,
+      document_version: doc.version,
+      document_hash: doc.hash,
+      document_url: doc.url,
+      accepted_at: acceptedAt,
+      ip_address: ip,
+      user_agent: userAgent,
+      source: 'checkout',
+      metadata: { source_page: 'checkout.html' }
+    };
+    rows.push({ ...base, consent_type, accepted: Boolean(accepted) });
+    snapshots.push(base);
+  }
   await insertRows(context, 'order_legal_consents', rows).catch((error) => console.error('order legal consent record failed:', { message: error.message }));
+  await insertRows(context, 'order_legal_snapshots', snapshots).catch((error) => console.error('order legal snapshot record failed:', { message: error.message }));
+}
+
+function requireBillingText(value, fieldName, minLength = 2, maxLength = 180) {
+  const normalized = clampText(value, maxLength);
+  if (normalized.length < minLength) throw new CheckoutError(`${fieldName} alanı geçersiz.`, 400, 'INVALID_INVOICE');
+  return normalized;
+}
+
+function requireBillingEmail(value, fieldName = 'Fatura e-posta') {
+  const email = normalizeEmail(value);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) throw new CheckoutError(`${fieldName} alanı geçersiz.`, 400, 'INVALID_INVOICE');
+  return email;
 }
 
 function normalizeInvoicePayload(invoicePayload = {}, customer = {}) {
-  const isCorporate = String(invoicePayload.type || '').toLowerCase() === 'corporate' || customer.invoice_type === 'Kurumsal';
-  const sameAsDelivery = invoicePayload.sameAsDelivery !== false;
-  const billingName = clampText(invoicePayload.name || `${customer.first_name || ''} ${customer.last_name || ''}`, 120);
+  const rawType = String(invoicePayload.type || invoicePayload.billing_type || '').toLowerCase();
+  const isCorporate = rawType === 'corporate' || rawType === 'kurumsal' || customer.invoice_type === 'Kurumsal';
+  const sameAsDelivery = invoicePayload.sameAsDelivery !== false && invoicePayload.same_as_delivery !== false;
+  const billingAddress = requireBillingText(invoicePayload.address || invoicePayload.billing_address || (sameAsDelivery ? customer.address : ''), 'Fatura adresi', 10, 300);
+  const billingCity = requireBillingText(invoicePayload.city || invoicePayload.billing_city || (sameAsDelivery ? customer.city : ''), 'Fatura ili', 2, 60);
+  const billingDistrict = requireBillingText(invoicePayload.district || invoicePayload.billing_district || (sameAsDelivery ? customer.district : ''), 'Fatura ilçesi', 2, 80);
+  const billingPostalCode = onlyDigits(invoicePayload.postalCode || invoicePayload.postal_code || invoicePayload.billing_postal_code || (sameAsDelivery ? customer.postal_code : '')).slice(0, 5);
+  if (!/^\d{5}$/.test(billingPostalCode)) throw new CheckoutError('Fatura posta kodu geçersiz.', 400, 'INVALID_INVOICE');
+
+  if (isCorporate) {
+    const companyTitle = requireBillingText(invoicePayload.company || invoicePayload.companyTitle || invoicePayload.company_title, 'Firma ünvanı', 2, 180);
+    const taxOffice = requireBillingText(invoicePayload.taxOffice || invoicePayload.tax_office, 'Vergi dairesi', 2, 120);
+    const taxNumber = onlyDigits(invoicePayload.taxNumber || invoicePayload.tax_number).slice(0, 20);
+    if (!/^\d{10,11}$/.test(taxNumber)) throw new CheckoutError('Vergi numarası 10 veya 11 haneli olmalıdır.', 400, 'INVALID_INVOICE');
+    const corporateEmail = requireBillingEmail(invoicePayload.corporateEmail || invoicePayload.corporate_email || invoicePayload.email || customer.email, 'Kurumsal fatura e-posta');
+    return {
+      invoice_type: 'Kurumsal',
+      billing_first_name: null,
+      billing_last_name: null,
+      billing_email: corporateEmail,
+      billing_phone: normalizeTurkishPhone(invoicePayload.phone || invoicePayload.billing_phone || customer.phone) || customer.phone,
+      company_title: companyTitle,
+      tax_office: taxOffice,
+      tax_number: taxNumber,
+      corporate_email: corporateEmail,
+      is_e_invoice_taxpayer: Boolean(invoicePayload.eInvoice || invoicePayload.is_e_invoice_taxpayer),
+      billing_address_line: billingAddress,
+      billing_city: billingCity,
+      billing_district: billingDistrict,
+      billing_postal_code: billingPostalCode
+    };
+  }
+
+  const billingName = requireBillingText(invoicePayload.name || invoicePayload.billing_name || `${customer.first_name || ''} ${customer.last_name || ''}`, 'Fatura adı soyadı', 2, 120);
   const nameParts = billingName.split(/\s+/).filter(Boolean);
-  const billingFirstName = isCorporate ? null : (nameParts.shift() || customer.first_name || null);
-  const billingLastName = isCorporate ? null : (nameParts.join(' ') || customer.last_name || null);
+  const billingFirstName = requireBillingText(nameParts.shift() || customer.first_name, 'Fatura adı', 2, 60);
+  const billingLastName = requireBillingText(nameParts.join(' ') || customer.last_name, 'Fatura soyadı', 2, 80);
   return {
-    invoice_type: isCorporate ? 'Kurumsal' : 'Bireysel',
+    invoice_type: 'Bireysel',
     billing_first_name: billingFirstName,
     billing_last_name: billingLastName,
-    billing_email: normalizeEmail(isCorporate ? invoicePayload.corporateEmail : (invoicePayload.email || customer.email)),
-    billing_phone: normalizeTurkishPhone(invoicePayload.phone || customer.phone) || customer.phone,
-    company_title: isCorporate ? clampText(invoicePayload.company || invoicePayload.companyTitle, 180) : null,
-    tax_office: isCorporate ? clampText(invoicePayload.taxOffice, 120) : null,
-    tax_number: isCorporate ? onlyDigits(invoicePayload.taxNumber).slice(0, 20) : null,
-    corporate_email: isCorporate ? normalizeEmail(invoicePayload.corporateEmail || invoicePayload.email) : null,
-    is_e_invoice_taxpayer: Boolean(invoicePayload.eInvoice || invoicePayload.is_e_invoice_taxpayer),
-    billing_address_line: clampText(invoicePayload.address || (sameAsDelivery ? customer.address : ''), 300) || null,
-    billing_city: clampText(invoicePayload.city || (sameAsDelivery ? customer.city : ''), 60) || null,
-    billing_district: clampText(invoicePayload.district || (sameAsDelivery ? customer.district : ''), 80) || null,
-    billing_postal_code: onlyDigits(invoicePayload.postalCode || invoicePayload.postal_code || (sameAsDelivery ? customer.postal_code : '')).slice(0, 5) || null
+    billing_email: requireBillingEmail(invoicePayload.email || invoicePayload.billing_email || customer.email),
+    billing_phone: normalizeTurkishPhone(invoicePayload.phone || invoicePayload.billing_phone || customer.phone) || customer.phone,
+    company_title: null,
+    tax_office: null,
+    tax_number: null,
+    corporate_email: null,
+    is_e_invoice_taxpayer: false,
+    billing_address_line: billingAddress,
+    billing_city: billingCity,
+    billing_district: billingDistrict,
+    billing_postal_code: billingPostalCode
   };
+}
+
+
+function requireCardIdentityNumber(paymentMethod, customer, invoiceDetails) {
+  if (paymentMethod !== 'card') return;
+  if (invoiceDetails?.invoice_type !== 'Bireysel') return;
+  if (!customer.identity_number || !isValidTurkishIdentityNumber(customer.identity_number)) {
+    throw new CheckoutError('Kartlı ödeme ile bireysel fatura için geçerli T.C. kimlik numarası zorunludur.', 400, 'IDENTITY_NUMBER_REQUIRED');
+  }
 }
 
 function assertOrderEnvironment(env) {
@@ -400,10 +502,94 @@ function assertCardPaymentEnvironment(env) {
   }
 }
 
+function normalizeIdempotencyKey(value) {
+  const key = String(value || '').trim();
+  if (!/^[A-Za-z0-9_-]{16,80}$/.test(key)) {
+    throw new CheckoutError('Checkout işlem anahtarı geçersiz. Sayfayı yenileyip tekrar deneyin.', 400, 'INVALID_IDEMPOTENCY_KEY');
+  }
+  return key;
+}
+
+function orderTotalsFromRow(order = {}) {
+  return {
+    subtotal: normalizeMoney(order.subtotal_amount),
+    discount: normalizeMoney(order.discount_amount),
+    shipping: normalizeMoney(order.shipping_amount),
+    vat: normalizeMoney(order.vat_amount),
+    total: normalizeMoney(order.total_amount)
+  };
+}
+
+async function existingCheckoutResponse(context, idempotencyKey, customerEmail, expectedMethod) {
+  const rows = await selectRows(context, 'orders', {
+    select: 'id,order_number,status,payment_status,payment_method,customer_email,subtotal_amount,discount_amount,shipping_amount,vat_amount,total_amount,metadata,created_at',
+    checkout_idempotency_key: `eq.${idempotencyKey}`,
+    limit: '1'
+  }).catch((error) => {
+    if (/checkout_idempotency_key|column .* does not exist|schema cache/i.test(String(error?.message || ''))) {
+      throw new CheckoutError('Checkout idempotency migration henüz uygulanmamış. Sipariş oluşturulmadı.', 503, 'CHECKOUT_IDEMPOTENCY_MIGRATION_MISSING');
+    }
+    throw error;
+  });
+  const order = rows?.[0];
+  if (!order) return null;
+  if (normalizeEmail(order.customer_email) !== normalizeEmail(customerEmail) || order.payment_method !== expectedMethod) {
+    throw new CheckoutError('Bu işlem anahtarı başka bir checkout denemesinde kullanılmış.', 409, 'IDEMPOTENCY_CONFLICT');
+  }
+
+  const metadata = order.metadata && typeof order.metadata === 'object' ? order.metadata : {};
+  if (expectedMethod === 'bank_transfer') {
+    return {
+      ok: true,
+      idempotent: true,
+      orderId: order.id,
+      orderNumber: order.order_number,
+      paymentMethod: 'bank_transfer',
+      orderStatus: order.status,
+      paymentStatus: order.payment_status,
+      paymentDeadline: metadata.payment_deadline || null,
+      bankAccount: metadata.bank_account || null,
+      totals: orderTotalsFromRow(order),
+      message: 'Siparişiniz daha önce oluşturuldu. Aynı sipariş bilgileri gösteriliyor.'
+    };
+  }
+
+  if (['cancelled', 'payment_failed'].includes(order.status) || ['failed'].includes(order.payment_status)) {
+    throw new CheckoutError('Önceki ödeme başlatma denemesi kapanmış. Lütfen tekrar deneyin.', 409, 'CHECKOUT_ATTEMPT_CLOSED');
+  }
+  const payments = await selectRows(context, 'payments', {
+    select: 'status,provider_token,raw_initialize_response,created_at',
+    order_id: `eq.${order.id}`,
+    provider: 'eq.iyzico',
+    order: 'created_at.desc',
+    limit: '1'
+  }).catch(() => []);
+  const payment = payments?.[0];
+  const raw = payment?.raw_initialize_response && typeof payment.raw_initialize_response === 'object'
+    ? payment.raw_initialize_response
+    : {};
+  if (payment?.status === 'initiated' && (raw.token || raw.paymentPageUrl || raw.checkoutFormContent || payment.provider_token)) {
+    return {
+      ok: true,
+      idempotent: true,
+      orderId: order.id,
+      orderNumber: order.order_number,
+      token: raw.token || payment.provider_token || null,
+      paymentPageUrl: raw.paymentPageUrl || null,
+      checkoutFormContent: raw.checkoutFormContent || null
+    };
+  }
+  throw new CheckoutError('Ödeme isteğiniz işleniyor. Yeni bir sipariş oluşturmadan kısa süre sonra tekrar kontrol edin.', 409, 'CHECKOUT_IN_PROGRESS');
+}
+
 export async function onRequestPost(context) {
+  let reservedOrderId = null;
+  let persistedOrder = null;
   try {
     assertOrderEnvironment(context.env || {});
 
+    const contentType = String(context.request.headers.get('content-type') || '').toLowerCase();
+    if (!contentType.includes('application/json')) throw new CheckoutError('İstek içerik türü application/json olmalıdır.', 415, 'UNSUPPORTED_MEDIA_TYPE');
     const payload = await context.request.json().catch(() => {
       throw new CheckoutError('Geçersiz istek formatı.', 400, 'INVALID_JSON');
     });
@@ -413,19 +599,40 @@ export async function onRequestPost(context) {
       : 'card';
     if (paymentMethod === 'card') assertCardPaymentEnvironment(context.env || {});
 
+    let bankAccount = null;
+    if (paymentMethod === 'bank_transfer') {
+      try {
+        bankAccount = await getPrimaryBankAccount(context);
+      } catch (error) {
+        console.error('checkout bank account validation failed:', { message: String(error?.message || 'unknown').slice(0, 180) });
+        throw new CheckoutError('Havale/EFT bilgileri şu anda doğrulanamıyor. Sipariş oluşturulmadı.', 503, 'BANK_ACCOUNT_UNAVAILABLE');
+      }
+      if (!bankAccount) {
+        throw new CheckoutError('Havale/EFT ödeme bilgileri henüz yapılandırılmadı. Sipariş oluşturulmadı.', 503, 'BANK_ACCOUNT_NOT_CONFIGURED');
+      }
+    }
+
     const accessToken = payload.accessToken || null;
     const rawCustomer = payload.customer || {};
     const consents = validateCheckoutConsents(rawCustomer);
     const customer = validateCustomer(rawCustomer);
+    const idempotencyKey = normalizeIdempotencyKey(payload.idempotency_key || payload.idempotencyKey || context.request.headers.get('idempotency-key'));
+    const existing = await existingCheckoutResponse(context, idempotencyKey, customer.email, paymentMethod);
+    if (existing) return json(existing, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
+
     const cart = normalizeCart(payload.cart || []);
     const user = accessToken ? await getUserFromAccessToken(context, accessToken) : null;
     if (accessToken && !user) throw new CheckoutError('Oturum süresi dolmuş. Lütfen tekrar giriş yap.', 401, 'INVALID_SESSION');
 
     await validateInventory(context, cart);
     const baseTotals = calculateTotals(cart);
-    const coupon = await applyCoupon(context, cart, baseTotals.subtotal, payload.coupon_code || payload.couponCode);
-    const totals = calculateTotalsWithCoupon(cart, coupon);
+    const coupon = await applyCoupon(context, cart, baseTotals.subtotal, payload.coupon_code || payload.couponCode, customer);
+    const shippingMethod = normalizeShippingMethod(payload.shipping?.method || payload.shipping_method);
+    const totals = calculateTotalsWithCoupon(cart, coupon, shippingMethod);
+    const eftReservationMinutes = paymentMethod === 'bank_transfer' ? getEftReservationMinutes(context.env || {}) : 15;
+    const paymentDeadline = paymentMethod === 'bank_transfer' ? new Date(Date.now() + eftReservationMinutes * 60 * 1000).toISOString() : null;
     const orderNumber = createOrderNumber();
+    const orderId = crypto.randomUUID();
     const invoicePayload = payload.invoice && typeof payload.invoice === 'object' ? payload.invoice : {};
     const deliveryPayload = payload.delivery && typeof payload.delivery === 'object' ? payload.delivery : {};
     const shippingPayload = payload.shipping && typeof payload.shipping === 'object' ? payload.shipping : {};
@@ -433,6 +640,7 @@ export async function onRequestPost(context) {
     const initialPaymentStatus = paymentMethod === 'bank_transfer' ? 'awaiting_transfer' : 'pending';
     const fulfillmentStatus = 'not_started';
     const invoiceDetails = normalizeInvoicePayload(invoicePayload, customer);
+    requireCardIdentityNumber(paymentMethod, customer, invoiceDetails);
     const legalConsents = {
       kvkk: consents.kvkk_acknowledged,
       pre_information: consents.preliminary_information_accepted,
@@ -441,7 +649,22 @@ export async function onRequestPost(context) {
       ip_address: getClientIp(context.request),
       user_agent: getUserAgent(context.request)
     };
-    const order = await insertRow(context, 'orders', {
+
+    let reservations = [];
+    try {
+      reservations = await reserveInventoryForOrder(context, orderId, cart, {
+        minutes: eftReservationMinutes,
+        session_id: payload.session_id || payload.sessionId || null,
+        created_by: 'checkout'
+      });
+      reservedOrderId = orderId;
+    } catch (reservationError) {
+      throw new CheckoutError(reservationError.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', reservationError.status || 409, reservationError.code || 'INSUFFICIENT_STOCK');
+    }
+
+    const orderPayload = {
+      id: orderId,
+      checkout_idempotency_key: idempotencyKey,
       user_id: user?.id || null,
       order_number: orderNumber,
       status: orderStatus,
@@ -484,45 +707,51 @@ export async function onRequestPost(context) {
       user_agent: getUserAgent(context.request),
       metadata: {
         source: 'checkout',
+        idempotency_key: idempotencyKey,
         payment_method: paymentMethod,
         cart_line_count: cart.length,
         coupon: coupon.code || null,
         coupon_label: coupon.label || null,
+        coupon_type: coupon.type || null,
+        free_shipping: Boolean(coupon.freeShipping),
         delivery: deliveryPayload,
         invoice: invoicePayload,
         invoice_details: invoiceDetails,
-        shipping: shippingPayload,
+        shipping: { ...shippingPayload, method: shippingMethod },
+        bank_account: bankAccount ? { id: bankAccount.id, bankName: bankAccount.bankName, accountName: bankAccount.accountName, iban: bankAccount.iban, branch: bankAccount.branch, currency: bankAccount.currency } : null,
+        payment_deadline: paymentDeadline,
+        reservation_minutes: eftReservationMinutes,
         legal_approved_at: payload.legal_approved_at || new Date().toISOString(),
-        consents: { marketing_email_opt_in: consents.marketing_email_opt_in, newsletter_opt_in: consents.newsletter_opt_in }
+        consents: {
+          marketing_email_opt_in: consents.marketing_email_opt_in,
+          newsletter_opt_in: consents.newsletter_opt_in,
+          pre_information_version: payload.legal?.pre_information_version || 'checkout-20260626',
+          distance_sales_version: payload.legal?.distance_sales_version || 'checkout-20260626',
+          privacy_notice_version: payload.legal?.privacy_notice_version || 'checkout-20260626',
+          accepted_terms_at: payload.legal?.accepted_terms_at || payload.legal_approved_at || new Date().toISOString(),
+          accepted_privacy_at: payload.legal?.accepted_privacy_at || payload.legal_approved_at || new Date().toISOString(),
+          marketing_consent_at: consents.marketing_email_opt_in ? (payload.legal?.marketing_consent_at || new Date().toISOString()) : null
+        }
       }
-    });
+    };
 
-    await recordCheckoutConsents(context, { user, email: customer.email, consents, orderId: order.id });
-    await recordOrderLegalConsents(context, { orderId: order.id, consents, request: context.request });
-
-    await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: order.id })));
-    await insertRow(context, 'order_status_events', {
-      order_id: order.id,
-      status: orderStatus,
-      event_type: 'order_created',
-      previous_status: null,
-      new_status: orderStatus,
-      source: 'system',
-      created_by: 'system',
-      message: paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuldu, Havale/EFT ödemesi bekleniyor.' : 'Sipariş oluşturuldu, ödeme bekleniyor.',
-      note: paymentMethod === 'bank_transfer' ? 'Havale/EFT ödemesi bekleniyor.' : 'Sipariş oluşturuldu, ödeme bekleniyor.',
-      metadata: { order_number: orderNumber, payment_method: paymentMethod }
-    });
-
-    let reservations = [];
     try {
-      reservations = await reserveInventoryForOrder(context, order.id, cart, {
-        minutes: paymentMethod === 'bank_transfer' ? 4320 : 15,
-        session_id: payload.session_id || payload.sessionId || null,
-        created_by: 'checkout'
+      persistedOrder = await insertRow(context, 'orders', orderPayload);
+      await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: orderId })));
+      await insertRow(context, 'order_status_events', {
+        order_id: orderId,
+        status: orderStatus,
+        event_type: 'order_created',
+        previous_status: null,
+        new_status: orderStatus,
+        source: 'system',
+        created_by: 'system',
+        message: paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuldu, Havale/EFT ödemesi bekleniyor.' : 'Sipariş oluşturuldu, ödeme bekleniyor.',
+        note: paymentMethod === 'bank_transfer' ? 'Havale/EFT ödemesi bekleniyor.' : 'Sipariş oluşturuldu, ödeme bekleniyor.',
+        metadata: { order_number: orderNumber, payment_method: paymentMethod }
       });
       await insertRow(context, 'order_status_events', {
-        order_id: order.id,
+        order_id: orderId,
         status: 'stock_reserved',
         event_type: 'stock_reserved',
         source: 'inventory',
@@ -530,44 +759,41 @@ export async function onRequestPost(context) {
         message: paymentMethod === 'bank_transfer' ? 'Havale/EFT siparişi için stok rezervasyonu oluşturuldu.' : 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
         note: paymentMethod === 'bank_transfer' ? 'Havale/EFT ödeme onayı bekleniyor.' : 'Checkout için 15 dakikalık stok rezervasyonu oluşturuldu.',
         metadata: { reservation_count: reservations.length, payment_method: paymentMethod }
-      }).catch(() => null);
-    } catch (reservationError) {
-      await updateRows(context, 'orders', { id: order.id }, {
-        status: 'cancelled',
-        payment_status: 'failed',
-        fulfillment_status: 'cancelled',
-        updated_at: new Date().toISOString(),
-        metadata: { source: 'checkout', cart_line_count: cart.length, reservation_error: serializeError(reservationError) }
-      }).catch(() => null);
-      await insertRow(context, 'order_status_events', {
-        order_id: order.id,
-        status: 'stock_reservation_failed',
-        event_type: 'stock_reservation_failed',
-        source: 'inventory',
-        created_by: 'system',
-        message: reservationError.message || 'Stok rezervasyonu oluşturulamadı.',
-        note: reservationError.message || 'Stok rezervasyonu oluşturulamadı.',
-        metadata: { error: serializeError(reservationError) }
-      }).catch(() => null);
-      throw new CheckoutError(reservationError.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', reservationError.status || 409, reservationError.code || 'INSUFFICIENT_STOCK');
+      });
+      await recordCheckoutConsents(context, { user, email: customer.email, consents, orderId });
+      await recordOrderLegalConsents(context, { orderId, user, email: customer.email, consents, request: context.request });
+    } catch (persistenceError) {
+      await releaseInventoryReservations(context, orderId, 'order_persistence_failed').catch(() => null);
+      if (persistedOrder) {
+        await updateRows(context, 'orders', { id: orderId }, {
+          status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled', updated_at: new Date().toISOString()
+        }).catch(() => null);
+      }
+      if (/checkout_idempotency_key|duplicate key|unique constraint/i.test(String(persistenceError?.message || ''))) {
+        const raced = await existingCheckoutResponse(context, idempotencyKey, customer.email, paymentMethod).catch(() => null);
+        if (raced) return json(raced, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
+      }
+      throw persistenceError;
     }
 
     if (paymentMethod === 'bank_transfer') {
       await insertRow(context, 'payments', {
-        order_id: order.id,
+        order_id: orderId,
         provider: 'bank_transfer',
         status: 'awaiting_transfer',
         amount: totals.total,
         currency: 'TRY',
-        conversation_id: order.id,
+        conversation_id: orderId,
         raw_initialize_response: {
           payment_method: 'bank_transfer',
           payment_status: 'awaiting_transfer',
+          payment_deadline: paymentDeadline,
+          bank_account_id: bankAccount.id || null,
           message: 'Havale/EFT ödemesi bekleniyor.'
         }
-      }).catch((error) => console.error('bank transfer payment row failed:', { message: error.message }));
+      });
       await insertRow(context, 'order_status_events', {
-        order_id: order.id,
+        order_id: orderId,
         status: 'awaiting_transfer',
         event_type: 'payment_awaiting_transfer',
         previous_status: 'pending_bank_transfer',
@@ -576,17 +802,20 @@ export async function onRequestPost(context) {
         created_by: 'checkout',
         message: 'Havale/EFT ödeme onayı bekleniyor.',
         note: 'Müşteri açıklama alanına sipariş numarasını yazmalıdır.',
-        metadata: { order_number: orderNumber, payment_method: 'bank_transfer' }
+        metadata: { order_number: orderNumber, payment_method: 'bank_transfer', payment_deadline: paymentDeadline }
       }).catch(() => null);
       return json({
         ok: true,
-        orderId: order.id,
-        orderNumber: order.order_number,
+        orderId,
+        orderNumber,
         paymentMethod: 'bank_transfer',
         orderStatus: 'pending_bank_transfer',
         paymentStatus: 'awaiting_transfer',
+        paymentDeadline,
+        bankAccount,
+        totals,
         message: 'Siparişiniz oluşturuldu. Havale/EFT ödemeniz bekleniyor.'
-      });
+      }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
     }
 
     const callbackUrl = `${getPublicSiteUrl(context.env)}/api/iyzico-callback`;
@@ -598,16 +827,16 @@ export async function onRequestPost(context) {
     try {
       iyzicoRes = await iyzicoRequest('/payment/iyzipos/checkoutform/initialize/auth/ecom', context.env, {
         locale: 'tr',
-        conversationId: order.id,
+        conversationId: orderId,
         price: totals.total.toFixed(2),
         paidPrice: totals.total.toFixed(2),
         currency: 'TRY',
-        basketId: order.id,
+        basketId: orderId,
         paymentGroup: 'PRODUCT',
         callbackUrl,
         enabledInstallments: [1, 2, 3],
         buyer: {
-          id: user?.id || `guest-${order.id}`,
+          id: user?.id || `guest-${orderId}`,
           name: customer.first_name,
           surname: customer.last_name,
           gsmNumber: customer.phone,
@@ -621,40 +850,33 @@ export async function onRequestPost(context) {
           country: 'Turkey',
           zipCode: customer.postal_code
         },
-        shippingAddress: {
-          contactName: buyerName,
-          city: customer.city,
-          country: 'Turkey',
-          address: customer.address,
-          zipCode: customer.postal_code
-        },
+        shippingAddress: { contactName: buyerName, city: customer.city, country: 'Turkey', address: customer.address, zipCode: customer.postal_code },
         billingAddress: {
-          contactName: buyerName,
-          city: customer.city,
+          contactName: invoiceDetails.company_title || [invoiceDetails.billing_first_name, invoiceDetails.billing_last_name].filter(Boolean).join(' ') || buyerName,
+          city: invoiceDetails.billing_city,
           country: 'Turkey',
-          address: customer.address,
-          zipCode: customer.postal_code
+          address: invoiceDetails.billing_address_line,
+          zipCode: invoiceDetails.billing_postal_code
         },
         basketItems
       });
     } catch (paymentError) {
       await insertRow(context, 'payments', {
-        order_id: order.id,
+        order_id: orderId,
         provider: 'iyzico',
         status: 'initialize_failed',
         amount: totals.total,
         currency: 'TRY',
-        conversation_id: order.id,
+        conversation_id: orderId,
         raw_initialize_response: { error: serializeError(paymentError) }
-      });
-      await releaseInventoryReservations(context, order.id, 'payment_initialize_failed').catch(() => null);
-      await updateRows(context, 'orders', { id: order.id }, {
-        status: 'cancelled',
-        payment_status: 'failed',
-        metadata: { source: 'checkout', cart_line_count: cart.length, payment_initialize_error: serializeError(paymentError) }
-      });
+      }).catch(() => null);
+      await releaseInventoryReservations(context, orderId, 'payment_initialize_failed').catch(() => null);
+      await updateRows(context, 'orders', { id: orderId }, {
+        status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled',
+        metadata: { ...orderPayload.metadata, payment_initialize_error: serializeError(paymentError) }
+      }).catch(() => null);
       await insertRow(context, 'order_status_events', {
-        order_id: order.id,
+        order_id: orderId,
         status: 'payment_failed',
         event_type: 'payment_failed',
         previous_status: 'pending_payment',
@@ -664,33 +886,28 @@ export async function onRequestPost(context) {
         message: 'iyzico ödeme formu başlatılamadı.',
         note: 'iyzico ödeme formu başlatılamadı.',
         metadata: { error: serializeError(paymentError) }
-      });
-      throw new CheckoutError(paymentError.message || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar dene.', 502, 'PAYMENT_INITIALIZE_FAILED');
+      }).catch(() => null);
+      throw new CheckoutError(paymentError.message || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar deneyin.', 502, 'PAYMENT_INITIALIZE_FAILED');
     }
 
     const iyzicoStatus = String(iyzicoRes?.status || '').toLowerCase();
     const paymentSucceeded = iyzicoStatus === 'success' && (iyzicoRes.token || iyzicoRes.paymentPageUrl || iyzicoRes.checkoutFormContent);
-
     await insertRow(context, 'payments', {
-      order_id: order.id,
+      order_id: orderId,
       provider: 'iyzico',
       status: paymentSucceeded ? 'initiated' : 'initialize_failed',
       amount: totals.total,
       currency: 'TRY',
-      conversation_id: order.id,
+      conversation_id: orderId,
       provider_token: iyzicoRes?.token || null,
       raw_initialize_response: iyzicoRes || null
     });
 
     if (!paymentSucceeded) {
-      await updateRows(context, 'orders', { id: order.id }, {
-        status: 'cancelled',
-        payment_status: 'failed',
-        fulfillment_status: 'cancelled'
-      });
-      await releaseInventoryReservations(context, order.id, 'payment_initialize_failed').catch(() => null);
+      await updateRows(context, 'orders', { id: orderId }, { status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled' });
+      await releaseInventoryReservations(context, orderId, 'payment_initialize_failed').catch(() => null);
       await insertRow(context, 'order_status_events', {
-        order_id: order.id,
+        order_id: orderId,
         status: 'payment_failed',
         event_type: 'payment_failed',
         previous_status: 'pending_payment',
@@ -701,14 +918,12 @@ export async function onRequestPost(context) {
         note: 'iyzico ödeme formu olumlu yanıt dönmedi.',
         metadata: { iyzico_status: iyzicoRes?.status || null, error_message: iyzicoRes?.errorMessage || null }
       });
-      throw new CheckoutError(iyzicoRes?.errorMessage || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar dene.', 502, 'PAYMENT_INITIALIZE_FAILED');
+      throw new CheckoutError(iyzicoRes?.errorMessage || 'Ödeme başlatılamadı. Lütfen bilgileri kontrol edip tekrar deneyin.', 502, 'PAYMENT_INITIALIZE_FAILED');
     }
 
-    await updateRows(context, 'orders', { id: order.id }, {
-      payment_status: 'initiated'
-    });
+    await updateRows(context, 'orders', { id: orderId }, { payment_status: 'initiated' });
     await insertRow(context, 'order_status_events', {
-      order_id: order.id,
+      order_id: orderId,
       status: 'payment_authorized',
       event_type: 'payment_authorized',
       previous_status: 'pending_payment',
@@ -717,23 +932,29 @@ export async function onRequestPost(context) {
       created_by: 'checkout',
       message: 'iyzico güvenli ödeme formu başlatıldı ve ödeme yetkilendirme sürecine alındı.',
       note: 'iyzico güvenli ödeme formu başlatıldı ve ödeme yetkilendirme sürecine alındı.',
-      metadata: { provider: 'iyzico', token: iyzicoRes.token || null }
+      metadata: { provider: 'iyzico', token_present: Boolean(iyzicoRes.token) }
     });
 
     return json({
       ok: true,
-      orderId: order.id,
-      orderNumber: order.order_number,
+      orderId,
+      orderNumber,
       token: iyzicoRes.token,
       paymentPageUrl: iyzicoRes.paymentPageUrl || null,
       checkoutFormContent: iyzicoRes.checkoutFormContent || null
-    });
+    }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error) {
-    if (error instanceof CheckoutError) {
-      return json({ ok: false, code: error.code, error: error.message }, { status: error.status });
+    if (reservedOrderId && !persistedOrder) {
+      await releaseInventoryReservations(context, reservedOrderId, 'checkout_failed_before_order_persisted').catch(() => null);
     }
-
-    console.error('Checkout create error:', error);
-    return json({ ok: false, code: 'CHECKOUT_INTERNAL_ERROR', error: 'Checkout başlatılamadı. Lütfen kısa süre sonra tekrar dene.' }, { status: 500 });
+    if (error instanceof CheckoutError) {
+      return json({ ok: false, code: error.code, error: error.message }, { status: error.status, headers: { 'Cache-Control': 'no-store, max-age=0' } });
+    }
+    console.error('Checkout create error:', { message: String(error?.message || 'unknown').slice(0, 220), code: error?.code || null });
+    return json({ ok: false, code: 'CHECKOUT_INTERNAL_ERROR', error: 'Checkout başlatılamadı. Lütfen kısa süre sonra tekrar deneyin.' }, { status: 500, headers: { 'Cache-Control': 'no-store, max-age=0' } });
   }
 }
+
+
+// Exported for deterministic local verification. Production requests continue to use onRequestPost.
+export { calculateTotalsWithCoupon, getEftReservationMinutes };

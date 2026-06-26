@@ -4,7 +4,7 @@ import { insertRow, selectRows, updateRows } from '../../../_lib/supabase.js';
 import { sendShipmentEmail } from '../../../_lib/order-email.js';
 import { recordEmailEvent } from '../../../_lib/email-events.js';
 
-const CARRIERS = new Set(['Yurtiçi Kargo','Aras Kargo','MNG Kargo','Sürat Kargo','Hepsijet','Kolay Gelsin','UPS','DHL','Other']);
+const CARRIERS = new Set(['Yurtiçi Kargo','Aras Kargo','MNG Kargo','Sürat Kargo','Hepsijet','Kolay Gelsin','UPS','DHL eCommerce','DHL','Other']);
 
 function trackingUrl(carrier, number, manual) {
   if (manual) return manual;
@@ -33,7 +33,7 @@ async function logShipmentEmail(context, order, shipment, result, errorMessage =
 
 export async function onRequestPost(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const id = context.params?.id || '';
     const body = await readJsonBody(context);
     const carrier = String(body.carrier_name || body.carrier || '').trim();

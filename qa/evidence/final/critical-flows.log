@@ -1,0 +1,5 @@
+[browser-qa] flow: mobile-menu-search-escape
+[browser-qa] flow: pdp-quantity-favorite-cart
+[browser-qa] flow: cart-quantity-remove-empty
+[browser-qa] flow: checkout-validation-free-shipping-card
+[browser-qa] flow: checkout-eft-valid-bank-copy

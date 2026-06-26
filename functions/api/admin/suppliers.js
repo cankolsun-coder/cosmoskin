@@ -25,7 +25,7 @@ function payload(body = {}) {
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const url = new URL(context.request.url);
     const query = cleanText(url.searchParams.get('search') || '', 120);
     const params = { select: '*', order: 'name.asc', limit: '200' };
@@ -39,7 +39,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await readJsonBody(context);
     const row = payload(body);
     if (!row.name) return json({ ok: false, error: 'Tedarikçi adı gerekli.' }, { status: 400 });
@@ -52,7 +52,7 @@ export async function onRequestPost(context) {
 
 export async function onRequestPatch(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await readJsonBody(context);
     if (!body.id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });
     const row = payload(body);

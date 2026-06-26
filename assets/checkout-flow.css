@@ -1072,3 +1072,37 @@ body.checkout-premium-page {
     align-items: flex-start;
   }
 }
+
+
+/* Production launch blocker pass: real checkout remains one responsive DOM on mobile. */
+.cs-checkout-page,
+.cs-checkout-layout,
+.cs-checkout-card,
+.cs-checkout-summary,
+.cs-checkout-field,
+.cs-checkout-input,
+.cs-checkout-textarea { min-width: 0; }
+.cs-checkout-checkbox { align-items: flex-start; }
+.cs-checkout-checkbox input { flex: 0 0 auto; margin-top: 3px; }
+.cs-checkout-error:not(:empty) { margin-top: 6px; }
+@media (max-width: 760px) {
+  html, body { max-width: 100%; overflow-x: hidden; }
+  .cs-checkout-page { padding-left: 14px; padding-right: 14px; }
+  .cs-checkout-card { border-radius: 24px; }
+  .cs-checkout-input,
+  .cs-checkout-textarea,
+  .cs-checkout-action,
+  .cs-checkout-secondary,
+  .cs-checkout-payment-option { min-height: 48px; }
+  .cs-checkout-step { min-height: 44px; }
+  .cs-checkout-summary { position: static; }
+  .cs-checkout-grid,
+  .cs-checkout-form-grid,
+  .cs-checkout-review-list,
+  .cs-checkout-option-grid { grid-template-columns: 1fr; }
+  .cs-checkout-toolbar { gap: 10px; }
+}
+
+
+/* COSMOSKIN Phase 2 EFT account display */
+.cs-checkout-bank-accounts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0}.cs-checkout-bank-account{border:1px solid rgba(42,32,24,.10);border-radius:18px;background:#fffaf4;padding:14px;display:grid;gap:8px}.cs-checkout-bank-account h4{margin:0;font-size:15px}.cs-checkout-bank-account .cs-checkout-bank-line{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:8px;align-items:center}.cs-checkout-bank-account strong{overflow-wrap:anywhere}.cs-card-icons img[alt="iyzico ile Öde"]{width:auto;max-width:96px;object-fit:contain}@media(max-width:720px){.cs-checkout-bank-accounts{grid-template-columns:1fr}.cs-checkout-bank-account .cs-checkout-bank-line{grid-template-columns:1fr;gap:6px}.cs-checkout-bank-account .cs-checkout-secondary{justify-self:start}}

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex, nofollow" />
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="noindex, nofollow, noarchive" name="robots"/>
 <title>Yorum Moderasyon Paneli · COSMOSKIN Admin</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
 
@@ -1291,182 +1291,159 @@
     }
   }
 </style>
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
+<link href="/assets/admin-runtime.css?v=20260616-security" rel="stylesheet"/>
+<script defer="" src="/assets/admin-runtime.js?v=20260616-security"></script>
+<meta content="Yorum Moderasyon Paneli · COSMOSKIN Admin sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description"/>
+<link href="https://www.cosmoskin.com.tr/admin/reviews/index.html" rel="canonical"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
-
 <div class="auth-screen" id="loginView">
-  <div class="auth-card">
-    <div class="auth-hero">
-      <span class="auth-kicker">COSMOSKIN Admin</span>
-      <h1 class="auth-title">Yorum moderasyonu, gerçek e-ticaret operasyon standardında.</h1>
-      <p class="auth-copy">
+<div class="auth-card">
+<div class="auth-hero">
+<span class="auth-kicker">COSMOSKIN Admin</span>
+<h2 class="auth-title">Yorum moderasyonu, gerçek e-ticaret operasyon standardında.</h2>
+<p class="auth-copy">
         Bekleyen yorumları, kullanıcı görsellerini ve ürün bağlarını tek akışta yönetmek için
         admin token ile giriş yapın.
       </p>
-    </div>
-    <div class="auth-body">
-      <div class="field">
-        <label for="tokenInput">Admin Token</label>
-        <input
-          id="tokenInput"
-          type="password"
-          placeholder="••••••••••••••••"
-          autocomplete="off"
-          autofocus
-        />
-      </div>
-      <div class="auth-actions">
-        <button class="primary-btn" id="loginBtn" type="button">Giriş Yap</button>
-        <div class="auth-meta">Token yalnızca bu tarayıcı oturumunda saklanır; ekranda veya panelde açıkça gösterilmez.</div>
-      </div>
-      <div class="auth-error" id="loginError"></div>
-    </div>
-  </div>
 </div>
-
+<div class="auth-body">
+<div class="field">
+<label for="tokenInput">Admin Token</label>
+<input autocomplete="off" autofocus="" id="tokenInput" placeholder="••••••••••••••••" type="password"/>
+</div>
+<div class="auth-actions">
+<button class="primary-btn" id="loginBtn" type="button">Giriş Yap</button>
+<div class="auth-meta">Token yalnızca bu tarayıcı oturumunda saklanır; ekranda veya panelde açıkça gösterilmez.</div>
+</div>
+<div class="auth-error" id="loginError"></div>
+</div>
+</div>
+</div>
 <div class="app-shell is-hidden" id="appView">
-  <aside class="sidebar">
-    <div class="sidebar-inner">
-      <section class="brand-card">
-        <div class="brand-mark">C</div>
-        <span class="sidebar-kicker">Moderasyon Paneli</span>
-        <h2 class="brand-title">COSMOSKIN Yorumlar</h2>
-        <p class="brand-copy">
+<aside class="sidebar">
+<div class="sidebar-inner">
+<section class="brand-card">
+<div class="brand-mark">C</div>
+<span class="sidebar-kicker">Moderasyon Paneli</span>
+<h2 class="brand-title">COSMOSKIN Yorumlar</h2>
+<p class="brand-copy">
           Ürün yorumları, sipariş bağları ve kullanıcı görselleri tek panelde. Moderasyon kararı
           verdikçe sayaçlar ve liste anlık güncellenir.
         </p>
-      </section>
-
-      <section class="sidebar-panel">
-        <span class="sidebar-kicker">Navigation</span>
-        <div class="sidebar-nav" id="sidebarNav">
-          <button class="nav-item is-active" type="button" data-filter-nav="pending">
-            <span>
-              <strong>Bekleyen Kuyruk</strong><br />
-              <small>Öncelikli moderasyon akışı</small>
-            </span>
-            <span class="nav-count" id="navPending">0</span>
-          </button>
-          <button class="nav-item" type="button" data-filter-nav="approved">
-            <span>
-              <strong>Yayındaki Yorumlar</strong><br />
-              <small>Ürün sayfasında görünenler</small>
-            </span>
-            <span class="nav-count" id="navApproved">0</span>
-          </button>
-          <button class="nav-item" type="button" data-filter-nav="rejected">
-            <span>
-              <strong>Reddedilenler</strong><br />
-              <small>Yayına alınmayan içerik</small>
-            </span>
-            <span class="nav-count" id="navRejected">0</span>
-          </button>
-          <button class="nav-item" type="button" data-filter-nav="all">
-            <span>
-              <strong>Tüm Kayıtlar</strong><br />
-              <small>Genel görünüm ve arşiv</small>
-            </span>
-            <span class="nav-count" id="navAll">0</span>
-          </button>
-        </div>
-      </section>
-
-      <section class="sidebar-panel">
-        <span class="sidebar-kicker">Overview</span>
-        <div class="sidebar-metrics" id="sidebarMetrics"></div>
-      </section>
-
-      <section class="sidebar-panel">
-        <span class="sidebar-kicker">Security</span>
-        <p class="sidebar-copy">
+</section>
+<section class="sidebar-panel">
+<span class="sidebar-kicker">Navigation</span>
+<div class="sidebar-nav" id="sidebarNav">
+<button class="nav-item is-active" data-filter-nav="pending" type="button">
+<span>
+<strong>Bekleyen Kuyruk</strong><br/>
+<small>Öncelikli moderasyon akışı</small>
+</span>
+<span class="nav-count" id="navPending">0</span>
+</button>
+<button class="nav-item" data-filter-nav="approved" type="button">
+<span>
+<strong>Yayındaki Yorumlar</strong><br/>
+<small>Ürün sayfasında görünenler</small>
+</span>
+<span class="nav-count" id="navApproved">0</span>
+</button>
+<button class="nav-item" data-filter-nav="rejected" type="button">
+<span>
+<strong>Reddedilenler</strong><br/>
+<small>Yayına alınmayan içerik</small>
+</span>
+<span class="nav-count" id="navRejected">0</span>
+</button>
+<button class="nav-item" data-filter-nav="all" type="button">
+<span>
+<strong>Tüm Kayıtlar</strong><br/>
+<small>Genel görünüm ve arşiv</small>
+</span>
+<span class="nav-count" id="navAll">0</span>
+</button>
+</div>
+</section>
+<section class="sidebar-panel">
+<span class="sidebar-kicker">Overview</span>
+<div class="sidebar-metrics" id="sidebarMetrics"></div>
+</section>
+<section class="sidebar-panel">
+<span class="sidebar-kicker">Security</span>
+<p class="sidebar-copy">
           Tüm admin endpoint'leri <code>x-admin-token</code> ile korunur. Panel token'ı sadece
           doğrulama için kullanır, ekranda düz metin olarak göstermez.
         </p>
-      </section>
-    </div>
-  </aside>
-
-  <div class="workspace">
-    <header class="topbar">
-      <div class="topbar-left">
-        <span class="section-kicker">Profesyonel Moderasyon Masası</span>
-        <h1 class="topbar-title hero-title">Yorum Moderasyon Paneli</h1>
-        <p class="topbar-copy">
+</section>
+</div>
+</aside>
+<div class="workspace">
+<header class="topbar">
+<div class="topbar-left">
+<span class="section-kicker">Profesyonel Moderasyon Masası</span>
+<h1 class="topbar-title hero-title">Yorum Moderasyon Paneli</h1>
+<p class="topbar-copy">
           Ürün, kullanıcı, sipariş ve görsel sinyallerini tek kartta toplayan kompakt admin panel.
         </p>
-      </div>
-
-      <div class="topbar-actions">
-        <span class="token-chip">Token aktif</span>
-        <span class="sync-chip" id="syncChip">Henüz senkron yok</span>
-        <button class="ghost-btn" id="logoutBtn" type="button">Çıkış</button>
-      </div>
-    </header>
-
-    <main class="content">
-      <section class="hero">
-        <div>
-          <span class="section-kicker">Operasyon Özeti</span>
-          <h2 class="hero-title">Yoğunluğu azaltan, karar hızını artıran moderasyon akışı.</h2>
-          <p class="hero-copy">
+</div>
+<div class="topbar-actions">
+<span class="token-chip">Token aktif</span>
+<span class="sync-chip" id="syncChip">Henüz senkron yok</span>
+<button class="ghost-btn" id="logoutBtn" type="button">Çıkış</button>
+</div>
+</header>
+<main class="content">
+<section class="hero">
+<div>
+<span class="section-kicker">Operasyon Özeti</span>
+<h2 class="hero-title">Yoğunluğu azaltan, karar hızını artıran moderasyon akışı.</h2>
+<p class="hero-copy">
             Bekleyen yorumları önceleyen, ürün bilgisini otomatik bağlayan ve kullanıcı görsellerini
             yorumun içinde ayrı ayrı yöneten akış. Filtreler, arama ve toast bildirimleri
             moderasyon turunu kesmeden çalışır.
           </p>
-        </div>
-
-        <div class="hero-grid" id="heroGrid"></div>
-      </section>
-
-      <section class="stats-grid" id="statsGrid"></section>
-
-      <section class="toolbar">
-        <div class="toolbar-left">
-          <div class="search-shell">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="7"></circle>
-              <path d="m20 20-3.5-3.5"></path>
-            </svg>
-            <input
-              id="searchInput"
-              type="search"
-              placeholder="Ürün adı, slug, user id/email, sipariş id, yorum başlığı..."
-              autocomplete="off"
-            />
-          </div>
-
-          <div class="filter-row" id="filterRow"></div>
-        </div>
-
-        <div class="toolbar-right">
-          <span class="meta-pill" id="resultPill">0 kayıt</span>
-          <button class="secondary-btn" id="refreshBtn" type="button">Yenile</button>
-        </div>
-      </section>
-
-      <section class="feed" id="reviewsFeed"></section>
-    </main>
-  </div>
 </div>
-
+<div class="hero-grid" id="heroGrid"></div>
+</section>
+<section class="stats-grid" id="statsGrid"></section>
+<section class="toolbar">
+<div class="toolbar-left">
+<div class="search-shell">
+<svg class="search-icon" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="11" cy="11" r="7"></circle>
+<path d="m20 20-3.5-3.5"></path>
+</svg>
+<input autocomplete="off" id="searchInput" placeholder="Ürün adı, slug, user id/email, sipariş id, yorum başlığı..." type="search"/>
+</div>
+<div class="filter-row" id="filterRow"></div>
+</div>
+<div class="toolbar-right">
+<span class="meta-pill" id="resultPill">0 kayıt</span>
+<button class="secondary-btn" id="refreshBtn" type="button">Yenile</button>
+</div>
+</section>
+<section class="feed" id="reviewsFeed"></section>
+</main>
+</div>
+</div>
 <div class="toast-stack" id="toastStack"></div>
-
 <div class="lightbox" id="lightbox">
-  <div class="lightbox-dialog">
-    <div class="lightbox-top">
-      <div>
-        <div class="mini-label">Yorum Görseli</div>
-        <strong id="lightboxTitle">Kullanıcı görseli</strong>
-      </div>
-      <button class="ghost-btn" id="lightboxClose" type="button">Kapat</button>
-    </div>
-    <div class="lightbox-body">
-      <img id="lightboxImage" alt="Review görseli" />
-    </div>
-  </div>
+<div class="lightbox-dialog">
+<div class="lightbox-top">
+<div>
+<div class="mini-label">Yorum Görseli</div>
+<strong id="lightboxTitle">Kullanıcı görseli</strong>
 </div>
-
+<button class="ghost-btn" id="lightboxClose" type="button">Kapat</button>
+</div>
+<div class="lightbox-body">
+<img alt="Review görseli" id="lightboxImage"/>
+</div>
+</div>
+</div>
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script>
 (function () {
@@ -2380,7 +2357,8 @@
   boot();
 })();
 </script>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

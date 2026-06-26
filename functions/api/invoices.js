@@ -12,8 +12,15 @@ export async function onRequestGet(context){
     const orders=await selectRows(context,'orders',orderParams).catch(()=>[]);
     const ids=(orders||[]).map(o=>o.id).filter(Boolean);
     if(!ids.length) return json({ok:true,invoices:[]});
-    const invoices=await selectRows(context,'invoice_records',{select:'id,order_id,invoice_type,invoice_status,invoice_number,provider,pdf_url,issued_at,created_at,updated_at',order_id:`in.(${ids.join(',')})`,order:'created_at.desc'}).catch(()=>[]);
-    return json({ok:true,invoices:(invoices||[]).map(inv=>({ ...inv, pdf_url: inv.pdf_url || null }))});
+    const invoices=await selectRows(context,'invoice_records',{select:'id,order_id,invoice_type,invoice_status,invoice_number,provider,provider_reference,pdf_url,issued_at,error_message,metadata,created_at,updated_at',order_id:`in.(${ids.join(',')})`,order:'created_at.desc'}).catch(()=>[]);
+    return json({ok:true,invoices:(invoices||[]).map(inv=>({
+      ...inv,
+      invoice_provider: inv.provider || 'manual',
+      invoice_id: inv.provider_reference || null,
+      invoice_pdf_url: inv.pdf_url || null,
+      invoice_error_message: inv.error_message || null,
+      pdf_url: inv.pdf_url || null
+    }))});
   }catch(error){ return json({ok:false,error:error.message||'Fatura bilgisi alınamadı.'},{status:500}); }
 }
 export async function onRequestPost(context){

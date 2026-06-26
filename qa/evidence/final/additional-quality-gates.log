@@ -1,0 +1,32 @@
+{
+  "out": "/mnt/data/cosmoskin_remediation/working/cosmoskin/qa/evidence/final/additional-quality-gates.json",
+  "passed": 5,
+  "failed": 0,
+  "details": {
+    "css_structural_parse": {
+      "passed": true,
+      "issues": 0,
+      "missing": 0
+    },
+    "sql_lexical_safety": {
+      "passed": true,
+      "issues": 0,
+      "missing": 0
+    },
+    "environment_reference_coverage": {
+      "passed": true,
+      "issues": 0,
+      "missing": 0
+    },
+    "secret_scan": {
+      "passed": true,
+      "issues": 0,
+      "missing": 0
+    },
+    "readiness_artifacts": {
+      "passed": true,
+      "issues": 0,
+      "missing": 0
+    }
+  }
+}

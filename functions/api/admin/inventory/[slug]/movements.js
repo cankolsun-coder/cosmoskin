@@ -5,7 +5,7 @@ import { selectRows } from '../../../_lib/supabase.js';
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const slug = normalizeSlug(context.params?.slug || '');
     const movements = await selectRows(context, 'inventory_movements', {
       select: '*',

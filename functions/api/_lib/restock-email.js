@@ -13,7 +13,7 @@ function siteUrl(env = {}) {
 
 function sender(env = {}) {
   return {
-    email: env.BREVO_SENDER_EMAIL || env.ORDER_FROM_EMAIL || env.CONTACT_FROM_EMAIL || env.NEWSLETTER_FROM_EMAIL || 'info@cosmoskin.com.tr',
+    email: env.BREVO_SENDER_EMAIL || env.ORDER_FROM_EMAIL || env.CONTACT_FROM_EMAIL || env.NEWSLETTER_FROM_EMAIL || 'destek@cosmoskin.com.tr',
     name: env.BREVO_SENDER_NAME || 'COSMOSKIN'
   };
 }

@@ -27,7 +27,7 @@ function getAssets(env) {
   const siteUrl = getSiteUrl(env);
   return {
     siteUrl,
-    logoUrl: `${siteUrl}/assets/logo-mark.png`,
+    logoUrl: `${siteUrl}/assets/img/brand/cosmoskin-wordmark.svg`,
     routineUrl: `${siteUrl}/account/routines/`,
     accountUrl: `${siteUrl}/account/profile.html?tab=communication`,
     supportEmail: env.CONTACT_TO_EMAIL || 'destek@cosmoskin.com.tr'

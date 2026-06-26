@@ -4,6 +4,8 @@
   var API_BASE = (window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api';
   var inventoryMap = new Map();
   var loadingPromise = null;
+  var serviceState = 'idle';
+  var serviceError = '';
   var COPY = {
     out: 'Şu anda stokta yok.',
     low: 'Son ürünler.',
@@ -12,7 +14,9 @@
     restockDuplicate: 'Bu ürün için stok bildirimi zaten oluşturulmuş.',
     unavailable: 'Bu ürün şu anda stokta yok. Favorilerine ekleyerek tekrar geldiğinde haber alabilirsin.',
     checkout: 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.',
-    verifyFail: 'Stok bilgisi doğrulanamadı. Lütfen tekrar deneyin.'
+    verifyFail: 'Stok bilgisi doğrulanamadı. Lütfen tekrar deneyin.',
+    serviceUnavailable: 'Stok servisine şu anda ulaşılamıyor. Ürün stokta yok değil; güvenlik nedeniyle satın alma geçici olarak durduruldu.',
+    missingRecord: 'Bu ürünün stok kaydı eksik. Satın alma güvenlik nedeniyle durduruldu ve ekip bilgilendirilmeli.'
   };
 
   function esc(value) {
@@ -50,7 +54,8 @@
   function canBuy(slug, qty) {
     var inv = getInventory(slug);
     var quantity = Math.max(1, Number(qty || 1));
-    if (!inv) return { ok: false, unknown: true, message: COPY.verifyFail, available_stock: 0 };
+    if (!inv) return { ok: false, unknown: true, service_unavailable: serviceState === 'error', message: serviceState === 'error' ? COPY.serviceUnavailable : COPY.verifyFail, available_stock: null };
+    if (inv._missing || inv.status === 'missing') return { ok: false, missing_record: true, message: COPY.missingRecord, available_stock: null };
     if (inv.status !== 'active') return { ok: false, message: COPY.out, available_stock: 0 };
     if (inv.allow_backorder) return { ok: true, available_stock: inv.available_stock };
     if (Number(inv.available_stock || 0) <= 0) return { ok: false, message: COPY.unavailable, available_stock: 0 };
@@ -86,7 +91,9 @@
   }
 
   function stockLabel(inv) {
+    if (!inv && serviceState === 'error') return { state: 'error', label: 'Stok doğrulanamıyor', line: serviceError || COPY.serviceUnavailable };
     if (!inv) return { state: 'checking', label: 'Stok kontrol ediliyor', line: COPY.verifyFail };
+    if (inv._missing || inv.status === 'missing') return { state: 'error', label: 'Stok kaydı eksik', line: COPY.missingRecord };
     if (isOut(inv)) return { state: 'out', label: 'Stokta Yok', line: 'Favorilerine ekle, tekrar geldiğinde haber verelim.' };
     if (isLow(inv)) return { state: 'low', label: 'Az stok kaldı', line: COPY.low };
     return { state: 'in', label: 'Stokta', line: '' };
@@ -118,28 +125,28 @@
     updateCustomStockSurfaces(slug, inv, document);
     var lineHost = btn.closest('.price-row') || btn.closest('.pdp5-actions') || host;
     var line = ensureLine(lineHost);
-    btn.dataset.inventoryChecked = inv ? 'true' : 'false';
-    if (!inv) {
+    btn.dataset.inventoryChecked = inv && !inv._missing ? 'true' : 'false';
+    if (!inv || inv._missing || inv.status === 'missing') {
       btn.disabled = true;
       btn.setAttribute('aria-disabled', 'true');
       btn.classList.add('is-stock-disabled');
-      if (!btn.classList.contains('cm-card-bag')) btn.textContent = 'Stok kontrol ediliyor';
-      if (line) line.textContent = COPY.verifyFail;
-      if (host) host.classList.add('is-out-of-stock');
+      if (!btn.classList.contains('cm-card-bag')) btn.textContent = serviceState === 'error' ? 'Stok doğrulanamıyor' : (inv && inv._missing ? 'Stok kaydı eksik' : 'Stok kontrol ediliyor');
+      if (line) line.textContent = serviceState === 'error' ? (serviceError || COPY.serviceUnavailable) : (inv && inv._missing ? COPY.missingRecord : COPY.verifyFail);
+      if (host) { host.classList.remove('is-out-of-stock'); host.classList.add('is-stock-unavailable'); }
     } else if (isOut(inv)) {
       btn.disabled = true;
       btn.setAttribute('aria-disabled', 'true');
       btn.classList.add('is-stock-disabled');
       btn.textContent = 'Stokta Yok';
       if (line) line.textContent = host && host.classList.contains('pdp5-purchase-card') ? 'Gelince haber almak için stok bildirimi oluşturabilirsin.' : 'Favorilerine ekle, tekrar geldiğinde haber verelim.';
-      if (host) host.classList.add('is-out-of-stock');
+      if (host) { host.classList.add('is-out-of-stock'); host.classList.remove('is-stock-unavailable'); }
     } else {
       btn.disabled = false;
       btn.removeAttribute('aria-disabled');
       btn.classList.remove('is-stock-disabled');
       if (/stokta yok|stok kontrol/i.test(btn.textContent.trim())) btn.textContent = defaultButtonText(btn);
       if (line) line.textContent = isLow(inv) ? COPY.low : '';
-      if (host) host.classList.remove('is-out-of-stock');
+      if (host) { host.classList.remove('is-out-of-stock'); host.classList.remove('is-stock-unavailable'); }
     }
   }
   function renderPdpStock() {
@@ -149,40 +156,89 @@
     updateCustomStockSurfaces(slug, inv, document);
     var stock = document.querySelector('.pdp5-stock');
     if (stock) {
-      stock.textContent = !inv ? 'Stok kontrol ediliyor' : (isOut(inv) ? 'Şu anda stokta yok' : (isLow(inv) ? 'Son ürünler' : 'Stokta'));
-      stock.classList.toggle('is-out', !inv || isOut(inv));
+      stock.textContent = !inv ? (serviceState === 'error' ? 'Stok servisine ulaşılamıyor' : 'Stok kontrol ediliyor') : ((inv._missing || inv.status === 'missing') ? 'Stok kaydı doğrulanamadı' : (isOut(inv) ? 'Şu anda stokta yok' : (isLow(inv) ? 'Son ürünler' : 'Stokta')));
+      stock.classList.toggle('is-out', Boolean(inv && isOut(inv)));
       stock.classList.toggle('is-low', Boolean(inv && isLow(inv)));
+      stock.classList.toggle('is-error', serviceState === 'error' || Boolean(inv && (inv._missing || inv.status === 'missing')));
     }
     var purchase = document.querySelector('.pdp5-purchase-card');
-    if (purchase) purchase.classList.toggle('is-out-of-stock', !inv || isOut(inv));
+    if (purchase) {
+      purchase.classList.toggle('is-out-of-stock', Boolean(inv && isOut(inv)));
+      purchase.classList.toggle('is-stock-unavailable', !inv || Boolean(inv && (inv._missing || inv.status === 'missing')));
+    }
     if (inv && isOut(inv)) mountRestockForm(slug);
+  }
+  function updateProductSchemaAvailability() {
+    var slug = currentSlug();
+    if (!slug) return;
+    var inv = getInventory(slug);
+    var availability = 'https://schema.org/LimitedAvailability';
+    if (inv && !inv._missing && inv.status !== 'missing') {
+      if (inv.status === 'inactive' || inv.status === 'discontinued') availability = 'https://schema.org/OutOfStock';
+      else if (Number(inv.available_stock || 0) > 0) availability = 'https://schema.org/InStock';
+      else if (inv.allow_backorder) availability = 'https://schema.org/BackOrder';
+      else availability = 'https://schema.org/OutOfStock';
+    }
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(function (script) {
+      try {
+        var data = JSON.parse(script.textContent || '{}');
+        var nodes = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+        var changed = false;
+        nodes.forEach(function (node) {
+          if (!node || node['@type'] !== 'Product') return;
+          var offers = node.offers;
+          if (Array.isArray(offers)) offers.forEach(function (offer) { if (offer) { offer.availability = availability; changed = true; } });
+          else if (offers && typeof offers === 'object') { offers.availability = availability; changed = true; }
+        });
+        if (changed) script.textContent = JSON.stringify(data);
+      } catch (_) {}
+    });
   }
   function applyState(root) {
     (root || document).querySelectorAll('[data-add-cart], [data-cm-add-cart], [data-buy-now]').forEach(renderButtonState);
     renderPdpStock();
+    updateProductSchemaAvailability();
     window.dispatchEvent(new CustomEvent('cosmoskin:inventory-updated', { detail: { inventory: Array.from(inventoryMap.values()) } }));
   }
-  async function loadInventory(slugs) {
+  async function loadInventory(slugs, options) {
+    options = options || {};
     slugs = uniq(slugs || collectSlugs(document)).slice(0, 120);
     if (!slugs.length) return [];
-    var missing = slugs.filter(function (slug) { return !inventoryMap.has(slug); });
-    if (!missing.length) return Array.from(inventoryMap.values());
-    loadingPromise = fetch(API_BASE + '/inventory?product_slugs=' + encodeURIComponent(missing.join(',')))
-      .then(function (res) { return res.json(); })
+    var requested = options.force ? slugs : slugs.filter(function (slug) { return !inventoryMap.has(slug); });
+    if (!requested.length) return Array.from(inventoryMap.values());
+    serviceState = 'loading';
+    serviceError = '';
+    loadingPromise = fetch(API_BASE + '/inventory?product_slugs=' + encodeURIComponent(requested.join(',')), { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } })
+      .then(function (res) { return res.json().catch(function () { return {}; }).then(function (data) { if (!res.ok || data.ok === false) { var error = new Error(data.error || COPY.serviceUnavailable); error.code = data.code || ''; throw error; } return data; }); })
       .then(function (data) {
-        if (!data || data.ok === false) return [];
+        serviceState = 'available';
         (data.inventory || []).forEach(function (row) { inventoryMap.set(slugFrom(row.product_slug), row); });
+        (data.missing || []).forEach(function (slug) { inventoryMap.set(slugFrom(slug), { product_slug: slugFrom(slug), status: 'missing', _missing: true, available_stock: null }); });
         applyState(document);
         return data.inventory || [];
       })
-      .catch(function () { applyState(document); return []; });
+      .catch(function (error) {
+        serviceState = 'error';
+        serviceError = error.message || COPY.serviceUnavailable;
+        applyState(document);
+        return [];
+      });
     return loadingPromise;
   }
   async function checkItems(items) {
     var body = { items: (items || []).map(function (item) { return { product_slug: slugFrom(item.product_slug || item.slug || item.id || item.product_id), quantity: Number(item.quantity || item.qty || 1) || 1 }; }) };
-    var res = await fetch(API_BASE + '/inventory/check', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    var res = await fetch(API_BASE + '/inventory/check', { method: 'POST', cache: 'no-store', headers: { 'content-type': 'application/json', 'Cache-Control': 'no-cache' }, body: JSON.stringify(body) });
     var data = await res.json().catch(function () { return {}; });
-    if (!res.ok || data.ok === false) throw new Error(data.error || 'Stok kontrolü yapılamadı.');
+    if (!res.ok || data.ok === false) {
+      serviceState = 'error';
+      serviceError = data.error || COPY.serviceUnavailable;
+      applyState(document);
+      var stockError = new Error(serviceError);
+      stockError.code = data.code || 'INVENTORY_SERVICE_UNAVAILABLE';
+      throw stockError;
+    }
+    serviceState = 'available';
+    serviceError = '';
     (data.items || []).forEach(function (item) {
       var slug = slugFrom(item.product_slug);
       var existing = inventoryMap.get(slug) || {};
@@ -272,9 +328,9 @@
     bindRestock();
     loadInventory(collectSlugs(document));
     document.addEventListener('cosmoskin:products-updated', function (event) { loadInventory(collectSlugs(event.target || document)); });
-    window.addEventListener('cosmoskin:cart-updated', function () { loadInventory(collectSlugs(document)); });
+    window.addEventListener('cosmoskin:cart-updated', function () { loadInventory(collectSlugs(document), { force: true }); });
   }
 
-  window.COSMOSKIN_STOCK = { loadInventory: loadInventory, checkItems: checkItems, validateAdd: validateAdd, canBuy: canBuy, getInventory: getInventory, copy: COPY };
+  window.COSMOSKIN_STOCK = { loadInventory: loadInventory, checkItems: checkItems, validateAdd: validateAdd, canBuy: canBuy, getInventory: getInventory, getServiceState: function () { return { state: serviceState, error: serviceError }; }, copy: COPY };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

@@ -5,7 +5,7 @@ import { selectRows } from '../../_lib/supabase.js';
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const id = context.params?.id || '';
     const orders = await selectRows(context, 'orders', { select: '*', id: `eq.${id}`, limit: '1' });
     const order = orders?.[0];

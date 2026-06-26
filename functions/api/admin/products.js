@@ -28,7 +28,7 @@ function applyInventoryStatusPayload(payload, status) {
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const inventory = await selectRows(context, 'product_inventory', { select: '*', order: 'product_slug.asc' }).catch(() => []);
     const map = new Map((inventory || []).map((i) => [i.product_slug, i]));
     const products = (Array.isArray(catalog) ? catalog : Object.values(catalog || {})).map((p) => {
@@ -51,7 +51,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPatch(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await context.request.json();
     if (!body.product_slug) return json({ ok: false, error: 'product_slug gerekli.' }, { status: 400 });
     const payload = {};
@@ -70,7 +70,7 @@ export async function onRequestPatch(context) {
 
 export async function onRequestPost(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await context.request.json();
     if (!body.product_slug) return json({ ok: false, error: 'product_slug gerekli.' }, { status: 400 });
     const row = await insertRow(context, 'product_inventory', {

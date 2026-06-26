@@ -251,159 +251,69 @@ function reservationExpiry(minutes = 15) {
   return new Date(Date.now() + Math.max(1, Number(minutes || 15)) * 60 * 1000).toISOString();
 }
 
-function shouldFallbackToLegacyReservation(error) {
-  return /reserve_product_inventory|schema cache|function .* does not exist|Could not find/i.test(String(error?.message || ''));
+function isMissingAtomicInventoryRpc(error) {
+  return /reserve_order_inventory|release_order_inventory|convert_order_inventory|schema cache|function .* does not exist|Could not find/i.test(String(error?.message || ''));
 }
 
-async function reserveInventoryRow(context, item) {
-  try {
-    const result = await rpc(context, 'reserve_product_inventory', {
-      p_product_slug: item.product_slug,
-      p_quantity: item.quantity
+function atomicInventoryError(error, operation) {
+  if (isMissingAtomicInventoryRpc(error)) {
+    console.error('atomic inventory RPC unavailable:', { operation, migration: '20260616_inventory_reservation_hardening.sql' });
+    return Object.assign(new Error('Stok güvenlik servisi hazır değil. Sipariş oluşturulmadı; lütfen destek ekibine bilgi verin.'), {
+      status: 503,
+      code: 'INVENTORY_ATOMIC_RPC_MISSING'
     });
-    const row = Array.isArray(result) ? result[0] : result;
-    if (!row) {
-      const current = (await getInventoryRows(context, [item.product_slug]).catch(() => []))[0];
-      const available = Number(current?.available_stock || 0);
-      const message = available <= 0
-        ? 'Bu ürün şu anda stokta yok. Favorilerine ekleyerek tekrar geldiğinde haber alabilirsin.'
-        : `Bu ürün için şu anda yalnızca ${available} adet satın alınabilir.`;
-      throw Object.assign(new Error(message), { status: 409, code: 'INSUFFICIENT_STOCK', available_stock: available, product_slug: item.product_slug });
-    }
-    return normalizeInventoryRow(row);
-  } catch (error) {
-    if (!shouldFallbackToLegacyReservation(error)) throw error;
-    // Fallback for environments where the 20260616 RPC migration has not been applied yet.
-    // Keep server-side validation mandatory, but apply the migration to make this reservation fully atomic.
-    const current = (await getInventoryRows(context, [item.product_slug]))[0];
-    if (!current) throw Object.assign(new Error(`${item.product_name} için stok kaydı bulunamadı.`), { status: 409 });
-    if (current.status !== 'active') throw Object.assign(new Error(`${item.product_name} şu anda satışta değil.`), { status: 409 });
-    if (!current.allow_backorder && current.available_stock < item.quantity) {
-      const message = current.available_stock <= 0
-        ? 'Bu ürün şu anda stokta yok. Favorilerine ekleyerek tekrar geldiğinde haber alabilirsin.'
-        : `Bu ürün için şu anda yalnızca ${current.available_stock} adet satın alınabilir.`;
-      throw Object.assign(new Error(message), { status: 409, code: 'INSUFFICIENT_STOCK', available_stock: current.available_stock, product_slug: item.product_slug });
-    }
-    await updateRows(context, 'product_inventory', { product_slug: item.product_slug }, {
-      stock_reserved: current.stock_reserved + item.quantity,
-      updated_at: new Date().toISOString()
-    });
-    return normalizeInventoryRow({ ...current, stock_reserved: current.stock_reserved + item.quantity });
   }
+  const message = String(error?.message || 'Stok işlemi tamamlanamadı.');
+  const insufficient = /yeterli stok|stokta yok|satışta değil|stok kaydı bulunamadı/i.test(message);
+  return Object.assign(new Error(insufficient ? message : 'Stok işlemi güvenli şekilde tamamlanamadı. Lütfen tekrar deneyin.'), {
+    status: insufficient ? 409 : (error?.status || 503),
+    code: insufficient ? 'INSUFFICIENT_STOCK' : (error?.code || 'INVENTORY_OPERATION_FAILED')
+  });
 }
 
 export async function reserveInventoryForOrder(context, orderId, cart = [], options = {}) {
-  if (!orderId) throw Object.assign(new Error('order_id gerekli.'), { status: 400 });
+  if (!orderId) throw Object.assign(new Error('order_id gerekli.'), { status: 400, code: 'ORDER_ID_REQUIRED' });
   const normalizedItems = (cart || []).map((item) => ({
     product_slug: normalizeSlug(item.product_slug || item.slug || item.product_id || item.id),
     quantity: Math.max(1, Math.floor(Number(item.quantity ?? item.qty ?? 1) || 1)),
     product_name: item.product_name || item.name || item.product_slug || item.id || 'Ürün'
   })).filter((item) => item.product_slug && item.quantity > 0);
-  if (!normalizedItems.length) throw Object.assign(new Error('Rezervasyon için ürün bulunamadı.'), { status: 400 });
+  if (!normalizedItems.length) throw Object.assign(new Error('Rezervasyon için ürün bulunamadı.'), { status: 400, code: 'EMPTY_RESERVATION' });
 
-  const created = [];
-  const expiresAt = options.expires_at || reservationExpiry(options.minutes || 15);
-  for (const item of normalizedItems) {
-    const current = await reserveInventoryRow(context, item);
-    const reservation = await insertRow(context, 'inventory_reservations', {
-      order_id: orderId,
-      session_id: options.session_id || null,
-      product_slug: item.product_slug,
-      quantity: item.quantity,
-      status: 'active',
-      expires_at: expiresAt
+  try {
+    const result = await rpc(context, 'reserve_order_inventory', {
+      p_order_id: orderId,
+      p_items: normalizedItems.map(({ product_slug, quantity }) => ({ product_slug, quantity })),
+      p_expires_at: options.expires_at || reservationExpiry(options.minutes || 15),
+      p_session_id: options.session_id || null
     });
-    await insertRow(context, 'inventory_movements', {
-      product_slug: item.product_slug,
-      change: 0,
-      previous_stock_on_hand: current.stock_on_hand,
-      new_stock_on_hand: current.stock_on_hand,
-      reason: 'stock_reserved',
-      note: `Checkout rezervasyonu: ${item.quantity} adet`,
-      related_order_id: orderId,
-      created_by: options.created_by || 'checkout'
-    }).catch(() => null);
-    created.push(reservation);
+    if (!result || result.ok === false) throw new Error('Atomic stok rezervasyonu sonuç döndürmedi.');
+    return Array.isArray(result.reservations) ? result.reservations : [];
+  } catch (error) {
+    throw atomicInventoryError(error, 'reserve');
   }
-  return created;
 }
 
 export async function releaseInventoryReservations(context, orderId, reason = 'payment_failed') {
-  if (!orderId) return { released: 0 };
-  const reservations = await selectRows(context, 'inventory_reservations', {
-    select: '*',
-    order_id: `eq.${orderId}`,
-    status: 'eq.active',
-    order: 'created_at.asc'
-  }).catch(() => []);
-  let released = 0;
-  for (const reservation of reservations || []) {
-    const slug = normalizeSlug(reservation.product_slug);
-    const qty = Math.max(1, Number(reservation.quantity || 1));
-    const current = (await getInventoryRows(context, [slug]).catch(() => []))[0];
-    if (current) {
-      await updateRows(context, 'product_inventory', { product_slug: slug }, {
-        stock_reserved: Math.max(0, current.stock_reserved - qty),
-        updated_at: new Date().toISOString()
-      }).catch(() => null);
-      await insertRow(context, 'inventory_movements', {
-        product_slug: slug,
-        change: 0,
-        previous_stock_on_hand: current.stock_on_hand,
-        new_stock_on_hand: current.stock_on_hand,
-        reason: 'reservation_released',
-        note: `Rezervasyon serbest bırakıldı: ${reason}`,
-        related_order_id: orderId,
-        created_by: 'payment_callback'
-      }).catch(() => null);
-    }
-    await updateRows(context, 'inventory_reservations', { id: reservation.id }, {
-      status: 'released',
-      released_at: new Date().toISOString()
-    }).catch(() => null);
-    released += 1;
+  if (!orderId) return { released: 0, idempotent: true };
+  try {
+    const result = await rpc(context, 'release_order_inventory', {
+      p_order_id: orderId,
+      p_reason: String(reason || 'payment_failed').slice(0, 120)
+    });
+    return result || { released: 0, idempotent: true };
+  } catch (error) {
+    throw atomicInventoryError(error, 'release');
   }
-  return { released };
 }
 
 export async function convertInventoryReservations(context, orderId) {
-  if (!orderId) return { converted: 0, deducted: 0 };
-  const reservations = await selectRows(context, 'inventory_reservations', {
-    select: '*',
-    order_id: `eq.${orderId}`,
-    status: 'eq.active',
-    order: 'created_at.asc'
-  }).catch(() => []);
-  let converted = 0;
-  let deducted = 0;
-  for (const reservation of reservations || []) {
-    const slug = normalizeSlug(reservation.product_slug);
-    const qty = Math.max(1, Number(reservation.quantity || 1));
-    const current = (await getInventoryRows(context, [slug]).catch(() => []))[0];
-    if (!current) continue;
-    const previous = current.stock_on_hand;
-    const nextStock = current.allow_backorder ? previous - qty : Math.max(0, previous - qty);
-    await updateRows(context, 'product_inventory', { product_slug: slug }, {
-      stock_on_hand: nextStock,
-      stock_reserved: Math.max(0, current.stock_reserved - qty),
-      updated_at: new Date().toISOString()
-    });
-    await updateRows(context, 'inventory_reservations', { id: reservation.id }, {
-      status: 'converted',
-      released_at: new Date().toISOString()
-    }).catch(() => null);
-    await insertRow(context, 'inventory_movements', {
-      product_slug: slug,
-      change: -qty,
-      previous_stock_on_hand: previous,
-      new_stock_on_hand: nextStock,
-      reason: 'order_paid',
-      note: 'Ödeme onayı sonrası rezervasyon kalıcı stok düşümüne çevrildi.',
-      related_order_id: orderId,
-      created_by: 'payment_callback'
-    }).catch(() => null);
-    converted += 1;
-    deducted += qty;
+  if (!orderId) return { converted: 0, deducted: 0, idempotent: true };
+  try {
+    const result = await rpc(context, 'convert_order_inventory', { p_order_id: orderId });
+    return result || { converted: 0, deducted: 0, idempotent: true };
+  } catch (error) {
+    throw atomicInventoryError(error, 'convert');
   }
-  return { converted, deducted };
 }
+

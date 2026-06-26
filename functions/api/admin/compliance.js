@@ -17,7 +17,7 @@ function normalizePayload(body = {}) {
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const url = new URL(context.request.url);
     const slug = normalizeSlug(url.searchParams.get('product_slug') || url.searchParams.get('slug') || '');
     if (slug) {
@@ -42,7 +42,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPatch(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await readJsonBody(context);
     const slug = normalizeSlug(body.product_slug || body.slug);
     if (!slug) return json({ ok: false, error: 'product_slug gerekli.' }, { status: 400 });

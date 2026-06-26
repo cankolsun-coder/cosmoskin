@@ -1,0 +1,6 @@
+{
+  "description": "Invalid callback fixture. This must never update an order.",
+  "token": "invalid-or-mismatched-token",
+  "expectedRedirect": "/payment/failure.html",
+  "expectedDatabaseMutation": false
+}

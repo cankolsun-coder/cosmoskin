@@ -1,0 +1,252 @@
+COSMOSKIN CORRECTION PASS 43 REPORT — 20260625
+
+Applied scope: header logo scale, footer payment balance, routine link cleanup, Hakkımızda editorial story/visual, ETBİS link verification.
+Inspected HTML files: 167
+Footer-bearing pages inspected: 142
+Modified files/assets: 214
+New/copied files/assets: 4
+
+New/copied assets and reports:
+ - COSMOSKIN_CORRECTION_PASS_43_REPORT_20260625.txt
+ - COSMOSKIN_CORRECTION_PASS_43_MANIFEST_20260625.json
+ - COSMOSKIN_CORRECTION_PASS_43_QA_20260625.json
+ - assets/img/about/cosmoskin-brand-journey.png
+
+Modified files:
+ - COSMOSKIN_CORRECTION_PASS_MANIFEST_20260625.json
+ - CHANGELOG-phase3b.md
+ - COSMOSKIN_PHASE2_HEADER_FOOTER_CORRECTION_REPORT_20260624.md
+ - CHANGELOG-phase1b.md
+ - on-bilgilendirme.html
+ - index.html
+ - COSMOSKIN_PHASE2_HEADER_FOOTER_CORRECTION_MANIFEST_20260624.json
+ - favorites.html
+ - COSMOSKIN_FOOTER_CONTACT_EDIT_CORRECTION_REPORT_20260625.md
+ - brands.html
+ - contact.html
+ - iade-degisim.html
+ - COSMOSKIN_CLUB_FOOTER_PATCH_MANIFEST_20260625.txt
+ - COSMOSKIN_PHASE2_FOUNDATION_PATCH_REPORT_20260624.md
+ - COSMOSKIN_PHASE2_FOUNDATION_PATCH_MANIFEST_20260624.json
+ - journal.html
+ - COSMOSKIN_CLUB_FOOTER_PATCH_REPORT_20260625.md
+ - MOBILE_QA_FIX_CHANGELOG.md
+ - odeme-ve-guvenlik.html
+ - allproducts.html
+ - COSMOSKIN_AUDIT_CLOSURE_MATRIX.md
+ - hakkimizda.html
+ - COSMOSKIN_CORRECTION_PASS_REPORT_20260625.txt
+ - rutinler.html
+ - COSMOSKIN_SUPABASE_SKIN_PROFILE_FIX_20260516.md
+ - teslimat-kargo.html
+ - checkout.html
+ - COSMOSKIN_PHASE1_OPERATIONAL_SAFETY_REPORT_20260510.md
+ - COSMOSKIN_PHASE3_ACCOUNT_ROUTINE_PDP_REPORT_20260512.md
+ - COSMOSKIN_MOBILE_EDITORIAL_HERO_REPORT_20260516.md
+ - COSMOSKIN_REMEDIATION_CHANGELOG.md
+ - mesafeli-satis.html
+ - search.html
+ - COSMOSKIN_PREMIUM_MOBILE_IMPLEMENTATION_REPORT_20260512.md
+ - cart.html
+ - AGENTS.md
+ - routine.html
+ - COSMOSKIN_ROUTINES_QA_REPORT_20260517.md
+ - CLAUDE.md
+ - cosmoskin-club.html
+ - legacy routine page file
+ - explore.html
+ - COSMOSKIN_SITE_FIX_PASS_2_REPORT_20260516.md
+ - categories.html
+ - products/beauty-of-joseon-relief-sun-spf50.html
+ - products/cosrx-acne-pimple-master-patch.html
+ - products/isntree-hyaluronic-acid-watery-sun-gel.html
+ - products/beauty-of-joseon-green-plum-refreshing-cleanser.html
+ - products/skin1004-centella-toning-toner.html
+ - products/cosrx-salicylic-acid-daily-gentle-cleanser.html
+ - products/dr-jart-ceramidin-cream.html
+ - products/torriden-solid-in-ceramide-cream.html
+ - products/torriden-dive-in-hyaluronic-acid-serum.html
+ - products/laneige-water-sleeping-mask.html
+ - products/cosrx-advanced-snail-96-mucin-power-essence.html
+ - products/beauty-of-joseon-dynasty-cream.html
+ - products/torriden-dive-in-watery-moisture-sun-cream.html
+ - products/cosrx-advanced-snail-96-mucin-essence.html
+ - products/round-lab-dokdo-toner.html
+ - products/beauty-of-joseon-glow-serum-propolis-niacinamide.html
+ - products/torriden-dive-in-serum.html
+ - products/round-lab-birch-juice-sunscreen.html
+ - products/innisfree-super-volcanic-clay-mask.html
+ - products/beauty-of-joseon-glow-deep-serum.html
+ - products/round-lab-1025-dokdo-cleanser.html
+ - products/medicube-zero-pore-pad.html
+ - products/skin1004-madagascar-centella-ampoule.html
+ - products/cosrx-low-ph-good-morning-gel-cleanser.html
+ - products/round-lab-soybean-nourishing-cream.html
+ - products/mediheal-nmf-aquaring-sheet-mask.html
+ - products/medicube-collagen-night-wrapping-mask.html
+ - products/cosrx-the-vitamin-c-23-serum.html
+ - products/cosrx-aha-bha-clarifying-treatment-toner.html
+ - products/anua-heartleaf-77-soothing-toner.html
+ - products/goodal-green-tangerine-vitamin-c-serum.html
+ - products/skin1004-hyalu-cica-water-fit-sun-serum.html
+ - products/anua-heartleaf-pore-control-cleansing-oil.html
+ - products/some-by-mi-aha-bha-miracle-toner.html
+ - products/im-from-rice-toner.html
+ - products/cosrx-oil-free-ultra-moisturizing-lotion.html
+ - products/by-wishtrend-pure-vitamin-c-21-5-serum.html
+ - brands/innisfree.html
+ - brands/beauty-of-joseon.html
+ - brands/thank-you-farmer.html
+ - brands/some-by-mi.html
+ - brands/round-lab.html
+ - brands/cosrx.html
+ - brands/medicube.html
+ - brands/skin1004.html
+ - brands/anua.html
+ - brands/dr-jart.html
+ - brands/isntree.html
+ - brands/mediheal.html
+ - brands/goodal.html
+ - brands/laneige.html
+ - brands/torriden.html
+ - brands/by-wishtrend.html
+ - brands/im-from.html
+ - qa/run-browser-qa.mjs
+ - account/routine-compare.html
+ - account/routine-profile.html
+ - account/routines.html
+ - account/routine-history.html
+ - account/returns.html
+ - account/routine-favorites.html
+ - legal/cosmoskin-club-kurallari.html
+ - legal/uyelik-sozlesmesi.html
+ - legal/on-bilgilendirme-formu.html
+ - legal/gizlilik-ve-guvenlik-politikasi.html
+ - legal/veri-sahibi-basvuru-formu.html
+ - legal/mesafeli-satis-sozlesmesi.html
+ - legal/cerez-politikasi.html
+ - legal/iade-ve-cayma-politikasi.html
+ - legal/ticari-elektronik-ileti-izni.html
+ - legal/kvkk-aydinlatma-metni.html
+ - legal/teslimat-ve-kargo.html
+ - legal/acik-riza-metni.html
+ - collections/treat.html
+ - collections/innisfree.html
+ - collections/beauty-of-joseon.html
+ - collections/normal-cilt.html
+ - collections/thank-you-farmer.html
+ - collections/akneye-egilimli-cilt.html
+ - collections/some-by-mi.html
+ - collections/round-lab.html
+ - collections/glow.html
+ - collections/cleanse.html
+ - collections/cosrx.html
+ - collections/sensitivity.html
+ - collections/care.html
+ - collections/medicube.html
+ - collections/skin1004.html
+ - collections/masks.html
+ - collections/barrier.html
+ - collections/anua.html
+ - collections/dr-jart.html
+ - collections/acne-balance.html
+ - collections/isntree.html
+ - collections/hassas-cilt.html
+ - collections/mediheal.html
+ - collections/goodal.html
+ - collections/yagli-cilt.html
+ - collections/protect.html
+ - collections/laneige.html
+ - collections/karma-cilt.html
+ - collections/torriden.html
+ - collections/kuru-cilt.html
+ - collections/pore-sebum.html
+ - collections/routine.html
+ - collections/by-wishtrend.html
+ - collections/hydrate.html
+ - collections/blemish.html
+ - collections/hydration.html
+ - collections/bestsellers.html
+ - collections/im-from.html
+ - assets/mobile.js
+ - assets/account-dashboard.js
+ - assets/admin-products.js
+ - assets/cosmoskin-fixes.css
+ - assets/routines.js
+ - assets/style.css
+ - assets/legal-site.css
+ - assets/skin-profile-store.js
+ - assets/admin-orders.js
+ - assets/js/smart-routine.js
+ - account/routine-favorites/index.html
+ - account/routine-compare/index.html
+ - account/routine-history/index.html
+ - account/routines/index.html
+ - account/routine-profile/index.html
+ - qa/evidence/browser-qa-results.json
+ - qa/evidence/final/git-diff-stat.txt
+ - qa/evidence/final/final-static-audit.json
+ - qa/evidence/final/complete-changed-file-list-final.txt
+ - qa/evidence/final/git-status-final.txt
+ - qa/evidence/final/complete-changed-file-list.txt
+ - qa/evidence/final/git-diff-name-status.txt
+ - qa/evidence/final/git-status.txt
+ - qa/evidence/final/git-diff-stat-final.txt
+ - qa/evidence/final/git-change-summary.json
+ - qa/evidence/final/git-diff-name-status-final.txt
+ - qa/evidence/final/git-change-summary-final.json
+ - qa/evidence/flows/auth-login-register-reset-pages.json
+ - qa/evidence/flows/mobile-menu-search-escape.json
+ - qa/evidence/flows/smart-routine-six-step-back-restart-add.json
+ - qa/evidence/flows/cart-quantity-remove-empty.json
+ - qa/evidence/flows/pdp-quantity-favorite-cart.json
+ - qa/evidence/flows/checkout-validation-free-shipping-card.json
+ - qa/evidence/flows/admin-login-overflow.json
+ - qa/evidence/flows/checkout-eft-valid-bank-copy.json
+ - qa/evidence/flows/checkout-eft-missing-bank-blocked.json
+ - qa/evidence/matrix/1024x768.json
+ - qa/evidence/matrix/360x800.json
+ - qa/evidence/matrix/390x844.json
+ - qa/evidence/matrix/768x1024.json
+ - qa/evidence/matrix/1440x900.json
+ - qa/evidence/matrix/430x932.json
+ - qa/evidence/matrix/1366x768.json
+ - qa/evidence/final/viewports/1024x768.json
+ - qa/evidence/final/viewports/360x800.json
+ - qa/evidence/final/viewports/390x844.json
+ - qa/evidence/final/viewports/768x1024.json
+ - qa/evidence/final/viewports/1440x900.json
+ - qa/evidence/final/viewports/430x932.json
+ - qa/evidence/final/viewports/1366x768.json
+ - qa/evidence/final/flows/auth-login-register-reset-pages.json
+ - qa/evidence/final/flows/mobile-menu-search-escape.json
+ - qa/evidence/final/flows/smart-routine-six-step-back-restart-add.json
+ - qa/evidence/final/flows/cart-quantity-remove-empty.json
+ - qa/evidence/final/flows/pdp-quantity-favorite-cart.json
+ - qa/evidence/final/flows/checkout-validation-free-shipping-card.json
+ - qa/evidence/final/flows/admin-login-overflow.json
+ - qa/evidence/final/flows/checkout-eft-valid-bank-copy.json
+ - qa/evidence/final/flows/checkout-eft-missing-bank-blocked.json
+
+Confirmations:
+ - Header COSMOSKIN logo size/proportion was enlarged and locked responsively using the provided reference image as visual guidance.
+ - Footer payment logos were balanced in the required order: iyzico, Visa, Mastercard, Troy, Havale/EFT.
+ - Payment SVGs use local assets and are displayed without awkward circular containers.
+ - Legacy smart-routine URL references were removed from project text; routine navigation now targets /account/routines/.
+ - Homepage RUTİNİ GÖR now links to /account/routines/.
+ - Header/footer consistency was checked on all HTML files; shared CSS and runtime normalizer were updated so fixes are not reverted at runtime.
+ - Hakkımızda page was rebuilt as a premium editorial brand-story page using the exact user-provided story text.
+ - Los Angeles – Seoul – İstanbul visual was copied locally and used in the Hakkımızda journey section.
+ - ETBİS Bilgilendirme and ETBİS’e Kayıtlıdır links use the requested official URL.
+ - QA search found no forbidden terms, incorrect public brand spellings, national ID marker, legacy routine URL, or removed card brand text.
+
+QA summary:
+{
+  "pattern_hits": {},
+  "bad_payment_order_pages": [],
+  "bad_etbis_pages": [],
+  "bad_rutini_gor_pages": [],
+  "standard_header_brand_mark_missing_pages": [],
+  "html_count": 167,
+  "footer_page_count": 142
+}

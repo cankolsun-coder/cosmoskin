@@ -1,183 +1,147 @@
+<!DOCTYPE html>
 <!-- ============================================================
   COSMOSKIN — Ürün Sayfası Yorum Bileşeni
   Dosya: reviews-component.html (ürün sayfasına snippet olarak eklenir)
   Bağımlılıklar: style.css, supabase-js@2, mevcut auth sistemi
   ============================================================ -->
-
 <!-- ── Yorum Bölümü (ürün sayfasındaki sekme veya section içine yerleştir) ── -->
-<section class="reviews-section" id="reviewsSection" data-product-id="__AUTO__">
-
-  <!-- Özet Başlık -->
-  <div class="reviews-header">
-    <div class="reviews-header-left">
-      <div class="reviews-score-block">
-        <span class="reviews-big-score" id="rvgBigScore">—</span>
-        <div class="reviews-stars-row" id="rvgStarsRow" aria-label="Ürün puanı"></div>
-        <span class="reviews-count-label" id="rvgCountLabel">0 değerlendirme</span>
-      </div>
-      <div class="reviews-histogram" id="rvgHistogram">
-        <!-- JS tarafından doldurulur -->
-      </div>
-    </div>
-    <div class="reviews-header-right">
-      <button class="btn btn-primary" id="rvgWriteBtn" onclick="ReviewModule.openForm()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-          <path d="M12 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/>
-          <path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"/>
-        </svg>
+<section class="reviews-section" data-product-id="__AUTO__" id="reviewsSection">
+<!-- Özet Başlık -->
+<div class="reviews-header">
+<div class="reviews-header-left">
+<div class="reviews-score-block">
+<span class="reviews-big-score" id="rvgBigScore">—</span>
+<div aria-label="Ürün puanı" class="reviews-stars-row" id="rvgStarsRow"></div>
+<span class="reviews-count-label" id="rvgCountLabel">0 değerlendirme</span>
+</div>
+<div class="reviews-histogram" id="rvgHistogram">
+<!-- JS tarafından doldurulur -->
+</div>
+</div>
+<div class="reviews-header-right">
+<button class="btn btn-primary" id="rvgWriteBtn" onclick="ReviewModule.openForm()">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24" width="14">
+<path d="M12 5H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"></path>
+<path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
+</svg>
         Yorum Yaz
       </button>
-      <p class="reviews-write-note" id="rvgWriteNote"></p>
-    </div>
-  </div>
-
-  <!-- Filtre Çubuğu -->
-  <div class="reviews-filter-row" id="rvgFilterRow" style="display:none">
-    <button class="rvg-filter-btn active" data-filter="all" onclick="ReviewModule.filter('all',this)">Tümü</button>
-    <button class="rvg-filter-btn" data-filter="5" onclick="ReviewModule.filter('5',this)">
-      <span class="rvg-star-mini">★</span> 5
+<p class="reviews-write-note" id="rvgWriteNote"></p>
+</div>
+</div>
+<!-- Filtre Çubuğu -->
+<div class="reviews-filter-row" id="rvgFilterRow" style="display:none">
+<button class="rvg-filter-btn active" data-filter="all" onclick="ReviewModule.filter('all',this)">Tümü</button>
+<button class="rvg-filter-btn" data-filter="5" onclick="ReviewModule.filter('5',this)">
+<span class="rvg-star-mini">★</span> 5
     </button>
-    <button class="rvg-filter-btn" data-filter="4" onclick="ReviewModule.filter('4',this)">
-      <span class="rvg-star-mini">★</span> 4
+<button class="rvg-filter-btn" data-filter="4" onclick="ReviewModule.filter('4',this)">
+<span class="rvg-star-mini">★</span> 4
     </button>
-    <button class="rvg-filter-btn" data-filter="3" onclick="ReviewModule.filter('3',this)">
-      <span class="rvg-star-mini">★</span> 3
+<button class="rvg-filter-btn" data-filter="3" onclick="ReviewModule.filter('3',this)">
+<span class="rvg-star-mini">★</span> 3
     </button>
-    <button class="rvg-filter-btn" data-filter="photo" onclick="ReviewModule.filter('photo',this)">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+<button class="rvg-filter-btn" data-filter="photo" onclick="ReviewModule.filter('photo',this)">
+<svg fill="none" height="12" stroke="currentColor" stroke-width="2.2" viewbox="0 0 24 24" width="12"><rect height="18" rx="4" width="18" x="3" y="3"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg>
       Fotoğraflı
     </button>
-  </div>
-
-  <!-- Yorum Listesi -->
-  <div class="reviews-list" id="rvgList">
-    <div class="reviews-loading" id="rvgLoading">
-      <div class="rvg-shimmer-card"></div>
-      <div class="rvg-shimmer-card"></div>
-      <div class="rvg-shimmer-card"></div>
-    </div>
-  </div>
-
-  <!-- Daha Fazla Yükle -->
-  <div class="reviews-more-wrap" id="rvgMoreWrap" style="display:none">
-    <button class="btn btn-secondary" id="rvgMoreBtn" onclick="ReviewModule.loadMore()">
+</div>
+<!-- Yorum Listesi -->
+<div class="reviews-list" id="rvgList">
+<div class="reviews-loading" id="rvgLoading">
+<div class="rvg-shimmer-card"></div>
+<div class="rvg-shimmer-card"></div>
+<div class="rvg-shimmer-card"></div>
+</div>
+</div>
+<!-- Daha Fazla Yükle -->
+<div class="reviews-more-wrap" id="rvgMoreWrap" style="display:none">
+<button class="btn btn-secondary" id="rvgMoreBtn" onclick="ReviewModule.loadMore()">
       Daha Fazla Göster
     </button>
-  </div>
-
+</div>
 </section>
-
 <!-- ── Yorum Yazma Modalı ── -->
 <div class="backdrop" id="rvgBackdrop" onclick="ReviewModule.closeForm()"></div>
-<div class="modal" id="rvgModal" role="dialog" aria-modal="true" aria-label="Yorum yaz">
-  <div class="modal-card rvg-modal-card" onclick="event.stopPropagation()">
-
-    <div class="rvg-modal-head">
-      <div>
-        <h2 class="rvg-modal-title">Deneyiminizi Paylaşın</h2>
-        <p class="rvg-modal-sub" id="rvgModalProductName">Ürün adı yükleniyor…</p>
-      </div>
-      <button class="rvg-close-btn" onclick="ReviewModule.closeForm()" aria-label="Kapat">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 6 6 18M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Yıldız Seçici -->
-    <div class="rvg-field-block">
-      <label class="rvg-field-label">Puanınız</label>
-      <div class="rvg-star-picker" id="rvgStarPicker" role="radiogroup" aria-label="Puan seç">
-        <button type="button" class="rvg-star-pick" data-val="1" onclick="ReviewModule.setRating(1)" aria-label="1 yıldız">★</button>
-        <button type="button" class="rvg-star-pick" data-val="2" onclick="ReviewModule.setRating(2)" aria-label="2 yıldız">★</button>
-        <button type="button" class="rvg-star-pick" data-val="3" onclick="ReviewModule.setRating(3)" aria-label="3 yıldız">★</button>
-        <button type="button" class="rvg-star-pick" data-val="4" onclick="ReviewModule.setRating(4)" aria-label="4 yıldız">★</button>
-        <button type="button" class="rvg-star-pick" data-val="5" onclick="ReviewModule.setRating(5)" aria-label="5 yıldız">★</button>
-      </div>
-      <span class="rvg-rating-label" id="rvgRatingLabel">Puan seçin</span>
-    </div>
-
-    <!-- Başlık -->
-    <div class="rvg-field-block">
-      <label class="rvg-field-label" for="rvgTitleInput">Başlık</label>
-      <input
-        type="text"
-        id="rvgTitleInput"
-        class="rvg-input"
-        placeholder="Kısa ve öz bir başlık yazın"
-        maxlength="100"
-      />
-      <span class="rvg-char-count" id="rvgTitleCount">0 / 100</span>
-    </div>
-
-    <!-- Yorum Metni -->
-    <div class="rvg-field-block">
-      <label class="rvg-field-label" for="rvgBodyInput">Yorumunuz</label>
-      <textarea
-        id="rvgBodyInput"
-        class="rvg-textarea"
-        placeholder="Bu ürünle deneyiminizi anlatın. Cilt tipiniz, ne kadar süredir kullandığınız, sonuçlar…"
-        maxlength="2000"
-        rows="5"
-      ></textarea>
-      <span class="rvg-char-count" id="rvgBodyCount">0 / 2000</span>
-    </div>
-
-    <!-- Görsel Yükleme -->
-    <div class="rvg-field-block">
-      <label class="rvg-field-label">Fotoğraf Ekle <span class="rvg-optional">(İsteğe Bağlı)</span></label>
-      <div class="rvg-upload-zone" id="rvgUploadZone"
-           onclick="document.getElementById('rvgFileInput').click()"
-           ondragover="ReviewModule.onDragOver(event)"
-           ondragleave="ReviewModule.onDragLeave(event)"
-           ondrop="ReviewModule.onDrop(event)">
-        <div class="rvg-upload-icon">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="5"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <path d="m21 15-5-5L5 21"/>
-          </svg>
-        </div>
-        <p class="rvg-upload-text">Fotoğraf yüklemek için tıklayın<br><span>veya sürükleyip bırakın · JPG, PNG, WEBP · En fazla 5 görsel · Her biri 10 MB altı</span></p>
-        <input type="file" id="rvgFileInput" accept="image/jpeg,image/png,image/webp"
-               multiple style="display:none" onchange="ReviewModule.handleFiles(this.files)">
-      </div>
-
-      <!-- Görsel Önizleme -->
-      <div class="rvg-preview-row" id="rvgPreviewRow"></div>
-    </div>
-
-    <!-- Bilgilendirme -->
-    <div class="rvg-notice">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
-      </svg>
+<div aria-label="Yorum yaz" aria-modal="true" class="modal" id="rvgModal" role="dialog">
+<div class="modal-card rvg-modal-card" onclick="event.stopPropagation()">
+<div class="rvg-modal-head">
+<div>
+<h2 class="rvg-modal-title">Deneyiminizi Paylaşın</h2>
+<p class="rvg-modal-sub" id="rvgModalProductName">Ürün adı yükleniyor…</p>
+</div>
+<button aria-label="Kapat" class="rvg-close-btn" onclick="ReviewModule.closeForm()">
+<svg fill="none" height="18" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="18">
+<path d="M18 6 6 18M6 6l12 12"></path>
+</svg>
+</button>
+</div>
+<!-- Yıldız Seçici -->
+<div class="rvg-field-block">
+<label class="rvg-field-label">Puanınız</label>
+<div aria-label="Puan seç" class="rvg-star-picker" id="rvgStarPicker" role="radiogroup">
+<button aria-label="1 yıldız" class="rvg-star-pick" data-val="1" onclick="ReviewModule.setRating(1)" type="button">★</button>
+<button aria-label="2 yıldız" class="rvg-star-pick" data-val="2" onclick="ReviewModule.setRating(2)" type="button">★</button>
+<button aria-label="3 yıldız" class="rvg-star-pick" data-val="3" onclick="ReviewModule.setRating(3)" type="button">★</button>
+<button aria-label="4 yıldız" class="rvg-star-pick" data-val="4" onclick="ReviewModule.setRating(4)" type="button">★</button>
+<button aria-label="5 yıldız" class="rvg-star-pick" data-val="5" onclick="ReviewModule.setRating(5)" type="button">★</button>
+</div>
+<span class="rvg-rating-label" id="rvgRatingLabel">Puan seçin</span>
+</div>
+<!-- Başlık -->
+<div class="rvg-field-block">
+<label class="rvg-field-label" for="rvgTitleInput">Başlık</label>
+<input class="rvg-input" id="rvgTitleInput" maxlength="100" placeholder="Kısa ve öz bir başlık yazın" type="text"/>
+<span class="rvg-char-count" id="rvgTitleCount">0 / 100</span>
+</div>
+<!-- Yorum Metni -->
+<div class="rvg-field-block">
+<label class="rvg-field-label" for="rvgBodyInput">Yorumunuz</label>
+<textarea class="rvg-textarea" id="rvgBodyInput" maxlength="2000" placeholder="Bu ürünle deneyiminizi anlatın. Cilt tipiniz, ne kadar süredir kullandığınız, sonuçlar…" rows="5"></textarea>
+<span class="rvg-char-count" id="rvgBodyCount">0 / 2000</span>
+</div>
+<!-- Görsel Yükleme -->
+<div class="rvg-field-block">
+<label class="rvg-field-label">Fotoğraf Ekle <span class="rvg-optional">(İsteğe Bağlı)</span></label>
+<div class="rvg-upload-zone" id="rvgUploadZone" onclick="document.getElementById('rvgFileInput').click()" ondragleave="ReviewModule.onDragLeave(event)" ondragover="ReviewModule.onDragOver(event)" ondrop="ReviewModule.onDrop(event)">
+<div class="rvg-upload-icon">
+<svg fill="none" height="28" stroke="currentColor" stroke-width="1.5" viewbox="0 0 24 24" width="28">
+<rect height="18" rx="5" width="18" x="3" y="3"></rect>
+<circle cx="8.5" cy="8.5" r="1.5"></circle>
+<path d="m21 15-5-5L5 21"></path>
+</svg>
+</div>
+<p class="rvg-upload-text">Fotoğraf yüklemek için tıklayın<br/><span>veya sürükleyip bırakın · JPG, PNG, WEBP · En fazla 5 görsel · Her biri 10 MB altı</span></p>
+<input accept="image/jpeg,image/png,image/webp" id="rvgFileInput" multiple="" onchange="ReviewModule.handleFiles(this.files)" style="display:none" type="file"/>
+</div>
+<!-- Görsel Önizleme -->
+<div class="rvg-preview-row" id="rvgPreviewRow"></div>
+</div>
+<!-- Bilgilendirme -->
+<div class="rvg-notice">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14">
+<circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path>
+</svg>
       Yorumunuz ve fotoğraflarınız ekibimiz tarafından incelendikten sonra yayına alınacaktır.
     </div>
-
-    <!-- Hata / Durum -->
-    <div class="rvg-status" id="rvgFormStatus"></div>
-
-    <!-- Gönder -->
-    <div class="rvg-modal-actions">
-      <button class="btn btn-secondary" onclick="ReviewModule.closeForm()">Vazgeç</button>
-      <button class="btn btn-primary" id="rvgSubmitBtn" onclick="ReviewModule.submitReview()">
-        <span id="rvgSubmitLabel">Yorumu Gönder</span>
-      </button>
-    </div>
-
-  </div>
+<!-- Hata / Durum -->
+<div class="rvg-status" id="rvgFormStatus"></div>
+<!-- Gönder -->
+<div class="rvg-modal-actions">
+<button class="btn btn-secondary" onclick="ReviewModule.closeForm()">Vazgeç</button>
+<button class="btn btn-primary" id="rvgSubmitBtn" onclick="ReviewModule.submitReview()">
+<span id="rvgSubmitLabel">Yorumu Gönder</span>
+</button>
 </div>
-
+</div>
+</div>
 <!-- ── Görsel Lightbox ── -->
 <div class="rvg-lightbox" id="rvgLightbox" onclick="ReviewModule.closeLightbox()">
-  <button class="rvg-lb-close" onclick="ReviewModule.closeLightbox()">✕</button>
-  <button class="rvg-lb-prev" onclick="ReviewModule.lbNav(-1,event)">‹</button>
-  <img class="rvg-lb-img" id="rvgLbImg" src="/assets/logo-mark.png" alt="">
-  <button class="rvg-lb-next" onclick="ReviewModule.lbNav(1,event)">›</button>
+<button class="rvg-lb-close" onclick="ReviewModule.closeLightbox()">✕</button>
+<button class="rvg-lb-prev" onclick="ReviewModule.lbNav(-1,event)">‹</button>
+<img alt="COSMOSKIN logo" class="rvg-lb-img" id="rvgLbImg" src="/assets/img/brand/cosmoskin-wordmark.svg"/>
+<button class="rvg-lb-next" onclick="ReviewModule.lbNav(1,event)">›</button>
 </div>
-
-
 <!-- ══════════════════════════════════════════════════════════
      STYLES
      ══════════════════════════════════════════════════════════ -->
@@ -865,8 +829,6 @@
   .rvg-lb-next { right: 12px; }
 }
 </style>
-
-
 <!-- ══════════════════════════════════════════════════════════
      JAVASCRIPT
      ══════════════════════════════════════════════════════════ -->
@@ -1522,5 +1484,4 @@ const ReviewModule = (() => {
            submitReview, toggleHelpful, openLightbox, closeLightbox, lbNav };
 })();
 </script>
-
-<script src="/assets/mobile-redesign.js?v=20260616-stockfix" defer></script>
+<script defer="" src="/assets/mobile-redesign.js?v=20260616-stockfix"></script>

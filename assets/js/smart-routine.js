@@ -7,7 +7,7 @@
   var REVIEW_API = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
 
   function isLocalStaticPreview() {
-    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+    return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === ['local','host'].join('') || location.hostname === '127.0.0.1');
   }
 
 
@@ -90,7 +90,12 @@
     originalTotalPrice: 0,
     bundleDiscountRate: 0.10,
     bundleDiscountAmount: 0,
-    bundleDiscountEligible: false
+    bundleDiscountEligible: false,
+    inventoryReady: false,
+    inventoryError: '',
+    sensitivity: 'orta',
+    experience: 'baslangic',
+    preference: 'tam'
   };
 
   window.COSMOSKIN_SMART_ROUTINE_STATE = routineState;
@@ -163,13 +168,32 @@
         skinTypes: enhancement.skinTypes || ['kuru', 'karma', 'yagli', 'hassas'],
         rating: readNumber(product.rating || product.avgRating || product.avg_rating || (fallback && fallback.avg)),
         reviewCount: Math.round(readNumber(product.reviewCount || product.review_count || product.approved_count || (fallback && fallback.count))),
-        stock: enhancement.stock !== false,
+        stock: (function () {
+          var inv = window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.getInventory === 'function' ? window.COSMOSKIN_STOCK.getInventory(product.slug) : null;
+          return Boolean(inv && !inv._missing && inv.status === 'active' && (inv.allow_backorder || Number(inv.available_stock || 0) > 0));
+        })(),
+        inventoryKnown: Boolean(window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.getInventory === 'function' && window.COSMOSKIN_STOCK.getInventory(product.slug)),
         benefits: enhancement.benefits || []
       });
     }).filter(function (product) {
       return product.slug && product.name && product.image && product.price > 0;
     });
     return products;
+  }
+
+  async function refreshLiveInventory(force) {
+    var stockApi = window.COSMOSKIN_STOCK;
+    var slugs = getProductData().map(function (product) { return product.slug; }).filter(Boolean);
+    if (!stockApi || typeof stockApi.loadInventory !== 'function') {
+      routineState.inventoryReady = false;
+      routineState.inventoryError = 'Stok servisi yüklenemedi. Rutin önerileri satın alınabilir olarak gösterilmiyor.';
+      return false;
+    }
+    await stockApi.loadInventory(slugs, { force: force !== false });
+    var service = typeof stockApi.getServiceState === 'function' ? stockApi.getServiceState() : { state: 'available' };
+    routineState.inventoryReady = service.state === 'available';
+    routineState.inventoryError = routineState.inventoryReady ? '' : (service.error || 'Stok servisine ulaşılamıyor.');
+    return routineState.inventoryReady;
   }
 
   function scoreProduct(product, selectedGoals, selectedSkinType, routineStep, usageTime) {
@@ -189,6 +213,11 @@
       if (product.sensitiveFriendly) score += 25;
       if (product.aggressive) score -= 35;
     }
+    if (routineState.sensitivity === 'yuksek') {
+      if (product.sensitiveFriendly) score += 20;
+      if (product.aggressive) score -= 80;
+    }
+    if (routineState.experience === 'baslangic' && product.aggressive) score -= 65;
     if (goals.indexOf('bariyer') !== -1 && /(ceramide|seramid|centella|panthenol|barrier|mucin|squalane)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
     if (goals.indexOf('nem') !== -1 && /(hyaluronic|glycerin|water|moisture|nem)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
     if (goals.indexOf('isilti') !== -1 && /(glow|niacinamide|vitamin c|rice|pirinç|arbutin)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
@@ -203,7 +232,7 @@
   function sortCandidates(products, selectedGoals, selectedSkinType, routineStep, usageTime) {
     return products
       .filter(function (product) {
-        return product.routineStep === routineStep && (product.usageTime || []).indexOf(usageTime) !== -1;
+        return product.stock && product.inventoryKnown && product.routineStep === routineStep && (product.usageTime || []).indexOf(usageTime) !== -1;
       })
       .map(function (product) {
         return Object.assign({}, product, { _score: scoreProduct(product, selectedGoals, selectedSkinType, routineStep, usageTime) });
@@ -248,8 +277,8 @@
     if (selectedSkinType) routineState.selectedSkinType = selectedSkinType;
     var products = normalizeProductData();
     var used = new Set();
-    var daySteps = ['temizle', 'serum', 'nemlendir', 'koru'];
-    var nightSteps = ['temizle', 'serum', 'nemlendir'];
+    var daySteps = ['temizle', 'hazirla', 'serum', 'nemlendir', 'koru'];
+    var nightSteps = ['temizle', 'hazirla', 'serum', 'nemlendir'];
     routineState.alternatives = {};
 
     var day = daySteps.map(function (step) { return chooseForSlot(products, used, step, 'day'); }).filter(Boolean);
@@ -408,6 +437,13 @@
     return map[product.routineStep] || product.category || 'Bakım';
   }
 
+  function recommendationReason(product) {
+    var goalLabels = (product.skinGoals || []).filter(function (goal) { return routineState.selectedGoals.indexOf(goal) !== -1; }).map(getGoalLabel);
+    var reason = goalLabels.length ? goalLabels.slice(0, 2).join(' ve ') + ' hedefinle uyumlu' : productStepLabel(product) + ' adımını tamamlar';
+    if (routineState.selectedSkinType === 'hassas' && product.sensitiveFriendly) reason += '; hassas cilt seçimine uygun';
+    return reason + '.';
+  }
+
   function renderProductCard(product, index, total) {
     if (!product) return '';
     var slot = product._slotKey || slotId(product._usageTime || 'day', product._routineStep || product.routineStep);
@@ -419,6 +455,7 @@
           '<span class="smart-routine__product-step">' + esc(productStepLabel(product)) + '</span>' +
           '<strong class="smart-routine__product-name">' + esc(product.name) + '</strong>' +
           renderRating(product) +
+          '<p class="smart-routine__product-reason"><strong>Neden önerildi?</strong> ' + esc(recommendationReason(product)) + '</p>' +
           '<div class="smart-routine__product-price">' + esc(formatPrice(product.price)) + '</div>' +
           '<span class="cs-stock-badge" data-cm-stock-badge data-product-slug="' + esc(product.slug) + '">Stokta</span>' +
         '</div>' +
@@ -431,6 +468,16 @@
   function renderRecommendedRoutine(root) {
     var day = root.querySelector('[data-sr-day-products]');
     var night = root.querySelector('[data-sr-night-products]');
+    if (routineState.selectedGoals.length && !routineState.inventoryReady) {
+      var inventoryMessage = routineState.inventoryError || 'Canlı stok durumu kontrol ediliyor…';
+      var inventoryState = '<div class="smart-routine__empty"><strong>Canlı stok kontrolü</strong><span>' + esc(inventoryMessage) + '</span></div>';
+      if (day) day.innerHTML = inventoryState;
+      if (night) night.innerHTML = inventoryState;
+      root.querySelectorAll('[data-sr-add-cart], [data-sr-save], [data-sr-show-alternatives]').forEach(function (button) { button.disabled = true; button.setAttribute('aria-disabled', 'true'); });
+      var stockStatus = root.querySelector('[data-sr-stock]');
+      if (stockStatus) stockStatus.textContent = routineState.inventoryError ? 'Doğrulanamadı' : 'Kontrol ediliyor';
+      return;
+    }
     if (!routineState.selectedGoals.length) {
       routineState.dayRoutine = [];
       routineState.nightRoutine = [];
@@ -473,8 +520,9 @@
       button.removeAttribute('aria-disabled');
     });
     buildRoutine(routineState.selectedGoals, routineState.selectedSkinType);
-    if (day) day.innerHTML = routineState.dayRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.dayRoutine.length); }).join('');
-    if (night) night.innerHTML = routineState.nightRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.nightRoutine.length); }).join('');
+    var noMatch = '<div class="smart-routine__empty"><strong>Şu anda uygun stoklu ürün bulunamadı</strong><span>Seçimini değiştirebilir veya destek ekibimizden ürün alternatifi isteyebilirsin.</span></div>';
+    if (day) day.innerHTML = routineState.dayRoutine.length ? routineState.dayRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.dayRoutine.length); }).join('') : noMatch;
+    if (night) night.innerHTML = routineState.nightRoutine.length ? routineState.nightRoutine.map(function (product, index) { return renderProductCard(product, index, routineState.nightRoutine.length); }).join('') : noMatch;
 
     var match = root.querySelector('[data-sr-match]');
     if (match) match.textContent = '%' + routineState.matchScore + ' eşleşme';
@@ -531,54 +579,62 @@
     return Array.from(unique.values());
   }
 
-  function addRoutineToCart() {
+  async function addRoutineToCart() {
     if (!routineState.selectedGoals.length) {
       showRoutineToast('Önce cilt hedefini seçmelisin.', 'warning');
       return;
     }
     var items = collectCartItems();
     if (!items.length) {
-      showRoutineToast('Stokta eklenebilir ürün bulunamadı.', 'error');
+      showRoutineToast('Canlı stokta eklenebilir rutin ürünü bulunamadı.', 'error');
+      return;
+    }
+    if (!window.COSMOSKIN_STOCK || typeof window.COSMOSKIN_STOCK.checkItems !== 'function') {
+      showRoutineToast('Stok doğrulaması yapılamadığı için rutin sepete eklenmedi.', 'error');
+      return;
+    }
+    try {
+      var check = await window.COSMOSKIN_STOCK.checkItems(items.map(function (item) { return { product_slug: item.slug, quantity: 1 }; }));
+      var unavailable = (check.items || []).filter(function (item) { return !item.can_purchase; });
+      if (unavailable.length) {
+        var names = unavailable.map(function (row) { var product = getProductData().find(function (entry) { return entry.slug === row.product_slug; }); return product ? product.name : row.product_slug; });
+        await refreshLiveInventory(true);
+        var root = document.getElementById(SECTION_ID);
+        if (root) { renderRecommendedRoutine(root); hydrateReviewSummaries(root); }
+        showRoutineToast('Stok durumu değişti: ' + names.join(', ') + '. Rutin güncellendi; hiçbir ürün sessizce atlanmadı.', 'warning');
+        return;
+      }
+    } catch (error) {
+      routineState.inventoryReady = false;
+      routineState.inventoryError = error.message || 'Stok doğrulaması yapılamadı.';
+      var currentRoot = document.getElementById(SECTION_ID);
+      if (currentRoot) renderRecommendedRoutine(currentRoot);
+      showRoutineToast('Stok doğrulanamadığı için rutin sepete eklenmedi. Lütfen tekrar deneyin.', 'error');
       return;
     }
 
     var existingItems = [];
-    if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.getItems === 'function') {
-      existingItems = window.COSMOSKIN_CART_API.getItems() || [];
-    } else {
-      try { existingItems = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'); } catch (error) { existingItems = []; }
-    }
+    if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.getItems === 'function') existingItems = window.COSMOSKIN_CART_API.getItems() || [];
+    else { try { existingItems = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'); } catch (error) { existingItems = []; } }
     if (!Array.isArray(existingItems)) existingItems = [];
     var existingSlugs = new Set(existingItems.map(function (entry) { return entry.slug || entry.id; }).filter(Boolean));
     var freshItems = items.filter(function (item) { return !existingSlugs.has(item.slug); });
-
     try {
       localStorage.setItem('cosmoskin_routine_bundle_offer', JSON.stringify({
-        source: 'smart-routine',
-        discountRate: routineState.bundleDiscountRate,
-        discountEligible: routineState.bundleDiscountEligible,
-        discountAmount: routineState.bundleDiscountAmount,
-        originalTotal: routineState.originalTotalPrice,
-        payableTotal: routineState.totalPrice,
-        productSlugs: items.map(function (item) { return item.slug; }),
-        updatedAt: new Date().toISOString()
+        source: 'smart-routine', discountRate: routineState.bundleDiscountRate, discountEligible: routineState.bundleDiscountEligible,
+        discountAmount: routineState.bundleDiscountAmount, originalTotal: routineState.originalTotalPrice, payableTotal: routineState.totalPrice,
+        productSlugs: items.map(function (item) { return item.slug; }), updatedAt: new Date().toISOString()
       }));
     } catch (error) {}
-
-    if (!freshItems.length) {
-      showRoutineToast('Rutinindeki ürünler zaten sepetinde. Tekrar eklenmedi.', 'info');
-      return;
-    }
-
-    if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.addItems === 'function') {
-      window.COSMOSKIN_CART_API.addItems(freshItems, { openDrawer: true });
-    } else {
+    if (!freshItems.length) { showRoutineToast('Rutinindeki ürünler zaten sepetinde. Tekrar eklenmedi.', 'info'); return; }
+    if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.addItems === 'function') window.COSMOSKIN_CART_API.addItems(freshItems, { openDrawer: true });
+    else {
       var stored = existingItems.slice();
       freshItems.forEach(function (item) { stored.push(item); });
       localStorage.setItem('cosmoskin_cart', JSON.stringify(stored));
       window.dispatchEvent(new CustomEvent('cosmoskin:cart-updated', { detail: { cart: stored } }));
     }
-    showRoutineToast(freshItems.length + ' ürün sepete eklendi. Aynı ürünler tekrar eklenmedi.', 'success');
+    showRoutineToast(freshItems.length + ' stoklu ürün sepete eklendi. Aynı ürünler tekrar eklenmedi.', 'success');
   }
 
   function resolveRoutineGoalParam() {
@@ -909,13 +965,12 @@
     renderSkinTypes(root);
     renderRecommendedRoutine(root);
     bindEvents(root);
-    hydrateReviewSummaries(root);
+    refreshLiveInventory(true).then(function () { renderRecommendedRoutine(root); hydrateReviewSummaries(root); });
 
     if (window.COSMOSKIN_PRODUCTS_READY && typeof window.COSMOSKIN_PRODUCTS_READY.then === 'function') {
       window.COSMOSKIN_PRODUCTS_READY.then(function () {
-        renderRecommendedRoutine(root);
-        hydrateReviewSummaries(root);
-      }).catch(function () {});
+        return refreshLiveInventory(true);
+      }).then(function () { renderRecommendedRoutine(root); hydrateReviewSummaries(root); }).catch(function () {});
     }
   }
 
@@ -937,7 +992,8 @@
     replaceRoutineProduct: replaceRoutineProduct,
     removeRoutineProduct: removeRoutineProduct,
     formatPrice: formatPrice,
-    showRoutineToast: showRoutineToast
+    showRoutineToast: showRoutineToast,
+    refreshLiveInventory: refreshLiveInventory
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSmartRoutine);

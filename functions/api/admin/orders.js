@@ -3,7 +3,7 @@ import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { sendOrderStatusEmail, sendShipmentEmail, sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
-import { releaseInventoryReservations } from '../_lib/inventory.js';
+import { convertInventoryReservations, releaseInventoryReservations } from '../_lib/inventory.js';
 
 const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
 const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
@@ -15,10 +15,10 @@ const SHIPMENT_EVENT_SELECT = 'id,shipment_id,order_id,event_type,status,note,oc
 const EVENT_SELECT = 'id,order_id,status,message,source,event_type,previous_status,new_status,note,created_by,created_at,metadata';
 const EMAIL_SELECT = 'id,order_id,customer_email,email_type,provider,status,subject,provider_message_id,error_message,sent_at,created_at,metadata';
 
-const VALID_ORDER_STATUSES = new Set(['pending', 'confirmed', 'preparing', 'packed', 'shipped', 'delivered', 'cancelled', 'return_requested', 'returned', 'refunded', 'pending_payment', 'pending_bank_transfer', 'paid', 'payment_failed', 'partially_refunded']);
-const VALID_PAYMENT_STATUSES = new Set(['pending', 'authorized', 'awaiting_transfer', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled', 'initiated', 'initialize_failed']);
-const VALID_FULFILLMENT = new Set(['unfulfilled', 'preparing', 'packed', 'shipped', 'delivered', 'failed', 'returned', 'not_started', 'cancelled']);
-const CARRIER_NAMES = new Set(['Yurtiçi Kargo','Aras Kargo','MNG Kargo','Sürat Kargo','Hepsijet','Kolay Gelsin','UPS','DHL','Other']);
+const VALID_ORDER_STATUSES = new Set(['pending_payment', 'pending_bank_transfer', 'paid', 'preparing', 'shipped', 'delivered', 'cancelled', 'payment_failed', 'refunded', 'partially_refunded']);
+const VALID_PAYMENT_STATUSES = new Set(['pending', 'initiated', 'awaiting_transfer', 'paid', 'failed', 'refunded', 'partially_refunded']);
+const VALID_FULFILLMENT = new Set(['not_started', 'unfulfilled', 'preparing', 'packed', 'shipped', 'delivered', 'returned', 'cancelled']);
+const CARRIER_NAMES = new Set(['Yurtiçi Kargo','Aras Kargo','MNG Kargo','Sürat Kargo','Hepsijet','Kolay Gelsin','UPS','DHL eCommerce','DHL','Other']);
 
 function inFilter(values = []) { return `in.(${values.filter(Boolean).join(',')})`; }
 function groupBy(arr = [], key = 'order_id') {
@@ -35,10 +35,10 @@ function buildSummary(orders = []) {
     s.total += 1;
     const statusKey = order.status || 'pending';
     s[statusKey] = (s[statusKey] || 0) + 1;
-    if (['confirmed', 'paid', 'preparing', 'packed', 'shipped', 'delivered'].includes(order.status) || order.payment_status === 'paid') s.paidRevenue += Number(order.total_amount || 0);
+    if (['paid', 'preparing', 'shipped', 'delivered'].includes(order.status) || order.payment_status === 'paid') s.paidRevenue += Number(order.total_amount || 0);
     if (order.payment_status === 'failed' || order.status === 'payment_failed') s.payment_failed += 1;
     return s;
-  }, { total: 0, paidRevenue: 0, pending: 0, pending_payment: 0, confirmed: 0, paid: 0, preparing: 0, packed: 0, shipped: 0, delivered: 0, cancelled: 0, return_requested: 0, returned: 0, refunded: 0, partially_refunded: 0, payment_failed: 0 });
+  }, { total: 0, paidRevenue: 0, pending_payment: 0, pending_bank_transfer: 0, paid: 0, preparing: 0, shipped: 0, delivered: 0, cancelled: 0, refunded: 0, partially_refunded: 0, payment_failed: 0 });
 }
 function safeStatus(value, fallback = null) {
   const status = String(value || '').trim();
@@ -55,12 +55,12 @@ function safeFulfillment(value, fallback = null) {
 function shipmentSubject() { return 'Siparişin kargoya verildi'; }
 function statusFromAction(action) {
   const map = {
-    mark_payment_paid: { status: 'confirmed', payment_status: 'paid', fulfillment_status: 'preparing' },
+    mark_payment_paid: { status: 'paid', payment_status: 'paid', fulfillment_status: 'preparing' },
     mark_preparing: { status: 'preparing', fulfillment_status: 'preparing' },
-    mark_packed: { status: 'packed', fulfillment_status: 'packed' },
+    mark_packed: { status: 'preparing', fulfillment_status: 'packed' },
     mark_shipped: { status: 'shipped', fulfillment_status: 'shipped' },
     mark_delivered: { status: 'delivered', fulfillment_status: 'delivered' },
-    cancel_order: { status: 'cancelled', payment_status: 'cancelled', fulfillment_status: 'failed' }
+    cancel_order: { status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled' }
   };
   return map[String(action || '')] || null;
 }
@@ -255,7 +255,7 @@ async function sendAndLogCommerceEmail(context, order, emailType, note = '') {
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const url = new URL(context.request.url);
     const status = url.searchParams.get('status');
     const email = url.searchParams.get('email');
@@ -277,7 +277,7 @@ export async function onRequestGet(context) {
 
 export async function onRequestPatch(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const body = await readJsonBody(context);
     const id = body.id || body.order_id;
     if (!id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });
@@ -299,6 +299,15 @@ export async function onRequestPatch(context) {
     if (status === 'cancelled') payload.cancelled_at = before.cancelled_at || new Date().toISOString();
 
     if (Object.keys(payload).length) {
+      if (status === 'cancelled' && ['paid', 'refunded', 'partially_refunded'].includes(String(before.payment_status || ''))) {
+        return json({ ok: false, error: 'Ödemesi alınmış sipariş doğrudan iptal edilemez. Önce kontrollü iade sürecini başlatın.' }, { status: 409 });
+      }
+      // Inventory is finalized before publishing the new order state. Atomic RPCs are idempotent.
+      if (status === 'cancelled') {
+        await releaseInventoryReservations(context, id, 'admin_cancelled');
+      } else if (paymentStatus === 'paid') {
+        await convertInventoryReservations(context, id);
+      }
       payload.updated_at = new Date().toISOString();
       await updateRows(context, 'orders', { id }, payload);
       await recordEvent(context, id, {
@@ -311,7 +320,6 @@ export async function onRequestPatch(context) {
         created_by: 'admin',
         metadata: { payment_status: paymentStatus || null, fulfillment_status: fulfillment || null }
       });
-      if (status === 'cancelled' || paymentStatus === 'cancelled') await releaseInventoryReservations(context, id, 'admin_cancelled').catch(() => null);
     }
 
     let shipment = null;
@@ -397,7 +405,7 @@ export async function resendOrderEmail(context, orderId, emailType) {
     return await sendAndLogShipmentEmail(context, order, shipment, 'shipment_created');
   }
   if (emailType === 'shipment_delivered') return await sendAndLogCommerceEmail(context, order, 'shipment_delivered');
-  if (emailType === 'payment_success') return await sendAndLogStatusEmail(context, order, 'confirmed', 'payment_success');
+  if (emailType === 'payment_success') return await sendAndLogStatusEmail(context, order, 'paid', 'payment_success');
   if (emailType === 'order_created') return await sendAndLogStatusEmail(context, order, 'pending', 'order_created');
   throw Object.assign(new Error('email_type desteklenmiyor.'), { status: 400 });
 }

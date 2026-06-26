@@ -11,7 +11,7 @@ function textIncludes(product, q) {
 
 export async function onRequestGet(context) {
   try {
-    assertAdmin(context);
+    await assertAdmin(context);
     const url = new URL(context.request.url);
     const q = (url.searchParams.get('search') || '').trim();
     const filter = (url.searchParams.get('filter') || url.searchParams.get('status') || 'all').trim();

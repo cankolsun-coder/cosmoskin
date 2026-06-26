@@ -1,41 +1,44 @@
 <!DOCTYPE html>
 <html lang="tr">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head><meta content="noindex, nofollow, noarchive" name="robots"/>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Sipariş Takibi · COSMOSKIN</title>
-<meta name="description" content="COSMOSKIN sipariş durumunu sipariş numarası ve e-posta adresiyle güvenli şekilde takip et." />
-<link rel="stylesheet" href="/style.css" />
-<link rel="stylesheet" href="/assets/phase6-commerce.css?v=20260510phase1ops" />
-<link rel="stylesheet" href="/assets/mobile-redesign.css?v=20260512-reference-ui" />
+<meta content="COSMOSKIN sipariş durumunu sipariş numarası ve e-posta adresiyle güvenli şekilde takip et." name="description"/>
+<link href="/style.css" rel="stylesheet"/>
+<link href="/assets/phase6-commerce.css?v=20260510phase1ops" rel="stylesheet"/>
+<link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet"/>
 <style>
   .tracking-page{min-height:100vh;background:linear-gradient(180deg,#fbf7f1,#efe4d6);padding:120px 18px 70px;color:#171311}.tracking-shell{width:min(980px,100%);margin:0 auto;display:grid;grid-template-columns:minmax(0,.8fr) minmax(320px,1fr);gap:22px;align-items:start}.tracking-hero,.tracking-card{border:1px solid rgba(23,19,17,.1);border-radius:30px;background:rgba(255,250,243,.86);box-shadow:0 24px 70px rgba(28,20,15,.08);padding:28px}.tracking-kicker{display:block;font-size:11px;font-weight:850;letter-spacing:.18em;text-transform:uppercase;color:#8a735b}.tracking-hero h1{font-family:Georgia,serif;font-size:clamp(38px,5vw,64px);line-height:1;margin:16px 0 14px;letter-spacing:-.05em}.tracking-hero p,.tracking-note{color:#6f6257;line-height:1.8}.tracking-form{display:grid;gap:16px}.tracking-field{display:grid;gap:8px}.tracking-field label{font-size:12px;letter-spacing:.13em;text-transform:uppercase;font-weight:850;color:#6f6257}.tracking-field input{height:54px;border:1px solid rgba(23,19,17,.16);border-radius:17px;background:#fff;padding:0 16px;outline:none}.tracking-field input:focus{border-color:#b8956c;box-shadow:0 0 0 4px rgba(184,149,108,.13)}.tracking-status{min-height:22px;color:#6f6257;font-size:13px;line-height:1.6}.tracking-status.is-error{color:#8a3b2f}.tracking-result{margin-top:18px;display:grid;gap:14px}.tracking-summary{border:1px solid rgba(23,19,17,.1);border-radius:22px;background:#fffaf4;padding:18px;display:grid;gap:10px}.tracking-summary-row{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(23,19,17,.08);padding-bottom:10px}.tracking-summary-row:last-child{border-bottom:0;padding-bottom:0}.tracking-summary-row span{color:#76685e;font-size:12px;text-transform:uppercase;letter-spacing:.1em;font-weight:800}.tracking-summary-row strong{text-align:right}.tracking-items{display:grid;gap:10px}.tracking-item{display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;border:1px solid rgba(23,19,17,.08);border-radius:18px;background:#fffaf4;padding:10px}.tracking-item img{width:54px;height:54px;object-fit:contain;border-radius:14px;background:#f4eadf}.tracking-item span{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:#8a735b;font-weight:800}.tracking-item strong{display:block;font-size:13px}.tracking-btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:#171311;color:#fff;text-decoration:none;min-height:46px;padding:0 20px;font-weight:850;border:0;cursor:pointer}.tracking-btn.secondary{background:#fffaf4;color:#171311;border:1px solid rgba(23,19,17,.12)}@media(max-width:820px){.tracking-page{padding-top:92px}.tracking-shell{grid-template-columns:1fr}.tracking-hero,.tracking-card{padding:22px}.tracking-item{grid-template-columns:48px 1fr}.tracking-item b{grid-column:2}}
 </style>
-<link rel="stylesheet" href="/assets/master-upgrade.css?v=20260513-master" />
+<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
+<link href="https://www.cosmoskin.com.tr/order-tracking.html" rel="canonical"/>
+<link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
 <main class="tracking-page">
-  <div class="tracking-shell">
-    <section class="tracking-hero">
-      <span class="tracking-kicker">COSMOSKIN Order Tracking</span>
-      <h1>Siparişini güvenle takip et.</h1>
-      <p>Sipariş numaranı ve siparişte kullandığın e-posta adresini gir. Sistem yalnızca eşleşen siparişi gösterir; başka müşteri bilgisi paylaşılmaz.</p>
-      <p class="tracking-note">Kargo takip linki admin panelinden girildiğinde burada ve hesabındaki sipariş detayında görünür.</p>
-    </section>
-    <section class="tracking-card">
-      <form class="tracking-form" id="orderTrackingForm" novalidate>
-        <div class="tracking-field"><label for="trackingOrderNumber">Sipariş No</label><input id="trackingOrderNumber" name="order_number" placeholder="CS-..." autocomplete="off" required /></div>
-        <div class="tracking-field"><label for="trackingEmail">E-posta</label><input id="trackingEmail" name="email" type="email" placeholder="mail@adresin.com" autocomplete="email" required /></div>
-        <button class="tracking-btn" type="submit">Siparişi Göster</button>
-        <div class="tracking-status" id="trackingStatus" aria-live="polite"></div>
-      </form>
-      <div class="tracking-result" id="trackingResult" hidden></div>
-    </section>
-  </div>
+<div class="tracking-shell">
+<section class="tracking-hero">
+<span class="tracking-kicker">COSMOSKIN Order Tracking</span>
+<h1>Siparişini güvenle takip et.</h1>
+<p>Sipariş numaranı ve siparişte kullandığın e-posta adresini gir. Sistem yalnızca eşleşen siparişi gösterir; başka müşteri bilgisi paylaşılmaz.</p>
+<p class="tracking-note">Kargo takip linki admin panelinden girildiğinde burada ve hesabındaki sipariş detayında görünür.</p>
+</section>
+<section class="tracking-card">
+<form class="tracking-form" id="orderTrackingForm" novalidate="">
+<div class="tracking-field"><label for="trackingOrderNumber">Sipariş No</label><input autocomplete="off" id="trackingOrderNumber" name="order_number" placeholder="CS-..." required=""/></div>
+<div class="tracking-field"><label for="trackingEmail">E-posta</label><input autocomplete="email" id="trackingEmail" name="email" placeholder="mail@adresin.com" required="" type="email"/></div>
+<button class="tracking-btn" type="submit">Siparişi Göster</button>
+<div aria-live="polite" class="tracking-status" id="trackingStatus"></div>
+</form>
+<div class="tracking-result" hidden="" id="trackingResult"></div>
+</section>
+</div>
 </main>
-<script src="/assets/order-tracking.js?v=20260510phase1ops" defer></script>
-<script src="/assets/cosmoskin-phase3.js?v=20260511-phase3" defer></script>
-<script defer src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script src="/assets/routine-route-bridge.js?v=20260516-routefix" defer></script>
+<script defer="" src="/assets/order-tracking.js?v=20260510phase1ops"></script>
+<script defer="" src="/assets/cosmoskin-phase3.js?v=20260511-phase3"></script>
+<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
+<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
+<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

@@ -26,7 +26,7 @@ function getSiteUrl(env = {}) {
 
 function getSender(env = {}) {
   return {
-    email: env.ORDER_FROM_EMAIL || env.CONTACT_FROM_EMAIL || env.NEWSLETTER_FROM_EMAIL || 'info@cosmoskin.com.tr',
+    email: env.ORDER_FROM_EMAIL || env.CONTACT_FROM_EMAIL || env.NEWSLETTER_FROM_EMAIL || 'destek@cosmoskin.com.tr',
     name: env.BREVO_SENDER_NAME || env.ORDER_SENDER_NAME || 'COSMOSKIN'
   };
 }
@@ -190,7 +190,7 @@ function buildPlainText({ order = {}, status = '', message = '', shipment = {}, 
     shipment.tracking_number ? `Takip No: ${shipment.tracking_number}` : '',
     shipment.tracking_url ? `Takip Bağlantısı: ${shipment.tracking_url}` : '',
     message ? `Not: ${message}` : '',
-    `Destek: ${env.CONTACT_FROM_EMAIL || 'info@cosmoskin.com.tr'}`
+    `Destek: ${env.CONTACT_FROM_EMAIL || 'destek@cosmoskin.com.tr'}`
   ];
   return lines.filter(Boolean).join('\n');
 }
@@ -248,7 +248,7 @@ function buildShipmentEmailHtml({ order = {}, shipment = {}, env = {} }) {
   const carrier = shipment.carrier_name || shipment.carrier || '';
   const trackingNumber = shipment.tracking_number || '';
   const trackingUrl = shipment.tracking_url || '';
-  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'destek@cosmoskin.com.tr';
   return `<!DOCTYPE html>
 <html lang="tr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Siparişin kargoya verildi | COSMOSKIN</title></head>
@@ -283,7 +283,7 @@ function buildShipmentEmailHtml({ order = {}, shipment = {}, env = {} }) {
 }
 
 function buildShipmentPlainText({ order = {}, shipment = {}, env = {} }) {
-  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'destek@cosmoskin.com.tr';
   return [
     'COSMOSKIN',
     'Siparişin kargoya verildi',
@@ -349,7 +349,7 @@ const TRANSACTIONAL_COPY = {
 function buildTransactionalHtml({ order = {}, type = '', env = {}, note = '', cta = null } = {}) {
   const copy = TRANSACTIONAL_COPY[type] || TRANSACTIONAL_COPY.return_request_received;
   const siteUrl = getSiteUrl(env);
-  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'destek@cosmoskin.com.tr';
   const orderNumber = order.order_number || order.id || '';
   const ctaHtml = cta && cta.href && cta.label ? `<tr><td style="padding:0 30px 34px;text-align:center;"><a href="${escapeHtml(cta.href)}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 25px;border-radius:999px;background:#15110f;color:#fff;text-decoration:none;font-size:13px;font-weight:800;">${escapeHtml(cta.label)}</a></td></tr>` : '';
   return `<!DOCTYPE html>
@@ -371,7 +371,7 @@ function buildTransactionalHtml({ order = {}, type = '', env = {}, note = '', ct
 
 function buildTransactionalText({ order = {}, type = '', env = {}, note = '', cta = null } = {}) {
   const copy = TRANSACTIONAL_COPY[type] || TRANSACTIONAL_COPY.return_request_received;
-  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'info@cosmoskin.com.tr';
+  const supportEmail = env.CONTACT_FROM_EMAIL || env.ORDER_FROM_EMAIL || 'destek@cosmoskin.com.tr';
   return [
     'COSMOSKIN',
     copy.subject,
