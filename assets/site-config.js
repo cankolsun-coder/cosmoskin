@@ -1,7 +1,7 @@
 window.COSMOSKIN_CONFIG = Object.assign({
   siteUrl: 'https://www.cosmoskin.com.tr',
-  supabaseUrl: 'https://nrwimlsqbmuiimkosthb.supabase.co',
-  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yd2ltbHNxYm11aWlta29zdGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2ODI1NzUsImV4cCI6MjA5MTI1ODU3NX0.qrb5GEcvUbMcKJ9jIS3v051DlKV5z3tEyKlSNB8jOXk',
+  supabaseUrl: 'https://nhrvqpymtvilsfwttnge.supabase.co',
+  supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ocnZxcHltdHZpbHNmd3R0bmdlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxMzQ4MTcsImV4cCI6MjA5NzcxMDgxN30.g06tsqd5D2UmGg6XLj5sD5kOUF_gQU28Ki5goFi4ZWk',
   authCallbackPath: '/auth/callback.html',
   resetPath: '/auth/reset.html',
   apiBase: '/api',
