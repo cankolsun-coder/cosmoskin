@@ -9,9 +9,9 @@ function safeMeta(meta = {}) {
 function computeTier(orders = []) {
   const paidOrders = orders.filter((order) => ['paid', 'preparing', 'shipped', 'delivered'].includes(order.status));
   const paidTotal = paidOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
-  if (paidTotal >= 15000 || paidOrders.length >= 8) return { key: 'signature', label: 'Signature Üye', progress: 100, next: null };
-  if (paidTotal >= 6000 || paidOrders.length >= 3) return { key: 'select', label: 'Select Üye', progress: Math.min(96, Math.round((paidTotal / 15000) * 100)), next: 'Signature Üye' };
-  return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 6000) * 100)), next: 'Select Üye' };
+  if (paidTotal >= 15000 || paidOrders.length >= 8) return { key: 'elite', label: 'Elite Üye', progress: 100, next: null };
+  if (paidTotal >= 6000 || paidOrders.length >= 3) return { key: 'signature', label: 'Signature Üye', progress: Math.min(96, Math.round(((paidTotal - 6000) / 9000) * 100)), next: 'Elite Üye' };
+  return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 6000) * 100)), next: 'Signature Üye' };
 }
 
 function normalizeOrder(order = {}) {

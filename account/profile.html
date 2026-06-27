@@ -39,17 +39,17 @@
 <p>Siparişlerin, favorilerin, adreslerin ve cilt rutinin tek bir yerde, düzenli ve hızlı erişimle senin için hazır.</p>
 <div aria-live="polite" class="cs-hero-chips">
 <span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M3 7h11v8H3zM14 10h3l3 3v2h-6zM7 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path></svg><b id="activeOrderChip">— aktif sipariş</b></span>
-<span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12.1 20.3 4.9 13.4a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8l-7.2 6.9a.6.6 0 0 1-.8 0Z"></path></svg><b id="savedPrefsChip">— kayıtlı tercih</b></span>
+<span><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M5 7h9"></path><path d="M18 7h1"></path><path d="M5 12h1"></path><path d="M10 12h9"></path><path d="M5 17h6"></path><path d="M15 17h4"></path><path d="M14 5.2v3.6"></path><path d="M10 10.2v3.6"></path><path d="M15 15.2v3.6"></path></svg><b id="savedPrefsChip">— bakım tercihi</b></span>
 </div>
 </div>
 <article aria-live="polite" class="cs-loyalty-card">
 <div aria-hidden="true" class="cs-loyalty-watermark">CS</div>
-<span class="cs-overline"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="m5 16-1-9 5 4 3-6 3 6 5-4-1 9H5Zm0 3h14"></path></svg>ÜYELİK SEVİYESİ</span>
+<span class="cs-overline"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="m5 16-1-9 5 4 3-6 3 6 5-4-1 9H5Zm0 3h14"></path></svg>COSMOSKIN CLUB</span>
 <h2 id="heroTier">Yükleniyor</h2>
 <div aria-hidden="true" class="cs-loyalty-progress"><span id="tierProgress" style="width:0%"></span></div>
 <div class="cs-loyalty-meta"><strong id="heroPoints">—</strong><span id="heroRemaining">—</span></div>
 <p id="heroTierHint">Hesap verilerin hazırlanıyor.</p>
-<div class="cs-loyalty-links"><a data-tab-link="loyalty" href="/account/profile.html?tab=loyalty">Avantajları Gör</a><a data-tab-link="loyalty" href="/account/profile.html?tab=loyalty">Puan Geçmişi</a></div>
+<div class="cs-loyalty-links"><a data-tab-link="loyalty" href="/account/profile.html?tab=loyalty">Avantajları Gör</a><a data-tab-link="loyalty" href="/account/profile.html?tab=loyalty">Puan Geçmişi</a><a href="/allproducts.html">Alışverişe Devam Et</a></div>
 </article>
 <article aria-live="polite" class="cs-skin-profile-card" data-skin-profile-widget="">
 <span class="cs-overline"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12 3.4c5.2 1.4 8 5.2 8 9.6 0 4.4-3.4 7.6-8 7.6S4 17.4 4 13c0-4.4 2.8-8.2 8-9.6Z"></path><path d="M9.5 12.5l1.8 1.8 3.4-3.6"></path></svg>CİLT PROFİLİM</span>
@@ -138,12 +138,14 @@
 <div class="cs-notification-list" id="notificationsList"></div>
 </section>
 <section aria-labelledby="skinHeading" class="cs-panel" data-panel="skin">
-<div class="cs-panel-head"><div><span>CİLT PROFİLİ</span><h2 id="skinHeading">Cilt Profilim</h2><p>Cilt tipini ve hedeflerini kaydet; öneriler hesabına göre şekillensin.</p></div><button class="cs-pill-btn cs-pill-btn--dark" id="saveSkinBtn" type="button">PROFİLİ KAYDET</button></div>
-<form class="cs-form" id="skinForm">
+<div class="cs-panel-head"><div><span>BAKIM PROFİLİ</span><h2 id="skinHeading">Cilt Profilim</h2><p>Bakım tercihlerini kaydet; kozmetik ürün önerileri cilt görünümü önceliklerine göre kişiselleştirilsin.</p></div><button class="cs-pill-btn cs-pill-btn--dark" id="saveSkinBtn" type="button">PROFİLİ GÜNCELLE</button></div>
+<div class="cs-safety-note"><strong>Bilgilendirme</strong><p>COSMOSKIN Cilt Profili, kozmetik ürün seçimini kişiselleştirmek ve alışveriş deneyimini kolaylaştırmak için hazırlanmıştır. Burada yer alan öneriler tıbbi teşhis, tedavi veya sağlık tavsiyesi niteliği taşımaz. Cilt hastalığı, alerjik reaksiyon veya devam eden hassasiyet durumlarında dermatoloğa danışmanız önerilir.</p></div>
+<form class="cs-form cs-skin-form" id="skinForm">
 <label><span>Cilt Tipi</span><select class="cs-input" name="skin_type"><option value="">Seçiniz</option><option>Normal Cilt</option><option>Kuru Cilt</option><option>Karma Cilt</option><option>Yağlı Cilt</option><option>Hassas Cilt</option></select></label>
-<label><span>Cilt Hassasiyeti</span><select class="cs-input" name="skin_sensitivity"><option value="">Seçiniz</option><option>Düşük</option><option>Orta</option><option>Yüksek</option></select></label>
-<label><span>Rutin Hedefi</span><select class="cs-input" name="routine_goal"><option value="">Seçiniz</option><option>Bariyer desteği</option><option>Yoğun nem</option><option>Işıltı ve ton eşitliği</option><option>Gözenek ve sebum dengesi</option><option>Hassasiyet yatıştırma</option></select></label>
-<fieldset class="cs-checks full"><legend>Cilt Endişeleri</legend><label><input name="skin_concerns" type="checkbox" value="Nemsizlik"/> Nemsizlik</label><label><input name="skin_concerns" type="checkbox" value="Bariyer Desteği"/> Bariyer Desteği</label><label><input name="skin_concerns" type="checkbox" value="Leke Görünümü"/> Leke Görünümü</label><label><input name="skin_concerns" type="checkbox" value="Gözenek &amp; Sebum"/> Gözenek &amp; Sebum</label><label><input name="skin_concerns" type="checkbox" value="Hassasiyet &amp; Kızarıklık"/> Hassasiyet &amp; Kızarıklık</label></fieldset>
+<label><span>Hassasiyet Tercihi</span><select class="cs-input" name="skin_sensitivity"><option value="">Seçiniz</option><option>Düşük</option><option>Orta</option><option>Yüksek</option></select></label>
+<label><span>Bakım Önceliği</span><select class="cs-input" name="routine_goal"><option value="">Seçiniz</option><option>Nem desteği</option><option>Cilt konforu ve bariyer görünümü</option><option>Aydınlık görünüm</option><option>Gözenek görünümü ve sebum dengesi</option><option>Hassas ciltlere uygun ürün tercihi</option></select></label>
+<fieldset class="cs-checks cs-care-priority-chips full"><legend>Bakım Öncelikleri</legend><label><input name="skin_concerns" type="checkbox" value="Nem desteği"/> <span>Nem desteği</span></label><label><input name="skin_concerns" type="checkbox" value="Cilt konforu"/> <span>Cilt konforu</span></label><label><input name="skin_concerns" type="checkbox" value="Leke görünümü"/> <span>Leke görünümü</span></label><label><input name="skin_concerns" type="checkbox" value="Gözenek görünümü ve sebum"/> <span>Gözenek görünümü &amp; sebum</span></label><label><input name="skin_concerns" type="checkbox" value="Hassas ciltlere uygun ürün tercihi"/> <span>Hassas ciltlere uygun ürün tercihi</span></label></fieldset>
+<p class="cs-form-note full">Bu alan sağlık değerlendirmesi değil; COSMOSKIN’de ürünleri daha doğru filtrelemek ve bakım rutinini kişiselleştirmek için kullanılan bir tercih alanıdır.</p>
 </form>
 <div class="cs-routine-plan" id="routinePlanSlot"></div>
 </section>
@@ -288,7 +290,7 @@
 (function () {
   var SKIN_LABELS = { kuru:'Kuru cilt', yagli:'Yağlı cilt', karma:'Karma cilt', hassas:'Hassas cilt', normal:'Normal cilt' };
   var SENS_LABELS = { dusuk:'Düşük hassasiyet', orta:'Orta hassasiyet', yuksek:'Yüksek hassasiyet' };
-  var GOAL_LABELS = { nem:'Nem', bariyer:'Bariyer', isilti:'Işıltı', leke:'Leke karşıtı', akne:'Akne karşıtı', hassasiyet:'Hassasiyet desteği', gozenek:'Gözenek', parlaklik:'Parlaklık' };
+  var GOAL_LABELS = { nem:'Nem', bariyer:'Bariyer', isilti:'Işıltı', leke:'Leke görünümü', akne:'Dönemsel pürüz görünümü', hassasiyet:'Cilt konforu', gozenek:'Gözenek', parlaklik:'Parlaklık' };
   var STYLE_LABELS = { minimal:'Minimal rutin', dengeli:'Dengeli rutin', kapsamli:'Kapsamlı rutin' };
 
   function render(profile) {

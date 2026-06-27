@@ -1106,3 +1106,76 @@ body.checkout-premium-page {
 
 /* COSMOSKIN Phase 2 EFT account display */
 .cs-checkout-bank-accounts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0}.cs-checkout-bank-account{border:1px solid rgba(42,32,24,.10);border-radius:18px;background:#fffaf4;padding:14px;display:grid;gap:8px}.cs-checkout-bank-account h4{margin:0;font-size:15px}.cs-checkout-bank-account .cs-checkout-bank-line{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:8px;align-items:center}.cs-checkout-bank-account strong{overflow-wrap:anywhere}.cs-card-icons img[alt="iyzico ile Öde"]{width:auto;max-width:96px;object-fit:contain}@media(max-width:720px){.cs-checkout-bank-accounts{grid-template-columns:1fr}.cs-checkout-bank-account .cs-checkout-bank-line{grid-template-columns:1fr;gap:6px}.cs-checkout-bank-account .cs-checkout-secondary{justify-self:start}}
+
+/* 2026-06-27 production readiness checkout refinements */
+.cs-checkout-stepper[hidden] { display: none !important; }
+body.cs-checkout-cart-empty .cs-checkout-grid { grid-template-columns: minmax(0, 1fr) 360px; }
+.cs-checkout-empty--commerce {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  min-height: 300px;
+  padding: 48px 34px;
+  border-style: solid;
+  background: linear-gradient(180deg, rgba(255,253,249,.94), rgba(248,240,231,.76));
+}
+.cs-checkout-empty-mark {
+  display: grid;
+  place-items: center;
+  width: 70px;
+  height: 70px;
+  border: 1px solid rgba(34,25,18,.1);
+  border-radius: 999px;
+  background: #f4eadf;
+  color: #1b1510;
+}
+.cs-checkout-empty--commerce .cs-checkout-summary-actions {
+  width: min(100%, 360px);
+}
+.cs-checkout-empty--commerce .cs-checkout-secondary {
+  min-height: 46px;
+}
+.cs-checkout-empty-trust {
+  margin: 4px 0 0;
+  color: #7a6e64;
+  font-size: 12px;
+  font-weight: 700;
+}
+.cs-checkout-empty-inline--summary {
+  margin-top: 18px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.72);
+}
+.cs-checkout-trust-strip {
+  border-radius: 18px;
+  box-shadow: 0 12px 36px rgba(31,23,17,.055);
+}
+.cs-checkout-trust-item {
+  grid-template-columns: 34px minmax(0,1fr);
+  justify-items: start;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  font-family: var(--cs-checkout-sans);
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.25;
+  text-align: left;
+}
+.cs-checkout-trust-icon {
+  width: 34px;
+  height: 34px;
+  background: #fffaf4;
+}
+.cs-checkout-trust-icon .cs-checkout-icon {
+  width: 16px;
+  height: 16px;
+}
+@media (max-width:1080px) {
+  body.cs-checkout-cart-empty .cs-checkout-grid { grid-template-columns: 1fr; }
+}
+@media (max-width:760px) {
+  .cs-checkout-empty--commerce { min-height: 260px; padding: 34px 20px; }
+  .cs-checkout-trust-item { border-right: 0; grid-template-columns: 30px 1fr; }
+  .cs-checkout-trust-icon { width: 30px; height: 30px; }
+}

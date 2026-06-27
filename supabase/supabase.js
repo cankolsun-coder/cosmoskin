@@ -25,9 +25,9 @@
 
 // ─── Konfigürasyon Referansı ───────────────────────────────────
 export const SUPABASE_CONFIG = {
-  url: 'https://nrwimlsqbmuiimkosthb.supabase.co',
-  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5yd2ltbHNxYm11aWlta29zdGhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2ODI1NzUsImV4cCI6MjA5MTI1ODU3NX0.qrb5GEcvUbMcKJ9jIS3v051DlKV5z3tEyKlSNB8jOXk',
-  storageBase: 'https://nrwimlsqbmuiimkosthb.supabase.co/storage/v1/object/public',
+  url: process.env.SUPABASE_URL || 'https://nhrvqpymtvilsfwttnge.supabase.co',
+  anonKey: process.env.SUPABASE_ANON_KEY || '',
+  storageBase: (process.env.SUPABASE_URL || 'https://nhrvqpymtvilsfwttnge.supabase.co') + '/storage/v1/object/public',
   reviewImagesBucket: 'review-images',
   adminEmail: 'cankolsun@cosmoskin.com.tr',
 };

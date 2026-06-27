@@ -730,6 +730,13 @@
   }
   async function applyCoupon(options) {
     options = options || {};
+    if (!cart.items.length) {
+      state.coupon = { code: '', type: '', discount: 0, freeShipping: false, label: '' };
+      saveState();
+      renderSummary();
+      if (!options.silent) setStatus('İndirim kodu uygulamak için önce sepetine ürün eklemelisin.', 'error');
+      return;
+    }
     var input = byId('csCouponInput');
     var code = input ? input.value.trim().toUpperCase() : String(state.coupon && state.coupon.code || '').trim().toUpperCase();
     state.coupon = { code: code, type: '', discount: 0, freeShipping: false, label: '' };
@@ -768,6 +775,14 @@
     var current = STEPS.indexOf(state.step);
     var node = byId('csCheckoutStepper');
     if (!node) return;
+    if (!cart.items.length && state.step !== 'success') {
+      node.innerHTML = '';
+      node.setAttribute('hidden', 'hidden');
+      node.setAttribute('aria-hidden', 'true');
+      return;
+    }
+    node.removeAttribute('hidden');
+    node.setAttribute('aria-hidden', 'false');
     node.innerHTML = STEPS.map(function (step, index) {
       var complete = index < current;
       var active = index === current;
@@ -993,7 +1008,7 @@
     var host = byId('csCheckoutContent');
     if (!host) return;
     if (!cart.items.length && state.step !== 'success') {
-      host.innerHTML = '<section class="cs-checkout-empty"><h2>Sepetin boş.</h2><p class="cs-checkout-note">Checkout’a devam etmek için sepetine ürün eklemelisin.</p><div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/allproducts.html">Ürünleri Keşfet</a><a class="cs-checkout-secondary" href="/cart.html">Sepete Git</a></div></section>';
+      host.innerHTML = '<section class="cs-checkout-empty cs-checkout-empty--commerce"><div class="cs-checkout-empty-mark">' + icon('box') + '</div><h2>Sepetin boş</h2><p class="cs-checkout-note">Checkout’a devam etmek için sepetine ürün eklemelisin. Sana uygun ürünleri keşfedebilir veya favorilerine göz atabilirsin.</p><div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/allproducts.html">Ürünleri Keşfet</a><a class="cs-checkout-secondary" href="/account/profile.html?tab=favorites">Favorilerime Git</a><a class="cs-checkout-secondary" href="/collections/bestsellers.html">Çok Satanları Gör</a></div><p class="cs-checkout-empty-trust">Orijinal ürün · Güvenli ödeme · Kolay iade süreci</p></section>';
       return;
     }
     if (state.step === 'payment') host.innerHTML = renderPayment();
@@ -1006,6 +1021,17 @@
     var action = byId('csCheckoutAction');
     if (!host) return;
     var t = totals();
+    if (!cart.items.length && state.step !== 'success') {
+      host.innerHTML = '<div class="cs-checkout-summary-head"><h2>Sipariş Özeti</h2><span class="cs-checkout-secure">KDV dahil</span></div><div class="cs-checkout-empty-inline cs-checkout-empty-inline--summary"><strong>Sepetinde ürün bulunmuyor.</strong><span>Ürün eklediğinde ürünler, kargo, KDV ve toplam bilgileri burada görünür.</span></div>';
+      if (action) {
+        action.textContent = 'Ödeme adımına geçilemez';
+        action.disabled = true;
+        action.setAttribute('aria-busy', 'false');
+      }
+      var emptyNote = byId('csCheckoutActionNote');
+      if (emptyNote) emptyNote.textContent = 'Ödeme adımına geçmek için sepetine ürün eklemelisin.';
+      return;
+    }
     host.innerHTML = '<div class="cs-checkout-summary-head"><h2>Sipariş Özeti</h2><span class="cs-checkout-secure">KDV dahil</span></div>' +
       '<div class="cs-checkout-summary-items">' + (cart.items.length ? cart.items.map(function (item) {
         return '<article class="cs-checkout-item"><a href="' + esc(item.url) + '"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div><strong>' + esc(item.brand) + '<br>' + esc(item.name) + '</strong><span>' + esc(item.size || 'KDV dahil') + '</span><span>Adet: ' + item.qty + '</span></div><b>' + money(item.price * item.qty) + '</b></article>';
@@ -1045,9 +1071,9 @@
     var host = byId('csCheckoutTrust');
     if (!host) return;
     host.innerHTML = [
-      ['check', '%100 Orijinal<br>Ürün Garantisi'],
-      ['truck', 'Ücretsiz<br>Kargo'],
-      ['return', '14 Gün İçinde<br>Kolay İade'],
+      ['check', 'Orijinal<br>Ürün Güvencesi'],
+      ['truck', 'DHL<br>Teslimat'],
+      ['return', 'Kolay<br>İade Süreci'],
       ['lock', 'Güvenli<br>Ödeme']
     ].map(function (item) {
       return '<div class="cs-checkout-trust-item"><span class="cs-checkout-trust-icon">' + icon(item[0]) + '</span><span>' + item[1] + '</span></div>';
@@ -1056,6 +1082,8 @@
   function render(options) {
     options = options || {};
     cart = readCart();
+    document.body.classList.toggle('cs-checkout-cart-empty', !cart.items.length && state.step !== 'success');
+    document.body.classList.toggle('cs-checkout-cart-ready', !!cart.items.length || state.step === 'success');
     renderStepper();
     renderContent();
     renderSummary();

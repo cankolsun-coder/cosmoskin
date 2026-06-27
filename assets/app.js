@@ -937,6 +937,10 @@ function broadcastFavoritesChange() {
     const shippingProgressFill = $('#shippingProgressFill');
     const shippingProgressText = $('#shippingProgressText');
     const qty = state.cart.reduce((a, b) => a + b.qty, 0);
+    if (cartDrawer) {
+      cartDrawer.classList.toggle('cart-drawer--empty', !state.cart.length);
+      cartDrawer.classList.toggle('cart-drawer--filled', !!state.cart.length);
+    }
 
     $$('.cart-count').forEach((el) => {
       el.textContent = qty;
@@ -961,8 +965,8 @@ function broadcastFavoritesChange() {
       discountRow.hidden = true;
     }
     if (vatEl) vatEl.textContent = fmt(t.vat);
-    if (shippingEl) shippingEl.textContent = t.shipping ? fmt(t.shipping) : 'Ücretsiz';
-    if (totalEl) totalEl.textContent = fmt(t.total);
+    if (shippingEl) shippingEl.textContent = state.cart.length ? (t.shipping ? fmt(t.shipping) : 'Ücretsiz') : 'Ürün eklenince hesaplanır';
+    if (totalEl) totalEl.textContent = state.cart.length ? fmt(t.total) : '—';
     if (shippingProgressFill && shippingProgressText) {
       const ratio = Math.max(0, Math.min(100, Math.round((t.subtotal / FREE_SHIPPING) * 100)));
       shippingProgressFill.style.width = `${ratio}%`;
@@ -977,7 +981,7 @@ function broadcastFavoritesChange() {
 
     if (!target) return;
     if (!state.cart.length) {
-      target.innerHTML = '<div class="account-state"><strong>Sepetiniz şu an boş.</strong><div class="account-mini">Eklediğiniz ürünler burada listelenir.</div></div>';
+      target.innerHTML = '<div class="account-state cart-empty-state"><strong>Sepetiniz şu an boş.</strong><div class="account-mini">Cilt bakım rutininize uygun ürünleri keşfederek alışverişe başlayabilirsiniz.</div><div class="cart-empty-actions"><a class="btn btn-primary" href="/allproducts.html">Ürünleri Keşfet</a><a class="btn btn-secondary" href="/account/profile.html?tab=favorites">Favorilerime Git</a></div></div>';
       return;
     }
 
@@ -1132,8 +1136,8 @@ function broadcastFavoritesChange() {
     const t = totals();
     if (sub) sub.textContent = fmt(t.subtotal);
     if (vat) vat.textContent = fmt(t.vat);
-    if (shipping) shipping.textContent = t.shipping ? fmt(t.shipping) : 'Ücretsiz';
-    if (total) total.textContent = fmt(t.total);
+    if (shipping) shipping.textContent = state.cart.length ? (t.shipping ? fmt(t.shipping) : 'Ücretsiz') : 'Ürün eklenince hesaplanır';
+    if (total) total.textContent = state.cart.length ? fmt(t.total) : '—';
 
     document.body.classList.toggle('checkout-cart-empty', !state.cart.length && !!document.getElementById('checkoutForm'));
     document.body.classList.toggle('checkout-cart-ready', !!state.cart.length && !!document.getElementById('checkoutForm'));

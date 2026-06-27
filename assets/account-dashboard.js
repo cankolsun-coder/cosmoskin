@@ -283,15 +283,28 @@
     if (el) el.textContent = value;
   }
 
+  function normalizeTierName(value, points) {
+    var raw = String(value || '').toLocaleLowerCase('tr-TR');
+    if (raw.indexOf('elite') !== -1) return 'Elite Üye';
+    if (raw.indexOf('signature') !== -1 || raw.indexOf('select') !== -1 || raw.indexOf('silver') !== -1) return 'Signature Üye';
+    if (points >= 15000) return 'Elite Üye';
+    if (points >= 6000) return 'Signature Üye';
+    return 'Essential Üye';
+  }
+
   function getLoyalty() {
     var stats = state.summary?.stats || {};
-    var tier = stats.tier || { label: 'Essential Üye', progress: 0, next: 'Select Üye' };
-    var points = Number(stats.current_points ?? stats.points ?? stats.reward_points ?? stats.total_spent ?? 0);
-    var nextThreshold = Number(stats.next_tier_threshold || (tier.next === 'Signature Üye' ? 15000 : tier.next === 'Select Üye' ? 6000 : Math.max(points, 1)));
-    var progress = Number(tier.progress || (nextThreshold ? Math.round((points / nextThreshold) * 100) : 100));
+    var points = Number(stats.current_points ?? stats.available_points ?? stats.points ?? stats.reward_points ?? stats.total_spent ?? 0);
+    var pending = Number(stats.pending_points ?? stats.points_pending ?? 0);
+    var tier = stats.tier || {};
+    var label = normalizeTierName(tier.label || tier.name || stats.membership_level, points);
+    var next = label === 'Essential Üye' ? 'Signature Üye' : label === 'Signature Üye' ? 'Elite Üye' : '';
+    var threshold = label === 'Essential Üye' ? 6000 : label === 'Signature Üye' ? 15000 : Math.max(points, 15000);
+    var base = label === 'Signature Üye' ? 6000 : label === 'Elite Üye' ? 15000 : 0;
+    var progress = next ? Math.round(((points - base) / Math.max(1, threshold - base)) * 100) : 100;
     progress = Math.max(0, Math.min(100, progress));
-    var remaining = Math.max(0, nextThreshold - points);
-    return { label: tier.label || 'Essential Üye', next: tier.next || '', points: Math.round(points), threshold: Math.round(nextThreshold), remaining: Math.round(remaining), progress: progress };
+    var remaining = next ? Math.max(0, threshold - points) : 0;
+    return { label: label, next: next, points: Math.round(points), available: Math.round(points), pending: Math.round(pending), threshold: Math.round(threshold), remaining: Math.round(remaining), progress: progress };
   }
 
   function renderShell() {
@@ -312,8 +325,8 @@
     setText('savedPrefsChip', prefCount + ' kayıtlı tercih');
     setText('heroTier', loyalty.label);
     setText('heroPoints', loyalty.threshold ? (loyalty.points.toLocaleString('tr-TR') + ' / ' + loyalty.threshold.toLocaleString('tr-TR') + ' puan') : 'Puan bilgisi hazırlanıyor');
-    setText('heroRemaining', loyalty.next ? ('Kalan: ' + loyalty.remaining.toLocaleString('tr-TR') + ' puan') : 'En üst seviye');
-    setText('heroTierHint', loyalty.next ? ('Bir sonraki seviye: ' + loyalty.next) : 'Tüm üyelik avantajları hesabınıza tanımlı.');
+    setText('heroRemaining', loyalty.next ? (loyalty.next + ' için kalan: ' + loyalty.remaining.toLocaleString('tr-TR') + ' puan') : 'En üst seviye');
+    setText('heroTierHint', loyalty.next ? (loyalty.next + ' için ' + loyalty.remaining.toLocaleString('tr-TR') + ' puan kaldı. Tamamlanan siparişlerinden puan kazanırsın.') : 'Elite avantajların hesabına tanımlı. Puan geçmişini düzenli takip edebilirsin.');
     var progress = $('#tierProgress');
     if (progress) progress.style.width = loyalty.progress + '%';
     setText('ordersBadge', String(stats.order_count || 0));
@@ -491,7 +504,7 @@
       { icon: 'pin', title: 'Kayıtlı Adreslerim', sub: (stats.addresses_count || 0) + ' adres kayıtlı', tab: 'addresses' },
       { icon: 'bell', title: 'Bildirim Tercihlerim', sub: 'E-posta & SMS', tab: 'notifications' },
       { icon: 'sparkle', title: 'Son Görüntülenenler', sub: 'Katalog geçmişi', href: '/allproducts.html' },
-      { icon: 'invoice', title: 'Faturalarım', sub: (state.summary?.orders || []).reduce(function (sum, order) { return sum + ((order.invoices || []).filter(function (invoice) { return invoice.pdf_url; }).length); }, 0) + ' fatura linki', tab: 'invoices' },
+      { icon: 'invoice', title: 'Faturalarım', sub: (state.summary?.orders || []).reduce(function (sum, order) { return sum + ((order.invoices || []).filter(function (invoice) { return invoice.pdf_url; }).length); }, 0) + ' hazır fatura', tab: 'invoices' },
       { icon: 'return', title: 'İade Taleplerim', sub: (state.returns || []).length + ' açık talep', tab: 'returns' }
     ];
     slot.innerHTML = items.map(function (item) {
@@ -594,20 +607,43 @@
   function renderPayments() {
     var slot = $('#paymentsSlot');
     if (!slot) return;
-    slot.innerHTML = '<div class="cs-truthful-state">' + iconSvg('card') + '<div><strong>Kayıtlı ödeme yöntemi bulunmuyor.</strong><p>Ödeme bilgileriniz güvenli ödeme sağlayıcısı üzerinden işlenir. COSMOSKIN kart numaranızı hesap sayfanızda saklamaz veya göstermez.</p><a class="cs-pill-btn cs-pill-btn--dark" href="/checkout.html">Ödeme Sayfasına Git</a></div></div>';
+    var methods = state.summary?.payment_methods || state.summary?.saved_cards || [];
+    if (Array.isArray(methods) && methods.length) {
+      slot.innerHTML = '<div class="cs-payment-method-grid">' + methods.map(function (method) {
+        var brand = method.brand || method.card_brand || 'Kart';
+        var last4 = method.last4 || method.last_four || '••••';
+        var exp = [method.exp_month || method.expMonth, method.exp_year || method.expYear].filter(Boolean).join('/');
+        return '<article class="cs-payment-method-card"><span>' + iconSvg('card') + '</span><div><strong>' + escapeHtml(brand) + ' •••• ' + escapeHtml(last4) + '</strong><p>' + (exp ? 'Son kullanım: ' + escapeHtml(exp) : 'Tokenize kayıtlı ödeme yöntemi') + '</p></div><em>' + (method.is_default ? 'Varsayılan' : 'Güvenli') + '</em></article>';
+      }).join('') + '</div><p class="cs-form-note">Kart bilgileri ödeme sağlayıcısı tarafından tokenize şekilde saklanır; COSMOSKIN kart numarası veya CVV saklamaz.</p>';
+      return;
+    }
+    slot.innerHTML = '<div class="cs-truthful-state cs-truthful-state--payment">' + iconSvg('card') + '<div><strong>Henüz kayıtlı ödeme yöntemin yok.</strong><p>Kart bilgileri güvenli ödeme altyapısı üzerinden işlenir. Kayıtlı kart özelliği ödeme sağlayıcısı aktif edildiğinde burada yalnızca kart markası ve son 4 hanesiyle görünür.</p><a class="cs-pill-btn cs-pill-btn--dark" href="/checkout.html">Ödeme Sayfasına Git</a></div></div>';
   }
 
   function renderInvoices() {
     var slot = $('#invoicesSlot');
     if (!slot) return;
     var rows = [];
+    var pending = [];
     (state.summary?.orders || []).forEach(function (order) {
-      (order.invoices || []).forEach(function (invoice) { rows.push({ order: order, invoice: invoice }); });
+      var invoices = Array.isArray(order.invoices) ? order.invoices : [];
+      if (!invoices.length && order.status !== 'cancelled') pending.push(order);
+      invoices.forEach(function (invoice) { rows.push({ order: order, invoice: invoice }); });
     });
     var linked = rows.filter(function (row) { return row.invoice && row.invoice.pdf_url; });
-    slot.innerHTML = linked.length ? linked.map(function (row) {
-      return '<article class="cs-return-card"><span class="cs-status-pill ' + escapeHtml(row.invoice.invoice_status || 'issued') + '">' + escapeHtml(row.invoice.invoice_status || 'issued') + '</span><h3>' + escapeHtml(row.invoice.invoice_number || row.order.order_number || 'Fatura') + '</h3><p>' + escapeHtml(row.invoice.provider || 'COSMOSKIN') + ' · ' + escapeHtml(formatDate(row.invoice.issued_at || row.invoice.created_at, true)) + '</p><a class="cs-mini-btn dark" href="' + escapeHtml(row.invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a></article>';
-    }).join('') : emptyState('Fatura bağlantısı yok.', 'Fatura PDF bağlantısı admin tarafından oluşturulduğunda burada görünür. Sahte fatura linki gösterilmez.', null);
+    if (linked.length) {
+      slot.innerHTML = linked.map(function (row) {
+        return '<article class="cs-return-card"><span class="cs-status-pill ' + escapeHtml(row.invoice.invoice_status || 'generated') + '">' + escapeHtml(row.invoice.invoice_status || 'Hazır') + '</span><h3>' + escapeHtml(row.invoice.invoice_number || row.order.order_number || 'Fatura') + '</h3><p>' + escapeHtml(row.invoice.provider || 'QNB e-solutions / COSMOSKIN') + ' · ' + escapeHtml(formatDate(row.invoice.issued_at || row.invoice.created_at, true)) + '</p><div class="cs-card-actions"><a class="cs-mini-btn dark" href="' + escapeHtml(row.invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a><a class="cs-mini-btn" href="' + escapeHtml(row.invoice.pdf_url) + '" download>Faturayı İndir</a></div></article>';
+      }).join('');
+      return;
+    }
+    if (pending.length) {
+      slot.innerHTML = pending.slice(0, 6).map(function (order) {
+        return '<article class="cs-return-card"><span class="cs-status-pill pending">Hazırlanıyor</span><h3>' + escapeHtml(order.order_number || order.id || 'Sipariş') + '</h3><p>Faturan sipariş onaylandıktan sonra hazırlanacaktır. Hazır olduğunda bu alandan görüntüleyebilirsin.</p><small>' + escapeHtml(formatDate(order.created_at, true)) + '</small></article>';
+      }).join('');
+      return;
+    }
+    slot.innerHTML = emptyState('Henüz faturanız bulunmuyor.', 'Siparişiniz onaylandıktan sonra fatura bilgileriniz burada görüntülenir. Fatura bağlantısı oluşmadan müşteriye kırık link gösterilmez.', null);
   }
 
   function renderReturns() {
@@ -663,18 +699,39 @@
     }
   }
 
+  function routineStepFor(product, index) {
+    var cat = String(product.category || '').toLocaleLowerCase('tr-TR');
+    if (/temiz/.test(cat)) return 'Temizle';
+    if (/tonik|essence/.test(cat)) return 'Hazırla';
+    if (/serum|ampul|treat/.test(cat)) return 'Hedef Bakım';
+    if (/güneş|spf|koru/.test(cat)) return 'Koru';
+    if (/nem|krem|care/.test(cat)) return 'Nemlendir';
+    return ['Temizle', 'Hazırla', 'Hedef Bakım', 'Nemlendir', 'Koru'][index] || 'Bakım Adımı';
+  }
+
+  function safeReasonFor(product) {
+    var profile = getCanonicalSkinProfile();
+    var goal = profile.primaryGoal || profile.secondaryGoal || 'bakım öncelikleriniz';
+    return 'Seçtiğiniz ' + escapeHtml(goal) + ' önceliğine göre bu kozmetik bakım adımı içinde gösterildi.';
+  }
+
   function renderRoutinePlan() {
     var slot = $('#routinePlanSlot');
     if (!slot) return;
     if (!hasSkinProfile(getCanonicalSkinProfile())) {
-      slot.innerHTML = '<article class="cs-card cs-card-full">' + emptyState('Cilt profiliniz bekleniyor.', 'Rutin akışı, profil kaydedildikten sonra gerçek ürün kataloğu üzerinden hazırlanır.', 'Cilt Profilimi Tamamla', '/account/profile.html?tab=skin', 'skin') + '</article>';
+      slot.innerHTML = '<article class="cs-card cs-card-full">' + emptyState('Bakım profiliniz bekleniyor.', 'Rutin akışı, profil kaydedildikten sonra kozmetik ürün tercihleri üzerinden hazırlanır.', 'Bakım Profilimi Tamamla', '/account/profile.html?tab=skin', 'skin') + '</article>';
       return;
     }
-    var products = getRecommendedProducts().slice(0, 4);
-    slot.innerHTML = '<article class="cs-card cs-card-full"><div class="cs-card-head"><span>ÖNERİLEN RUTİN AKIŞI</span><a href="/account/routines/">Rutinleri Gör</a></div><div class="cs-routine-plan-grid">' + ['Temizle', 'Nemlendir', 'Hedef Bakım', 'Koru'].map(function (step, index) {
-      var p = products[index];
-      return '<div class="cs-routine-step"><small>' + escapeHtml(step) + '</small>' + (p ? '<a href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.product_name) + '" loading="lazy"><strong>' + escapeHtml(p.product_name) + '</strong><span>' + escapeHtml(p.brand) + '</span></a>' : '<p>Ürün seçimi hazırlanıyor.</p>') + '</div>';
-    }).join('') + '</div></article>';
+    var products = getRecommendedProducts().slice(0, 5);
+    slot.innerHTML = '<article class="cs-card cs-card-full cs-routine-plan-card"><div class="cs-card-head"><span>ÖNERİLEN RUTİN AKIŞI</span><a href="/account/routines/">Rutinleri Gör</a></div><div class="cs-routine-tabs"><span>Sabah Rutini</span><span>Akşam Rutini</span></div><div class="cs-routine-plan-grid cs-routine-plan-grid--premium">' + products.map(function (p, index) {
+      var step = routineStepFor(p, index);
+      return '<article class="cs-routine-step cs-routine-step--product"><small>' + escapeHtml(step) + '</small><a href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image || '/assets/logo-mark-beige.png') + '" alt="' + escapeHtml(p.product_name) + '" loading="lazy"><strong>' + escapeHtml(p.product_name) + '</strong><span>' + escapeHtml(p.brand) + '</span></a><p>' + safeReasonFor(p) + '</p><div class="cs-routine-step-actions"><button class="cs-mini-btn dark" type="button" data-add-product-cart="' + escapeHtml(p.product_slug) + '">Sepete Ekle</button><button class="cs-mini-btn" type="button" data-add-favorite="' + escapeHtml(p.product_slug) + '">Favorile</button></div></article>';
+    }).join('') + '</div><p class="cs-form-note">COSMOSKIN Cilt Profili kozmetik ürün seçimini kişiselleştirmek için hazırlanır; tıbbi teşhis, tedavi veya sağlık tavsiyesi niteliği taşımaz.</p></article>';
+  }
+
+  function normalizePointRows() {
+    var rows = state.summary?.points_ledger || state.summary?.point_history || [];
+    return Array.isArray(rows) ? rows : [];
   }
 
   function renderLoyaltyDetail() {
@@ -682,11 +739,18 @@
     if (!slot) return;
     var loyalty = getLoyalty();
     var tiers = [
-      { title: 'Essential Üye', body: 'Hesap, favori, adres ve rutin kayıtları.' },
-      { title: 'Select Üye', body: 'Seçili kampanyalara erken erişim ve rutin önerileri.' },
-      { title: 'Signature Üye', body: 'Öncelikli destek ve kişiselleştirilmiş bakım avantajları.' }
+      { title: 'Essential Üye', key: 'Essential', points: '0+ puan', body: 'COSMOSKIN Club başlangıç seviyesi. Puan kazanımı, favoriler, rutin kaydetme ve kampanya bilgilendirmeleri.' },
+      { title: 'Signature Üye', key: 'Signature', points: '6.000+ puan', body: 'Daha yüksek sadakat görünürlüğü, üyelere özel kampanya kurguları ve öncelikli stok bildirimleri için tasarlandı.' },
+      { title: 'Elite Üye', key: 'Elite', points: '15.000+ puan', body: 'En yüksek sadakat seviyesi. Özel kampanya erişimi, premium müşteri deneyimi ve ileri seviye COSMOSKIN Club avantajları.' }
     ];
-    slot.innerHTML = '<article class="cs-loyalty-summary"><strong>' + escapeHtml(loyalty.label) + '</strong><p>' + (loyalty.next ? escapeHtml(loyalty.next + ' için ' + loyalty.remaining.toLocaleString('tr-TR') + ' puan kaldı.') : 'En üst seviyedesiniz.') + '</p><div class="cs-loyalty-progress"><span style="width:' + escapeHtml(loyalty.progress) + '%"></span></div></article><div class="cs-tier-list">' + tiers.map(function (tier) { return '<article class="cs-tier-card ' + (tier.title === loyalty.label ? 'is-active' : '') + '"><h3>' + escapeHtml(tier.title) + '</h3><p>' + escapeHtml(tier.body) + '</p></article>'; }).join('') + '</div>';
+    var ledger = normalizePointRows();
+    var historyHtml = ledger.length ? ledger.slice(0, 12).map(function (row) {
+      var amount = Number(row.points || row.amount || 0);
+      var status = row.status || (amount < 0 ? 'Geri alındı' : 'Kullanılabilir');
+      var sign = amount > 0 ? '+' : '';
+      return '<article class="cs-point-row"><div><strong>' + escapeHtml(row.order_number || row.orderNumber || row.reason || 'Puan hareketi') + '</strong><span>' + escapeHtml(row.description || row.note || 'COSMOSKIN Club puan kaydı') + '</span></div><b>' + sign + escapeHtml(amount.toLocaleString('tr-TR')) + ' puan</b><em>' + escapeHtml(status) + '</em><small>' + escapeHtml(formatDate(row.created_at || row.createdAt || new Date(), true)) + '</small></article>';
+    }).join('') : '<div class="cs-empty compact"><strong>Henüz puan hareketin yok.</strong><p>Tamamlanan siparişlerinden sonra puanların burada görünür. İptal ve iade durumlarında puanlar otomatik güncellenir.</p></div>';
+    slot.innerHTML = '<article class="cs-loyalty-summary cs-loyalty-summary--club"><span>COSMOSKIN Club</span><strong>' + escapeHtml(loyalty.label) + '</strong><p>' + (loyalty.next ? escapeHtml(loyalty.next + ' için ' + loyalty.remaining.toLocaleString('tr-TR') + ' puan kaldı.') : 'Elite seviyesindesiniz.') + '</p><div class="cs-loyalty-progress"><span style="width:' + escapeHtml(loyalty.progress) + '%"></span></div><div class="cs-loyalty-metrics"><span><b>' + escapeHtml(loyalty.available.toLocaleString('tr-TR')) + '</b>Kullanılabilir puan</span><span><b>' + escapeHtml(loyalty.pending.toLocaleString('tr-TR')) + '</b>Bekleyen puan</span></div></article><div class="cs-tier-list">' + tiers.map(function (tier) { return '<article class="cs-tier-card ' + (tier.title === loyalty.label ? 'is-active' : '') + '"><small>' + escapeHtml(tier.points) + '</small><h3>' + escapeHtml(tier.title) + '</h3><p>' + escapeHtml(tier.body) + '</p></article>'; }).join('') + '</div><article class="cs-card cs-card-full"><div class="cs-card-head"><span>PUAN GEÇMİŞİ</span></div><div class="cs-point-history">' + historyHtml + '</div></article>';
   }
 
   function renderAll() {
