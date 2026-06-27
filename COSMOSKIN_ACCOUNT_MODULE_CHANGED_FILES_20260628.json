@@ -1,0 +1,11 @@
+{
+  "changed_files": [
+    "account/profile.html",
+    "assets/account-dashboard.js",
+    "assets/account-dashboard.backup-20260628.js",
+    "assets/account-premium.css",
+    "functions/api/account/skin-profile.js",
+    "functions/api/account/summary.js",
+    "COSMOSKIN_ACCOUNT_MODULE_IMPLEMENTATION_REPORT_20260628.md"
+  ]
+}
