@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  var TOKEN_KEY='cosmoskin_admin_token_session';
+  var TOKEN_KEY='cosmoskin_admin_session_token';
   var state={token:sessionStorage.getItem(TOKEN_KEY)||'',products:[],summary:{},filter:'all',query:'',selected:null,movements:[],loading:false,dirty:{}};
   var $=function(s,r){return (r||document).querySelector(s)};
   var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};

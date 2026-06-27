@@ -20,7 +20,7 @@ Bu faz, Phase 1 sipariş/ödeme temelinin üzerine admin operasyon panelini ekle
 https://www.cosmoskin.com.tr/admin/orders/
 ```
 
-Panel, Cloudflare Pages environment variable olarak tanımlanan `ADMIN_TOKEN` ile giriş yapar.
+Panel, Cloudflare Pages environment variable olarak tanımlanan `ADMIN_TOKEN` değerini yalnızca `/api/admin/session` üzerinden kısa ömürlü imzalı admin session’a çevirerek giriş yapar. Sayfalar arası geçişte tekrar token istenmez.
 
 ## API
 
@@ -28,7 +28,7 @@ Panel, Cloudflare Pages environment variable olarak tanımlanan `ADMIN_TOKEN` il
 
 ```http
 GET /api/admin/orders
-x-admin-token: ADMIN_TOKEN
+x-admin-token: SIGNED_ADMIN_SESSION_TOKEN
 ```
 
 Desteklenen query parametreleri:
@@ -45,7 +45,7 @@ offset=0
 
 ```http
 PATCH /api/admin/orders
-x-admin-token: ADMIN_TOKEN
+x-admin-token: SIGNED_ADMIN_SESSION_TOKEN
 content-type: application/json
 ```
 
@@ -80,9 +80,9 @@ PUBLIC_SITE_URL=https://www.cosmoskin.com.tr
 
 ## Kontrol listesi
 
-- `ADMIN_TOKEN` Cloudflare Pages içinde tanımlı olmalı.
+- `ADMIN_TOKEN`, `ADMIN_SESSION_SECRET` ve `ADMIN_ALLOW_LEGACY_TOKEN=false` Cloudflare Pages içinde tanımlı olmalı.
 - Phase 1 SQL şeması Supabase SQL Editor'da çalıştırılmış olmalı.
-- `/admin/orders/` paneline token ile giriş yapılmalı.
+- `/admin/orders/` paneline tek kez admin token ile giriş yapılmalı; diğer admin sayfalarında tekrar token sorulmamalı.
 - Test sipariş için durum `preparing`, `shipped`, `delivered` olarak güncellenmeli.
 - Kargo takip numarası girilip kaydedilmeli.
 - `notify_customer` seçeneği Brevo env hazırsa test edilmeli.

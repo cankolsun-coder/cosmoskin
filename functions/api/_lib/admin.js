@@ -68,7 +68,13 @@ async function hmac(secret, value) {
 }
 
 function sessionSecret(context) {
-  return String(context?.env?.ADMIN_SESSION_SECRET || context?.env?.ADMIN_TOKEN || '');
+  return String(context?.env?.ADMIN_SESSION_SECRET || '');
+}
+
+function assertSessionSecret(context) {
+  if (!sessionSecret(context)) {
+    throw new AdminAuthError('Admin session secret yapılandırılmamış.', 500);
+  }
 }
 
 function sessionTtlSeconds(context) {
@@ -87,6 +93,7 @@ function assertCloudflareAccess(context) {
 }
 
 async function verifySignedSession(context, token) {
+  assertSessionSecret(context);
   const parts = String(token || '').split('.');
   if (parts.length !== 4 || parts[0] !== 'v1') return false;
   const [, expRaw, nonce, signature] = parts;
@@ -111,6 +118,7 @@ export class AdminAuthError extends Error {
 
 export async function issueAdminSession(context) {
   assertCloudflareAccess(context);
+  assertSessionSecret(context);
   assertNotThrottled(context);
   const expected = String(context?.env?.ADMIN_TOKEN || '');
   const supplied = String(context?.request?.headers?.get('x-admin-token') || '');
@@ -170,6 +178,6 @@ export function adminError(error, fallback = 'İşlem tamamlanamadı.') {
     ? 'Admin oturumu geçersiz veya süresi dolmuş.'
     : status === 429
       ? 'Çok fazla başarısız deneme yapıldı. Lütfen daha sonra tekrar deneyin.'
-      : (status >= 500 ? fallback : (error?.message || fallback));
+      : (status >= 500 && error?.name === 'AdminAuthError' ? (error?.message || fallback) : (status >= 500 ? fallback : (error?.message || fallback)));
   return json({ ok: false, error: message }, { status, headers });
 }

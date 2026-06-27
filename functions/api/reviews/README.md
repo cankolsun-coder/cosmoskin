@@ -100,7 +100,7 @@ fetch('/api/reviews', {
 
 ## Admin panel
 
-Visit `/admin/reviews/` and enter your `ADMIN_TOKEN`. The token is stored in `localStorage` and sent as `X-Admin-Token` header.
+Visit `/admin/reviews/` and enter your `ADMIN_TOKEN` once. The raw token is exchanged through `/api/admin/session`; only the short-lived signed admin session is kept in `sessionStorage` and sent as `X-Admin-Token` / `x-admin-token` for admin API calls.
 
 For extra security in production, additionally protect `/admin/*` via:
 - Cloudflare Access (recommended)

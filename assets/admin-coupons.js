@@ -1,5 +1,5 @@
 (function(){
-  const $=s=>document.querySelector(s); const TOKEN_KEY='cosmoskin_admin_token_session'; let token=sessionStorage.getItem(TOKEN_KEY)||'';
+  const $=s=>document.querySelector(s); const TOKEN_KEY='cosmoskin_admin_session_token'; let token=sessionStorage.getItem(TOKEN_KEY)||'';
   function msg(t){const el=$('#couponAdminStatus'); if(el) el.textContent=t||'';}
   async function api(method,body){const res=await fetch('/api/admin/coupons',{method,headers:{'Content-Type':'application/json','x-admin-token':token},body:body?JSON.stringify(body):undefined}); const data=await res.json().catch(()=>({})); if(!res.ok||!data.ok) throw new Error(data.error||'İşlem başarısız.'); return data;}
   function row(c){return `<tr><td><strong>${c.code}</strong><br><small>${c.title||''}</small></td><td>${c.type}</td><td>${Number(c.value||0)}</td><td>${Number(c.min_subtotal||0)} TL</td><td>${c.is_active?'Aktif':'Pasif'}</td><td><button type="button" data-toggle="${c.id}" data-active="${c.is_active?'0':'1'}">${c.is_active?'Pasifleştir':'Aktifleştir'}</button></td></tr>`}

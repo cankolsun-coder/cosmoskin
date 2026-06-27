@@ -1,8 +1,7 @@
 (function () {
   'use strict';
 
-  var TOKEN_KEY = 'cosmoskin_admin_token_session';
-  var OLD_TOKEN_KEY = 'cosmoskin_admin_token';
+  var TOKEN_KEY = 'cosmoskin_admin_session_token';
   var API_ORDERS = '/api/admin/orders';
 
   var ORDER_STATUSES = [
@@ -94,17 +93,6 @@
   }
   function clearSessionToken() {
     try { window.sessionStorage.removeItem(TOKEN_KEY); } catch (error) { /* noop */ }
-    try { window.localStorage.removeItem(OLD_TOKEN_KEY); } catch (error) { /* noop */ }
-  }
-  function migrateLegacyToken() {
-    if (getSessionToken()) return;
-    try {
-      var legacy = window.localStorage.getItem(OLD_TOKEN_KEY);
-      if (legacy) {
-        window.sessionStorage.setItem(TOKEN_KEY, legacy);
-        window.localStorage.removeItem(OLD_TOKEN_KEY);
-      }
-    } catch (error) { /* noop */ }
   }
   function formatDate(value, includeTime) {
     if (!value) return '—';
@@ -866,7 +854,6 @@
   function init() {
     cacheElements();
     initFilterOptions();
-    migrateLegacyToken();
     var token = getSessionToken();
     if (token && el.tokenInput) el.tokenInput.value = token;
     document.addEventListener('click', onClick);

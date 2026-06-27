@@ -1449,7 +1449,7 @@
 (function () {
   'use strict';
 
-  var TOKEN_KEY = 'cosmoskin_admin_token_session';
+  var TOKEN_KEY = 'cosmoskin_admin_session_token';
   var API_BASE = '/api/reviews';
   var FILTERS = [
     { key: 'pending', label: 'Bekleyen' },
@@ -1493,15 +1493,20 @@
   var sidebarNav = document.getElementById('sidebarNav');
 
   function getToken() {
-    return sessionStorage.getItem(TOKEN_KEY) || '';
+    return (window.COSMOSKIN_ADMIN && window.COSMOSKIN_ADMIN.getSessionToken && window.COSMOSKIN_ADMIN.getSessionToken()) || sessionStorage.getItem(TOKEN_KEY) || '';
   }
 
-  function setToken(token) {
+  async function setToken(token) {
+    if (window.COSMOSKIN_ADMIN && window.COSMOSKIN_ADMIN.login) {
+      await window.COSMOSKIN_ADMIN.login(token);
+      return;
+    }
     sessionStorage.setItem(TOKEN_KEY, token);
   }
 
   function clearToken() {
-    sessionStorage.removeItem(TOKEN_KEY);
+    if (window.COSMOSKIN_ADMIN && window.COSMOSKIN_ADMIN.logout) window.COSMOSKIN_ADMIN.logout();
+    else sessionStorage.removeItem(TOKEN_KEY);
   }
 
   function esc(value) {
@@ -2090,8 +2095,7 @@
     loginBtn.textContent = 'Doğrulanıyor...';
 
     try {
-      await verifyToken(token);
-      setToken(token);
+      await setToken(token);
       showApp();
       await loadReviews();
     } catch (error) {

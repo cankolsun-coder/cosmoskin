@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  var TOKEN_KEY='cosmoskin_admin_token_session';
+  var TOKEN_KEY='cosmoskin_admin_session_token';
   var token=sessionStorage.getItem(TOKEN_KEY)||'';
   var $=function(s){return document.querySelector(s)};
   function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}

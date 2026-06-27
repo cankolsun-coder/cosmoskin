@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   var page=document.body.getAttribute('data-admin-page')||'';
-  var TOKEN_KEY='cosmoskin_admin_token_session';
+  var TOKEN_KEY='cosmoskin_admin_session_token';
   var $=function(selector,root){return (root||document).querySelector(selector)};
   function esc(value){return String(value==null?'':value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
   function date(value){if(!value)return '—';try{return new Intl.DateTimeFormat('tr-TR',{dateStyle:'medium',timeStyle:'short',timeZone:'Europe/Istanbul'}).format(new Date(value))}catch(_){return value}}
