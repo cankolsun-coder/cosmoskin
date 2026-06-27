@@ -964,8 +964,13 @@
 
   function openAuth(mode) {
     try { sessionStorage.setItem('cosmoskin_return_to', ROUTINE_ROUTE + '?routineSync=1'); } catch (error) {}
+    var panelId = mode === 'register' ? 'registerPanel' : 'loginPanel';
+    if (typeof window.COSMOSKIN_OPEN_AUTH === 'function') {
+      window.COSMOSKIN_OPEN_AUTH(panelId);
+      return;
+    }
     var eventName = 'cosmoskin:open-auth-modal';
-    try { document.dispatchEvent(new CustomEvent(eventName, { detail: { tab: mode === 'register' ? 'registerPanel' : 'loginPanel' } })); } catch (error) {}
+    try { document.dispatchEvent(new CustomEvent(eventName, { detail: { tab: panelId } })); } catch (error) {}
     var modal = qs('#accountModal');
     if (modal) {
       modal.classList.add('open','show');
@@ -973,7 +978,6 @@
       var backdrop = qs('#backdrop');
       if (backdrop) backdrop.classList.add('show');
       document.body.classList.add('modal-open');
-      var panelId = mode === 'register' ? 'registerPanel' : 'loginPanel';
       qsa('.tab-panel', modal).forEach(function (panel) { panel.classList.toggle('active', panel.id === panelId); panel.hidden = false; });
       qsa('.tab-btn', modal).forEach(function (button) { button.classList.toggle('active', button.getAttribute('data-tab') === panelId); });
       var input = qs('#' + panelId + ' input', modal);

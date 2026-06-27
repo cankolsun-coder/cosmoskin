@@ -8952,3 +8952,53 @@ body.cm-mobile-active .cm-footer-socials a{display:inline-flex;align-items:cente
   .header .brand .brand-word,
   .cm-header-brandlock .cm-wordmark{font-size:20px!important;letter-spacing:.22em!important;}
 }
+
+/* ============================================================
+   COSMOSKIN production auth/search hotfix — 2026-06-27
+   ============================================================ */
+#accountModal.modal,
+#accountModal.modal.show,
+#accountModal.modal.open {
+  z-index: 370 !important;
+}
+#accountDrawer.drawer {
+  z-index: 330;
+}
+.backdrop.show {
+  z-index: 315;
+}
+#accountModal .modal-card {
+  position: relative;
+  z-index: 371;
+}
+.password-toggle {
+  cursor: pointer;
+  user-select: none;
+  pointer-events: auto;
+  z-index: 2;
+}
+.password-wrap input {
+  position: relative;
+  z-index: 1;
+}
+.site-search-form,
+.site-search,
+.site-search-input,
+.site-search-results {
+  transition-duration: 320ms !important;
+  transition-timing-function: cubic-bezier(.22,.72,.24,1) !important;
+}
+.site-search-form {
+  transition-property: flex-basis, max-width, width, opacity, transform !important;
+}
+.site-search {
+  transition-property: border-color, box-shadow, background, width, transform !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-search-form,
+  .site-search,
+  .site-search-input,
+  .site-search-results {
+    transition-duration: 1ms !important;
+  }
+}

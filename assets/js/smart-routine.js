@@ -704,11 +704,16 @@
         var result = await client.auth.getUser();
         if (!result || !result.data || !result.data.user) {
           showRoutineToast('Rutinini kaydetmek için giriş yapmalısın.', 'warning');
-          document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
+          try { sessionStorage.setItem('cosmoskin_return_to', '/account/routines/?from=home-smart-routine'); } catch (error) {}
+          if (typeof window.COSMOSKIN_OPEN_AUTH === 'function') window.COSMOSKIN_OPEN_AUTH('loginPanel');
+          else document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
           return;
         }
       } catch (error) {
         showRoutineToast('Rutinini kaydetmek için giriş yapmalısın.', 'warning');
+        try { sessionStorage.setItem('cosmoskin_return_to', '/account/routines/?from=home-smart-routine'); } catch (storageError) {}
+        if (typeof window.COSMOSKIN_OPEN_AUTH === 'function') window.COSMOSKIN_OPEN_AUTH('loginPanel');
+        else document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
         return;
       }
     }

@@ -2,12 +2,38 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const cfg = window.COSMOSKIN_CONFIG || {};
 
-if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) {
-  console.error('COSMOSKIN_CONFIG eksik. site-config.js içindeki Supabase ayarlarını kontrol et.');
+const AUTH_CONFIG_READY = Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey);
+
+if (!AUTH_CONFIG_READY) {
+  console.warn('COSMOSKIN Supabase public auth config eksik. Auth UI çalışır; gerçek giriş/kayıt için public anon key environment üzerinden sağlanmalı.');
 }
 
-const supabase = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+const authUnavailableError = () => ({
+  error: new Error('Auth provider is not configured'),
+  data: { user: null, session: null }
+});
+
+const authStub = {
+  auth: {
+    getSession: async () => ({ data: { session: null }, error: null }),
+    getUser: async () => ({ data: { user: null }, error: null }),
+    signInWithPassword: async () => authUnavailableError(),
+    signUp: async () => authUnavailableError(),
+    signOut: async () => ({ error: null }),
+    resend: async () => authUnavailableError(),
+    onAuthStateChange: () => ({ data: { subscription: { unsubscribe() {} } } })
+  }
+};
+
+let supabase = authStub;
+try {
+  supabase = AUTH_CONFIG_READY ? createClient(cfg.supabaseUrl, cfg.supabaseAnonKey) : authStub;
+} catch (error) {
+  console.warn('Supabase auth client başlatılamadı:', error);
+  supabase = authStub;
+}
 window.cosmoskinSupabase = supabase;
+window.COSMOSKIN_AUTH_CONFIG_READY = AUTH_CONFIG_READY;
 
 // Redirect account button to profile page when session exists
 supabase.auth.getSession().then(({ data: { session } }) => {
@@ -364,14 +390,26 @@ async function syncCheckoutAuthState() {
   }
 }
 
-function closeAccountDrawer() {
+function closeAccountDrawer({ keepBackdrop = false } = {}) {
   const drawer = document.getElementById('accountDrawer');
   const backdrop = document.getElementById('backdrop');
   drawer?.classList.remove('open');
-  backdrop?.classList.remove('show');
-  if (!document.getElementById('cartDrawer')?.classList.contains('open')) {
+  drawer?.setAttribute('aria-hidden', 'true');
+  if (!keepBackdrop) backdrop?.classList.remove('show');
+  if (!keepBackdrop && !document.getElementById('cartDrawer')?.classList.contains('open')) {
     document.body.classList.remove('modal-open');
   }
+}
+
+function openAccountDrawer() {
+  const drawer = document.getElementById('accountDrawer');
+  const backdrop = document.getElementById('backdrop');
+  if (!drawer) return;
+  drawer.classList.add('open');
+  drawer.setAttribute('aria-hidden', 'false');
+  backdrop?.classList.add('show');
+  document.body.classList.add('modal-open');
+  bindOpenAuthButtons();
 }
 
 function focusFirstInput(panelId) {
@@ -403,14 +441,24 @@ function openAccountModal(tab = 'login') {
   const backdrop = document.getElementById('backdrop');
   const panelId = resolvePanelId(tab);
 
-  if (!modal) return;
+  if (!modal) {
+    const authQuery = panelId === 'registerPanel' ? 'register' : 'login';
+    const next = encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+    window.location.href = `/index.html?auth=${authQuery}&next=${next}`;
+    return;
+  }
 
+  closeAccountDrawer({ keepBackdrop: true });
   modal.classList.add('open');
   modal.classList.add('show');
+  modal.removeAttribute('hidden');
+  modal.setAttribute('aria-hidden', 'false');
+  modal.style.zIndex = '370';
   backdrop?.classList.add('show');
   document.body.classList.add('modal-open');
 
   switchTab(panelId);
+  bindPasswordToggles();
   focusFirstInput(panelId);
 }
 
@@ -535,32 +583,47 @@ async function refreshAccountUI() {
   }
 }
 
+function handleOpenAuthClick(event, trigger) {
+  if (!trigger) return;
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  event?.stopImmediatePropagation?.();
+  saveReturnTo();
+  openAccountModal(trigger.dataset.authTab || trigger.getAttribute('data-auth-tab') || 'loginPanel');
+}
+
 function bindOpenAuthButtons() {
   qsa('[data-open-auth]').forEach((btn) => {
     if (btn.dataset.authBound === 'true') return;
     btn.dataset.authBound = 'true';
-    btn.addEventListener('click', () => {
-      saveReturnTo();
-      openAccountModal(btn.dataset.authTab || 'loginPanel');
-    });
+    btn.addEventListener('click', (event) => handleOpenAuthClick(event, btn));
   });
 }
 
 // -----------------------------
 // Password UX
 // -----------------------------
+function togglePasswordVisibility(btn, event) {
+  if (!btn) return;
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const inputId = btn.getAttribute('data-toggle-password');
+  const input = inputId ? document.getElementById(inputId) : btn.closest('.password-wrap')?.querySelector('input');
+  if (!input) return;
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  btn.textContent = isPassword ? 'Gizle' : 'Göster';
+  btn.setAttribute('aria-label', isPassword ? 'Şifreyi gizle' : 'Şifreyi göster');
+  btn.setAttribute('aria-pressed', String(isPassword));
+  input.focus({ preventScroll: true });
+}
+
 function bindPasswordToggles() {
   qsa('[data-toggle-password]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const inputId = btn.getAttribute('data-toggle-password');
-      const input = document.getElementById(inputId);
-      if (!input) return;
-
-      const isPassword = input.type === 'password';
-      input.type = isPassword ? 'text' : 'password';
-      btn.textContent = isPassword ? 'Gizle' : 'Göster';
-      btn.setAttribute('aria-label', isPassword ? 'Şifreyi gizle' : 'Şifreyi göster');
-    });
+    if (btn.dataset.passwordToggleBound === 'true') return;
+    btn.dataset.passwordToggleBound = 'true';
+    btn.setAttribute('type', 'button');
+    btn.addEventListener('click', (event) => togglePasswordVisibility(btn, event));
   });
 }
 
@@ -645,9 +708,10 @@ document.addEventListener('keydown', (e) => {
 
 document.getElementById('backdrop')?.addEventListener('click', closeAccountModal);
 
-document.getElementById('accountBtn')?.addEventListener('click', async (event) => {
-  const drawer = document.getElementById('accountDrawer');
-  const backdrop = document.getElementById('backdrop');
+async function handleAccountButtonClick(event) {
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  event?.stopImmediatePropagation?.();
 
   try {
     const {
@@ -655,7 +719,6 @@ document.getElementById('accountBtn')?.addEventListener('click', async (event) =
     } = await supabase.auth.getUser();
 
     if (user) {
-      event.preventDefault();
       window.location.href = '/account/profile.html';
       return;
     }
@@ -663,12 +726,11 @@ document.getElementById('accountBtn')?.addEventListener('click', async (event) =
     console.warn('account button auth check failed:', error);
   }
 
-  drawer?.classList.add('open');
-  backdrop?.classList.add('show');
-  document.body.classList.add('modal-open');
-
+  openAccountDrawer();
   await refreshAccountUI();
-});
+}
+
+document.getElementById('accountBtn')?.addEventListener('click', handleAccountButtonClick, true);
 
 document.addEventListener('cosmoskin:open-auth', (event) => {
   saveReturnTo();
@@ -680,17 +742,40 @@ document.addEventListener('cosmoskin:open-auth-modal', (event) => {
   openAccountModal(event.detail?.tab || 'loginPanel');
 });
 
+document.addEventListener('click', (event) => {
+  const openAuthTrigger = event.target.closest?.('[data-open-auth]');
+  if (openAuthTrigger) {
+    handleOpenAuthClick(event, openAuthTrigger);
+    return;
+  }
+
+  const passwordTrigger = event.target.closest?.('[data-toggle-password]');
+  if (passwordTrigger) {
+    togglePasswordVisibility(passwordTrigger, event);
+  }
+}, true);
+
+window.COSMOSKIN_OPEN_AUTH = function openCosmoskinAuth(tab = 'loginPanel') {
+  saveReturnTo();
+  openAccountModal(tab);
+};
+
 bindOpenAuthButtons();
 bindPasswordToggles();
 bindPasswordMeter();
 
 try {
-  const authMode = new URLSearchParams(window.location.search).get('auth');
-  if (authMode === 'register' || authMode === 'signup') {
+  const params = new URLSearchParams(window.location.search);
+  const authMode = params.get('auth') || (params.get('login') === '1' ? 'login' : '');
+  const next = params.get('next');
+  if (next && /^\//.test(next)) {
+    try { sessionStorage.setItem('cosmoskin_return_to', next); } catch (error) {}
+  }
+  if (authMode === 'register' || authMode === 'signup' || authMode === 'login') {
     window.setTimeout(() => {
-      saveReturnTo();
-      openAccountModal('registerPanel');
-    }, 120);
+      if (!next) saveReturnTo();
+      openAccountModal(authMode === 'register' || authMode === 'signup' ? 'registerPanel' : 'loginPanel');
+    }, 160);
   }
 } catch (error) {
   console.warn('auth query handling warning:', error);
@@ -1069,7 +1154,7 @@ loginForm?.addEventListener('submit', async (e) => {
     } else if (msg.includes('rate limit')) {
       setStatus('Çok fazla giriş denemesi yapıldı. Lütfen biraz sonra tekrar dene.', true, 'loginStatus');
     } else {
-      setStatus('Giriş sırasında bir hata oluştu. Lütfen tekrar dene.', true, 'loginStatus');
+      setStatus(msg.includes('auth provider') ? 'Giriş sistemi şu anda yapılandırılıyor. Lütfen kısa süre sonra tekrar deneyin.' : 'Giriş sırasında bir hata oluştu. Lütfen tekrar dene.', true, 'loginStatus');
     }
   } finally {
     setLoading(submitBtn, false);
