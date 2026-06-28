@@ -2,6 +2,33 @@ import { selectRows } from './supabase.js';
 
 const SUPPORTED_CURRENCIES = new Set(['TRY']);
 
+export const FALLBACK_BANK_ACCOUNTS = [
+  {
+    id: 'garanti-bankasi-cosmoskin',
+    bankName: 'Garanti Bankası',
+    accountName: 'ENES CAN KÖLSÜN',
+    iban: 'TR840006200074200006291866',
+    branch: 'Maltepe Çarşı',
+    currency: 'TRY',
+    active: true,
+    sortOrder: 1
+  },
+  {
+    id: 'is-bankasi-cosmoskin',
+    bankName: 'İş Bankası',
+    accountName: 'ENES CAN KÖLSÜN',
+    iban: 'TR700006400000110372579047',
+    branch: 'Maltepe Çarşı',
+    currency: 'TRY',
+    active: true,
+    sortOrder: 2
+  }
+];
+
+function fallbackAccounts(limit = 3) {
+  return FALLBACK_BANK_ACCOUNTS.slice(0, Math.max(1, Math.min(10, Number(limit || 3))));
+}
+
 export function normalizeIban(value = '') {
   return String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
 }
@@ -45,16 +72,22 @@ export function validateBankAccount(row = {}) {
 }
 
 export async function getValidatedBankAccounts(context, limit = 3) {
-  const rows = await selectRows(context, 'payment_bank_accounts', {
-    select: 'id,bank_name,account_holder,iban,branch,currency,is_active,sort_order,created_at',
-    is_active: 'eq.true',
-    order: 'sort_order.asc,created_at.asc',
-    limit: String(Math.max(1, Math.min(10, Number(limit || 3))))
-  });
-  return (rows || [])
-    .map(validateBankAccount)
-    .filter((entry) => entry.valid)
-    .map((entry) => entry.account);
+  try {
+    const rows = await selectRows(context, 'payment_bank_accounts', {
+      select: 'id,bank_name,account_holder,iban,branch,currency,is_active,sort_order,created_at',
+      is_active: 'eq.true',
+      order: 'sort_order.asc,created_at.asc',
+      limit: String(Math.max(1, Math.min(10, Number(limit || 3))))
+    });
+    const accounts = (rows || [])
+      .map(validateBankAccount)
+      .filter((entry) => entry.valid)
+      .map((entry) => entry.account);
+    return accounts.length ? accounts : fallbackAccounts(limit);
+  } catch (error) {
+    console.warn('payment_bank_accounts fallback used:', { message: String(error?.message || 'unknown').slice(0, 160) });
+    return fallbackAccounts(limit);
+  }
 }
 
 export async function getPrimaryBankAccount(context) {

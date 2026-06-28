@@ -4,8 +4,8 @@ import { json } from '../_lib/response.js';
 import { assertRateLimit } from '../_lib/security.js';
 
 const FREE_SHIPPING_LIMIT = 2500;
-const SHIPPING_FEE = 119;
-const EXPRESS_SURCHARGE = 49.90;
+const SHIPPING_FEE = 89;
+const EXPRESS_SURCHARGE = 0;
 const NO_STORE = { 'Cache-Control': 'no-store, max-age=0', Pragma: 'no-cache' };
 
 function money(value) {
@@ -38,7 +38,7 @@ export function calculateCouponPreview(coupon, subtotal, shippingMethod = 'stand
   let shipping = 0;
   if (discountedSubtotal > 0 && !freeShipping) {
     shipping = discountedSubtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_FEE;
-    if (String(shippingMethod || '').toLowerCase() === 'express') shipping += EXPRESS_SURCHARGE;
+    // Only Standart Kargo is active for launch; express is intentionally disabled.
   }
   shipping = money(Math.max(0, shipping));
   return {

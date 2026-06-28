@@ -3,13 +3,15 @@ import { iyzicoRequest } from './_lib/iyzico.js';
 import { catalog } from './_lib/catalog.js';
 import { releaseInventoryReservations, reserveInventoryForOrder } from './_lib/inventory.js';
 import { json } from './_lib/response.js';
-import { getPrimaryBankAccount } from './_lib/bank-accounts.js';
+import { getPrimaryBankAccount, getValidatedBankAccounts } from './_lib/bank-accounts.js';
 import { legalDocumentKeyFromConsent, legalDocumentSnapshot } from './_lib/legal-documents.js';
+import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from './_lib/order-email.js';
+import { recordEmailEvent } from './_lib/email-events.js';
 
 const VAT_RATE = 0.20;
 const FREE_SHIPPING_LIMIT = 2500;
-const SHIPPING_FEE = 119;
-const EXPRESS_SURCHARGE = 49.90;
+const SHIPPING_FEE = 89;
+const EXPRESS_SURCHARGE = 0;
 const DEFAULT_EFT_RESERVATION_MINUTES = 1440;
 const MAX_CART_LINES = 30;
 const MAX_TOTAL_QUANTITY = 99;
@@ -248,7 +250,7 @@ async function applyCoupon(context, cart, subtotal, couponCode, customer = {}) {
 }
 
 function normalizeShippingMethod(value) {
-  return String(value || 'standard').toLowerCase() === 'express' ? 'express' : 'standard';
+  return 'standard';
 }
 
 function calculateTotalsWithCoupon(cart, coupon, shippingMethod = 'standard') {
@@ -600,9 +602,11 @@ export async function onRequestPost(context) {
     if (paymentMethod === 'card') assertCardPaymentEnvironment(context.env || {});
 
     let bankAccount = null;
+    let bankAccounts = [];
     if (paymentMethod === 'bank_transfer') {
       try {
-        bankAccount = await getPrimaryBankAccount(context);
+        bankAccounts = await getValidatedBankAccounts(context, 5);
+        bankAccount = bankAccounts[0] || await getPrimaryBankAccount(context);
       } catch (error) {
         console.error('checkout bank account validation failed:', { message: String(error?.message || 'unknown').slice(0, 180) });
         throw new CheckoutError('Havale/EFT bilgileri şu anda doğrulanamıyor. Sipariş oluşturulmadı.', 503, 'BANK_ACCOUNT_UNAVAILABLE');
@@ -804,6 +808,32 @@ export async function onRequestPost(context) {
         note: 'Müşteri açıklama alanına sipariş numarasını yazmalıdır.',
         metadata: { order_number: orderNumber, payment_method: 'bank_transfer', payment_deadline: paymentDeadline }
       }).catch(() => null);
+      try {
+        const emailOrder = { ...orderPayload, order_items: cart };
+        const emailResult = await sendCommerceTransactionalEmail(context.env || {}, { order: emailOrder, type: 'bank_transfer_pending', bankAccounts });
+        await recordEmailEvent(context, {
+          order_id: orderId,
+          customer_email: customer.email,
+          email_type: 'bank_transfer_pending',
+          provider: emailResult.provider || (context.env.BREVO_API_KEY ? 'brevo' : null),
+          status: emailResult.sent ? 'sent' : (emailResult.skipped ? 'skipped' : 'failed'),
+          subject: getCommerceEmailSubject('bank_transfer_pending'),
+          provider_message_id: emailResult.provider_message_id || null,
+          error_message: emailResult.reason || emailResult.error || null,
+          metadata: { source: 'checkout' }
+        });
+      } catch (emailError) {
+        await recordEmailEvent(context, {
+          order_id: orderId,
+          customer_email: customer.email,
+          email_type: 'bank_transfer_pending',
+          provider: context.env.BREVO_API_KEY ? 'brevo' : null,
+          status: 'failed',
+          subject: getCommerceEmailSubject('bank_transfer_pending'),
+          error_message: String(emailError?.message || 'email_failed').slice(0, 700),
+          metadata: { source: 'checkout' }
+        }).catch(() => null);
+      }
       return json({
         ok: true,
         orderId,
@@ -813,6 +843,7 @@ export async function onRequestPost(context) {
         paymentStatus: 'awaiting_transfer',
         paymentDeadline,
         bankAccount,
+        bankAccounts,
         totals,
         message: 'Siparişiniz oluşturuldu. Havale/EFT ödemeniz bekleniyor.'
       }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });

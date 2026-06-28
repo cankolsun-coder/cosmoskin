@@ -10,6 +10,7 @@ function normalizeAddress(body = {}) {
   const city = cleanString(body.city || '', 80);
   const district = cleanString(body.district || '', 80);
   const addressLine = cleanString(body.address_line || body.addressLine || body.address || '', 500);
+  const neighborhood = cleanNullable(body.neighborhood || body.neighbourhood || body.mahalle, 120);
   return {
     title,
     recipient_first_name: firstName,
@@ -17,10 +18,11 @@ function normalizeAddress(body = {}) {
     phone,
     city,
     district,
+    neighborhood,
     postal_code: cleanNullable(body.postal_code || body.postalCode, 24),
     address_line: addressLine,
     address_type: ['shipping', 'billing', 'both'].includes(body.address_type || body.type) ? (body.address_type || body.type) : 'shipping',
-    is_default: Boolean(body.is_default),
+    is_default: body.is_default === true || body.is_default === 'true' || body.isDefault === true || body.default === true,
     metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : {}
   };
 }

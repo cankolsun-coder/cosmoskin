@@ -541,7 +541,7 @@
       infoCell('Kargo', shipment ? trackingSummary(order) : 'Kargo bilgisi yok') +
       infoCell('Fatura', invoice ? statusLabel('invoice', invoice.invoice_status) : 'Fatura kaydı yok') +
       infoCell('İade / Refund', returnReq ? statusLabel('return', returnReq.status) : 'İade talebi yok') +
-      '</div><div class="cs-action-row"><button class="cs-btn cs-btn-dark" type="button" data-detail-tab="shipment">Kargo ekle/güncelle</button><button class="cs-btn" type="button" data-detail-tab="emails">E-posta geçmişi</button><button class="cs-btn" type="button" data-detail-tab="invoice">Fatura kaydı</button><button class="cs-btn" type="button" data-detail-tab="returns">İade talebi</button></div></section>' +
+      '</div><div class="cs-action-row"><button class="cs-btn" type="button" data-order-action="mark_preparing">Hazırlanıyor işaretle</button><button class="cs-btn cs-btn-dark" type="button" data-detail-tab="shipment">Kargo ekle/güncelle</button><button class="cs-btn" type="button" data-detail-tab="emails">E-posta geçmişi</button><button class="cs-btn" type="button" data-detail-tab="invoice">Fatura kaydı</button><button class="cs-btn" type="button" data-detail-tab="returns">İade talebi</button></div></section>' +
       renderStatusUpdateForm(order);
   }
   function compactAddress(order, type) {
@@ -626,12 +626,12 @@
       if (a.status !== 'failed' && b.status === 'failed') return 1;
       return new Date(b.sent_at || b.created_at) - new Date(a.sent_at || a.created_at);
     });
-    var buttons = [['order_created', 'Sipariş onayını tekrar gönder'], ['payment_success', 'Ödeme onayını tekrar gönder'], ['shipment_created', 'Kargo e-postasını tekrar gönder'], ['shipment_delivered', 'Teslimat e-postasını tekrar gönder']];
+    var buttons = [['order_created', 'Sipariş onayını tekrar gönder'], ['payment_success', 'Ödeme onayını tekrar gönder'], ['order_preparing', 'Hazırlanıyor e-postasını gönder'], ['shipment_created', 'Kargo e-postasını tekrar gönder'], ['shipment_delivered', 'Teslimat e-postasını tekrar gönder']];
     return '<section class="cs-detail-card"><h3>E-posta aksiyonları</h3><div class="cs-action-row">' + buttons.map(function (b) { return '<button class="cs-btn" type="button" data-resend-email="' + attr(b[0]) + '">' + escapeHtml(b[1]) + '</button>'; }).join('') + '</div></section>' +
       '<section class="cs-detail-card"><h3>E-posta geçmişi</h3>' + (emails.length ? '<div class="cs-record-list">' + emails.map(function (event) { return '<article class="cs-record ' + (event.status === 'failed' ? 'cs-error-priority' : '') + '"><div class="cs-record-head"><strong>' + escapeHtml(emailLabel(event.email_type)) + '</strong>' + renderBadge('email', event.status || 'pending') + '</div><small>' + escapeHtml(formatDate(event.sent_at || event.created_at)) + ' · ' + escapeHtml(event.customer_email || 'alıcı yok') + ' · ' + escapeHtml(event.provider || 'provider yok') + '</small><small>' + escapeHtml(event.subject || 'Konu yok') + (event.provider_message_id ? ' · ID: ' + escapeHtml(event.provider_message_id) : '') + '</small>' + (event.error_message ? '<div class="cs-error-box">' + escapeHtml(event.error_message) + '</div>' : '') + '</article>'; }).join('') + '</div>' : '<p>E-posta geçmişi bulunmuyor.</p>') + '</section>';
   }
   function emailLabel(type) {
-    var map = { order_created: 'Sipariş onayı', payment_success: 'Ödeme onayı', payment_failed: 'Ödeme başarısız', shipment_created: 'Kargo e-postası', shipment_updated: 'Kargo güncellemesi', shipment_delivered: 'Teslimat e-postası', return_request_received: 'İade talebi', return_approved: 'İade onayı', return_rejected: 'İade reddi', refund_completed: 'Refund tamamlandı', review_request: 'Yorum isteği' };
+    var map = { order_created: 'Sipariş onayı', bank_transfer_pending: 'Havale/EFT bekleniyor', payment_success: 'Ödeme onayı', payment_confirmed_manual: 'Manuel ödeme onayı', payment_failed: 'Ödeme başarısız', order_preparing: 'Hazırlanıyor e-postası', order_packed: 'Paketlendi e-postası', shipment_created: 'Kargo e-postası', shipment_updated: 'Kargo güncellemesi', shipment_delivered: 'Teslimat e-postası', return_request_received: 'İade talebi', return_approved: 'İade onayı', return_rejected: 'İade reddi', refund_completed: 'Refund tamamlandı', review_request: 'Yorum isteği' };
     return map[type] || type || 'E-posta';
   }
   function renderHistoryTab(order) {
@@ -802,8 +802,9 @@
   }
   function handleOrderAction(action) {
     var orderId = state.selectedOrder.id;
-    if (action === 'mark_shipped') updateOrder({ id: orderId, action: 'mark_shipped', message: 'Admin panelinden kargoya verildi olarak işaretlendi.' }, 'Kargoya verildi olarak işaretlensin mi?', 'Kargo bilgisi yoksa yalnızca sipariş operasyon durumu güncellenir.');
-    if (action === 'mark_delivered') updateOrder({ id: orderId, action: 'mark_delivered', message: 'Admin panelinden teslim edildi olarak işaretlendi.' }, 'Teslim edildi olarak işaretlensin mi?', 'Bu işlem müşteriye teslimat e-postası gönderilmesine neden olabilir.');
+    if (action === 'mark_preparing') updateOrder({ id: orderId, action: 'mark_preparing', message: 'Sipariş hazırlanıyor.' }, 'Hazırlanıyor olarak işaretlensin mi?', 'Bu işlem müşteriye hazırlanıyor e-postası gönderebilir.');
+    if (action === 'mark_shipped') updateOrder({ id: orderId, action: 'mark_shipped', message: 'Sipariş kargoya verildi.' }, 'Kargoya verildi olarak işaretlensin mi?', 'Kargo bilgisi yoksa yalnızca sipariş operasyon durumu güncellenir.');
+    if (action === 'mark_delivered') updateOrder({ id: orderId, action: 'mark_delivered', message: 'Sipariş teslim edildi.' }, 'Teslim edildi olarak işaretlensin mi?', 'Bu işlem müşteriye teslimat e-postası gönderilmesine neden olabilir.');
     if (action === 'mark_payment_paid') updateOrder({ id: orderId, action: 'mark_payment_paid', message: 'Admin panelinden ödeme manuel olarak ödendi işaretlendi.' }, 'Ödeme manuel ödendi işaretlensin mi?', 'Bu işlem ödeme sağlayıcısından gerçek zamanlı doğrulama yapmaz; operasyonel düzeltme kaydı oluşturur.');
   }
   function onSubmit(event) {

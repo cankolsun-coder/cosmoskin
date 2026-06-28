@@ -8,7 +8,7 @@ window.COSMOSKIN_CONFIG = Object.assign({
   turnstileSiteKey: '',
   currency: 'TRY',
   vatRate: 0.20,
-  shippingFee: 119
+  shippingFee: 89
 }, window.COSMOSKIN_CONFIG || {}, {
   brandName: 'COSMOSKIN',
   sellerName: 'ENES CAN KÖLSÜN',

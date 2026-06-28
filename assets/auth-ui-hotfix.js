@@ -73,6 +73,31 @@
     }, 90);
   }
 
+
+  function ensurePasswordToggle(inputId) {
+    var input = qs('#' + inputId);
+    if (!input || qs('[data-toggle-password="' + inputId + '"]')) return;
+    var wrap = input.closest('.password-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'password-wrap';
+      input.parentNode.insertBefore(wrap, input);
+      wrap.appendChild(input);
+    }
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'password-toggle';
+    button.setAttribute('data-toggle-password', inputId);
+    button.setAttribute('aria-label', 'Şifreyi göster');
+    button.textContent = 'Göster';
+    wrap.appendChild(button);
+  }
+
+  function ensureAllPasswordToggles() {
+    ensurePasswordToggle('loginPassword');
+    ensurePasswordToggle('registerPassword');
+  }
+
   window.COSMOSKIN_OPEN_AUTH = window.COSMOSKIN_OPEN_AUTH || function (tab) {
     saveReturnTo();
     openAuth(tab || 'loginPanel');
@@ -132,6 +157,7 @@
   });
 
   document.addEventListener('DOMContentLoaded', function () {
+    ensureAllPasswordToggles();
     qsa('[data-toggle-password]').forEach(function (button) { button.setAttribute('type', 'button'); });
     try {
       var params = new URLSearchParams(window.location.search);

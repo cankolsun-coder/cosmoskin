@@ -1054,12 +1054,12 @@ registerForm?.addEventListener('submit', async (e) => {
     if (error) throw error;
 
     if (data?.user?.identities?.length === 0) {
-      setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
+      setStatus('Bu e-posta adresiyle oluşturulmuş bir hesap zaten var.', true, 'registerStatus');
       setLoading(submitBtn, false);
       return;
     }
 
-    setStatus('Kayıt başarılı. Lütfen e-postanı kontrol et.', false, 'registerStatus');
+    setStatus('Kayıt başarılı. E-posta adresinizi doğrulamak için gelen kutunuzu kontrol edin.', false, 'registerStatus');
     track('sign_up', { email_domain: email.split('@')[1] || '' });
     registerForm.reset();
     bindPasswordMeter();
@@ -1072,10 +1072,11 @@ registerForm?.addEventListener('submit', async (e) => {
       msg.includes('already') ||
       msg.includes('exists') ||
       msg.includes('duplicate') ||
-      msg.includes('registered') ||
-      msg.includes('database error saving new user')
+      msg.includes('registered')
     ) {
-      setStatus('Girmiş olduğun e-posta zaten kayıtlı.', true, 'registerStatus');
+      setStatus('Bu e-posta adresiyle oluşturulmuş bir hesap zaten var.', true, 'registerStatus');
+    } else if (msg.includes('database error saving new user') || msg.includes('trigger') || msg.includes('profile')) {
+      setStatus('Hesap profili oluşturulurken bir yapılandırma hatası oluştu. Lütfen destek ekibine bilgi verin.', true, 'registerStatus');
     } else if (msg.includes('password')) {
       setStatus('Şifre kriterleri sağlanmadı. Lütfen daha güçlü bir şifre dene.', true, 'registerStatus');
     } else if (msg.includes('rate limit')) {

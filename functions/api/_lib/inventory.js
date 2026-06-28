@@ -218,6 +218,8 @@ export async function notifyRestockAlerts(context, slug) {
       const result = await sendRestockEmail(context.env || {}, {
         to: alert.email,
         productName: product?.name || normalized,
+        productImage: product?.image || '',
+        productSlug: normalized,
         productUrl
       });
       if (result.sent) {

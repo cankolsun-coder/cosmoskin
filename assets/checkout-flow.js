@@ -13,7 +13,7 @@
   };
   var cfg = window.COSMOSKIN_CONFIG || {};
   var FREE_SHIPPING = Number(cfg.freeShippingThreshold || 2500);
-  var STANDARD_SHIPPING = Number(cfg.shippingFee || 119);
+  var STANDARD_SHIPPING = Number(cfg.shippingFee || 89);
   var EXPRESS_FEE = 49.90;
   var state = loadState();
   var cart = { key: CART_KEYS[0], data: [], items: [], found: false };
@@ -151,7 +151,12 @@
     var addr = normalizeAddress(address || {}, 0);
     if (!addressHasContent(addr)) return false;
     var changed = false;
+    var type = String(addr.type || '').toLowerCase();
+    var isBillingOnly = ['billing', 'invoice', 'fatura'].indexOf(type) !== -1;
+    var canFillDelivery = !isBillingOnly;
+    var canFillBilling = isBillingOnly || ['both', 'delivery_billing', 'teslimat_fatura', 'teslimat + fatura'].indexOf(type) !== -1;
     state.delivery = state.delivery || { country: 'Türkiye' };
+    state.invoice = state.invoice || { type: 'individual', sameAsDelivery: true };
     var mapping = {
       firstName: addr.firstName,
       lastName: addr.lastName,
@@ -162,13 +167,32 @@
       postalCode: addr.postalCode,
       country: 'Türkiye'
     };
-    Object.keys(mapping).forEach(function (key) {
-      var value = mapping[key];
-      if (!value) return;
-      if (overwrite || !String(state.delivery[key] || '').trim()) {
-        if (state.delivery[key] !== value) { state.delivery[key] = value; changed = true; }
-      }
-    });
+    if (canFillDelivery) {
+      Object.keys(mapping).forEach(function (key) {
+        var value = mapping[key];
+        if (!value) return;
+        if (overwrite || !String(state.delivery[key] || '').trim()) {
+          if (state.delivery[key] !== value) { state.delivery[key] = value; changed = true; }
+        }
+      });
+    }
+    if (canFillBilling && !state.invoice.sameAsDelivery) {
+      var invoiceMapping = {
+        name: [addr.firstName, addr.lastName].filter(Boolean).join(' '),
+        phone: addr.phone,
+        address: addr.address,
+        city: addr.city,
+        district: addr.district,
+        postalCode: addr.postalCode
+      };
+      Object.keys(invoiceMapping).forEach(function (key) {
+        var value = invoiceMapping[key];
+        if (!value) return;
+        if (overwrite || !String(state.invoice[key] || '').trim()) {
+          if (state.invoice[key] !== value) { state.invoice[key] = value; changed = true; }
+        }
+      });
+    }
     if (state.invoice && state.invoice.sameAsDelivery) syncSameInvoice();
     return changed;
   }
@@ -226,7 +250,9 @@
       var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/payment/bank-accounts', { cache: 'no-store' });
       var data = await res.json().catch(function () { return {}; });
       if (!res.ok || data.ok === false) throw new Error(data.error || 'Havale/EFT bilgileri doğrulanamadı.');
-      var account = Array.isArray(data.accounts) ? data.accounts[0] : data.account;
+      var accounts = Array.isArray(data.accounts) ? data.accounts : (data.account ? [data.account] : []);
+      liveBankAccounts = accounts.filter(Boolean);
+      var account = liveBankAccounts[0] || null;
       liveBankAccount = account && data.configured !== false ? account : null;
       if (!liveBankAccount) liveBankAccountError = data.message || 'Havale/EFT ödeme bilgileri henüz kullanıma hazır değil.';
       bankAccountSyncLoaded = true;
@@ -336,8 +362,8 @@
     var freeShipping = Boolean(state.coupon && state.coupon.freeShipping);
     var shipping = 0;
     if (discounted > 0 && !freeShipping) {
-      if (state.shippingMethod === 'express') shipping = (discounted >= FREE_SHIPPING ? 0 : STANDARD_SHIPPING) + EXPRESS_FEE;
-      else shipping = discounted >= FREE_SHIPPING ? 0 : STANDARD_SHIPPING;
+      state.shippingMethod = 'standard';
+      shipping = discounted >= FREE_SHIPPING ? 0 : STANDARD_SHIPPING;
     }
     shipping = Math.max(0, shipping);
     var vat = discounted - (discounted / 1.20);
@@ -578,7 +604,7 @@
   function paymentLabel() { return state.paymentMethod === 'bank_transfer' ? 'Havale / EFT' : 'Kredi Kartı'; }
   function shippingInfo() {
     var t = totals();
-    if (state.shippingMethod === 'express') return { title: 'Hızlı Kargo', estimate: '1-2 iş günü', fee: t.shipping };
+    state.shippingMethod = 'standard';
     return { title: 'Standart Kargo', estimate: '2-4 iş günü', fee: t.shipping };
   }
   function orderNumberFallback() {
@@ -684,6 +710,7 @@
           email: state.delivery.email,
           totals: totals(),
           bank: data.bankAccount || data.bank_account || bankConfig(),
+          bankAccounts: data.bankAccounts || data.bank_accounts || bankConfig().accounts || [],
           paymentDeadline: data.paymentDeadline || data.payment_deadline || null
         };
         saveState();
@@ -859,11 +886,10 @@
   }
   function shippingOptionsHtml() {
     var t = totals();
+    state.shippingMethod = 'standard';
     var standard = t.discounted >= FREE_SHIPPING ? 0 : STANDARD_SHIPPING;
-    var express = t.discounted >= FREE_SHIPPING ? EXPRESS_FEE : STANDARD_SHIPPING + EXPRESS_FEE;
     return '<div class="cs-checkout-option-grid">' +
       optionHtml('standard', 'Standart Kargo', 'Tahmini teslimat: 2-4 iş günü', standard) +
-      optionHtml('express', 'Hızlı Kargo', 'Tahmini teslimat: 1-2 iş günü', express) +
       '</div>';
   }
   function optionHtml(value, title, desc, fee) {
@@ -984,12 +1010,13 @@
     var order = state.order || readJSON(ORDER_KEY, null) || {};
     var bank = order.bank || bankConfig();
     var isBank = order.paymentMethod === 'bank_transfer' || state.paymentMethod === 'bank_transfer';
+    var bankList = order.bankAccounts && order.bankAccounts.length ? order.bankAccounts : (bank.accounts || [bank]);
+    var bankSummary = bankList.map(function (b) { return (b.bankName || 'Banka') + ' — ' + (b.iban || 'IBAN yok'); }).join(' | ');
     var rows = isBank
       ? [
           ['Sipariş No', order.orderNumber || orderNumberFallback()],
-          ['Banka Adı', bank.bankName || 'Banka bilgisi yapılandırılmadı'],
-          ['Alıcı Ünvanı', bank.accountName || 'Sipariş sonrası paylaşılacak'],
-          ['IBAN', bank.iban || 'IBAN henüz yapılandırılmadı'],
+          ['Banka Hesapları', bankSummary || 'Banka bilgisi yapılandırılmadı'],
+          ['Alıcı Ünvanı', bank.accountName || 'ENES CAN KÖLSÜN'],
           ['Açıklama', order.orderNumber || 'Sipariş numarası'],
           ['E-posta', order.email || state.delivery.email || '—']
         ]
@@ -1174,12 +1201,15 @@
       }
       var copyIban = event.target.closest('[data-copy-iban]');
       if (copyIban) {
-        var iban = normalizeIban(bankConfig().iban);
+        var bankCard = copyIban.closest('.cs-checkout-bank-account');
+        var bankIndex = bankCard ? Number(bankCard.getAttribute('data-bank-index') || 0) : 0;
+        var account = (bankConfig().accounts || [bankConfig()])[bankIndex] || bankConfig();
+        var iban = normalizeIban(account.iban);
         try {
           if (!iban || !navigator.clipboard || !navigator.clipboard.writeText) throw new Error('clipboard unavailable');
           await navigator.clipboard.writeText(iban);
           copyIban.textContent = 'IBAN kopyalandı';
-          setStatus('IBAN panoya kopyalandı.', 'success');
+          setStatus((account.bankName || 'Banka') + ' IBAN panoya kopyalandı.', 'success');
         } catch (_) {
           copyIban.textContent = 'Kopyalanamadı';
           setStatus('IBAN otomatik kopyalanamadı. Lütfen IBAN’ı seçerek manuel kopyalayın.', 'error');
@@ -1261,8 +1291,12 @@
         try {
           savedAddresses = await fetchAccountAddresses(session.access_token);
           addressSyncLoaded = true;
-          var defaultAddress = savedAddresses.find(function (item) { return item.isDefault; }) || savedAddresses[0];
+          var defaultAddress = savedAddresses.find(function (item) { return item.isDefault && ['billing', 'invoice', 'fatura'].indexOf(String(item.type || '').toLowerCase()) === -1; }) ||
+            savedAddresses.find(function (item) { return ['billing', 'invoice', 'fatura'].indexOf(String(item.type || '').toLowerCase()) === -1; }) ||
+            savedAddresses[0];
           if (defaultAddress) changed = applyAddressToState(defaultAddress, false) || changed;
+          var defaultBillingAddress = savedAddresses.find(function (item) { return item.isDefault && ['billing', 'invoice', 'fatura', 'both', 'delivery_billing', 'teslimat_fatura'].indexOf(String(item.type || '').toLowerCase()) !== -1; });
+          if (defaultBillingAddress) changed = applyAddressToState(defaultBillingAddress, false) || changed;
         } catch (_) {
           addressSyncLoaded = true;
           savedAddresses = [];

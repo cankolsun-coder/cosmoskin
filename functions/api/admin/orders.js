@@ -4,6 +4,7 @@ import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { sendOrderStatusEmail, sendShipmentEmail, sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { convertInventoryReservations, releaseInventoryReservations } from '../_lib/inventory.js';
+import { getValidatedBankAccounts } from '../_lib/bank-accounts.js';
 
 const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
 const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
@@ -151,13 +152,13 @@ async function recordEvent(context, orderId, event = {}) {
 }
 
 async function sendAndLogShipmentEmail(context, order, shipment, emailType = 'shipment_created') {
-  const subject = shipmentSubject();
+  const subject = emailType === 'shipment_updated' ? 'Kargo bilgileriniz güncellendi' : (emailType === 'shipment_delivered' ? 'Siparişiniz teslim edildi' : shipmentSubject());
   if (!order?.customer_email) {
     await recordEmailEvent(context, { order_id: order?.id || shipment?.order_id || null, customer_email: 'missing@cosmoskin.local', email_type: emailType, status: 'skipped', subject, error_message: 'customer_email_missing', metadata: { internal: true } });
     return { sent: false, skipped: true, reason: 'customer_email_missing' };
   }
   try {
-    const result = await sendShipmentEmail(context.env, { order, shipment });
+    const result = await sendShipmentEmail(context.env, { order, shipment, emailType, type: emailType });
     await recordEmailEvent(context, {
       order_id: order.id,
       customer_email: order.customer_email,
@@ -190,10 +191,13 @@ async function sendAndLogStatusEmail(context, order, status, emailType) {
   const subjectMap = {
     order_created: `Siparişiniz alındı | ${order.order_number || 'COSMOSKIN'}`,
     payment_success: `Siparişiniz onaylandı | ${order.order_number || 'COSMOSKIN'}`,
+    payment_confirmed_manual: `Ödemeniz onaylandı | ${order.order_number || 'COSMOSKIN'}`,
+    order_preparing: `Siparişiniz hazırlanıyor | ${order.order_number || 'COSMOSKIN'}`,
+    order_packed: `Siparişiniz paketlendi | ${order.order_number || 'COSMOSKIN'}`,
     payment_failed: `Ödeme işlemi tamamlanamadı | ${order.order_number || 'COSMOSKIN'}`
   };
   try {
-    const result = await sendOrderStatusEmail(context.env, { order, status, items: order.order_items || [] });
+    const result = await sendOrderStatusEmail(context.env, { order, status, items: order.order_items || [], emailType });
     await recordEmailEvent(context, {
       order_id: order.id,
       customer_email: order.customer_email,
@@ -225,7 +229,7 @@ async function sendAndLogStatusEmail(context, order, status, emailType) {
 async function sendAndLogCommerceEmail(context, order, emailType, note = '') {
   if (!order?.customer_email) return { sent: false, skipped: true, reason: 'customer_email_missing' };
   try {
-    const result = await sendCommerceTransactionalEmail(context.env, { order, type: emailType, note });
+    const result = await sendCommerceTransactionalEmail(context.env, { order, type: emailType, note, bankAccounts: emailType === 'bank_transfer_pending' ? await getValidatedBankAccounts(context, 5).catch(() => []) : [] });
     await recordEmailEvent(context, {
       order_id: order.id,
       customer_email: order.customer_email,
@@ -320,6 +324,14 @@ export async function onRequestPatch(context) {
         created_by: 'admin',
         metadata: { payment_status: paymentStatus || null, fulfillment_status: fulfillment || null }
       });
+      if (body.action === 'mark_preparing' || body.status === 'preparing' || body.fulfillment_status === 'preparing') {
+        const latestOrderForPreparing = await loadOrder(context, id);
+        await sendAndLogStatusEmail(context, latestOrderForPreparing, 'preparing', 'order_preparing');
+      }
+      if (body.action === 'mark_payment_paid' || paymentStatus === 'paid') {
+        const latestOrderForPayment = await loadOrder(context, id);
+        await sendAndLogStatusEmail(context, latestOrderForPayment, 'paid', 'payment_confirmed_manual');
+      }
     }
 
     let shipment = null;
@@ -386,7 +398,7 @@ export async function onRequestPatch(context) {
         await recordShipmentEvent(context, { ...latestShipment, status: 'delivered', delivered_at: deliveredAt }, { event_type: 'shipment_delivered', status: 'delivered', note: body.message || 'Kargo teslim edildi olarak işaretlendi.' });
       }
       const latestOrder = await loadOrder(context, id);
-      deliveredEmail = await sendAndLogCommerceEmail(context, latestOrder, 'shipment_delivered', body.message || '');
+      deliveredEmail = await sendAndLogCommerceEmail(context, latestOrder, 'shipment_delivered', '');
     }
 
     const order = await loadOrder(context, id);
@@ -406,6 +418,11 @@ export async function resendOrderEmail(context, orderId, emailType) {
   }
   if (emailType === 'shipment_delivered') return await sendAndLogCommerceEmail(context, order, 'shipment_delivered');
   if (emailType === 'payment_success') return await sendAndLogStatusEmail(context, order, 'paid', 'payment_success');
+  if (emailType === 'payment_confirmed_manual') return await sendAndLogStatusEmail(context, order, 'paid', 'payment_confirmed_manual');
+  if (emailType === 'bank_transfer_pending') return await sendAndLogCommerceEmail(context, order, 'bank_transfer_pending');
+  if (emailType === 'order_preparing') return await sendAndLogStatusEmail(context, order, 'preparing', 'order_preparing');
+  if (emailType === 'order_packed') return await sendAndLogStatusEmail(context, order, 'packed', 'order_packed');
+  if (emailType === 'payment_failed') return await sendAndLogStatusEmail(context, order, 'payment_failed', 'payment_failed');
   if (emailType === 'order_created') return await sendAndLogStatusEmail(context, order, 'pending', 'order_created');
   throw Object.assign(new Error('email_type desteklenmiyor.'), { status: 400 });
 }

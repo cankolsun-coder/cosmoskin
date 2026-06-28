@@ -105,7 +105,7 @@
   }
 
   function shippingFee() {
-    return configNumber('shippingFee', 119);
+    return configNumber('shippingFee', 89);
   }
 
   function normalizeProduct(raw) {

@@ -4,7 +4,7 @@
   const cfg = window.COSMOSKIN_CONFIG || {};
   const VAT = Number(cfg.vatRate ?? 0.20);
   const FREE_SHIPPING = Number(cfg.freeShippingThreshold ?? 2500);
-  const SHIPPING_FEE = Number(cfg.shippingFee ?? 119);
+  const SHIPPING_FEE = Number(cfg.shippingFee ?? 89);
   const state = {
     cart: JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'),
     favorites: [],

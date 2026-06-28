@@ -3,7 +3,11 @@ import { insertRow } from './supabase.js';
 export const EMAIL_TYPES = new Set([
   'order_created',
   'payment_success',
+  'payment_confirmed_manual',
   'payment_failed',
+  'bank_transfer_pending',
+  'order_preparing',
+  'order_packed',
   'shipment_created',
   'shipment_updated',
   'shipment_delivered',
