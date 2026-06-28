@@ -1,103 +1,264 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>COSMOSKIN · E-posta Doğrulama</title>
-<link href="/favicon.png" rel="icon"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="/assets/style.css?v=20260418f" rel="stylesheet"/>
-<style>
-    body{display:flex;flex-direction:column;min-height:100dvh;justify-content:center;align-items:center;padding:40px 20px;}
-    .verify-card{width:min(480px,100%);background:#fffdf9;border:1px solid var(--line);border-radius:32px;box-shadow:0 32px 80px rgba(19,14,10,.09);overflow:hidden;text-align:center;}
-    .verify-bar{height:3px;background:linear-gradient(90deg,#b89b72,#d4b88a);}
-    .verify-body{padding:48px 44px 44px;}
-    .verify-icon{width:64px;height:64px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:28px;line-height:1;}
-    .verify-icon.loading{background:#f4ece3;animation:pulse 1.4s ease-in-out infinite;}
-    .verify-icon.success{background:#edf7f1;}
-    .verify-icon.error{background:#fdf0ee;}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .verify-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:#b89b72;margin:0 0 10px;display:block;}
-    .verify-heading{font-family:'Cormorant Garamond',Georgia,serif;font-size:30px;font-weight:400;color:#1a1510;margin:0 0 14px;line-height:1.2;}
-    .verify-text{font-size:14px;line-height:1.78;color:#6b6159;margin:0 0 32px;}
-    .verify-actions{display:grid;gap:10px;}
-    .verify-foot{padding:18px 44px 26px;border-top:1px solid var(--line);font-size:12px;color:#9a8e82;}
-    .verify-foot a{color:#b89b72;text-decoration:none;}
-    .verify-brand{display:inline-flex;align-items:center;gap:11px;margin-bottom:32px;text-decoration:none;}
-    .verify-brand img{width:38px;height:38px;border-radius:50%;}
-    .verify-brand span{font-family:'Cormorant Garamond',Georgia,serif;font-size:20px;letter-spacing:.34em;color:#1a1510;}
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>COSMOSKIN · E-posta Doğrulama</title>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <meta name="description" content="COSMOSKIN hesabınız için güvenli e-posta doğrulama işlemi."/>
+  <link rel="canonical" href="https://www.cosmoskin.com.tr/auth/callback.html"/>
+  <link rel="icon" href="/favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#171717;
+      --cream:#f4f1ec;
+      --panel:#fffdf9;
+      --muted:#6f655c;
+      --soft:#9a8e82;
+      --gold:#b89b72;
+      --gold-2:#d4b88a;
+      --line:#e8dfd4;
+      --line-strong:#d9cdbc;
+      --danger:#8a3b2f;
+      --success:#1f7a4f;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:'Plus Jakarta Sans',Arial,Helvetica,sans-serif;color:var(--ink);}
+    body{
+      min-height:100dvh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:42px 18px;
+      background:
+        radial-gradient(circle at 18% 12%,rgba(212,184,138,.20),transparent 34%),
+        radial-gradient(circle at 82% 8%,rgba(184,155,114,.18),transparent 30%),
+        linear-gradient(180deg,#fbf7f1 0%,#f4eee6 54%,#eee5dc 100%);
+    }
+    .auth-card{
+      width:min(560px,100%);
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:30px;
+      box-shadow:0 34px 90px rgba(19,14,10,.11);
+      overflow:hidden;
+      text-align:center;
+    }
+    .auth-header{
+      background:var(--ink);
+      padding:34px 34px 31px;
+      text-align:center;
+    }
+    .auth-wordmark{
+      display:block;
+      color:#eadcc8;
+      text-decoration:none;
+      font-family:Didot,'Bodoni 72','Bodoni 72 Smallcaps',Baskerville,'Cormorant Garamond','Times New Roman',serif;
+      font-size:34px;
+      line-height:1;
+      letter-spacing:14px;
+      font-weight:400;
+      text-transform:uppercase;
+      padding-left:14px;
+      white-space:nowrap;
+    }
+    .auth-subbrand{
+      margin-top:13px;
+      color:#9c8f7f;
+      font-size:10px;
+      line-height:1.4;
+      letter-spacing:2.4px;
+      text-transform:uppercase;
+      font-weight:600;
+    }
+    .auth-body{padding:42px 44px 38px;}
+    .auth-state-symbol{
+      width:62px;
+      height:62px;
+      border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 auto 22px;
+      border:1px solid var(--line-strong);
+      background:#f7f1e9;
+      color:#171717;
+      font-family:'Plus Jakarta Sans',Arial,sans-serif;
+      font-size:22px;
+      line-height:1;
+      font-weight:700;
+    }
+    .auth-state-symbol.loading{
+      color:#6b5e50;
+      animation:pulse 1.35s ease-in-out infinite;
+    }
+    .auth-state-symbol.success{background:#edf7f1;color:var(--success);}
+    .auth-state-symbol.error{background:#fdf0ee;color:var(--danger);}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+    .auth-badge{
+      display:inline-block;
+      margin:0 auto 20px;
+      padding:10px 16px;
+      border:1px solid var(--line-strong);
+      background:#f7f1e9;
+      color:#6b5e50;
+      font-size:10px;
+      line-height:1.2;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      font-weight:700;
+    }
+    .auth-heading{
+      width:min(430px,100%);
+      margin:0 auto 12px;
+      font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+      font-size:34px;
+      line-height:1.12;
+      font-weight:400;
+      color:#1a1510;
+      text-align:center;
+    }
+    .auth-text{
+      width:min(430px,100%);
+      margin:0 auto 30px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.78;
+      text-align:center;
+    }
+    .auth-actions{display:grid;gap:11px;margin-top:26px;}
+    .auth-btn{
+      appearance:none;
+      width:100%;
+      min-height:52px;
+      border-radius:999px;
+      border:1px solid #171717;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      text-decoration:none;
+      padding:0 22px;
+      font:700 11px/1.25 'Plus Jakarta Sans',Arial,Helvetica,sans-serif;
+      letter-spacing:2.2px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:transform .16s ease,box-shadow .16s ease,background .16s ease,color .16s ease;
+    }
+    .auth-btn-primary{background:#171717;color:#eadcc8;box-shadow:0 16px 34px rgba(23,23,23,.16);}
+    .auth-btn-secondary{background:#fffdf9;color:#171717;border-color:var(--line-strong);}
+    .auth-btn:hover{transform:translateY(-1px);}
+    .auth-foot{
+      border-top:1px solid var(--line);
+      padding:20px 36px 24px;
+      text-align:center;
+      color:#9a8e82;
+      font-size:12px;
+      line-height:1.6;
+      background:#f9f6f2;
+      display:none;
+    }
+    .auth-foot a{color:#8a6a4a;text-decoration:none;font-weight:600;}
+    @media (max-width:560px){
+      body{padding:22px 12px;align-items:flex-start;}
+      .auth-card{border-radius:24px;}
+      .auth-header{padding:30px 20px 27px;}
+      .auth-wordmark{font-size:27px;letter-spacing:9px;padding-left:9px;}
+      .auth-subbrand{font-size:9px;letter-spacing:2px;}
+      .auth-body{padding:34px 22px 30px;}
+      .auth-heading{font-size:30px;}
+      .auth-text{font-size:13px;margin-bottom:24px;}
+      .auth-foot{padding:18px 20px 22px;}
+    }
   </style>
-<link href="/assets/mobile.css?v=20260425f" rel="stylesheet">
-<link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet">
-<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet">
-<meta content="COSMOSKIN · E-posta Doğrulama sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description">
-<link href="https://www.cosmoskin.com.tr/auth/callback.html" rel="canonical">
-<meta content="noindex, nofollow, noarchive" name="robots"/>
-</meta></link></meta></link></link></link><link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
-<div class="verify-card">
-<div class="verify-bar"></div>
-<div class="verify-body">
-<a class="verify-brand" href="/index.html">
-<img alt="COSMOSKIN" src="/assets/img/brand/cosmoskin-wordmark.svg"/>
-<span>COSMOSKIN</span>
-</a>
-<div class="verify-icon loading" id="vIcon">⏳</div>
-<span class="verify-label" id="vLabel">İşlem yapılıyor</span>
-<h1 class="verify-heading" id="vHeading">E-posta doğrulanıyor…</h1>
-<p class="verify-text" id="vText">Lütfen bekleyin, hesabınız güvenli şekilde aktif hale getiriliyor.</p>
-<div class="verify-actions" id="vActions" style="display:none;"></div>
-</div>
-<div class="verify-foot" id="vFoot" style="display:none;">
+  <main class="auth-card" aria-live="polite">
+    <header class="auth-header">
+      <a class="auth-wordmark" href="/index.html" aria-label="COSMOSKIN Anasayfa">COSMOSKIN</a>
+      <div class="auth-subbrand">K-BEAUTY · CİLT BAKIMI</div>
+    </header>
+
+    <section class="auth-body">
+      <div class="auth-state-symbol loading" id="vIcon">···</div>
+      <span class="auth-badge" id="vLabel">İşlem Yapılıyor</span>
+      <h1 class="auth-heading" id="vHeading">E-postanız doğrulanıyor</h1>
+      <p class="auth-text" id="vText">Lütfen bekleyin, hesabınız güvenli şekilde aktif hale getiriliyor.</p>
+      <div class="auth-actions" id="vActions" style="display:none;"></div>
+    </section>
+
+    <footer class="auth-foot" id="vFoot">
       Yardım için: <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a>
-</div>
-</div>
-<script src="/assets/products-data.js?v=20260424a"></script>
-<script src="/api/public-config?v=20260627-auth-config"></script>
-<script src="/assets/site-config.js?v=20260418a"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
+    </footer>
+  </main>
+
+  <script src="/api/public-config?v=20260628-auth-callback"></script>
+  <script src="/assets/site-config.js?v=20260628-auth-callback"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
   (async function(){
-    const cfg=window.COSMOSKIN_CONFIG||{};
-    const icon=document.getElementById('vIcon'),label=document.getElementById('vLabel'),
-          heading=document.getElementById('vHeading'),text=document.getElementById('vText'),
-          actions=document.getElementById('vActions'),foot=document.getElementById('vFoot');
+    const cfg = window.COSMOSKIN_CONFIG || {};
+    const supabaseUrl = cfg.supabaseUrl || cfg.SUPABASE_URL;
+    const supabaseAnonKey = cfg.supabaseAnonKey || cfg.SUPABASE_ANON_KEY;
+
+    const icon = document.getElementById('vIcon');
+    const label = document.getElementById('vLabel');
+    const heading = document.getElementById('vHeading');
+    const text = document.getElementById('vText');
+    const actions = document.getElementById('vActions');
+    const foot = document.getElementById('vFoot');
 
     function showSuccess(){
-      icon.textContent='✓'; icon.className='verify-icon success';
+      icon.textContent='✓';
+      icon.className='auth-state-symbol success';
       label.textContent='Doğrulama Tamamlandı';
       heading.textContent='E-postanız başarıyla doğrulandı';
-      text.textContent='COSMOSKIN hesabınız aktif. Aşağıdan giriş yaparak alışverişe başlayabilirsiniz.';
+      text.textContent='COSMOSKIN hesabınız aktif. Giriş yaparak siparişlerinizi takip edebilir ve alışverişe başlayabilirsiniz.';
       actions.style.display='grid';
-      actions.innerHTML=`<a class="btn btn-primary" href="/index.html?openAuth=login">Giriş Yap</a><a class="btn btn-secondary" href="/index.html">Anasayfaya Dön</a>`;
+      actions.innerHTML='<a class="auth-btn auth-btn-primary" href="/index.html?openAuth=login">Giriş Yap</a><a class="auth-btn auth-btn-secondary" href="/index.html">Anasayfaya Dön</a>';
       foot.style.display='block';
     }
+
     function showError(msg){
-      icon.textContent='✕'; icon.className='verify-icon error';
+      icon.textContent='!';
+      icon.className='auth-state-symbol error';
       label.textContent='Doğrulama Hatası';
       heading.textContent='Bir sorun oluştu';
-      text.textContent=msg||'Doğrulama bağlantısı geçersiz veya süresi dolmuş. Lütfen tekrar kayıt olun.';
+      text.textContent=msg || 'Doğrulama bağlantısı geçersiz veya süresi dolmuş olabilir. Lütfen işlemi tekrar deneyin.';
       actions.style.display='grid';
-      actions.innerHTML=`<a class="btn btn-primary" href="/index.html">Anasayfaya Dön</a><a class="btn btn-secondary" href="mailto:destek@cosmoskin.com.tr">Destek Al</a>`;
+      actions.innerHTML='<a class="auth-btn auth-btn-primary" href="/index.html">Anasayfaya Dön</a><a class="auth-btn auth-btn-secondary" href="mailto:destek@cosmoskin.com.tr">Destek Al</a>';
       foot.style.display='block';
     }
+
     try{
-      const client=window.supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-      const code=new URL(window.location.href).searchParams.get('code');
-      if(code){const{error}=await client.auth.exchangeCodeForSession(code);if(error)throw error;}
-      const{data:{session}}=await client.auth.getSession();
-      if(session) showSuccess(); else throw new Error('Oturum oluşturulamadı.');
-    }catch(err){showError(err.message);}
+      if(!supabaseUrl || !supabaseAnonKey || !window.supabase){
+        throw new Error('Sistem yapılandırması tamamlanamadı. Lütfen kısa süre sonra tekrar deneyin.');
+      }
+
+      const client = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+        auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
+      });
+
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get('code');
+
+      if(code){
+        const { error } = await client.auth.exchangeCodeForSession(code);
+        if(error) throw error;
+      }
+
+      const { data:{ session }, error } = await client.auth.getSession();
+      if(error) throw error;
+
+      if(session) showSuccess();
+      else showError('Oturum oluşturulamadı. Bağlantının süresi dolmuş veya daha önce kullanılmış olabilir.');
+    }catch(err){
+      showError(err && err.message ? err.message : 'Doğrulama bağlantısı işlenemedi.');
+    }
   })();
   </script>
-<script src="/assets/mobile.js?v=20260425f"></script>
-<script defer="" src="/assets/mobile-redesign.js?v=20260616-stockfix"></script>
-<script defer="" src="/assets/inventory-client.js?v=20260616-stockfix"></script>
-<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
-<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
 </body>
 </html>

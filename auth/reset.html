@@ -1,192 +1,500 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Şifre Sıfırlama | COSMOSKIN</title>
-<meta content="noindex, nofollow, noarchive" name="robots"/>
-<link href="/favicon.png" rel="icon"/>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="/assets/style.css?v=20260418f" rel="stylesheet"/>
-<style>
-    body{display:flex;flex-direction:column;min-height:100dvh;justify-content:center;align-items:center;padding:40px 20px;background:linear-gradient(180deg,#f8f3ed 0%,#f3ece3 60%,#f0e8de 100%);}
-    .reset-card{width:min(480px,100%);background:#fffdf9;border:1px solid var(--line);border-radius:32px;box-shadow:0 32px 80px rgba(19,14,10,.09);overflow:hidden;}
-    .reset-bar{height:3px;background:linear-gradient(90deg,#b89b72,#d4b88a);}
-    .reset-body{padding:48px 44px 44px;}
-    .reset-brand{display:inline-flex;align-items:center;gap:11px;margin-bottom:36px;text-decoration:none;}
-    .reset-brand img{width:38px;height:38px;border-radius:50%;}
-    .reset-brand span{font-family:'Cormorant Garamond',serif;font-size:20px;letter-spacing:.34em;color:#1a1510;}
-    .reset-icon{width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:24px;background:#f4ece3;border:1px solid rgba(184,155,114,.25);}
-    .reset-label{font-size:10px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;color:#b89b72;margin:0 0 10px;display:block;text-align:center;}
-    .reset-heading{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;color:#1a1510;margin:0 0 10px;text-align:center;line-height:1.2;}
-    .reset-text{font-size:14px;line-height:1.78;color:#6b6159;margin:0 0 32px;text-align:center;}
-    .reset-field{display:grid;gap:8px;margin-bottom:16px;}
-    .reset-label-field{font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#b89b72;}
-    .reset-input{padding:14px 16px;border-radius:14px;border:1px solid var(--line-strong);background:#fffdf9;color:#1a1510;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;width:100%;}
-    .reset-input:focus{border-color:#1a1510;box-shadow:0 0 0 3px rgba(26,21,16,.06);}
-    .reset-actions{display:grid;gap:10px;margin-top:24px;}
-    .reset-status{font-size:13px;min-height:18px;margin-top:12px;text-align:center;line-height:1.6;}
-    .reset-foot{padding:18px 44px 26px;border-top:1px solid var(--line);font-size:12px;color:#9a8e82;text-align:center;}
-    .reset-foot a{color:#b89b72;text-decoration:none;}
-    .reset-success-icon{width:56px;height:56px;border-radius:50%;background:#edf7f1;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 24px;}
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Şifre Sıfırlama | COSMOSKIN</title>
+  <meta name="robots" content="noindex, nofollow, noarchive"/>
+  <meta name="description" content="COSMOSKIN hesabınız için güvenli şifre sıfırlama işlemi."/>
+  <link rel="canonical" href="https://www.cosmoskin.com.tr/auth/reset.html"/>
+  <link rel="icon" href="/favicon.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --ink:#171717;
+      --cream:#f4f1ec;
+      --panel:#fffdf9;
+      --muted:#6f655c;
+      --soft:#9a8e82;
+      --gold:#b89b72;
+      --gold-2:#d4b88a;
+      --line:#e8dfd4;
+      --line-strong:#d9cdbc;
+      --danger:#8a3b2f;
+      --success:#1f7a4f;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:'Plus Jakarta Sans',Arial,Helvetica,sans-serif;color:var(--ink);}
+    body{
+      min-height:100dvh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:42px 18px;
+      background:
+        radial-gradient(circle at 18% 12%,rgba(212,184,138,.20),transparent 34%),
+        radial-gradient(circle at 82% 8%,rgba(184,155,114,.18),transparent 30%),
+        linear-gradient(180deg,#fbf7f1 0%,#f4eee6 54%,#eee5dc 100%);
+    }
+    .auth-card{
+      width:min(560px,100%);
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:30px;
+      box-shadow:0 34px 90px rgba(19,14,10,.11);
+      overflow:hidden;
+    }
+    .auth-header{
+      background:var(--ink);
+      padding:34px 34px 31px;
+      text-align:center;
+    }
+    .auth-wordmark{
+      display:block;
+      color:#eadcc8;
+      text-decoration:none;
+      font-family:Didot,'Bodoni 72','Bodoni 72 Smallcaps',Baskerville,'Cormorant Garamond','Times New Roman',serif;
+      font-size:34px;
+      line-height:1;
+      letter-spacing:14px;
+      font-weight:400;
+      text-transform:uppercase;
+      padding-left:14px;
+      white-space:nowrap;
+    }
+    .auth-subbrand{
+      margin-top:13px;
+      color:#9c8f7f;
+      font-size:10px;
+      line-height:1.4;
+      letter-spacing:2.4px;
+      text-transform:uppercase;
+      font-weight:600;
+    }
+    .auth-body{padding:42px 44px 38px;}
+    .auth-center{text-align:center}
+    .auth-badge{
+      display:inline-block;
+      margin:0 auto 20px;
+      padding:10px 16px;
+      border:1px solid var(--line-strong);
+      background:#f7f1e9;
+      color:#6b5e50;
+      font-size:10px;
+      line-height:1.2;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      font-weight:700;
+    }
+    .auth-heading{
+      margin:0 0 12px;
+      font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+      font-size:34px;
+      line-height:1.12;
+      font-weight:400;
+      color:#1a1510;
+      text-align:center;
+    }
+    .auth-text{
+      width:min(430px,100%);
+      margin:0 auto 30px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.78;
+      text-align:center;
+    }
+    .auth-field{display:grid;gap:9px;margin-bottom:16px;}
+    .auth-field label{
+      color:var(--gold);
+      font-size:10px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      font-weight:700;
+    }
+    .auth-input{
+      width:100%;
+      min-height:58px;
+      border:1px solid var(--line-strong);
+      border-radius:16px;
+      background:#fffdf9;
+      padding:0 17px;
+      color:#1a1510;
+      font:500 14px/1.4 'Plus Jakarta Sans',Arial,Helvetica,sans-serif;
+      outline:none;
+      transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+    }
+    .auth-input::placeholder{color:#aaa097;}
+    .auth-input:focus{
+      border-color:#1a1510;
+      box-shadow:0 0 0 4px rgba(26,21,16,.06);
+      background:#fff;
+    }
+    .password-wrap{position:relative;}
+    .password-wrap .auth-input{padding-right:88px;}
+    .password-toggle{
+      position:absolute;
+      top:50%;
+      right:10px;
+      transform:translateY(-50%);
+      border:0;
+      background:#f4eee6;
+      color:#6b5e50;
+      border-radius:999px;
+      padding:8px 12px;
+      font:700 10px/1 'Plus Jakarta Sans',Arial,sans-serif;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+    }
+    .auth-actions{display:grid;gap:11px;margin-top:26px;}
+    .auth-btn{
+      appearance:none;
+      width:100%;
+      min-height:52px;
+      border-radius:999px;
+      border:1px solid #171717;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      text-decoration:none;
+      padding:0 22px;
+      font:700 11px/1.25 'Plus Jakarta Sans',Arial,Helvetica,sans-serif;
+      letter-spacing:2.2px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:transform .16s ease,box-shadow .16s ease,background .16s ease,color .16s ease,opacity .16s ease;
+    }
+    .auth-btn-primary{background:#171717;color:#eadcc8;box-shadow:0 16px 34px rgba(23,23,23,.16);}
+    .auth-btn-secondary{background:#fffdf9;color:#171717;border-color:var(--line-strong);}
+    .auth-btn:hover{transform:translateY(-1px);}
+    .auth-btn:disabled{opacity:.58;cursor:not-allowed;transform:none;box-shadow:none;}
+    .auth-status{
+      min-height:20px;
+      margin-top:14px;
+      font-size:13px;
+      line-height:1.6;
+      text-align:center;
+      color:var(--muted);
+    }
+    .auth-note{
+      margin-top:24px;
+      padding:15px 16px;
+      border:1px solid var(--line);
+      border-left:4px solid #c5a16f;
+      background:#fdf9f5;
+      color:#6b5e50;
+      font-size:12px;
+      line-height:1.7;
+    }
+    .auth-foot{
+      border-top:1px solid var(--line);
+      padding:20px 36px 24px;
+      text-align:center;
+      color:#9a8e82;
+      font-size:12px;
+      line-height:1.6;
+      background:#f9f6f2;
+    }
+    .auth-foot a{color:#8a6a4a;text-decoration:none;font-weight:600;}
+    .auth-state-symbol{
+      width:58px;
+      height:58px;
+      border-radius:50%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 auto 22px;
+      border:1px solid var(--line-strong);
+      background:#f7f1e9;
+      color:#171717;
+      font-family:Didot,'Bodoni 72',Baskerville,'Cormorant Garamond',serif;
+      font-size:22px;
+      line-height:1;
+    }
+    .auth-state-symbol.success{background:#edf7f1;color:var(--success);font-family:'Plus Jakarta Sans',Arial,sans-serif;font-weight:700;}
+    .auth-state-symbol.error{background:#fdf0ee;color:var(--danger);font-family:'Plus Jakarta Sans',Arial,sans-serif;font-weight:700;}
+    @media (max-width:560px){
+      body{padding:22px 12px;align-items:flex-start;}
+      .auth-card{border-radius:24px;}
+      .auth-header{padding:30px 20px 27px;}
+      .auth-wordmark{font-size:27px;letter-spacing:9px;padding-left:9px;}
+      .auth-subbrand{font-size:9px;letter-spacing:2px;}
+      .auth-body{padding:34px 22px 30px;}
+      .auth-heading{font-size:30px;}
+      .auth-text{font-size:13px;margin-bottom:24px;}
+      .auth-input{min-height:54px;}
+      .auth-foot{padding:18px 20px 22px;}
+    }
   </style>
-<link href="/assets/mobile.css?v=20260425f" rel="stylesheet">
-<link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet">
-<link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet">
-<meta content="Şifre Sıfırlama sayfasında COSMOSKIN ürün, sipariş ve müşteri işlemlerine güvenli biçimde erişin." name="description">
-<link href="https://www.cosmoskin.com.tr/auth/reset.html" rel="canonical">
-</link></meta></link></link></link></meta><link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
 </head>
 <body>
-<div class="reset-card">
-<div class="reset-bar"></div>
-<div class="reset-body">
-<a class="reset-brand" href="/index.html">
-<img alt="COSMOSKIN" src="/assets/img/brand/cosmoskin-wordmark.svg"/>
-<span>COSMOSKIN</span>
-</a>
-<!-- STEP 1: E-posta isteme formu -->
-<div id="stepRequest">
-<div style="text-align:center;">
-<div class="reset-icon">✉</div>
-<span class="reset-label">Şifre Sıfırlama</span>
-<h1 class="reset-heading">Şifrenizi mi unuttunuz?</h1>
-<p class="reset-text">E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.</p>
-</div>
-<div class="reset-field">
-<label class="reset-label-field">E-posta Adresi</label>
-<input autocomplete="email" class="reset-input" id="resetEmail" placeholder="ornek@eposta.com" type="email"/>
-</div>
-<div class="reset-actions">
-<button class="btn btn-primary" id="requestBtn" onclick="sendResetLink()" style="min-height:48px;">Sıfırlama Bağlantısı Gönder</button>
-<a class="btn btn-secondary" href="/index.html" style="min-height:48px;">Geri Dön</a>
-</div>
-<div class="reset-status" id="requestStatus"></div>
-</div>
-<!-- STEP 2: Yeni şifre belirleme (sadece linkten döndüğünde gösterilir) -->
-<div id="stepUpdate" style="display:none;">
-<div style="text-align:center;">
-<div class="reset-icon">🔐</div>
-<span class="reset-label">Yeni Şifre</span>
-<h2 class="reset-heading">Yeni şifrenizi belirleyin</h2>
-<p class="reset-text">Güçlü bir şifre seçin. En az 8 karakter, harf ve rakam içermeli.</p>
-</div>
-<div class="reset-field">
-<label class="reset-label-field">Yeni Şifre</label>
-<div class="password-wrap">
-<input autocomplete="new-password" class="reset-input" id="newPassword" minlength="8" placeholder="En az 8 karakter" style="padding-right:82px;" type="password"/>
-<button class="password-toggle" onclick="togglePassword()" type="button">Göster</button>
-</div>
-</div>
-<div class="reset-field">
-<label class="reset-label-field">Şifre Tekrar</label>
-<input autocomplete="new-password" class="reset-input" id="confirmPassword" minlength="8" placeholder="Şifrenizi tekrar girin" type="password"/>
-</div>
-<div class="reset-actions">
-<button class="btn btn-primary" id="updateBtn" onclick="updatePassword()" style="min-height:48px;">Şifremi Güncelle</button>
-</div>
-<div class="reset-status" id="updateStatus"></div>
-</div>
-<!-- STEP 3: Başarı mesajı -->
-<div id="stepSuccess" style="display:none;text-align:center;">
-<div class="reset-success-icon">✓</div>
-<span class="reset-label">İşlem Tamamlandı</span>
-<h2 class="reset-heading">Şifreniz güncellendi</h2>
-<p class="reset-text">Yeni şifrenizle giriş yapabilirsiniz.</p>
-<div class="reset-actions">
-<a class="btn btn-primary" href="/index.html?openAuth=login" style="min-height:48px;">Giriş Yap</a>
-<a class="btn btn-secondary" href="/index.html" style="min-height:48px;">Anasayfaya Dön</a>
-</div>
-</div>
-</div>
-<div class="reset-foot">
-    Yardım için: <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a>
-</div>
-</div>
-<script src="/assets/products-data.js?v=20260424a"></script>
-<script src="/api/public-config?v=20260627-auth-config"></script>
-<script src="/assets/site-config.js?v=20260418a"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-(async function(){
-  const cfg = window.COSMOSKIN_CONFIG || {};
-  const client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
-    auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
-  });
+  <main class="auth-card" aria-live="polite">
+    <header class="auth-header">
+      <a class="auth-wordmark" href="/index.html" aria-label="COSMOSKIN Anasayfa">COSMOSKIN</a>
+      <div class="auth-subbrand">K-BEAUTY · CİLT BAKIMI</div>
+    </header>
 
-  // URL'de recovery token var mı kontrol et
-  const hash = window.location.hash;
-  const params = new URLSearchParams(window.location.search);
-  const type = params.get('type') || (hash.includes('type=recovery') ? 'recovery' : null);
-  const code = params.get('code');
+    <section class="auth-body">
+      <!-- STEP 1: E-posta isteme formu -->
+      <div id="stepRequest">
+        <div class="auth-center">
+          <span class="auth-badge">Şifre Sıfırlama</span>
+          <h1 class="auth-heading">Şifrenizi mi unuttunuz?</h1>
+          <p class="auth-text">E-posta adresinizi girin, size güvenli şifre sıfırlama bağlantısı gönderelim.</p>
+        </div>
 
-  if (type === 'recovery' || code) {
-    // Supabase token'ı otomatik işler, oturumu kontrol et
-    if (code) {
-      await client.auth.exchangeCodeForSession(code);
+        <div class="auth-field">
+          <label for="resetEmail">E-posta Adresi</label>
+          <input autocomplete="email" class="auth-input" id="resetEmail" placeholder="ornek@eposta.com" type="email" inputmode="email"/>
+        </div>
+
+        <div class="auth-actions">
+          <button class="auth-btn auth-btn-primary" id="requestBtn" onclick="sendResetLink()" type="button">Sıfırlama Bağlantısı Gönder</button>
+          <a class="auth-btn auth-btn-secondary" href="/index.html">Geri Dön</a>
+        </div>
+
+        <div class="auth-status" id="requestStatus"></div>
+
+        <div class="auth-note">
+          Şifre sıfırlama bağlantısı yalnızca hesabınızın e-posta adresine gönderilir. COSMOSKIN sizden asla şifrenizi veya doğrulama bağlantınızı istemez.
+        </div>
+      </div>
+
+      <!-- STEP 2: Yeni şifre belirleme -->
+      <div id="stepUpdate" style="display:none;">
+        <div class="auth-center">
+          <span class="auth-badge">Yeni Şifre</span>
+          <h2 class="auth-heading">Yeni şifrenizi belirleyin</h2>
+          <p class="auth-text">Güçlü bir şifre seçin. En az 8 karakter, harf ve rakam içermelidir.</p>
+        </div>
+
+        <div class="auth-field">
+          <label for="newPassword">Yeni Şifre</label>
+          <div class="password-wrap">
+            <input autocomplete="new-password" class="auth-input" id="newPassword" minlength="8" placeholder="En az 8 karakter" type="password"/>
+            <button class="password-toggle" onclick="togglePassword('newPassword', this)" type="button">Göster</button>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label for="confirmPassword">Şifre Tekrar</label>
+          <div class="password-wrap">
+            <input autocomplete="new-password" class="auth-input" id="confirmPassword" minlength="8" placeholder="Şifrenizi tekrar girin" type="password"/>
+            <button class="password-toggle" onclick="togglePassword('confirmPassword', this)" type="button">Göster</button>
+          </div>
+        </div>
+
+        <div class="auth-actions">
+          <button class="auth-btn auth-btn-primary" id="updateBtn" onclick="updatePassword()" type="button">Şifremi Güncelle</button>
+        </div>
+
+        <div class="auth-status" id="updateStatus"></div>
+      </div>
+
+      <!-- STEP 3: Başarı mesajı -->
+      <div id="stepSuccess" style="display:none;text-align:center;">
+        <div class="auth-state-symbol success">✓</div>
+        <span class="auth-badge">İşlem Tamamlandı</span>
+        <h2 class="auth-heading">Şifreniz güncellendi</h2>
+        <p class="auth-text">Yeni şifrenizle COSMOSKIN hesabınıza güvenle giriş yapabilirsiniz.</p>
+        <div class="auth-actions">
+          <a class="auth-btn auth-btn-primary" href="/index.html?openAuth=login">Giriş Yap</a>
+          <a class="auth-btn auth-btn-secondary" href="/index.html">Anasayfaya Dön</a>
+        </div>
+      </div>
+
+      <!-- STEP 4: Geçersiz bağlantı -->
+      <div id="stepError" style="display:none;text-align:center;">
+        <div class="auth-state-symbol error">!</div>
+        <span class="auth-badge">Bağlantı Geçersiz</span>
+        <h2 class="auth-heading">Şifre bağlantısı kullanılamıyor</h2>
+        <p class="auth-text" id="errorText">Şifre sıfırlama bağlantısı geçersiz veya süresi dolmuş olabilir. Yeni bir bağlantı talep edebilirsiniz.</p>
+        <div class="auth-actions">
+          <button class="auth-btn auth-btn-primary" onclick="showRequestStep()" type="button">Yeni Bağlantı Gönder</button>
+          <a class="auth-btn auth-btn-secondary" href="mailto:destek@cosmoskin.com.tr">Destek Al</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="auth-foot">
+      Yardım için: <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a>
+    </footer>
+  </main>
+
+  <script src="/api/public-config?v=20260628-auth-reset"></script>
+  <script src="/assets/site-config.js?v=20260628-auth-reset"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+  (async function(){
+    const cfg = window.COSMOSKIN_CONFIG || {};
+    const supabaseUrl = cfg.supabaseUrl || cfg.SUPABASE_URL;
+    const supabaseAnonKey = cfg.supabaseAnonKey || cfg.SUPABASE_ANON_KEY;
+
+    const stepRequest = document.getElementById('stepRequest');
+    const stepUpdate = document.getElementById('stepUpdate');
+    const stepSuccess = document.getElementById('stepSuccess');
+    const stepError = document.getElementById('stepError');
+
+    function hideAll(){
+      stepRequest.style.display='none';
+      stepUpdate.style.display='none';
+      stepSuccess.style.display='none';
+      stepError.style.display='none';
     }
-    const { data:{ session } } = await client.auth.getSession();
-    if (session) {
-      // Şifre güncelleme formunu göster, istek formunu gizle
-      document.getElementById('stepRequest').style.display = 'none';
-      document.getElementById('stepUpdate').style.display = 'block';
-    }
-  }
 
-  // Şifre sıfırlama linki gönder
-  window.sendResetLink = async function() {
-    const btn = document.getElementById('requestBtn');
-    const status = document.getElementById('requestStatus');
-    const email = document.getElementById('resetEmail').value.trim();
-    if (!email) { status.textContent='E-posta adresi giriniz.'; status.style.color='#8a3b2f'; return; }
-    btn.disabled=true; btn.textContent='Gönderiliyor…';
-    const { error } = await client.auth.resetPasswordForEmail(email, {
-      redirectTo: `${cfg.siteUrl || window.location.origin}/auth/reset.html`
+    window.showRequestStep = function(){
+      hideAll();
+      stepRequest.style.display='block';
+      document.getElementById('resetEmail').disabled=false;
+      document.getElementById('requestBtn').disabled=false;
+      document.getElementById('requestBtn').textContent='Sıfırlama Bağlantısı Gönder';
+      document.getElementById('requestStatus').textContent='';
+    };
+
+    function showUpdateStep(){
+      hideAll();
+      stepUpdate.style.display='block';
+      setTimeout(()=>document.getElementById('newPassword').focus(),100);
+    }
+
+    function showErrorStep(message){
+      hideAll();
+      document.getElementById('errorText').textContent = message || 'Şifre sıfırlama bağlantısı geçersiz veya süresi dolmuş olabilir. Yeni bir bağlantı talep edebilirsiniz.';
+      stepError.style.display='block';
+    }
+
+    if(!supabaseUrl || !supabaseAnonKey || !window.supabase){
+      showErrorStep('Sistem yapılandırması tamamlanamadı. Lütfen kısa süre sonra tekrar deneyin veya destek ekibimizle iletişime geçin.');
+      return;
+    }
+
+    const client = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+      auth:{ persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
     });
-    btn.disabled=false; btn.textContent='Sıfırlama Bağlantısı Gönder';
-    if (error) { status.textContent=error.message; status.style.color='#8a3b2f'; return; }
-    status.innerHTML='✓ Bağlantı e-posta adresinize gönderildi. Gelen kutunuzu ve spam klasörünüzü kontrol edin.';
-    status.style.color='#1f7a4f';
-    document.getElementById('resetEmail').disabled=true;
-    btn.disabled=true;
-  };
 
-  // Şifreyi güncelle
-  window.updatePassword = async function() {
-    const btn = document.getElementById('updateBtn');
-    const status = document.getElementById('updateStatus');
-    const pw = document.getElementById('newPassword').value;
-    const pw2 = document.getElementById('confirmPassword').value;
-    if (pw.length < 8) { status.textContent='Şifre en az 8 karakter olmalıdır.'; status.style.color='#8a3b2f'; return; }
-    if (pw !== pw2) { status.textContent='Şifreler eşleşmiyor.'; status.style.color='#8a3b2f'; return; }
-    btn.disabled=true; btn.textContent='Güncelleniyor…';
-    const { error } = await client.auth.updateUser({ password: pw });
-    if (error) { status.textContent=error.message; status.style.color='#8a3b2f'; btn.disabled=false; btn.textContent='Şifremi Güncelle'; return; }
-    document.getElementById('stepUpdate').style.display='none';
-    document.getElementById('stepSuccess').style.display='block';
-    await client.auth.signOut();
-  };
+    const url = new URL(window.location.href);
+    const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+    const code = url.searchParams.get('code');
+    const queryType = url.searchParams.get('type');
+    const hashType = hashParams.get('type');
+    const hasRecoverySignal = code || queryType === 'recovery' || hashType === 'recovery' || hashParams.get('access_token');
 
-  window.togglePassword = function() {
-    const input = document.getElementById('newPassword');
-    const btn = event.target;
-    if (input.type==='password') { input.type='text'; btn.textContent='Gizle'; }
-    else { input.type='password'; btn.textContent='Göster'; }
-  };
+    if(hasRecoverySignal){
+      try{
+        if(code){
+          const { error } = await client.auth.exchangeCodeForSession(code);
+          if(error) throw error;
+        }
+        const { data:{ session }, error } = await client.auth.getSession();
+        if(error) throw error;
+        if(session) showUpdateStep();
+        else showErrorStep('Şifre sıfırlama oturumu oluşturulamadı. Bağlantının süresi dolmuş olabilir.');
+      }catch(err){
+        showErrorStep(err && err.message ? err.message : 'Şifre sıfırlama bağlantısı doğrulanamadı.');
+      }
+    }
 
-  // Enter ile gönder
-  document.getElementById('resetEmail').addEventListener('keydown', e => { if(e.key==='Enter') window.sendResetLink(); });
-  document.getElementById('newPassword').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('confirmPassword').focus(); });
-  document.getElementById('confirmPassword').addEventListener('keydown', e => { if(e.key==='Enter') window.updatePassword(); });
-})();
-</script>
-<script src="/assets/mobile.js?v=20260425f"></script>
-<script defer="" src="/assets/mobile-redesign.js?v=20260616-stockfix"></script>
-<script defer="" src="/assets/inventory-client.js?v=20260616-stockfix"></script>
-<script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
-<script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
-<script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
+    window.sendResetLink = async function() {
+      const btn = document.getElementById('requestBtn');
+      const status = document.getElementById('requestStatus');
+      const emailInput = document.getElementById('resetEmail');
+      const email = emailInput.value.trim();
+
+      status.textContent='';
+      if(!email){
+        status.textContent='E-posta adresi giriniz.';
+        status.style.color='#8a3b2f';
+        emailInput.focus();
+        return;
+      }
+
+      btn.disabled=true;
+      btn.textContent='Gönderiliyor…';
+
+      const siteUrl = (cfg.siteUrl || cfg.siteURL || window.location.origin).replace(/\/$/, '');
+      const { error } = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: `${siteUrl}/auth/reset.html`
+      });
+
+      if(error){
+        status.textContent=error.message || 'Şifre sıfırlama bağlantısı gönderilemedi.';
+        status.style.color='#8a3b2f';
+        btn.disabled=false;
+        btn.textContent='Sıfırlama Bağlantısı Gönder';
+        return;
+      }
+
+      status.textContent='Bağlantı e-posta adresinize gönderildi. Gelen kutunuzu ve spam klasörünüzü kontrol edin.';
+      status.style.color='#1f7a4f';
+      emailInput.disabled=true;
+      btn.textContent='Bağlantı Gönderildi';
+    };
+
+    window.updatePassword = async function() {
+      const btn = document.getElementById('updateBtn');
+      const status = document.getElementById('updateStatus');
+      const pw = document.getElementById('newPassword').value;
+      const pw2 = document.getElementById('confirmPassword').value;
+
+      status.textContent='';
+      if(pw.length < 8){
+        status.textContent='Şifre en az 8 karakter olmalıdır.';
+        status.style.color='#8a3b2f';
+        return;
+      }
+      if(!(/[A-Za-zÇĞİÖŞÜçğıöşü]/.test(pw)) || !(/\d/.test(pw))){
+        status.textContent='Şifre en az bir harf ve bir rakam içermelidir.';
+        status.style.color='#8a3b2f';
+        return;
+      }
+      if(pw !== pw2){
+        status.textContent='Şifreler eşleşmiyor.';
+        status.style.color='#8a3b2f';
+        return;
+      }
+
+      btn.disabled=true;
+      btn.textContent='Güncelleniyor…';
+
+      const { error } = await client.auth.updateUser({ password: pw });
+      if(error){
+        status.textContent=error.message || 'Şifre güncellenemedi.';
+        status.style.color='#8a3b2f';
+        btn.disabled=false;
+        btn.textContent='Şifremi Güncelle';
+        return;
+      }
+
+      hideAll();
+      stepSuccess.style.display='block';
+      await client.auth.signOut();
+    };
+
+    window.togglePassword = function(inputId, button) {
+      const input = document.getElementById(inputId);
+      if(!input) return;
+      if(input.type === 'password'){
+        input.type = 'text';
+        button.textContent = 'Gizle';
+      }else{
+        input.type = 'password';
+        button.textContent = 'Göster';
+      }
+    };
+
+    document.getElementById('resetEmail').addEventListener('keydown', function(e){
+      if(e.key === 'Enter') window.sendResetLink();
+    });
+    document.getElementById('newPassword').addEventListener('keydown', function(e){
+      if(e.key === 'Enter') document.getElementById('confirmPassword').focus();
+    });
+    document.getElementById('confirmPassword').addEventListener('keydown', function(e){
+      if(e.key === 'Enter') window.updatePassword();
+    });
+  })();
+  </script>
 </body>
 </html>
