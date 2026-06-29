@@ -397,3 +397,64 @@
     height: 42px !important;
   }
 }
+
+
+/* UAT v6 hotfix — move desktop search back next to account/favorites/cart and normalize icon color.
+   Root cause: v5 removed the auto push on the desktop search form, so the trigger stayed in the nav flow
+   and drifted left after the support link. Restore margin-left:auto so it sits at the far right of the nav shell,
+   immediately before the tool cluster, and make the magnifier color match the other header icons. */
+@media (min-width: 1024px) {
+  .header .nav-shell {
+    justify-content: flex-start !important;
+  }
+  .header .site-search-form:not(.site-search-form--mobile) {
+    margin-left: auto !important;
+    margin-right: 0 !important;
+    flex: 0 0 42px !important;
+    width: 42px !important;
+    min-width: 42px !important;
+  }
+  .header .site-search-form:not(.site-search-form--mobile) .site-search,
+  .header .site-search-form:not(.site-search-form--mobile) .site-search-icon {
+    color: #1a1510 !important;
+  }
+  .header .site-search-form:not(.site-search-form--mobile) .site-search-icon svg path,
+  .header .site-search-form:not(.site-search-form--mobile) .site-search-icon svg circle,
+  .header .site-search-form:not(.site-search-form--mobile) .site-search-icon svg line {
+    stroke: currentColor !important;
+  }
+  .header .site-search-form:not(.site-search-form--mobile):hover .site-search,
+  .header .site-search-form:not(.site-search-form--mobile):focus-within .site-search,
+  .header .site-search-form:not(.site-search-form--mobile).is-search-active .site-search {
+    width: min(300px, calc(100vw - 760px)) !important;
+    min-width: 238px !important;
+  }
+}
+
+
+/* UAT v7 hotfix — search animation timing only.
+   Keeps the v6 structure/position exactly the same; only slows the hover/focus expansion
+   to a premium 260ms ease-out rhythm. */
+@media (min-width: 1024px) {
+  .header .site-search-form:not(.site-search-form--mobile) .site-search {
+    transition:
+      width 260ms ease-out,
+      min-width 260ms ease-out,
+      box-shadow 260ms ease-out,
+      border-color 220ms ease-out,
+      background-color 220ms ease-out !important;
+    will-change: width, min-width, box-shadow;
+  }
+  .header .site-search-form:not(.site-search-form--mobile) .site-search-input {
+    transition:
+      opacity 210ms ease-out 45ms,
+      transform 260ms ease-out !important;
+  }
+  .header .site-search-form:not(.site-search-form--mobile) .site-search-clear {
+    transition:
+      opacity 190ms ease-out 55ms,
+      width 230ms ease-out,
+      max-width 230ms ease-out,
+      padding 230ms ease-out !important;
+  }
+}
