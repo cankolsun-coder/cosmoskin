@@ -28,11 +28,24 @@ function absoluteUrl(url = '', env = {}) {
   return `${base}${raw.startsWith('/') ? '' : '/'}${raw}`;
 }
 
+const EMAIL_PRODUCT_IMAGE_OVERRIDES = {
+  'beauty-of-joseon-relief-sun-spf50': '/assets/img/email/products/beauty-of-joseon-relief-sun-spf50-email-v3.png'
+};
+
+function emailImage(productImage = '', product = {}, productName = '', env = {}) {
+  const name = `${productName || product?.name || ''}`.toLocaleLowerCase('tr-TR');
+  const slug = String(product?.slug || product?.id || '').trim();
+  if (EMAIL_PRODUCT_IMAGE_OVERRIDES[slug]) return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES[slug], env);
+  if (name.includes('relief sun') && name.includes('probiotics')) return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES['beauty-of-joseon-relief-sun-spf50'], env);
+  if (/beauty-of-joseon.*relief-sun-spf50|beauty-of-joseon-relief-sun-spf50/i.test(String(productImage || product?.image || ''))) return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES['beauty-of-joseon-relief-sun-spf50'], env);
+  return absoluteUrl(productImage || product?.image || '', env);
+}
+
 function resolveProduct({ productName = '', productUrl = '', productSlug = '', productImage = '', env = {} } = {}) {
   const handle = productSlug || productUrl;
   const product = getCatalogProductByHandle(handle) || getCatalogProductByName(productName);
   const url = absoluteUrl(productUrl || product?.url || (product?.slug ? `/products/${product.slug}.html` : ''), env) || siteUrl(env);
-  const image = absoluteUrl(productImage || product?.image || '', env);
+  const image = emailImage(productImage, product, productName, env);
   return {
     name: productName || product?.name || 'Beklediğin ürün',
     brand: product?.brand || '',

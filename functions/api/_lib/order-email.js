@@ -146,25 +146,54 @@ function iconStyle(tone = '') {
 }
 
 
+const EMAIL_PRODUCT_IMAGE_OVERRIDES = {
+  'beauty-of-joseon-relief-sun-spf50': '/assets/img/email/products/beauty-of-joseon-relief-sun-spf50-email-v3.png'
+};
+
 function statusIconAsset(type = '', tone = '') {
-  if (type === 'shipment_created' || type === 'shipment_updated' || tone === 'truck') return '/assets/img/email/status-truck.png';
-  if (type === 'order_preparing' || type === 'order_packed' || tone === 'package') return '/assets/img/email/status-package.png';
-  if (type === 'bank_transfer_pending' || tone === 'bank') return '/assets/img/email/status-bank.png';
-  if (type === 'bank_transfer_reminder') return '/assets/img/email/status-reminder.png';
-  if (type === 'bank_transfer_not_received_cancelled' || tone === 'warning') return '/assets/img/email/status-cancel.png';
-  if (type === 'shipment_delivered' || tone === 'delivered') return '/assets/img/email/status-delivered.png';
-  return '/assets/img/email/status-check.png';
+  if (type === 'shipment_created' || type === 'shipment_updated' || tone === 'truck') return '/assets/img/email/status-truck-v2.png';
+  if (type === 'order_preparing' || type === 'order_packed' || tone === 'package') return '/assets/img/email/status-package-v2.png';
+  if (type === 'bank_transfer_pending' || tone === 'bank') return '/assets/img/email/status-bank-v2.png';
+  if (type === 'bank_transfer_reminder') return '/assets/img/email/status-reminder-v2.png';
+  if (type === 'bank_transfer_not_received_cancelled' || tone === 'warning') return '/assets/img/email/status-cancel-v2.png';
+  if (type === 'shipment_delivered' || tone === 'delivered') return '/assets/img/email/status-delivered-v2.png';
+  return '/assets/img/email/status-check-v2.png';
 }
 
 function statusIconHtml(type = '', copy = {}, env = {}) {
   const src = absoluteUrl(statusIconAsset(type, copy.tone), env);
-  return `<img src="${escapeHtml(src)}" width="30" height="30" alt="" style="display:block;width:30px;height:30px;max-width:30px;max-height:30px;border:0;outline:none;text-decoration:none;margin:0 auto;-ms-interpolation-mode:bicubic;">`;
+  return `<img src="${escapeHtml(src)}" width="34" height="34" alt="" style="display:block;width:34px;height:34px;max-width:34px;max-height:34px;border:0;outline:none;text-decoration:none;margin:0 auto;-ms-interpolation-mode:bicubic;">`;
+}
+
+function emailImageForItem(item = {}, product = {}, slug = '', env = {}) {
+  const name = `${item.product_name || item.name || product?.name || ''}`.toLocaleLowerCase('tr-TR');
+  const rawSlug = `${slug || item.product_slug || item.slug || product?.slug || product?.id || ''}`.trim();
+  const rawImage = `${item.email_image || item.image || item.product_image || item.image_url || product?.image || ''}`.trim();
+  const key = rawSlug || (name.includes('relief sun') && name.includes('probiotics') ? 'beauty-of-joseon-relief-sun-spf50' : '');
+  if (EMAIL_PRODUCT_IMAGE_OVERRIDES[key]) return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES[key], env);
+  if (/beauty-of-joseon.*relief-sun-spf50|beauty-of-joseon-relief-sun-spf50/i.test(rawImage)) {
+    return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES['beauty-of-joseon-relief-sun-spf50'], env);
+  }
+  return absoluteUrl(rawImage, env);
+}
+
+function emailHeaders(type = '', order = {}) {
+  const no = orderNumber(order);
+  return {
+    'X-COSMOSKIN-Email-Type': String(type || 'order_created'),
+    'X-COSMOSKIN-Order-Number': String(no || ''),
+    'X-Entity-Ref-ID': `cosmoskin-${String(no || 'order').replace(/[^a-z0-9_-]/gi, '')}-${String(type || 'email')}-${Date.now()}`
+  };
+}
+
+function emailAntiTrimLine(type = '', order = {}, copy = {}) {
+  return `<p style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#a2978c;line-height:1.6;margin:0 auto 22px;text-align:center;max-width:460px;letter-spacing:.8px;text-transform:uppercase;">Durum güncellemesi: ${escapeHtml(copy.eyebrow || type)} · ${escapeHtml(orderNumber(order))}</p>`;
 }
 
 function resolveItem(item = {}, env = {}) {
   const product = getCatalogProductByHandle(item.product_slug || item.slug || item.product_id || item.id || item.url) || getCatalogProductByName(item.product_name || item.name);
   const slug = item.product_slug || item.slug || product?.slug || product?.id || '';
-  const image = absoluteUrl(item.image || item.product_image || item.image_url || product?.image || '', env);
+  const image = emailImageForItem(item, product, slug, env);
   return {
     slug,
     brand: item.brand || product?.brand || '',
@@ -186,7 +215,7 @@ function productsBlock(items = [], env = {}, currency = 'TRY') {
   const rows = items.slice(0, 10).map((raw) => {
     const item = resolveItem(raw, env);
     const imageHtml = item.image
-      ? `<table role="presentation" width="76" height="76" cellspacing="0" cellpadding="0" border="0" style="width:76px;height:76px;border-collapse:separate;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:16px;border:1px solid #eee5dc;background:#fbf7ef;text-align:center;vertical-align:middle;"><img src="${escapeHtml(item.image)}" width="64" alt="${escapeHtml(item.name)}" style="display:block;width:auto;height:auto;max-width:64px;max-height:64px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;margin:0 auto;"></td></tr></table>`
+      ? `<table role="presentation" width="76" height="76" cellspacing="0" cellpadding="0" border="0" style="width:76px;height:76px;border-collapse:separate;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:16px;border:1px solid #eee5dc;background:#fbf7ef;text-align:center;vertical-align:middle;"><img src="${escapeHtml(item.image)}" width="64" height="64" alt="${escapeHtml(item.name)}" style="display:block;width:64px;height:64px;max-width:64px;max-height:64px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;margin:0 auto;"></td></tr></table>`
       : `<table role="presentation" width="76" height="76" cellspacing="0" cellpadding="0" border="0" style="width:76px;height:76px;border-collapse:separate;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:16px;border:1px solid #eee5dc;background:#fbf7ef;text-align:center;vertical-align:middle;"><span style="display:inline-block;font-family:Georgia,serif;font-size:18px;line-height:1;color:#8a6a4a;">CS</span></td></tr></table>`;
     return `<tr>
       <td width="92" style="padding:14px 0;border-bottom:1px solid #eee5dc;vertical-align:top;">${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">${imageHtml}</a>` : imageHtml}</td>
@@ -297,7 +326,8 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
         <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#9a8e82;letter-spacing:2px;text-transform:uppercase;font-weight:bold;text-align:center;margin:0 0 12px;">${escapeHtml(copy.eyebrow)}</div>
         <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.3;font-weight:normal;color:#171717;text-align:center;margin:0 0 16px;letter-spacing:.2px;">${escapeHtml(copy.title)}</h1>
         <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#55504a;line-height:1.75;margin:0 0 10px;text-align:center;">Merhaba ${escapeHtml(customerName(order))},</p>
-        <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#55504a;line-height:1.75;margin:0 auto 22px;text-align:center;max-width:460px;">${escapeHtml(copy.body)}</p>
+        <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#55504a;line-height:1.75;margin:0 auto 12px;text-align:center;max-width:460px;">${escapeHtml(copy.body)}</p>
+        ${emailAntiTrimLine(type, order, copy)}
         ${infoBox('Sipariş Bilgisi', totalRows)}
         ${type === 'bank_transfer_pending' ? bankAccountsBlock(bankAccounts, order) : ''}
         ${(type === 'shipment_created' || type === 'shipment_updated') ? trackingBlock(shipment) : ''}
@@ -337,7 +367,7 @@ async function sendBrevoEmail(env, payload = {}) {
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'api-key': env.BREVO_API_KEY, accept: 'application/json' },
-    body: JSON.stringify({ sender: payload.sender || getSender(env), to: [{ email: payload.to, name: payload.toName || payload.to }], subject: payload.subject, htmlContent: payload.htmlContent, textContent: payload.textContent || '' })
+    body: JSON.stringify({ sender: payload.sender || getSender(env), to: [{ email: payload.to, name: payload.toName || payload.to }], subject: payload.subject, htmlContent: payload.htmlContent, textContent: payload.textContent || '', headers: payload.headers || undefined })
   });
   const detail = await response.text();
   let parsed = null;
@@ -354,7 +384,7 @@ export async function sendOrderStatusEmail(env, payload = {}) {
   const type = payload.emailType || STATUS_TO_TYPE[String(payload.status || order.status || '').trim()] || 'order_created';
   const copy = copyFor(type);
   const subject = `${copy.subject} | ${orderNumber(order)}`;
-  return await sendBrevoEmail(env, { to, toName: customerName(order), subject, htmlContent: buildCommerceEmailHtml({ ...payload, type, env }), textContent: buildCommerceText({ ...payload, type, env }) });
+  return await sendBrevoEmail(env, { to, toName: customerName(order), subject, htmlContent: buildCommerceEmailHtml({ ...payload, type, env }), textContent: buildCommerceText({ ...payload, type, env }), headers: emailHeaders(type, order) });
 }
 
 export async function sendShipmentEmail(env, payload = {}) {
@@ -365,7 +395,7 @@ export async function sendShipmentEmail(env, payload = {}) {
   if (!env?.BREVO_API_KEY) return { sent: false, skipped: true, reason: 'BREVO_API_KEY_missing' };
   const type = payload.type || payload.emailType || (shipment.status === 'delivered' ? 'shipment_delivered' : 'shipment_created');
   const copy = copyFor(type);
-  return await sendBrevoEmail(env, { to, toName: customerName(order), subject: `${copy.subject} | ${orderNumber(order)}`, htmlContent: buildCommerceEmailHtml({ ...payload, order, shipment, type, env }), textContent: buildCommerceText({ ...payload, order, shipment, type, env }) });
+  return await sendBrevoEmail(env, { to, toName: customerName(order), subject: `${copy.subject} | ${orderNumber(order)}`, htmlContent: buildCommerceEmailHtml({ ...payload, order, shipment, type, env }), textContent: buildCommerceText({ ...payload, order, shipment, type, env }), headers: emailHeaders(type, order) });
 }
 
 export function getCommerceEmailSubject(type = '') {
@@ -380,5 +410,5 @@ export async function sendCommerceTransactionalEmail(env, payload = {}) {
   const type = String(payload.type || 'return_request_received').trim();
   const copy = copyFor(type);
   const subject = payload.subject || `${copy.subject} | ${orderNumber(order)}`;
-  return await sendBrevoEmail(env, { to, toName: customerName(order), subject, htmlContent: buildCommerceEmailHtml({ ...payload, order, type, env }), textContent: buildCommerceText({ ...payload, order, type, env }) });
+  return await sendBrevoEmail(env, { to, toName: customerName(order), subject, htmlContent: buildCommerceEmailHtml({ ...payload, order, type, env }), textContent: buildCommerceText({ ...payload, order, type, env }), headers: emailHeaders(type, order) });
 }
