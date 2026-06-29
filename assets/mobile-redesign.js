@@ -524,9 +524,9 @@
 
   function faqSection() {
     var items = [
-      ['Ürünler orijinal mi?', 'COSMOSKIN seçkisi yalnızca orijinal marka ürünlerinden oluşur.'],
-      ['Kargo ne kadar sürer?', 'Siparişler genellikle 1–3 iş günü içinde kargoya hazırlanır.'],
-      ['Cilt ihtiyacıma göre nasıl seçerim?', 'Nem, Bariyer, Işıltı ve Hassasiyet kategorileriyle ihtiyacına göre başlayabilirsin.']
+      ['Kargo ücreti nedir?', 'Standart kargo 89 TL’dir; 2.500 TL ve üzeri sepetlerde ücretsiz uygulanır.'],
+      ['Havale/EFT nasıl tamamlanır?', 'Sipariş sonunda görünen banka hesabına ödeme yaparken açıklama alanına sipariş numaranı yazmalısın.'],
+      ['Hasarlı veya eksik ürün gelirse?', 'Teslimattan itibaren 48 saat içinde fotoğraf/video ile destek@cosmoskin.com.tr adresinden bize ulaşabilirsin.']
     ];
     return '<section class="cm-faq-section" aria-labelledby="cmHomeFaqTitle"><div class="cm-section-head"><h2 id="cmHomeFaqTitle">Sık Sorulan Sorular</h2><a class="cm-see-all" href="/contact.html#sss">Tümünü Gör ' + svg('chevron') + '</a></div><div class="cm-faq-list">' + items.map(function (item, index) { return '<details class="cm-faq-item"' + (index === 0 ? ' open' : '') + '><summary><span>' + esc(item[0]) + '</span>' + svg('chevron') + '</summary><p>' + esc(item[1]) + '</p></details>'; }).join('') + '</div></section>';
   }

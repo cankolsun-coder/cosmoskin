@@ -1179,3 +1179,23 @@ body.cs-checkout-cart-empty .cs-checkout-grid { grid-template-columns: minmax(0,
   .cs-checkout-trust-item { border-right: 0; grid-template-columns: 30px 1fr; }
   .cs-checkout-trust-icon { width: 30px; height: 30px; }
 }
+
+/* COSMOSKIN 20260629 checkout stabilization */
+.cs-checkout-success-products,
+.cs-checkout-success-payment{margin-top:22px;padding:18px;border:1px solid rgba(42,32,22,.10);border-radius:24px;background:#fffaf4;}
+.cs-checkout-success-products h3,
+.cs-checkout-success-payment h3{margin:0 0 14px;font-family:var(--serif);font-size:24px;font-weight:500;letter-spacing:-.02em;}
+.cs-checkout-success-item{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid rgba(42,32,22,.08);}
+.cs-checkout-success-item:last-child{border-bottom:0;}
+.cs-checkout-success-item img{width:72px;height:72px;border-radius:18px;object-fit:cover;background:#f4eadf;}
+.cs-checkout-success-item span{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8a6d4e;font-weight:800;}
+.cs-checkout-success-item strong{display:block;color:#201914;line-height:1.3;}
+.cs-checkout-success-item small{display:block;margin-top:4px;color:#73695f;}
+.cs-checkout-success-bank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px;}
+.cs-checkout-success-bank{background:#fff;border-radius:20px;}
+.cs-checkout-success-totals{margin-top:14px;border-top:1px solid rgba(42,32,22,.08);padding-top:10px;}
+.cs-checkout-summary-success-note{margin-top:12px;}
+#csCheckoutTrust{margin-top:34px;margin-bottom:30px;transform:translateY(6px);}
+@media(max-width:760px){.cs-checkout-success-item{grid-template-columns:60px 1fr}.cs-checkout-success-item b{grid-column:2}.cs-checkout-success-bank-grid{grid-template-columns:1fr}#csCheckoutTrust{transform:none;margin-top:24px;margin-bottom:24px}}
+.cs-checkout-payment-option.is-disabled{opacity:.58;cursor:not-allowed;background:#f4ece2;border-style:dashed;}
+.cs-checkout-payment-option.is-disabled *{pointer-events:none;}

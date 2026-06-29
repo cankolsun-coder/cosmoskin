@@ -15,9 +15,9 @@
   var numberFmt = new Intl.NumberFormat('tr-TR');
   var tabAliases = { loyalty: 'club', membership: 'club', skin: 'skin-profile', skin_profile: 'skin-profile', cilt: 'skin-profile', coupons: 'coupons', coupon: 'coupons', communication: 'notifications' };
   var statusLabels = {
-    pending_payment: 'Ödeme Bekleniyor', pending: 'Sipariş Alındı', confirmed: 'Ödeme Alındı', paid: 'Ödeme alındı', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', payment_failed: 'Ödeme Başarısız', failed: 'Başarısız', refunded: 'İade Edildi', partially_refunded: 'Kısmi İade'
+    pending_payment: 'Ödeme Bekleniyor', pending_bank_transfer: 'Havale/EFT Bekleniyor', awaiting_transfer: 'Havale/EFT Bekleniyor', pending: 'Sipariş Alındı', confirmed: 'Ödeme Alındı', paid: 'Ödeme alındı', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoya Verildi', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi', payment_failed: 'Ödeme Başarısız', failed: 'Başarısız', refunded: 'İade Edildi', partially_refunded: 'Kısmi İade'
   };
-  var shipmentLabels = { not_started: 'Hazırlanıyor', unfulfilled: 'Hazırlanıyor', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoda', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi' };
+  var shipmentLabels = { not_started: 'Hazırlanmadı', unfulfilled: 'Hazırlanıyor', preparing: 'Hazırlanıyor', packed: 'Paketlendi', shipped: 'Kargoda', delivered: 'Teslim Edildi', cancelled: 'İptal Edildi' };
 
   function $(selector, root) { return (root || document).querySelector(selector); }
   function $$(selector, root) { return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }

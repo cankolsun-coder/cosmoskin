@@ -156,9 +156,18 @@
     openAuth(event.detail && event.detail.tab || 'loginPanel');
   });
 
-  document.addEventListener('DOMContentLoaded', function () {
+  function bootPasswordToggles() {
     ensureAllPasswordToggles();
     qsa('[data-toggle-password]').forEach(function (button) { button.setAttribute('type', 'button'); });
+  }
+
+  bootPasswordToggles();
+  try {
+    new MutationObserver(function () { bootPasswordToggles(); }).observe(document.documentElement, { childList: true, subtree: true });
+  } catch (error) {}
+
+  document.addEventListener('DOMContentLoaded', function () {
+    bootPasswordToggles();
     try {
       var params = new URLSearchParams(window.location.search);
       var mode = params.get('auth') || (params.get('login') === '1' ? 'login' : '');

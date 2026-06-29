@@ -782,3 +782,10 @@ body.cs-ap-filter-open { overflow: hidden; }
   .cs-ap-trust { grid-template-columns: 1fr; margin-bottom: 36px; }
   .cs-ap-trust article { border-right: 0; }
 }
+
+/* COSMOSKIN 20260629 filter panel height stabilization */
+@media (min-width: 961px){
+  .cs-ap-layout{align-items:stretch;}
+  .cs-ap-sidebar{min-height:calc(100vh - 150px);align-self:stretch;}
+  .cs-ap-sidebar__body{max-height:none;overflow:visible;}
+}

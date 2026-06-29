@@ -182,6 +182,32 @@ function calculateTotals(cart) {
   return { subtotal, shipping, vat, total };
 }
 
+function responseItemsFromCart(cart = []) {
+  return cart.map((item) => ({
+    product_id: item.product_id || item.product_slug || null,
+    product_slug: item.product_slug || item.product_id || null,
+    product_name: item.product_name || 'COSMOSKIN Ürünü',
+    brand: item.brand || 'COSMOSKIN',
+    image: item.image || null,
+    unit_price: normalizeMoney(item.unit_price),
+    quantity: Number(item.quantity || 1),
+    line_total: normalizeMoney(item.line_total || (Number(item.unit_price || 0) * Number(item.quantity || 1)))
+  }));
+}
+
+function responseItemsFromRows(rows = []) {
+  return rows.map((item) => ({
+    product_id: item.product_id || item.product_slug || null,
+    product_slug: item.product_slug || item.product_id || null,
+    product_name: item.product_name || item.name || 'COSMOSKIN Ürünü',
+    brand: item.brand || 'COSMOSKIN',
+    image: item.image || item.product_image || null,
+    unit_price: normalizeMoney(item.unit_price),
+    quantity: Number(item.quantity || 1),
+    line_total: normalizeMoney(item.line_total || (Number(item.unit_price || 0) * Number(item.quantity || 1)))
+  }));
+}
+
 async function validateInventory(context, cart) {
   const slugs = cart.map((item) => item.product_slug || item.product_id).filter(Boolean);
   if (!slugs.length) return;
@@ -500,7 +526,7 @@ function assertOrderEnvironment(env) {
 
 function assertCardPaymentEnvironment(env) {
   if (!env.IYZICO_API_KEY || !env.IYZICO_SECRET_KEY) {
-    throw new CheckoutError('Ödeme sistemi henüz aktif değil.', 503, 'PAYMENT_NOT_CONFIGURED');
+    throw new CheckoutError('Kredi kartı ödeme altyapısı şu anda yapılandırılıyor. Lütfen Havale/EFT seçeneğini kullanın.', 503, 'PAYMENT_NOT_CONFIGURED');
   }
 }
 
@@ -541,6 +567,12 @@ async function existingCheckoutResponse(context, idempotencyKey, customerEmail, 
 
   const metadata = order.metadata && typeof order.metadata === 'object' ? order.metadata : {};
   if (expectedMethod === 'bank_transfer') {
+    const itemRows = await selectRows(context, 'order_items', {
+      select: 'product_id,product_slug,product_name,brand,image,unit_price,quantity,line_total',
+      order_id: `eq.${order.id}`,
+      order: 'created_at.asc'
+    }).catch(() => []);
+    const bankAccounts = await getValidatedBankAccounts(context, 5).catch(() => []);
     return {
       ok: true,
       idempotent: true,
@@ -550,7 +582,10 @@ async function existingCheckoutResponse(context, idempotencyKey, customerEmail, 
       orderStatus: order.status,
       paymentStatus: order.payment_status,
       paymentDeadline: metadata.payment_deadline || null,
-      bankAccount: metadata.bank_account || null,
+      bankAccount: metadata.bank_account || bankAccounts[0] || null,
+      bankAccounts,
+      customerEmail: order.customer_email,
+      items: responseItemsFromRows(itemRows),
       totals: orderTotalsFromRow(order),
       message: 'Siparişiniz daha önce oluşturuldu. Aynı sipariş bilgileri gösteriliyor.'
     };
@@ -844,6 +879,8 @@ export async function onRequestPost(context) {
         paymentDeadline,
         bankAccount,
         bankAccounts,
+        customerEmail: customer.email,
+        items: responseItemsFromCart(cart),
         totals,
         message: 'Siparişiniz oluşturuldu. Havale/EFT ödemeniz bekleniyor.'
       }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });

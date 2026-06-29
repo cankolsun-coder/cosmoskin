@@ -20,8 +20,17 @@ export async function onRequestPatch(context) {
       if (!VALID_FULFILLMENT.has(body.fulfillment_status)) return json({ ok: false, error: 'fulfillment_status geçersiz.' }, { status: 400 });
       payload.fulfillment_status = body.fulfillment_status;
     }
-    const current = (await selectRows(context, 'orders', { select: 'id,status,payment_status', id: `eq.${id}`, limit: '1' }).catch(() => []))?.[0];
+    const current = (await selectRows(context, 'orders', { select: 'id,status,payment_status,fulfillment_status,payment_method', id: `eq.${id}`, limit: '1' }).catch(() => []))?.[0];
     if (!current) return json({ ok: false, error: 'Sipariş bulunamadı.' }, { status: 404 });
+    const nextStatus = payload.status || current.status || '';
+    const nextFulfillment = payload.fulfillment_status || current.fulfillment_status || '';
+    const publishAsFulfilled = ['shipped', 'delivered'].includes(String(nextStatus)) || ['shipped', 'delivered'].includes(String(nextFulfillment));
+    if (current.status === 'cancelled' && publishAsFulfilled) {
+      return json({ ok: false, error: 'İptal edilmiş sipariş kargoya verildi veya teslim edildi durumuna alınamaz.' }, { status: 409 });
+    }
+    if ((current.payment_status === 'failed' || current.status === 'payment_failed') && publishAsFulfilled) {
+      return json({ ok: false, error: 'Ödemesi başarısız sipariş kargoya verildi veya teslim edildi durumuna alınamaz.' }, { status: 409 });
+    }
     if (body.status === 'cancelled' && ['paid', 'refunded', 'partially_refunded'].includes(String(current.payment_status || ''))) {
       return json({ ok: false, error: 'Ödemesi alınmış sipariş doğrudan iptal edilemez. Kontrollü iade akışını kullanın.' }, { status: 409 });
     }

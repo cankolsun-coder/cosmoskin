@@ -259,7 +259,7 @@ function isMissingAtomicInventoryRpc(error) {
 
 function atomicInventoryError(error, operation) {
   if (isMissingAtomicInventoryRpc(error)) {
-    console.error('atomic inventory RPC unavailable:', { operation, migration: '20260616_inventory_reservation_hardening.sql' });
+    console.error('atomic inventory RPC unavailable:', { operation, migration: '20260629_cosmoskin_checkout_bank_transfer_final_fix.sql' });
     return Object.assign(new Error('Stok güvenlik servisi hazır değil. Sipariş oluşturulmadı; lütfen destek ekibine bilgi verin.'), {
       status: 503,
       code: 'INVENTORY_ATOMIC_RPC_MISSING'

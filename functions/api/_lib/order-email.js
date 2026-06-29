@@ -250,6 +250,7 @@ function buildCommerceEmailHtml({ order = {}, type = 'order_created', env = {}, 
     ['Sipariş No', orderNumber(order)],
     ['Ara Toplam', order.subtotal_amount ? formatMoney(order.subtotal_amount, currency) : ''],
     ['Kargo', order.shipping_amount != null ? formatMoney(order.shipping_amount, currency) : ''],
+    ['Dahil Olan KDV', order.vat_amount != null ? formatMoney(order.vat_amount, currency) : ''],
     ['Toplam', order.total_amount != null ? formatMoney(order.total_amount, currency) : '']
   ];
   const deliveredNotice = type === 'shipment_delivered'

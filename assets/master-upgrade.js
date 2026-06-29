@@ -54,7 +54,9 @@
   function addItem(slug, qty) {
     var p = bySlug(slug);
     if (!p) return false;
-    if (isOutOfStock(slug)) { toast('Bu ürün şu anda stokta yok.', 'error'); return false; }
+    var invState = stockState(slug);
+    if (invState.state === 'unknown') { toast('Stok bilgisi kontrol ediliyor. Lütfen birkaç saniye sonra tekrar deneyin.', 'error'); return false; }
+    if (invState.state === 'out') { toast('Bu ürün şu anda stokta yok.', 'error'); return false; }
     var item = { id: p.slug, slug: p.slug, name: p.name, brand: p.brand, price: Number(p.price || 0), image: p.image, url: p.url, qty: Number(qty || 1) || 1 };
     if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.addItems === 'function') {
       window.COSMOSKIN_CART_API.addItems([item], { openDrawer: true });
@@ -77,15 +79,20 @@
     saveCart(items);
   }
   function removeItem(slug) { saveCart(cartItems().filter(function (item) { return (item.slug || item.id) !== slug; })); }
-  function isOutOfStock(slug) {
+  function stockState(slug) {
     try {
       var inv = window.COSMOSKIN_STOCK && window.COSMOSKIN_STOCK.getInventory && window.COSMOSKIN_STOCK.getInventory(slug);
-      return !!(inv && inv.status === 'active' && !inv.allow_backorder && Number(inv.available_stock || 0) <= 0);
-    } catch (_) { return false; }
+      if (!inv) return { state: 'unknown', label: 'Stok bilgisi kontrol ediliyor' };
+      if (inv._missing || inv.status === 'missing') return { state: 'unknown', label: 'Stok kaydı doğrulanamadı' };
+      if (inv.status !== 'active') return { state: 'out', label: 'Stokta Yok' };
+      if (!inv.allow_backorder && Number(inv.available_stock || 0) <= 0) return { state: 'out', label: 'Stokta Yok' };
+      return { state: 'in', label: Number(inv.available_stock || 0) <= Number(inv.low_stock_threshold || 0) ? 'Son ürünler' : 'Stokta' };
+    } catch (_) { return { state: 'unknown', label: 'Stok bilgisi kontrol ediliyor' }; }
   }
+  function isOutOfStock(slug) { return stockState(slug).state === 'out'; }
   function stockBadge(slug) {
-    var out = isOutOfStock(slug);
-    return '<span class="cs-stock-badge ' + (out ? 'is-out' : 'is-in') + '" data-cm-stock-badge data-product-slug="' + esc(slug) + '">' + (out ? 'Stokta Yok' : 'Stokta') + '</span>';
+    var state = stockState(slug);
+    return '<span class="cs-stock-badge ' + (state.state === 'out' ? 'is-out' : (state.state === 'unknown' ? 'is-unknown' : 'is-in')) + '" data-cm-stock-badge data-product-slug="' + esc(slug) + '">' + esc(state.label) + '</span>';
   }
   function toast(message, type) {
     var node = document.querySelector('.cs-toast');
@@ -148,11 +155,13 @@
   function productCard(p, options) {
     options = options || {};
     if (!p) return '';
-    var out = isOutOfStock(p.slug);
-    return '<article class="cs-product-card' + (out ? ' is-out-of-stock' : '') + '" data-product-id="' + esc(p.slug) + '">' +
+    var inventory = stockState(p.slug);
+    var unavailable = inventory.state !== 'in';
+    var out = inventory.state === 'out';
+    return '<article class="cs-product-card' + (unavailable ? ' is-out-of-stock' : '') + '" data-product-id="' + esc(p.slug) + '">' +
       '<a class="cs-product-card__media" href="' + esc(p.url) + '"><img src="' + esc(p.image) + '" alt="' + esc(p.brand + ' ' + p.name) + '" loading="lazy"></a>' +
       '<div class="cs-product-card__info"><small>' + esc(p.brand) + '</small><a class="cs-cart-name" href="' + esc(p.url) + '">' + esc(p.name) + '</a>' + stockBadge(p.slug) + '</div>' +
-      '<div class="cs-product-card__footer"><span class="cs-price">' + esc(fmt(p.price)) + '</span><button type="button" data-cs-add="' + esc(p.slug) + '"' + (out ? ' disabled aria-disabled="true" class="is-stock-disabled"' : '') + '>' + (out ? 'Stokta Yok' : (options.shortButton ? 'Ekle' : 'Sepete Ekle')) + '</button></div>' +
+      '<div class="cs-product-card__footer"><span class="cs-price">' + esc(fmt(p.price)) + '</span><button type="button" data-cs-add="' + esc(p.slug) + '"' + (unavailable ? ' disabled aria-disabled="true" class="is-stock-disabled"' : '') + '>' + (unavailable ? inventory.label : (options.shortButton ? 'Ekle' : 'Sepete Ekle')) + '</button></div>' +
     '</article>';
   }
 

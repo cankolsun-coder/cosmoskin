@@ -65,6 +65,28 @@ function statusFromAction(action) {
   };
   return map[String(action || '')] || null;
 }
+
+function assertOperationalTransition(before = {}, next = {}) {
+  const nextStatus = next.status || before.status || '';
+  const nextPayment = next.payment_status || before.payment_status || '';
+  const nextFulfillment = next.fulfillment_status || before.fulfillment_status || '';
+  const publishAsFulfilled = ['shipped', 'delivered'].includes(String(nextStatus)) || ['shipped', 'delivered'].includes(String(nextFulfillment));
+  if (String(before.status) === 'cancelled' && publishAsFulfilled) {
+    const err = new Error('İptal edilmiş sipariş kargoya verildi veya teslim edildi durumuna alınamaz.');
+    err.status = 409;
+    throw err;
+  }
+  if ((String(before.payment_status) === 'failed' || String(before.status) === 'payment_failed') && publishAsFulfilled) {
+    const err = new Error('Ödemesi başarısız sipariş kargoya verildi veya teslim edildi durumuna alınamaz.');
+    err.status = 409;
+    throw err;
+  }
+  if (String(before.payment_method) === 'bank_transfer' && nextPayment === 'failed' && !['cancelled', 'payment_failed'].includes(nextStatus)) {
+    const err = new Error('Havale/EFT siparişi başarısız işaretlenecekse sipariş durumu da kontrollü iptal/ödeme başarısız akışına alınmalıdır.');
+    err.status = 409;
+    throw err;
+  }
+}
 function buildTrackingUrl(carrier, number, manual) {
   const cleanManual = String(manual || '').trim();
   if (cleanManual) return cleanManual;
@@ -306,6 +328,7 @@ export async function onRequestPatch(context) {
       if (status === 'cancelled' && ['paid', 'refunded', 'partially_refunded'].includes(String(before.payment_status || ''))) {
         return json({ ok: false, error: 'Ödemesi alınmış sipariş doğrudan iptal edilemez. Önce kontrollü iade sürecini başlatın.' }, { status: 409 });
       }
+      assertOperationalTransition(before, payload);
       // Inventory is finalized before publishing the new order state. Atomic RPCs are idempotent.
       if (status === 'cancelled') {
         await releaseInventoryReservations(context, id, 'admin_cancelled');

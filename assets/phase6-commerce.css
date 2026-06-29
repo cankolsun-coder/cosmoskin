@@ -598,3 +598,10 @@ html,body{max-width:100%;overflow-x:clip}
 #cartDrawer .cart-summary a.is-disabled { pointer-events: none; opacity: .48; }
 #cartDrawer.cart-drawer--filled #phase6CartCoupon[hidden],
 #cartDrawer.cart-drawer--filled #phase6CartRecommendations[hidden] { display: none !important; }
+
+/* COSMOSKIN 20260629 premium search/cart stabilization */
+.header .site-search{transition:width .78s cubic-bezier(.16,1,.3,1),background .36s ease,border-color .36s ease,box-shadow .42s ease!important;}
+.header .site-search-input{transition:opacity .42s ease .08s,transform .42s cubic-bezier(.16,1,.3,1)!important;}
+#cartDrawer{display:flex;flex-direction:column;overflow:hidden;}
+#cartDrawer .cart-items{flex:1 1 auto;min-height:168px;max-height:none;overflow-y:auto;scroll-padding-top:14px;padding-top:4px;padding-bottom:12px;}
+#cartDrawer .cart-summary{flex:0 0 auto;position:sticky;bottom:0;z-index:2;background:#fffaf3;}
