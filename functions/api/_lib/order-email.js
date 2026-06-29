@@ -145,6 +145,22 @@ function iconStyle(tone = '') {
   return 'background:#f7f3ec;border-color:#e8dfd4;color:#6b5e50;';
 }
 
+
+function statusIconAsset(type = '', tone = '') {
+  if (type === 'shipment_created' || type === 'shipment_updated' || tone === 'truck') return '/assets/img/email/status-truck.png';
+  if (type === 'order_preparing' || type === 'order_packed' || tone === 'package') return '/assets/img/email/status-package.png';
+  if (type === 'bank_transfer_pending' || tone === 'bank') return '/assets/img/email/status-bank.png';
+  if (type === 'bank_transfer_reminder') return '/assets/img/email/status-reminder.png';
+  if (type === 'bank_transfer_not_received_cancelled' || tone === 'warning') return '/assets/img/email/status-cancel.png';
+  if (type === 'shipment_delivered' || tone === 'delivered') return '/assets/img/email/status-delivered.png';
+  return '/assets/img/email/status-check.png';
+}
+
+function statusIconHtml(type = '', copy = {}, env = {}) {
+  const src = absoluteUrl(statusIconAsset(type, copy.tone), env);
+  return `<img src="${escapeHtml(src)}" width="30" height="30" alt="" style="display:block;width:30px;height:30px;max-width:30px;max-height:30px;border:0;outline:none;text-decoration:none;margin:0 auto;-ms-interpolation-mode:bicubic;">`;
+}
+
 function resolveItem(item = {}, env = {}) {
   const product = getCatalogProductByHandle(item.product_slug || item.slug || item.product_id || item.id || item.url) || getCatalogProductByName(item.product_name || item.name);
   const slug = item.product_slug || item.slug || product?.slug || product?.id || '';
@@ -170,10 +186,10 @@ function productsBlock(items = [], env = {}, currency = 'TRY') {
   const rows = items.slice(0, 10).map((raw) => {
     const item = resolveItem(raw, env);
     const imageHtml = item.image
-      ? `<table role="presentation" width="72" height="72" cellspacing="0" cellpadding="0" border="0" style="width:72px;height:72px;border-collapse:separate;"><tr><td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;border-radius:14px;border:1px solid #eee5dc;background:#faf7f3;text-align:center;vertical-align:middle;"><img src="${escapeHtml(item.image)}" width="56" alt="${escapeHtml(item.name)}" style="display:block;width:auto;height:auto;max-width:56px;max-height:56px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;margin:0 auto;"></td></tr></table>`
-      : `<table role="presentation" width="72" height="72" cellspacing="0" cellpadding="0" border="0" style="width:72px;height:72px;border-collapse:separate;"><tr><td align="center" valign="middle" width="72" height="72" style="width:72px;height:72px;border-radius:14px;border:1px solid #eee5dc;background:#faf7f3;text-align:center;vertical-align:middle;"><span style="display:inline-block;font-family:Georgia,serif;font-size:18px;line-height:1;color:#8a6a4a;">CS</span></td></tr></table>`;
+      ? `<table role="presentation" width="76" height="76" cellspacing="0" cellpadding="0" border="0" style="width:76px;height:76px;border-collapse:separate;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:16px;border:1px solid #eee5dc;background:#fbf7ef;text-align:center;vertical-align:middle;"><img src="${escapeHtml(item.image)}" width="64" alt="${escapeHtml(item.name)}" style="display:block;width:auto;height:auto;max-width:64px;max-height:64px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;margin:0 auto;"></td></tr></table>`
+      : `<table role="presentation" width="76" height="76" cellspacing="0" cellpadding="0" border="0" style="width:76px;height:76px;border-collapse:separate;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:16px;border:1px solid #eee5dc;background:#fbf7ef;text-align:center;vertical-align:middle;"><span style="display:inline-block;font-family:Georgia,serif;font-size:18px;line-height:1;color:#8a6a4a;">CS</span></td></tr></table>`;
     return `<tr>
-      <td width="84" style="padding:14px 0;border-bottom:1px solid #eee5dc;vertical-align:top;">${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">${imageHtml}</a>` : imageHtml}</td>
+      <td width="92" style="padding:14px 0;border-bottom:1px solid #eee5dc;vertical-align:top;">${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">${imageHtml}</a>` : imageHtml}</td>
       <td style="padding:14px 12px;border-bottom:1px solid #eee5dc;vertical-align:top;">
         <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.4;color:#9a8e82;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;">${escapeHtml(item.brand || 'COSMOSKIN')}</div>
         <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.45;color:#171717;font-weight:bold;">${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="color:#171717;text-decoration:none;">${escapeHtml(item.name)}</a>` : escapeHtml(item.name)}</div>
@@ -276,7 +292,7 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
       </td></tr>
       <tr><td style="padding:42px 40px 34px;background-color:#ffffff;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td align="center" style="padding-bottom:22px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="width:58px;height:58px;border-radius:58px;border:1px solid #d9cdbc;${iconStyle(copy.tone)}font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:bold;line-height:58px;text-align:center;">${copy.tone === 'truck' ? '<span style="display:inline-block;font-size:24px;line-height:58px;letter-spacing:-2px;">▰▱</span>' : copy.tone === 'package' ? '<span style="display:inline-block;font-size:24px;line-height:58px;">▣</span>' : escapeHtml(copy.icon)}</td></tr></table>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" style="width:58px;height:58px;border-radius:58px;border:1px solid #d9cdbc;${iconStyle(copy.tone)}text-align:center;vertical-align:middle;line-height:1;">${statusIconHtml(type, copy, env)}</td></tr></table>
         </td></tr></table>
         <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#9a8e82;letter-spacing:2px;text-transform:uppercase;font-weight:bold;text-align:center;margin:0 0 12px;">${escapeHtml(copy.eyebrow)}</div>
         <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.3;font-weight:normal;color:#171717;text-align:center;margin:0 0 16px;letter-spacing:.2px;">${escapeHtml(copy.title)}</h1>
