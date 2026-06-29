@@ -79,21 +79,29 @@ const COPY = {
     subject: 'Havale/EFT ödemeniz bekleniyor', eyebrow: 'Havale/EFT Bilgisi', title: 'Havale/EFT ödemeniz bekleniyor.',
     body: 'Siparişiniz ödeme bekleniyor durumuyla oluşturuldu. Lütfen ödeme açıklamasına sipariş numaranızı yazın.', icon: '₺', tone: 'bank', cta: 'Sipariş Detayını Gör'
   },
+  bank_transfer_reminder: {
+    subject: 'Havale/EFT ödemeniz henüz görünmüyor', eyebrow: 'Ödeme Hatırlatma', title: 'Havale/EFT ödemeniz henüz görünmüyor.',
+    body: 'Siparişiniz için Havale/EFT ödemeniz henüz görünmüyor. Ödeme yaptıysanız açıklama alanında sipariş numaranızın yer aldığından emin olun.', icon: '◷', tone: 'bank', cta: 'Sipariş Detayını Gör'
+  },
+  bank_transfer_not_received_cancelled: {
+    subject: 'Havale/EFT ödemeniz alınamadığı için siparişiniz iptal edildi', eyebrow: 'Sipariş İptali', title: 'Siparişiniz iptal edildi.',
+    body: 'Havale/EFT ödemeniz beklenen süre içinde görünmediği için siparişiniz iptal edildi. Dilerseniz ürünleri yeniden sepete ekleyerek yeni sipariş oluşturabilirsiniz.', icon: '×', tone: 'warning', cta: 'Alışverişe Devam Et'
+  },
   order_preparing: {
     subject: 'Siparişiniz hazırlanıyor', eyebrow: 'Hazırlık Süreci', title: 'Siparişiniz hazırlanıyor.',
-    body: 'COSMOSKIN seçkiniz özenle hazırlanıyor. Kargoya verildiğinde takip bilgilerinizi paylaşacağız.', icon: '◱', tone: 'package', cta: 'Siparişimi Gör'
+    body: 'COSMOSKIN seçkiniz özenle hazırlanıyor. Kargoya verildiğinde takip bilgilerinizi paylaşacağız.', icon: '▣', tone: 'package', cta: 'Siparişimi Gör'
   },
   order_packed: {
     subject: 'Siparişiniz paketlendi', eyebrow: 'Hazırlık Süreci', title: 'Siparişiniz paketlendi.',
-    body: 'Siparişiniz kargoya teslim edilmek üzere hazırlandı.', icon: '◱', tone: 'package', cta: 'Siparişimi Gör'
+    body: 'Siparişiniz kargoya teslim edilmek üzere hazırlandı.', icon: '▣', tone: 'package', cta: 'Siparişimi Gör'
   },
   shipment_created: {
     subject: 'Siparişiniz kargoya verildi', eyebrow: 'Kargo Güncellemesi', title: 'Siparişiniz kargoya verildi.',
-    body: 'Siparişiniz kargo firmasına teslim edildi. Takip bilgilerinizi aşağıda bulabilirsiniz.', icon: '➜', tone: 'truck', cta: 'Kargomu Takip Et'
+    body: 'Siparişiniz kargo firmasına teslim edildi. Takip bilgilerinizi aşağıda bulabilirsiniz.', icon: '▰', tone: 'truck', cta: 'Kargomu Takip Et'
   },
   shipment_updated: {
     subject: 'Kargo bilgileriniz güncellendi', eyebrow: 'Kargo Güncellemesi', title: 'Kargo bilgileriniz güncellendi.',
-    body: 'Siparişinizin kargo takip bilgileri güncellendi.', icon: '➜', tone: 'truck', cta: 'Kargomu Takip Et'
+    body: 'Siparişinizin kargo takip bilgileri güncellendi.', icon: '▰', tone: 'truck', cta: 'Kargomu Takip Et'
   },
   shipment_delivered: {
     subject: 'Siparişiniz teslim edildi', eyebrow: 'Teslimat Tamamlandı', title: 'Siparişiniz teslim edildi.',
@@ -162,7 +170,7 @@ function productsBlock(items = [], env = {}, currency = 'TRY') {
   const rows = items.slice(0, 10).map((raw) => {
     const item = resolveItem(raw, env);
     const imageHtml = item.image
-      ? `<img src="${escapeHtml(item.image)}" width="72" height="72" alt="${escapeHtml(item.name)}" style="display:block;width:72px;height:72px;object-fit:cover;border-radius:14px;border:1px solid #eee5dc;background:#faf7f3;">`
+      ? `<img src="${escapeHtml(item.image)}" width="72" height="72" alt="${escapeHtml(item.name)}" style="display:block;width:72px;height:72px;object-fit:cover;border-radius:14px;max-width:72px;max-height:72px;border:1px solid #eee5dc;background:#faf7f3;">`
       : `<div style="width:72px;height:72px;border-radius:14px;border:1px solid #eee5dc;background:#faf7f3;text-align:center;line-height:72px;font-family:Georgia,serif;font-size:18px;color:#8a6a4a;">CS</div>`;
     return `<tr>
       <td width="84" style="padding:14px 0;border-bottom:1px solid #eee5dc;vertical-align:top;">${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${imageHtml}</a>` : imageHtml}</td>
@@ -239,7 +247,7 @@ function ctaRows(copy, type, order, shipment, env) {
   return `<tr><td style="padding:0 40px 32px;text-align:center;"><a href="${escapeHtml(href)}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 30px;background:#171717;color:#eadcc8;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2.4px;text-transform:uppercase;font-weight:bold;">${escapeHtml(copy.cta || 'Siparişimi Gör')}</a></td></tr>`;
 }
 
-function buildCommerceEmailHtml({ order = {}, type = 'order_created', env = {}, note = '', shipment = {}, items = [], bankAccounts = [] }) {
+export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env = {}, note = '', shipment = {}, items = [], bankAccounts = [] }) {
   const copy = copyFor(type);
   const siteUrl = getSiteUrl(env);
   const support = getSupportEmail(env);
@@ -268,7 +276,7 @@ function buildCommerceEmailHtml({ order = {}, type = 'order_created', env = {}, 
       </td></tr>
       <tr><td style="padding:42px 40px 34px;background-color:#ffffff;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td align="center" style="padding-bottom:22px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="width:58px;height:58px;border-radius:58px;border:1px solid #d9cdbc;${iconStyle(copy.tone)}font-family:Arial,Helvetica,sans-serif;font-size:24px;font-weight:bold;line-height:58px;text-align:center;">${escapeHtml(copy.icon)}</td></tr></table>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" style="width:58px;height:58px;border-radius:58px;border:1px solid #d9cdbc;${iconStyle(copy.tone)}font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:bold;line-height:58px;text-align:center;">${copy.tone === 'truck' ? '<span style="display:inline-block;font-size:24px;line-height:58px;letter-spacing:-2px;">▰▱</span>' : copy.tone === 'package' ? '<span style="display:inline-block;font-size:24px;line-height:58px;">▣</span>' : escapeHtml(copy.icon)}</td></tr></table>
         </td></tr></table>
         <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#9a8e82;letter-spacing:2px;text-transform:uppercase;font-weight:bold;text-align:center;margin:0 0 12px;">${escapeHtml(copy.eyebrow)}</div>
         <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.3;font-weight:normal;color:#171717;text-align:center;margin:0 0 16px;letter-spacing:.2px;">${escapeHtml(copy.title)}</h1>
@@ -292,7 +300,7 @@ function buildCommerceEmailHtml({ order = {}, type = 'order_created', env = {}, 
 </body></html>`;
 }
 
-function buildCommerceText({ order = {}, type = 'order_created', shipment = {}, note = '', env = {}, items = [] }) {
+export function buildCommerceText({ order = {}, type = 'order_created', shipment = {}, note = '', env = {}, items = [] }) {
   const copy = copyFor(type);
   const lines = ['COSMOSKIN', copy.subject, copy.body, `Sipariş No: ${orderNumber(order)}`];
   if (order.total_amount != null) lines.push(`Toplam: ${formatMoney(order.total_amount, order.currency || 'TRY')}`);

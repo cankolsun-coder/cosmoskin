@@ -267,12 +267,44 @@ async function applyCoupon(context, cart, subtotal, couponCode, customer = {}) {
   if (couponMax) discount = Math.min(discount, Number(couponMax));
   discount = Math.max(0, Math.min(subtotal, normalizeMoney(discount)));
   return {
+    id: coupon.id || null,
     code,
     type: couponType,
     discount,
     freeShipping,
+    minSubtotal: Number(coupon.min_subtotal || 0),
     label: couponType === 'percent' ? `%${Number(couponValue || 0)} indirim` : (freeShipping ? 'Ücretsiz kargo' : `₺${discount.toFixed(0)} indirim`)
   };
+}
+
+async function recordCouponUsage(context, { coupon, orderId, user, customer, discount }) {
+  if (!coupon?.code || !discount) return;
+  const now = new Date().toISOString();
+  await insertRow(context, 'coupon_redemptions', {
+    coupon_id: coupon.id || null,
+    order_id: orderId,
+    user_id: user?.id || null,
+    customer_email: String(customer?.email || '').trim().toLowerCase() || null,
+    code: coupon.code,
+    discount_amount: normalizeMoney(discount || 0),
+    status: 'used',
+    metadata: { source: 'checkout_bank_transfer', payment_status: 'awaiting_transfer' },
+    created_at: now
+  }).catch((error) => console.warn('coupon redemption log failed:', String(error?.message || error).slice(0, 180)));
+  if (user?.id) {
+    await updateRows(context, 'customer_coupons', { user_id: user.id, code: coupon.code }, {
+      status: 'used',
+      used_at: now,
+      order_id: orderId,
+      updated_at: now
+    }).catch(() => null);
+  }
+  await updateRows(context, 'customer_coupons', { customer_email: String(customer?.email || '').trim().toLowerCase(), code: coupon.code }, {
+    status: 'used',
+    used_at: now,
+    order_id: orderId,
+    updated_at: now
+  }).catch(() => null);
 }
 
 function normalizeShippingMethod(value) {
@@ -843,6 +875,7 @@ export async function onRequestPost(context) {
         note: 'Müşteri açıklama alanına sipariş numarasını yazmalıdır.',
         metadata: { order_number: orderNumber, payment_method: 'bank_transfer', payment_deadline: paymentDeadline }
       }).catch(() => null);
+      await recordCouponUsage(context, { coupon, orderId, user, customer, discount: totals.discount || 0 });
       try {
         const emailOrder = { ...orderPayload, order_items: cart };
         const emailResult = await sendCommerceTransactionalEmail(context.env || {}, { order: emailOrder, type: 'bank_transfer_pending', bankAccounts });

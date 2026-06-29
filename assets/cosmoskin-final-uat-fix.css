@@ -1,0 +1,294 @@
+/* COSMOSKIN final UAT stabilization patch — 2026-06-29
+   Targeted fixes only: auth toggles, premium search animation, cart drawer visibility,
+   all products filter natural scroll, checkout coupon/trust spacing, account polish. */
+
+/* Auth password visibility: keep button clickable after modal re-render/overlays */
+.password-wrap,
+.cs-auth-field--password,
+.cs-auth-password-field,
+#accountModal .password-wrap {
+  position: relative !important;
+}
+.password-wrap input[type="password"],
+.password-wrap input[type="text"],
+#accountModal input[type="password"],
+#accountModal input[data-password-field] {
+  padding-right: 88px !important;
+}
+.password-toggle,
+[data-toggle-password] {
+  pointer-events: auto !important;
+  user-select: none !important;
+  cursor: pointer !important;
+  z-index: 50 !important;
+}
+#accountModal .password-toggle,
+#accountModal [data-toggle-password] {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  min-width: 62px !important;
+  height: 32px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid rgba(23,23,23,.12) !important;
+  border-radius: 999px !important;
+  background: rgba(255,253,248,.94) !important;
+  color: #171717 !important;
+  font-size: 11px !important;
+  letter-spacing: .08em !important;
+  text-transform: uppercase !important;
+  line-height: 1 !important;
+}
+#accountModal .password-toggle:hover,
+#accountModal [data-toggle-password]:hover {
+  background: #171717 !important;
+  color: #fffaf1 !important;
+}
+
+/* Premium smooth expanding desktop search: no display none/block jump */
+@media (min-width: 1024px) {
+  .site-search-form:not(.site-search-form--mobile) {
+    flex: 0 0 54px !important;
+    width: 54px !important;
+    max-width: 54px !important;
+    min-width: 54px !important;
+    overflow: visible !important;
+    transform-origin: right center !important;
+    transition: flex-basis 250ms ease-out, width 250ms ease-out, max-width 250ms ease-out, opacity 250ms ease-out, transform 250ms ease-out !important;
+  }
+  .site-search-form:not(.site-search-form--mobile):hover,
+  .site-search-form:not(.site-search-form--mobile):focus-within,
+  .site-search-form:not(.site-search-form--mobile).is-search-active {
+    flex-basis: min(330px, 28vw) !important;
+    width: min(330px, 28vw) !important;
+    max-width: min(330px, 28vw) !important;
+  }
+  .site-search-form:not(.site-search-form--mobile) .site-search {
+    width: 100% !important;
+    min-width: 54px !important;
+    justify-content: flex-end !important;
+    overflow: hidden !important;
+    transition: border-color 250ms ease-out, background 250ms ease-out, box-shadow 250ms ease-out, transform 250ms ease-out !important;
+  }
+  .site-search-form:not(.site-search-form--mobile) .site-search-input {
+    display: block !important;
+    flex: 1 1 auto !important;
+    width: auto !important;
+    max-width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0 !important;
+    transform: translateX(10px) !important;
+    pointer-events: none !important;
+    visibility: visible !important;
+    transition: max-width 250ms ease-out, opacity 200ms ease-out, transform 250ms ease-out !important;
+  }
+  .site-search-form:not(.site-search-form--mobile):hover .site-search-input,
+  .site-search-form:not(.site-search-form--mobile):focus-within .site-search-input,
+  .site-search-form:not(.site-search-form--mobile).is-search-active .site-search-input {
+    max-width: 240px !important;
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+    pointer-events: auto !important;
+  }
+  .site-search-form:not(.site-search-form--mobile) .site-search-clear {
+    display: inline-flex !important;
+    opacity: 0 !important;
+    transform: translateX(6px) scale(.96) !important;
+    pointer-events: none !important;
+    transition: opacity 200ms ease-out, transform 250ms ease-out !important;
+  }
+  .site-search-form:not(.site-search-form--mobile):hover .site-search-clear,
+  .site-search-form:not(.site-search-form--mobile):focus-within .site-search-clear,
+  .site-search-form:not(.site-search-form--mobile).is-search-active .site-search-clear {
+    opacity: 1 !important;
+    transform: translateX(0) scale(1) !important;
+    pointer-events: auto !important;
+  }
+}
+
+/* All products desktop filter: natural page scroll, no internal scrollbar */
+@media (min-width: 961px) {
+  .cs-ap-sidebar {
+    position: static !important;
+    top: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+    scrollbar-width: auto !important;
+    align-self: start !important;
+  }
+  .cs-ap-sidebar__body,
+  .cs-ap-filter-body,
+  .cs-ap-filters,
+  .cs-filter-panel {
+    max-height: none !important;
+    overflow: visible !important;
+    overflow-y: visible !important;
+  }
+  .cs-ap-sidebar::-webkit-scrollbar,
+  .cs-ap-sidebar__body::-webkit-scrollbar,
+  .cs-filter-panel::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
+/* Cart drawer: cart items first, recommendations below, no clipped first product */
+#cartDrawer {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+#cartDrawer .drawer-head {
+  flex: 0 0 auto !important;
+  position: relative !important;
+  z-index: 3 !important;
+  background: #fffdf8 !important;
+}
+#cartDrawer #cartItems,
+#cartDrawer .cart-items {
+  order: 1 !important;
+  flex: 0 1 auto !important;
+  min-height: 96px !important;
+  max-height: min(42vh, 392px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding-top: 6px !important;
+  padding-bottom: 12px !important;
+  scroll-padding-top: 0 !important;
+}
+#cartDrawer #cartItems > *:first-child,
+#cartDrawer .cart-items > *:first-child {
+  margin-top: 0 !important;
+}
+#cartDrawer #phase6CartRecommendations {
+  order: 2 !important;
+  flex: 0 0 auto !important;
+  margin-top: 10px !important;
+  max-height: min(22vh, 220px) !important;
+  overflow: hidden !important;
+}
+#cartDrawer .cart-summary {
+  order: 3 !important;
+  flex: 0 0 auto !important;
+  position: relative !important;
+  bottom: auto !important;
+  margin-top: 10px !important;
+}
+#cartDrawer.cart-drawer--filled .cart-items:empty::before {
+  content: 'Sepet ürünleri yükleniyor…';
+  display: block;
+  padding: 18px;
+  border: 1px solid rgba(23,23,23,.08);
+  border-radius: 18px;
+  background: #fffaf2;
+  color: #6d665c;
+}
+
+/* Checkout coupon and trust spacing */
+.cs-checkout-discount-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+}
+.cs-checkout-coupon-clear {
+  min-height: 40px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(23,23,23,.12) !important;
+  background: #fffaf2 !important;
+  color: #6a5542 !important;
+  font-size: 12px !important;
+  letter-spacing: .05em !important;
+}
+.cs-checkout-coupon-applied,
+.cs-checkout-coupon-hint {
+  margin: 8px 0 0 !important;
+  color: #6c5a48 !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+.cs-checkout-trust-strip,
+.checkout-trust-strip,
+.checkout-premium-page .trust-strip,
+.checkout-premium-page .footer-trustbar {
+  margin-top: 30px !important;
+  margin-bottom: 20px !important;
+  transform: translateY(8px) !important;
+}
+
+/* Account premium polish and unclipped order/coupon rows */
+.cs-nav-icon {
+  background: linear-gradient(135deg, rgba(246,237,224,.96), rgba(255,250,242,.98)) !important;
+  color: #9a7040 !important;
+  border: 1px solid rgba(154,112,64,.18) !important;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.65) !important;
+}
+.cs-nav-icon svg,
+.cs-stat-icon svg,
+.cs-coupon-details svg {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.55 !important;
+}
+.cs-coupon-code strong {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  letter-spacing: .16em !important;
+  font-variant-numeric: tabular-nums !important;
+}
+.cs-coupon-tabs .cs-tabstrip button {
+  cursor: pointer !important;
+}
+.cs-coupon-tab-panel[hidden] {
+  display: none !important;
+}
+.cs-coupon-table {
+  display: grid !important;
+  gap: 10px !important;
+}
+.cs-coupon-row {
+  display: grid !important;
+  grid-template-columns: minmax(124px, .8fr) minmax(180px, 1.45fr) minmax(126px, .9fr) minmax(126px, .9fr) minmax(80px, auto) auto !important;
+  gap: 12px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  padding: 14px !important;
+  border: 1px solid rgba(23,23,23,.08) !important;
+  border-radius: 18px !important;
+  background: #fffdf8 !important;
+}
+.cs-coupon-row > * {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+.cs-order-list,
+.cs-order-card,
+.cs-order-card * {
+  min-width: 0 !important;
+}
+.cs-order-card {
+  overflow: visible !important;
+}
+.cs-order-side,
+.cs-order-meta,
+.cs-order-shipping,
+.cs-order-status-line {
+  overflow: visible !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+}
+@media (max-width: 760px) {
+  .cs-coupon-row {
+    grid-template-columns: 1fr !important;
+  }
+  .cs-checkout-discount-row {
+    grid-template-columns: 1fr !important;
+  }
+}

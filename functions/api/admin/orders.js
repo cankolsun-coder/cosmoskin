@@ -61,7 +61,8 @@ function statusFromAction(action) {
     mark_packed: { status: 'preparing', fulfillment_status: 'packed' },
     mark_shipped: { status: 'shipped', fulfillment_status: 'shipped' },
     mark_delivered: { status: 'delivered', fulfillment_status: 'delivered' },
-    cancel_order: { status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled' }
+    cancel_order: { status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled' },
+    mark_bank_transfer_not_received: { status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled' }
   };
   return map[String(action || '')] || null;
 }
@@ -251,7 +252,7 @@ async function sendAndLogStatusEmail(context, order, status, emailType) {
 async function sendAndLogCommerceEmail(context, order, emailType, note = '') {
   if (!order?.customer_email) return { sent: false, skipped: true, reason: 'customer_email_missing' };
   try {
-    const result = await sendCommerceTransactionalEmail(context.env, { order, type: emailType, note, bankAccounts: emailType === 'bank_transfer_pending' ? await getValidatedBankAccounts(context, 5).catch(() => []) : [] });
+    const result = await sendCommerceTransactionalEmail(context.env, { order, type: emailType, note, bankAccounts: ['bank_transfer_pending','bank_transfer_reminder','bank_transfer_not_received_cancelled'].includes(emailType) ? await getValidatedBankAccounts(context, 5).catch(() => []) : [] });
     await recordEmailEvent(context, {
       order_id: order.id,
       customer_email: order.customer_email,
@@ -347,6 +348,12 @@ export async function onRequestPatch(context) {
         created_by: 'admin',
         metadata: { payment_status: paymentStatus || null, fulfillment_status: fulfillment || null }
       });
+      if (body.action === 'mark_bank_transfer_not_received') {
+        await releaseInventoryReservations(context, id, 'bank_transfer_payment_not_received').catch(() => null);
+        await updateRows(context, 'coupon_redemptions', { order_id: id }, { status: 'released', metadata: { source: 'admin_bank_transfer_not_received' } }).catch(() => null);
+        const latestOrderForCancel = await loadOrder(context, id);
+        await sendAndLogCommerceEmail(context, latestOrderForCancel, 'bank_transfer_not_received_cancelled', body.message || 'Havale/EFT ödemesi alınamadı.');
+      }
       if (body.action === 'mark_preparing' || body.status === 'preparing' || body.fulfillment_status === 'preparing') {
         const latestOrderForPreparing = await loadOrder(context, id);
         await sendAndLogStatusEmail(context, latestOrderForPreparing, 'preparing', 'order_preparing');
@@ -443,6 +450,8 @@ export async function resendOrderEmail(context, orderId, emailType) {
   if (emailType === 'payment_success') return await sendAndLogStatusEmail(context, order, 'paid', 'payment_success');
   if (emailType === 'payment_confirmed_manual') return await sendAndLogStatusEmail(context, order, 'paid', 'payment_confirmed_manual');
   if (emailType === 'bank_transfer_pending') return await sendAndLogCommerceEmail(context, order, 'bank_transfer_pending');
+  if (emailType === 'bank_transfer_reminder') return await sendAndLogCommerceEmail(context, order, 'bank_transfer_reminder');
+  if (emailType === 'bank_transfer_not_received_cancelled') return await sendAndLogCommerceEmail(context, order, 'bank_transfer_not_received_cancelled');
   if (emailType === 'order_preparing') return await sendAndLogStatusEmail(context, order, 'preparing', 'order_preparing');
   if (emailType === 'order_packed') return await sendAndLogStatusEmail(context, order, 'packed', 'order_packed');
   if (emailType === 'payment_failed') return await sendAndLogStatusEmail(context, order, 'payment_failed', 'payment_failed');

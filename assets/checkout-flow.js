@@ -805,24 +805,38 @@
     host.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return true;
   }
+  function clearCouponPersistence() {
+    ['cosmoskin_coupon_code', 'cosmoskin_checkout_coupon', 'cosmoskin_coupon_state_v1'].forEach(function (key) {
+      try { localStorage.removeItem(key); } catch (_) {}
+      try { sessionStorage.removeItem(key); } catch (_) {}
+    });
+    if (window.COSMOSKIN_UAT_CLEAR_COUPON) {
+      try { window.COSMOSKIN_UAT_CLEAR_COUPON(); } catch (_) {}
+    }
+  }
+  function resetCouponState(input) {
+    state.coupon = { code: '', type: '', discount: 0, freeShipping: false, label: '', minSubtotal: 0 };
+    if (input) input.value = '';
+    clearCouponPersistence();
+    saveState();
+  }
   async function applyCoupon(options) {
     options = options || {};
+    var input = byId('csCouponInput');
     if (!cart.items.length) {
-      state.coupon = { code: '', type: '', discount: 0, freeShipping: false, label: '' };
-      saveState();
+      resetCouponState(input);
       renderSummary();
       if (!options.silent) setStatus('İndirim kodu uygulamak için önce sepetine ürün eklemelisin.', 'error');
       return;
     }
-    var input = byId('csCouponInput');
     var code = input ? input.value.trim().toUpperCase() : String(state.coupon && state.coupon.code || '').trim().toUpperCase();
-    state.coupon = { code: code, type: '', discount: 0, freeShipping: false, label: '' };
     if (!code) {
-      saveState();
+      resetCouponState(input);
       renderSummary();
       if (!options.silent) setStatus('Kupon kodu temizlendi.', '');
       return;
     }
+    state.coupon = { code: code, type: '', discount: 0, freeShipping: false, label: '', minSubtotal: 0 };
     try {
       var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/coupons/validate', {
         method: 'POST',
@@ -830,17 +844,17 @@
         body: JSON.stringify({ code: code, shipping_method: state.shippingMethod, cart: cart.items.map(function (item) { return { slug: item.slug || item.id, quantity: item.qty }; }) })
       });
       var data = await res.json().catch(function () { return {}; });
-      if (!res.ok || data.ok === false) throw new Error(data.error || 'Kupon doğrulanamadı.');
+      if (!res.ok || data.ok === false) throw new Error(data.error || 'Kupon bulunamadı veya aktif değil.');
       var discount = num(data.discountAmount || data.discount_amount || data.discount || 0);
-      state.coupon = { code: code, type: data.type || '', discount: discount, freeShipping: Boolean(data.freeShipping), label: data.discountLabel || data.label || '' };
+      state.coupon = { code: code, type: data.type || '', discount: discount, freeShipping: Boolean(data.freeShipping), label: data.discountLabel || data.label || '', minSubtotal: num(data.minSubtotal || data.min_subtotal || data.minimumSubtotal || 0) };
+      clearCouponPersistence();
       saveState();
       renderSummary();
       if (!options.silent) setStatus(data.freeShipping ? 'Ücretsiz kargo kuponu uygulandı.' : 'Kupon uygulandı.', 'success');
     } catch (error) {
-      state.coupon = { code: code, type: '', discount: 0, freeShipping: false, label: '' };
-      saveState();
+      resetCouponState(input);
       renderSummary();
-      setStatus(options.silent ? 'Sepet değiştiği için kupon kaldırıldı: ' + (error.message || 'Kupon artık geçerli değil.') : (error.message || 'Kupon doğrulanamadı.'), 'error');
+      setStatus(options.silent ? 'Sepet değiştiği için kupon kaldırıldı: ' + (error.message || 'Kupon artık geçerli değil.') : (error.message || 'Kupon bulunamadı veya aktif değil.'), 'error');
     }
   }
   async function revalidateCouponAfterCartChange() {
@@ -1115,7 +1129,7 @@
       totalRow('Kargo', t.shipping ? money(t.shipping) : 'Ücretsiz') +
       totalRow('Dahil olan KDV', money(t.vat)) +
       totalRow('Toplam', money(t.total), true) +
-      (state.step === 'success' ? '<p class="cs-checkout-note cs-checkout-summary-success-note">Sipariş özeti, sepet temizlendikten sonra oluşturulan sipariş verisinden gösterilir.</p>' : '<div class="cs-checkout-discount"><label class="cs-checkout-label" for="csCouponInput">İndirim Kodu</label><div class="cs-checkout-discount-row"><input class="cs-checkout-input" id="csCouponInput" value="' + esc(state.coupon.code || '') + '" placeholder="İndirim kodunuz"><button class="cs-checkout-secondary" id="csCouponApply" type="button">Uygula</button></div></div>');
+      (state.step === 'success' ? '<p class="cs-checkout-note cs-checkout-summary-success-note">Sipariş özeti, sepet temizlendikten sonra oluşturulan sipariş verisinden gösterilir.</p>' : '<div class="cs-checkout-discount"><label class="cs-checkout-label" for="csCouponInput">İndirim Kodu</label><div class="cs-checkout-discount-row"><input class="cs-checkout-input" id="csCouponInput" value="' + esc(state.coupon.code || '') + '" placeholder="Örn. WELCOME10" autocomplete="off"><button class="cs-checkout-secondary" id="csCouponApply" type="button">Uygula</button>' + (state.coupon && state.coupon.code ? '<button class="cs-checkout-coupon-clear" id="csCouponClear" type="button" data-clear-checkout-coupon>Kuponu Kaldır</button>' : '') + '</div>' + (state.coupon && state.coupon.code && t.discount ? '<p class="cs-checkout-coupon-applied"><strong>' + esc(state.coupon.code) + '</strong> uygulandı' + (state.coupon.label ? ' · ' + esc(state.coupon.label) : '') + '.</p>' : '<p class="cs-checkout-coupon-hint">Yeni üyeler uygun sepet tutarında WELCOME10 avantajını kullanabilir.</p>') + '</div>');
     if (!action) return;
     var label = state.step === 'delivery' ? 'Ödeme Adımına Geç' : state.step === 'payment' ? 'Kontrol Et' : state.step === 'review' ? (state.paymentMethod === 'bank_transfer' ? 'Siparişi Oluştur' : 'Siparişi Onayla ve Güvenli Ödemeye Geç') : 'Alışverişe Devam Et';
     action.textContent = submitLocked ? (state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor…' : 'Güvenli ödeme hazırlanıyor…') : label;
@@ -1243,6 +1257,12 @@
         await applyCoupon();
         return;
       }
+      if (event.target.closest('#csCouponClear')) {
+        resetCouponState(byId('csCouponInput'));
+        renderSummary();
+        setStatus('Kupon kaldırıldı. Ödeme işlemine devam edebilirsin.', 'success');
+        return;
+      }
       if (event.target.closest('#csCheckoutSummaryToggle')) {
         var summary = byId('csCheckoutSummary');
         if (summary) summary.classList.toggle('is-collapsed');
@@ -1271,6 +1291,11 @@
     });
     document.addEventListener('input', function (event) {
       var target = event.target;
+      if (target && target.id === 'csCouponInput' && !String(target.value || '').trim()) {
+        resetCouponState(target);
+        renderSummary();
+        return;
+      }
       if (!target || !target.name) return;
       syncStateFromField(target);
     });
