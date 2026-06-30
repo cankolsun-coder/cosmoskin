@@ -171,3 +171,10 @@ No desktop layout rewrite was intentionally performed. HTML edits are limited to
 - `COSMOSKIN_MOBILE_REDESIGN_IMPLEMENTATION_PLAN_20260629.md` — implementation plan created before code changes.
 - `COSMOSKIN_MOBILE_REDESIGN_QA_REPORT_20260629.md` — QA summary, static checks, staging checklist, Supabase status.
 - `COSMOSKIN_MOBILE_CHANGED_FILES_20260629.md` — changed file inventory.
+
+## Mobile Logo Wordmark Hotfix — 2026-06-30
+
+| File | Reason | Desktop affected | Mobile-only confirmation |
+|---|---|---:|---|
+| `assets/cosmoskin-mobile-redesign-v1.css` | Updated COSMOSKIN mobile header/footer/wordmark typography to match the approved serif, wide-tracked reference logo. Added small-screen spacing protection. | No | All visual rules are scoped under `@media (max-width: 767px)` or `@media (max-width: 374px)`. |
+| `COSMOSKIN_MOBILE_LOGO_WORDMARK_HOTFIX_REPORT_20260630.md` | Documents the mobile wordmark correction. | No | Documentation only. |

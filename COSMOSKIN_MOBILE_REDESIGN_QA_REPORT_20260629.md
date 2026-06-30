@@ -129,3 +129,7 @@ No Supabase migration is required. No database schema changes were made.
 4. Complete the manual staging QA checklist above.
 5. Verify desktop at 1280/1440/1536.
 6. Promote to production only after checkout/account/cart QA passes.
+
+## Mobile Logo Wordmark Hotfix — 2026-06-30
+
+The mobile COSMOSKIN wordmark was corrected to match the approved serif, wide-tracked reference style. The change is limited to `assets/cosmoskin-mobile-redesign-v1.css` and scoped under mobile media queries. Desktop remains untouched. Browser visual QA should be repeated on staging in iPhone Safari and Chrome Android.

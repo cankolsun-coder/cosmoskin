@@ -62,9 +62,24 @@
   }
   .cs-mobile-v1-logo {
     display: inline-flex; justify-content: center; align-items: center; min-width: 0;
-    color: var(--cs-mobile-ink); text-decoration: none; letter-spacing: .18em; font: 700 16px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--cs-mobile-ink); text-decoration: none;
+    font-family: "Cormorant Garamond", Didot, "Bodoni 72", Georgia, serif;
+    font-size: clamp(24px, 6.8vw, 34px);
+    font-weight: 400;
+    line-height: .92;
+    letter-spacing: clamp(.30em, 1.1vw, .46em);
+    text-transform: uppercase;
+    font-variant-ligatures: none;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
   }
-  .cs-mobile-v1-logo span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cs-mobile-v1-logo span {
+    display: block;
+    overflow: visible;
+    white-space: nowrap;
+    padding-left: .18em;
+    transform: translateY(-.02em);
+  }
   .cs-mobile-v1-iconbtn {
     width: 44px; min-width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
     border-radius: var(--cs-mobile-radius-pill); border: 1px solid var(--cs-mobile-line); background: rgba(255,255,255,.72); color: var(--cs-mobile-ink);
@@ -238,4 +253,33 @@
   body.cs-mobile-v1-active .product-grid,
   body.cs-mobile-v1-active .products-grid,
   body.cs-mobile-v1-active .cs-ap-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+
+
+}
+
+@media (max-width: 767px) {
+  /* COSMOSKIN mobile wordmark correction — 2026-06-30
+     Match the approved serif, wide-tracked reference logo on every mobile surface.
+     Desktop is untouched because this block is mobile-only. */
+  body.cs-mobile-v1-active .cs-mobile-v1-logo,
+  body.cs-mobile-v1-active .cs-mobile-v1-logo span,
+  body.cs-mobile-v1-active .cm-wordmark,
+  body.cs-mobile-v1-active .cm-footer-logo,
+  body.cs-mobile-v1-active .m-header__wordmark,
+  body.cs-mobile-v1-active .brand .brand-word,
+  body.cs-mobile-v1-active .footer .brand-word {
+    font-family: "Cormorant Garamond", Didot, "Bodoni 72", Georgia, serif !important;
+    font-weight: 400 !important;
+    letter-spacing: clamp(.30em, 1.1vw, .46em) !important;
+    text-transform: uppercase !important;
+    font-variant-ligatures: none !important;
+    -webkit-font-smoothing: antialiased !important;
+    text-rendering: geometricPrecision !important;
+  }
+}
+
+@media (max-width: 374px) {
+  .cs-mobile-v1-header { grid-template-columns: 46px minmax(0, 1fr) 88px; gap: 6px; }
+  .cs-mobile-v1-logo { font-size: 22px; letter-spacing: .28em; }
+  .cs-mobile-v1-logo span { padding-left: .14em; }
 }
