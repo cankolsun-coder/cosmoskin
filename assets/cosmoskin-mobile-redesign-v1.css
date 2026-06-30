@@ -1,0 +1,241 @@
+/* COSMOSKIN Mobile Redesign v1 — mobile-only architecture layer.
+   Desktop protection: every visual rule is scoped under max-width/tablet media queries. */
+@media (max-width: 767px) {
+  :root {
+    --cs-mobile-bg: #f7f1ea;
+    --cs-mobile-surface: #fffaf4;
+    --cs-mobile-surface-2: #efe4d8;
+    --cs-mobile-ink: #17120d;
+    --cs-mobile-muted: #756b61;
+    --cs-mobile-soft: #a49483;
+    --cs-mobile-line: rgba(42, 32, 22, .12);
+    --cs-mobile-accent: #1f1710;
+    --cs-mobile-accent-soft: #d9c7b4;
+    --cs-mobile-radius-card: 22px;
+    --cs-mobile-radius-panel: 28px;
+    --cs-mobile-radius-pill: 999px;
+    --cs-mobile-shadow-soft: 0 18px 42px rgba(56, 43, 31, .10);
+    --cs-mobile-container: 16px;
+    --cs-mobile-section-gap: 22px;
+    --cs-mobile-header-height: 62px;
+    --cs-mobile-bottom-nav-height: 74px;
+    --cs-mobile-sticky-height: 84px;
+    --cs-mobile-safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html, body { max-width: 100%; overflow-x: hidden !important; }
+  body.cs-mobile-v1-active {
+    background: var(--cs-mobile-bg) !important;
+    color: var(--cs-mobile-ink) !important;
+    padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 18px) !important;
+    -webkit-text-size-adjust: 100%;
+  }
+  html.cs-mobile-lock, body.cs-mobile-lock { overflow: hidden !important; height: 100% !important; touch-action: none; }
+  body.cs-mobile-v1-active * { box-sizing: border-box; }
+  body.cs-mobile-v1-active img { max-width: 100%; height: auto; }
+  body.cs-mobile-v1-active a, body.cs-mobile-v1-active button, body.cs-mobile-v1-active input, body.cs-mobile-v1-active select, body.cs-mobile-v1-active textarea { -webkit-tap-highlight-color: transparent; }
+
+  /* Legacy/conflicting mobile systems are disabled by JS, but also hidden defensively on mobile. */
+  body.cs-mobile-v1-active .m-header,
+  body.cs-mobile-v1-active .m-search-bar,
+  body.cs-mobile-v1-active .m-cat-strip,
+  body.cs-mobile-v1-active .cm-mobile-redesign-root,
+  body.cs-mobile-v1-active #cm-mobile-redesign-root,
+  body.cs-mobile-v1-active .cm-bottom-nav--fallback,
+  body.cs-mobile-v1-active nav.cm-bottom-nav:not(.cs-mobile-v1-bottom-nav) { display: none !important; }
+
+  /* Original desktop chrome hidden on mobile only; new mobile v1 shell replaces it. */
+  body.cs-mobile-v1-active > header.header,
+  body.cs-mobile-v1-active header.account-header,
+  body.cs-mobile-v1-active .mobile-nav,
+  body.cs-mobile-v1-active #mobileNav,
+  body.cs-mobile-v1-active .site-search-form--mobile { display: none !important; }
+
+  .cs-mobile-v1-header {
+    position: sticky; top: 0; z-index: 6500;
+    min-height: var(--cs-mobile-header-height);
+    display: grid; grid-template-columns: 46px minmax(0, 1fr) 92px; align-items: center; gap: 8px;
+    padding: 10px var(--cs-mobile-container);
+    background: rgba(255, 250, 244, .94);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--cs-mobile-line);
+    box-shadow: 0 10px 30px rgba(42, 32, 22, .06);
+  }
+  .cs-mobile-v1-logo {
+    display: inline-flex; justify-content: center; align-items: center; min-width: 0;
+    color: var(--cs-mobile-ink); text-decoration: none; letter-spacing: .18em; font: 700 16px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-v1-logo span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cs-mobile-v1-iconbtn {
+    width: 44px; min-width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: var(--cs-mobile-radius-pill); border: 1px solid var(--cs-mobile-line); background: rgba(255,255,255,.72); color: var(--cs-mobile-ink);
+    box-shadow: none; padding: 0; position: relative;
+  }
+  .cs-mobile-v1-iconbtn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .cs-mobile-v1-tools { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  .cs-mobile-v1-badge {
+    position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+    background: #1a120b; color: #fff; font: 700 10px/18px "Plus Jakarta Sans", system-ui, sans-serif; text-align: center; border: 2px solid #fffaf4;
+  }
+
+  .cs-mobile-v1-bottom-nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 6400;
+    display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+    min-height: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom));
+    padding: 8px 8px calc(8px + var(--cs-mobile-safe-bottom));
+    background: rgba(255, 250, 244, .96); border-top: 1px solid var(--cs-mobile-line);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 -16px 34px rgba(37, 29, 21, .10);
+  }
+  body.cs-checkout-mobile .cs-mobile-v1-bottom-nav { display: none !important; }
+  body.cs-checkout-mobile { padding-bottom: calc(var(--cs-mobile-safe-bottom) + 16px) !important; }
+  .cs-mobile-v1-bottom-nav a {
+    min-width: 0; min-height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    color: var(--cs-mobile-muted); text-decoration: none; border-radius: 18px; font: 700 10px/1.15 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: -.01em; position: relative;
+  }
+  .cs-mobile-v1-bottom-nav a.is-active { color: var(--cs-mobile-ink); background: rgba(31, 23, 16, .055); }
+  .cs-mobile-v1-bottom-nav svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
+
+  .cs-mobile-v1-backdrop { position: fixed; inset: 0; z-index: 7000; background: rgba(25, 18, 12, .38); opacity: 0; pointer-events: none; transition: opacity .22s ease; }
+  .cs-mobile-v1-backdrop.is-open { opacity: 1; pointer-events: auto; }
+  .cs-mobile-v1-sheet { position: fixed; z-index: 7010; background: var(--cs-mobile-surface); color: var(--cs-mobile-ink); box-shadow: var(--cs-mobile-shadow-soft); transform: translate3d(0, 110%, 0); transition: transform .28s cubic-bezier(.22, .8, .24, 1); pointer-events: none; }
+  .cs-mobile-v1-sheet.is-open { transform: translate3d(0,0,0); pointer-events: auto; }
+  .cs-mobile-v1-sheet--bottom { left: 0; right: 0; bottom: 0; max-height: min(84dvh, 720px); border-radius: 30px 30px 0 0; padding-bottom: var(--cs-mobile-safe-bottom); overflow: hidden; }
+  .cs-mobile-v1-sheet--side { top: 0; left: 0; bottom: 0; width: min(88vw, 390px); max-width: 390px; transform: translate3d(-110%,0,0); border-radius: 0 30px 30px 0; overflow: hidden; }
+  .cs-mobile-v1-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 16px 18px; border-bottom: 1px solid var(--cs-mobile-line); }
+  .cs-mobile-v1-sheet-head strong { font: 800 14px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; }
+  .cs-mobile-v1-close { width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: #fff; color: var(--cs-mobile-ink); font-size: 24px; line-height: 1; }
+  .cs-mobile-v1-sheet-body { max-height: calc(84dvh - 64px - var(--cs-mobile-safe-bottom)); overflow: auto; -webkit-overflow-scrolling: touch; padding: 18px; }
+  .cs-mobile-v1-menu-list { display: grid; gap: 8px; }
+  .cs-mobile-v1-menu-list a { min-height: 50px; padding: 14px 16px; border-radius: 18px; border: 1px solid var(--cs-mobile-line); background: #fffaf6; color: var(--cs-mobile-ink); text-decoration: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+  .cs-mobile-v1-menu-note { margin: 18px 0 0; padding: 16px; border-radius: 20px; background: #f3eadf; color: var(--cs-mobile-muted); font-size: 13px; line-height: 1.6; }
+
+  .cs-mobile-v1-search-form { display: grid; gap: 12px; }
+  .cs-mobile-v1-search-form input { width: 100%; min-height: 52px; padding: 0 16px; border-radius: 18px; border: 1px solid var(--cs-mobile-line); background: #fff; font: 600 15px/1 "Plus Jakarta Sans", system-ui, sans-serif; color: var(--cs-mobile-ink); }
+  .cs-mobile-v1-primary, .cs-mobile-v1-secondary { min-height: 48px; border-radius: 999px; border: 1px solid var(--cs-mobile-ink); padding: 0 18px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .cs-mobile-v1-primary { background: var(--cs-mobile-ink); color: #fff; }
+  .cs-mobile-v1-secondary { background: transparent; color: var(--cs-mobile-ink); border-color: var(--cs-mobile-line); }
+
+  /* Product listing mobile polish */
+  body.cs-route-listing .filters-sidebar,
+  body.cs-route-listing .cs-ap-sidebar,
+  body.cs-route-listing aside[class*="filter"],
+  body.cs-route-listing .desktop-filter { display: none !important; }
+  .cs-mobile-v1-plpbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px var(--cs-mobile-container) 14px; }
+  .cs-mobile-v1-plpbar button, .cs-mobile-v1-plpbar select { min-height: 46px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: var(--cs-mobile-surface); color: var(--cs-mobile-ink); font-weight: 800; padding: 0 14px; }
+  body.cs-mobile-v1-active .product-grid,
+  body.cs-mobile-v1-active .products-grid,
+  body.cs-mobile-v1-active .cs-ap-grid,
+  body.cs-mobile-v1-active .collection-grid,
+  body.cs-mobile-v1-active .cs-recs-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 12px !important; padding-left: var(--cs-mobile-container); padding-right: var(--cs-mobile-container); }
+  body.cs-mobile-v1-active .product-card,
+  body.cs-mobile-v1-active .cs-static-product-card { border-radius: 20px !important; overflow: hidden; min-width: 0; background: var(--cs-mobile-surface) !important; border: 1px solid var(--cs-mobile-line) !important; box-shadow: 0 12px 28px rgba(38, 30, 22, .07) !important; }
+  body.cs-mobile-v1-active .product-media,
+  body.cs-mobile-v1-active .product-media-wrap { aspect-ratio: 1 / 1.08; min-height: 0 !important; }
+  body.cs-mobile-v1-active .product-media img,
+  body.cs-mobile-v1-active .product-card img { width: 100%; height: 100%; object-fit: contain !important; padding: 10px; background: #f9f3ec; }
+  body.cs-mobile-v1-active .product-body { padding: 11px !important; min-width: 0; }
+  body.cs-mobile-v1-active .brandline { font-size: 10px !important; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body.cs-mobile-v1-active .product-body h3 { font-size: 13px !important; line-height: 1.28 !important; min-height: 34px; max-height: 50px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  body.cs-mobile-v1-active .product-body p,
+  body.cs-mobile-v1-active .meta-note,
+  body.cs-mobile-v1-active .price-note { font-size: 10px !important; line-height: 1.35 !important; }
+  body.cs-mobile-v1-active .price-row { display: grid !important; gap: 9px !important; align-items: stretch !important; }
+  body.cs-mobile-v1-active .price { font-size: 15px !important; }
+  body.cs-mobile-v1-active .price-row .btn,
+  body.cs-mobile-v1-active .product-card [data-add-cart] { width: 100%; min-height: 42px; padding: 0 8px !important; font-size: 10px !important; border-radius: 999px !important; }
+  body.cs-mobile-v1-active .favorite-btn { width: 38px !important; height: 38px !important; top: 8px !important; right: 8px !important; }
+  body.cs-mobile-v1-active .badge { max-width: calc(100% - 54px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .cs-mobile-v1-filter-group { margin-bottom: 18px; }
+  .cs-mobile-v1-filter-group h4 { margin: 0 0 10px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--cs-mobile-muted); }
+  .cs-mobile-v1-chipgrid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; }
+  .cs-mobile-v1-chip { min-height: 46px; border: 1px solid var(--cs-mobile-line); border-radius: 16px; background: #fff; color: var(--cs-mobile-ink); font-weight: 700; padding: 8px 10px; }
+  .cs-mobile-v1-chip.is-active { background: var(--cs-mobile-ink); color: #fff; border-color: var(--cs-mobile-ink); }
+  .cs-mobile-v1-sheet-actions { position: sticky; bottom: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 0 0; background: linear-gradient(180deg, rgba(255,250,244,0), var(--cs-mobile-surface) 24%); }
+
+  /* PDP */
+  body.cs-route-pdp main, body.cs-route-pdp .product-page, body.cs-route-pdp .pdp, body.cs-route-pdp .product-detail { padding-left: var(--cs-mobile-container) !important; padding-right: var(--cs-mobile-container) !important; }
+  body.cs-route-pdp .product-layout,
+  body.cs-route-pdp .pdp-grid,
+  body.cs-route-pdp .product-main { display: block !important; }
+  body.cs-route-pdp .product-gallery,
+  body.cs-route-pdp .product-info { width: 100% !important; max-width: 100% !important; }
+  body.cs-route-pdp .product-title, body.cs-route-pdp h1 { font-size: clamp(28px, 9vw, 40px) !important; line-height: .98 !important; }
+  .cs-mobile-v1-pdp-sticky { position: fixed; left: 0; right: 0; bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom)); z-index: 6300; padding: 10px 14px; background: rgba(255,250,244,.96); border-top: 1px solid var(--cs-mobile-line); backdrop-filter: blur(18px); display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; align-items: center; }
+  .cs-mobile-v1-pdp-sticky strong { font-size: 14px; }
+  .cs-mobile-v1-pdp-sticky button { min-height: 48px; border-radius: 999px; border: 0; background: var(--cs-mobile-ink); color: #fff; font-weight: 800; }
+  body.cs-route-pdp { padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-sticky-height) + var(--cs-mobile-safe-bottom) + 20px) !important; }
+
+  /* Cart sheet */
+  .cs-mobile-v1-cart-items { display: grid; gap: 12px; }
+  .cs-mobile-v1-cart-item { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 12px; border-radius: 18px; border: 1px solid var(--cs-mobile-line); background: #fffaf6; }
+  .cs-mobile-v1-cart-item img { width: 76px; height: 76px; object-fit: contain; background: #f4ece2; border-radius: 14px; padding: 6px; }
+  .cs-mobile-v1-cart-item strong { display: block; font-size: 13px; line-height: 1.28; }
+  .cs-mobile-v1-cart-item small { color: var(--cs-mobile-muted); }
+  .cs-mobile-v1-qty { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; border: 1px solid var(--cs-mobile-line); border-radius: 999px; overflow: hidden; }
+  .cs-mobile-v1-qty button { width: 34px; height: 34px; border: 0; background: transparent; font-weight: 800; }
+  .cs-mobile-v1-qty span { min-width: 22px; text-align: center; font-weight: 800; }
+  .cs-mobile-v1-cart-summary { margin-top: 16px; padding: 16px; border-radius: 20px; background: #f2e7dc; display: grid; gap: 8px; }
+  .cs-mobile-v1-cart-summary-row { display: flex; justify-content: space-between; gap: 16px; }
+  .cs-mobile-v1-cart-empty { padding: 28px 16px; text-align: center; border-radius: 20px; background: #fffaf6; border: 1px solid var(--cs-mobile-line); }
+
+  /* Checkout */
+  body.cs-checkout-mobile .cs-checkout-page { padding: 18px var(--cs-mobile-container) calc(var(--cs-mobile-safe-bottom) + 22px) !important; }
+  body.cs-checkout-mobile .cs-checkout-shell { width: 100% !important; max-width: 100% !important; }
+  body.cs-checkout-mobile .cs-checkout-topline { display: grid !important; gap: 10px !important; }
+  body.cs-checkout-mobile .cs-checkout-title h1 { font-size: clamp(30px, 9vw, 42px) !important; line-height: .95 !important; }
+  body.cs-checkout-mobile .cs-checkout-grid { display: block !important; }
+  body.cs-checkout-mobile .cs-checkout-main,
+  body.cs-checkout-mobile .cs-checkout-summary { width: 100% !important; max-width: 100% !important; }
+  body.cs-checkout-mobile .cs-checkout-summary { position: static !important; margin-top: 14px !important; }
+  body.cs-checkout-mobile .cs-checkout-summary-card,
+  body.cs-checkout-mobile .cs-checkout-card,
+  body.cs-checkout-mobile .cs-checkout-section { border-radius: 22px !important; }
+  body.cs-checkout-mobile .cs-checkout-input,
+  body.cs-checkout-mobile input,
+  body.cs-checkout-mobile select,
+  body.cs-checkout-mobile textarea { min-height: 46px !important; width: 100% !important; font-size: 16px !important; }
+  body.cs-checkout-mobile .cs-checkout-primary,
+  body.cs-checkout-mobile #csCheckoutAction { min-height: 52px !important; width: 100% !important; border-radius: 999px !important; }
+  body.cs-checkout-mobile .cs-checkout-payment-card,
+  body.cs-checkout-mobile .bank-account-card,
+  body.cs-checkout-mobile [data-payment-method] { min-height: 56px; border-radius: 18px !important; }
+  body.cs-checkout-mobile .cs-checkout-stepper { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  body.cs-checkout-mobile .cs-checkout-trust-strip { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+
+  /* Account */
+  body.cs-route-account .cs-account-shell { padding-top: 18px !important; }
+  body.cs-route-account .cs-account-top { display: grid !important; gap: 14px !important; padding-left: var(--cs-mobile-container) !important; padding-right: var(--cs-mobile-container) !important; }
+  body.cs-route-account .cs-account-welcome h1 { font-size: clamp(30px, 9vw, 42px) !important; line-height: .95 !important; }
+  body.cs-route-account .cs-account-layout { display: block !important; padding-left: var(--cs-mobile-container) !important; padding-right: var(--cs-mobile-container) !important; }
+  body.cs-route-account .cs-account-sidebar { width: 100% !important; position: static !important; margin-bottom: 16px !important; }
+  body.cs-route-account .cs-account-nav { display: flex !important; overflow-x: auto !important; gap: 8px !important; padding: 8px 0 12px !important; -webkit-overflow-scrolling: touch; }
+  body.cs-route-account .cs-account-nav a { flex: 0 0 auto; min-height: 44px; border-radius: 999px !important; white-space: nowrap; padding: 10px 14px !important; }
+  body.cs-route-account .cs-account-content, body.cs-route-account .cs-panel { width: 100% !important; max-width: 100% !important; }
+  body.cs-route-account .cs-card, body.cs-route-account .cs-panel { border-radius: 22px !important; }
+  body.cs-route-account .cs-form { grid-template-columns: 1fr !important; }
+  .cs-password-wrap { position: relative; display: block; }
+  .cs-password-wrap input { padding-right: 86px !important; }
+  .cs-password-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); min-width: 68px; height: 34px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: #fff; color: var(--cs-mobile-ink); font-size: 11px; font-weight: 800; }
+
+  /* Legal/contact/footer preservation + compact mobile */
+  body.cs-mobile-v1-active main,
+  body.cs-mobile-v1-active .container { max-width: 100% !important; }
+  body.cs-mobile-v1-active .container { padding-left: var(--cs-mobile-container); padding-right: var(--cs-mobile-container); }
+  body.cs-mobile-v1-active .footer { padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 22px) !important; }
+  body.cs-checkout-mobile .footer { padding-bottom: calc(var(--cs-mobile-safe-bottom) + 22px) !important; }
+  body.cs-mobile-v1-active .footer-grid,
+  body.cs-mobile-v1-active .footer-trustbar { display: grid !important; grid-template-columns: 1fr !important; gap: 18px !important; }
+  body.cs-mobile-v1-active .footer-newsletter { padding: 24px var(--cs-mobile-container) !important; }
+  body.cs-mobile-v1-active .footer-col a,
+  body.cs-mobile-v1-active .footer-col span { min-height: 32px; display: flex; align-items: center; }
+  body.cs-mobile-v1-active table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  body.cs-mobile-v1-active pre { white-space: pre-wrap; word-break: break-word; }
+  body.cs-mobile-v1-active .modal-card, body.cs-mobile-v1-active .drawer { width: calc(100vw - 24px) !important; max-width: calc(100vw - 24px) !important; }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  body.cs-mobile-v1-active .product-grid,
+  body.cs-mobile-v1-active .products-grid,
+  body.cs-mobile-v1-active .cs-ap-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+}

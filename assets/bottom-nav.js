@@ -1,5 +1,8 @@
 (function () {
   'use strict';
+  // COSMOSKIN Mobile Redesign v1: legacy mobile renderer disabled to prevent duplicate mobile shells.
+  if (window.__COSMOSKIN_FORCE_LEGACY_MOBILE__ !== true) { window.__COSMOSKIN_LEGACY_MOBILE_DISABLED__ = true; return; }
+
   var TARGET = /(hakkimizda|contact|odeme-ve-guvenlik|teslimat-kargo|iade-degisim|mesafeli-satis|on-bilgilendirme|checkout|cart)\.html$|\/legal\//;
   function icon(label) { return '<span aria-hidden="true">' + label + '</span>'; }
   function mount() {

@@ -1,0 +1,173 @@
+# COSMOSKIN Mobile Changed Files — 2026-06-29
+
+## Added files
+
+- `assets/cosmoskin-mobile-redesign-v1.css` — new mobile v1 architecture layer/report asset.
+- `assets/cosmoskin-mobile-redesign-v1.js` — new mobile v1 architecture layer/report asset.
+
+## Changed asset files
+
+- `assets/mobile.js` — mobile-only shell, legacy mobile gate, coupon normalization, or mobile commerce support.
+- `assets/phase6-commerce.js` — mobile-only shell, legacy mobile gate, coupon normalization, or mobile commerce support.
+- `assets/master-upgrade.js` — mobile-only shell, legacy mobile gate, coupon normalization, or mobile commerce support.
+- `assets/bottom-nav.js` — mobile-only shell, legacy mobile gate, coupon normalization, or mobile commerce support.
+- `assets/mobile-redesign.js` — mobile-only shell, legacy mobile gate, coupon normalization, or mobile commerce support.
+
+## HTML files with mobile v1 asset references (146)
+
+- `order-tracking.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `on-bilgilendirme.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `index.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `favorites.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `contact.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `iade-degisim.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `journal.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `odeme-ve-guvenlik.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `allproducts.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `hakkimizda.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `rutinler.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `teslimat-kargo.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `checkout.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `mesafeli-satis.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `search.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `cart.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `routine.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `cosmoskin-club.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `akilli-rutin.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `explore.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `categories.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/beauty-of-joseon-relief-sun-spf50.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-acne-pimple-master-patch.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/isntree-hyaluronic-acid-watery-sun-gel.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/beauty-of-joseon-green-plum-refreshing-cleanser.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/skin1004-centella-toning-toner.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-salicylic-acid-daily-gentle-cleanser.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/dr-jart-ceramidin-cream.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/torriden-solid-in-ceramide-cream.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/torriden-dive-in-hyaluronic-acid-serum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/laneige-water-sleeping-mask.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-advanced-snail-96-mucin-power-essence.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/beauty-of-joseon-dynasty-cream.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/torriden-dive-in-watery-moisture-sun-cream.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-advanced-snail-96-mucin-essence.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/round-lab-dokdo-toner.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/beauty-of-joseon-glow-serum-propolis-niacinamide.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/torriden-dive-in-serum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/round-lab-birch-juice-sunscreen.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/innisfree-super-volcanic-clay-mask.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/beauty-of-joseon-glow-deep-serum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/round-lab-1025-dokdo-cleanser.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/medicube-zero-pore-pad.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/skin1004-madagascar-centella-ampoule.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-low-ph-good-morning-gel-cleanser.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/round-lab-soybean-nourishing-cream.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/mediheal-nmf-aquaring-sheet-mask.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/medicube-collagen-night-wrapping-mask.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-the-vitamin-c-23-serum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-aha-bha-clarifying-treatment-toner.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/anua-heartleaf-77-soothing-toner.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/goodal-green-tangerine-vitamin-c-serum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/skin1004-hyalu-cica-water-fit-sun-serum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/anua-heartleaf-pore-control-cleansing-oil.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/some-by-mi-aha-bha-miracle-toner.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/im-from-rice-toner.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/cosrx-oil-free-ultra-moisturizing-lotion.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `products/by-wishtrend-pure-vitamin-c-21-5-serum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `auth/reset.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `auth/callback.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/innisfree.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/beauty-of-joseon.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/thank-you-farmer.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/some-by-mi.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/round-lab.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/cosrx.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/medicube.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/skin1004.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/anua.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/dr-jart.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/isntree.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/mediheal.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/goodal.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/laneige.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/torriden.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/by-wishtrend.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `brands/im-from.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `payment/failure.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `payment/success.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/profile.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-compare.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-profile.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/index.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/order-detail.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routines.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/preview-test.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-history.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/orders.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/returns.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-favorites.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/cosmoskin-club-kurallari.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/uyelik-sozlesmesi.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/on-bilgilendirme-formu.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/gizlilik-ve-guvenlik-politikasi.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/veri-sahibi-basvuru-formu.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/mesafeli-satis-sozlesmesi.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/cerez-politikasi.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/iade-ve-cayma-politikasi.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/ticari-elektronik-ileti-izni.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/kvkk-aydinlatma-metni.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/teslimat-ve-kargo.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `legal/acik-riza-metni.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/treat.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/innisfree.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/beauty-of-joseon.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/normal-cilt.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/thank-you-farmer.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/akneye-egilimli-cilt.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/some-by-mi.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/round-lab.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/glow.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/cleanse.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/cosrx.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/sensitivity.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/care.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/medicube.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/skin1004.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/masks.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/barrier.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/anua.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/dr-jart.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/acne-balance.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/isntree.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/hassas-cilt.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/mediheal.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/goodal.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/yagli-cilt.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/protect.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/laneige.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/karma-cilt.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/torriden.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/kuru-cilt.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/pore-sebum.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/routine.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/by-wishtrend.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/hydrate.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/blemish.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/hydration.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/bestsellers.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `collections/im-from.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-favorites/index.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-compare/index.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-history/index.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routines/index.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+- `account/routine-profile/index.html` — added mobile v1 CSS/JS references only; desktop markup preserved.
+
+## Desktop impact note
+
+No desktop layout rewrite was intentionally performed. HTML edits are limited to adding mobile v1 CSS/JS includes. New visual CSS is scoped to mobile/tablet media queries.
+
+## Report files added
+
+- `COSMOSKIN_MOBILE_REDESIGN_IMPLEMENTATION_PLAN_20260629.md` — implementation plan created before code changes.
+- `COSMOSKIN_MOBILE_REDESIGN_QA_REPORT_20260629.md` — QA summary, static checks, staging checklist, Supabase status.
+- `COSMOSKIN_MOBILE_CHANGED_FILES_20260629.md` — changed file inventory.

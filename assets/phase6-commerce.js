@@ -71,7 +71,7 @@
     var drawer=document.querySelector('#cartDrawer'); if(!drawer) return;
     var summary=drawer.querySelector('.cart-summary');
     if(summary&&!document.querySelector('#phase6CartCoupon')){
-      summary.insertAdjacentHTML('afterbegin','<div class="phase6-coupon-box" id="phase6CartCoupon" hidden><label>Kupon Kodu</label><div class="phase6-coupon-row"><input id="phase6CouponInput" autocomplete="off" placeholder="Örn: COSMOSKIN10"><button type="button" id="phase6CouponApply">Uygula</button></div><div class="phase6-coupon-status" id="phase6CouponStatus"></div></div>');
+      summary.insertAdjacentHTML('afterbegin','<div class="phase6-coupon-box" id="phase6CartCoupon" hidden><label>Kupon Kodu</label><div class="phase6-coupon-row"><input id="phase6CouponInput" autocomplete="off" placeholder="Örn: WELCOME10"><button type="button" id="phase6CouponApply">Uygula</button></div><div class="phase6-coupon-status" id="phase6CouponStatus"></div></div>');
       var created=document.querySelector('#phase6CouponInput'); var saved=localStorage.getItem(COUPON_KEY)||''; if(created&&saved) created.value=saved;
     }
     var items=document.querySelector('#cartItems');

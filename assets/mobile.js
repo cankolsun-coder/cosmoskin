@@ -12,6 +12,9 @@ if (!window.__COSMOSKIN_LEGACY_MOBILE_DISABLED__)
 /* COSMOSKIN — Mobile v7 */
 (function(){
 'use strict';
+  // COSMOSKIN Mobile Redesign v1: legacy mobile renderer disabled to prevent duplicate mobile shells.
+  if (window.__COSMOSKIN_FORCE_LEGACY_MOBILE__ !== true) { window.__COSMOSKIN_LEGACY_MOBILE_DISABLED__ = true; return; }
+
 
 var SVG = {
   srch:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg>',
