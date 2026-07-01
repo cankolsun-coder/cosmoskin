@@ -147,17 +147,17 @@ function iconStyle(tone = '') {
 
 
 const EMAIL_PRODUCT_IMAGE_OVERRIDES = {
-  'beauty-of-joseon-relief-sun-spf50': '/assets/img/email/products/beauty-of-joseon-relief-sun-spf50-email-v3.png'
+  'beauty-of-joseon-relief-sun-spf50': '/assets/img/email/products/beauty-of-joseon-relief-sun-spf50-email-v4.png'
 };
 
 function statusIconAsset(type = '', tone = '') {
-  if (type === 'shipment_created' || type === 'shipment_updated' || tone === 'truck') return '/assets/img/email/status-truck-v2.png';
-  if (type === 'order_preparing' || type === 'order_packed' || tone === 'package') return '/assets/img/email/status-package-v2.png';
-  if (type === 'bank_transfer_pending' || tone === 'bank') return '/assets/img/email/status-bank-v2.png';
-  if (type === 'bank_transfer_reminder') return '/assets/img/email/status-reminder-v2.png';
-  if (type === 'bank_transfer_not_received_cancelled' || tone === 'warning') return '/assets/img/email/status-cancel-v2.png';
-  if (type === 'shipment_delivered' || tone === 'delivered') return '/assets/img/email/status-delivered-v2.png';
-  return '/assets/img/email/status-check-v2.png';
+  if (type === 'shipment_created' || type === 'shipment_updated' || tone === 'truck') return '/assets/img/email/status-truck-v3.png';
+  if (type === 'order_preparing' || type === 'order_packed' || tone === 'package') return '/assets/img/email/status-package-v3.png';
+  if (type === 'bank_transfer_pending' || tone === 'bank') return '/assets/img/email/status-bank-v3.png';
+  if (type === 'bank_transfer_reminder') return '/assets/img/email/status-reminder-v3.png';
+  if (type === 'bank_transfer_not_received_cancelled' || tone === 'warning') return '/assets/img/email/status-cancel-v3.png';
+  if (type === 'shipment_delivered' || tone === 'delivered') return '/assets/img/email/status-delivered-v3.png';
+  return '/assets/img/email/status-check-v3.png';
 }
 
 function statusIconHtml(type = '', copy = {}, env = {}) {

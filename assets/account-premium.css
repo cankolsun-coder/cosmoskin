@@ -281,7 +281,7 @@
 /* 2026-06-28 — COSMOSKIN Account 10/10 production module: overview, Club, skin profile, coupons */
 .account-page .cs-account-top[hidden]{display:none!important;}
 .account-page .announcement{height:38px;background:#050504;color:#efe5d6;border-bottom:1px solid rgba(255,255,255,.08);overflow:hidden;}
-.account-page .announcement .marquee{height:100%;display:flex!important;align-items:center;justify-content:center;gap:min(12vw,150px);transform:none!important;animation:none!important;white-space:nowrap;}
+.account-page .announcement .marquee{height:100%;display:flex!important;align-items:center;justify-content:center;gap:min(12vw,150px);animation:marqueeMove 28s linear infinite!important;white-space:nowrap;}
 .account-page .announcement .marquee span{font:800 11px/1 var(--cs-sans);letter-spacing:.18em;text-transform:uppercase;color:#f3eadf;}
 .account-page .announcement .marquee span:first-child{display:none;}
 .account-page .header.account-header{background:rgba(255,253,248,.86);border-bottom:1px solid rgba(42,32,24,.08);backdrop-filter:blur(18px);}
@@ -405,3 +405,54 @@
 
 /* COSMOSKIN final launch account content additions — no header/footer impact */
 .cs-security-list{list-style:none;margin:0;padding:16px;display:grid;gap:10px}.cs-security-list li{display:grid;grid-template-columns:minmax(140px,.8fr) 1fr;gap:12px;align-items:center;border:1px solid var(--cs-border,#e6d8c9);border-radius:14px;background:#fffdf9;padding:12px}.cs-security-list strong{font-size:12px;color:#2f271f}.cs-security-list span{font-size:12px;color:#6d6258}.cs-status-pill{display:inline-flex;align-items:center;justify-content:center;min-height:28px;border-radius:999px;padding:0 10px;background:#f2e7d8;color:#7b5934;font:800 10px/1 var(--cs-sans,Arial);letter-spacing:.09em;text-transform:uppercase}.cs-status-pill.muted{background:#f2eee8;color:#7b7168}.cs-field-help{margin:0;color:#7b7168;font-size:11px;line-height:1.45}.cs-form-compact textarea.cs-input{min-height:110px;resize:vertical;padding-top:12px}.cs-form-compact select.cs-input{appearance:auto}@media(max-width:720px){.cs-security-list li{grid-template-columns:1fr}.cs-security-grid{grid-template-columns:1fr!important}.cs-form-compact .full{grid-column:1/-1}}
+
+/* 2026-07-01 account runtime hotfix — header/footer visual design protected.
+   Only fixes account-page ticker parity and account header action sizing. */
+.account-page .announcement .marquee{
+  width:max-content!important;
+  padding:0 32px!important;
+  gap:64px!important;
+  justify-content:flex-start!important;
+  transform:none;
+  animation:marqueeMove 28s linear infinite!important;
+  will-change:transform;
+}
+.account-page .announcement .marquee span:first-child{display:inline-flex!important;}
+.account-page .announcement .marquee span + span::before{
+  content:'·'!important;
+  margin-right:64px!important;
+  opacity:.3!important;
+  font-size:16px!important;
+  letter-spacing:0!important;
+}
+.account-page .header.account-header .header-tools > a.btn.btn-secondary[href="/index.html"]{
+  width:auto!important;
+  min-width:138px!important;
+  height:42px!important;
+  padding:0 18px!important;
+  border-radius:999px!important;
+  white-space:nowrap!important;
+  line-height:1!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+}
+.account-page .header.account-header .header-tools{
+  flex-wrap:nowrap!important;
+  min-width:max-content!important;
+}
+.account-page .cs-loading-card.is-error{
+  width:min(100%, 980px);
+  margin:0 auto;
+  text-align:left;
+  justify-items:start;
+  border-color:rgba(155,59,46,.18)!important;
+  background:linear-gradient(180deg,#fff8f6,#fffdf9)!important;
+}
+.account-page .cs-loading-card.is-error p{font-size:13px;line-height:1.65;color:#7c7168;}
+.account-page .cs-loading-card.is-error .cs-pill-btn{margin-top:6px;}
+@media(max-width:768px){
+  .account-page .header.account-header .header-tools > a.btn.btn-secondary[href="/index.html"]{display:none!important;}
+  .account-page .announcement .marquee{gap:64px!important;justify-content:flex-start!important;}
+}
