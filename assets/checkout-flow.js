@@ -8,8 +8,14 @@
   var STEP_LABELS = {
     delivery: 'Teslimat',
     payment: 'Ödeme',
-    review: 'Kontrol Et',
+    review: 'Kontrol',
     success: 'Tamamlandı'
+  };
+  var STEP_SUBTITLES = {
+    delivery: 'Adres & fatura',
+    payment: 'Yöntem & onay',
+    review: 'Son kontrol',
+    success: 'Sipariş sonucu'
   };
   var cfg = window.COSMOSKIN_CONFIG || {};
   var CARD_PAYMENTS_ENABLED = cfg.cardPaymentsEnabled === true || cfg.iyzicoConfigured === true;
@@ -496,7 +502,8 @@
       address: data.address,
       city: data.city,
       district: data.district,
-      postalCode: data.postalCode
+      postalCode: data.postalCode,
+      deliveryNote: data.deliveryNote || ''
     };
     state.invoice.type = data.invoiceType || state.invoice.type || 'individual';
     state.invoice.sameAsDelivery = Boolean(data.invoiceSame);
@@ -652,6 +659,25 @@
     state.shippingMethod = 'standard';
     return { title: 'Standart Kargo', estimate: '2-4 iş günü', fee: t.shipping };
   }
+
+  function checkoutBadge(text, tone) {
+    return '<span class="cs-checkout-badge ' + (tone ? 'is-' + tone : '') + '">' + esc(text) + '</span>';
+  }
+  function compactAddress() {
+    var bits = [state.delivery.address, [state.delivery.district, state.delivery.city].filter(Boolean).join(' / '), state.delivery.postalCode].filter(Boolean);
+    return bits.join(' · ');
+  }
+  function shippingProgressHtml(t) {
+    t = t || totals();
+    var remaining = Math.max(0, FREE_SHIPPING - Number(t.discounted || 0));
+    var pct = FREE_SHIPPING ? Math.max(0, Math.min(100, Math.round((Number(t.discounted || 0) / FREE_SHIPPING) * 100))) : 0;
+    var copy = remaining > 0 ? 'Ücretsiz kargo için ' + money(remaining) + ' kaldı.' : 'Kargo avantajı sepetine uygulandı.';
+    return '<div class="cs-checkout-free-shipping"><div class="cs-checkout-free-shipping__bar"><span style="width:' + pct + '%"></span></div><p>' + esc(copy) + '</p></div>';
+  }
+  function miniTrustRow() {
+    return '<div class="cs-checkout-mini-trust"><span>' + icon('lock') + ' Güvenli ödeme</span><span>' + icon('check') + ' KDV dahil fiyat</span><span>' + icon('return') + ' 14 gün cayma hakkı</span></div>';
+  }
+
   function orderNumberFallback() {
     return 'CSM-' + new Date().getFullYear() + '-' + Math.floor(100000 + Math.random() * 899999);
   }
@@ -669,7 +695,7 @@
       postal_code: state.delivery.postalCode,
       invoice_type: invoiceType,
       address: state.delivery.address,
-      cargo_note: '',
+      cargo_note: state.delivery.deliveryNote || state.delivery.note || '',
       kvkk_acknowledged: Boolean(state.legal.privacy),
       preliminary_information_accepted: Boolean(state.legal.preInformation),
       distance_sales_accepted: Boolean(state.legal.distanceSales),
@@ -877,7 +903,7 @@
     node.innerHTML = STEPS.map(function (step, index) {
       var complete = index < current;
       var active = index === current;
-      return '<button class="cs-checkout-step ' + (complete ? 'is-complete ' : '') + (active ? 'is-active' : '') + '" type="button" data-step-nav="' + esc(step) + '"><span>' + (complete ? '✓' : index + 1) + '</span>' + esc(STEP_LABELS[step]) + '</button>';
+      return '<button class="cs-checkout-step ' + (complete ? 'is-complete ' : '') + (active ? 'is-active' : '') + '" type="button" data-step-nav="' + esc(step) + '" aria-current="' + (active ? 'step' : 'false') + '"><span>' + (complete ? '✓' : index + 1) + '</span><strong>' + esc(STEP_LABELS[step]) + '</strong><small>' + esc(STEP_SUBTITLES[step] || '') + '</small></button>';
     }).join('');
   }
   function input(name, label, value, attrs) {
@@ -926,39 +952,43 @@
     var same = inv.sameAsDelivery !== false;
     var individual = inv.type !== 'corporate';
     return '<form id="csCheckoutDeliveryForm" novalidate>' +
-      '<section class="cs-checkout-card"><div class="cs-checkout-auth" id="csCheckoutAuthGate"><div><strong>Hesabın varsa daha hızlı ilerleyebilirsin.</strong><span>Misafir ödeme açık; giriş yapmak zorunlu değildir.</span></div><div class="cs-checkout-auth-actions"><button class="cs-checkout-secondary" data-open-auth data-auth-tab="loginPanel" type="button">Giriş Yap</button><button class="cs-checkout-secondary" data-open-auth data-auth-tab="registerPanel" type="button">Kayıt Ol</button></div></div><div class="cs-checkout-account-summary" id="csCheckoutAccountSummary" hidden></div>' +
-      '<div class="cs-checkout-card-head"><div><h2>Teslimat Bilgileri</h2><p>Sipariş bildirimleri ve kargo süreci için gerekli bilgileri girin.</p></div></div>' +
-      '<div class="cs-checkout-form-grid">' +
-      input('firstName', 'Ad', d.firstName, { autocomplete: 'given-name' }) +
-      input('lastName', 'Soyad', d.lastName, { autocomplete: 'family-name' }) +
+      '<section class="cs-checkout-card cs-checkout-card--delivery"><div class="cs-checkout-auth" id="csCheckoutAuthGate"><div><strong>Hesabın varsa teslimat ve fatura bilgilerin otomatik gelir.</strong><span>Misafir ödeme açık; giriş yapmak zorunlu değildir.</span></div><div class="cs-checkout-auth-actions"><button class="cs-checkout-secondary" data-open-auth data-auth-tab="loginPanel" type="button">Giriş Yap</button><button class="cs-checkout-secondary" data-open-auth data-auth-tab="registerPanel" type="button">Kayıt Ol</button></div></div><div class="cs-checkout-account-summary" id="csCheckoutAccountSummary" hidden></div>' +
+      '<div class="cs-checkout-card-head"><div><span class="cs-checkout-kicker">Teslimat</span><h2>Teslimat Bilgileri</h2><p>Sipariş ve kargo bildirimleri için alıcı bilgilerini eksiksiz doldurun.</p></div>' + checkoutBadge('Güvenli bilgi girişi', 'secure') + '</div>' +
+      '<div class="cs-checkout-form-grid cs-checkout-form-grid--delivery">' +
+      input('firstName', 'Ad', d.firstName, { autocomplete: 'given-name', placeholder: 'Adınız' }) +
+      input('lastName', 'Soyad', d.lastName, { autocomplete: 'family-name', placeholder: 'Soyadınız' }) +
       input('email', 'E-posta', d.email, { type: 'email', autocomplete: 'email', full: true, placeholder: 'ornek@mail.com' }) +
       input('phone', 'Telefon', d.phone, { autocomplete: 'tel', inputmode: 'tel', placeholder: '5XX XXX XX XX' }) +
       input('country', 'Ülke', d.country || 'Türkiye', { autocomplete: 'country-name' }) +
       textarea('address', 'Açık Adres', d.address) +
-      input('city', 'İl', d.city, { autocomplete: 'address-level1' }) +
-      input('district', 'İlçe', d.district, { autocomplete: 'address-level2' }) +
-      input('postalCode', 'Posta Kodu', d.postalCode, { inputmode: 'numeric', maxlength: 5, full: true }) +
+      input('city', 'İl', d.city, { autocomplete: 'address-level1', placeholder: 'İstanbul' }) +
+      input('district', 'İlçe', d.district, { autocomplete: 'address-level2', placeholder: 'Maltepe' }) +
+      input('postalCode', 'Posta Kodu', d.postalCode, { inputmode: 'numeric', maxlength: 5, placeholder: '34840' }) +
+      textarea('deliveryNote', 'Kargo Notu (Opsiyonel)', d.deliveryNote || d.note || '') +
       '</div></section>' +
       savedAddressesHtml() +
-      '<section class="cs-checkout-card"><div class="cs-checkout-card-head"><div><h2>Kargo Yöntemi</h2><p>Seçiminiz sipariş özetindeki kargo tutarını günceller.</p></div></div>' + shippingOptionsHtml() + '</section>' +
-      '<section class="cs-checkout-card"><div class="cs-checkout-card-head"><div><h2>Fatura Bilgileri</h2><p>Bireysel veya kurumsal fatura bilgilerinizi güvenle ekleyin.</p></div></div>' +
+      '<section class="cs-checkout-card cs-checkout-card--shipping"><div class="cs-checkout-card-head"><div><span class="cs-checkout-kicker">Kargo</span><h2>Kargo Yöntemi</h2><p>Kargo bedeli sepet tutarına göre sipariş özetinde otomatik hesaplanır.</p></div>' + checkoutBadge('DHL teslimat', 'delivery') + '</div>' + shippingOptionsHtml() + '</section>' +
+      '<section class="cs-checkout-card cs-checkout-card--invoice"><div class="cs-checkout-card-head"><div><span class="cs-checkout-kicker">Fatura</span><h2>Fatura Bilgileri</h2><p>Faturan sipariş bilgilerindeki e-posta adresine iletilir. Kurumsal fatura için vergi bilgilerini eksiksiz girin.</p></div></div>' +
       '<input type="hidden" name="invoiceType" value="' + (individual ? 'individual' : 'corporate') + '">' +
       '<div class="cs-checkout-segment" role="group" aria-label="Fatura tipi"><button type="button" class="' + (individual ? 'is-active' : '') + '" data-invoice-type="individual">Bireysel</button><button type="button" class="' + (!individual ? 'is-active' : '') + '" data-invoice-type="corporate">Kurumsal</button></div>' +
-      '<div style="height:14px"></div><label class="cs-checkout-checkbox"><input type="checkbox" name="invoiceSame" ' + (same ? 'checked' : '') + '><span>Fatura adresim teslimat adresimle aynı</span></label>' +
-      '<div style="height:16px"></div><div class="cs-checkout-form-grid">' + invoiceFieldsHtml(individual, same) + '</div></section>' +
+      '<div class="cs-checkout-inline-note">Kartlı bireysel ödemede T.C. kimlik numarası ödeme sağlayıcı/fatura süreci için gerekebilir. Bu bilgi müşteriye açık şekilde gösterilmez.</div>' +
+      '<label class="cs-checkout-checkbox cs-checkout-checkbox--boxed"><input type="checkbox" name="invoiceSame" ' + (same ? 'checked' : '') + '><span>Fatura adresim teslimat adresimle aynı</span></label>' +
+      '<div class="cs-checkout-form-grid">' + invoiceFieldsHtml(individual, same) + '</div></section>' +
       '</form>';
   }
+
   function shippingOptionsHtml() {
     var t = totals();
     state.shippingMethod = 'standard';
     var standard = t.discounted >= FREE_SHIPPING ? 0 : STANDARD_SHIPPING;
-    return '<div class="cs-checkout-option-grid">' +
-      optionHtml('standard', 'Standart Kargo', 'Tahmini teslimat: 2-4 iş günü', standard) +
-      '</div>';
+    return '<div class="cs-checkout-shipping-wrap">' + shippingProgressHtml(t) + '<div class="cs-checkout-option-grid">' +
+      optionHtml('standard', 'Standart Kargo', 'Tahmini teslimat: 2-4 iş günü · DHL teslimat ağı', standard) +
+      '</div><p class="cs-checkout-note">Siparişler ödeme onayından sonra hazırlık sürecine alınır. Kargo süreci e-posta ile paylaşılır.</p></div>';
   }
   function optionHtml(value, title, desc, fee) {
     return '<button class="cs-checkout-option ' + (state.shippingMethod === value ? 'is-selected' : '') + '" type="button" data-shipping="' + value + '"><span class="cs-checkout-radio"></span><span><strong>' + title + '</strong><span>' + desc + '</span></span><em>' + (fee ? money(fee) : 'Ücretsiz') + '</em></button>';
   }
+
   function invoiceFieldsHtml(individual, same) {
     var inv = state.invoice || {};
     var html = '';
@@ -985,15 +1015,15 @@
   }
   function renderPayment() {
     var ship = shippingInfo();
-    return '<section class="cs-checkout-card"><div class="cs-checkout-card-head"><div><h2>Ödeme Bilgileri</h2><p>Ödeme yönteminizi seçin. Kart bilgileri bu tarayıcıda saklanmaz.</p></div></div>' +
-      '<div class="cs-checkout-review-list"><div class="cs-checkout-review-card"><header><h3>Teslimat Adresi</h3><button class="cs-checkout-edit" type="button" data-go-step="delivery">Düzenle</button></header><p>' + esc((state.delivery.firstName || '') + ' ' + (state.delivery.lastName || '')) + '<br>' + esc(state.delivery.address || '') + '<br>' + esc((state.delivery.district || '') + ' / ' + (state.delivery.city || '') + ' ' + (state.delivery.postalCode || '')) + '<br>' + esc(state.delivery.phone || '') + '</p></div>' +
-      '<div class="cs-checkout-review-card"><header><h3>Kargo Yöntemi</h3><button class="cs-checkout-edit" type="button" data-go-step="delivery">Düzenle</button></header><p><strong>' + esc(ship.title) + '</strong><br>Tahmini teslimat: ' + esc(ship.estimate) + '<br>' + (ship.fee ? money(ship.fee) : 'Ücretsiz') + '</p></div></div>' +
+    return '<section class="cs-checkout-card cs-checkout-card--payment"><div class="cs-checkout-card-head"><div><span class="cs-checkout-kicker">Ödeme</span><h2>Ödeme Bilgileri</h2><p>Ödeme yönteminizi seçin. Kart bilgileriniz COSMOSKIN tarafından alınmaz veya saklanmaz.</p></div>' + checkoutBadge('KDV dahil toplam', 'secure') + '</div>' +
+      '<div class="cs-checkout-review-list cs-checkout-review-list--compact"><div class="cs-checkout-review-card cs-checkout-review-card--summary"><header><h3>Teslimat Adresi</h3><button class="cs-checkout-edit" type="button" data-go-step="delivery">Düzenle</button></header><p><strong>' + esc((state.delivery.firstName || '') + ' ' + (state.delivery.lastName || '')) + '</strong><br>' + esc(compactAddress() || 'Adres bilgisi eksik') + '<br>' + esc(state.delivery.phone || '') + '</p></div>' +
+      '<div class="cs-checkout-review-card cs-checkout-review-card--summary"><header><h3>Kargo Yöntemi</h3><button class="cs-checkout-edit" type="button" data-go-step="delivery">Düzenle</button></header><p><strong>' + esc(ship.title) + '</strong><br>Tahmini teslimat: ' + esc(ship.estimate) + '<br>' + (ship.fee ? money(ship.fee) : 'Ücretsiz') + '</p></div></div>' +
       '<form id="csCheckoutPaymentForm" novalidate>' +
-      '<div class="cs-checkout-payment-panel"><div class="cs-checkout-option-grid">' +
-      paymentOptionHtml('card', 'Kart ile Ödeme', CARD_PAYMENTS_ENABLED ? '3D Secure doğrulamasıyla güvenli ödeme' : 'Kredi kartı ödeme altyapısı yapılandırılıyor. Lütfen Havale/EFT kullanın.', CARD_PAYMENTS_ENABLED ? 'Kredi kartı' : 'Yakında', { disabled: !CARD_PAYMENTS_ENABLED }) +
-      paymentOptionHtml('bank_transfer', 'Havale / EFT', 'Sipariş oluşturulur, ödeme onayı beklenir', 'Ödeme bekleniyor') +
+      '<div class="cs-checkout-payment-panel"><div class="cs-checkout-method-head"><h3>Ödeme yöntemi seç</h3><p>Kartlı ödeme hazır değilse Havale/EFT ile sipariş oluşturabilirsin.</p></div><div class="cs-checkout-option-grid cs-checkout-option-grid--payments">' +
+      paymentOptionHtml('card', 'Kart ile Ödeme', CARD_PAYMENTS_ENABLED ? '3D Secure doğrulamasıyla güvenli ödeme' : 'Kredi kartı ödeme altyapısı yapılandırılıyor. Lütfen Havale/EFT kullanın.', CARD_PAYMENTS_ENABLED ? 'Kredi kartı' : 'Yakında', { disabled: !CARD_PAYMENTS_ENABLED, icon: 'card' }) +
+      paymentOptionHtml('bank_transfer', 'Havale / EFT', 'Sipariş oluşturulur, ödeme onayı sonrası hazırlanır', 'Ödeme bekleniyor', { icon: 'bank' }) +
       '</div>' + paymentMethodPanelHtml() + '</div>' +
-      '<div class="cs-checkout-legal-panel"><h3>Yasal Onaylar</h3>' +
+      '<div class="cs-checkout-legal-panel"><div class="cs-checkout-method-head"><h3>Yasal Onaylar</h3><p>Devam etmek için zorunlu bilgilendirme ve sözleşme onaylarını tamamlayın.</p></div>' +
       '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPreInformation" ' + (state.legal.preInformation ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPreInformation-error"><span><a href="/legal/on-bilgilendirme-formu.html" data-legal-document="on-bilgilendirme-formu" data-legal-version="checkout-20260626">Ön Bilgilendirme Formu</a>’nu okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalPreInformation-error"></div>' +
       '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalDistanceSales" ' + (state.legal.distanceSales ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalDistanceSales-error"><span><a href="/legal/mesafeli-satis-sozlesmesi.html" data-legal-document="mesafeli-satis-sozlesmesi" data-legal-version="checkout-20260626">Mesafeli Satış Sözleşmesi</a>’ni okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalDistanceSales-error"></div>' +
       '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPrivacy" ' + (state.legal.privacy ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPrivacy-error"><span><a href="/legal/kvkk-aydinlatma-metni.html" data-legal-document="kvkk-aydinlatma-metni" data-legal-version="checkout-20260626">KVKK Aydınlatma Metni</a> kapsamında kişisel verilerimin işlenmesine ilişkin bilgilendirildim.</span></label><div class="cs-checkout-error" id="cs-legalPrivacy-error"></div>' +
@@ -1003,14 +1033,15 @@
   function paymentOptionHtml(value, title, desc, meta, options) {
     options = options || {};
     var disabled = Boolean(options.disabled);
-    return '<button class="cs-checkout-payment-option ' + (state.paymentMethod === value ? 'is-selected ' : '') + (disabled ? 'is-disabled' : '') + '" type="button" data-payment-method="' + value + '"' + (disabled ? ' disabled aria-disabled="true"' : '') + '><span class="cs-checkout-radio"></span><span><strong>' + title + '</strong><span>' + desc + '</span></span><em>' + meta + '</em></button>';
+    var iconName = options.icon || (value === 'bank_transfer' ? 'bank' : 'card');
+    return '<button class="cs-checkout-payment-option ' + (state.paymentMethod === value ? 'is-selected ' : '') + (disabled ? 'is-disabled' : '') + '" type="button" data-payment-method="' + value + '"' + (disabled ? ' disabled aria-disabled="true"' : '') + '><span class="cs-checkout-payment-icon">' + icon(iconName) + '</span><span><strong>' + title + '</strong><span>' + desc + '</span></span><em>' + meta + '</em></button>';
   }
   function paymentMethodPanelHtml() {
     if (state.paymentMethod === 'bank_transfer') return bankPanelHtml();
     return '<div class="cs-checkout-secure-transition" role="status">' +
       '<span class="cs-checkout-secure-transition__icon">' + icon('lock') + '</span>' +
-      '<div><h3>Güvenli kart ödemesi</h3><p>Kart bilgileriniz COSMOSKIN tarafından alınmaz veya saklanmaz. Siparişinizi onayladığınızda ödeme, iyzico’nun güvenli ödeme arayüzünde tamamlanır.</p></div>' +
-      '</div><div class="cs-card-icons" role="img" aria-label="Visa, Mastercard ve  kartları desteklenir"><img src="/assets/img/payments/visa.svg" alt="Visa"><img src="/assets/img/payments/mastercard.svg" alt="Mastercard"><img src="/assets/img/payments/iyzico-monochrome.svg" alt="iyzico ile Öde"></div>';
+      '<div><h3>Güvenli kart ödemesi</h3><p>Kart bilgileriniz COSMOSKIN tarafından alınmaz veya saklanmaz. Siparişinizi onayladığınızda ödeme, güvenli ödeme sağlayıcısı üzerinden tamamlanır.</p></div>' +
+      '</div><div class="cs-card-icons" role="img" aria-label="Visa, Mastercard, Troy ve iyzico desteklenir"><img src="/assets/img/payments/visa.svg" alt="Visa"><img src="/assets/img/payments/mastercard.svg" alt="Mastercard"><img src="/assets/img/payments/troy.svg" alt="Troy"><img src="/assets/img/payments/iyzico-monochrome.svg" alt="iyzico ile Öde"></div>';
   }
   function bankPanelHtml() {
     var bank = bankConfig();
@@ -1019,10 +1050,11 @@
       var lines = [['Banka Adı', account.bankName], ['Alıcı Ünvanı', account.accountName], ['IBAN', account.iban], ['Şube', account.branch || 'Maltepe Çarşı']];
       return '<article class="cs-checkout-bank-account" data-bank-index="' + index + '"><h4>' + esc(account.bankName) + '</h4>' + lines.map(function (line) { return '<div class="cs-checkout-bank-line"><span>' + esc(line[0]) + '</span><strong>' + esc(line[1]) + '</strong>' + (line[0] === 'IBAN' ? '<button class="cs-checkout-secondary" data-copy-iban type="button">Kopyala</button>' : '<i></i>') + '</div>'; }).join('') + '</article>';
     }).join('');
-    return '<div class="cs-checkout-bank-panel"><h3>Havale / EFT ile Ödeme</h3><p class="cs-checkout-note">Ödeme açıklamasına sipariş numaranızı yazmanız gerekmektedir.</p>' +
+    return '<div class="cs-checkout-bank-panel"><div class="cs-checkout-method-head"><h3>Havale / EFT ile ödeme</h3><p>Sipariş numaranız ödeme açıklamasında yer almalıdır. Onay sonrası hazırlık süreci başlar.</p></div>' +
       (!bank.configured ? '<p class="cs-checkout-status is-error">' + esc(liveBankAccountError || 'Havale/EFT ödeme bilgileri henüz kullanıma hazır değil. Bu yöntemle sipariş oluşturulamaz.') + '</p>' : '<div class="cs-checkout-bank-accounts">' + accountCards + '</div>') +
-      '<p class="cs-checkout-note">Havale/EFT siparişleri, ödeme onaylandıktan sonra hazırlık sürecine alınır.</p><p class="cs-checkout-note">Ödeme, sipariş oluşturulduktan sonra 24 saat içinde tamamlanmalıdır. Bu süre içinde ödeme yapılmayan siparişler iptal edilebilir.</p></div>';
+      '<div class="cs-checkout-bank-notes"><span>Ödeme açıklaması sipariş oluşturulduktan sonra görünür.</span><span>24 saat içinde tamamlanmayan havale siparişleri iptal edilebilir.</span></div></div>';
   }
+
   function renderReview() {
     var ship = shippingInfo();
     return '<section class="cs-checkout-card"><div class="cs-checkout-card-head"><div><h2>Siparişini Kontrol Et</h2><p>Lütfen sipariş bilgilerini kontrol edin ve onaylayarak devam edin.</p></div></div><div class="cs-checkout-review-list">' +
@@ -1110,7 +1142,7 @@
     var summaryItems = successOrder ? normalizedOrderItems(successOrder) : cart.items.map(normalizedOrderItem);
     var t = successOrder ? normalizedOrderTotals(successOrder) : totals();
     if (!summaryItems.length && state.step !== 'success') {
-      host.innerHTML = '<div class="cs-checkout-summary-head"><h2>Sipariş Özeti</h2><span class="cs-checkout-secure">KDV dahil</span></div><div class="cs-checkout-empty-inline cs-checkout-empty-inline--summary"><strong>Sepetinde ürün bulunmuyor.</strong><span>Ürün eklediğinde ürünler, kargo, KDV ve toplam bilgileri burada görünür.</span></div>';
+      host.innerHTML = '<div class="cs-checkout-summary-head"><div><span class="cs-checkout-summary-kicker">Sepet</span><h2>Sipariş Özeti</h2></div><span class="cs-checkout-secure">KDV dahil</span></div><div class="cs-checkout-empty-inline cs-checkout-empty-inline--summary"><strong>Sepetinde ürün bulunmuyor.</strong><span>Ürün eklediğinde ürünler, kargo, KDV ve toplam bilgileri burada görünür.</span></div>';
       if (action) {
         action.textContent = 'Ödeme adımına geçilemez';
         action.disabled = true;
@@ -1120,30 +1152,34 @@
       if (emptyNote) emptyNote.textContent = 'Ödeme adımına geçmek için sepetine ürün eklemelisin.';
       return;
     }
-    host.innerHTML = '<div class="cs-checkout-summary-head"><h2>Sipariş Özeti</h2><span class="cs-checkout-secure">KDV dahil</span></div>' +
+    host.innerHTML = '<div class="cs-checkout-summary-head"><div><span class="cs-checkout-summary-kicker">Sepet Detayı</span><h2>Sipariş Özeti</h2></div><a class="cs-checkout-summary-edit" href="/cart.html">Sepeti Düzenle</a></div>' +
       '<div class="cs-checkout-summary-items">' + (summaryItems.length ? summaryItems.map(function (item) {
         return '<article class="cs-checkout-item"><a href="' + esc(item.url) + '"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div><strong>' + esc(item.brand) + '<br>' + esc(item.name) + '</strong><span>' + esc(item.size || 'KDV dahil') + '</span><span>Adet: ' + item.qty + '</span></div><b>' + money(item.line_total || (item.price * item.qty)) + '</b></article>';
       }).join('') : '<p class="cs-checkout-note">Sipariş ürünleri kaydedildi.</p>') + '</div>' +
+      (state.step === 'success' ? '' : shippingProgressHtml(t)) +
+      '<div class="cs-checkout-totals">' +
       totalRow('Ara Toplam', money(t.subtotal)) +
       (t.discount ? totalRow('İndirim', '-' + money(t.discount)) : '') +
       totalRow('Kargo', t.shipping ? money(t.shipping) : 'Ücretsiz') +
       totalRow('Dahil olan KDV', money(t.vat)) +
       totalRow('Toplam', money(t.total), true) +
-      (state.step === 'success' ? '<p class="cs-checkout-note cs-checkout-summary-success-note">Sipariş özeti, sepet temizlendikten sonra oluşturulan sipariş verisinden gösterilir.</p>' : '<div class="cs-checkout-discount"><label class="cs-checkout-label" for="csCouponInput">İndirim Kodu</label><div class="cs-checkout-discount-row"><input class="cs-checkout-input" id="csCouponInput" value="' + esc(state.coupon.code || '') + '" placeholder="Örn. WELCOME10" autocomplete="off"><button class="cs-checkout-secondary" id="csCouponApply" type="button">Uygula</button>' + (state.coupon && state.coupon.code ? '<button class="cs-checkout-coupon-clear" id="csCouponClear" type="button" data-clear-checkout-coupon>Kuponu Kaldır</button>' : '') + '</div>' + (state.coupon && state.coupon.code && t.discount ? '<p class="cs-checkout-coupon-applied"><strong>' + esc(state.coupon.code) + '</strong> uygulandı' + (state.coupon.label ? ' · ' + esc(state.coupon.label) : '') + '.</p>' : '<p class="cs-checkout-coupon-hint">Yeni üyeler uygun sepet tutarında WELCOME10 avantajını kullanabilir.</p>') + '</div>');
+      '</div>' +
+      (state.step === 'success' ? '<p class="cs-checkout-note cs-checkout-summary-success-note">Sipariş özeti, sepet temizlendikten sonra oluşturulan sipariş verisinden gösterilir.</p>' : '<div class="cs-checkout-discount"><label class="cs-checkout-label" for="csCouponInput">İndirim Kodu</label><div class="cs-checkout-discount-row"><input class="cs-checkout-input" id="csCouponInput" value="' + esc(state.coupon.code || '') + '" placeholder="Örn. WELCOME10" autocomplete="off"><button class="cs-checkout-secondary" id="csCouponApply" type="button">Uygula</button>' + (state.coupon && state.coupon.code ? '<button class="cs-checkout-coupon-clear" id="csCouponClear" type="button" data-clear-checkout-coupon>Kuponu Kaldır</button>' : '') + '</div>' + (state.coupon && state.coupon.code && t.discount ? '<p class="cs-checkout-coupon-applied"><strong>' + esc(state.coupon.code) + '</strong> uygulandı' + (state.coupon.label ? ' · ' + esc(state.coupon.label) : '') + '.</p>' : '<p class="cs-checkout-coupon-hint">Kuponlar otomatik uygulanmaz; geçerli kodu sepet/checkout adımında manuel girmen gerekir.</p>') + '</div>') + miniTrustRow();
     if (!action) return;
-    var label = state.step === 'delivery' ? 'Ödeme Adımına Geç' : state.step === 'payment' ? 'Kontrol Et' : state.step === 'review' ? (state.paymentMethod === 'bank_transfer' ? 'Siparişi Oluştur' : 'Siparişi Onayla ve Güvenli Ödemeye Geç') : 'Alışverişe Devam Et';
+    var label = state.step === 'delivery' ? 'Ödeme Adımına Geç' : state.step === 'payment' ? 'Siparişi Kontrol Et' : state.step === 'review' ? (state.paymentMethod === 'bank_transfer' ? 'Siparişi Oluştur' : 'Siparişi Onayla ve Güvenli Ödemeye Geç') : 'Alışverişe Devam Et';
     action.textContent = submitLocked ? (state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor…' : 'Güvenli ödeme hazırlanıyor…') : label;
     action.disabled = submitLocked || (!summaryItems.length && state.step !== 'success') || (state.paymentMethod === 'bank_transfer' && state.step !== 'delivery' && state.step !== 'success' && !bankConfig().configured);
     action.setAttribute('aria-busy', submitLocked ? 'true' : 'false');
     var note = byId('csCheckoutActionNote');
     if (note) note.textContent = state.step === 'success'
-      ? 'Siparişin oluşturuldu. Alışverişe devam edebilir veya Siparişlerim alanından takip edebilirsin.'
+      ? 'Siparişin oluşturuldu. Siparişlerim alanından takip edebilirsin.'
       : state.step === 'review' && state.paymentMethod === 'bank_transfer'
         ? 'Havale/EFT siparişleri ödeme bekleniyor durumuyla oluşturulur.'
         : state.step === 'review'
-          ? 'Onayladıktan sonra bankanızın güvenli ödeme sayfasına yönlendirilebilirsiniz.'
+          ? 'Onayladıktan sonra güvenli ödeme sağlayıcısına yönlendirilebilirsiniz.'
           : inventoryWarning || 'Ödeme bilgileriniz güvenli bağlantı üzerinden işlenir.';
   }
+
   function totalRow(label, value, total) {
     return '<div class="cs-checkout-total-row ' + (total ? 'is-total' : '') + '"><span>' + label + '</span><strong>' + value + '</strong></div>';
   }
@@ -1153,7 +1189,9 @@
       truck: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7zM7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"></path>',
       return: '<path d="M9 7H5v4M5.5 10.5A7 7 0 1 0 12 5"></path><path d="M14.5 10.5 12 13l-2.5-2.5"></path>',
       check: '<path d="m6 12 4 4 8-9"></path>',
-      box: '<path d="M4 8 12 4l8 4-8 4-8-4Zm0 0v8l8 4 8-4V8M12 12v8"></path>'
+      box: '<path d="M4 8 12 4l8 4-8 4-8-4Zm0 0v8l8 4 8-4V8M12 12v8"></path>',
+      card: '<rect x="3.5" y="6" width="17" height="12" rx="2"></rect><path d="M3.5 10h17M7 14h3"></path>',
+      bank: '<path d="M4 9h16L12 4 4 9Zm2 0v9M10 9v9M14 9v9M18 9v9M4 18h16"></path>'
     };
     return '<svg class="cs-checkout-icon" viewBox="0 0 24 24">' + (paths[name] || paths.check) + '</svg>';
   }
@@ -1161,14 +1199,15 @@
     var host = byId('csCheckoutTrust');
     if (!host) return;
     host.innerHTML = [
-      ['check', 'Orijinal<br>Ürün Güvencesi'],
-      ['truck', 'DHL<br>Teslimat'],
-      ['return', 'Kolay<br>İade Süreci'],
-      ['lock', 'Güvenli<br>Ödeme']
+      ['check', 'Orijinal ürün seçkisi'],
+      ['truck', 'DHL teslimat süreci'],
+      ['return', '14 gün cayma hakkı'],
+      ['lock', 'Güvenli ödeme altyapısı']
     ].map(function (item) {
       return '<div class="cs-checkout-trust-item"><span class="cs-checkout-trust-icon">' + icon(item[0]) + '</span><span>' + item[1] + '</span></div>';
     }).join('');
   }
+
   function render(options) {
     options = options || {};
     cart = readCart();
@@ -1187,7 +1226,7 @@
     state.delivery = state.delivery || { country: 'Türkiye' };
     state.invoice = state.invoice || { type: 'individual', sameAsDelivery: true };
     state.payment = state.payment || {};
-    var deliveryFields = ['firstName', 'lastName', 'email', 'phone', 'country', 'address', 'city', 'district', 'postalCode'];
+    var deliveryFields = ['firstName', 'lastName', 'email', 'phone', 'country', 'address', 'city', 'district', 'postalCode', 'deliveryNote'];
     if (deliveryFields.indexOf(target.name) !== -1) state.delivery[target.name] = value;
     var invoiceMap = {
       invoiceName: 'name', invoiceIdentity: 'identity', invoiceEmail: 'email', invoicePhone: 'phone', invoiceAddress: 'address', invoiceCity: 'city', invoiceDistrict: 'district', invoicePostalCode: 'postalCode', companyTitle: 'company', taxOffice: 'taxOffice', taxNumber: 'taxNumber', corporateEmail: 'corporateEmail', eInvoice: 'eInvoice'
@@ -1265,7 +1304,7 @@
       }
       if (event.target.closest('#csCheckoutSummaryToggle')) {
         var summary = byId('csCheckoutSummary');
-        if (summary) summary.classList.toggle('is-collapsed');
+        if (summary) { var collapsed = summary.classList.toggle('is-collapsed'); var toggle = byId('csCheckoutSummaryToggle'); if (toggle) toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true'); }
         return;
       }
       if (event.target.closest('#csCheckoutAction')) {

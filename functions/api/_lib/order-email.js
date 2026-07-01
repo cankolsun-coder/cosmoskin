@@ -151,18 +151,18 @@ const EMAIL_PRODUCT_IMAGE_OVERRIDES = {
 };
 
 function statusIconAsset(type = '', tone = '') {
-  if (type === 'shipment_created' || type === 'shipment_updated' || tone === 'truck') return '/assets/img/email/status-truck-v3.png';
-  if (type === 'order_preparing' || type === 'order_packed' || tone === 'package') return '/assets/img/email/status-package-v3.png';
-  if (type === 'bank_transfer_pending' || tone === 'bank') return '/assets/img/email/status-bank-v3.png';
-  if (type === 'bank_transfer_reminder') return '/assets/img/email/status-reminder-v3.png';
-  if (type === 'bank_transfer_not_received_cancelled' || tone === 'warning') return '/assets/img/email/status-cancel-v3.png';
-  if (type === 'shipment_delivered' || tone === 'delivered') return '/assets/img/email/status-delivered-v3.png';
-  return '/assets/img/email/status-check-v3.png';
+  if (type === 'shipment_created' || type === 'shipment_updated' || tone === 'truck') return '/assets/img/email/status-truck-v4.png';
+  if (type === 'order_preparing' || type === 'order_packed' || tone === 'package') return '/assets/img/email/status-package-v4.png';
+  if (type === 'bank_transfer_pending' || tone === 'bank') return '/assets/img/email/status-bank-v4.png';
+  if (type === 'bank_transfer_reminder') return '/assets/img/email/status-reminder-v4.png';
+  if (type === 'bank_transfer_not_received_cancelled' || tone === 'warning') return '/assets/img/email/status-cancel-v4.png';
+  if (type === 'shipment_delivered' || tone === 'delivered') return '/assets/img/email/status-delivered-v4.png';
+  return '/assets/img/email/status-check-v4.png';
 }
 
 function statusIconHtml(type = '', copy = {}, env = {}) {
   const src = absoluteUrl(statusIconAsset(type, copy.tone), env);
-  return `<img src="${escapeHtml(src)}" width="34" height="34" alt="" style="display:block;width:34px;height:34px;max-width:34px;max-height:34px;border:0;outline:none;text-decoration:none;margin:0 auto;-ms-interpolation-mode:bicubic;">`;
+  return `<img src="${escapeHtml(src)}" width="42" height="42" alt="" style="display:block;width:42px;height:42px;max-width:42px;max-height:42px;border:0;outline:none;text-decoration:none;margin:0 auto;-ms-interpolation-mode:bicubic;">`;
 }
 
 function emailImageForItem(item = {}, product = {}, slug = '', env = {}) {
@@ -321,7 +321,7 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
       </td></tr>
       <tr><td style="padding:42px 40px 34px;background-color:#ffffff;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td align="center" style="padding-bottom:22px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" style="width:58px;height:58px;border-radius:58px;border:1px solid #d9cdbc;${iconStyle(copy.tone)}text-align:center;vertical-align:middle;line-height:1;">${statusIconHtml(type, copy, env)}</td></tr></table>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" style="width:62px;height:62px;border-radius:62px;border:1px solid #d9cdbc;${iconStyle(copy.tone)}text-align:center;vertical-align:middle;line-height:1;">${statusIconHtml(type, copy, env)}</td></tr></table>
         </td></tr></table>
         <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#9a8e82;letter-spacing:2px;text-transform:uppercase;font-weight:bold;text-align:center;margin:0 0 12px;">${escapeHtml(copy.eyebrow)}</div>
         <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.3;font-weight:normal;color:#171717;text-align:center;margin:0 0 16px;letter-spacing:.2px;">${escapeHtml(copy.title)}</h1>

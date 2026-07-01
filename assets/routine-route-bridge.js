@@ -1,9 +1,12 @@
 (function () {
   'use strict';
 
+  // This bridge is intentionally limited to account-only routine aliases.
+  // Public navigation must open the approved routine center (/routine.html),
+  // not the logged-in account routine area and not the deprecated wizard route.
   var ROUTINE_TARGET_ROUTE = '/account/routines/';
   var PENDING_KEY = 'cosmoskin_pending_routine_preferences';
-  var ROUTINE_PATHS = [
+  var ACCOUNT_ROUTINE_PATHS = [
     '/account/routines',
     '/account/routines/',
     '/account/routines.html',
@@ -18,20 +21,15 @@
     '/account/routine-history.html',
     '/account/routine-compare',
     '/account/routine-compare/',
-    '/account/routine-compare.html',
-    '/collections/routine',
-    '/collections/routine.html',
-    '/routine.html',
-    '/rutinler',
-    '/rutinler.html'
+    '/account/routine-compare.html'
   ];
 
   function cleanPath(path) { return String(path || '').replace(/\/$/, ''); }
-  function isRoutinePath(path) {
+  function isAccountRoutinePath(path) {
     var raw = String(path || '');
-    return ROUTINE_PATHS.indexOf(raw) !== -1 || ROUTINE_PATHS.indexOf(cleanPath(raw)) !== -1;
+    return ACCOUNT_ROUTINE_PATHS.indexOf(raw) !== -1 || ACCOUNT_ROUTINE_PATHS.indexOf(cleanPath(raw)) !== -1;
   }
-  function isCurrentRoutinePage() { return isRoutinePath(window.location.pathname); }
+  function isCurrentAccountRoutinePage() { return isAccountRoutinePath(window.location.pathname); }
 
   function accountRouteFor(url) {
     var path = cleanPath(url.pathname);
@@ -48,7 +46,7 @@
     var url;
     try { url = new URL(rawHref || ROUTINE_TARGET_ROUTE, window.location.origin); }
     catch (e) { url = new URL(ROUTINE_TARGET_ROUTE, window.location.origin); }
-    if (!isRoutinePath(url.pathname)) return null;
+    if (!isAccountRoutinePath(url.pathname)) return null;
     var target = accountRouteFor(url);
     return target + (url.hash || '');
   }
@@ -86,7 +84,7 @@
       selectedGoals: selectedGoals,
       selectedSkinType: selectedSkinType,
       habit: habit,
-      source: 'home-route-bridge',
+      source: 'account-routine-route-bridge',
       updatedAt: new Date().toISOString()
     }));
   }
@@ -96,7 +94,7 @@
     if (!anchor) return;
     var target = normalizeTarget(anchor.getAttribute('href'));
     if (!target) return;
-    if (isCurrentRoutinePage()) return;
+    if (isCurrentAccountRoutinePage()) return;
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
     preserveHomeSmartRoutineSelection();
