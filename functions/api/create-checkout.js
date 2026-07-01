@@ -7,6 +7,7 @@ import { getPrimaryBankAccount, getValidatedBankAccounts } from './_lib/bank-acc
 import { legalDocumentKeyFromConsent, legalDocumentSnapshot } from './_lib/legal-documents.js';
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from './_lib/order-email.js';
 import { recordEmailEvent } from './_lib/email-events.js';
+import { validateCouponEligibility } from './_lib/coupons.js';
 
 const VAT_RATE = 0.20;
 const FREE_SHIPPING_LIMIT = 2500;
@@ -231,53 +232,38 @@ async function validateInventory(context, cart) {
   }
 }
 
-async function applyCoupon(context, cart, subtotal, couponCode, customer = {}) {
+async function applyCoupon(context, cart, subtotal, couponCode, customer = {}, user = null) {
   const code = String(couponCode || '').trim().toUpperCase();
   if (!code) return { code: null, type: null, discount: 0, freeShipping: false, label: null };
-  const rows = await selectRows(context, 'coupons', {
-    select: '*',
-    code: `eq.${code}`,
-    is_active: 'eq.true',
-    limit: '1'
-  }).catch(() => []);
-  const coupon = rows?.[0];
-  if (!coupon) throw new CheckoutError('Kupon kodu geçersiz veya pasif.', 400, 'INVALID_COUPON');
-  const now = Date.now();
-  if (coupon.starts_at && new Date(coupon.starts_at).getTime() > now) throw new CheckoutError('Kupon henüz aktif değil.', 400, 'COUPON_NOT_STARTED');
-  if (coupon.ends_at && new Date(coupon.ends_at).getTime() < now) throw new CheckoutError('Kupon süresi dolmuş.', 400, 'COUPON_EXPIRED');
-  if (Number(coupon.min_subtotal || 0) > subtotal) throw new CheckoutError(`Bu kupon için minimum sepet tutarı ₺${Number(coupon.min_subtotal).toFixed(0)}.`, 400, 'COUPON_MIN_SUBTOTAL');
-  const usageLimit = Number(coupon.usage_limit || 0);
-  if (usageLimit > 0) {
-    const used = await selectRows(context, 'coupon_redemptions', { select: 'id', coupon_id: `eq.${coupon.id}`, limit: String(usageLimit) }).catch(() => []);
-    if ((used || []).length >= usageLimit) throw new CheckoutError('Bu kuponun kullanım limiti dolmuş.', 400, 'COUPON_USAGE_LIMIT');
+  const result = await validateCouponEligibility(context, {
+    code,
+    subtotal,
+    user,
+    customerEmail: customer.email,
+    checkout: true
+  });
+  if (!result.eligible) {
+    const status = ['FIRST_ORDER_ONLY', 'BIRTHDAY_NOT_ELIGIBLE', 'TIER_NOT_ELIGIBLE', 'ACCOUNT_TOO_NEW'].includes(result.reasonCode) ? 403 : 400;
+    throw new CheckoutError(result.message || 'Kupon kullanım koşullarını şu anda karşılamıyor.', status, result.reasonCode || 'INVALID_COUPON');
   }
-  const perCustomerLimit = Math.max(0, Number(coupon.per_customer_limit || 0));
-  const customerEmail = String(customer.email || '').trim().toLowerCase();
-  if (perCustomerLimit > 0 && customerEmail) {
-    const usedByCustomer = await selectRows(context, 'coupon_redemptions', { select: 'id', coupon_id: `eq.${coupon.id}`, customer_email: `eq.${customerEmail}`, limit: String(perCustomerLimit) }).catch(() => []);
-    if ((usedByCustomer || []).length >= perCustomerLimit) throw new CheckoutError('Bu kupon için kullanım hakkınızı tamamladınız.', 400, 'COUPON_CUSTOMER_LIMIT');
-  }
-  let discount = 0;
-  const couponType = String(coupon.discount_type || coupon.type || '').trim().toLowerCase();
-  const couponValue = coupon.discount_value ?? coupon.value;
-  const couponMax = coupon.max_discount_amount ?? coupon.max_discount;
-  const freeShipping = couponType === 'free_shipping';
-  if (couponType === 'percent') discount = subtotal * (Number(couponValue || 0) / 100);
-  else if (!freeShipping) discount = Number(couponValue || 0);
-  if (couponMax) discount = Math.min(discount, Number(couponMax));
-  discount = Math.max(0, Math.min(subtotal, normalizeMoney(discount)));
+  const coupon = result.coupon || {};
+  const label = result.discountType === 'percent'
+    ? `%${Number(coupon.discount_value || 0)} indirim`
+    : (result.freeShipping ? 'Ücretsiz kargo' : `₺${Number(result.discountAmount || coupon.discount_value || 0).toFixed(0)} indirim`);
   return {
     id: coupon.id || null,
-    code,
-    type: couponType,
-    discount,
-    freeShipping,
-    minSubtotal: Number(coupon.min_subtotal || 0),
-    label: couponType === 'percent' ? `%${Number(couponValue || 0)} indirim` : (freeShipping ? 'Ücretsiz kargo' : `₺${discount.toFixed(0)} indirim`)
+    code: result.code,
+    type: result.discountType,
+    discount: result.discountAmount,
+    freeShipping: result.freeShipping,
+    minSubtotal: result.minSubtotal,
+    maxDiscount: result.maxDiscount,
+    label,
+    eligibilityHash: `${result.code}:${Math.round(subtotal)}:${result.reasonCode}`
   };
 }
 
-async function recordCouponUsage(context, { coupon, orderId, user, customer, discount }) {
+async function recordCouponUsage(context, { coupon, orderId, user, customer, discount, status = 'reserved', source = 'checkout' }) {
   if (!coupon?.code || !discount) return;
   const now = new Date().toISOString();
   await insertRow(context, 'coupon_redemptions', {
@@ -287,24 +273,30 @@ async function recordCouponUsage(context, { coupon, orderId, user, customer, dis
     customer_email: String(customer?.email || '').trim().toLowerCase() || null,
     code: coupon.code,
     discount_amount: normalizeMoney(discount || 0),
-    status: 'used',
-    metadata: { source: 'checkout_bank_transfer', payment_status: 'awaiting_transfer' },
+    status,
+    metadata: { source, payment_status: status === 'reserved' ? 'pending' : 'used' },
     created_at: now
   }).catch((error) => console.warn('coupon redemption log failed:', String(error?.message || error).slice(0, 180)));
+  const customerCouponStatus = status === 'used' ? 'used' : 'reserved';
   if (user?.id) {
     await updateRows(context, 'customer_coupons', { user_id: user.id, code: coupon.code }, {
-      status: 'used',
-      used_at: now,
+      status: customerCouponStatus,
+      used_at: status === 'used' ? now : null,
+      reserved_at: status === 'reserved' ? now : null,
       order_id: orderId,
       updated_at: now
     }).catch(() => null);
   }
-  await updateRows(context, 'customer_coupons', { customer_email: String(customer?.email || '').trim().toLowerCase(), code: coupon.code }, {
-    status: 'used',
-    used_at: now,
-    order_id: orderId,
-    updated_at: now
-  }).catch(() => null);
+  const email = String(customer?.email || '').trim().toLowerCase();
+  if (email) {
+    await updateRows(context, 'customer_coupons', { customer_email: email, code: coupon.code }, {
+      status: customerCouponStatus,
+      used_at: status === 'used' ? now : null,
+      reserved_at: status === 'reserved' ? now : null,
+      order_id: orderId,
+      updated_at: now
+    }).catch(() => null);
+  }
 }
 
 function normalizeShippingMethod(value) {
@@ -697,7 +689,7 @@ export async function onRequestPost(context) {
 
     await validateInventory(context, cart);
     const baseTotals = calculateTotals(cart);
-    const coupon = await applyCoupon(context, cart, baseTotals.subtotal, payload.coupon_code || payload.couponCode, customer);
+    const coupon = await applyCoupon(context, cart, baseTotals.subtotal, payload.coupon_code || payload.couponCode, customer, user);
     const shippingMethod = normalizeShippingMethod(payload.shipping?.method || payload.shipping_method);
     const totals = calculateTotalsWithCoupon(cart, coupon, shippingMethod);
     const eftReservationMinutes = paymentMethod === 'bank_transfer' ? getEftReservationMinutes(context.env || {}) : 15;
@@ -833,6 +825,7 @@ export async function onRequestPost(context) {
       });
       await recordCheckoutConsents(context, { user, email: customer.email, consents, orderId });
       await recordOrderLegalConsents(context, { orderId, user, email: customer.email, consents, request: context.request });
+      await recordCouponUsage(context, { coupon, orderId, user, customer, discount: totals.discount || 0, status: 'reserved', source: paymentMethod === 'bank_transfer' ? 'checkout_bank_transfer' : 'checkout_card' });
     } catch (persistenceError) {
       await releaseInventoryReservations(context, orderId, 'order_persistence_failed').catch(() => null);
       if (persistedOrder) {
@@ -875,7 +868,6 @@ export async function onRequestPost(context) {
         note: 'Müşteri açıklama alanına sipariş numarasını yazmalıdır.',
         metadata: { order_number: orderNumber, payment_method: 'bank_transfer', payment_deadline: paymentDeadline }
       }).catch(() => null);
-      await recordCouponUsage(context, { coupon, orderId, user, customer, discount: totals.discount || 0 });
       try {
         const emailOrder = { ...orderPayload, order_items: cart };
         const emailResult = await sendCommerceTransactionalEmail(context.env || {}, { order: emailOrder, type: 'bank_transfer_pending', bankAccounts });
@@ -972,6 +964,7 @@ export async function onRequestPost(context) {
         raw_initialize_response: { error: serializeError(paymentError) }
       }).catch(() => null);
       await releaseInventoryReservations(context, orderId, 'payment_initialize_failed').catch(() => null);
+      await updateRows(context, 'coupon_redemptions', { order_id: orderId }, { status: 'released', metadata: { source: 'payment_initialize_failed' } }).catch(() => null);
       await updateRows(context, 'orders', { id: orderId }, {
         status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled',
         metadata: { ...orderPayload.metadata, payment_initialize_error: serializeError(paymentError) }
@@ -1007,6 +1000,7 @@ export async function onRequestPost(context) {
     if (!paymentSucceeded) {
       await updateRows(context, 'orders', { id: orderId }, { status: 'cancelled', payment_status: 'failed', fulfillment_status: 'cancelled' });
       await releaseInventoryReservations(context, orderId, 'payment_initialize_failed').catch(() => null);
+      await updateRows(context, 'coupon_redemptions', { order_id: orderId }, { status: 'released', metadata: { source: 'payment_initialize_failed' } }).catch(() => null);
       await insertRow(context, 'order_status_events', {
         order_id: orderId,
         status: 'payment_failed',

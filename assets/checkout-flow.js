@@ -841,12 +841,12 @@
       var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code, shipping_method: state.shippingMethod, cart: cart.items.map(function (item) { return { slug: item.slug || item.id, quantity: item.qty }; }) })
+        body: JSON.stringify({ code: code, shipping_method: state.shippingMethod, accessToken: await accessToken(), cart: cart.items.map(function (item) { return { slug: item.slug || item.id, quantity: item.qty || item.quantity || 1, price: item.price || item.unit_price || 0 }; }) })
       });
       var data = await res.json().catch(function () { return {}; });
       if (!res.ok || data.ok === false) throw new Error(data.error || 'Kupon bulunamadı veya aktif değil.');
       var discount = num(data.discountAmount || data.discount_amount || data.discount || 0);
-      state.coupon = { code: code, type: data.type || '', discount: discount, freeShipping: Boolean(data.freeShipping), label: data.discountLabel || data.label || '', minSubtotal: num(data.minSubtotal || data.min_subtotal || data.minimumSubtotal || 0) };
+      state.coupon = { code: code, type: data.type || data.discount_type || '', discount: discount, freeShipping: Boolean(data.freeShipping || data.free_shipping), label: data.discountLabel || data.label || data.message || '', minSubtotal: num(data.minSubtotal || data.min_subtotal || data.minimumSubtotal || 0), maxDiscount: num(data.maxDiscount || data.max_discount_amount || 0) }; try { localStorage.setItem('cosmoskin_coupon_state_v1', JSON.stringify({ code: code, discountAmount: discount, discountType: data.discount_type || data.type || '', validatedAt: new Date().toISOString(), source: 'backend', eligibilityHash: data.eligibility_hash || '', expiresAt: data.expires_at || '' })); } catch (_) {}
       clearCouponPersistence();
       saveState();
       renderSummary();

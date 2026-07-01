@@ -7,11 +7,11 @@ function safeMeta(meta = {}) {
 }
 
 function computeTier(orders = []) {
-  const paidOrders = orders.filter((order) => ['paid', 'preparing', 'shipped', 'delivered'].includes(order.status));
+  const paidOrders = orders.filter((order) => ['paid', 'confirmed', 'processing', 'preparing', 'shipped', 'delivered', 'completed'].includes(String(order.status || '').toLowerCase()) || ['paid', 'confirmed', 'captured'].includes(String(order.payment_status || '').toLowerCase()));
   const paidTotal = paidOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
-  if (paidTotal >= 15000 || paidOrders.length >= 8) return { key: 'elite', label: 'Elite Üye', progress: 100, next: null };
-  if (paidTotal >= 6000 || paidOrders.length >= 3) return { key: 'signature', label: 'Signature Üye', progress: Math.min(96, Math.round(((paidTotal - 6000) / 9000) * 100)), next: 'Elite Üye' };
-  return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 6000) * 100)), next: 'Signature Üye' };
+  if (paidTotal >= 15000) return { key: 'elite', label: 'Elite Üye', progress: 100, next: null };
+  if (paidTotal >= 5000) return { key: 'signature', label: 'Signature Üye', progress: Math.min(96, Math.round(((paidTotal - 5000) / 10000) * 100)), next: 'Elite Üye' };
+  return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 5000) * 100)), next: 'Signature Üye' };
 }
 
 function normalizeOrder(order = {}) {
@@ -22,32 +22,6 @@ function normalizeOrder(order = {}) {
   };
 }
 
-function makeSyntheticNotifications({ orders = [], favorites = [] }) {
-  const out = [];
-  const latest = orders[0];
-  if (latest) {
-    out.push({
-      id: `order-${latest.id}`,
-      type: 'order',
-      title: 'Sipariş durumu güncellendi',
-      body: `${latest.order_number || 'Siparişiniz'} şu an ${latest.status || 'işleniyor'} durumunda.`,
-      is_read: false,
-      created_at: latest.updated_at || latest.created_at
-    });
-  }
-  if (favorites.length) {
-    out.push({
-      id: 'favorites-reminder',
-      type: 'favorite',
-      title: 'Favorilerini sepete taşıyabilirsin',
-      body: `${favorites.length} ürün favorilerinde kayıtlı. Stok ve fiyat kontrolü için favorilerini gözden geçir.`,
-      is_read: false,
-      created_at: new Date().toISOString()
-    });
-  }
-  return out;
-}
-
 export async function onRequestGet(context) {
   try {
     const auth = await requireUser(context);
@@ -55,9 +29,9 @@ export async function onRequestGet(context) {
     const user = auth.user;
     const meta = safeMeta(user.user_metadata);
 
-    const [ordersRaw, addresses, favorites, dbNotifications, profiles, membershipRows, pointsRows, couponRows, skinProfiles, routineResults, consentRows] = await Promise.all([
+    const [ordersRaw, addresses, favorites, dbNotifications, profiles, membershipRows, pointsRows, couponRows, skinProfiles, routineResults, consentRows, preferenceRows, supportRows] = await Promise.all([
       selectRows(context, 'orders', {
-        select: 'id,order_number,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,created_at,updated_at,paid_at,fulfilled_at,delivered_at',
+        select: 'id,order_number,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,created_at,updated_at,paid_at,fulfilled_at,delivered_at',
         or: `(user_id.eq.${user.id},customer_email.eq.${String(user.email || '').toLowerCase()})`,
         order: 'created_at.desc',
         limit: '12'
@@ -117,6 +91,17 @@ export async function onRequestGet(context) {
         user_id: `eq.${user.id}`,
         order: 'created_at.desc',
         limit: '30'
+      }).catch(() => []),
+      selectRows(context, 'notification_preferences', {
+        select: '*',
+        user_id: `eq.${user.id}`,
+        limit: '1'
+      }).catch(() => []),
+      selectRows(context, 'support_requests', {
+        select: '*',
+        user_id: `eq.${user.id}`,
+        order: 'created_at.desc',
+        limit: '20'
       }).catch(() => [])
     ]);
 
@@ -171,15 +156,19 @@ export async function onRequestGet(context) {
       return_requests: groupedReturns.get(order.id) || []
     }));
 
-    const paidOrders = orders.filter((order) => ['paid', 'preparing', 'shipped', 'delivered'].includes(order.status));
+    const paidOrders = orders.filter((order) => ['paid', 'confirmed', 'processing', 'preparing', 'shipped', 'delivered', 'completed'].includes(String(order.status || '').toLowerCase()) || ['paid', 'confirmed', 'captured'].includes(String(order.payment_status || '').toLowerCase()));
     const totalSpent = paidOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
     const activeOrders = orders.filter((order) => ['paid', 'preparing', 'shipped'].includes(order.status)).length;
     const profile = Array.isArray(profiles) ? profiles[0] || null : null;
     const membership = Array.isArray(membershipRows) ? membershipRows[0] || null : null;
-    const pointsBalance = Array.isArray(pointsRows) && pointsRows.length ? Number(pointsRows[0].balance_after || 0) : 0;
-    const notifications = (dbNotifications && dbNotifications.length)
-      ? dbNotifications
-      : makeSyntheticNotifications({ orders, favorites });
+    const pointLedger = Array.isArray(pointsRows) ? pointsRows : [];
+    const availablePoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'available').reduce((sum, row) => sum + Number(row.points_delta || row.points || 0), 0);
+    const pendingPoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'pending').reduce((sum, row) => sum + Math.max(0, Number(row.points_delta || row.points || 0)), 0);
+    const reversedPoints = pointLedger.filter((row) => ['reversed', 'expired'].includes(String(row.status || '').toLowerCase())).reduce((sum, row) => sum + Math.abs(Number(row.points_delta || row.points || 0)), 0);
+    const pointsBalance = Math.max(0, Number(membership?.available_points ?? availablePoints ?? 0));
+    const notifications = Array.isArray(dbNotifications) ? dbNotifications : [];
+    const notificationPreferences = Array.isArray(preferenceRows) ? preferenceRows[0] || null : null;
+    const supportRequests = Array.isArray(supportRows) ? supportRows : [];
 
     return json({
       ok: true,
@@ -201,10 +190,13 @@ export async function onRequestGet(context) {
         skin_profile_updated_at: skinProfiles?.[0]?.updated_at || meta.skin_profile_updated_at || meta.skinProfileUpdatedAt || meta.updatedAt || '',
         communication: {
           ...(meta.comm_prefs || meta.communication || {}),
-          marketing_email_opt_in: Boolean(profile?.marketing_email_opt_in),
-          newsletter_opt_in: Boolean(profile?.newsletter_opt_in),
-          stock_alert_opt_in: Boolean(profile?.stock_alert_opt_in),
-          routine_reminder_opt_in: Boolean(profile?.routine_reminder_opt_in)
+          order_updates: notificationPreferences?.order_updates !== false,
+          cargo_updates: notificationPreferences?.cargo_updates !== false,
+          marketing_email_opt_in: Boolean(notificationPreferences?.campaign_emails ?? profile?.marketing_email_opt_in),
+          newsletter_opt_in: Boolean(notificationPreferences?.newsletter ?? profile?.newsletter_opt_in),
+          stock_alert_opt_in: Boolean(notificationPreferences?.stock_notifications ?? profile?.stock_alert_opt_in),
+          routine_reminder_opt_in: Boolean(notificationPreferences?.routine_reminders ?? profile?.routine_reminder_opt_in),
+          sms_notifications: Boolean(notificationPreferences?.sms_notifications ?? profile?.marketing_sms_opt_in)
         },
         routine_reminders: meta.routine_reminders || {}
       },
@@ -229,12 +221,18 @@ export async function onRequestGet(context) {
       membership,
       points: {
         balance: pointsBalance,
-        ledger: pointsRows || []
+        available: Math.max(0, Math.round(pointsBalance)),
+        pending: Math.max(0, Math.round(pendingPoints)),
+        reversed: Math.max(0, Math.round(reversedPoints)),
+        ledger: pointLedger
       },
       coupons: couponRows || [],
       skin_profile: skinProfiles?.[0] || null,
       routine_results: routineResults || [],
       legal_consents: consentRows || [],
+      notification_preferences: notificationPreferences || null,
+      support_requests: supportRequests,
+      supportSummary: { open_count: supportRequests.filter((row) => ['open', 'açık'].includes(String(row.status || '').toLowerCase())).length, total_count: supportRequests.length },
       orders,
       addresses,
       favorites,

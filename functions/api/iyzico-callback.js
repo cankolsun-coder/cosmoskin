@@ -112,10 +112,17 @@ async function finalizeCommerceAfterPayment(context, orderId) {
   if (!order) return;
 
   if (order.coupon_code) {
+    const now = new Date().toISOString();
     const existingRedemption = await selectRows(context, 'coupon_redemptions', {
-      select: 'id', order_id: `eq.${orderId}`, code: `eq.${order.coupon_code}`, limit: '1'
+      select: 'id,status', order_id: `eq.${orderId}`, code: `eq.${order.coupon_code}`, limit: '1'
     }).catch(() => []);
-    if (!existingRedemption?.[0]) {
+    if (existingRedemption?.[0]?.id) {
+      await updateRows(context, 'coupon_redemptions', { id: existingRedemption[0].id }, {
+        status: 'used',
+        metadata: { source: 'iyzico_callback', previous_status: existingRedemption[0].status || null },
+        updated_at: now
+      }).catch(() => null);
+    } else {
       const coupons = await selectRows(context, 'coupons', {
         select: 'id,code', code: `eq.${order.coupon_code}`, limit: '1'
       }).catch(() => []);
@@ -125,7 +132,20 @@ async function finalizeCommerceAfterPayment(context, orderId) {
         user_id: order.user_id || null,
         customer_email: order.customer_email || null,
         code: order.coupon_code,
-        discount_amount: Number(order.discount_amount || 0)
+        discount_amount: Number(order.discount_amount || 0),
+        status: 'used',
+        metadata: { source: 'iyzico_callback' },
+        created_at: now
+      }).catch(() => null);
+    }
+    if (order.user_id) {
+      await updateRows(context, 'customer_coupons', { user_id: order.user_id, code: order.coupon_code }, {
+        status: 'used', used_at: now, order_id: orderId, updated_at: now
+      }).catch(() => null);
+    }
+    if (order.customer_email) {
+      await updateRows(context, 'customer_coupons', { customer_email: String(order.customer_email).toLowerCase(), code: order.coupon_code }, {
+        status: 'used', used_at: now, order_id: orderId, updated_at: now
       }).catch(() => null);
     }
   }

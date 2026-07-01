@@ -162,6 +162,20 @@
     writeJSON('cosmoskin_skin_profile', profile);
   }
 
+  function syncRoutineResultFromSummary(summary) {
+    var latest = (summary && summary.routine_results || [])[0];
+    if (!latest) return;
+    var result = latest.result && typeof latest.result === 'object' ? latest.result : {};
+    var routine = Object.assign({}, result, {
+      id: latest.id || result.id,
+      title: latest.routine_title || result.title || 'Kayıtlı Akıllı Rutin',
+      source: 'backend',
+      updatedAt: latest.completed_at || latest.created_at || result.updatedAt || new Date().toISOString(),
+      recommended_products: latest.recommended_products || result.recommended_products || result.products || []
+    });
+    if (Object.keys(routine).length > 2) writeJSON(KEYS.active, routine);
+  }
+
   function getRoutinePreferences() {
     var canonical = null;
     if (window.COSMOSKINSkinProfile && typeof window.COSMOSKINSkinProfile.get === 'function') {
@@ -868,7 +882,7 @@
       } catch (error) {}
     }
     if (storedUser && (storedUser.email || storedUser.id || storedUser.name)) {
-      routineState.auth = { loggedIn: true, user: storedUser, session: null, source: 'local' };
+      routineState.auth = { loggedIn: false, user: storedUser, session: null, source: 'local_guest' };
       return routineState.auth;
     }
     routineState.auth = { loggedIn: false, user: null, session: null, source: 'none' };
@@ -944,10 +958,12 @@
         routineState.favorites = (summary.favorites || []).map(normalizeFavorite).filter(Boolean);
         writeLocalFavorites(routineState.favorites);
         syncProfileFromSummary(summary);
+        syncRoutineResultFromSummary(summary);
       } else {
         routineState.favorites = readLocalFavorites();
       }
     } catch (error) {
+      if (auth.session && auth.session.access_token) throw error;
       routineState.favorites = readLocalFavorites();
     }
     return routineState;
@@ -1107,28 +1123,40 @@
     }
   }
 
+  function routineResultPayloadFromPreferences(normalized) {
+    var routine = activeRoutineProducts(normalized);
+    var products = [];
+    var seen = new Set();
+    routine.morning.concat(routine.evening).forEach(function (step) {
+      var product = step && step.product;
+      if (!product || !product.slug || seen.has(product.slug)) return;
+      seen.add(product.slug);
+      products.push({ slug: product.slug, name: product.name, brand: product.brand, price: product.price, routine_step: step.label || '', am_pm: step.period || '' });
+    });
+    return {
+      routine_key: 'smart-routine-' + Date.now(),
+      routine_title: normalized.intensity === 'advanced' ? 'Gelişmiş Akıllı Rutin' : normalized.intensity === 'balanced' ? 'Dengeli Akıllı Rutin' : 'Başlangıç Akıllı Rutini',
+      result: serializeRoutine(routine, 'smart-routine-backend-save'),
+      recommended_products: products
+    };
+  }
+
   async function saveRoutineProfileToAccount(prefs) {
     var normalized = saveRoutinePreferences(prefs);
     var auth = routineState.auth && routineState.auth.loggedIn ? routineState.auth : await detectAuthState();
-    if (auth.session && auth.session.access_token && window.cosmoskinSupabase && window.cosmoskinSupabase.auth && typeof window.cosmoskinSupabase.auth.updateUser === 'function') {
-      var current = routineState.summary && routineState.summary.user || {};
-      var payload = {
-        first_name: current.first_name || '',
-        last_name: current.last_name || '',
-        full_name: current.full_name || '',
-        phone: current.phone || '',
+    if (auth.session && auth.session.access_token) {
+      var skinPayload = {
         skin_type: normalized.selectedSkinType || '',
         skin_sensitivity: normalized.sensitivity || '',
         routine_goal: (normalized.selectedGoals || [])[0] || '',
         skin_concerns: (normalized.selectedGoals || []).filter(Boolean),
         routine_style: normalized.intensity || '',
-        skin_profile_updated_at: new Date().toISOString(),
-        comm_prefs: current.communication || {},
-        routine_reminders: current.routine_reminders || {}
+        preferred_ingredients: [],
+        avoided_ingredients: (normalized.avoid || []).filter(Boolean),
+        updated_at: new Date().toISOString()
       };
-      var res = await window.cosmoskinSupabase.auth.updateUser({ data: payload });
-      if (res && res.error) throw res.error;
-      syncProfileFromSummary({ user: payload });
+      await routineApiFetch('/account/skin-profile', { method: 'POST', body: skinPayload });
+      await routineApiFetch('/account/routine-results', { method: 'POST', body: routineResultPayloadFromPreferences(normalized) });
       await loadAccountState();
     }
     return normalized;

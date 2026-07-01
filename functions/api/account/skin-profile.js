@@ -12,11 +12,11 @@ function normalizePayload(body = {}, user) {
   return {
     user_id: user.id,
     email: String(user.email || body.email || '').toLowerCase(),
-    skin_type: cleanString(body.skin_type || body.skinType || 'Karma Cilt', 80),
+    skin_type: cleanString(body.skin_type || body.skinType || '', 80),
     sensitivity: cleanString(body.sensitivity || body.skin_sensitivity || body.sensitivity_status || '', 80),
     concerns: toArray(body.concerns || body.skin_concerns || body.skin_goals || body.goals),
-    routine_goal: cleanString(body.routine_goal || body.primaryGoal || 'Nem desteği', 140),
-    routine_style: cleanString(body.routine_style || body.routine_preference || body.routineStyle || 'Günlük bakım', 120),
+    routine_goal: cleanString(body.routine_goal || body.primaryGoal || '', 140),
+    routine_style: cleanString(body.routine_style || body.routine_preference || body.routineStyle || '', 120),
     answers: body.answers && typeof body.answers === 'object' ? body.answers : {},
     source: 'account',
     updated_at: new Date().toISOString()

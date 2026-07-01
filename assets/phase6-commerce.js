@@ -1,7 +1,7 @@
 (function(){
   var PRODUCT_KEY='cosmoskin_recent_products_v1';
   var COMPARE_KEY='cosmoskin_compare_products_v1';
-  var COUPON_KEY='cosmoskin_coupon_code';
+  var COUPON_KEY='cosmoskin_coupon_state_v1'; var LEGACY_COUPON_KEY='cosmoskin_coupon_code';
   var cartRecommendationIndex=0;
   var fmt=window.COSMOSKIN_FORMAT_PRICE||function(n){return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(Number(n||0));};
   function products(){return window.COSMOSKIN_PRODUCTS||[]}
@@ -72,7 +72,7 @@
     var summary=drawer.querySelector('.cart-summary');
     if(summary&&!document.querySelector('#phase6CartCoupon')){
       summary.insertAdjacentHTML('afterbegin','<div class="phase6-coupon-box" id="phase6CartCoupon" hidden><label>Kupon Kodu</label><div class="phase6-coupon-row"><input id="phase6CouponInput" autocomplete="off" placeholder="Örn: WELCOME10"><button type="button" id="phase6CouponApply">Uygula</button></div><div class="phase6-coupon-status" id="phase6CouponStatus"></div></div>');
-      var created=document.querySelector('#phase6CouponInput'); var saved=localStorage.getItem(COUPON_KEY)||''; if(created&&saved) created.value=saved;
+      var created=document.querySelector('#phase6CouponInput'); var saved=''; try{var savedSnap=JSON.parse(localStorage.getItem(COUPON_KEY)||'null'); saved=(savedSnap&&savedSnap.code)||localStorage.getItem(LEGACY_COUPON_KEY)||'';}catch(_){saved=localStorage.getItem(LEGACY_COUPON_KEY)||'';} if(created&&saved) created.value=saved;
     }
     var items=document.querySelector('#cartItems');
     if(items&&!document.querySelector('#phase6CartRecommendations')){
@@ -80,7 +80,7 @@
     }
     renderCartRecommendations();
     try{var ci=document.querySelector('#cartDrawer #cartItems'); if(ci) ci.scrollTop=0;}catch(e){}
-    var code=localStorage.getItem(COUPON_KEY)||''; var input=document.querySelector('#phase6CouponInput'); if(input && code && document.activeElement!==input && !input.value) input.value=code;
+    var stored=null; try{stored=JSON.parse(localStorage.getItem(COUPON_KEY)||'null');}catch(_){stored=null;} var code=(stored&&stored.code)||localStorage.getItem(LEGACY_COUPON_KEY)||''; var input=document.querySelector('#phase6CouponInput'); if(input && code && document.activeElement!==input && !input.value) input.value=code;
     setCartDrawerCommerceState();
   }
   function renderCartRecommendations(){
@@ -93,17 +93,17 @@
   }
   async function validateCoupon(code){
     code=String(code||'').trim().toUpperCase(); var status=document.querySelector('#phase6CouponStatus')||document.querySelector('#phase6CheckoutCouponStatus');
-    if(!cartHasItems()){localStorage.removeItem(COUPON_KEY); if(status)status.textContent='İndirim kodu uygulamak için önce sepetinize ürün ekleyin.'; return;}
-    if(!code){localStorage.removeItem(COUPON_KEY); if(status)status.textContent='Kupon temizlendi.'; return;}
-    localStorage.setItem(COUPON_KEY,code); if(status)status.textContent='Kupon ödeme adımında doğrulanacak: '+code;
-    try{var cart=cartItems(); var res=await fetch('/api/coupons/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,cart:cart})}); var data=await res.json(); if(status)status.textContent=data.ok?('Kupon aktif: '+(data.discountLabel||data.discountAmount+' TL indirim')):(data.error||'Kupon doğrulanamadı.');}catch(e){if(status)status.textContent='Kupon ödeme sırasında kontrol edilecek.';}
+    if(!cartHasItems()){localStorage.removeItem(COUPON_KEY);localStorage.removeItem(LEGACY_COUPON_KEY); if(status)status.textContent='İndirim kodu uygulamak için önce sepetinize ürün ekleyin.'; return;}
+    if(!code){localStorage.removeItem(COUPON_KEY);localStorage.removeItem(LEGACY_COUPON_KEY); if(status)status.textContent='Kupon temizlendi.'; return;}
+    if(status)status.textContent='Kupon doğrulanıyor: '+code;
+    try{var cart=cartItems(); var subtotal=cart.reduce(function(sum,item){return sum+Number(item.price||item.unit_price||0)*Number(item.qty||item.quantity||1);},0); var res=await fetch('/api/coupons/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,cart:cart,subtotal:subtotal})}); var data=await res.json(); if(!res.ok||data.ok===false) throw new Error(data.error||'Kupon doğrulanamadı.'); localStorage.removeItem(LEGACY_COUPON_KEY); localStorage.setItem(COUPON_KEY,JSON.stringify({code:data.code||code,discountAmount:data.discount_amount||0,discountType:data.discount_type||'',validatedAt:new Date().toISOString(),source:'backend',eligibilityHash:data.eligibility_hash||'',expiresAt:data.expires_at||''})); if(status)status.textContent='Kupon doğrulandı: '+(data.discount_amount?data.discount_amount+' TL indirim':'uygun sepetlerde geçerli');}catch(e){localStorage.removeItem(COUPON_KEY);localStorage.removeItem(LEGACY_COUPON_KEY); if(status)status.textContent=e.message||'Kupon doğrulanamadı.';}
   }
   function bindCartExtras(){document.addEventListener('click',function(e){if(e.target&&e.target.id==='phase6CouponApply') validateCoupon(document.querySelector('#phase6CouponInput')&&document.querySelector('#phase6CouponInput').value); if(e.target.closest('[data-phase6-rec-next]')){cartRecommendationIndex++;renderCartRecommendations();} if(e.target.closest('[data-phase6-rec-prev]')){var len=recommendationCandidates().length||1;cartRecommendationIndex=(cartRecommendationIndex-1+len)%len;renderCartRecommendations();} var rec=e.target.closest('[data-phase6-rec-cart]'); if(rec){var p=bySlug(rec.getAttribute('data-phase6-rec-cart')); if(p&&window.COSMOSKIN_CART_API){window.COSMOSKIN_CART_API.addItems([{id:p.slug,slug:p.slug,name:p.name,brand:p.brand,price:p.price,image:p.image,url:p.url,qty:1}]); setTimeout(function(){cartRecommendationIndex=0;renderCartRecommendations();},120);}} var checkout=e.target.closest('#cartDrawer .cart-summary a[href*="checkout"]'); if(checkout&&!cartHasItems()){e.preventDefault(); var target=document.querySelector('#cartItems .cart-empty-state'); if(target) target.scrollIntoView({behavior:'smooth',block:'center'});}});}
   function mountCheckoutCoupon(){
     /* Checkout now uses assets/checkout-flow.js as the single coupon source of truth.
        The legacy Phase 6 coupon box persisted invalid codes in localStorage and could
        re-inject CLUB10 after the customer removed it. Keep this no-op on checkout. */
-    if(document.body && document.body.classList.contains('checkout-premium-page')){try{localStorage.removeItem(COUPON_KEY);}catch(e){} return;}
+    if(document.body && document.body.classList.contains('checkout-premium-page')){try{localStorage.removeItem(COUPON_KEY);localStorage.removeItem(LEGACY_COUPON_KEY);}catch(e){} return;}
     return;
   }
   function renderPdpComplementary(){
@@ -128,6 +128,6 @@
     if(window.initCartButtons) window.initCartButtons(grid);
     if(window.initFavoriteButtons) window.initFavoriteButtons(grid);
   }
-  function init(){rememberProduct(); bindCompare(); bindCartExtras(); renderCompareBar(); enhancePdp(); renderPdpComplementary(); mountRecent(); mountCartExtras(); mountCheckoutCoupon(); document.addEventListener('cosmoskin:products-updated',function(){enhancePdp();renderPdpComplementary();mountRecent();renderCartRecommendations();}); var rerenderCartRecommendations=function(){cartRecommendationIndex=0;setTimeout(renderCartRecommendations,0);}; document.addEventListener('cosmoskin:cart-updated',rerenderCartRecommendations); window.addEventListener('cosmoskin:cart-updated',rerenderCartRecommendations); setInterval(mountCartExtras,1800); document.addEventListener('click',function(e){if(e.target&&e.target.id==='phase6CheckoutCouponApply'){var v=document.querySelector('#phase6CheckoutCouponInput')?document.querySelector('#phase6CheckoutCouponInput').value:''; if(!v){try{localStorage.removeItem(COUPON_KEY);}catch(_){}} else {localStorage.setItem(COUPON_KEY,v.toUpperCase());} var s=document.querySelector('#phase6CheckoutCouponStatus'); if(s)s.textContent='Kupon ödeme adımında doğrulanacak.'; validateCoupon(v);}});}
+  function init(){rememberProduct(); bindCompare(); bindCartExtras(); renderCompareBar(); enhancePdp(); renderPdpComplementary(); mountRecent(); mountCartExtras(); mountCheckoutCoupon(); document.addEventListener('cosmoskin:products-updated',function(){enhancePdp();renderPdpComplementary();mountRecent();renderCartRecommendations();}); var rerenderCartRecommendations=function(){cartRecommendationIndex=0;setTimeout(renderCartRecommendations,0);}; document.addEventListener('cosmoskin:cart-updated',rerenderCartRecommendations); window.addEventListener('cosmoskin:cart-updated',rerenderCartRecommendations); setInterval(mountCartExtras,1800); document.addEventListener('click',function(e){if(e.target&&e.target.id==='phase6CheckoutCouponApply'){var v=document.querySelector('#phase6CheckoutCouponInput')?document.querySelector('#phase6CheckoutCouponInput').value:''; if(!v){try{localStorage.removeItem(COUPON_KEY);localStorage.removeItem(LEGACY_COUPON_KEY);}catch(_){}} var s=document.querySelector('#phase6CheckoutCouponStatus'); if(s)s.textContent='Kupon ödeme adımında doğrulanacak.'; validateCoupon(v);}});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

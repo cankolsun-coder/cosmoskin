@@ -1,6 +1,6 @@
 import { json } from '../_lib/response.js';
 import { requireUser } from '../_lib/account.js';
-import { selectRows, upsertRow } from '../_lib/supabase.js';
+import { insertRow, selectRows, upsertRow } from '../_lib/supabase.js';
 
 function cleanText(value = '', max = 180) {
   return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
@@ -30,13 +30,27 @@ export async function onRequestPatch(context) {
   const auth = await requireUser(context);
   if (auth.response) return auth.response;
   const body = await context.request.json().catch(() => ({}));
+  const existing = await getProfile(context, auth.user);
+  const requestedBirthday = body.birthday || body.birth_date || null;
+  if (requestedBirthday && existing?.birthday && String(existing.birthday) !== String(requestedBirthday)) {
+    await insertRow(context, 'birth_date_change_log', {
+      user_id: auth.user.id,
+      previous_birth_date: existing.birthday,
+      new_birth_date: requestedBirthday,
+      changed_by: 'customer_attempt',
+      change_reason: 'account_profile_update_blocked',
+      changed_at: new Date().toISOString()
+    }).catch(() => null);
+    return json({ ok: false, error: 'Doğum tarihiniz bir kez kaydedildikten sonra hesap ekranından değiştirilemez. Değişiklik için destek talebi oluşturabilirsiniz.' }, { status: 409 });
+  }
   const payload = {
     id: auth.user.id,
     email: String(auth.user.email || body.email || '').toLowerCase(),
     first_name: cleanText(body.first_name, 80),
     last_name: cleanText(body.last_name, 80),
     phone: cleanText(body.phone, 40),
-    birthday: body.birthday || null,
+    birthday: existing?.birthday || requestedBirthday || null,
+    birth_date_locked: Boolean(existing?.birthday || requestedBirthday),
     marketing_email_opt_in: normalizeBool(body.marketing_email_opt_in),
     newsletter_opt_in: normalizeBool(body.newsletter_opt_in),
     stock_alert_opt_in: normalizeBool(body.stock_alert_opt_in),

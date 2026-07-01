@@ -1,93 +1,71 @@
-import { selectRows } from '../_lib/supabase.js';
-import { catalog } from '../_lib/catalog.js';
+import { getUserFromAccessToken } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
-import { assertRateLimit } from '../_lib/security.js';
+import { validateCouponEligibility } from '../_lib/coupons.js';
 
-const FREE_SHIPPING_LIMIT = 2500;
-const SHIPPING_FEE = 89;
-const EXPRESS_SURCHARGE = 0;
-const NO_STORE = { 'Cache-Control': 'no-store, max-age=0', Pragma: 'no-cache' };
-
-function money(value) {
-  const number = Number(value || 0);
-  return Math.round((Number.isFinite(number) ? number : 0) * 100) / 100;
+function normalizeCartItem(raw = {}) {
+  const price = Number(raw.price || raw.unit_price || raw.unitPrice || 0);
+  const quantity = Math.max(1, Number(raw.quantity || raw.qty || 1));
+  return { price: Number.isFinite(price) ? price : 0, quantity: Number.isFinite(quantity) ? quantity : 1 };
 }
 
 function subtotalFromCart(cart = []) {
-  const products = Array.isArray(catalog) ? catalog : Object.values(catalog || {});
-  const map = new Map(products.map((product) => [String(product.slug || product.id), product]));
-  return money((Array.isArray(cart) ? cart : []).reduce((sum, item) => {
-    const product = map.get(String(item.slug || item.product_slug || item.id || ''));
-    if (!product) return sum;
-    const price = Number(product.price || 0);
-    const quantity = Math.max(1, Math.min(10, Math.floor(Number(item.qty || item.quantity || 1) || 1)));
-    return sum + price * quantity;
-  }, 0));
+  if (!Array.isArray(cart)) return 0;
+  return Math.round(cart.reduce((sum, raw) => {
+    const item = normalizeCartItem(raw);
+    return sum + item.price * item.quantity;
+  }, 0) * 100) / 100;
 }
 
-export function calculateCouponPreview(coupon, subtotal, shippingMethod = 'standard') {
-  const safeSubtotal = money(Math.max(0, subtotal));
-  const type = String(coupon?.discount_type || coupon?.type || '').trim().toLowerCase();
-  const value = Number(coupon?.discount_value ?? coupon?.value ?? 0);
-  const maximum = Number(coupon?.max_discount_amount ?? coupon?.max_discount ?? 0);
-  let discount = type === 'percent' ? safeSubtotal * value / 100 : (type === 'free_shipping' ? 0 : value);
-  if (maximum > 0) discount = Math.min(discount, maximum);
-  discount = money(Math.max(0, Math.min(discount, safeSubtotal)));
-  const discountedSubtotal = money(Math.max(0, safeSubtotal - discount));
-  const freeShipping = type === 'free_shipping';
-  let shipping = 0;
-  if (discountedSubtotal > 0 && !freeShipping) {
-    shipping = discountedSubtotal >= FREE_SHIPPING_LIMIT ? 0 : SHIPPING_FEE;
-    // Only Standart Kargo is active for launch; express is intentionally disabled.
-  }
-  shipping = money(Math.max(0, shipping));
-  return {
-    type,
-    discount,
-    freeShipping,
-    shipping,
-    total: money(Math.max(0, discountedSubtotal + shipping))
-  };
+function authToken(context, body = {}) {
+  const header = String(context.request.headers.get('authorization') || '');
+  const bearer = header.replace(/^Bearer\s+/i, '').trim();
+  return body.accessToken || body.access_token || bearer || '';
 }
 
 export async function onRequestPost(context) {
   try {
-    assertRateLimit(context, 'coupon-validate', 60, 10 * 60 * 1000);
-    const contentType = String(context.request.headers.get('content-type') || '').toLowerCase();
-    if (!contentType.includes('application/json')) return json({ ok: false, error: 'İstek içerik türü application/json olmalıdır.' }, { status: 415, headers: NO_STORE });
     const body = await context.request.json().catch(() => ({}));
-    const code = String(body.code || '').trim().toUpperCase().slice(0, 40);
-    if (!code) return json({ ok: false, error: 'Kupon kodu gerekli.' }, { status: 400, headers: NO_STORE });
-    const rows = await selectRows(context, 'coupons', { select: '*', code: `eq.${code}`, is_active: 'eq.true', limit: '1' });
-    const coupon = Array.isArray(rows) ? rows[0] : null;
-    if (!coupon) return json({ ok: false, error: 'Kupon bulunamadı veya aktif değil.' }, { status: 404, headers: NO_STORE });
-    const now = Date.now();
-    if (coupon.starts_at && new Date(coupon.starts_at).getTime() > now) return json({ ok: false, error: 'Kupon henüz başlamadı.' }, { status: 400, headers: NO_STORE });
-    if (coupon.ends_at && new Date(coupon.ends_at).getTime() < now) return json({ ok: false, error: 'Kupon süresi doldu.' }, { status: 400, headers: NO_STORE });
-    const usageLimit = Number(coupon.usage_limit || 0);
-    if (usageLimit > 0) {
-      const used = await selectRows(context, 'coupon_redemptions', { select: 'id', coupon_id: `eq.${coupon.id}`, limit: String(usageLimit) }).catch(() => []);
-      if ((used || []).length >= usageLimit) return json({ ok: false, error: 'Bu kuponun kullanım limiti doldu.' }, { status: 400, headers: NO_STORE });
+    const code = String(body.code || body.coupon_code || '').trim().toUpperCase();
+    const subtotal = Number(body.subtotal ?? subtotalFromCart(body.cart || []));
+    const token = authToken(context, body);
+    const user = token ? await getUserFromAccessToken(context, token).catch(() => null) : null;
+    const customerEmail = body.customer_email || body.email || body.customer?.email || user?.email || '';
+    const result = await validateCouponEligibility(context, { code, subtotal, user, customerEmail });
+
+    if (!result.eligible) {
+      return json({
+        ok: false,
+        code: result.reasonCode,
+        reasonCode: result.reasonCode,
+        error: result.message,
+        message: result.message,
+        clearStorage: ['DEPRECATED', 'EXPIRED', 'INACTIVE', 'ALREADY_USED'].includes(result.reasonCode)
+      }, { status: result.reasonCode === 'FIRST_ORDER_ONLY' || result.reasonCode === 'BIRTHDAY_NOT_ELIGIBLE' ? 403 : 400 });
     }
-    const subtotal = subtotalFromCart(body.cart);
-    if (subtotal <= 0) return json({ ok: false, error: 'Kuponu uygulamak için sepetinizde geçerli ürün bulunmalıdır.' }, { status: 400, headers: NO_STORE });
-    if (subtotal < Number(coupon.min_subtotal || 0)) return json({ ok: false, error: `Bu kupon için minimum sepet tutarı ${Number(coupon.min_subtotal).toFixed(0)} TL.` }, { status: 400, headers: NO_STORE });
-    const preview = calculateCouponPreview(coupon, subtotal, body.shipping_method || body.shippingMethod || 'standard');
-    const discountLabel = preview.freeShipping ? 'Ücretsiz kargo' : `${preview.discount.toFixed(0)} TL indirim`;
+
     return json({
       ok: true,
-      code: coupon.code,
-      title: coupon.title,
-      type: preview.type,
-      freeShipping: preview.freeShipping,
-      discountAmount: preview.discount,
-      shippingAmount: preview.shipping,
-      totalAmount: preview.total,
-      discountLabel,
-      minSubtotal: Number(coupon.min_subtotal || 0)
-    }, { headers: NO_STORE });
+      code: result.code,
+      discount_type: result.discountType,
+      discount_value: result.coupon?.discount_value || 0,
+      discount_amount: result.discountAmount,
+      free_shipping: result.freeShipping,
+      min_subtotal: result.minSubtotal,
+      max_discount_amount: result.maxDiscount,
+      expires_at: result.expiresAt,
+      manual_apply_required: true,
+      eligibility_hash: `${result.code}:${Math.round(subtotal)}:${result.reasonCode}`,
+      message: result.message,
+      coupon: {
+        id: result.coupon?.id || null,
+        code: result.code,
+        title: result.title,
+        description: result.description,
+        scope_label: result.scopeLabel
+      }
+    }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error) {
-    console.error('coupon validation failed:', { message: String(error?.message || 'unknown').slice(0, 180) });
-    return json({ ok: false, error: 'Kupon şu anda doğrulanamadı. Lütfen tekrar deneyin.' }, { status: error?.status || 503, headers: NO_STORE });
+    console.error('coupon validate failed:', error);
+    return json({ ok: false, error: error.message || 'Kupon doğrulanamadı.' }, { status: 500 });
   }
 }

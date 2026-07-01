@@ -8,10 +8,10 @@ function computeFallback(orders = [], ledger = []) {
   const count = paid.length;
   let level = 'essential';
   let next = 'signature';
-  let amount = Math.max(0, 6000 - spend);
-  let ordersNeeded = Math.max(0, 3 - count);
-  if (spend >= 15000 || count >= 8) { level = 'elite'; next = null; amount = 0; ordersNeeded = 0; }
-  else if (spend >= 6000 || count >= 3) { level = 'signature'; next = 'elite'; amount = Math.max(0, 15000 - spend); ordersNeeded = Math.max(0, 8 - count); }
+  let amount = Math.max(0, 5000 - spend);
+  let ordersNeeded = 0;
+  if (spend >= 15000) { level = 'elite'; next = null; amount = 0; ordersNeeded = 0; }
+  else if (spend >= 5000) { level = 'signature'; next = 'elite'; amount = Math.max(0, 15000 - spend); ordersNeeded = 0; }
   const balance = ledger.reduce((sum, row) => sum + Number(row.points_delta || 0), 0);
   return { level_code: level, rolling_spend_12m: spend, completed_orders_12m: count, points_balance: balance, next_level_code: next, amount_to_next_level: amount, orders_to_next_level: ordersNeeded, calculated_at: new Date().toISOString(), source: 'fallback' };
 }
