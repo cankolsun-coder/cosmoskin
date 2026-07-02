@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="tr"><head><title>COSMOSKIN | Seçilmiş Kore Cilt Bakımı</title><meta content="Seçilmiş Kore cilt bakım ürünlerini sade, güvenli ve premium bir alışveriş deneyimiyle sunan COSMOSKIN" name="description"/><meta content="COSMOSKIN | Seçilmiş Kore Cilt Bakımı" property="og:title"/><meta content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar, güvenli ödeme ve premium alışveriş deneyimi." property="og:description"/><meta content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a" property="og:image"/><meta content="https://www.cosmoskin.com.tr/" property="og:url"/><meta content="website" property="og:type"/><meta content="summary_large_image" name="twitter:card"/><meta content="COSMOSKIN | Seçilmiş Kore Cilt Bakımı" name="twitter:title"/><meta content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar ve premium alışveriş deneyimi." name="twitter:description"/><meta content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a" name="twitter:image"/><link href="https://www.cosmoskin.com.tr/" rel="canonical"/><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="#f2ece4" name="theme-color"/><meta content="@cosmoskin.tr" name="twitter:site"/><meta content="index, follow" name="robots"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="/favicon.png" rel="icon" sizes="32x32" type="image/png"/><link href="/apple-touch-icon.png" rel="apple-touch-icon"/><link href="/favicon.ico" rel="shortcut icon"/><link href="/site.webmanifest" rel="manifest"/><link href="/assets/style.css?v=20260627-auth-hotfix" rel="stylesheet"/><link href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" rel="stylesheet"/><link href="/assets/product-routine.css?v=20260415a" rel="stylesheet"/><link href="/assets/home-routine.css?v=20260427darkfinal" rel="stylesheet"/><link href="/assets/homepage-phase4.css?v=20260505-hero-stone-director" rel="stylesheet"/><link href="/assets/bestsellers.css?v=20260506-cards" rel="stylesheet"/><link href="/assets/smart-routine.css?v=20260505-action-director" rel="stylesheet"/>
+<html lang="tr"><head><title>COSMOSKIN | Seçilmiş Kore Cilt Bakımı</title><meta content="Seçilmiş Kore cilt bakım ürünlerini sade, güvenli ve premium bir alışveriş deneyimiyle sunan COSMOSKIN" name="description"/><meta content="COSMOSKIN | Seçilmiş Kore Cilt Bakımı" property="og:title"/><meta content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar, güvenli ödeme ve premium alışveriş deneyimi." property="og:description"/><meta content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a" property="og:image"/><meta content="https://www.cosmoskin.com.tr/" property="og:url"/><meta content="website" property="og:type"/><meta content="summary_large_image" name="twitter:card"/><meta content="COSMOSKIN | Seçilmiş Kore Cilt Bakımı" name="twitter:title"/><meta content="Premium Kore cilt bakım ürünleri. Seçilmiş serumlar ve premium alışveriş deneyimi." name="twitter:description"/><meta content="https://www.cosmoskin.com.tr/og-image.jpg?v=20260414a" name="twitter:image"/><link href="https://www.cosmoskin.com.tr/" rel="canonical"/><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="#f2ece4" name="theme-color"/><meta content="@cosmoskin.tr" name="twitter:site"/><meta content="index, follow" name="robots"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="/favicon.png" rel="icon" sizes="32x32" type="image/png"/><link href="/apple-touch-icon.png" rel="apple-touch-icon"/><link href="/favicon.ico" rel="shortcut icon"/><link href="/site.webmanifest" rel="manifest"/><link href="/assets/style.css?v=20260627-auth-hotfix" rel="stylesheet"/><link href="/assets/cosmoskin-fixes.css?v=20260510-newsletter" rel="stylesheet"/><link href="/assets/product-routine.css?v=20260415a" rel="stylesheet"/><link href="/assets/home-routine.css?v=20260427darkfinal" rel="stylesheet"/><link href="/assets/homepage-phase4.css?v=20260505-hero-stone-director" rel="stylesheet"/><link href="/assets/bestsellers.css?v=20260506-cards" rel="stylesheet"/><link href="/assets/smart-routine.css?v=20260702-svg-icons" rel="stylesheet"/>
 <!-- Google tag (gtag.js) -->
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-BN92V6LG4J"></script>
 <script>
@@ -31,44 +31,73 @@
       }
     }
 
-    function applyAnalyticsConsent(enabled) {
+    function writePrefs(prefs) {
+      const normalized = {
+        essential: true,
+        analytics: !!prefs.analytics,
+        functional: !!prefs.functional,
+        marketing: !!prefs.marketing,
+        version: 'legal-20260702',
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(CONSENT_KEY, JSON.stringify(normalized));
+      localStorage.setItem('cosmoskin_consent', JSON.stringify(normalized));
+      return normalized;
+    }
+
+    function applyConsent(prefs) {
+      const normalized = prefs || {};
       gtag('consent', 'update', {
-        analytics_storage: enabled ? 'granted' : 'denied'
+        analytics_storage: normalized.analytics ? 'granted' : 'denied',
+        ad_storage: normalized.marketing ? 'granted' : 'denied',
+        ad_user_data: normalized.marketing ? 'granted' : 'denied',
+        ad_personalization: normalized.marketing ? 'granted' : 'denied'
       });
     }
 
     const prefs = readPrefs();
-    applyAnalyticsConsent(!!prefs.analytics);
+    applyConsent(prefs);
 
     document.addEventListener('DOMContentLoaded', function() {
       const analyticsCheckbox = document.getElementById('prefAnalytics');
+      const functionalCheckbox = document.getElementById('prefFunctional');
+      const marketingCheckbox = document.getElementById('prefMarketing');
       const acceptAllBtn = document.getElementById('cookieAcceptAll');
       const acceptEssentialBtn = document.getElementById('cookieAcceptEssential');
       const savePrefsBtn = document.getElementById('cookieSavePrefs');
 
-      if (analyticsCheckbox) {
-        analyticsCheckbox.checked = !!readPrefs().analytics;
+      function hydrate() {
+        const current = readPrefs();
+        if (analyticsCheckbox) analyticsCheckbox.checked = !!current.analytics;
+        if (functionalCheckbox) functionalCheckbox.checked = !!current.functional;
+        if (marketingCheckbox) marketingCheckbox.checked = !!current.marketing;
       }
+
+      function commit(prefs) {
+        applyConsent(writePrefs(prefs));
+      }
+
+      hydrate();
 
       if (acceptAllBtn) {
         acceptAllBtn.addEventListener('click', function() {
-          localStorage.setItem(CONSENT_KEY, JSON.stringify({ analytics: true }));
-          applyAnalyticsConsent(true);
+          commit({ analytics: true, functional: true, marketing: true });
         });
       }
 
       if (acceptEssentialBtn) {
         acceptEssentialBtn.addEventListener('click', function() {
-          localStorage.setItem(CONSENT_KEY, JSON.stringify({ analytics: false }));
-          applyAnalyticsConsent(false);
+          commit({ analytics: false, functional: false, marketing: false });
         });
       }
 
       if (savePrefsBtn) {
         savePrefsBtn.addEventListener('click', function() {
-          const enabled = analyticsCheckbox ? analyticsCheckbox.checked : false;
-          localStorage.setItem(CONSENT_KEY, JSON.stringify({ analytics: enabled }));
-          applyAnalyticsConsent(enabled);
+          commit({
+            analytics: analyticsCheckbox ? analyticsCheckbox.checked : false,
+            functional: functionalCheckbox ? functionalCheckbox.checked : false,
+            marketing: marketingCheckbox ? marketingCheckbox.checked : false
+          });
         });
       }
     });
@@ -242,7 +271,7 @@
 <div class="container">
 <div class="section-head">
 <div>
-<p class="kicker">Cilt Hedefine Göre</p>
+<p class="kicker">Hedef Odaklı</p>
 <h2>İhtiyacına göre daha hızlı seçim yap.</h2>
 </div>
 <p>Gerçek bir e-ticaret akışında olduğu gibi, kullanıcıyı kategori kalabalığına boğmadan seçim yapabileceğin net giriş noktaları oluşturduk.</p>
@@ -307,9 +336,9 @@
 <div class="smart-routine__shell">
 <div class="smart-routine__left">
 <p class="smart-routine__eyebrow">AKILLI RUTİN SEÇİMİ</p>
-<h2 class="smart-routine__title" id="smartRoutineTitle">Cildin için en doğru rutini birlikte oluşturalım.</h2>
-<p class="smart-routine__lede">Cilt hedefini seç, sabah ve akşam kullanabileceğin ürünleri doğru sırayla önerelim.</p>
-<span class="smart-routine__badge"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/sparkle.png"/> Kişiselleştirilmiş seçim</span>
+<h2 class="smart-routine__title" id="smartRoutineTitle">Cildin için kişisel Kore bakım rotanı oluşturalım.</h2>
+<p class="smart-routine__lede">Cilt hedefini ve cilt tipini seç; sana uygun sabah, akşam ve haftalık bakım yönünü premium bir akışla hazırlayalım.</p>
+<span class="smart-routine__badge"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-goal-radiance.svg"/> Kişisel rutin rotası</span>
 <div aria-label="Cilt hedefi seçimi" class="smart-routine__panel">
 <h3 class="smart-routine__panel-title"><span class="smart-routine__number">1</span> Cilt hedefini seç</h3>
 <div class="smart-routine__goals" data-sr-goals=""></div>
@@ -324,24 +353,24 @@
 </div>
 </div>
 <div class="smart-routine__middle">
-<h3 class="smart-routine__column-title"><span class="smart-routine__number">2</span><span>Rutin adımları<small>Bilimsel sıralama ile maksimum etki</small></span></h3>
+<h3 class="smart-routine__column-title"><span class="smart-routine__number">2</span><span>Rutin haritası<small>Sabah, akşam ve SPF adımı net bir akışta</small></span></h3>
 <div class="smart-routine__steps" data-sr-steps=""></div>
 <div class="smart-routine__note">
-<img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/target-match.png"/>
-<span>Seçtiğin hedefler ve cilt tipine göre bu sıralama senin için oluşturuldu.</span>
+<img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-goal-tone.svg"/>
+<span>Seçtiğin hedeflere göre ürün adımları kozmetik bakım rehberi olarak düzenlenir; tıbbi teşhis veya tedavi amacı taşımaz.</span>
 </div>
 </div>
 <div class="smart-routine__right">
 <div class="smart-routine__right-head">
-<h3 class="smart-routine__routine-title"><span class="smart-routine__number">3</span> Senin için önerilen rutin <span class="smart-routine__routine-subtitle" data-sr-routine-subtitle="">Kuru cilt için Nem + Bariyer odağı</span></h3>
-<span class="smart-routine__match"><span data-sr-match="">%96 eşleşme</span> <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/sparkle.png"/></span>
+<h3 class="smart-routine__routine-title"><span class="smart-routine__number">3</span> Ön rutin yönün <span class="smart-routine__routine-subtitle" data-sr-routine-subtitle="">Kuru cilt için Nem + Bariyer odağı</span></h3>
+<span class="smart-routine__match"><span data-sr-match="">%96 eşleşme</span> <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-goal-radiance.svg"/></span>
 </div>
 <div class="smart-routine__daypart smart-routine__daypart--day">
-<h4 class="smart-routine__daypart-title"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/sun.png"/> GÜNDÜZ</h4>
+<h4 class="smart-routine__daypart-title"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-step-spf.svg"/> GÜNDÜZ</h4>
 <div aria-live="polite" class="smart-routine__product-flow" data-sr-day-products=""></div>
 </div>
 <div class="smart-routine__daypart smart-routine__daypart--night">
-<h4 class="smart-routine__daypart-title"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/moon.png"/> GECE</h4>
+<h4 class="smart-routine__daypart-title"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-step-night.svg"/> GECE</h4>
 <div aria-live="polite" class="smart-routine__product-flow" data-sr-night-products=""></div>
 </div>
 <div class="smart-routine__bundle-offer" data-sr-offer="" hidden="">
@@ -350,24 +379,24 @@
 <b>-234 TL</b>
 </div>
 <div aria-label="Rutin özeti" class="smart-routine__meta-grid">
-<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/heart.png"/><div><span>Rutin Toplamı</span><strong data-sr-total="">2.340 TL</strong><small data-sr-original-total=""></small></div></div>
-<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/sparkle.png"/><div><span>Rutin Avantajı</span><strong data-sr-discount="">-234 TL</strong></div></div>
-<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/clock.png"/><div><span>Tahmini</span><strong data-sr-time="">3 dakikada hazır</strong></div></div>
-<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/stock-check.png"/><div><span>Stokta</span><strong data-sr-stock="">✓</strong></div></div>
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/commerce-heart.svg"/><div><span>Rutin Toplamı</span><strong data-sr-total="">2.340 TL</strong><small data-sr-original-total=""></small></div></div>
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-goal-radiance.svg"/><div><span>Rutin Avantajı</span><strong data-sr-discount="">-234 TL</strong></div></div>
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/status-sync.svg"/><div><span>Tahmini</span><strong data-sr-time="">3 dakikada hazır</strong></div></div>
+<div class="smart-routine__meta-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/status-check.svg"/><div><span>Stokta</span><strong data-sr-stock="">✓</strong></div></div>
 </div>
 <div class="smart-routine__actions">
-<button class="smart-routine__btn smart-routine__btn--primary" data-sr-add-cart="" type="button">Tüm Rutini Sepete Ekle <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/bag.png"/></button>
-<button class="smart-routine__btn smart-routine__btn--secondary" data-sr-save="" type="button">Rutini Kaydet <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/heart.png"/></button>
-<button class="smart-routine__btn smart-routine__btn--secondary smart-routine__btn--view" data-sr-view-routine="" type="button">Rutini Gör <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/arrow-right.png"/></button>
+<button class="smart-routine__btn smart-routine__btn--primary" data-sr-add-cart="" type="button">Tüm Rutini Sepete Ekle <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/commerce-cart.svg"/></button>
+<button class="smart-routine__btn smart-routine__btn--secondary" data-sr-save="" type="button">Rutini Kaydet <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/commerce-heart.svg"/></button>
+<button class="smart-routine__btn smart-routine__btn--secondary smart-routine__btn--view" data-sr-view-routine="" type="button">Detaylı Rutinimi Hazırla <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/system-arrow-right.svg"/></button>
 </div>
-<button class="smart-routine__tertiary" data-sr-show-alternatives="" type="button">Alternatifleri Gör <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/arrow-right.png"/></button>
-<p class="smart-routine__privacy"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/ui/lock.png"/> Bilgilerin gizli ve güvenlidir.</p>
+<button class="smart-routine__tertiary" data-sr-show-alternatives="" type="button">Alternatifleri Gör <img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/system-arrow-right.svg"/></button>
+<p class="smart-routine__privacy"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/status-lock.svg"/> Rutin tercihlerin giriş yapana kadar güvenli draft olarak saklanır.</p>
 </div>
 <div aria-label="Akıllı rutin güven bilgileri" class="smart-routine__trustbar">
-<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/clock.png"/><div><strong>3 Dakikada Hazır</strong><span>Hızlı ve kolay rutin önerisi</span></div></div>
-<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/editor-star.png"/><div><strong>Editör Seçimi</strong><span>Uzmanlar tarafından onaylı</span></div></div>
-<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/routine/final-color/256/state/target-match.png"/><div><strong>Cilt Hedefine Göre</strong><span>Bilimsel formüllerle eşleşir</span></div></div>
-<div class="smart-routine__trust-item smart-routine__trust-item--avatars"><div aria-hidden="true" class="smart-routine__avatars"><span class="smart-routine__avatar">C</span><span class="smart-routine__avatar">S</span><span class="smart-routine__avatar">K</span></div><div><strong>Akıllı Rutin</strong><span>Tekrarlayan ürünleri ayırır</span></div></div>
+<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/status-sync.svg"/><div><strong>Hızlı Başlangıç</strong><span>Uzun quiz olmadan ilk yönünü belirle</span></div></div>
+<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-goal-radiance.svg"/><div><strong>Gerçek Ürün Verisi</strong><span>Öneriler katalog ürünlerinden oluşturulur</span></div></div>
+<div class="smart-routine__trust-item"><img alt="" aria-hidden="true" loading="lazy" role="presentation" src="/assets/icons/cosmoskin/routine-goal-tone.svg"/><div><strong>Hedef Odaklı</strong><span>Nem, bariyer, leke görünümü ve hassasiyet odağı</span></div></div>
+<div class="smart-routine__trust-item smart-routine__trust-item--avatars"><div aria-hidden="true" class="smart-routine__avatars"><span class="smart-routine__avatar">C</span><span class="smart-routine__avatar">S</span><span class="smart-routine__avatar">K</span></div><div><strong>Akıllı Rutin</strong><span>Hesabım ekranına aktarılabilir</span></div></div>
 </div>
 </div>
 </div>
@@ -489,7 +518,7 @@
       <input autocomplete="email" id="csNewsletterEmail" name="email" placeholder="E-posta adresin" required="" type="email"/>
     </label>
     <button class="footer-newsletter__btn" type="submit"><span>Kaydol</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
-    <p class="footer-newsletter__note">COSMOSKIN Journal’a kaydolarak kampanya, ürün önerileri ve cilt bakım seçkileri hakkında e-posta almayı kabul edersiniz. İzninizi dilediğiniz zaman e-postalardaki abonelikten çık bağlantısı üzerinden geri alabilirsiniz. Detaylar: <a href="/legal/ticari-elektronik-ileti-izni.html">Ticari Elektronik İleti Onayı</a> ve <a href="/legal/kvkk-aydinlatma-metni.html">KVKK Aydınlatma Metni</a>.</p>
+    <p class="footer-newsletter__note">COSMOSKIN Journal formunu göndererek kampanya, ürün önerileri ve cilt bakım seçkileri hakkında e-posta almak için açık izin vermiş olursunuz. İzninizi dilediğiniz zaman e-postalardaki abonelikten çık bağlantısı üzerinden geri alabilirsiniz. Detaylar: <a href="/legal/ticari-elektronik-ileti-izni.html">Ticari Elektronik İleti Onayı</a> ve <a href="/legal/kvkk-aydinlatma-metni.html">KVKK Aydınlatma Metni</a>.</p>
     <p aria-live="polite" class="footer-newsletter__status" data-newsletter-status=""></p>
   </form>
 </section>
@@ -566,10 +595,10 @@
 <div class="backdrop" id="backdrop"></div>
 <aside class="drawer" id="cartDrawer"><div class="drawer-head"><div class="drawer-title">Sepet</div><button class="icon-close close-any">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-summary"><div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="cartSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="cartVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="cartShipping">₺0</strong></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="cartTotal">₺0</strong></div><div class="shipping-progress" id="shippingProgress"><div class="shipping-progress-bar"><span id="shippingProgressFill"></span></div><div class="shipping-progress-text" id="shippingProgressText">Kargo avantajı hesaplanıyor...</div></div><a class="btn btn-primary" href="/checkout.html">Ödemeye Geç</a><div class="account-mini">2.500 TL ve üzeri siparişlerde kargo ücretsizdir. Tüm fiyatlara KDV dahildir.</div></div></aside>
 <aside class="drawer" id="accountDrawer"><div class="drawer-head"><div class="drawer-title">Hesap</div><button class="icon-close close-any">×</button></div><div class="account-state" id="accountState"></div><div class="account-actions" id="accountActions"><button class="btn btn-primary" data-auth-tab="loginPanel" data-open-auth="">Giriş Yap</button><button class="btn btn-secondary" data-auth-tab="registerPanel" data-open-auth="">Kayıt Ol</button></div><div class="account-mini">Sipariş geçmişinizi, kayıtlı adreslerinizi ve üyelik tercihlerinizi tek ekranda yönetin.</div></aside>
-<div class="modal" id="accountModal"><div class="modal-card"><div class="modal-head"><div><h2>COSMOSKIN hesabı</h2><div class="account-mini">Daha hızlı ödeme ve sipariş takibi için hesabınızı oluşturun.</div></div><button class="icon-close close-any">×</button></div><div class="tab-row"><button class="tab-btn active" data-tab="loginPanel">Giriş Yap</button><button class="tab-btn" data-tab="registerPanel">Hesap Oluştur</button></div><div class="tab-panel active" id="loginPanel"><form class="form-grid compact" id="loginForm"><div class="field full"><label>E-posta</label><input id="loginEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="loginPassword" placeholder="Şifreniz" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="loginPassword" type="button">Göster</button></div></div><div class="field full form-inline"><label class="checkline"><input type="checkbox"/> Beni hatırla</label><a data-forgot-password="" href="/auth/reset.html">Şifremi unuttum</a></div><div class="field full"><button class="btn btn-primary" type="submit">Giriş Yap</button><div class="form-status" id="loginStatus"></div></div></form></div><div class="tab-panel" id="registerPanel"><form class="form-grid compact" id="registerForm"><div class="field"><label>Ad</label><input id="registerFirstName" required="" type="text"/></div><div class="field"><label>Soyad</label><input id="registerLastName" required="" type="text"/></div><div class="field full"><label>E-posta</label><input id="registerEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="registerPassword" minlength="8" placeholder="En az 8 karakter" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="registerPassword" type="button">Göster</button></div><div aria-hidden="true" class="password-meter" id="passwordMeter"><div class="password-meter-bar"><span id="passwordMeterFill"></span></div><div class="password-meter-meta"><span id="passwordStrengthText">Şifre güvenliği</span></div></div><ul class="password-rules" id="passwordRules"><li data-rule="length">En az 8 karakter</li><li data-rule="upper">En az 1 büyük harf</li><li data-rule="lower">En az 1 küçük harf</li><li data-rule="number">En az 1 rakam</li></ul></div><div class="field full"><label class="checkline"><input name="membership_terms" required="" type="checkbox"/> <a href="/legal/uyelik-sozlesmesi.html" data-legal-document="uyelik-sozlesmesi" data-legal-version="checkout-20260626">Üyelik Sözleşmesi</a>’ni ve <a href="/legal/kvkk-aydinlatma-metni.html" data-legal-document="kvkk-aydinlatma-metni" data-legal-version="checkout-20260626">KVKK Aydınlatma Metni</a>’ni okudum.</label></div><div class="field full"><label class="checkline"><input name="marketing_email_opt_in" type="checkbox"/> Kampanya, indirim, ürün önerileri ve bilgilendirme amaçlı ticari elektronik ileti almak istiyorum.</label></div><div class="field full"><button class="btn btn-primary" type="submit">Hesap Oluştur</button><div class="form-status" id="registerStatus"></div></div></form></div></div></div>
-<div class="modal" id="cookiePreferences"><div class="modal-card"><div class="modal-head"><div><h2>Çerez tercihleri</h2><div class="account-mini">Zorunlu çerezler sepet, güvenlik ve oturum işlevleri için her zaman aktiftir.</div></div><button class="icon-close close-any">×</button></div><div class="account-state stack"><strong>Zorunlu çerezler</strong><div class="account-mini">Temel site işlevleri ve güvenlik için kullanılır.</div></div><div class="account-state stack"><div class="switch-row"><div><strong>Analitik çerezler</strong><div class="account-mini">Anonim kullanım verileri ile deneyimi iyileştirmemize yardımcı olur.</div></div><label class="checkline"><input id="prefAnalytics" type="checkbox"/> Etkinleştir</label></div></div><div class="modal-actions"><button class="btn btn-primary" id="cookieSavePrefs">Tercihleri Kaydet</button><button class="btn btn-secondary close-any">Kapat</button></div></div></div>
+<div class="modal" id="accountModal"><div class="modal-card"><div class="modal-head"><div><h2>COSMOSKIN hesabı</h2><div class="account-mini">Daha hızlı ödeme ve sipariş takibi için hesabınızı oluşturun.</div></div><button class="icon-close close-any">×</button></div><div class="tab-row"><button class="tab-btn active" data-tab="loginPanel">Giriş Yap</button><button class="tab-btn" data-tab="registerPanel">Hesap Oluştur</button></div><div class="tab-panel active" id="loginPanel"><form class="form-grid compact" id="loginForm"><div class="field full"><label>E-posta</label><input id="loginEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="loginPassword" placeholder="Şifreniz" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="loginPassword" type="button">Göster</button></div></div><div class="field full form-inline"><label class="checkline"><input type="checkbox"/> Beni hatırla</label><a data-forgot-password="" href="/auth/reset.html">Şifremi unuttum</a></div><div class="field full"><button class="btn btn-primary" type="submit">Giriş Yap</button><div class="form-status" id="loginStatus"></div></div></form></div><div class="tab-panel" id="registerPanel"><form class="form-grid compact" id="registerForm"><div class="field"><label>Ad</label><input id="registerFirstName" required="" type="text"/></div><div class="field"><label>Soyad</label><input id="registerLastName" required="" type="text"/></div><div class="field full"><label>E-posta</label><input id="registerEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="registerPassword" minlength="8" placeholder="En az 8 karakter" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="registerPassword" type="button">Göster</button></div><div aria-hidden="true" class="password-meter" id="passwordMeter"><div class="password-meter-bar"><span id="passwordMeterFill"></span></div><div class="password-meter-meta"><span id="passwordStrengthText">Şifre güvenliği</span></div></div><ul class="password-rules" id="passwordRules"><li data-rule="length">En az 8 karakter</li><li data-rule="upper">En az 1 büyük harf</li><li data-rule="lower">En az 1 küçük harf</li><li data-rule="number">En az 1 rakam</li></ul></div><div class="field full"><label class="checkline"><input name="membership_terms" required="" type="checkbox"/> <a href="/legal/uyelik-sozlesmesi.html" data-legal-document="uyelik-sozlesmesi" data-legal-version="legal-20260702">Üyelik Sözleşmesi</a>’ni ve <a href="/legal/kvkk-aydinlatma-metni.html" data-legal-document="kvkk-aydinlatma-metni" data-legal-version="legal-20260702">KVKK Aydınlatma Metni</a>’ni okudum.</label></div><div class="field full"><label class="checkline"><input name="marketing_email_opt_in" type="checkbox"/> Kampanya, indirim, ürün önerileri ve bilgilendirme amaçlı ticari elektronik ileti almak istiyorum.</label></div><div class="field full"><button class="btn btn-primary" type="submit">Hesap Oluştur</button><div class="form-status" id="registerStatus"></div></div></form></div></div></div>
+<div class="modal" id="cookiePreferences"><div class="modal-card"><div class="modal-head"><div><h2>Çerez tercihleri</h2><div class="account-mini">Zorunlu çerezler sepet, güvenlik ve oturum işlevleri için her zaman aktiftir. Analitik, işlevsel ve pazarlama çerezleri yalnızca tercihinize göre etkinleşir.</div></div><button class="icon-close close-any" aria-label="Çerez tercihlerini kapat">×</button></div><div class="account-state stack"><strong>Zorunlu çerezler</strong><div class="account-mini">Sepet, oturum, güvenlik, ödeme ve temel site fonksiyonları için kullanılır; kapatılamaz.</div></div><div class="account-state stack"><div class="switch-row"><div><strong>Analitik çerezler</strong><div class="account-mini">Anonim kullanım verileriyle site performansını ve alışveriş deneyimini ölçmemize yardımcı olur.</div></div><label class="checkline"><input id="prefAnalytics" type="checkbox"/> Etkinleştir</label></div></div><div class="account-state stack"><div class="switch-row"><div><strong>İşlevsel çerezler</strong><div class="account-mini">Tercihlerinizi hatırlamak ve COSMOSKIN deneyimini daha tutarlı sunmak için kullanılabilir.</div></div><label class="checkline"><input id="prefFunctional" type="checkbox"/> Etkinleştir</label></div></div><div class="account-state stack"><div class="switch-row"><div><strong>Pazarlama çerezleri</strong><div class="account-mini">Kampanya performansı, reklam ölçümü ve ilgi alanına dayalı içerikler için kullanılabilir.</div></div><label class="checkline"><input id="prefMarketing" type="checkbox"/> Etkinleştir</label></div></div><div class="modal-actions"><button class="btn btn-primary" id="cookieSavePrefs" type="button">Tercihleri Kaydet</button><button class="btn btn-secondary close-any" type="button">Kapat</button></div><p class="account-mini"><a href="/legal/cerez-politikasi.html">Çerez Politikası</a> üzerinden detayları inceleyebilir, tercihlerinizi daha sonra bu panelden değiştirebilirsiniz.</p></div></div>
 <div class="modal" id="legalModal"><div class="modal-card"><div class="modal-head"><div><h2>KVKK Aydınlatma Metni</h2><div class="account-mini">Kişisel verileriniz 6698 sayılı KVKK kapsamında işlenir.</div></div><button class="icon-close close-any">×</button></div><div class="legal-copy"><p><strong>Veri sorumlusu:</strong> Enes Can Kölsün / COSMOSKIN, üyelik, sipariş, iletişim ve destek süreçleri kapsamında veri sorumlusu olarak hareket eder.</p><p><strong>İşlenen veriler:</strong> İletişim bilgileri, sipariş içeriği, teslimat verileri, destek formu kayıtları ve teknik kullanım verileri.</p><p><strong>İşleme amaçları:</strong> Sipariş yönetimi, üyelik işlemleri, kargo süreçleri, müşteri desteği, mevzuat uyumu ve hizmet geliştirme.</p><p><strong>Başvuru:</strong> Tüm veri talepleriniz için <a href="mailto:destek@cosmoskin.com.tr">destek@cosmoskin.com.tr</a> adresine ulaşabilirsiniz.</p></div></div></div>
-<div class="cookie" id="cookieBanner"><div class="cookie-card"><p>Bu site, temel alışveriş işlevleri için zorunlu çerezleri kullanır. Analitik çerezleri etkinleştirerek deneyimin gelişmesine katkı sağlayabilirsiniz.</p><div class="cookie-actions"><button class="btn btn-secondary" id="cookieCustomize">Tercihleri Yönet</button><button class="btn btn-secondary" id="cookieAcceptEssential">Sadece Zorunlu</button><button class="btn btn-primary" id="cookieAcceptAll">Kabul Et</button></div></div></div>
+<div class="cookie" id="cookieBanner"><div class="cookie-card"><p>Bu site, temel alışveriş işlevleri için zorunlu çerezleri kullanır. Analitik, işlevsel ve pazarlama çerezleri yalnızca tercihlerinize göre etkinleştirilir.</p><div class="cookie-actions"><button class="btn btn-secondary" id="cookieCustomize" type="button">Tercihleri Yönet</button><button class="btn btn-secondary" id="cookieAcceptEssential" type="button">Sadece Zorunlu</button><button class="btn btn-primary" id="cookieAcceptAll" type="button">Tümünü Kabul Et</button></div></div></div>
 <script src="/assets/products-data.js?v=20260424a"></script>
 <script src="/api/public-config?v=20260627-auth-config"></script>
 <script src="/assets/site-config.js?v=20260418a"></script>
@@ -643,7 +672,7 @@
 </script>
 <script src="/assets/bestsellers.js?v=20260506-cards"></script>
 <script src="/assets/review-summary-badges.js?v=20260503-ratings"></script>
-<script src="/assets/product-routine.js?v=20260415a"></script><script src="/assets/home-routine.js?v=20260427routinefix"></script><script src="/assets/js/smart-routine.js?v=20260505-director"></script>
+<script src="/assets/skin-profile-store.js?v=20260702-routine-sync"></script><script src="/assets/routine-data-model.js?v=20260702-premium-ux"></script><script src="/assets/product-routine.js?v=20260415a"></script><script src="/assets/home-routine.js?v=20260427routinefix"></script><script src="/assets/js/smart-routine.js?v=20260702-svg-icons"></script>
 <script src="/js/search.js?v=20260424"></script>
 <script src="/assets/mobile.js?v=20260425f"></script>
 <script defer="" src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>

@@ -1179,22 +1179,45 @@ function broadcastFavoritesChange() {
     }, 120);
   });
 
+  function applyStoredCookiePrefs() {
+    const prefs = state.consent || {};
+    const analytics = $('#prefAnalytics');
+    const functional = $('#prefFunctional');
+    const marketing = $('#prefMarketing');
+    if (analytics) analytics.checked = !!prefs.analytics;
+    if (functional) functional.checked = !!prefs.functional;
+    if (marketing) marketing.checked = !!prefs.marketing;
+  }
+
   function setConsent(mode) {
     const consent = {
       essential: true,
-      analytics: mode === 'all' || (mode === 'custom' && $('#prefAnalytics')?.checked)
+      analytics: mode === 'all' || (mode === 'custom' && $('#prefAnalytics')?.checked),
+      functional: mode === 'all' || (mode === 'custom' && $('#prefFunctional')?.checked),
+      marketing: mode === 'all' || (mode === 'custom' && $('#prefMarketing')?.checked),
+      version: 'legal-20260702',
+      updatedAt: new Date().toISOString()
     };
     state.consent = consent;
     localStorage.setItem('cosmoskin_consent', JSON.stringify(consent));
+    localStorage.setItem('cosmoskin_cookie_prefs_v1', JSON.stringify(consent));
     cookieBanner?.classList.remove('show');
     closeModals();
     if (consent.analytics && window.enableAnalytics) window.enableAnalytics();
+    if (window.gtag) {
+      window.gtag('consent', 'update', {
+        analytics_storage: consent.analytics ? 'granted' : 'denied',
+        ad_storage: consent.marketing ? 'granted' : 'denied',
+        ad_user_data: consent.marketing ? 'granted' : 'denied',
+        ad_personalization: consent.marketing ? 'granted' : 'denied'
+      });
+    }
   }
 
   $('#cookieAcceptAll')?.addEventListener('click', () => setConsent('all'));
   $('#cookieAcceptEssential')?.addEventListener('click', () => setConsent('essential'));
   $('#cookieSavePrefs')?.addEventListener('click', () => setConsent('custom'));
-  $('#cookieCustomize')?.addEventListener('click', () => openModal(prefModal));
+  $('#cookieCustomize')?.addEventListener('click', () => { applyStoredCookiePrefs(); openModal(prefModal); });
 
   if (!state.consent) cookieBanner?.classList.add('show');
   else if (state.consent.analytics && window.enableAnalytics) window.enableAnalytics();

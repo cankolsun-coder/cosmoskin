@@ -1027,7 +1027,7 @@
   function mobileTrustCards(type) {
     var cfg = siteConfig();
     var items = [['ETBİS', cfg.etbisTrustText || 'ETBİS Kayıtlı E-Ticaret İşletmesi'], ['Güvenli Ödeme', 'Visa, Mastercard, Troy ve iyzico'], ['DHL', 'DHL kurumsal gönderi altyapısı'], ['Ücretsiz Kargo', '2.500 TL ve üzeri']];
-    if (type === 'returns') items[3] = ['İade Adresi', cfg.returnAddress || 'Feyzullah Mah. Kartallı Sok. No: 3/3 Maltepe / İstanbul'];
+    if (type === 'returns') items[3] = ['İade Adresi', cfg.returnAddress || 'İade talebi onaylandıktan sonra DHL iade kodu ve gönderim adımları paylaşılır'];
     return '<section class="cm-trust-strip cm-trust-strip--legal">' + items.map(function (item) { return '<article><strong>' + esc(item[0]) + '</strong><span>' + esc(item[1]) + '</span></article>'; }).join('') + '</section>';
   }
   function contentPage(type) {

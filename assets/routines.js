@@ -36,28 +36,28 @@
   function nowDate() { try { return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date()); } catch (error) { return 'Bugün'; } }
   function formatDateSafe(value) { try { return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(value ? new Date(value) : new Date()); } catch (error) { return 'Bugün'; } }
   function slugFromProduct(item) { return item && (item.slug || item.id || item.product_slug || item.productSlug || item.handle || item.url || ''); }
-  function icon(name) {
-    var paths = {
-      spark:'M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8L12 3Z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z',
-      shield:'M12 3.8 19 7v5.4c0 4.3-2.9 6.8-7 8-4.1-1.2-7-3.7-7-8V7l7-3.2Z M8.9 12.2l2 2 4.3-4.5',
-      sun:'M12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4',
-      moon:'M17.5 16.8A7.2 7.2 0 0 1 8 7.3 7.2 7.2 0 1 0 17.5 16.8Z',
-      heart:'M12 20.2 5.2 13.8a4.4 4.4 0 0 1 6.2-6.2l.6.6.6-.6a4.4 4.4 0 0 1 6.2 6.2L12 20.2Z',
-      user:'M20 21a8 8 0 0 0-16 0 M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z',
-      history:'M4 12a8 8 0 1 0 2.4-5.7 M4 4v5h5 M12 8v5l3 2',
-      compare:'M7 7h11m0 0-3-3m3 3-3 3M17 17H6m0 0 3 3m-3-3 3-3',
-      bag:'M6.5 8.5h11l-.9 11H7.4l-.9-11Z M9.2 8.5V7.4a2.8 2.8 0 0 1 5.6 0v1.1',
-      edit:'M4 20h4.5L19 9.5 14.5 5 4 15.5V20Z M13.5 6l4.5 4.5',
-      arrow:'M5 12h14 M13 6l6 6-6 6',
-      lock:'M7 11V8a5 5 0 0 1 10 0v3 M6 11h12v9H6z',
-      target:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z',
-      plus:'M12 5v14 M5 12h14',
-      info:'M12 16v-4 M12 8h.01 M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z',
-      refresh:'M20 12a8 8 0 0 1-13.6 5.7L4 15 M4 20v-5h5 M4 12A8 8 0 0 1 17.6 6.3L20 9 M20 4v5h-5',
-      leaf:'M19 4C11 4 5 9 5 16c0 3 2 5 5 5 7 0 9-9 9-17Z M5 19c4-5 8-8 14-15'
-    };
-    return '<span class="rt-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="' + (paths[name] || paths.spark) + '"></path></svg></span>';
+  var COSMOSKIN_ICON_BASE = '/assets/icons/cosmoskin/';
+  var COSMOSKIN_ICON_MAP = {
+    spark:'routine-goal-radiance', shield:'commerce-shield', sun:'routine-step-spf', moon:'routine-step-night', heart:'commerce-heart', user:'account-skin-profile', history:'status-history', compare:'status-compare', bag:'commerce-cart', edit:'system-edit', arrow:'system-arrow-right', lock:'status-lock', target:'routine-goal-tone', plus:'system-plus', info:'status-info', refresh:'status-sync', leaf:'routine-goal-sensitive', truck:'commerce-truck', crown:'account-club', ticket:'commerce-gift', bell:'account-notifications', pin:'account-addresses', invoice:'account-orders', support:'account-support', drop:'routine-goal-hydration', routine:'account-routine', empty:'status-empty', warning:'status-warning', check:'status-check', serum:'routine-step-serum', cleanse:'routine-step-cleanse', moisturize:'routine-step-moisturize', spf:'routine-step-spf', weekly:'routine-step-weekly', night:'routine-step-night', repair:'routine-step-repair'
+  };
+  var RT_PUBLIC_ICON_MAP = {
+    goal: { nem:'routine-goal-hydration', bariyer:'routine-goal-barrier', isilti:'routine-goal-radiance', leke:'routine-goal-tone', gozenek:'routine-goal-pore', hassasiyet:'routine-goal-sensitive', akne:'routine-goal-acne-prone', parlaklik:'routine-goal-radiance' },
+    skin: { kuru:'routine-goal-hydration', karma:'routine-goal-barrier', yagli:'routine-goal-pore', hassas:'routine-goal-sensitive', normal:'routine-goal-radiance' },
+    sensitivity: { dusuk:'status-check', orta:'routine-goal-barrier', yuksek:'routine-goal-sensitive' },
+    style: { minimal:'routine-step-cleanse', orta:'account-routine', kapsamli:'routine-step-weekly' },
+    texture: { hafif:'routine-goal-hydration', dengeli:'routine-goal-barrier', zengin:'routine-step-moisturize' }
+  };
+  function iconPath(name) {
+    return COSMOSKIN_ICON_BASE + (COSMOSKIN_ICON_MAP[name] || name || 'routine-goal-radiance') + '.svg';
   }
+  function icon(name) {
+    return '<span class="rt-icon" aria-hidden="true"><img class="cs-icon cs-icon--routine" src="' + esc(iconPath(name)) + '" alt="" aria-hidden="true" loading="lazy"></span>';
+  }
+  function publicChoiceIcon(type, id) {
+    var group = RT_PUBLIC_ICON_MAP[type] || {};
+    return '<span class="rt-public-choice-icon" aria-hidden="true"><img class="cs-icon cs-icon--routine" src="' + esc(COSMOSKIN_ICON_BASE + (group[id] || COSMOSKIN_ICON_MAP.spark) + '.svg') + '" alt="" aria-hidden="true" loading="lazy"></span>';
+  }
+
 
   function getProducts() {
     var products = window.COSMOSKIN_PRODUCTS || window.products || [];
@@ -117,15 +117,19 @@
 
   function profileFromAccountUser(user) {
     user = user || {};
-    var concerns = Array.isArray(user.skin_concerns) ? user.skin_concerns : [];
-    var primary = user.routine_goal || concerns[0] || '';
+    var concerns = Array.isArray(user.secondary_goals) ? user.secondary_goals : (Array.isArray(user.skin_concerns) ? user.skin_concerns : []);
+    var primary = user.primary_goal || user.routine_goal || concerns[0] || '';
     var secondary = concerns.find(function (goal) { return goal && goal !== primary; }) || '';
     return {
       skinType: user.skin_type || '',
-      sensitivity: user.skin_sensitivity || '',
+      sensitivity: user.skin_sensitivity || user.sensitivity || '',
       primaryGoal: primary,
       secondaryGoal: secondary,
       routineStyle: user.routine_style || user.routine_intensity || '',
+      budgetBand: user.budget_band || '',
+      avoidIngredients: user.avoid_ingredients || [],
+      preferredTexture: user.preferred_texture || '',
+      spfHabit: user.spf_habit || '',
       updatedAt: user.skin_profile_updated_at || user.updatedAt || user.updated_at || ''
     };
   }
@@ -169,8 +173,14 @@
     var routine = Object.assign({}, result, {
       id: latest.id || result.id,
       title: latest.routine_title || result.title || 'Kayıtlı Akıllı Rutin',
+      name: latest.routine_title || result.name || result.title || 'Kayıtlı Akıllı Rutin',
+      score: latest.routine_score || result.routine_score || result.score || 86,
       source: 'backend',
-      updatedAt: latest.completed_at || latest.created_at || result.updatedAt || new Date().toISOString(),
+      updatedAt: latest.updated_at || latest.completed_at || latest.created_at || result.updatedAt || new Date().toISOString(),
+      skin_profile_snapshot: latest.skin_profile_snapshot || result.skin_profile_snapshot || {},
+      morning: latest.morning_steps || result.morning_steps || result.morning || [],
+      evening: latest.evening_steps || result.evening_steps || result.evening || [],
+      weekly: latest.weekly_steps || result.weekly_steps || result.weekly || [],
       recommended_products: latest.recommended_products || result.recommended_products || result.products || []
     });
     if (Object.keys(routine).length > 2) writeJSON(KEYS.active, routine);
@@ -310,7 +320,7 @@
   }
 
   function getRoutineProductList(routine) {
-    return compact((routine && routine.morning || []).concat(routine && routine.evening || []).map(function (step) { return step && step.product; }));
+    return compact((routine && routine.morning || []).concat(routine && routine.evening || []).map(function (step) { return step && (step.product || step); }));
   }
 
   function stepFromProduct(product, index, period, label) {
@@ -959,6 +969,9 @@
         writeLocalFavorites(routineState.favorites);
         syncProfileFromSummary(summary);
         syncRoutineResultFromSummary(summary);
+        if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.syncPendingDraft === 'function') {
+          try { await window.COSMOSKINRoutineData.syncPendingDraft(auth.session); } catch (syncError) { console.warn('COSMOSKIN routine draft sync skipped:', syncError && syncError.message); }
+        }
       } else {
         routineState.favorites = readLocalFavorites();
       }
@@ -1128,15 +1141,33 @@
     var products = [];
     var seen = new Set();
     routine.morning.concat(routine.evening).forEach(function (step) {
-      var product = step && step.product;
+      var product = step && (step.product || step);
       if (!product || !product.slug || seen.has(product.slug)) return;
       seen.add(product.slug);
-      products.push({ slug: product.slug, name: product.name, brand: product.brand, price: product.price, routine_step: step.label || '', am_pm: step.period || '' });
+      products.push({ slug: product.slug, name: product.name, brand: product.brand, price: product.price, routine_step: step.label || '', period: step.period || '' });
     });
+    var base = {
+      selectedGoals: normalized.selectedGoals || [],
+      selectedSkinType: normalized.selectedSkinType || '',
+      sensitivity: normalized.sensitivity || '',
+      routine_style: normalized.intensity || '',
+      avoid_ingredients: normalized.avoid || [],
+      routine_title: normalized.intensity === 'advanced' || normalized.intensity === 'kapsamli' ? 'Gelişmiş Akıllı Rutin' : normalized.intensity === 'minimal' ? 'Başlangıç Akıllı Rutini' : 'Dengeli Akıllı Rutin',
+      routine_score: calculateRoutineScore(routine, normalized),
+      morning_steps: routine.morning,
+      evening_steps: routine.evening,
+      weekly_steps: routine.weekly || [],
+      recommended_products: products,
+      source_channel: 'routine-center',
+      result: serializeRoutine(routine, 'smart-routine-backend-save')
+    };
+    if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.normalizeRoutineResult === 'function') {
+      return window.COSMOSKINRoutineData.normalizeRoutineResult(base, { source: 'routine-center' });
+    }
     return {
       routine_key: 'smart-routine-' + Date.now(),
-      routine_title: normalized.intensity === 'advanced' ? 'Gelişmiş Akıllı Rutin' : normalized.intensity === 'balanced' ? 'Dengeli Akıllı Rutin' : 'Başlangıç Akıllı Rutini',
-      result: serializeRoutine(routine, 'smart-routine-backend-save'),
+      routine_title: base.routine_title,
+      result: base.result,
       recommended_products: products
     };
   }
@@ -1147,16 +1178,24 @@
     if (auth.session && auth.session.access_token) {
       var skinPayload = {
         skin_type: normalized.selectedSkinType || '',
+        sensitivity: normalized.sensitivity || '',
         skin_sensitivity: normalized.sensitivity || '',
+        primary_goal: (normalized.selectedGoals || [])[0] || '',
         routine_goal: (normalized.selectedGoals || [])[0] || '',
+        secondary_goals: (normalized.selectedGoals || []).slice(1).filter(Boolean),
         skin_concerns: (normalized.selectedGoals || []).filter(Boolean),
         routine_style: normalized.intensity || '',
-        preferred_ingredients: [],
-        avoided_ingredients: (normalized.avoid || []).filter(Boolean),
+        avoid_ingredients: (normalized.avoid || []).filter(Boolean),
+        source_channel: 'routine-center',
         updated_at: new Date().toISOString()
       };
-      await routineApiFetch('/account/skin-profile', { method: 'POST', body: skinPayload });
-      await routineApiFetch('/account/routine-results', { method: 'POST', body: routineResultPayloadFromPreferences(normalized) });
+      if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.normalizeSkinProfile === 'function') {
+        skinPayload = Object.assign(skinPayload, window.COSMOSKINRoutineData.normalizeSkinProfile(skinPayload, { source: 'routine-center' }));
+      }
+      var savedSkin = await routineApiFetch('/account/skin-profile', { method: 'POST', body: skinPayload });
+      var routinePayload = routineResultPayloadFromPreferences(normalized);
+      if (savedSkin && savedSkin.skin_profile && savedSkin.skin_profile.id) routinePayload.skin_profile_id = savedSkin.skin_profile.id;
+      await routineApiFetch('/account/routine-results', { method: 'POST', body: routinePayload });
       await loadAccountState();
     }
     return normalized;
@@ -1175,6 +1214,199 @@
     return true;
   }
 
+
+  var PUBLIC_ROUTINE_STEPS = [
+    { id:'goal', title:'Cilt hedefin', subtitle:'Bugün rutinin hangi görünüm hedefiyle başlasın?' },
+    { id:'skin', title:'Cilt tipin', subtitle:'Ürün dokusu ve adım yoğunluğunu buna göre dengeliyoruz.' },
+    { id:'sensitivity', title:'Hassasiyet seviyesi', subtitle:'Aktif içerik yoğunluğunu güvenli ve yumuşak tutmak için.' },
+    { id:'style', title:'Rutin yoğunluğu', subtitle:'Minimal, dengeli veya daha kapsamlı bir akış seç.' },
+    { id:'texture', title:'Doku tercihin', subtitle:'Hafif, dengeli veya zengin doku hissi.' },
+    { id:'result', title:'Rutin haritan', subtitle:'Sabah, akşam ve haftalık destek önerin hazır.' }
+  ];
+
+  var PUBLIC_GOAL_OPTIONS = [
+    ['nem','Nem & Bariyer','Nem dengesi ve konfor hissi'],
+    ['leke','Leke & Ton Eşitsizliği','Aydınlık görünüm ve SPF odağı'],
+    ['gozenek','Gözenek & Sebum Dengesi','Daha dengeli ve arınmış görünüm'],
+    ['hassasiyet','Hassasiyet & Kızarıklık Eğilimi','Daha sakin, bariyer dostu akış'],
+    ['akne','Sivilceye Eğilimli Cilt Görünümü','Yormayan denge ve temizlik odağı'],
+    ['isilti','Işıltı & Cam Cilt Görünümü','Daha canlı ve nemli görünüm']
+  ];
+  var PUBLIC_SKIN_OPTIONS = [['kuru','Kuru'],['karma','Karma'],['yagli','Yağlı'],['hassas','Hassas'],['normal','Normal']];
+  var PUBLIC_SENSITIVITY_OPTIONS = [['dusuk','Düşük'],['orta','Orta'],['yuksek','Yüksek']];
+  var PUBLIC_STYLE_OPTIONS = [['minimal','Minimal'],['orta','Dengeli'],['kapsamli','Gelişmiş']];
+  var PUBLIC_TEXTURE_OPTIONS = [['hafif','Hafif doku'],['dengeli','Dengeli doku'],['zengin','Zengin krem hissi']];
+
+  function mapPublicGoal(value) {
+    var map = { hydration:'nem', barrier:'bariyer', glow:'isilti', tone:'leke', spot:'leke', blemish:'akne', pore:'gozenek', sebum:'gozenek', sensitive:'hassasiyet', spf:'leke' };
+    return map[value] || value;
+  }
+
+  function publicWizardState() {
+    if (!routineState.publicWizard) {
+      var params = new URLSearchParams(window.location.search || '');
+      var source = readJSON(KEYS.pending, null) || readJSON(KEYS.preferences, null) || readJSON(KEYS.active, null) || {};
+      var goalParam = mapPublicGoal(params.get('goal') || params.get('routine_goal') || '');
+      var skinParam = params.get('skin') || '';
+      var prefs = normalizePreferences(Object.assign({}, source, {
+        selectedGoals: goalParam ? [goalParam] : (source.selectedGoals || ['nem','bariyer']),
+        selectedSkinType: skinParam || source.selectedSkinType || 'karma',
+        source: 'routine-center-premium'
+      }));
+      routineState.publicWizard = { step: goalParam ? 1 : 0, prefs: prefs, lastSavedAt: '' };
+    }
+    return routineState.publicWizard;
+  }
+
+  function publicGoalTitle(prefs) {
+    if ((prefs.selectedGoals || []).indexOf('leke') !== -1) return 'Leke Görünümü ve Ton Eşitsizliği Rutini';
+    if ((prefs.selectedGoals || []).indexOf('gozenek') !== -1) return 'Gözenek & Sebum Dengesi Rutini';
+    if ((prefs.selectedGoals || []).indexOf('akne') !== -1) return 'Sivilceye Eğilimli Cilt Görünümü Rutini';
+    if ((prefs.selectedGoals || []).indexOf('hassasiyet') !== -1) return 'Hassasiyet Dostu Minimal Rutin';
+    if ((prefs.selectedGoals || []).indexOf('isilti') !== -1) return 'Nem & Işıltı Başlangıç Rutini';
+    return 'Bariyer Odaklı Dengeli Rutin';
+  }
+
+  function publicStepLabel(product, index, period) {
+    var text = productText(product);
+    if (/spf|sun|güneş|gunes/.test(text)) return 'SPF';
+    if (/cleanser|cleansing|temizleyici|oil/.test(text)) return 'Temizle';
+    if (/toner|essence|pad|tonik/.test(text)) return 'Hazırla';
+    if (/serum|ampoule|ampul|vitamin c/.test(text)) return period === 'evening' ? 'Destekle' : 'Serum';
+    if (/cream|krem|lotion|moisturiz|mask/.test(text)) return 'Nemlendir';
+    return ['Temizle','Hazırla','Serum','Nemlendir','SPF'][index] || 'Bakım';
+  }
+
+  function buildPublicRoutine(prefs) {
+    var raw = activeRoutineProducts(prefs);
+    var morningProducts = (raw.morning || []).map(function (step) { return step && (step.product || step); }).filter(Boolean).slice(0, 5);
+    var eveningProducts = (raw.evening || []).map(function (step) { return step && (step.product || step); }).filter(Boolean).slice(0, 5);
+    if ((prefs.selectedGoals || []).indexOf('leke') !== -1 && !morningProducts.some(function (p) { return /spf|sun|güneş|gunes/.test(productText(p)); })) {
+      var spf = recommendProducts(Object.assign({}, prefs, { selectedGoals: uniq((prefs.selectedGoals || []).concat(['leke'])) })).find(function (p) { return /spf|sun|güneş|gunes/.test(productText(p)); });
+      if (spf && !morningProducts.some(function (p) { return p.slug === spf.slug; })) morningProducts.push(spf);
+    }
+    var morning = morningProducts.map(function (p, i) { return stepFromProduct(p, i, 'morning', publicStepLabel(p, i, 'morning')); });
+    var evening = eveningProducts.map(function (p, i) { return stepFromProduct(p, i, 'evening', publicStepLabel(p, i, 'evening')); });
+    var weekly = [];
+    if ((prefs.selectedGoals || []).indexOf('hassasiyet') !== -1 || prefs.sensitivity === 'yuksek') weekly.push({ label:'Bariyer destek günü', description:'Aktif içerik yoğunluğunu düşük tutup konfora odaklan.' });
+    if ((prefs.selectedGoals || []).indexOf('gozenek') !== -1 || (prefs.selectedGoals || []).indexOf('akne') !== -1) weekly.push({ label:'Denge kontrolü', description:'Arındırıcı adımları düşük sıklıkta ve bariyer desteğiyle dengele.' });
+    if ((prefs.selectedGoals || []).indexOf('leke') !== -1) weekly.push({ label:'SPF devamlılığı', description:'Gündüz SPF adımını rutinin sabit parçası olarak koru.' });
+    if (!weekly.length) weekly.push({ label:'Nem konforu', description:'Haftada birkaç gün rutini sade tutarak nem desteğini öne çıkar.' });
+    var routine = { morning: morning, evening: evening, weekly: weekly, goals: prefs.selectedGoals || [], skinType: prefs.selectedSkinType, sensitivity: prefs.sensitivity };
+    routine.score = calculateRoutineScore(routine, prefs);
+    return routine;
+  }
+
+  function publicReasonForProduct(product, prefs, period) {
+    var goals = (prefs.selectedGoals || []).filter(function (goal) { return productMatchesGoal(product, goal); }).map(function (goal) { return goalLabels[goal] || goal; });
+    var reason = goals.length ? goals.slice(0, 2).join(' ve ') + ' hedefinle uyumlu' : 'Rutin adımını tamamlar';
+    if (prefs.sensitivity === 'yuksek' && activeTerms(product).length) reason += '; düşük sıklıkla başlanması önerilir';
+    if (period === 'morning' && /spf|sun|güneş|gunes/.test(productText(product))) reason += '; gündüz SPF adımı için konumlandı';
+    return reason + '.';
+  }
+
+  function publicProductCard(step, prefs, period) {
+    var product = step && (step.product || step);
+    if (!product) return '';
+    return '<article class="rt-public-product rt-card" data-product-slug="' + esc(product.slug || '') + '">' +
+      '<a class="rt-public-product__media" href="' + esc(product.url || ('/products/' + product.slug + '.html')) + '"><img src="' + esc(product.image || '/assets/packaging-mockup-premium.png') + '" alt="' + esc((product.brand || '') + ' ' + (product.name || '')) + '" loading="lazy"></a>' +
+      '<div class="rt-public-product__body"><span>' + esc(step.label || publicStepLabel(product, 0, period)) + ' · ' + (period === 'morning' ? 'Sabah' : 'Akşam') + '</span><small>' + esc(product.brand || '') + '</small><strong>' + esc(product.name || '') + '</strong><p><b>Neden önerildi?</b> ' + esc(publicReasonForProduct(product, prefs, period)) + '</p><div class="rt-public-product__foot"><b>' + esc(formatPrice(product.price)) + '</b><a class="rt-btn" href="' + esc(product.url || ('/products/' + product.slug + '.html')) + '">Ürünü İncele</a></div></div>' +
+    '</article>';
+  }
+
+  function publicChoiceGrid(type, options, selected, multi) {
+    selected = Array.isArray(selected) ? selected : [selected].filter(Boolean);
+    return '<div class="rt-public-choice-grid rt-public-choice-grid--' + esc(type) + '">' + options.map(function (option) {
+      var id = option[0];
+      var active = selected.indexOf(id) !== -1;
+      return '<button class="rt-public-choice' + (active ? ' is-selected' : '') + '" type="button" data-rt-public-choice="' + esc(type) + '" data-value="' + esc(id) + '" aria-pressed="' + (active ? 'true' : 'false') + '">' + publicChoiceIcon(type, id) + '<strong>' + esc(option[1]) + '</strong>' + (option[2] ? '<span class="rt-public-choice-copy">' + esc(option[2]) + '</span>' : '') + '</button>';
+    }).join('') + '</div>';
+  }
+
+  function publicProgressMarkup(step) {
+    return '<div class="rt-public-progress" role="list" aria-label="Akıllı rutin adımları">' + PUBLIC_ROUTINE_STEPS.map(function (item, index) {
+      return '<button type="button" role="listitem" data-rt-public-step="' + index + '" class="' + (index === step ? 'is-active' : index < step ? 'is-complete' : '') + '"><span>' + (index + 1) + '</span><b>' + esc(item.title) + '</b></button>';
+    }).join('') + '</div>';
+  }
+
+  function publicQuestionMarkup(state) {
+    var step = state.step;
+    var prefs = state.prefs;
+    var current = PUBLIC_ROUTINE_STEPS[step] || PUBLIC_ROUTINE_STEPS[0];
+    var body = '';
+    if (current.id === 'goal') body = publicChoiceGrid('goal', PUBLIC_GOAL_OPTIONS, prefs.selectedGoals || [], true);
+    else if (current.id === 'skin') body = publicChoiceGrid('skin', PUBLIC_SKIN_OPTIONS, prefs.selectedSkinType, false);
+    else if (current.id === 'sensitivity') body = publicChoiceGrid('sensitivity', PUBLIC_SENSITIVITY_OPTIONS, prefs.sensitivity || 'orta', false);
+    else if (current.id === 'style') body = publicChoiceGrid('style', PUBLIC_STYLE_OPTIONS, prefs.intensity || 'orta', false);
+    else if (current.id === 'texture') body = publicChoiceGrid('texture', PUBLIC_TEXTURE_OPTIONS, prefs.preferredTexture || 'dengeli', false);
+    else body = '<div class="rt-public-ready"><strong>Rutin haritan hazır.</strong><span>Sonucu aşağıda sabah, akşam ve haftalık destek olarak inceleyebilirsin.</span></div>';
+    return '<section class="rt-public-wizard rt-card" id="routine-center-start"><div class="rt-public-question-head"><span>Adım ' + (step + 1) + ' / ' + PUBLIC_ROUTINE_STEPS.length + '</span><h2>' + esc(current.title) + '</h2><p>' + esc(current.subtitle) + '</p></div>' + body + '<div class="rt-public-wizard-actions"><button class="rt-btn" type="button" data-rt-public-action="back"' + (step <= 0 ? ' disabled aria-disabled="true"' : '') + '>Geri</button><button class="rt-btn rt-btn--black" type="button" data-rt-public-action="next">' + (step >= PUBLIC_ROUTINE_STEPS.length - 1 ? 'Sonucu Güncelle' : 'Devam Et') + '</button></div><p class="rt-public-note">Bu öneri kozmetik bakım rehberi niteliğindedir; tıbbi teşhis veya tedavi amacı taşımaz.</p></section>';
+  }
+
+  function publicFlowMarkup(title, steps, prefs, period) {
+    if (!steps.length) return '<div class="rt-public-empty rt-card"><strong>' + esc(title) + '</strong><span>Bu adım için uygun ürün stoğu hazırlanıyor.</span></div>';
+    return '<section class="rt-public-flow rt-card"><h3>' + (period === 'morning' ? icon('sun') : icon('moon')) + esc(title) + '</h3><div class="rt-public-step-list">' + steps.map(function (step, index) {
+      var product = step.product || step;
+      return '<div class="rt-public-step"><span>' + (index + 1) + '</span><div><strong>' + esc(step.label || publicStepLabel(product, index, period)) + '</strong><small>' + esc(product && product.name ? product.name : 'Ürün seçimi hazırlanıyor') + '</small></div></div>';
+    }).join('') + '</div></section>';
+  }
+
+  function publicResultMarkup(state) {
+    var prefs = state.prefs;
+    var routine = buildPublicRoutine(prefs);
+    var products = uniq((routine.morning || []).concat(routine.evening || []).map(function (step) { return step && step.product && step.product.slug; })).length;
+    return '<section class="rt-public-result" data-rt-public-result>' +
+      '<div class="rt-public-result-hero rt-card"><div><span class="rt-tag">COSMOSKIN Akıllı Rutin</span><h2>' + esc(publicGoalTitle(prefs)) + '</h2><p>' + esc(skinText(prefs)) + ' cilt, ' + esc(cap(prefs.sensitivity || 'orta')) + ' hassasiyet ve ' + esc(goalText(prefs).toLocaleLowerCase('tr-TR')) + ' hedefleri için oluşturulan bakım rotası.</p><div class="rt-public-profile-chips"><span>' + esc(skinText(prefs)) + '</span><span>' + esc(goalText(prefs)) + '</span><span>' + esc(cap(prefs.intensity || 'orta')) + ' rutin</span><span>' + products + ' ürün</span></div></div><div class="rt-public-score"><div class="rt-score-ring" style="--score:' + routine.score + '"><strong>' + routine.score + '</strong><span>100</span></div><small>Cilt hedeflerin ve tercihlerinle uyum skoru</small></div></div>' +
+      '<div class="rt-public-flow-grid">' + publicFlowMarkup('Sabah Rutini', routine.morning, prefs, 'morning') + publicFlowMarkup('Akşam Rutini', routine.evening, prefs, 'evening') + '<section class="rt-public-flow rt-card"><h3>' + icon('leaf') + 'Haftalık Destek</h3><div class="rt-public-step-list">' + routine.weekly.map(function (item, index) { return '<div class="rt-public-step"><span>' + (index + 1) + '</span><div><strong>' + esc(item.label) + '</strong><small>' + esc(item.description) + '</small></div></div>'; }).join('') + '</div></section></div>' +
+      '<div class="rt-public-products-head"><div><h2>Önerilen ürünler</h2><p>Öneriler mevcut ürün kataloğundaki bilgilerden hazırlanır. Stok veya ürün verisi yoksa kırık kart gösterilmez.</p></div><div><button class="rt-btn rt-btn--black" type="button" data-rt-public-action="save">Rutini Kaydet</button><button class="rt-btn" type="button" data-rt-public-action="cart">Tümünü Sepete Ekle</button></div></div>' +
+      ((routine.morning.length || routine.evening.length) ? '<div class="rt-public-products">' + routine.morning.concat(routine.evening).map(function (step) { return publicProductCard(step, prefs, step.period || 'morning'); }).join('') + '</div>' : '<section class="rt-empty-state rt-card"><h2>Bu adım için uygun ürün stoğu hazırlanıyor.</h2><p>Katalog güncellendikçe rutin önerileri otomatik olarak zenginleşir.</p></section>') +
+      '<aside class="rt-public-disclaimer rt-card"><strong>Kozmetik öneri notu</strong><p>Bu rutin, ürün seçimini kolaylaştırmak için hazırlanmış kozmetik bakım rehberidir. Cilt rahatsızlığı, yoğun hassasiyet veya tedavi ihtiyacında dermatoloji uzmanına danışılmalıdır.</p></aside>' +
+    '</section>';
+  }
+
+  function persistPublicRoutineDraft(prefs) {
+    var payload = routineResultPayloadFromPreferences(Object.assign({}, prefs, { source_channel:'routine-center-premium' }));
+    if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.buildDraft === 'function') {
+      return window.COSMOSKINRoutineData.saveDraft(payload, { source:'routine-center-premium', status:'pending' });
+    }
+    writeJSON(KEYS.pending, prefs);
+    return { skin_profile:prefs, routine_result:payload, source_channel:'routine-center-premium' };
+  }
+
+  async function savePublicRoutine(host) {
+    var state = publicWizardState();
+    saveRoutinePreferences(state.prefs, { active:false });
+    var draft = persistPublicRoutineDraft(state.prefs);
+    var auth = routineState.auth && routineState.auth.loggedIn ? routineState.auth : await detectAuthState();
+    if (!auth || !auth.loggedIn || !(auth.session && auth.session.access_token)) {
+      toast('Rutin taslağın kaydedildi. Hesabına aktarmak için giriş yapmalısın.');
+      try { sessionStorage.setItem('cosmoskin_return_to', '/account/profile.html?tab=routines&routineSync=1'); } catch (error) {}
+      openAuth('loginPanel');
+      return;
+    }
+    try {
+      if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.saveToAccount === 'function') await window.COSMOSKINRoutineData.saveToAccount(draft, auth.session);
+      else await saveRoutineProfileToAccount(state.prefs);
+      await loadAccountState();
+      toast('Rutinin hesabına kaydedildi.');
+      renderPublicRoutineCenter(host, { auth: auth });
+    } catch (error) {
+      toast(error && error.message ? error.message : 'Rutin kaydedilemedi. Lütfen tekrar dene.');
+    }
+  }
+
+  function renderPublicRoutineCenter(host, options) {
+    options = options || {};
+    var state = publicWizardState();
+    var auth = options.auth || routineState.auth || { loggedIn:false };
+    var routine = buildPublicRoutine(state.prefs);
+    host.innerHTML = '<section class="rt-section rt-public-center"><div class="rt-container">' +
+      '<div class="rt-public-hero"><div><p class="rt-eyebrow">AKILLI RUTİN MERKEZİ</p><h1 class="rt-h1">Cildin için kişisel Kore bakım rotası.</h1><p class="rt-copy">Cilt hedefin, hassasiyet seviyen ve rutin yoğunluğuna göre sabah, akşam ve haftalık destek adımlarını premium bir akışta hazırlarız.</p><div class="rt-public-hero-actions"><a class="rt-btn rt-btn--black" href="#routine-center-start">Rutinimi Oluştur</a><a class="rt-btn" href="/index.html#smart-routine">Hızlı seçim alanına dön</a></div></div><aside class="rt-public-auth rt-card">' + icon('shield') + '<strong>' + (auth.loggedIn ? 'Rutin kayda hazır' : 'Rutin taslağın kaybolmaz') + '</strong><p>' + (auth.loggedIn ? 'Sonucu kaydettiğinde Hesabım > Akıllı Rutinim alanına aktarılır.' : 'Giriş yapmadan sonucu görebilir, kaydetmek istediğinde taslağını hesabına aktarabilirsin.') + '</p></aside></div>' +
+      '<div class="rt-public-benchmark-row"><span>Hızlı hedef seçimi</span><span>Danışmanlık hissi</span><span>Gerçek ürün kataloğu</span><span>Kozmetik öneri dili</span></div>' +
+      publicProgressMarkup(state.step) + '<div class="rt-public-layout">' + publicQuestionMarkup(state) + '<aside class="rt-public-summary rt-card"><span>Ön izleme</span><h2>' + esc(publicGoalTitle(state.prefs)) + '</h2><p>' + esc(goalText(state.prefs)) + ' · ' + esc(skinText(state.prefs)) + ' cilt · ' + esc(cap(state.prefs.sensitivity || 'orta')) + ' hassasiyet</p><div class="rt-score-ring" style="--score:' + routine.score + '"><strong>' + routine.score + '</strong><span>100</span></div><small>Rutin uyum skoru</small></aside></div>' +
+      publicResultMarkup(state) + '</div></section>';
+    refreshInventory(host);
+  }
   function collectProfileFromDOM() {
     var prefs = getRoutinePreferences();
     qsa('[data-rt-group]').forEach(function (groupEl) {
@@ -1193,6 +1425,45 @@
 
   function bindPage(host) {
     document.addEventListener('click', function (event) {
+      var publicHost = qs('[data-routine-page="smart"]');
+      var publicChoice = event.target.closest('[data-rt-public-choice]');
+      if (publicHost && publicChoice) {
+        var state = publicWizardState();
+        var type = publicChoice.getAttribute('data-rt-public-choice');
+        var value = publicChoice.getAttribute('data-value');
+        if (type === 'goal') {
+          var goals = state.prefs.selectedGoals || [];
+          if (goals.indexOf(value) !== -1) goals = goals.filter(function (item) { return item !== value; });
+          else goals = goals.concat([value]).slice(-3);
+          state.prefs.selectedGoals = goals.length ? goals : ['nem'];
+        } else if (type === 'skin') state.prefs.selectedSkinType = value;
+        else if (type === 'sensitivity') state.prefs.sensitivity = value;
+        else if (type === 'style') state.prefs.intensity = value;
+        else if (type === 'texture') state.prefs.preferredTexture = value;
+        state.prefs.updatedAt = new Date().toISOString();
+        saveRoutinePreferences(state.prefs, { active:false });
+        persistPublicRoutineDraft(state.prefs);
+        renderPublicRoutineCenter(publicHost, { auth:routineState.auth });
+        return;
+      }
+      var publicStep = event.target.closest('[data-rt-public-step]');
+      if (publicHost && publicStep) {
+        publicWizardState().step = Math.max(0, Math.min(PUBLIC_ROUTINE_STEPS.length - 1, Number(publicStep.getAttribute('data-rt-public-step')) || 0));
+        renderPublicRoutineCenter(publicHost, { auth:routineState.auth });
+        return;
+      }
+      var publicAction = event.target.closest('[data-rt-public-action]');
+      if (publicHost && publicAction) {
+        var action = publicAction.getAttribute('data-rt-public-action');
+        var stateAction = publicWizardState();
+        if (action === 'back') stateAction.step = Math.max(0, stateAction.step - 1);
+        else if (action === 'next') stateAction.step = Math.min(PUBLIC_ROUTINE_STEPS.length - 1, stateAction.step + 1);
+        else if (action === 'save') { savePublicRoutine(publicHost); return; }
+        else if (action === 'cart') { saveRoutinePreferences(stateAction.prefs, { active:false }); persistPublicRoutineDraft(stateAction.prefs); addRoutineProductsToCart().catch(function (error) { toast(error && error.message ? error.message : 'Rutin ürünleri sepete eklenemedi.'); }); return; }
+        persistPublicRoutineDraft(stateAction.prefs);
+        renderPublicRoutineCenter(publicHost, { auth:routineState.auth });
+        return;
+      }
       var viewLink = event.target.closest('[data-rt-view]');
       if (viewLink) { event.preventDefault(); navigateRoutine(host, viewLink.getAttribute('data-rt-view') || 'dashboard'); return; }
       var routineAnchor = event.target.closest('a[href^="/account/routine"], a[href^="/collections/routine"], a[href^="/routine.html"], a[href^="/rutinler"]');
@@ -1299,6 +1570,11 @@
   async function renderSmartRoute(host, view) {
     host.innerHTML = '<div class="rt-loading">Rutin deneyimi hazırlanıyor...</div>';
     var auth = await detectAuthState();
+    if (host && host.getAttribute('data-routine-page') === 'smart') {
+      routineState.auth = auth;
+      renderPublicRoutineCenter(host, { auth: auth });
+      return { loggedIn: !!auth.loggedIn, view:'public-smart' };
+    }
     view = view || currentView('dashboard');
     if (!auth.loggedIn) {
       if (view === 'compare') {

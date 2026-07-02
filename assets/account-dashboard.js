@@ -123,27 +123,15 @@
     return data;
   }
 
+  var COSMOSKIN_ICON_BASE = '/assets/icons/cosmoskin/';
+  var COSMOSKIN_ACCOUNT_ICON_MAP = {
+    home:'account-overview', bag:'account-orders', return:'account-returns', heart:'account-favorites', invoice:'account-orders', pin:'account-addresses', drop:'account-skin-profile', crown:'account-club', ticket:'commerce-gift', bell:'account-notifications', shield:'account-security', support:'account-support', truck:'commerce-truck', sparkle:'account-routine', user:'account-overview', clock:'status-sync', routine:'account-routine', payments:'account-payments', lock:'status-lock', empty:'status-empty', info:'status-info', check:'status-check'
+  };
   function iconSvg(name) {
-    var map = {
-      home: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4.5 11.2 12 5l7.5 6.2V20a1 1 0 0 1-1 1h-4.2v-5.4H9.7V21H5.5a1 1 0 0 1-1-1v-8.8Z"></path></svg>',
-      bag: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6.5 8.5h11l-.9 11h-9.2l-.9-11Z"></path><path d="M9.2 8.5V7.4a2.8 2.8 0 0 1 5.6 0v1.1"></path></svg>',
-      return: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9.2 7.2 4.8 11.6 9.2 16"></path><path d="M5.2 11.6h9.2a4.8 4.8 0 1 1 0 9.6h-1.3"></path></svg>',
-      heart: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 20.2 5.2 13.8a4.4 4.4 0 0 1 6.2-6.2l.6.6.6-.6a4.4 4.4 0 0 1 6.2 6.2L12 20.2Z"></path></svg>',
-      invoice: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3.8h12v16.4l-2-1.1-2 1.1-2-1.1-2 1.1-2-1.1-2 1.1V3.8Z"></path><path d="M8.5 8h7M8.5 12h7M8.5 15h4"></path></svg>',
-      pin: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s6.6-5.8 6.6-11a6.6 6.6 0 0 0-13.2 0C5.4 15.2 12 21 12 21Z"></path><path d="M12 12.1a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2Z"></path></svg>',
-      drop: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 4.2s5.7 6.7 5.7 10.2a5.7 5.7 0 0 1-11.4 0C6.3 10.9 12 4.2 12 4.2Z"></path><path d="M9.4 15.1a2.7 2.7 0 0 0 2.6 2.1"></path></svg>',
-      crown: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 16-1-9 5 4 3-6 3 6 5-4-1 9H5Zm0 3h14"></path></svg>',
-      ticket: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4.5 8a2 2 0 0 0 0 4v4.5h15V12a2 2 0 0 0 0-4V3.5h-15V8Z"></path><path d="M9 7h6M9 13h6"></path></svg>',
-      bell: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M18 10a6 6 0 1 0-12 0c0 4.8-1.8 6.2-1.8 6.2h15.6S18 14.8 18 10Z"></path><path d="M10 19.2h4"></path></svg>',
-      shield: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3.8 19 7v5.5c0 4.3-2.9 6.8-7 7.9-4.1-1.1-7-3.6-7-7.9V7l7-3.2Z"></path><path d="m8.8 12.2 2.1 2.1 4.5-4.8"></path></svg>',
-      support: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4.8 12a7.2 7.2 0 0 1 14.4 0v4.2a2.8 2.8 0 0 1-2.8 2.8h-2.1"></path><path d="M4.8 12v3.5a1.8 1.8 0 0 0 1.8 1.8h1.1v-6.1H4.8Zm14.4 0v5.3h-2.9v-6.1h2.9Z"></path></svg>',
-      truck: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3.5 7h10.2v8.4H3.5V7Zm10.2 3h3.4l3.4 3.4v2h-6.8V10Z"></path><path d="M6.8 18.2a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Zm10.8 0a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6Z"></path></svg>',
-      sparkle: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2 6 6 2-6 2-2 6-2-6-6-2 6-2 2-6Z"></path></svg>',
-      user: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"></path><path d="M4.5 20a7.5 7.5 0 0 1 15 0"></path></svg>',
-      clock: '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"></path><path d="M12 7.2v5.1l3.2 1.8"></path></svg>'
-    };
-    return map[name] || map.sparkle;
+    var file = COSMOSKIN_ACCOUNT_ICON_MAP[name] || COSMOSKIN_ACCOUNT_ICON_MAP.sparkle;
+    return '<img class="cs-icon cs-icon--account" src="' + escapeHtml(COSMOSKIN_ICON_BASE + file + '.svg') + '" alt="" aria-hidden="true" loading="lazy">';
   }
+
 
   function labelFromMap(value, map, fallback) {
     var key = String(value || '').trim().toLocaleLowerCase('tr-TR').replace(/\s+/g, '_').replace(/-/g, '_');
@@ -238,17 +226,22 @@
   function skinProfile() {
     var user = state.summary?.user || {};
     var row = state.summary?.skin_profile || {};
-    var concerns = asArray(row.concerns || row.skin_concerns || user.skin_concerns);
+    var concerns = asArray(row.secondary_goals || row.concerns || row.skin_concerns || user.secondary_goals || user.skin_concerns);
+    var primaryGoal = row.primary_goal || row.routine_goal || user.primary_goal || user.routine_goal || '';
     var goals = concerns.slice();
-    if (row.routine_goal || user.routine_goal) goals.unshift(row.routine_goal || user.routine_goal);
+    if (primaryGoal) goals.unshift(primaryGoal);
     return {
       id: row.id || '',
       skin_type: row.skin_type || row.skinType || user.skin_type || '',
       sensitivity: row.sensitivity || row.skin_sensitivity || user.skin_sensitivity || '',
       concerns: concerns,
       goals: goals.filter(Boolean),
-      routine_goal: row.routine_goal || user.routine_goal || '',
+      routine_goal: primaryGoal,
       routine_preference: row.routine_style || row.routine_preference || user.routine_style || '',
+      budget_band: row.budget_band || user.budget_band || '',
+      avoid_ingredients: asArray(row.avoid_ingredients || user.avoid_ingredients),
+      preferred_texture: row.preferred_texture || user.preferred_texture || '',
+      spf_habit: row.spf_habit || user.spf_habit || '',
       updated_at: row.updated_at || user.skin_profile_updated_at || ''
     };
   }
@@ -259,6 +252,40 @@
     if (sp.routine_goal) values.push(cleanGoal(sp.routine_goal));
     sp.goals.forEach(function (g) { var label = cleanGoal(g); if (label && !values.includes(label)) values.push(label); });
     return values.filter(Boolean);
+  }
+  function normalizeRoutineRecord(row) {
+    row = safeObject(row);
+    var result = safeObject(row.result);
+    var profile = safeObject(row.skin_profile_snapshot || result.skin_profile_snapshot);
+    var morning = asArray(row.morning_steps || result.morning_steps || result.morning || result.dayRoutine);
+    var evening = asArray(row.evening_steps || result.evening_steps || result.evening || result.nightRoutine);
+    var weekly = asArray(row.weekly_steps || result.weekly_steps || result.weekly);
+    var products = asArray(row.recommended_products || result.recommended_products || result.products || result.uniqueProductSlugs);
+    return Object.assign({}, row, {
+      result: result,
+      skin_profile_snapshot: profile,
+      morning_steps: morning,
+      evening_steps: evening,
+      weekly_steps: weekly,
+      recommended_products: products,
+      routine_score: Number(row.routine_score || result.routine_score || result.score || result.matchScore || 0) || 0,
+      routine_title: row.routine_title || result.routine_title || result.title || result.name || 'Kayıtlı Akıllı Rutin',
+      updated_at: row.updated_at || row.completed_at || row.created_at || result.updatedAt || ''
+    });
+  }
+  function stepProduct(step) {
+    step = safeObject(step);
+    return step.product || step;
+  }
+  function routineStepsHtml(title, steps) {
+    steps = asArray(steps);
+    if (!steps.length) return '<section class="cs-routine-steps"><h4>' + escapeHtml(title) + '</h4><p>Bu adım için kayıtlı ürün bulunmuyor.</p></section>';
+    return '<section class="cs-routine-steps"><h4>' + escapeHtml(title) + '</h4><ol>' + steps.map(function (step) {
+      var product = stepProduct(step);
+      var prod = getProductByHandle(product.product_slug || product.slug || product.id) || normalizeProduct(product);
+      var label = step.label || step.routine_step || product.routine_step || prod?.category || 'Rutin adımı';
+      return '<li><span>' + escapeHtml(label) + '</span><strong>' + escapeHtml(prod?.product_name || product.name || 'Ürün') + '</strong></li>';
+    }).join('') + '</ol></section>';
   }
   function profilePreferenceCount(sp) {
     sp = sp || skinProfile();
@@ -412,7 +439,13 @@
     setText('#routinesBadge', String(summary.routine_results.length));
     setText('#couponsBadge', String(activeCoupons().length));
     setText('#notificationsBadge', String(summary.stats.unread_notifications || 0));
-    var help = $('.cs-help-card'); if (help) { help.setAttribute('data-tab-link','support'); help.setAttribute('href','/account/profile.html?tab=support'); }
+    var help = $('.cs-help-card');
+    if (help) {
+      help.setAttribute('data-tab-link','support');
+      help.setAttribute('href','/account/profile.html?tab=support');
+      var helpIcon = $('.cs-help-icon', help);
+      if (helpIcon && !helpIcon.innerHTML.trim()) helpIcon.innerHTML = iconSvg('support');
+    }
     renderFooterJournal(user);
     document.title = 'Hesabım | ' + (firstName(user) || 'COSMOSKIN');
     if (l.label) document.documentElement.style.setProperty('--cs-account-tier-progress', l.progress + '%');
@@ -545,9 +578,22 @@
     el.innerHTML = '<div class="cs-tab-title"><div><h1>Faturalarım</h1><p>Hazır faturalarınız burada görüntülenir.</p></div></div>' + (rows.length ? '<div class="cs-order-list">' + rows.map(function (r) { return '<article class="cs-return-card"><h3>' + escapeHtml(r.invoice.invoice_number || safeOrderNumber(r.order)) + '</h3><p>' + escapeHtml(formatDate(r.invoice.issued_at || r.invoice.created_at)) + '</p><a class="cs-mini-btn dark" href="' + escapeHtml(r.invoice.pdf_url || '/contact.html') + '">Faturayı Görüntüle</a></article>'; }).join('') + '</div>' : emptyState('Hazır faturanız bulunmuyor.', 'Faturalarınız hazır olduğunda bu alanda görüntülenir.', null));
   }
   function renderRoutines() {
-    var el = $('#routinesPanel'); if (!el) return; var rows = state.summary.routine_results;
-    function routineCard(r) { var products = asArray(r.recommended_products || r.products || r.result?.recommended_products || r.result?.products).slice(0, 5); return '<article class="cs-routine-card"><div><span class="cs-overline">RUTİN SONUCU</span><h3>' + escapeHtml(r.routine_title || r.title || 'Kayıtlı Rutin') + '</h3><p>' + escapeHtml(r.result?.summary || r.summary || 'Rutin sonucunuz hesabınıza kaydedildi.') + '</p><small>' + escapeHtml(formatDate(r.created_at || r.updated_at, true)) + '</small></div><div class="cs-routine-thumbs">' + products.map(function (p) { var prod = getProductByHandle(p.product_slug || p.slug || p.id) || normalizeProduct(p); return '<img src="' + escapeHtml(prod?.image || '/assets/logo-mark-beige.png') + '" alt="' + escapeHtml(prod?.product_name || 'Ürün') + '">'; }).join('') + '</div><div class="cs-card-actions"><a class="cs-mini-btn dark" href="/account/routines/">Rutin Merkezini Aç</a><button class="cs-mini-btn" type="button" data-add-saved-routine-cart="' + escapeHtml(r.id || '') + '">Ürünleri Sepete Ekle</button></div></article>'; }
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Rutinlerim</h1><p>Rutin Merkezi’nde oluşturduğunuz kayıtlı rutin sonuçlarını görüntüleyin.</p></div><a class="cs-pill-btn cs-pill-btn--dark" href="/routine.html">Rutin Merkezine Git</a></div>' + (rows.length ? '<div class="cs-routine-list">' + rows.map(routineCard).join('') + '</div>' : emptyState('Henüz kayıtlı rutininiz yok.', 'Rutin Merkezi testini tamamladığınızda sonuçlarınız burada görünür.', 'Rutin Merkezine Git', '/routine.html'));
+    var el = $('#routinesPanel'); if (!el) return;
+    var rows = asArray(state.summary.routine_results).map(normalizeRoutineRecord).sort(function (a, b) {
+      if (Boolean(a.is_active) !== Boolean(b.is_active)) return a.is_active ? -1 : 1;
+      return new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0);
+    });
+    function routineCard(r, index) {
+      var products = asArray(r.recommended_products).slice(0, 5);
+      var profile = safeObject(r.skin_profile_snapshot);
+      var primaryGoal = cleanGoal(profile.primary_goal || profile.routine_goal || '');
+      var skinType = cleanSkinType(profile.skin_type || '');
+      var sensitivity = cleanSensitivity(profile.sensitivity || '');
+      var score = Number(r.routine_score || 0);
+      var scoreHtml = score ? '<div class="cs-routine-score"><strong>' + escapeHtml(score) + '</strong><span>/100</span></div>' : '';
+      return '<article class="cs-routine-card ' + (r.is_active || index === 0 ? 'is-active' : '') + '"><div><span class="cs-overline">' + (r.is_active || index === 0 ? 'AKTİF RUTİN' : 'RUTİN SONUCU') + '</span><h3>' + escapeHtml(r.routine_title || 'Kayıtlı Akıllı Rutin') + '</h3><p>' + escapeHtml(r.result?.summary || 'Bu rutin cilt profili, hedef ve ürün adımı verilerine göre kaydedildi.') + '</p><div class="cs-routine-meta"><span>' + escapeHtml(skinType) + '</span><span>' + escapeHtml(primaryGoal) + '</span><span>' + escapeHtml(sensitivity) + '</span></div><small>Son güncelleme: ' + escapeHtml(formatDate(r.updated_at || r.created_at, true)) + '</small></div>' + scoreHtml + '<div class="cs-routine-thumbs">' + products.map(function (p) { var prod = getProductByHandle(p.product_slug || p.slug || p.id) || normalizeProduct(p); return '<img src="' + escapeHtml(prod?.image || '/assets/logo-mark-beige.png') + '" alt="' + escapeHtml(prod?.product_name || 'Ürün') + '">'; }).join('') + '</div><div class="cs-routine-step-grid">' + routineStepsHtml('Sabah', r.morning_steps) + routineStepsHtml('Akşam', r.evening_steps) + (r.weekly_steps.length ? routineStepsHtml('Haftalık', r.weekly_steps) : '') + '</div><div class="cs-card-actions"><a class="cs-mini-btn dark" href="/account/routines/">Rutin Dashboard’u Aç</a><button class="cs-mini-btn" type="button" data-add-saved-routine-cart="' + escapeHtml(r.id || '') + '">Ürünleri Sepete Ekle</button></div></article>';
+    }
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Akıllı Rutinim</h1><p>Rutin Merkezi’nde oluşturduğunuz kişisel bakım rotası hesabınızla senkronize edilir.</p></div><a class="cs-pill-btn cs-pill-btn--dark" href="/routine.html">Rutin Merkezine Git</a></div>' + (rows.length ? '<div class="cs-routine-list">' + rows.map(routineCard).join('') + '</div>' : emptyState('Henüz kayıtlı rutininiz yok.', 'Akıllı Rutin Merkezi’ni kullanarak kişisel bakım rotanızı oluşturabilirsiniz.', 'Rutin Merkezine Git', '/routine.html'));
   }
   function renderSkinProfile() {
     var el = $('#skinPanel'); if (!el) return; var sp = skinProfile(); var goals = profileGoalLabels(sp); var products = recommendedProducts(4);
@@ -586,7 +632,7 @@
   }
   function renderAddresses() {
     var el = $('#addressesPanel'); if (!el) return; var addresses = state.summary.addresses;
-    var cards = addresses.length ? '<div class="cs-address-grid">' + addresses.map(function (a) { var recipient = [a.recipient_first_name || a.first_name, a.recipient_last_name || a.last_name].filter(Boolean).join(' '); var location = [a.neighborhood, a.district, a.city].filter(Boolean).join(' / '); return '<article class="cs-address-card"><div class="cs-address-head"><h3>' + escapeHtml(a.title || 'Adres') + '</h3><span>' + escapeHtml(addressTypeLabel(a.address_type || a.type)) + '</span></div><p>' + escapeHtml([a.address_line || a.address, location, a.postal_code || a.postalCode].filter(Boolean).join(', ')) + '</p><small>' + escapeHtml(recipient || 'Alıcı bilgisi') + (a.phone ? ' · ' + escapeHtml(a.phone) : '') + '</small>' + (a.is_default ? '<em class="cs-address-default">Varsayılan</em>' : '') + '<div class="cs-address-actions"><button class="cs-mini-btn" type="button" data-edit-address="' + escapeHtml(a.id) + '">Düzenle</button>' + (!a.is_default ? '<button class="cs-mini-btn" type="button" data-default-address="' + escapeHtml(a.id) + '">Varsayılan Yap</button>' : '') + '<button class="cs-mini-btn" type="button" data-delete-address="' + escapeHtml(a.id) + '">Sil</button></div></article>'; }).join('') + '</div>' : '<div class="cs-empty"><strong>Kayıtlı adresiniz bulunmuyor.</strong><p>Checkout sırasında hızlı kullanım için teslimat ve fatura adresi ekleyebilirsiniz.</p><button class="cs-pill-btn" type="button" id="addAddressBtn">Adres Ekle</button></div>';
+    var cards = addresses.length ? '<div class="cs-address-grid">' + addresses.map(function (a) { var recipient = [a.recipient_first_name || a.first_name, a.recipient_last_name || a.last_name].filter(Boolean).join(' '); var location = [a.neighborhood, a.district, a.city].filter(Boolean).join(' / '); return '<article class="cs-address-card"><div class="cs-address-head"><h3>' + escapeHtml(a.title || 'Adres') + '</h3><span>' + escapeHtml(addressTypeLabel(a.address_type || a.type)) + '</span></div><p>' + escapeHtml([a.address_line || a.address, location, a.postal_code || a.postalCode].filter(Boolean).join(', ')) + '</p><small>' + escapeHtml(recipient || 'Alıcı bilgisi') + (a.phone ? ' · ' + escapeHtml(a.phone) : '') + '</small>' + (a.is_default ? '<em class="cs-address-default">Varsayılan</em>' : '') + '<div class="cs-address-actions"><button class="cs-mini-btn" type="button" data-edit-address="' + escapeHtml(a.id) + '">Düzenle</button>' + (!a.is_default ? '<button class="cs-mini-btn" type="button" data-default-address="' + escapeHtml(a.id) + '">Varsayılan Yap</button>' : '') + '<button class="cs-mini-btn" type="button" data-delete-address="' + escapeHtml(a.id) + '">Sil</button></div></article>'; }).join('') + '</div>' : '<div class="cs-empty"><strong>Kayıtlı adresiniz bulunmuyor.</strong><p>Checkout sırasında hızlı kullanım için teslimat ve fatura adresi ekleyebilirsiniz.</p><button class="cs-pill-btn" type="button" data-open-address-modal>Adres Ekle</button></div>';
     el.innerHTML = '<div class="cs-tab-title"><div><h1>Adreslerim</h1><p>Teslimat ve fatura adreslerinizi yönetin.</p></div><button class="cs-pill-btn" type="button" id="addAddressBtn">Yeni Adres Ekle</button></div>' + cards + addressModalHtml();
   }
   function addressTypeLabel(type) { return type === 'billing' ? 'Fatura' : type === 'both' ? 'Teslimat + Fatura' : 'Teslimat'; }
@@ -597,19 +643,28 @@
     var el = $('#paymentsPanel'); if (!el) return;
     el.innerHTML = '<div class="cs-tab-title"><div><h1>Ödeme Tercihlerim</h1><p>Kart bilgileriniz COSMOSKIN tarafından saklanmaz.</p></div></div><section class="cs-card"><div class="cs-card-head"><span>ÖDEME GÜVENLİĞİ</span></div><p class="cs-card-intro">Kart bilgileriniz COSMOSKIN tarafından saklanmaz. Havale/EFT ve kart ödeme seçenekleri ödeme adımında güvenli altyapı üzerinden sunulur.</p><div class="cs-payment-method-grid"><article><strong>Kredi/Banka Kartı</strong><span>Güvenli ödeme sağlayıcısı üzerinden</span></article><article><strong>Havale/EFT</strong><span>Sipariş numarası açıklamasıyla</span></article></div></section>';
   }
+  function notificationListHtml() {
+    var rows = asArray(state.summary?.notifications);
+    if (!rows.length) return '<div class="cs-notification-list" id="notificationsList">' + emptyState('Okunmamış bildirim bulunmuyor.', 'Sipariş, stok ve destek bildirimleri oluştuğunda burada görünür.', null) + '</div>';
+    return '<div class="cs-notification-list" id="notificationsList">' + rows.slice(0, 12).map(function (n) {
+      var unread = n.is_read === false ? ' is-unread' : '';
+      return '<article class="cs-notification-item' + unread + '"><div><strong>' + escapeHtml(n.title || n.subject || 'Bildirim') + '</strong><p>' + escapeHtml(n.message || n.body || 'Detay bilgisi bulunmuyor.') + '</p><small>' + escapeHtml(formatDate(n.created_at, true)) + '</small></div>' + (n.is_read === false ? '<span>Yeni</span>' : '') + '</article>';
+    }).join('') + '</div>';
+  }
   function renderNotifications() {
     var el = $('#notificationsPanel'); if (!el) return; var user = state.summary.user || {}; var comm = Object.assign({}, safeObject(user.communication), safeObject(state.summary.notification_preferences));
     var journalActive = Boolean(comm.newsletter ?? comm.newsletter_opt_in ?? comm.newsletterOptIn);
     function checked(name, fallback) { return (comm[name] === undefined ? fallback : Boolean(comm[name])) ? 'checked' : ''; }
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Bildirim Tercihlerim</h1><p>Sipariş, kargo, kampanya, stok ve rutin bildirim tercihlerinizi yönetin.</p></div><button class="cs-pill-btn cs-pill-btn--dark" id="saveNotificationsBtn" type="button">Tercihleri Kaydet</button></div>' +
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Bildirim Tercihlerim</h1><p>Sipariş, kargo, kampanya, stok, SMS ve rutin bildirim tercihlerinizi yönetin.</p></div><div class="cs-panel-actions"><button class="cs-pill-btn" id="markAllNotificationsBtn" type="button">Bildirimleri Okundu Yap</button><button class="cs-pill-btn cs-pill-btn--dark" id="saveNotificationsBtn" type="button">Tercihleri Kaydet</button></div></div>' +
       '<form class="cs-toggle-grid" id="notificationPrefsForm">' +
       '<label><input name="order_updates" type="checkbox" ' + checked('order_updates', true) + '> <span>Sipariş güncellemeleri</span><small>Ödeme ve sipariş durumları</small></label>' +
       '<label><input name="cargo_updates" type="checkbox" ' + checked('cargo_updates', true) + '> <span>Kargo güncellemeleri</span><small>Takip ve teslimat bilgileri</small></label>' +
       '<label><input name="campaign_emails" type="checkbox" ' + checked('campaign_emails', Boolean(comm.marketing_email_opt_in)) + '> <span>Kampanya e-postaları</span><small>İndirim ve ürün duyuruları</small></label>' +
+      '<label><input name="sms_notifications" type="checkbox" ' + checked('sms_notifications', Boolean(comm.marketing_sms_opt_in || comm.sms_notifications)) + '> <span>SMS bildirimleri</span><small>Sipariş veya izin verilen pazarlama SMS tercihleri</small></label>' +
       '<label><input name="stock_notifications" type="checkbox" ' + checked('stock_notifications', Boolean(comm.stock_alert_opt_in)) + '> <span>Stok bildirimleri</span><small>Favori ürün stok uyarıları</small></label>' +
       '<label><input name="routine_reminders" type="checkbox" ' + checked('routine_reminders', Boolean(comm.routine_reminder_opt_in)) + '> <span>Rutin hatırlatmaları</span><small>Bakım rutinine dair e-posta notları</small></label>' +
       '<label><input name="newsletter" type="checkbox" ' + checked('newsletter', Boolean(comm.newsletter_opt_in)) + '> <span>COSMOSKIN Journal</span><small>Bakım notları ve seçki e-postaları</small></label>' +
-      '</form><section class="cs-content-help-card"><div><span class="cs-overline">JOURNAL</span><h3>' + (journalActive ? 'Journal aboneliğiniz aktif.' : 'Journal aboneliğiniz aktif değil.') + '</h3><p>Abonelik tercihiniz güvenli şekilde kaydedilir. İşlem tamamlanamazsa sizi bilgilendiririz.</p></div>' + (journalActive ? '<button class="cs-pill-btn" data-newsletter-unsubscribe type="button">Abonelikten Çık</button>' : '<button class="cs-pill-btn" id="saveNotificationsBtn" type="button">Tercihleri Kaydet</button>') + '</section>';
+      '</form><section class="cs-content-help-card"><div><span class="cs-overline">JOURNAL</span><h3>' + (journalActive ? 'Journal aboneliğiniz aktif.' : 'Journal aboneliğiniz aktif değil.') + '</h3><p>Abonelik tercihiniz güvenli şekilde kaydedilir. İşlem tamamlanamazsa sizi bilgilendiririz.</p></div>' + (journalActive ? '<button class="cs-pill-btn" data-newsletter-unsubscribe type="button">Abonelikten Çık</button>' : '<button class="cs-pill-btn" data-save-notifications type="button">Tercihleri Kaydet</button>') + '</section>' + notificationListHtml();
   }
   function renderSecurity() {
     var el = $('#securityPanel'); if (!el) return; var checklist = securityChecklist().map(securityRow).join('');
@@ -659,17 +714,20 @@
       var routineCart = e.target.closest('[data-add-routine-cart]'); if (routineCart) { e.preventDefault(); var products = recommendedProducts(4); if (!products.length) return showToast('Sepete eklenebilecek profil önerisi bulunmuyor.', 'warning'); products.forEach(addToCart); }
       var savedRoutineCart = e.target.closest('[data-add-saved-routine-cart]'); if (savedRoutineCart) { e.preventDefault(); addSavedRoutineToCart(savedRoutineCart.dataset.addSavedRoutineCart); }
       var repeat = e.target.closest('[data-repeat-order]'); if (repeat) { repeatOrder(repeat.dataset.repeatOrder); }
-      var addAddress = e.target.closest('#addAddressBtn'); if (addAddress) { e.preventDefault(); openAddressModal(); }
+      var addAddress = e.target.closest('#addAddressBtn,[data-open-address-modal]'); if (addAddress) { e.preventDefault(); openAddressModal(); }
       var editAddress = e.target.closest('[data-edit-address]'); if (editAddress) { e.preventDefault(); openAddressModal(editAddress.dataset.editAddress); }
       var delAddress = e.target.closest('[data-delete-address]'); if (delAddress) { e.preventDefault(); deleteAddress(delAddress.dataset.deleteAddress).catch(handleError); }
       var defAddress = e.target.closest('[data-default-address]'); if (defAddress) { e.preventDefault(); setDefaultAddress(defAddress.dataset.defaultAddress).catch(handleError); }
-      if (e.target.closest('#addressCancelBtn') || e.target.closest('#addressCancelBtn2')) { e.preventDefault(); closeAddressModal(); }
+      if (e.target.closest('#addressCancelBtn') || e.target.closest('#addressCancelBtn2') || e.target.closest('#cancelAddressBtn') || e.target.closest('#closeAddressModal')) { e.preventDefault(); closeAddressModal(); }
       if (e.target.matches('#saveProfileBtn')) saveProfile().catch(handleError);
       if (e.target.matches('#saveSkinBtn')) saveSkin().catch(handleError);
-      if (e.target.matches('#saveNotificationsBtn')) saveNotifications().catch(handleError);
+      if (e.target.matches('#saveNotificationsBtn') || e.target.closest('[data-save-notifications]')) saveNotifications().catch(handleError);
+      if (e.target.matches('#markAllNotificationsBtn')) markAllNotificationsRead().catch(handleError);
       if (e.target.matches('#logoutBtn') || e.target.matches('#logoutInlineBtn')) logout();
       if (e.target.closest('[data-newsletter-unsubscribe]')) { e.preventDefault(); unsubscribeJournal().catch(handleError); }
+      if (e.target.matches('#addressModal')) { e.preventDefault(); closeAddressModal(); }
     });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAddressModal(); });
     document.addEventListener('submit', function (e) {
       if (e.target.matches('#passwordForm')) { e.preventDefault(); updatePassword(e.target).catch(handleError); }
       if (e.target.matches('#addressForm')) { e.preventDefault(); saveAddress(e.target).catch(handleError); }
@@ -700,10 +758,25 @@
   async function saveAddress(form) { var data = new FormData(form); var payload = { id:data.get('id') || undefined, title:data.get('title'), address_type:data.get('address_type'), first_name:data.get('first_name'), last_name:data.get('last_name'), phone:data.get('phone'), city:data.get('city'), district:data.get('district'), neighborhood:data.get('neighborhood'), postal_code:data.get('postal_code'), address_line:data.get('address_line'), is_default:Boolean(data.get('is_default')) }; await apiFetch('/account/addresses', { method:payload.id ? 'PATCH' : 'POST', body:payload }); closeAddressModal(); await loadSummary(); switchTab('addresses', false); showToast('Adres kaydedildi.'); }
   async function deleteAddress(id) { if (!id || !window.confirm('Adres silinsin mi?')) return; await apiFetch('/account/addresses', { method:'DELETE', body:{ id:id } }); await loadSummary(); switchTab('addresses', false); showToast('Adres silindi.'); }
   async function setDefaultAddress(id) { var addr = state.summary.addresses.find(function (a) { return String(a.id) === String(id); }); if (!addr) return; await apiFetch('/account/addresses', { method:'PATCH', body:Object.assign({}, addr, { id:id, is_default:true }) }); await loadSummary(); switchTab('addresses', false); showToast('Varsayılan adres güncellendi.'); }
-  async function saveSkin() { var form = $('#skinForm'); if (!form) return; var concerns = $$('input[name="skin_concerns"]:checked', form).map(function (i) { return i.value; }); var payload = { skin_type:form.elements.skin_type.value, skin_sensitivity:form.elements.skin_sensitivity.value, routine_goal:form.elements.routine_goal.value, skin_concerns:concerns, routine_style:form.elements.routine_style?.value || '', skin_profile_updated_at:new Date().toISOString() }; await apiFetch('/account/skin-profile', { method:'POST', body:payload }); await loadSummary(); switchTab('skin-profile', false); showToast('Cilt profiliniz güncellendi.'); }
-  async function saveProfile() { var f = $('#profileForm'); if (!f) return; var payload = { first_name:f.elements.first_name.value.trim(), last_name:f.elements.last_name.value.trim(), phone:f.elements.phone.value.trim(), birthday:f.elements.birthday?.value || undefined }; await apiFetch('/account/profile', { method:'PATCH', body:payload }); await loadSummary(); switchTab('profile', false); showToast('Hesap bilgileriniz güncellendi.'); }
-  async function saveNotifications() { var f = $('#notificationPrefsForm'); if (!f) return; var payload = { order_updates:f.elements.order_updates.checked, cargo_updates:f.elements.cargo_updates.checked, campaign_emails:f.elements.campaign_emails.checked, stock_notifications:f.elements.stock_notifications.checked, routine_reminders:f.elements.routine_reminders.checked, newsletter:f.elements.newsletter.checked }; await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } }); await loadSummary(); switchTab('notifications', false); showToast('Bildirim tercihleriniz güncellendi.'); }
-  async function unsubscribeJournal() { var current = Object.assign({}, safeObject(state.summary?.user?.communication), safeObject(state.summary?.notification_preferences)); var payload = { order_updates:current.order_updates !== false, cargo_updates:current.cargo_updates !== false, campaign_emails:Boolean(current.campaign_emails || current.marketing_email_opt_in), stock_notifications:Boolean(current.stock_notifications || current.stock_alert_opt_in), routine_reminders:Boolean(current.routine_reminders || current.routine_reminder_opt_in), newsletter:false }; await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } }); await loadSummary(); switchTab(state.activeTab, false); showToast('COSMOSKIN Journal aboneliğiniz kapatıldı.'); }
+  async function saveSkin() { var form = $('#skinForm'); if (!form) return; var concerns = $$('input[name="skin_concerns"]:checked', form).map(function (i) { return i.value; }); var payload = { skin_type:form.elements.skin_type.value, sensitivity:form.elements.skin_sensitivity.value, skin_sensitivity:form.elements.skin_sensitivity.value, primary_goal:form.elements.routine_goal.value, routine_goal:form.elements.routine_goal.value, secondary_goals:concerns.filter(function (item) { return item !== form.elements.routine_goal.value; }), skin_concerns:concerns, routine_style:form.elements.routine_style?.value || '', source_channel:'account-skin-profile', updated_at:new Date().toISOString(), skin_profile_updated_at:new Date().toISOString() }; if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.normalizeSkinProfile === 'function') payload = Object.assign(payload, window.COSMOSKINRoutineData.normalizeSkinProfile(payload, { source:'account-skin-profile' })); await apiFetch('/account/skin-profile', { method:'POST', body:payload }); await loadSummary(); switchTab('skin-profile', false); showToast('Cilt profiliniz güncellendi.'); }
+  async function saveProfile() { var f = $('#profileForm'); if (!f) return; var payload = { first_name:(f.elements.first_name?.value || '').trim(), last_name:(f.elements.last_name?.value || '').trim(), phone:(f.elements.phone?.value || '').trim(), birthday:f.elements.birthday?.value || undefined }; await apiFetch('/account/profile', { method:'PATCH', body:payload }); await loadSummary(); switchTab('profile', false); showToast('Hesap bilgileriniz güncellendi.'); }
+  function checkedFormValue(form, names, fallback) { for (var i = 0; i < names.length; i += 1) { var input = form.elements[names[i]]; if (input) return Boolean(input.checked); } return Boolean(fallback); }
+  async function saveNotifications() {
+    var f = $('#notificationPrefsForm'); if (!f) return;
+    var payload = {
+      order_updates: checkedFormValue(f, ['order_updates','orderUpdates'], true),
+      cargo_updates: checkedFormValue(f, ['cargo_updates','cargoUpdates'], true),
+      campaign_emails: checkedFormValue(f, ['campaign_emails','campaignEmails'], false),
+      stock_notifications: checkedFormValue(f, ['stock_notifications','stockNotifications','restockAlerts'], false),
+      routine_reminders: checkedFormValue(f, ['routine_reminders','routineReminders'], false),
+      newsletter: checkedFormValue(f, ['newsletter','newsletter_opt_in'], false),
+      sms_notifications: checkedFormValue(f, ['sms_notifications','smsNotifications'], false)
+    };
+    await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } });
+    await loadSummary(); switchTab('notifications', false); showToast('Bildirim tercihleriniz güncellendi.');
+  }
+  async function markAllNotificationsRead() { await apiFetch('/account/notifications', { method:'PATCH', body:{ mark_all_read:true } }); await loadSummary(); switchTab('notifications', false); showToast('Bildirimler okundu olarak işaretlendi.'); }
+  async function unsubscribeJournal() { var current = Object.assign({}, safeObject(state.summary?.user?.communication), safeObject(state.summary?.notification_preferences)); var payload = { order_updates:current.order_updates !== false, cargo_updates:current.cargo_updates !== false, campaign_emails:Boolean(current.campaign_emails || current.marketing_email_opt_in), stock_notifications:Boolean(current.stock_notifications || current.stock_alert_opt_in), routine_reminders:Boolean(current.routine_reminders || current.routine_reminder_opt_in), sms_notifications:Boolean(current.sms_notifications || current.marketing_sms_opt_in), newsletter:false }; await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } }); await loadSummary(); switchTab(state.activeTab, false); showToast('COSMOSKIN Journal aboneliğiniz kapatıldı.'); }
   async function updatePassword(form) { var p = form.elements.password.value; var p2 = form.elements.password_confirm.value; if (p !== p2) return showToast('Şifreler eşleşmiyor.', 'warning'); if (p.length < 8) return showToast('Şifre en az 8 karakter olmalı.', 'warning'); if (!state.client) return showToast('Şifre güncelleme için oturum gerekli.', 'warning'); var res = await state.client.auth.updateUser({ password:p }); if (res.error) throw res.error; form.reset(); showToast('Şifreniz güncellendi.'); }
   async function createSupportRequest(form) { var data = new FormData(form); var payload = { category:data.get('category'), order_id:data.get('order_id') || undefined, subject:data.get('subject'), message:data.get('message') }; await apiFetch('/account/support-requests', { method:'POST', body:payload }); form.reset(); await loadSummary(); switchTab('support', false); showToast('Destek talebiniz oluşturuldu.'); }
   function logout() { if (state.client) return state.client.auth.signOut().finally(function () { window.location.href = '/index.html'; }); window.location.href = '/index.html'; }
@@ -726,6 +799,14 @@
       var loggedIn = await initSession();
       if (!loggedIn) { showAuthGate('Hesap bilgilerinizi görüntülemek için giriş yapmanız gerekir.'); return; }
       await loadSummary();
+      if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.syncPendingDraft === 'function') {
+        try {
+          var synced = await window.COSMOSKINRoutineData.syncPendingDraft(state.session);
+          if (synced && synced.ok && !synced.skipped) await loadSummary();
+        } catch (syncError) {
+          console.warn('COSMOSKIN routine draft sync skipped:', syncError && syncError.message);
+        }
+      }
       var tab = normalizeTab(new URL(window.location.href).searchParams.get('tab') || 'overview');
       setLoading(false);
       switchTab(tab, false);

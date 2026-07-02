@@ -2,7 +2,7 @@
   'use strict';
 
   var SECTION_ID = 'smart-routine';
-  var ICON_BASE = '/assets/icons/routine/final-color/256/';
+  var ICON_BASE = '/assets/icons/cosmoskin/';
   var REVIEW_CACHE = new Map();
   var REVIEW_API = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
 
@@ -10,20 +10,37 @@
     return !window.COSMOSKIN_ENABLE_LOCAL_API && (location.protocol === 'file:' || location.hostname === ['local','host'].join('') || location.hostname === '127.0.0.1');
   }
 
+  var iconFiles = {
+    ui: { 'arrow-right':'system-arrow-right', check:'status-check', info:'status-info', offer:'commerce-gift' },
+    goals: { 'goal-hydration':'routine-goal-hydration', 'goal-barrier':'routine-goal-barrier', 'goal-radiance':'routine-goal-radiance', 'goal-blemish':'routine-goal-tone', 'goal-sensitive':'routine-goal-sensitive', 'goal-pore':'routine-goal-pore', 'goal-acne':'routine-goal-acne-prone' },
+    routine: { 'step-cleanse':'routine-step-cleanse', 'step-prep':'routine-step-prep', 'step-serum':'routine-step-serum', 'step-moisturize':'routine-step-moisturize', 'step-protect':'routine-step-spf' },
+    state: { empty:'status-empty', info:'status-info', warning:'status-warning', check:'status-check' }
+  };
+
+  function iconPath(group, name) {
+    var file = iconFiles[group] && iconFiles[group][name] ? iconFiles[group][name] : name;
+    return ICON_BASE + file + '.svg';
+  }
 
   var icon = {
-    ui: function (name) { return ICON_BASE + 'ui/' + name + '.png'; },
-    goals: function (name) { return ICON_BASE + 'goals/' + name + '.png'; },
-    routine: function (name) { return ICON_BASE + 'routine/' + name + '.png'; },
-    state: function (name) { return ICON_BASE + 'state/' + name + '.png'; }
+    ui: function (name) { return iconPath('ui', name); },
+    goals: function (name) { return iconPath('goals', name); },
+    routine: function (name) { return iconPath('routine', name); },
+    state: function (name) { return iconPath('state', name); }
   };
+
+  function iconImg(src, className) {
+    return '<img class="' + esc(className || 'cs-icon cs-icon--md') + '" src="' + esc(src) + '" alt="" aria-hidden="true" loading="lazy">';
+  }
 
   var goalConfig = [
     { id: 'nem', label: 'Nem', icon: icon.goals('goal-hydration'), keywords: ['nem', 'hydration', 'hyaluronic', 'glycerin', 'water', 'moisture'] },
     { id: 'bariyer', label: 'Bariyer', icon: icon.goals('goal-barrier'), keywords: ['bariyer', 'ceramide', 'seramid', 'panthenol', 'centella', 'squalane', 'mucin'] },
     { id: 'isilti', label: 'Işıltı', icon: icon.goals('goal-radiance'), keywords: ['ışıltı', 'glow', 'niacinamide', 'vitamin c', 'rice', 'pirinç', 'arbutin'] },
     { id: 'leke', label: 'Leke', icon: icon.goals('goal-blemish'), keywords: ['leke', 'dark spot', 'vitamin c', 'arbutin', 'ton', 'spf'] },
-    { id: 'hassasiyet', label: 'Hassasiyet', icon: icon.goals('goal-sensitive'), keywords: ['hassas', 'soothing', 'heartleaf', 'centella', 'low ph', 'yatıştırıcı'] }
+    { id: 'hassasiyet', label: 'Hassasiyet', icon: icon.goals('goal-sensitive'), keywords: ['hassas', 'soothing', 'heartleaf', 'centella', 'low ph', 'yatıştırıcı'] },
+    { id: 'gozenek', label: 'Gözenek & Sebum', icon: icon.goals('goal-pore'), keywords: ['gözenek', 'gozenek', 'pore', 'sebum', 'bha', 'salicylic', 'pad'] },
+    { id: 'akne', label: 'Sivilceye Eğilim', icon: icon.goals('goal-acne'), keywords: ['akne', 'acne', 'blemish', 'sivilce', 'salicylic', 'bha', 'tea tree'] }
   ];
 
   var skinTypes = [
@@ -222,6 +239,8 @@
     if (goals.indexOf('nem') !== -1 && /(hyaluronic|glycerin|water|moisture|nem)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
     if (goals.indexOf('isilti') !== -1 && /(glow|niacinamide|vitamin c|rice|pirinç|arbutin)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' '))) score += 12;
     if (goals.indexOf('leke') !== -1 && /(spf|vitamin c|arbutin|dark spot|ton)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' ') + ' ' + product.category)) score += 14;
+    if (goals.indexOf('gozenek') !== -1 && /(pore|gözenek|gozenek|sebum|bha|salicylic|pad|clay)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' ') + ' ' + product.category + ' ' + product.name)) score += 14;
+    if (goals.indexOf('akne') !== -1 && /(akne|acne|blemish|sivilce|bha|salicylic|centella|heartleaf|cica)/i.test((product.benefits || []).join(' ') + ' ' + (product.keywords || []).join(' ') + ' ' + product.category + ' ' + product.name)) score += 14;
     return score;
   }
 
@@ -410,9 +429,9 @@
         '<div class="smart-routine__step">' +
           '<div class="smart-routine__step-index">' + (index + 1) + '</div>' +
           '<div class="smart-routine__step-card">' +
-            '<div class="smart-routine__step-icon"><img src="' + esc(step.icon) + '" alt="" loading="lazy"></div>' +
+            '<div class="smart-routine__step-icon">' + iconImg(step.icon, 'cs-icon cs-icon--routine') + '</div>' +
             '<div class="smart-routine__step-copy"><strong>' + esc(step.label) + '</strong><span>' + esc(step.description) + '</span></div>' +
-            '<img class="smart-routine__step-arrow" src="' + esc(icon.ui('arrow-right')) + '" alt="" loading="lazy">' +
+            iconImg(icon.ui('arrow-right'), 'cs-icon cs-icon--sm smart-routine__step-arrow') +
           '</div>' +
         '</div>';
     }).join('');
@@ -461,7 +480,7 @@
         '</div>' +
       '</a>' +
       '<button class="smart-routine__product-remove" type="button" data-sr-remove-product="' + esc(slot) + '" aria-label="' + esc(product.name + ' ürününü rutinden çıkar') + '">×</button>' +
-      (!isLast ? '<img class="smart-routine__connector" src="' + esc(icon.ui('arrow-right')) + '" alt="" loading="lazy">' : '') +
+      (!isLast ? iconImg(icon.ui('arrow-right'), 'cs-icon cs-icon--sm smart-routine__connector') : '') +
     '</div>';
   }
 
@@ -507,7 +526,7 @@
       var offerEmpty = root.querySelector('[data-sr-offer]');
       if (offerEmpty) {
         offerEmpty.hidden = false;
-        offerEmpty.innerHTML = '<div class="smart-routine__offer-icon">•</div><div><strong>Cilt hedefini seç</strong><span>Ürünler seçimden sonra gerçek ürün verisi ve stok durumuyla gösterilir.</span></div><b>Başla</b>';
+        offerEmpty.innerHTML = '<div class="smart-routine__offer-icon">' + iconImg(icon.state('info'), 'cs-icon cs-icon--status') + '</div><div><strong>Cilt hedefini seç</strong><span>Ürünler seçimden sonra gerçek ürün verisi ve stok durumuyla gösterilir.</span></div><b>Başla</b>';
       }
       root.querySelectorAll('[data-sr-add-cart], [data-sr-save], [data-sr-show-alternatives]').forEach(function (button) {
         button.disabled = true;
@@ -549,12 +568,12 @@
     var count = getUniqueRoutineProducts(routineState.dayRoutine, routineState.nightRoutine, true).length;
     if (routineState.bundleDiscountEligible) {
       offer.hidden = false;
-      offer.innerHTML = '<div class="smart-routine__offer-icon">%</div>' +
+      offer.innerHTML = '<div class="smart-routine__offer-icon">' + iconImg(icon.ui('offer'), 'cs-icon cs-icon--status') + '</div>' +
         '<div><strong>Rutin Set Avantajı</strong><span>Gündüz + gece rutininde 2+ üründe sepette %10 avantaj. Aynı ürün tekrar eklenmez.</span></div>' +
         '<b>-' + esc(formatPrice(routineState.bundleDiscountAmount)) + '</b>';
     } else {
       offer.hidden = false;
-      offer.innerHTML = '<div class="smart-routine__offer-icon">%</div>' +
+      offer.innerHTML = '<div class="smart-routine__offer-icon">' + iconImg(icon.ui('offer'), 'cs-icon cs-icon--status') + '</div>' +
         '<div><strong>Rutin Set Avantajı</strong><span>%10 avantaj için rutinde en az 2 stoklu ürün seçili olmalı.</span></div>' +
         '<b>' + count + '/2</b>';
     }
@@ -645,15 +664,46 @@
     return 'nem';
   }
 
-  function persistRoutineSelectionForRoutinePages() {
-    var payload = {
+  function buildRoutineDraftPayload() {
+    var base = {
       selectedGoals: routineState.selectedGoals.slice(),
       selectedSkinType: routineState.selectedSkinType,
       skinType: routineState.selectedSkinType,
-      sensitivity: 'orta',
+      sensitivity: routineState.sensitivity || 'orta',
       habit: 'Sabah & Akşam',
-      intensity: 'orta',
-      tolerance: 'orta',
+      intensity: routineState.preference || 'dengeli',
+      tolerance: routineState.experience || 'orta',
+      dayRoutine: routineState.dayRoutine.map(safeRoutineProduct),
+      nightRoutine: routineState.nightRoutine.map(safeRoutineProduct),
+      uniqueProductSlugs: getUniqueRoutineProducts(routineState.dayRoutine, routineState.nightRoutine, true).map(function (product) { return product.slug; }),
+      totalPrice: routineState.totalPrice,
+      originalTotalPrice: routineState.originalTotalPrice,
+      bundleDiscountRate: routineState.bundleDiscountRate,
+      bundleDiscountAmount: routineState.bundleDiscountAmount,
+      bundleDiscountEligible: routineState.bundleDiscountEligible,
+      matchScore: routineState.matchScore,
+      routine_score: routineState.matchScore,
+      routine_title: routineState.selectedGoals.indexOf('bariyer') !== -1 ? 'Bariyer Odaklı Dengeli Rutin' : routineState.selectedGoals.indexOf('leke') !== -1 ? 'Leke Görünümü ve Ton Eşitsizliği Rutini' : routineState.selectedGoals.indexOf('gozenek') !== -1 ? 'Gözenek & Sebum Dengesi Rutini' : routineState.selectedGoals.indexOf('hassasiyet') !== -1 ? 'Hassasiyet Dostu Minimal Rutin' : 'COSMOSKIN Akıllı Rutin',
+      source: 'home-smart-routine',
+      source_channel: 'home-smart-routine',
+      updatedAt: new Date().toISOString()
+    };
+    if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.homeStateToDraft === 'function') {
+      return window.COSMOSKINRoutineData.homeStateToDraft(base);
+    }
+    return { skin_profile: base, routine_result: base, source_channel: 'home-smart-routine' };
+  }
+
+  function persistRoutineSelectionForRoutinePages() {
+    var draft = buildRoutineDraftPayload();
+    var legacyPayload = Object.assign({}, draft.routine_result || {}, {
+      selectedGoals: routineState.selectedGoals.slice(),
+      selectedSkinType: routineState.selectedSkinType,
+      skinType: routineState.selectedSkinType,
+      sensitivity: routineState.sensitivity || 'orta',
+      habit: 'Sabah & Akşam',
+      intensity: routineState.preference || 'dengeli',
+      tolerance: routineState.experience || 'orta',
       dayRoutine: routineState.dayRoutine.map(safeRoutineProduct),
       nightRoutine: routineState.nightRoutine.map(safeRoutineProduct),
       uniqueProductSlugs: getUniqueRoutineProducts(routineState.dayRoutine, routineState.nightRoutine, true).map(function (product) { return product.slug; }),
@@ -661,13 +711,14 @@
       matchScore: routineState.matchScore,
       source: 'home-smart-routine',
       updatedAt: new Date().toISOString()
-    };
+    });
     try {
-      localStorage.setItem('cosmoskin_last_routine', JSON.stringify(payload));
-      localStorage.setItem('cosmoskin_pending_routine_preferences', JSON.stringify(payload));
-      localStorage.setItem('cosmoskin_routine_preferences', JSON.stringify(payload));
+      if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.saveDraft === 'function') window.COSMOSKINRoutineData.saveDraft(draft, { source: 'home-smart-routine' });
+      localStorage.setItem('cosmoskin_last_routine', JSON.stringify(legacyPayload));
+      localStorage.setItem('cosmoskin_pending_routine_preferences', JSON.stringify(legacyPayload));
+      localStorage.setItem('cosmoskin_routine_preferences', JSON.stringify(legacyPayload));
     } catch (error) {}
-    return payload;
+    return draft;
   }
 
   function viewRoutinePage() {
@@ -676,7 +727,7 @@
       return;
     }
     persistRoutineSelectionForRoutinePages();
-    window.location.href = '/account/routines/?from=home-smart-routine&goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma');
+    window.location.href = '/routine.html?from=home-smart-routine&goal=' + encodeURIComponent(resolveRoutineGoalParam()) + '&skin=' + encodeURIComponent(routineState.selectedSkinType || 'karma');
   }
 
   async function saveRoutine() {
@@ -684,48 +735,28 @@
       showRoutineToast('Rutinini kaydetmek için önce cilt hedefini seç.', 'warning');
       return;
     }
-    var payload = {
-      selectedGoals: routineState.selectedGoals.slice(),
-      selectedSkinType: routineState.selectedSkinType,
-      dayRoutine: routineState.dayRoutine.map(safeRoutineProduct),
-      nightRoutine: routineState.nightRoutine.map(safeRoutineProduct),
-      totalPrice: routineState.totalPrice,
-      originalTotalPrice: routineState.originalTotalPrice,
-      bundleDiscountRate: routineState.bundleDiscountRate,
-      bundleDiscountAmount: routineState.bundleDiscountAmount,
-      bundleDiscountEligible: routineState.bundleDiscountEligible,
-      matchScore: routineState.matchScore,
-      savedAt: new Date().toISOString()
-    };
+    var draft = persistRoutineSelectionForRoutinePages();
 
-    var client = window.cosmoskinSupabase;
-    if (client && client.auth && typeof client.auth.getUser === 'function') {
-      try {
-        var result = await client.auth.getUser();
-        if (!result || !result.data || !result.data.user) {
-          showRoutineToast('Rutinini kaydetmek için giriş yapmalısın.', 'warning');
-          try { sessionStorage.setItem('cosmoskin_return_to', '/account/routines/?from=home-smart-routine'); } catch (error) {}
+    try {
+      if (window.COSMOSKINRoutineData && typeof window.COSMOSKINRoutineData.saveToAccount === 'function') {
+        var saved = await window.COSMOSKINRoutineData.saveToAccount(draft);
+        if (saved && saved.needsAuth) {
+          showRoutineToast('Rutinini kaydetmek için giriş yapmalısın. Seçimlerin kaybolmayacak.', 'warning');
+          try { sessionStorage.setItem('cosmoskin_return_to', '/account/profile.html?tab=routines&routineSync=1'); } catch (error) {}
           if (typeof window.COSMOSKIN_OPEN_AUTH === 'function') window.COSMOSKIN_OPEN_AUTH('loginPanel');
           else document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
           return;
         }
-      } catch (error) {
-        showRoutineToast('Rutinini kaydetmek için giriş yapmalısın.', 'warning');
-        try { sessionStorage.setItem('cosmoskin_return_to', '/account/routines/?from=home-smart-routine'); } catch (storageError) {}
-        if (typeof window.COSMOSKIN_OPEN_AUTH === 'function') window.COSMOSKIN_OPEN_AUTH('loginPanel');
-        else document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
+        window.dispatchEvent(new CustomEvent('cosmoskin:routine-saved', { detail: saved }));
+        showRoutineToast('Rutinin hesabına kaydedildi.', 'success');
         return;
       }
-    }
-
-    try {
-      localStorage.setItem('cosmoskin_saved_routine', JSON.stringify(payload));
-      localStorage.setItem('cosmoskin_routine_active', JSON.stringify(payload));
-      localStorage.setItem('cosmoskin_routine_preferences', JSON.stringify(payload));
-      window.dispatchEvent(new CustomEvent('cosmoskin:routine-saved', { detail: payload }));
-      showRoutineToast('Rutinin kaydedildi.', 'success');
+      localStorage.setItem('cosmoskin_saved_routine', JSON.stringify(draft));
+      localStorage.setItem('cosmoskin_routine_active', JSON.stringify(draft.routine_result || draft));
+      window.dispatchEvent(new CustomEvent('cosmoskin:routine-saved', { detail: draft }));
+      showRoutineToast('Rutinin bu cihazda kaydedildi.', 'success');
     } catch (error) {
-      showRoutineToast('Rutin kaydedilemedi. Lütfen tekrar dene.', 'error');
+      showRoutineToast(error && error.message ? error.message : 'Rutin kaydedilemedi. Lütfen tekrar dene.', 'error');
     }
   }
 
@@ -946,8 +977,8 @@
     if (goals) {
       goals.innerHTML = goalConfig.map(function (goal) {
         return '<button class="smart-routine__goal" type="button" data-sr-goal="' + esc(goal.id) + '" aria-pressed="false">' +
-          '<span class="smart-routine__goal-check"><img src="' + esc(icon.ui('check')) + '" alt=""></span>' +
-          '<img src="' + esc(goal.icon) + '" alt="" loading="lazy">' +
+          '<span class="smart-routine__goal-check">' + iconImg(icon.ui('check'), 'cs-icon cs-icon--sm') + '</span>' +
+          iconImg(goal.icon, 'cs-icon cs-icon--goal') +
           '<span>' + esc(goal.label) + '</span>' +
         '</button>';
       }).join('');

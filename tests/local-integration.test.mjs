@@ -45,7 +45,7 @@ test('free-shipping coupon overrides shipping without negative totals', () => {
   const totals = calculateTotalsWithCoupon([{line_total:899}],{discount:0,freeShipping:true},'express');
   assert.deepEqual({shipping:totals.shipping,total:totals.total},{shipping:0,total:899});
   const restored = calculateTotalsWithCoupon([{line_total:899}],null,'standard');
-  assert.equal(restored.shipping,119); assert.equal(restored.total,1018);
+  assert.equal(restored.shipping,89); assert.equal(restored.total,988);
 });
 
 test('EFT reservation duration is centrally bounded', () => {

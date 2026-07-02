@@ -1,5 +1,4 @@
 import { getCatalogProductByHandle, getCatalogProductByName } from './catalog.js';
-import { FALLBACK_BANK_ACCOUNTS } from './bank-accounts.js';
 
 function escapeHtml(value = '') {
   return String(value ?? '')
@@ -256,11 +255,14 @@ function trackingBlock(shipment = {}) {
 }
 
 function bankAccountsBlock(accounts = [], order = {}) {
-  const normalized = Array.isArray(accounts) && accounts.length ? accounts : FALLBACK_BANK_ACCOUNTS;
+  const normalized = Array.isArray(accounts) ? accounts.filter((account) => account && (account.iban || account.bankName || account.bank_name)) : [];
+  if (!normalized.length) {
+    return noticeBlock('Havale/EFT banka bilgileri bu e-postaya eklenemedi. Lütfen ödeme yapmadan önce sipariş ekranındaki güncel banka bilgilerini kontrol edin veya destek@cosmoskin.com.tr ile iletişime geçin.', 'warning');
+  }
   const rows = normalized.map((account) => `
     <tr><td style="padding:14px 18px;border-top:1px solid #eee5dc;">
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#171717;font-weight:bold;margin-bottom:8px;">${escapeHtml(account.bankName || account.bank_name)}</div>
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.8;color:#6b5e50;">Alıcı: <strong style="color:#171717;">${escapeHtml(account.accountName || account.account_holder)}</strong><br>IBAN: <strong style="color:#171717;word-break:break-all;">${escapeHtml(account.iban)}</strong><br>Şube: ${escapeHtml(account.branch || 'Maltepe Çarşı')}</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.8;color:#6b5e50;">Alıcı: <strong style="color:#171717;">${escapeHtml(account.accountName || account.account_holder)}</strong><br>IBAN: <strong style="color:#171717;word-break:break-all;">${escapeHtml(account.iban)}</strong>${account.branch ? `<br>Şube: ${escapeHtml(account.branch)}` : ''}</div>
     </td></tr>`).join('');
   return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:22px;border-collapse:separate;border-spacing:0;background:#faf7f3;border:1px solid #eee5dc;border-radius:16px;overflow:hidden;">
     <tr><td style="padding:14px 18px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9a8e82;letter-spacing:1.8px;text-transform:uppercase;font-weight:bold;">Havale/EFT Bilgileri</td></tr>
@@ -346,10 +348,21 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
 </body></html>`;
 }
 
-export function buildCommerceText({ order = {}, type = 'order_created', shipment = {}, note = '', env = {}, items = [] }) {
+export function buildCommerceText({ order = {}, type = 'order_created', shipment = {}, note = '', env = {}, items = [], bankAccounts = [] }) {
   const copy = copyFor(type);
   const lines = ['COSMOSKIN', copy.subject, copy.body, `Sipariş No: ${orderNumber(order)}`];
   if (order.total_amount != null) lines.push(`Toplam: ${formatMoney(order.total_amount, order.currency || 'TRY')}`);
+  if (type === 'bank_transfer_pending') {
+    const accounts = Array.isArray(bankAccounts) ? bankAccounts.filter((account) => account && account.iban && (account.bankName || account.bank_name)) : [];
+    if (accounts.length) {
+      lines.push('Havale/EFT banka bilgileri:');
+      accounts.forEach((account) => {
+        lines.push(`${account.bankName || account.bank_name} · Alıcı: ${account.accountName || account.account_holder || 'Aktif hesap alıcısı'} · IBAN: ${account.iban}${account.branch ? ` · Şube: ${account.branch}` : ''}`);
+      });
+    } else {
+      lines.push('Havale/EFT banka bilgileri bu e-postaya eklenemedi. Ödeme yapmadan önce sipariş ekranındaki güncel banka bilgilerini kontrol edin veya destek@cosmoskin.com.tr ile iletişime geçin.');
+    }
+  }
   if (shipment.carrier_name || shipment.carrier) lines.push(`Kargo Firması: ${shipment.carrier_name || shipment.carrier}`);
   if (shipment.tracking_number) lines.push(`Takip No: ${shipment.tracking_number}`);
   if (type === 'shipment_delivered') lines.push('Hasarlı, eksik veya yanlış ürün bildiriminizi teslimattan itibaren 48 saat içinde fotoğraf/video ile destek@cosmoskin.com.tr üzerinden bize iletebilirsiniz.');

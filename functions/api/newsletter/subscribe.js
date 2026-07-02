@@ -136,7 +136,7 @@ export async function onRequestPost(context) {
       consent_type: 'newsletter_opt_in',
       status: 'accepted',
       source: 'newsletter_'+source,
-      metadata: { source, legal_version: 'checkout-20260626', note: 'Newsletter consent is recorded separately from commercial marketing consent.' }
+      metadata: { source, legal_version: 'legal-20260702', note: 'Newsletter consent is recorded separately from commercial marketing consent.' }
     }]).catch((error) => console.error('newsletter consent record failed', { message: error.message }));
     await recordCrmEvent(context, { event_type: 'newsletter_subscribed', email, metadata: { source } });
 

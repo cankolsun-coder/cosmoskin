@@ -641,10 +641,10 @@
     return { bankName: bankName, accountName: accountName, iban: iban, branch: branch, configured: Boolean(bankName && accountName && iban) };
   }
   function bankAccountsConfig() {
-    var checkout = (window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.checkout) || {};
-    var configured = (liveBankAccounts && liveBankAccounts.length ? liveBankAccounts : ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.bankAccounts) || checkout.bankAccounts || window.COSMOSKIN_BANK_ACCOUNTS || []));
-    if (!Array.isArray(configured) || !configured.length) configured = [liveBankAccount || checkout.bankTransfer || window.COSMOSKIN_BANK_TRANSFER || {}];
-    return configured.map(normalizeBankAccountUi).filter(function (bank) { return bank.configured; });
+    // E2E payment readiness: Havale/EFT bilgileri yalnızca runtime API kaynağından gelir.
+    // Statik window config veya eski hardcoded fallback kullanılmaz; aktif hesap yoksa checkout güvenli şekilde bloklanır.
+    var configured = liveBankAccounts && liveBankAccounts.length ? liveBankAccounts : (liveBankAccount ? [liveBankAccount] : []);
+    return configured.map(normalizeBankAccountUi).filter(function (bank) { return bank.configured && validTurkishIban(bank.iban); });
   }
   function bankConfig() {
     var accounts = bankAccountsConfig();
@@ -689,7 +689,7 @@
       last_name: state.delivery.lastName,
       email: state.delivery.email,
       phone: state.delivery.phone,
-      identity_number: state.invoice.type === 'individual' ? (state.invoice.identity || '') : '',
+      identity_number: state.paymentMethod === 'card' && state.invoice.type === 'individual' ? (state.invoice.identity || '') : '',
       city: state.delivery.city,
       district: state.delivery.district,
       postal_code: state.delivery.postalCode,
@@ -722,9 +722,9 @@
         distance_sales: Boolean(state.legal.distanceSales),
         privacy: Boolean(state.legal.privacy),
         marketing: Boolean(state.legal.marketing),
-        pre_information_version: 'checkout-20260622',
-        distance_sales_version: 'checkout-20260622',
-        privacy_notice_version: 'checkout-20260622',
+        pre_information_version: 'legal-20260702',
+        distance_sales_version: 'legal-20260702',
+        privacy_notice_version: 'legal-20260702',
         accepted_terms_at: new Date().toISOString(),
         accepted_privacy_at: new Date().toISOString(),
         marketing_consent_at: state.legal.marketing ? new Date().toISOString() : null
@@ -1024,10 +1024,10 @@
       paymentOptionHtml('bank_transfer', 'Havale / EFT', 'Sipariş oluşturulur, ödeme onayı sonrası hazırlanır', 'Ödeme bekleniyor', { icon: 'bank' }) +
       '</div>' + paymentMethodPanelHtml() + '</div>' +
       '<div class="cs-checkout-legal-panel"><div class="cs-checkout-method-head"><h3>Yasal Onaylar</h3><p>Devam etmek için zorunlu bilgilendirme ve sözleşme onaylarını tamamlayın.</p></div>' +
-      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPreInformation" ' + (state.legal.preInformation ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPreInformation-error"><span><a href="/legal/on-bilgilendirme-formu.html" data-legal-document="on-bilgilendirme-formu" data-legal-version="checkout-20260626">Ön Bilgilendirme Formu</a>’nu okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalPreInformation-error"></div>' +
-      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalDistanceSales" ' + (state.legal.distanceSales ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalDistanceSales-error"><span><a href="/legal/mesafeli-satis-sozlesmesi.html" data-legal-document="mesafeli-satis-sozlesmesi" data-legal-version="checkout-20260626">Mesafeli Satış Sözleşmesi</a>’ni okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalDistanceSales-error"></div>' +
-      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPrivacy" ' + (state.legal.privacy ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPrivacy-error"><span><a href="/legal/kvkk-aydinlatma-metni.html" data-legal-document="kvkk-aydinlatma-metni" data-legal-version="checkout-20260626">KVKK Aydınlatma Metni</a> kapsamında kişisel verilerimin işlenmesine ilişkin bilgilendirildim.</span></label><div class="cs-checkout-error" id="cs-legalPrivacy-error"></div>' +
-      '<label class="cs-checkout-checkbox"><input type="checkbox" name="marketingEmailOptIn" ' + (state.legal.marketing ? 'checked' : '') + ' aria-invalid="false"><span>COSMOSKIN tarafından kampanya, indirim, ürün önerileri ve bilgilendirme amaçlı ticari elektronik ileti gönderilmesini kabul ediyorum. <a href="/legal/ticari-elektronik-ileti-izni.html" data-legal-document="ticari-elektronik-ileti-izni" data-legal-version="checkout-20260626">Detaylar</a>.</span></label></div>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPreInformation" ' + (state.legal.preInformation ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPreInformation-error"><span><a href="/legal/on-bilgilendirme-formu.html" data-legal-document="on-bilgilendirme-formu" data-legal-version="legal-20260702">Ön Bilgilendirme Formu</a>’nu okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalPreInformation-error"></div>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalDistanceSales" ' + (state.legal.distanceSales ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalDistanceSales-error"><span><a href="/legal/mesafeli-satis-sozlesmesi.html" data-legal-document="mesafeli-satis-sozlesmesi" data-legal-version="legal-20260702">Mesafeli Satış Sözleşmesi</a>’ni okudum ve kabul ediyorum.</span></label><div class="cs-checkout-error" id="cs-legalDistanceSales-error"></div>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="legalPrivacy" ' + (state.legal.privacy ? 'checked' : '') + ' aria-invalid="false" aria-describedby="cs-legalPrivacy-error"><span><a href="/legal/kvkk-aydinlatma-metni.html" data-legal-document="kvkk-aydinlatma-metni" data-legal-version="legal-20260702">KVKK Aydınlatma Metni</a> kapsamında kişisel verilerimin işlenmesine ilişkin bilgilendirildim.</span></label><div class="cs-checkout-error" id="cs-legalPrivacy-error"></div>' +
+      '<label class="cs-checkout-checkbox"><input type="checkbox" name="marketingEmailOptIn" ' + (state.legal.marketing ? 'checked' : '') + ' aria-invalid="false"><span>COSMOSKIN tarafından kampanya, indirim, ürün önerileri ve bilgilendirme amaçlı ticari elektronik ileti gönderilmesini kabul ediyorum. <a href="/legal/ticari-elektronik-ileti-izni.html" data-legal-document="ticari-elektronik-ileti-izni" data-legal-version="legal-20260702">Detaylar</a>.</span></label></div>' +
       '</form><div id="csIyzicoHost"></div></section>';
   }
   function paymentOptionHtml(value, title, desc, meta, options) {
@@ -1045,13 +1045,14 @@
   }
   function bankPanelHtml() {
     var bank = bankConfig();
-    var accounts = bank.accounts || [];
+    var accounts = (bank.accounts || []).filter(function (account) { return account && account.configured && validTurkishIban(account.iban); });
     var accountCards = accounts.map(function (account, index) {
-      var lines = [['Banka Adı', account.bankName], ['Alıcı Ünvanı', account.accountName], ['IBAN', account.iban], ['Şube', account.branch || 'Maltepe Çarşı']];
-      return '<article class="cs-checkout-bank-account" data-bank-index="' + index + '"><h4>' + esc(account.bankName) + '</h4>' + lines.map(function (line) { return '<div class="cs-checkout-bank-line"><span>' + esc(line[0]) + '</span><strong>' + esc(line[1]) + '</strong>' + (line[0] === 'IBAN' ? '<button class="cs-checkout-secondary" data-copy-iban type="button">Kopyala</button>' : '<i></i>') + '</div>'; }).join('') + '</article>';
+      var lines = [['Banka Adı', account.bankName], ['Alıcı Ünvanı', account.accountName], ['IBAN', account.iban]];
+      if (account.branch) lines.push(['Şube', account.branch]);
+      return '<article class="cs-checkout-bank-account" data-bank-index="' + index + '"><h4>' + esc(account.bankName) + '</h4>' + lines.map(function (line) { return '<div class="cs-checkout-bank-line"><span>' + esc(line[0]) + '</span><strong>' + esc(line[1]) + '</strong>' + (line[0] === 'IBAN' ? '<button class="cs-checkout-secondary" data-copy-iban data-iban="' + esc(account.iban) + '" aria-label="' + esc(account.bankName + ' IBAN bilgisini kopyala') + '" type="button">Kopyala</button>' : '<i></i>') + '</div>'; }).join('') + '</article>';
     }).join('');
     return '<div class="cs-checkout-bank-panel"><div class="cs-checkout-method-head"><h3>Havale / EFT ile ödeme</h3><p>Sipariş numaranız ödeme açıklamasında yer almalıdır. Onay sonrası hazırlık süreci başlar.</p></div>' +
-      (!bank.configured ? '<p class="cs-checkout-status is-error">' + esc(liveBankAccountError || 'Havale/EFT ödeme bilgileri henüz kullanıma hazır değil. Bu yöntemle sipariş oluşturulamaz.') + '</p>' : '<div class="cs-checkout-bank-accounts">' + accountCards + '</div>') +
+      (!accounts.length ? '<p class="cs-checkout-status is-error">' + esc(liveBankAccountError || 'Havale/EFT ödeme bilgileri henüz kullanıma hazır değil. Bu yöntemle sipariş oluşturulamaz.') + '</p>' : '<div class="cs-checkout-bank-accounts">' + accountCards + '</div>') +
       '<div class="cs-checkout-bank-notes"><span>Ödeme açıklaması sipariş oluşturulduktan sonra görünür.</span><span>24 saat içinde tamamlanmayan havale siparişleri iptal edilebilir.</span></div></div>';
   }
 
@@ -1094,7 +1095,7 @@
     return [
       ['Fatura Tipi', 'Bireysel'],
       ['Ad Soyad', state.invoice.name],
-      ['T.C. Kimlik No', state.invoice.identity || (state.paymentMethod === 'card' ? 'Kartlı ödeme için zorunlu' : 'Opsiyonel')],
+      ['T.C. Kimlik No', state.paymentMethod === 'card' ? (state.invoice.identity ? 'Ödeme/fatura süreci için alındı; açık şekilde gösterilmez' : 'Kartlı ödeme için zorunlu') : 'Havale/EFT siparişlerinde istenmez'],
       ['E-posta', state.invoice.email],
       ['Telefon', state.invoice.phone],
       ['Adres', state.invoice.sameAsDelivery ? 'Teslimat adresiyle aynı' : state.invoice.address]
@@ -1110,15 +1111,18 @@
     var items = normalizedOrderItems(order);
     var t = normalizedOrderTotals(order);
     var bank = order.bank || bankConfig();
-    var bankList = Array.isArray(order.bankAccounts) && order.bankAccounts.length ? order.bankAccounts : (bank.accounts || [bank]);
+    var bankList = (Array.isArray(order.bankAccounts) && order.bankAccounts.length ? order.bankAccounts : (bank.accounts || (bank.configured ? [bank] : [])))
+      .map(normalizeBankAccountUi)
+      .filter(function (account) { return account.configured && validTurkishIban(account.iban); });
     var orderNo = order.orderNumber || orderNumberFallback();
     var itemHtml = items.length ? items.map(function (item) {
       return '<article class="cs-checkout-success-item"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"><div><span>' + esc(item.brand) + '</span><strong>' + esc(item.name) + '</strong><small>Adet: ' + esc(item.qty) + ' · Birim fiyat: ' + money(item.price) + '</small></div><b>' + money(item.line_total) + '</b></article>';
     }).join('') : '<p class="cs-checkout-note">Sipariş ürünleri kaydedildi. Detayları Siparişlerim alanından takip edebilirsin.</p>';
-    var bankCards = isBank ? '<div class="cs-checkout-success-bank-grid">' + bankList.map(function (b, index) {
-      b = b || {};
-      return '<article class="cs-checkout-bank-account cs-checkout-success-bank" data-bank-index="' + index + '"><h4>' + esc(b.bankName || 'Banka Hesabı') + '</h4><div class="cs-checkout-bank-line"><span>IBAN</span><strong>' + esc(b.iban || 'IBAN yapılandırılıyor') + '</strong><button class="cs-checkout-secondary" data-copy-iban data-iban="' + esc(b.iban || '') + '" type="button">Kopyala</button></div><div class="cs-checkout-bank-line"><span>Alıcı</span><strong>' + esc(b.accountName || 'ENES CAN KÖLSÜN') + '</strong><i></i></div><div class="cs-checkout-bank-line"><span>Şube</span><strong>' + esc(b.branch || 'Maltepe Çarşı') + '</strong><i></i></div></article>';
-    }).join('') + '</div>' : '';
+    var bankCards = isBank ? (bankList.length ? '<div class="cs-checkout-success-bank-grid">' + bankList.map(function (b, index) {
+      var lines = [['IBAN', b.iban], ['Alıcı', b.accountName]];
+      if (b.branch) lines.push(['Şube', b.branch]);
+      return '<article class="cs-checkout-bank-account cs-checkout-success-bank" data-bank-index="' + index + '"><h4>' + esc(b.bankName) + '</h4>' + lines.map(function (line) { return '<div class="cs-checkout-bank-line"><span>' + esc(line[0]) + '</span><strong>' + esc(line[1]) + '</strong>' + (line[0] === 'IBAN' ? '<button class="cs-checkout-secondary" data-copy-iban data-iban="' + esc(b.iban) + '" aria-label="' + esc(b.bankName + ' IBAN bilgisini kopyala') + '" type="button">Kopyala</button>' : '<i></i>') + '</div>'; }).join('') + '</article>';
+    }).join('') + '</div>' : '<p class="cs-checkout-status is-error">Banka bilgileri bu oturumda doğrulanamadı. Ödeme yapmadan önce Siparişlerim ekranındaki güncel bilgileri kontrol edin veya destek@cosmoskin.com.tr ile iletişime geçin.</p>') : '';
     var deadline = formatOrderDeadline(order.paymentDeadline);
     return '<section class="cs-checkout-card cs-checkout-success"><div class="cs-checkout-success-mark">' + icon('check') + '</div><h2>' + (isBank ? 'Siparişiniz Oluşturuldu' : 'Siparişiniz Alındı') + '</h2><p>' + (isBank ? 'Havale/EFT ödemeniz bekleniyor. Ödeme açıklamasına mutlaka sipariş numaranızı yazın: <strong>' + esc(orderNo) + '</strong>' : 'Siparişiniz alındı. Elektronik faturanız hazırlanarak kayıtlı e-posta adresinize gönderilecektir.') + '</p><div class="cs-checkout-success-grid"><div class="cs-checkout-success-row"><span>Sipariş No</span><strong>' + esc(orderNo) + '</strong></div><div class="cs-checkout-success-row"><span>E-posta</span><strong>' + esc(order.email || state.delivery.email || '—') + '</strong></div><div class="cs-checkout-success-row"><span>Ödeme Durumu</span><strong>' + (isBank ? 'Havale/EFT bekleniyor' : 'Ödeme sağlayıcı onayı bekleniyor') + '</strong></div><div class="cs-checkout-success-row"><span>Tahmini Teslimat</span><strong>2-4 iş günü</strong></div></div><div class="cs-checkout-success-products"><h3>Sipariş Özeti</h3>' + itemHtml + '<div class="cs-checkout-success-totals">' + totalRow('Ara Toplam', money(t.subtotal)) + (t.discount ? totalRow('İndirim', '-' + money(t.discount)) : '') + totalRow('Kargo', t.shipping ? money(t.shipping) : 'Ücretsiz') + totalRow('Dahil olan KDV', money(t.vat)) + totalRow('Toplam', money(t.total), true) + '</div></div>' + (isBank ? '<div class="cs-checkout-success-payment"><h3>Havale/EFT Bilgileri</h3><p class="cs-checkout-note">Ödeme açıklaması: <strong>' + esc(orderNo) + '</strong></p>' + bankCards + (deadline ? '<p class="cs-checkout-note"><strong>Ödeme son zamanı:</strong> ' + esc(deadline) + '</p>' : '') + '</div>' : '') + '<div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/account/profile.html?tab=orders">Siparişlerime Git</a><a class="cs-checkout-secondary" href="/order-tracking.html">Siparişi Takip Et</a><a class="cs-checkout-secondary" href="/contact.html">Destek Al</a></div></section>';
   }

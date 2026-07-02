@@ -52,9 +52,22 @@
 /account/routine-favorites.html /account/routine-favorites/ 302
 /account/routine-history.html   /account/routine-history/   302
 /account/routine-profile.html   /account/routine-profile/   302
-/collections/routine       /account/routines/          302
-/collections/routine/      /account/routines/          302
-/collections/routine.html  /account/routines/          302
-/routine.html              /account/routines/          302
-/rutinler                  /account/routines/          302
-/rutinler.html             /account/routines/          302
+/collections/routine       /routine.html              302
+/collections/routine/      /routine.html              302
+/collections/routine.html  /routine.html              302
+/rutinler                  /routine.html              302
+/rutinler.html             /routine.html              302
+/akilli-rutin              /routine.html              302
+/akilli-rutin.html         /routine.html              302
+
+# Production launch final QA: common legacy legal route aliases.
+/kvkk.html /legal/kvkk-aydinlatma-metni.html 301
+/kvkk-aydinlatma-metni.html /legal/kvkk-aydinlatma-metni.html 301
+/cerez-politikasi.html /legal/cerez-politikasi.html 301
+/gizlilik-politikasi.html /legal/gizlilik-ve-guvenlik-politikasi.html 301
+/gizlilik-ve-guvenlik.html /legal/gizlilik-ve-guvenlik-politikasi.html 301
+/uyelik-sozlesmesi.html /legal/uyelik-sozlesmesi.html 301
+/ticari-elektronik-ileti.html /legal/ticari-elektronik-ileti-izni.html 301
+/ticari-elektronik-ileti-izni.html /legal/ticari-elektronik-ileti-izni.html 301
+/acik-riza.html /legal/acik-riza-metni.html 301
+/acik-riza-metni.html /legal/acik-riza-metni.html 301

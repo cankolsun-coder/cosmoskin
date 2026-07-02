@@ -4,38 +4,50 @@ export const LEGAL_DOCUMENTS = {
   'kvkk-aydinlatma-metni': {
     key: 'kvkk-aydinlatma-metni',
     title: 'KVKK Aydınlatma Metni',
-    version: 'checkout-20260626',
+    version: 'legal-20260702',
     url: '/legal/kvkk-aydinlatma-metni.html'
   },
   'on-bilgilendirme-formu': {
     key: 'on-bilgilendirme-formu',
     title: 'Ön Bilgilendirme Formu',
-    version: 'checkout-20260626',
+    version: 'legal-20260702',
     url: '/legal/on-bilgilendirme-formu.html'
   },
   'mesafeli-satis-sozlesmesi': {
     key: 'mesafeli-satis-sozlesmesi',
     title: 'Mesafeli Satış Sözleşmesi',
-    version: 'checkout-20260626',
+    version: 'legal-20260702',
     url: '/legal/mesafeli-satis-sozlesmesi.html'
   },
   'ticari-elektronik-ileti-izni': {
     key: 'ticari-elektronik-ileti-izni',
     title: 'Ticari Elektronik İleti Onayı',
-    version: 'checkout-20260626',
+    version: 'legal-20260702',
     url: '/legal/ticari-elektronik-ileti-izni.html'
   },
   'uyelik-sozlesmesi': {
     key: 'uyelik-sozlesmesi',
     title: 'Üyelik Sözleşmesi',
-    version: 'checkout-20260626',
+    version: 'legal-20260702',
     url: '/legal/uyelik-sozlesmesi.html'
   },
   'cosmoskin-club-kurallari': {
     key: 'cosmoskin-club-kurallari',
     title: 'COSMOSKIN Club Kuralları',
-    version: 'checkout-20260626',
+    version: 'legal-20260702',
     url: '/legal/cosmoskin-club-kurallari.html'
+  },
+  'cerez-politikasi': {
+    key: 'cerez-politikasi',
+    title: 'Çerez Politikası',
+    version: 'legal-20260702',
+    url: '/legal/cerez-politikasi.html'
+  },
+  'acik-riza-metni': {
+    key: 'acik-riza-metni',
+    title: 'Açık Rıza Metni',
+    version: 'legal-20260702',
+    url: '/legal/acik-riza-metni.html'
   }
 };
 

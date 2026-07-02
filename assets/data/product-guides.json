@@ -7,32 +7,34 @@
     "kind": "toner",
     "idealSkinTypes": [
       "Hassas cilt",
-      "Kızarıklığa yatkın cilt",
-      "Günlük tonik"
+      "Karma cilt",
+      "Yağlı cilt",
+      "Kızarıklık eğilimi"
     ],
     "benefits": [
-      "Yatıştırıcı bakım",
+      "Yatıştırıcı his",
       "Nem dengesi",
-      "Hafif his"
+      "Hafif sulu doku",
+      "Temizlik sonrası hazırlık"
     ],
-    "lead": "Anua Heartleaf 77% Soothing Toner; hassasiyet, kızarıklık görünümü ve günlük nem dengesi odağı olan ciltler için konumlandırılmış hafif bir toniktir. Heartleaf özlü formülüyle cildi ferahlatmaya, yatıştırmaya ve sonraki bakım adımlarına hazırlamaya yardımcı olur.",
-    "editorNote": "Hafif ve katmanlanabilir tonik arayanlar için konforlu bir ilk bakım adımıdır. Özellikle nemlendirici ya da serum öncesinde cildi sakin ve dengeli hissettirmesiyle öne çıkar.",
+    "lead": "Heartleaf 77% Soothing Toner; Houttuynia Cordata/Heartleaf özü odağıyla cildi temizleme sonrası sakin, nemli ve dengeli hissettirmek için konumlanan hafif yapılı bir toniktir.",
+    "editorNote": "COSMOSKIN notu: Su gibi ince toner karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Heartleaf 77% Extract",
-        "description": "Cildi yatıştırmaya ve konfor hissini artırmaya yardımcı bitkisel öz odağı."
+        "description": "Ciltte kızarıklık ve hassasiyet hissini yatıştırmaya yardımcı bitkisel öz odağı."
       },
       {
-        "name": "Sulu toner dokusu",
-        "description": "Katmanlı nemlendirme için ağırlık yapmadan hızlı emilen yapı."
+        "name": "Sulu toner bazı",
+        "description": "Hızlı emilen, katmanlanabilir ve ağırlık yapmayan nem hissi verir."
       },
       {
-        "name": "Dengeleyici bakım",
-        "description": "Temizlik sonrası cildi bir sonraki bakım adımına hazırlar."
+        "name": "Düşük iritasyon rutini",
+        "description": "Günlük kullanıma uygun sade tonik adımı olarak rutin geçişini yumuşatır."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Temizleme sonrası avuç içine veya pamukla uygulanır; hassas ciltlerde ovalamadan bastırarak kullanılabilir.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -56,12 +58,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/anua-heartleaf-77-soothing-toner/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/anua-heartleaf-77-soothing-toner/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/anua-heartleaf-77-soothing-toner-ingredient-texture.png",
       "product": "/assets/img/products/anua/anua-heartleaf-77-soothing-toner-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/anua-heartleaf-77-soothing-toner-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/anua/anua-heartleaf-77-soothing-toner-card.webp",
+        "/assets/img/ingredients/anua-heartleaf-77-soothing-toner-ingredient-texture.png"
+      ]
+    },
+    "texture": "Su gibi ince toner",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "anua-heartleaf-pore-control-cleansing-oil": {
     "title": "Heartleaf Pore Control Cleansing Oil kimler için uygun?",
@@ -70,33 +80,35 @@
     "category": "Temizleyiciler",
     "kind": "cleanser",
     "idealSkinTypes": [
-      "Makyaj kullananlar",
-      "Gözenek odağı",
-      "Çift aşamalı temizlik"
+      "Karma cilt",
+      "Yağlı cilt",
+      "SPF kullananlar",
+      "Gözenek görünümü"
     ],
     "benefits": [
-      "Yağ bazlı temizlik",
-      "Arındırma",
-      "Konforlu his"
+      "SPF/makyaj çözme",
+      "Sebum arındırma",
+      "Emülsifiye doku",
+      "İlk temizlik adımı"
     ],
-    "lead": "Anua Heartleaf Pore Control Cleansing Oil; güneş kremi, makyaj ve gün içinde biriken yağ bazlı kalıntıları nazikçe çözmek isteyen kullanıcılar için geliştirilmiş yağ bazlı bir temizleyicidir. Çift aşamalı temizlik rutinlerinin ilk adımı olarak kullanıma uygundur.",
-    "editorNote": "Ağır temizlik hissi istemeyen ama SPF ve makyajı etkili şekilde arındırmak isteyenler için iyi bir ilk adım seçeneğidir. Ardından su bazlı temizleyiciyle rutini tamamlamak en dengeli kullanım olur.",
+    "lead": "Heartleaf Pore Control Cleansing Oil; güneş kremi, makyaj ve sebum kalıntılarını çözmeye yardımcı, suyla sütlü forma dönen yağ bazlı ilk temizlik adımıdır.",
+    "editorNote": "COSMOSKIN notu: Şeffaf temizleme yağı karakteriyle Temizleyiciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Heartleaf Extract",
-        "description": "Temizleme sırasında cilt konforunu desteklemeye yardımcı bitkisel öz."
+        "description": "Temizleme sırasında cilt konforunu destekleyen bitkisel öz odağı."
       },
       {
-        "name": "Yağ bazlı temizleyici dokusu",
-        "description": "Güneş kremi, makyaj ve sebum kalıntılarını çözmeye yardımcı olur."
+        "name": "Bitkisel yağ bazlı temizleme",
+        "description": "SPF ve makyaj kalıntılarını çözmeye yardımcı kaygan doku."
       },
       {
-        "name": "Emülsifiye olan formül",
-        "description": "Su ile temas ettiğinde sütlü forma dönüşerek kolay durulanır."
+        "name": "Emülsifiye formül",
+        "description": "Su ile temas edince sütlü forma dönüşerek daha kolay durulanır."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Islak cilde nazikçe masaj yapıp durulayın; ardından toner ve bakım adımlarıyla devam edin.",
+    "usage": "Kuru cilde masaj yapın, su ekleyerek emülsifiye edin ve durulayın; ardından su bazlı temizleyiciyle çift temizliği tamamlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -120,12 +132,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/anua-heartleaf-pore-control-cleansing-oil/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/anua-heartleaf-pore-control-cleansing-oil/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/anua-heartleaf-pore-control-cleansing-oil-ingredient-texture.png",
       "product": "/assets/img/products/anua/anua-heartleaf-pore-control-cleansing-oil-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/cleanser-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/anua-heartleaf-pore-control-cleansing-oil-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/anua/anua-heartleaf-pore-control-cleansing-oil-card.webp",
+        "/assets/img/ingredients/anua-heartleaf-pore-control-cleansing-oil-ingredient-texture.png"
+      ]
+    },
+    "texture": "Şeffaf temizleme yağı",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "beauty-of-joseon-relief-sun-spf50": {
     "title": "Relief Sun: Rice + Probiotics SPF 50+ PA++++ kimler için uygun?",
@@ -135,32 +155,34 @@
     "kind": "sunscreen",
     "idealSkinTypes": [
       "Tüm cilt tipleri",
-      "Günlük SPF",
-      "Beyaz iz istemeyenler"
+      "Karma cilt",
+      "Normal cilt",
+      "Günlük SPF"
     ],
     "benefits": [
-      "UV koruma",
-      "Nemli bitiş",
-      "Hafif doku"
+      "SPF50+ PA++++",
+      "Beyaz izsiz bitiş",
+      "Nemli his",
+      "Makyaj altı konfor"
     ],
-    "lead": "Beauty of Joseon Relief Sun: Rice + Probiotics SPF 50+ PA++++; günlük kullanımda hafif, konforlu ve beyaz iz bırakmayan bir güneş koruması arayanlar için uygundur. Pirinç özü ve probiyotik kompleksiyle cildi nemli hissettirirken gündüz rutininin son adımı olarak konumlanır.",
-    "editorNote": "İlk SPF seçimi için güven veren, makyaj altında da konforlu hisseden yumuşak bitişli bir güneş kremidir. Günlük şehir rutinlerinde hafiflik ve koruma dengesini iyi kurar.",
+    "lead": "Relief Sun: Rice + Probiotics; pirinç özü ve grain/probiotic kompleks odağıyla günlük şehir rutini için hafif, nemli bitişli SPF50+ PA++++ güneş koruyucu deneyimi sunar.",
+    "editorNote": "COSMOSKIN notu: Hafif krem SPF karakteriyle Güneş Koruyucular adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "SPF 50+ PA++++",
-        "description": "Gündüz rutininde yüksek UV koruma desteği sağlar."
+        "name": "Rice Extract 30%",
+        "description": "Cilde daha nemli, yumuşak ve konforlu bir görünüm desteği sunan pirinç özü odağı."
       },
       {
-        "name": "Rice Extract",
-        "description": "Cilde nemli ve konforlu bir his vermeye yardımcı pirinç özü odağı."
+        "name": "Grain Probiotics Complex",
+        "description": "Fermente tahıl kompleksiyle cilt bariyeri konforunu destekleyen bakım yaklaşımı."
       },
       {
-        "name": "Probiotics Complex",
-        "description": "Cilt bariyeri konforunu desteklemeye yardımcı bakım kompleksi."
+        "name": "Modern UV filtreleri",
+        "description": "Günlük yüksek koruma hedefiyle UVA/UVB koruma odağında formüle edilmiştir."
       }
     ],
     "usageTime": "Sabah",
-    "usage": "Gündüz rutininin son adımı olarak bol miktarda uygulayın; gün içinde ihtiyaç oldukça yenileyin.",
+    "usage": "Sabah rutininizin son adımı olarak yeterli miktarda uygulayın; gün içinde güneşe maruz kalma, terleme veya kurulanma sonrası yenileyin.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -184,12 +206,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/beauty-of-joseon-relief-sun-spf50/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/beauty-of-joseon-relief-sun-spf50/ingredient-visual.png",
-      "product": "/assets/img/products/beauty-of-joseon/beauty-of-joseon-relief-sun-spf50-card.webp",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/beauty-of-joseon-relief-sun-spf50-ingredient-texture.png",
+      "product": "/assets/img/products/beauty-of-joseon/relief-sun-spf50-card.png",
       "fallbackHeroBg": "/assets/img/guide/fallback/sunscreen-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/beauty-of-joseon-relief-sun-spf50-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/beauty-of-joseon/relief-sun-spf50-card.png",
+        "/assets/img/ingredients/beauty-of-joseon-relief-sun-spf50-ingredient-texture.png"
+      ]
+    },
+    "texture": "Hafif krem SPF",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Güneş koruyucular düzenli yenileme gerektirir; ürün ambalajındaki kullanım talimatını esas alın."
   },
   "beauty-of-joseon-glow-serum-propolis-niacinamide": {
     "title": "Glow Serum: Propolis + Niacinamide kimler için uygun?",
@@ -198,33 +228,35 @@
     "category": "Serum & Ampul",
     "kind": "serum",
     "idealSkinTypes": [
-      "Mat cilt",
-      "Işıltı hedefi",
-      "Denge arayan cilt"
+      "Karma cilt",
+      "Yağlı cilt",
+      "Işıltı arayanlar",
+      "Sebum dengesi"
     ],
     "benefits": [
-      "Işıltı",
-      "Sebum dengesi",
-      "Canlı görünüm"
+      "Propolis odağı",
+      "Niacinamide",
+      "Işıltılı görünüm",
+      "Sebum dengesi"
     ],
-    "lead": "Beauty of Joseon Glow Serum: Propolis + Niacinamide; mat, dengesiz veya ışıltısını kaybetmiş ciltlerde daha canlı bir görünüm hedefleyen serum adımıdır. Propolis ve niacinamide odağıyla cilt tonunun daha dengeli görünmesine ve nemli parlaklığa destek olur.",
-    "editorNote": "Parlaklık isteyen ama ağır yağlı his istemeyen kullanıcılar için dengeli bir serumdur. Özellikle sabah rutinlerinde SPF öncesi sağlıklı ışıltı etkisi için iyi çalışır.",
+    "lead": "Glow Serum: Propolis + Niacinamide; cilde canlı ve dengeli bir görünüm kazandırmayı hedefleyen, propolis özü ve niacinamide odağına sahip parlak bitişli bir serumdur.",
+    "editorNote": "COSMOSKIN notu: Bal parlaklığında serum karakteriyle Serum & Ampul adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Propolis Extract",
-        "description": "Cilde daha canlı ve beslenmiş bir görünüm kazandırmaya yardımcı bakım özü."
+        "description": "Cildi beslenmiş, daha canlı ve konforlu göstermeye yardımcı bakım özü."
       },
       {
         "name": "Niacinamide",
-        "description": "Ton eşitsizliği görünümü ve sebum dengesi odağıyla destek sağlar."
+        "description": "Ton eşitsizliği görünümü ve sebum dengesi odağında destek sağlar."
       },
       {
         "name": "Bal benzeri serum dokusu",
-        "description": "Ciltte yumuşak, parlak ve konforlu bir bitiş bırakır."
+        "description": "Yapışkan hissi azaltılmış, parlak ve yumuşak bitişli serum deneyimi."
       }
     ],
-    "usageTime": "Sabah & Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Rutine göre",
+    "usage": "Tonik/essence sonrası 2-3 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -248,12 +280,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/beauty-of-joseon-glow-serum-propolis-niacinamide/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/beauty-of-joseon-glow-serum-propolis-niacinamide/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/beauty-of-joseon-glow-serum-propolis-niacinamide-ingredient-texture.png",
       "product": "/assets/img/products/beauty-of-joseon/beauty-of-joseon-glow-serum-propolis-niacinamide-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/beauty-of-joseon-glow-serum-propolis-niacinamide-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/beauty-of-joseon/beauty-of-joseon-glow-serum-propolis-niacinamide-card.webp",
+        "/assets/img/ingredients/beauty-of-joseon-glow-serum-propolis-niacinamide-ingredient-texture.png"
+      ]
+    },
+    "texture": "Bal parlaklığında serum",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "beauty-of-joseon-glow-deep-serum": {
     "title": "Glow Deep Serum: Rice + Arbutin kimler için uygun?",
@@ -262,17 +302,19 @@
     "category": "Serum & Ampul",
     "kind": "serum",
     "idealSkinTypes": [
-      "Ton eşitsizliği",
       "Leke görünümü",
-      "Işıltı hedefi"
+      "Mat cilt",
+      "Normal cilt",
+      "Karma cilt"
     ],
     "benefits": [
-      "Aydınlık görünüm",
-      "Ton desteği",
-      "Nem"
+      "Rice Bran Water",
+      "Alpha-Arbutin",
+      "Ton görünümü",
+      "Nemli parlaklık"
     ],
-    "lead": "Beauty of Joseon Glow Deep Serum: Rice + Arbutin; donukluk, ton eşitsizliği ve leke görünümü odağında bakım yapmak isteyen ciltler için geliştirilmiş hafif bir serumdur. Pirinç ve arbutin odağıyla daha aydınlık ve dengeli bir görünüm hedefler.",
-    "editorNote": "Leke görünümü ve matlık konusunda nazik ama düzenli kullanıma uygun bir serum arayanlar için iyi bir seçenektir. Gündüz kullanımında SPF ile tamamlanmalıdır.",
+    "lead": "Glow Deep Serum: Rice + Arbutin; pirinç suyu ve alpha-arbutin odağıyla daha aydınlık, daha eşit görünümlü bir cilt rutini isteyenler için hafif serum adımıdır.",
+    "editorNote": "COSMOSKIN notu: Hafif parlak serum karakteriyle Serum & Ampul adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Rice Bran Water",
@@ -280,15 +322,15 @@
       },
       {
         "name": "Alpha-Arbutin",
-        "description": "Ton eşitsizliği ve koyu leke görünümüne yönelik bakım desteği."
+        "description": "Ton eşitsizliği ve koyu leke görünümü odağında kullanılan bakım bileşeni."
       },
       {
         "name": "Hafif serum bazı",
-        "description": "Günlük rutinde kolay katmanlanabilen nemli yapı."
+        "description": "Günlük rutinde kolay katmanlanabilen, nemli bitişli yapı."
       }
     ],
-    "usageTime": "Sabah & Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Rutine göre",
+    "usage": "Tonik sonrası ince bir kat uygulayın; hassasiyet varsa gün aşırı başlayın ve gündüz SPF kullanın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -312,12 +354,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/beauty-of-joseon-glow-deep-serum/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/beauty-of-joseon-glow-deep-serum/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/beauty-of-joseon-glow-deep-serum-ingredient-texture.png",
       "product": "/assets/img/products/beauty-of-joseon/beauty-of-joseon-glow-deep-serum-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/beauty-of-joseon-glow-deep-serum-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/beauty-of-joseon/beauty-of-joseon-glow-deep-serum-card.webp",
+        "/assets/img/ingredients/beauty-of-joseon-glow-deep-serum-ingredient-texture.png"
+      ]
+    },
+    "texture": "Hafif parlak serum",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "beauty-of-joseon-dynasty-cream": {
     "title": "Dynasty Cream kimler için uygun?",
@@ -326,33 +376,35 @@
     "category": "Nemlendiriciler",
     "kind": "moisturizer",
     "idealSkinTypes": [
-      "Normal-kuru cilt",
+      "Kuru cilt",
+      "Normal cilt",
       "Bariyer desteği",
-      "Gece rutini"
+      "Nem kaybı"
     ],
     "benefits": [
-      "Yoğun nem",
-      "Besleyici bakım",
-      "Yumuşak görünüm"
+      "Nem bariyeri",
+      "Ginseng/rice odağı",
+      "Yumuşak bitiş",
+      "Besleyici krem"
     ],
-    "lead": "Beauty of Joseon Dynasty Cream; nem, besleyici bakım ve yumuşak cilt hissi arayan normalden kuruya dönük ciltler için uygundur. Pirinç, ginseng, squalane ve niacinamide odağıyla rutinin nemlendirici adımında konforlu bir bitiş sağlar.",
-    "editorNote": "Daha dolgun, yumuşak ve bakımlı his isteyenler için premium bir nemlendirici adımıdır. Gece rutinlerinde tek başına, gündüz rutinlerinde ise SPF öncesi ince katman halinde kullanılabilir.",
+    "lead": "Dynasty Cream; Beauty of Joseon’un daha zengin, besleyici nemlendirici adımı olarak cilde konfor, yumuşaklık ve nemli bitiş hissi vermek için konumlanır.",
+    "editorNote": "COSMOSKIN notu: Besleyici krem karakteriyle Nemlendiriciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Rice Bran Water",
-        "description": "Cilde nem ve yumuşaklık hissi vermeye yardımcı pirinç suyu odağı."
+        "description": "Ciltte nemli ve daha pürüzsüz görünüm hissini destekleyen pirinç suyu odağı."
       },
       {
         "name": "Ginseng Root Water",
-        "description": "Cildi beslenmiş ve daha canlı göstermeye yardımcı geleneksel bakım özü."
+        "description": "Cilde canlılık ve bakım hissi veren geleneksel içerik yaklaşımı."
       },
       {
-        "name": "Squalane & Niacinamide",
-        "description": "Nem konforu ve daha dengeli cilt görünümü için destek sağlar."
+        "name": "Besleyici krem bazı",
+        "description": "Nem kaybı hissini azaltmaya ve bariyer konforunu desteklemeye yardımcı zengin yapı."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Serum/essence adımından sonra cilde yeterli miktarda uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Serum sonrası yeterli miktarda uygulayın; sabah kullanımında SPF ile tamamlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -376,12 +428,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/beauty-of-joseon-dynasty-cream/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/beauty-of-joseon-dynasty-cream/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/beauty-of-joseon-dynasty-cream-ingredient-texture.png",
       "product": "/assets/img/products/beauty-of-joseon/beauty-of-joseon-dynasty-cream-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/moisturizer-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/beauty-of-joseon-dynasty-cream-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/beauty-of-joseon/beauty-of-joseon-dynasty-cream-card.webp",
+        "/assets/img/ingredients/beauty-of-joseon-dynasty-cream-ingredient-texture.png"
+      ]
+    },
+    "texture": "Besleyici krem",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "beauty-of-joseon-green-plum-refreshing-cleanser": {
     "title": "Green Plum Refreshing Cleanser kimler için uygun?",
@@ -390,33 +450,35 @@
     "category": "Temizleyiciler",
     "kind": "cleanser",
     "idealSkinTypes": [
-      "Günlük temizlik",
       "Karma cilt",
+      "Yağlı cilt",
+      "Günlük temizlik",
       "Nazik arındırma"
     ],
     "benefits": [
-      "Ferahlık",
-      "Nazik temizlik",
-      "Denge"
+      "Green plum odağı",
+      "Düşük pH hissi",
+      "Günlük arındırma",
+      "Jel temizleyici"
     ],
-    "lead": "Beauty of Joseon Green Plum Refreshing Cleanser; cildi kurutmadan arındırmak isteyen günlük temizlik rutinleri için uygundur. Yeşil erik ve mung bean odağıyla ferah, dengeli ve nazik bir temizlik hissi sunar.",
-    "editorNote": "Sabah-akşam kullanılabilecek sade ve güvenli bir temizleyici arayanlar için iyi bir temel üründür. Özellikle ikinci temizleme adımı olarak dengeli çalışır.",
+    "lead": "Green Plum Refreshing Cleanser; günlük kullanımda cildi germeden arındırmayı hedefleyen, yeşil erik ve bitkisel ekstrakt odağına sahip jel temizleyicidir.",
+    "editorNote": "COSMOSKIN notu: Ferahlık veren jel karakteriyle Temizleyiciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Green Plum Water",
-        "description": "Cilde ferah ve temiz bir his vermeye yardımcı yeşil erik suyu odağı."
+        "description": "Ferahlık ve canlılık hissi veren yeşil erik suyu odağı."
       },
       {
-        "name": "Mung Bean Seed Extract",
-        "description": "Geleneksel arındırıcı bakım desteği sağlar."
+        "name": "Mung Bean Extract",
+        "description": "Nazik arındırma ve konforlu temizlik hissi için destekleyici bitkisel içerik."
       },
       {
-        "name": "Düşük pH jel yapı",
-        "description": "Cildi germeden günlük temizliğe destek olur."
+        "name": "Jel temizleme bazı",
+        "description": "Sabah/akşam rutinde suyla köpüren hafif temizlik adımı."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Islak cilde nazikçe masaj yapıp durulayın; ardından toner ve bakım adımlarıyla devam edin.",
+    "usage": "Islak cilde nazikçe masaj yapın, köpürtün ve ılık suyla durulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -440,12 +502,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/beauty-of-joseon-green-plum-refreshing-cleanser/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/beauty-of-joseon-green-plum-refreshing-cleanser/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/beauty-of-joseon-green-plum-refreshing-cleanser-ingredient-texture.png",
       "product": "/assets/img/products/beauty-of-joseon/beauty-of-joseon-green-plum-refreshing-cleanser-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/cleanser-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/beauty-of-joseon-green-plum-refreshing-cleanser-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/beauty-of-joseon/beauty-of-joseon-green-plum-refreshing-cleanser-card.webp",
+        "/assets/img/ingredients/beauty-of-joseon-green-plum-refreshing-cleanser-ingredient-texture.png"
+      ]
+    },
+    "texture": "Ferahlık veren jel",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "by-wishtrend-pure-vitamin-c-21-5-serum": {
     "title": "Pure Vitamin C 21.5% Advanced Serum kimler için uygun?",
@@ -456,31 +526,32 @@
     "idealSkinTypes": [
       "Leke görünümü",
       "Mat cilt",
-      "C vitamini rutini"
+      "İleri seviye aktif bakım"
     ],
     "benefits": [
+      "21.5% Vitamin C",
       "Aydınlık görünüm",
-      "Antioksidan bakım",
-      "Ton desteği"
+      "Ton eşitsizliği",
+      "Aktif bakım"
     ],
-    "lead": "By Wishtrend Pure Vitamin C 21.5% Advanced Serum; C vitamini odağıyla aydınlık görünüm, leke görünümü ve ton eşitsizliği hedefleyen ciltler için konumlandırılmış konsantre bir serumdur. Tolerans gözlenerek rutine alınmalıdır.",
-    "editorNote": "Aktif içerik yoğunluğu yüksek olduğu için düzenli ama kontrollü kullanım önemlidir. İlk kez C vitamini kullananlarda düşük sıklıkla başlanmalı ve gündüz mutlaka SPF ile desteklenmelidir.",
+    "lead": "Pure Vitamin C 21.5% Advanced Serum; yüksek C vitamini odağıyla ton eşitsizliği ve mat görünüm hedefleyen, aktif içerik deneyimi gerektiren güçlü bir serumdur.",
+    "editorNote": "COSMOSKIN notu: Sulu aktif serum karakteriyle Serum & Ampul adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Pure Vitamin C 21.5%",
-        "description": "Aydınlık görünüm ve ton eşitsizliği odağıyla güçlü C vitamini desteği."
+        "name": "Ascorbic Acid 21.5%",
+        "description": "Aydınlık görünüm ve ton eşitsizliği odağında güçlü aktif C vitamini bileşeni."
       },
       {
-        "name": "Antioksidan bakım",
-        "description": "Çevresel stres kaynaklı donukluk görünümüne karşı destek sağlar."
+        "name": "Sodium Hyaluronate",
+        "description": "Aktif serum kullanımında nem hissini destekleyen hyaluronik asit türevi."
       },
       {
-        "name": "Hafif serum bazı",
-        "description": "Az miktarla hedef bölgelere uygulanabilen konsantre yapı."
+        "name": "Minimal aktif formül",
+        "description": "Hassas ciltlerde yavaş başlanması gereken yoğun aktif serum karakteri."
       }
     ],
-    "usageTime": "Sabah veya Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Rutine göre",
+    "usage": "Akşamları 1-2 damla ile başlayın; hassasiyet varsa seyrek kullanın. Gündüz mutlaka SPF uygulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -505,11 +576,19 @@
     ],
     "images": {
       "heroBgCustom": "/assets/img/guide/by-wishtrend-pure-vitamin-c-21-5-serum/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/by-wishtrend-pure-vitamin-c-21-5-serum/ingredient-visual.png",
+      "ingredientVisualCustom": "/assets/img/ingredients/by-wishtrend-pure-vitamin-c-21-5-serum-ingredient-texture.png",
       "product": "/assets/img/products/by-wishtrend/by-wishtrend-pure-vitamin-c-21-5-serum-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/by-wishtrend-pure-vitamin-c-21-5-serum-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/by-wishtrend/by-wishtrend-pure-vitamin-c-21-5-serum-card.webp",
+        "/assets/img/ingredients/by-wishtrend-pure-vitamin-c-21-5-serum-ingredient-texture.png"
+      ]
+    },
+    "texture": "Sulu aktif serum",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "cosrx-advanced-snail-96-mucin-essence": {
     "title": "Advanced Snail 96 Mucin Power Essence kimler için uygun?",
@@ -518,33 +597,35 @@
     "category": "Tonik & Essence",
     "kind": "toner",
     "idealSkinTypes": [
+      "Kuru cilt",
       "Nem kaybı",
       "Bariyer konforu",
-      "Donuk cilt"
+      "Hassasiyet"
     ],
     "benefits": [
-      "Esneklik",
-      "Nem",
-      "Onarıcı his"
+      "96.3% snail secretion filtrate",
+      "Esnek nem hissi",
+      "Parlak görünüm",
+      "Hafif essence"
     ],
-    "lead": "COSRX Advanced Snail 96 Mucin Power Essence; nem kaybı, esneklik ve bariyer konforu hedefleyen ciltler için uygun bir essence adımıdır. Salyangoz müsin filtratı odağıyla cildi daha nemli, dolgun ve rahat hissettirmeye yardımcı olur.",
-    "editorNote": "Yoğun nem isteyen ama krem ağırlığı istemeyen kullanıcılar için iyi bir ara bakım adımıdır. Serumdan önce veya hafif serum gibi kullanılabilir.",
+    "lead": "Advanced Snail 96 Mucin Power Essence; yüksek oranda snail secretion filtrate odağıyla cilde esnek, nemli ve daha dolgun bir his vermek için kullanılan hafif essence adımıdır.",
+    "editorNote": "COSMOSKIN notu: Şeffaf essence jel karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Snail Secretion Filtrate 96%",
-        "description": "Ciltte nemli, esnek ve daha dolgun bir his oluşturmaya yardımcı öz."
+        "name": "Snail Secretion Filtrate 96.3%",
+        "description": "Cilde yoğun nem, konfor ve daha pürüzsüz görünüm hissi vermeye yardımcı ana içerik."
       },
       {
-        "name": "Sodium Hyaluronate",
-        "description": "Nem tutma desteği sağlayan hafif nemlendirici bileşen."
+        "name": "Sodyum Hyaluronate",
+        "description": "Nem tutma hissini destekleyen hyaluronik asit türevi."
       },
       {
-        "name": "Allantoin",
-        "description": "Cilt konforunu ve yumuşaklık hissini destekler."
+        "name": "Hafif essence bazı",
+        "description": "Yapışkanlığı dengelenmiş, serum öncesi/sonrası katmanlanabilir yapı."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Tonik sonrası 1-2 pompa uygulayın; cilt tarafından emildikten sonra serum veya nemlendiriciyle devam edin.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -568,12 +649,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/cosrx-advanced-snail-96-mucin-essence/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/cosrx-advanced-snail-96-mucin-essence/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/cosrx-advanced-snail-96-mucin-essence-ingredient-texture.png",
       "product": "/assets/img/products/cosrx/cosrx-advanced-snail-96-mucin-essence-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/cosrx-advanced-snail-96-mucin-essence-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/cosrx/cosrx-advanced-snail-96-mucin-essence-card.webp",
+        "/assets/img/ingredients/cosrx-advanced-snail-96-mucin-essence-ingredient-texture.png"
+      ]
+    },
+    "texture": "Şeffaf essence jel",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "cosrx-the-vitamin-c-23-serum": {
     "title": "The Vitamin C 23 Serum kimler için uygun?",
@@ -582,33 +671,34 @@
     "category": "Serum & Ampul",
     "kind": "serum",
     "idealSkinTypes": [
-      "C vitamini deneyimi",
-      "Ton eşitsizliği",
-      "Leke görünümü"
+      "Leke görünümü",
+      "Matlık",
+      "İleri aktif bakım"
     ],
     "benefits": [
+      "Vitamin C 23%",
+      "Vitamin E",
       "Aydınlık görünüm",
-      "Antioksidan destek",
-      "Ton dengesi"
+      "Aktif serum"
     ],
-    "lead": "COSRX The Vitamin C 23 Serum; daha güçlü C vitamini odağı isteyen, donukluk ve ton eşitsizliği görünümünü hedefleyen kullanıcılar için uygundur. Aktif bakım ürünü olduğu için tolerans gözlenerek rutine eklenmelidir.",
-    "editorNote": "İleri seviye C vitamini hissi veren bu serumda düzenlilik kadar tolerans yönetimi de önemlidir. Sabah kullanılıyorsa SPF adımı kesinlikle atlanmamalıdır.",
+    "lead": "The Vitamin C 23 Serum; yüksek askorbik asit odağıyla matlık ve ton eşitsizliği görünümü hedefleyen, deneyimli rutinler için güçlü aktif serum adımıdır.",
+    "editorNote": "COSMOSKIN notu: Sulu C vitamini serum karakteriyle Serum & Ampul adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Pure Vitamin C 23%",
-        "description": "Daha aydınlık görünüm ve ton eşitsizliği odağıyla güçlü aktif bakım."
+        "name": "Ascorbic Acid 23%",
+        "description": "Aydınlık görünüm ve ton eşitsizliği odağıyla kullanılan güçlü C vitamini aktifi."
       },
       {
-        "name": "Vitamin E",
-        "description": "Antioksidan bakım dengesini desteklemeye yardımcı bileşen."
+        "name": "Tocotrienol / Vitamin E odağı",
+        "description": "Antioksidan bakım desteğiyle formül karakterini tamamlar."
       },
       {
-        "name": "Hyaluronic Acid",
-        "description": "Aktif serum hissini nem desteğiyle dengelemeye yardımcı olur."
+        "name": "Hafif aktif serum bazı",
+        "description": "Aktif içerik yoğunluğu nedeniyle hassas ciltlerde dikkatli başlanmalıdır."
       }
     ],
-    "usageTime": "Sabah veya Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Rutine göre",
+    "usage": "Akşam rutinde az miktarla başlayın; tahriş riskini azaltmak için diğer asit/retinoidlerle aynı rutinde kullanmayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -632,12 +722,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/cosrx-the-vitamin-c-23-serum/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/cosrx-the-vitamin-c-23-serum/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/cosrx-the-vitamin-c-23-serum-ingredient-texture.png",
       "product": "/assets/img/products/cosrx/vitamin-c-23-serum-card.png",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/cosrx-the-vitamin-c-23-serum-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/cosrx/vitamin-c-23-serum-card.png",
+        "/assets/img/ingredients/cosrx-the-vitamin-c-23-serum-ingredient-texture.png"
+      ]
+    },
+    "texture": "Sulu C vitamini serum",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "cosrx-acne-pimple-master-patch": {
     "title": "Acne Pimple Master Patch kimler için uygun?",
@@ -646,33 +744,34 @@
     "category": "Maskeler",
     "kind": "spot",
     "idealSkinTypes": [
-      "Noktasal bakım",
-      "Sivilce görünümü",
-      "Gece kullanımı"
+      "Akne eğilimi",
+      "Lokal bakım",
+      "Yağlı cilt"
     ],
     "benefits": [
-      "Koruyucu bariyer",
-      "Noktasal destek",
-      "Hijyenik kullanım"
+      "Hidrokolloid patch",
+      "Lokal koruma",
+      "Dokunmayı azaltma",
+      "Gece kullanımı"
     ],
-    "lead": "COSRX Acne Pimple Master Patch; sivilce görünümü olan noktalarda koruyucu ve pratik bir bakım adımı isteyenler için uygundur. Temiz ve kuru cilde uygulanarak hedef bölgenin dış temasını azaltmaya yardımcı olur.",
-    "editorNote": "Sıkılan veya tahriş olan bölgeye müdahaleyi azaltmak için pratik bir üründür. Nemli krem üzerine değil, temiz ve kuru cilde uygulanmalıdır.",
+    "lead": "Acne Pimple Master Patch; lokal sivilce görünümünü dış temaslardan korumaya ve bölgeyi daha kontrollü takip etmeye yardımcı hidrokolloid patch ürünüdür.",
+    "editorNote": "COSMOSKIN notu: İnce hidrokolloid patch karakteriyle Maskeler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Hydrocolloid Patch",
-        "description": "Sivilce üzerine koruyucu bir tabaka oluşturarak dış etken temasını azaltır."
+        "name": "Hydrocolloid yapı",
+        "description": "Lokal bölgeyi kapatarak dış temas ve dokunma alışkanlığını azaltmaya yardımcı olur."
       },
       {
-        "name": "Noktasal kullanım",
-        "description": "Hedef bölgeyi kapatarak bakım sürecini daha kontrollü hale getirir."
+        "name": "İnce patch formu",
+        "description": "Gece kullanımına ve lokal bakım adımına uygun pratik yapı."
       },
       {
-        "name": "İnce yapışkan film",
-        "description": "Gece veya gün içinde hedef bölgede pratik kullanım sağlar."
+        "name": "Farklı boyutlar",
+        "description": "Farklı lokal bölge ihtiyaçlarına göre seçilebilir patch ölçüleri."
       }
     ],
-    "usageTime": "İhtiyaç halinde",
-    "usage": "Temiz ve kuru ciltte sivilce üzerine yapıştırın; beyazlaşınca veya tutuculuğu azalınca değiştirin.",
+    "usageTime": "Rutine göre",
+    "usage": "Temiz ve kuru cilde uygulayın; patch beyazlaştığında veya ürün talimatına göre değiştirin.",
     "routineSteps": [
       {
         "label": "Temizle",
@@ -696,12 +795,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/cosrx-acne-pimple-master-patch/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/cosrx-acne-pimple-master-patch/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/cosrx-acne-pimple-master-patch-ingredient-texture.png",
       "product": "/assets/img/products/cosrx/cosrx-acne-pimple-master-patch-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/spot-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/spot-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/spot-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/cosrx-acne-pimple-master-patch-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/cosrx/cosrx-acne-pimple-master-patch-card.webp",
+        "/assets/img/ingredients/cosrx-acne-pimple-master-patch-ingredient-texture.png"
+      ]
+    },
+    "texture": "İnce hidrokolloid patch",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "cosrx-aha-bha-clarifying-treatment-toner": {
     "title": "AHA/BHA Clarifying Treatment Toner kimler için uygun?",
@@ -711,32 +818,34 @@
     "kind": "toner",
     "idealSkinTypes": [
       "Gözenek görünümü",
-      "Akneye yatkın cilt",
-      "Arındırıcı tonik"
+      "Akne eğilimi",
+      "Yağlı cilt",
+      "Doku pürüzü"
     ],
     "benefits": [
-      "Nazik arındırma",
-      "Pürüzsüzlük",
-      "Denge"
+      "AHA/BHA odağı",
+      "Arındırıcı tonik",
+      "Gözenek bakımı",
+      "Yavaş başlangıç"
     ],
-    "lead": "COSRX AHA/BHA Clarifying Treatment Toner; gözenek görünümü, pürüzlü doku ve akneye yatkınlık odağında bakım yapmak isteyen ciltler için konumlandırılmış arındırıcı bir toniktir. Asit içerikli olduğu için rutine kontrollü eklenmelidir.",
-    "editorNote": "Günlük sade tonik gibi değil, aktif bakım toneri gibi düşünülmeli. Haftada birkaç kez başlayıp toleransa göre artırmak ve gündüz SPF kullanmak daha güvenli olur.",
+    "lead": "AHA/BHA Clarifying Treatment Toner; cilt dokusu, gözenek ve sebum görünümü odağında kullanılan hafif asit tonik adımıdır.",
+    "editorNote": "COSMOSKIN notu: Sprey tonik karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "AHA",
-        "description": "Cilt yüzeyindeki pürüzlü görünümün azalmasına yardımcı arındırıcı asit desteği."
+        "name": "AHA/BHA kompleksi",
+        "description": "Ölü deri ve gözenek görünümü odağında kontrollü arındırıcı bakım sağlar."
       },
       {
-        "name": "BHA",
-        "description": "Gözenek görünümü ve sebum dengesine yönelik bakım desteği."
+        "name": "Willow Bark Water",
+        "description": "Sebum ve gözenek görünümü odaklı bitkisel destek olarak konumlanır."
       },
       {
-        "name": "Botanical Water Base",
-        "description": "Arındırıcı hissi daha dengeli hale getiren hafif tonik bazı."
+        "name": "Sprey toner formu",
+        "description": "İnce uygulama ile rutine kontrollü şekilde eklenebilir."
       }
     ],
-    "usageTime": "Akşam ağırlıklı",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usageTime": "Sabah & Akşam",
+    "usage": "Temizleme sonrası haftada 2-3 kez başlayın; gündüz mutlaka SPF kullanın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -760,12 +869,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/cosrx-aha-bha-clarifying-treatment-toner/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/cosrx-aha-bha-clarifying-treatment-toner/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/cosrx-aha-bha-clarifying-treatment-toner-ingredient-texture.png",
       "product": "/assets/img/products/cosrx/cosrx-aha-bha-clarifying-treatment-toner-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/cosrx-aha-bha-clarifying-treatment-toner-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/cosrx/cosrx-aha-bha-clarifying-treatment-toner-card.webp",
+        "/assets/img/ingredients/cosrx-aha-bha-clarifying-treatment-toner-ingredient-texture.png"
+      ]
+    },
+    "texture": "Sprey tonik",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "cosrx-low-ph-good-morning-gel-cleanser": {
     "title": "Low pH Good Morning Gel Cleanser kimler için uygun?",
@@ -774,33 +891,35 @@
     "category": "Temizleyiciler",
     "kind": "cleanser",
     "idealSkinTypes": [
-      "Sabah temizliği",
       "Karma cilt",
-      "Düşük pH arayanlar"
+      "Yağlı cilt",
+      "Sabah temizliği",
+      "Hafif arındırma"
     ],
     "benefits": [
-      "Nazik temizlik",
-      "Ferahlık",
-      "Denge"
+      "Düşük pH yaklaşımı",
+      "Tea tree odağı",
+      "Günlük jel temizlik",
+      "Sebum dengesi"
     ],
-    "lead": "COSRX Low pH Good Morning Gel Cleanser; sabah temizliği veya nazik ikinci adım temizleme için uygun, düşük pH odaklı jel bir temizleyicidir. Cildi aşırı germeden ferah ve dengeli hissettirmeyi hedefler.",
-    "editorNote": "Cilt bariyerini yormayan günlük temizleyici arayanlar için sade ve işlevsel bir seçenektir. Özellikle karma ve yağlıya dönük ciltlerde sabah kullanımında konforludur.",
+    "lead": "Low pH Good Morning Gel Cleanser; cildin sabah/akşam rutininde nazik arındırma ve ferah temizlik hissi için kullanılan düşük pH yaklaşımına sahip jel temizleyicidir.",
+    "editorNote": "COSMOSKIN notu: Düşük pH jel karakteriyle Temizleyiciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Low pH Gel Base",
-        "description": "Cildi germeden günlük temizlik hissi sunan düşük pH jel yapı."
-      },
-      {
-        "name": "Tea Tree Leaf Oil",
-        "description": "Ferahlatıcı ve arındırıcı bakım hissi sağlar."
+        "name": "Tea Tree Leaf Oil odağı",
+        "description": "Ferahlık ve sebum görünümü odağında destekleyici bakım karakteri."
       },
       {
         "name": "Betaine Salicylate",
-        "description": "Cilt yüzeyinde daha pürüzsüz bir his için nazik destek sunar."
+        "description": "Nazik arındırma ve doku görünümü odağıyla formül karakterini tamamlar."
+      },
+      {
+        "name": "Jel temizleyici bazı",
+        "description": "Günlük kullanımda hafif köpüren, durulanan temizlik adımı."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Islak cilde nazikçe masaj yapıp durulayın; ardından toner ve bakım adımlarıyla devam edin.",
+    "usage": "Islak cilde az miktar uygulayın, nazikçe köpürtün ve durulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -824,12 +943,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/cosrx-low-ph-good-morning-gel-cleanser/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/cosrx-low-ph-good-morning-gel-cleanser/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/cosrx-low-ph-good-morning-gel-cleanser-ingredient-texture.png",
       "product": "/assets/img/products/cosrx/cosrx-low-ph-good-morning-gel-cleanser-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/cleanser-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/cosrx-low-ph-good-morning-gel-cleanser-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/cosrx/cosrx-low-ph-good-morning-gel-cleanser-card.webp",
+        "/assets/img/ingredients/cosrx-low-ph-good-morning-gel-cleanser-ingredient-texture.png"
+      ]
+    },
+    "texture": "Düşük pH jel",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "cosrx-salicylic-acid-daily-gentle-cleanser": {
     "title": "Salicylic Acid Daily Gentle Cleanser kimler için uygun?",
@@ -838,33 +965,34 @@
     "category": "Temizleyiciler",
     "kind": "cleanser",
     "idealSkinTypes": [
-      "Akneye yatkın cilt",
-      "Yağlanma",
-      "Arındırıcı temizlik"
+      "Akne eğilimi",
+      "Yağlı cilt",
+      "Gözenek görünümü"
     ],
     "benefits": [
+      "Salicylic acid",
+      "Arındırıcı temizlik",
       "Sebum dengesi",
-      "Arındırma",
-      "Pürüzsüz his"
+      "Dikkatli başlangıç"
     ],
-    "lead": "COSRX Salicylic Acid Daily Gentle Cleanser; yağlanma, gözenek görünümü ve akneye yatkınlık odağında daha arındırıcı bir temizleyici isteyen ciltler için uygundur. Salisilik asit odağıyla temizleme adımında denge hissi sağlar.",
-    "editorNote": "Arındırıcı temizleyici olduğu için kuru/hassas ciltlerde sıklık kontrollü tutulmalı. Nemlendiriciyle desteklendiğinde daha dengeli bir rutin oluşturur.",
+    "lead": "Salicylic Acid Daily Gentle Cleanser; sebum, gözenek ve akne eğilimi görünümü odağında arındırıcı temizlik isteyenler için salisilik asit odaklı temizleyicidir.",
+    "editorNote": "COSMOSKIN notu: Köpüren arındırıcı jel karakteriyle Temizleyiciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Salicylic Acid",
-        "description": "Yağlanma ve gözenek görünümü odağında arındırıcı destek sağlar."
+        "description": "Gözenek ve sebum görünümü odağında arındırıcı bakım desteği sağlar."
       },
       {
         "name": "Tea Tree Leaf Oil",
-        "description": "Ferahlatıcı temizlik hissini destekleyen bitkisel bakım bileşeni."
+        "description": "Ferah ve temiz cilt hissiyle formül karakterini destekler."
       },
       {
-        "name": "Köpüren temizleyici baz",
-        "description": "Günlük kullanımda cilt yüzeyini kalıntılardan arındırır."
+        "name": "Köpüren temizleme bazı",
+        "description": "Yağlı/karma ciltlerde arındırıcı temizlik hissi verir."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Islak cilde nazikçe masaj yapıp durulayın; ardından toner ve bakım adımlarıyla devam edin.",
+    "usage": "Islak cilde uygulayın ve durulayın; kuruluk/hassasiyet varsa kullanım sıklığını azaltın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -888,12 +1016,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/cosrx-salicylic-acid-daily-gentle-cleanser/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/cosrx-salicylic-acid-daily-gentle-cleanser/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/cosrx-salicylic-acid-daily-gentle-cleanser-ingredient-texture.png",
       "product": "/assets/img/products/cosrx/cosrx-salicylic-acid-daily-gentle-cleanser-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/cleanser-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/cosrx-salicylic-acid-daily-gentle-cleanser-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/cosrx/cosrx-salicylic-acid-daily-gentle-cleanser-card.webp",
+        "/assets/img/ingredients/cosrx-salicylic-acid-daily-gentle-cleanser-ingredient-texture.png"
+      ]
+    },
+    "texture": "Köpüren arındırıcı jel",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "cosrx-oil-free-ultra-moisturizing-lotion": {
     "title": "Oil-Free Ultra Moisturizing Lotion kimler için uygun?",
@@ -902,33 +1038,35 @@
     "category": "Nemlendiriciler",
     "kind": "moisturizer",
     "idealSkinTypes": [
-      "Yağlı-karma cilt",
+      "Yağlı cilt",
+      "Karma cilt",
       "Hafif nem",
-      "Günlük kullanım"
+      "Sebum dengesi"
     ],
     "benefits": [
-      "Hafif nem",
-      "Yağsız his",
-      "Konfor"
+      "Oil-free his",
+      "Birch sap odağı",
+      "Hafif losyon",
+      "Günlük nem"
     ],
-    "lead": "COSRX Oil-Free Ultra Moisturizing Lotion; yağlı ve karma ciltlerde ağır his bırakmadan nemlendirme isteyenler için uygundur. Hafif losyon dokusuyla sabah ve akşam rutinlerinde kolay katmanlanır.",
-    "editorNote": "Krem ağırlığını sevmeyen ama nemlendirici adımı atlamak istemeyen kullanıcılar için ideal bir ara formdur. SPF öncesi de rahat kullanılabilir.",
+    "lead": "Oil-Free Ultra Moisturizing Lotion; hafif, yağsız hisli bir nemlendirici arayan karma/yağlı ciltler için günlük losyon adımıdır.",
+    "editorNote": "COSMOSKIN notu: Hafif losyon karakteriyle Nemlendiriciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Birch Sap",
-        "description": "Cilde hafif nem ve ferahlık hissi vermeye yardımcı bakım suyu."
+        "name": "Birch Sap / Willow Bark Water",
+        "description": "Ciltte hafif nem ve konfor hissini destekleyen bitkisel su odağı."
       },
       {
-        "name": "Oil-Free Lotion Texture",
-        "description": "Yağlı his bırakmadan nemlendirme konforu sağlar."
+        "name": "Hafif losyon bazı",
+        "description": "Yağlı his bırakmadan günlük nemlendirme için ince yapı."
       },
       {
-        "name": "Hafif nemlendirici baz",
-        "description": "Serum sonrası günlük rutini kapatmaya yardımcı olur."
+        "name": "Glycerin/Betaine odağı",
+        "description": "Nem hissini destekleyen humektan karakterli bileşenler."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Serum/essence adımından sonra cilde yeterli miktarda uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Serum sonrası ince bir kat uygulayın; sabah rutinde SPF ile tamamlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -952,12 +1090,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/cosrx-oil-free-ultra-moisturizing-lotion/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/cosrx-oil-free-ultra-moisturizing-lotion/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/cosrx-oil-free-ultra-moisturizing-lotion-ingredient-texture.png",
       "product": "/assets/img/products/cosrx/cosrx-oil-free-ultra-moisturizing-lotion-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/moisturizer-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/cosrx-oil-free-ultra-moisturizing-lotion-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/cosrx/cosrx-oil-free-ultra-moisturizing-lotion-card.webp",
+        "/assets/img/ingredients/cosrx-oil-free-ultra-moisturizing-lotion-ingredient-texture.png"
+      ]
+    },
+    "texture": "Hafif losyon",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "dr-jart-ceramidin-cream": {
     "title": "Ceramidin Cream kimler için uygun?",
@@ -968,31 +1114,33 @@
     "idealSkinTypes": [
       "Kuru cilt",
       "Bariyer desteği",
-      "Konfor arayan cilt"
+      "Hassasiyet",
+      "Gerginlik hissi"
     ],
     "benefits": [
-      "Yoğun nem",
-      "Bariyer konforu",
-      "Kuru cilt desteği"
+      "5 Ceramides",
+      "Panthenol",
+      "Glycerin",
+      "Yoğun bariyer konforu"
     ],
-    "lead": "Dr. Jart+ Ceramidin Cream; kuruluk, gerginlik ve bariyer konforu ihtiyacı olan ciltler için yoğun nemlendirici adım olarak konumlanır. Seramid odağıyla cildi daha rahat, yumuşak ve korunaklı hissettirmeye yardımcı olur.",
-    "editorNote": "Özellikle kuru ve dönemsel olarak hassaslaşan ciltlerde güçlü bir kapanış adımıdır. Gündüz ince, gece daha cömert bir katman halinde kullanılabilir.",
+    "lead": "Ceramidin Cream; 5 seramid kompleksi, panthenol ve glycerin odağıyla kuru, gergin veya bariyer desteği isteyen ciltlerde konforlu nem hissi sağlayan zengin kremdir.",
+    "editorNote": "COSMOSKIN notu: Zengin bariyer kremi karakteriyle Nemlendiriciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Ceramide Complex",
-        "description": "Cilt bariyeri konforunu ve nem tutma hissini destekleyen seramid odağı."
+        "name": "5 Ceramides",
+        "description": "Cilt bariyeri görünümünü ve nem tutma hissini destekleyen seramid kompleksi."
       },
       {
         "name": "Panthenol",
-        "description": "Cildi yatıştırmaya ve yumuşaklık hissini artırmaya yardımcı olur."
+        "description": "Cilt konforu ve nem hissi için kullanılan yatıştırıcı B5 vitamini türevi."
       },
       {
-        "name": "Rich Cream Texture",
-        "description": "Kuru ciltlerde uzun süreli konfor hissi sağlayan yoğun krem yapı."
+        "name": "Glycerin",
+        "description": "Kuru ve gergin histe nem desteği sağlayan temel humektan bileşen."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Serum/essence adımından sonra cilde yeterli miktarda uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Serum sonrası ihtiyaç duyulan miktarda uygulayın; çok kuru bölgelerde lokal olarak daha yoğun kullanılabilir.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1016,12 +1164,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/dr-jart-ceramidin-cream/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/dr-jart-ceramidin-cream/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/dr-jart-ceramidin-cream-ingredient-texture.png",
       "product": "/assets/img/products/dr-jart/dr-jart-ceramidin-cream-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/moisturizer-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/dr-jart-ceramidin-cream-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/dr-jart/dr-jart-ceramidin-cream-card.webp",
+        "/assets/img/ingredients/dr-jart-ceramidin-cream-ingredient-texture.png"
+      ]
+    },
+    "texture": "Zengin bariyer kremi",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "goodal-green-tangerine-vitamin-c-serum": {
     "title": "Green Tangerine Vita C Dark Spot Serum kimler için uygun?",
@@ -1031,32 +1187,34 @@
     "kind": "serum",
     "idealSkinTypes": [
       "Leke görünümü",
-      "Aydınlık cilt",
-      "Hassas C vitamini rutini"
+      "Matlık",
+      "Işıltı",
+      "Normal/Karma cilt"
     ],
     "benefits": [
-      "Aydınlık görünüm",
-      "Ton desteği",
-      "Canlılık"
+      "Green tangerine extract",
+      "Vitamin C türevleri",
+      "Niacinamide",
+      "Aydınlık görünüm"
     ],
-    "lead": "Goodal Green Tangerine Vita C Dark Spot Serum; leke görünümü, matlık ve ton eşitsizliği hedefleyen ciltler için daha nazik C vitamini odağı sunan bir serumdur. Günlük rutinde aydınlık ve canlı görünüm desteği sağlar.",
-    "editorNote": "Güçlü C vitamini serumlarına göre daha konforlu bir başlangıç seçeneği gibi düşünülebilir. Düzenli kullanım ve SPF ile daha iyi bir rutin bütünlüğü sağlar.",
+    "lead": "Green Tangerine Vita C Dark Spot Serum; yeşil mandalina ve aydınlık görünüm odağıyla ton eşitsizliği, matlık ve leke görünümü hedefleyen günlük serum adımıdır.",
+    "editorNote": "COSMOSKIN notu: Hafif ışıltı serumu karakteriyle Serum & Ampul adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Green Tangerine Extract",
-        "description": "Cilde daha canlı ve aydınlık bir görünüm kazandırmaya yardımcı yeşil mandalina özü."
+        "description": "Daha canlı ve aydınlık görünüm hissi için yeşil mandalina özü odağı."
       },
       {
-        "name": "Vitamin C Derivatives",
-        "description": "Ton eşitsizliği ve leke görünümü odağında nazik C vitamini desteği."
+        "name": "Vitamin C türevleri",
+        "description": "Ton eşitsizliği ve ışıltı görünümünü destekleyen antioksidan bakım yaklaşımı."
       },
       {
-        "name": "Hafif serum dokusu",
-        "description": "Günlük kullanımda kolay katmanlanan ferah yapı."
+        "name": "Niacinamide",
+        "description": "Cilt tonu ve sebum dengesi görünümü odağında destek sağlar."
       }
     ],
-    "usageTime": "Sabah veya Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Rutine göre",
+    "usage": "Tonik sonrası uygulanır; gündüz kullanımında SPF ile tamamlanmalıdır.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1080,12 +1238,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/goodal-green-tangerine-vitamin-c-serum/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/goodal-green-tangerine-vitamin-c-serum/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/goodal-green-tangerine-vitamin-c-serum-ingredient-texture.png",
       "product": "/assets/img/products/goodal/goodal-green-tangerine-vitamin-c-serum-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/goodal-green-tangerine-vitamin-c-serum-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/goodal/goodal-green-tangerine-vitamin-c-serum-card.webp",
+        "/assets/img/ingredients/goodal-green-tangerine-vitamin-c-serum-ingredient-texture.png"
+      ]
+    },
+    "texture": "Hafif ışıltı serumu",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "im-from-rice-toner": {
     "title": "Rice Toner kimler için uygun?",
@@ -1094,33 +1260,35 @@
     "category": "Tonik & Essence",
     "kind": "toner",
     "idealSkinTypes": [
-      "Mat cilt",
-      "Nem ihtiyacı",
-      "Işıltı hedefi"
+      "Kuru cilt",
+      "Matlık",
+      "Işıltı",
+      "Nem kaybı"
     ],
     "benefits": [
-      "Nem",
-      "Aydınlık görünüm",
-      "Yumuşaklık"
+      "Rice extract",
+      "Çift fazlı tonik",
+      "Nemli parlaklık",
+      "Yumuşak görünüm"
     ],
-    "lead": "I'm From Rice Toner; mat, nemsiz ve daha aydınlık görünüm isteyen ciltler için sütlü dokulu bir tonik adımıdır. Pirinç özü odağıyla cilde yumuşaklık, nem ve canlılık hissi kazandırmaya yardımcı olur.",
-    "editorNote": "Klasik sulu toniklerden daha besleyici bir his verir. Özellikle kuruya dönük ve donuk ciltlerde katmanlı uygulama için güzel bir seçenektir.",
+    "lead": "I'm From Rice Toner; pirinç özü odağıyla cilde daha yumuşak, nemli ve canlı bir görünüm hissi veren, çalkalanarak kullanılan sütlü tonik adımıdır.",
+    "editorNote": "COSMOSKIN notu: Sütlü pirinç tonik karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Rice Extract",
-        "description": "Cilde nemli, yumuşak ve daha aydınlık bir görünüm kazandırmaya yardımcı pirinç özü."
+        "description": "Ciltte nemli ve daha aydınlık görünüm hissini destekleyen pirinç özü odağı."
       },
       {
-        "name": "Milky Toner Texture",
-        "description": "Sütlü yapısıyla ciltte konforlu ve besleyici bir his bırakır."
+        "name": "Çift fazlı sütlü doku",
+        "description": "Kullanmadan önce çalkalanarak homojenleşen, konforlu tonik yapısı."
       },
       {
-        "name": "Dengeleyici bakım",
-        "description": "Temizleme sonrası cildi nemlendirici adımlara hazırlar."
+        "name": "Nem destekleyici baz",
+        "description": "Temizleme sonrası cildi yumuşak ve dengeli hissettirmeye yardımcı olur."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Şişeyi çalkalayın; temizleme sonrası avuç içi veya pamukla uygulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1144,12 +1312,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/im-from-rice-toner/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/im-from-rice-toner/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/im-from-rice-toner-ingredient-texture.png",
       "product": "/assets/img/products/im-from/im-from-rice-toner-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/im-from-rice-toner-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/im-from/im-from-rice-toner-card.webp",
+        "/assets/img/ingredients/im-from-rice-toner-ingredient-texture.png"
+      ]
+    },
+    "texture": "Sütlü pirinç tonik",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "innisfree-super-volcanic-clay-mask": {
     "title": "Super Volcanic Clay Mask 2X kimler için uygun?",
@@ -1160,31 +1336,33 @@
     "idealSkinTypes": [
       "Yağlı cilt",
       "Gözenek görünümü",
+      "Sebum fazlalığı",
       "Haftalık arındırma"
     ],
     "benefits": [
-      "Sebum kontrolü",
-      "Arındırma",
-      "Pürüzsüz his"
+      "Volcanic clusters",
+      "Kil maskesi",
+      "Sebum emme",
+      "Gözenek görünümü"
     ],
-    "lead": "Innisfree Super Volcanic Clay Mask 2X; yağlanma, gözenek görünümü ve haftalık arındırma ihtiyacı olan ciltler için uygundur. Volkanik kil odağıyla cilt yüzeyinde daha temiz ve mat bir his bırakmaya yardımcı olur.",
-    "editorNote": "Günlük ürün değil, haftalık arındırıcı destek olarak konumlandırılmalı. Uygulama sonrası nemlendiriciyle cildi dengelemek iyi olur.",
+    "lead": "Super Volcanic Clay Mask 2X; Jeju volkanik küme/kil odağıyla sebum fazlalığı, parlama ve gözenek görünümü için haftalık arındırıcı maske adımıdır.",
+    "editorNote": "COSMOSKIN notu: Kil maske karakteriyle Maskeler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Jeju Volcanic Clusters",
-        "description": "Sebum ve kir görünümünü arındırmaya yardımcı volkanik kil odağı."
+        "description": "Sebum fazlalığı ve gözenek görünümü odağında arındırıcı kil karakteri."
       },
       {
-        "name": "Clay Mask Base",
-        "description": "Cilt yüzeyinde daha mat ve temiz bir his sağlar."
+        "name": "Kaolin/Bentonite kil yapısı",
+        "description": "Cilt yüzeyindeki yağlı hissi ve parlama görünümünü azaltmaya yardımcı olur."
       },
       {
-        "name": "Pore Care Texture",
-        "description": "Gözenek görünümü ve pürüzlü doku hissine yönelik haftalık bakım sunar."
+        "name": "Durulanan maske bazı",
+        "description": "Haftalık rutinde kısa süreli arındırıcı bakım olarak kullanılır."
       }
     ],
-    "usageTime": "Haftada 1–3 kez",
-    "usage": "Temizleme sonrası uygulayın; ürün tipine göre bekletip çıkarın veya durulayın.",
+    "usageTime": "Akşam / haftalık",
+    "usage": "Temiz kuru cilde uygulayın, göz/dudak çevresinden kaçının; belirtilen süre sonunda durulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1208,12 +1386,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/innisfree-super-volcanic-clay-mask/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/innisfree-super-volcanic-clay-mask/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/innisfree-super-volcanic-clay-mask-ingredient-texture.png",
       "product": "/assets/img/products/innisfree/innisfree-super-volcanic-clay-mask-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/mask-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/mask-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/mask-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/innisfree-super-volcanic-clay-mask-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/innisfree/innisfree-super-volcanic-clay-mask-card.webp",
+        "/assets/img/ingredients/innisfree-super-volcanic-clay-mask-ingredient-texture.png"
+      ]
+    },
+    "texture": "Kil maske",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "isntree-hyaluronic-acid-watery-sun-gel": {
     "title": "Hyaluronic Acid Watery Sun Gel SPF 50+ PA++++ kimler için uygun?",
@@ -1222,33 +1408,35 @@
     "category": "Güneş Koruyucular",
     "kind": "sunscreen",
     "idealSkinTypes": [
-      "Günlük SPF",
-      "Nemsiz cilt",
-      "Hafif jel doku"
+      "Kuru cilt",
+      "Karma cilt",
+      "Nemsizlik",
+      "Hafif SPF"
     ],
     "benefits": [
-      "UV koruma",
-      "Nem",
-      "Ferahlık"
+      "Hyaluronic acid",
+      "Watery gel SPF",
+      "SPF50+ PA++++",
+      "Nemli bitiş"
     ],
-    "lead": "Isntree Hyaluronic Acid Watery Sun Gel SPF 50+ PA++++; hafif jel doku, nemli bitiş ve günlük UV koruması arayan kullanıcılar için uygundur. Hyalüronik asit odağıyla cildi ferah ve nemli hissettirmeye yardımcı olur.",
-    "editorNote": "Güneş koruyucuda krem ağırlığını sevmeyenler için ferah bir seçenektir. Günlük kullanımda nemlendirici sonrası son adım olarak uygulanmalıdır.",
+    "lead": "Hyaluronic Acid Watery Sun Gel; hyaluronik asit odağıyla nemli, su bazlı his veren SPF50+ PA++++ güneş koruyucu seçeneğidir.",
+    "editorNote": "COSMOSKIN notu: Su bazlı SPF jel karakteriyle Güneş Koruyucular adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "SPF 50+ PA++++",
-        "description": "Gündüz rutininde yüksek UV koruma desteği sağlar."
+        "name": "Hyaluronic Acid Complex",
+        "description": "Farklı hyaluronik asit formlarıyla nemli ve dolgun his sağlamaya yardımcı olur."
       },
       {
-        "name": "Hyaluronic Acid",
-        "description": "Cilde nemli ve dolgun bir his vermeye yardımcı nem tutucu bileşen."
+        "name": "SPF50+ PA++++",
+        "description": "Gündüz rutininin yüksek koruma adımını tamamlar."
       },
       {
-        "name": "Watery Gel Texture",
-        "description": "Hafif, ferah ve kolay yayılan güneş koruyucu deneyimi sunar."
+        "name": "Watery gel doku",
+        "description": "Krem ağırlığı istemeyen kullanıcılar için hafif, nemli bitişli yapı."
       }
     ],
     "usageTime": "Sabah",
-    "usage": "Gündüz rutininin son adımı olarak bol miktarda uygulayın; gün içinde ihtiyaç oldukça yenileyin.",
+    "usage": "Sabah rutinin son adımı olarak yeterli miktarda uygulayın; gün içinde yenileyin.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1272,12 +1460,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/isntree-hyaluronic-acid-watery-sun-gel/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/isntree-hyaluronic-acid-watery-sun-gel/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/isntree-hyaluronic-acid-watery-sun-gel-ingredient-texture.png",
       "product": "/assets/img/products/isntree/isntree-hyaluronic-acid-watery-sun-gel-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/sunscreen-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/isntree-hyaluronic-acid-watery-sun-gel-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/isntree/isntree-hyaluronic-acid-watery-sun-gel-card.webp",
+        "/assets/img/ingredients/isntree-hyaluronic-acid-watery-sun-gel-ingredient-texture.png"
+      ]
+    },
+    "texture": "Su bazlı SPF jel",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Güneş koruyucular düzenli yenileme gerektirir; ürün ambalajındaki kullanım talimatını esas alın."
   },
   "laneige-water-sleeping-mask": {
     "title": "Water Sleeping Mask kimler için uygun?",
@@ -1286,33 +1482,35 @@
     "category": "Maskeler",
     "kind": "mask",
     "idealSkinTypes": [
-      "Gece nemi",
-      "Nemsiz cilt",
-      "Yorgun görünüm"
+      "Kuru cilt",
+      "Nemsizlik",
+      "Gece bakımı",
+      "Matlık"
     ],
     "benefits": [
-      "Gece nemi",
-      "Yumuşaklık",
-      "Dolgun his"
+      "Gece nem maskesi",
+      "Su bazlı jel",
+      "Yumuşak görünüm",
+      "Uyku rutini"
     ],
-    "lead": "Laneige Water Sleeping Mask; gece rutininin son adımında ekstra nem, ferahlık ve dolgunluk hissi arayan ciltler için uygundur. Hafif jel-krem dokusuyla sabah daha dinlenmiş bir cilt görünümü hedefler.",
-    "editorNote": "Haftada birkaç gece nem maskesi gibi kullanıldığında ciltte daha yumuşak ve konforlu bir his bırakır. Çok yoğun krem sevmeyenler için iyi bir gece desteğidir.",
+    "lead": "Water Sleeping Mask; gece bakımının son adımı olarak cilde sabaha daha nemli, yumuşak ve dinlenmiş görünüm hissi kazandırmayı hedefleyen su bazlı uyku maskesidir.",
+    "editorNote": "COSMOSKIN notu: Su bazlı gece maskesi karakteriyle Maskeler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Sleeping Mask Texture",
-        "description": "Gece boyunca ciltte konforlu bir nem perdesi hissi oluşturur."
+        "name": "Su bazlı nem kompleksi",
+        "description": "Gece boyunca cildi nemli ve konforlu hissettirmeyi hedefleyen jel yapı."
       },
       {
-        "name": "Water-based Moisture Complex",
-        "description": "Nemsiz ve yorgun görünen cilde ferah nem desteği sağlar."
+        "name": "Jel-krem maske dokusu",
+        "description": "Ağırlık hissi azaltılmış, gece kullanımına uygun konforlu bitiş."
       },
       {
-        "name": "Gel Cream Base",
-        "description": "Ağırlaşmadan yumuşak ve dolgun bir his bırakır."
+        "name": "Yumuşatıcı bakım bazı",
+        "description": "Sabah daha pürüzsüz ve canlı görünüm hissini destekler."
       }
     ],
-    "usageTime": "Gece",
-    "usage": "Akşam rutininin son adımında ince bir katman halinde uygulayın; sabah cildi durulayın.",
+    "usageTime": "Akşam / haftalık",
+    "usage": "Akşam rutininin son adımı olarak ince tabaka uygulayın; sabah durulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1336,12 +1534,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/laneige-water-sleeping-mask/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/laneige-water-sleeping-mask/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/laneige-water-sleeping-mask-ingredient-texture.png",
       "product": "/assets/img/products/laneige/laneige-water-sleeping-mask-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/mask-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/mask-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/mask-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/laneige-water-sleeping-mask-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/laneige/laneige-water-sleeping-mask-card.webp",
+        "/assets/img/ingredients/laneige-water-sleeping-mask-ingredient-texture.png"
+      ]
+    },
+    "texture": "Su bazlı gece maskesi",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "medicube-zero-pore-pad": {
     "title": "Zero Pore Pad kimler için uygun?",
@@ -1351,32 +1557,34 @@
     "kind": "toner",
     "idealSkinTypes": [
       "Gözenek görünümü",
-      "Yağlanma",
-      "Pratik toner pad"
+      "Yağlı cilt",
+      "Doku pürüzü",
+      "Karma cilt"
     ],
     "benefits": [
-      "Pürüzsüzlük",
+      "Toner pad",
       "Sebum dengesi",
-      "Arındırma"
+      "Pürüzsüz his",
+      "Pratik kullanım"
     ],
-    "lead": "Medicube Zero Pore Pad; gözenek görünümü, yağlanma ve pürüzlü doku odağında pratik bir toner pad adımı isteyen ciltler için uygundur. Aktif bakım hissi verdiği için kullanım sıklığı cilt toleransına göre ayarlanmalıdır.",
-    "editorNote": "Kolay uygulanan ama aktif içerik hissi olan bir üründür. Hassas ciltlerde haftada birkaç kez başlamak ve gündüz SPF kullanmak daha güvenli olur.",
+    "lead": "Zero Pore Pad; gözenek görünümü, sebum dengesi ve cilt dokusu hissi için pratik pamuk pad formunda kullanılan tonik/bakım adımıdır.",
+    "editorNote": "COSMOSKIN notu: Toner pad karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "AHA/BHA/PHA Focus",
-        "description": "Cilt yüzeyi ve gözenek görünümü odağında arındırıcı bakım desteği."
+        "name": "Pad tonik dokusu",
+        "description": "Ölçülü uygulama ve pratik rutin için önceden ıslatılmış pad formu."
       },
       {
-        "name": "Textured Pad",
-        "description": "Pratik uygulama ile cilt yüzeyini nazikçe silmeye yardımcı olur."
+        "name": "Sebum/gözenek odağı",
+        "description": "Yağlı ve karma ciltlerde daha dengeli görünüm hedefler."
       },
       {
-        "name": "Pore Care Complex",
-        "description": "Yağlanma ve pürüzlü görünüm hissine yönelik bakım sağlar."
+        "name": "Yüzey pürüzsüzlüğü desteği",
+        "description": "Cilt dokusunu daha temiz ve rafine hissettirmeye yardımcı olur."
       }
     ],
-    "usageTime": "Akşam ağırlıklı",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usageTime": "Sabah & Akşam",
+    "usage": "Temizleme sonrası pad ile nazikçe silin; hassasiyet varsa haftada birkaç kez başlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1400,12 +1608,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/medicube-zero-pore-pad/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/medicube-zero-pore-pad/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/medicube-zero-pore-pad-ingredient-texture.png",
       "product": "/assets/img/products/medicube/medicube-zero-pore-pad-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/medicube-zero-pore-pad-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/medicube/medicube-zero-pore-pad-card.webp",
+        "/assets/img/ingredients/medicube-zero-pore-pad-ingredient-texture.png"
+      ]
+    },
+    "texture": "Toner pad",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "medicube-collagen-night-wrapping-mask": {
     "title": "Collagen Night Wrapping Mask kimler için uygun?",
@@ -1415,32 +1631,34 @@
     "kind": "mask",
     "idealSkinTypes": [
       "Gece bakımı",
-      "Sıkılık görünümü",
-      "Dolgunluk"
+      "Elastikiyet görünümü",
+      "Nem",
+      "Yorgun görünüm"
     ],
     "benefits": [
-      "Dolgun görünüm",
+      "Collagen odağı",
+      "Peel-off/wrapping his",
       "Gece bariyeri",
-      "Yumuşaklık"
+      "Dolgun görünüm"
     ],
-    "lead": "Medicube Collagen Night Wrapping Mask; gece rutininin sonunda daha dolgun, yumuşak ve bakımlı bir cilt görünümü hedefleyen kullanıcılar için uygundur. Wrapping mask dokusuyla bakım katmanını destekler.",
-    "editorNote": "Özel bakım gecelerinde rutini daha premium hissettiren bir maskedir. İnce ve eşit katman halinde uygulamak daha konforlu sonuç verir.",
+    "lead": "Collagen Night Wrapping Mask; gece rutininin son adımında ciltte film/wrapping hissi oluşturarak nemli, daha dolgun ve bakımlı görünüm hedefleyen maskedir.",
+    "editorNote": "COSMOSKIN notu: Gece wrapping maskesi karakteriyle Maskeler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "Collagen Focus",
-        "description": "Cilde daha dolgun ve bakımlı bir görünüm kazandırmaya yardımcı kolajen odağı."
+        "name": "Collagen Extract odağı",
+        "description": "Dolgun ve esnek görünüm hissi için bakım karakteri."
       },
       {
-        "name": "Wrapping Mask Texture",
-        "description": "Gece boyunca cilt üzerinde bakım filmi hissi oluşturur."
+        "name": "Wrapping film dokusu",
+        "description": "Gece boyunca nemi ciltte tutmaya yardımcı hissedilen film formu."
       },
       {
-        "name": "Moisture Support",
-        "description": "Sabaha daha yumuşak ve nemli his hedefler."
+        "name": "Nem destekleyici baz",
+        "description": "Sabah daha pürüzsüz ve konforlu cilt görünümünü destekler."
       }
     ],
-    "usageTime": "Gece",
-    "usage": "Akşam rutininin son adımında ince bir katman halinde uygulayın; sabah cildi durulayın.",
+    "usageTime": "Akşam / haftalık",
+    "usage": "Akşam bakımının son adımı olarak uygulayın; tamamen kuruduktan sonra gece boyunca bırakın ve sabah çıkarın/durulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1464,47 +1682,57 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/medicube-collagen-night-wrapping-mask/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/medicube-collagen-night-wrapping-mask/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/medicube-collagen-night-wrapping-mask-ingredient-texture.png",
       "product": "/assets/img/products/medicube/medicube-collagen-night-wrapping-mask-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/mask-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/mask-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/mask-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/medicube-collagen-night-wrapping-mask-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/medicube/medicube-collagen-night-wrapping-mask-card.webp",
+        "/assets/img/ingredients/medicube-collagen-night-wrapping-mask-ingredient-texture.png"
+      ]
+    },
+    "texture": "Gece wrapping maskesi",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "mediheal-nmf-aquaring-sheet-mask": {
     "title": "NMF Aquaring Ampoule Mask kimler için uygun?",
     "brand": "Mediheal",
     "name": "NMF Aquaring Ampoule Mask",
     "category": "Maskeler",
-    "kind": "serum",
+    "kind": "mask",
     "idealSkinTypes": [
-      "Anlık nem",
-      "Yorgun cilt",
-      "Pratik maske"
+      "Nemsizlik",
+      "Kuru cilt",
+      "Hızlı destek",
+      "Haftalık bakım"
     ],
     "benefits": [
-      "Yoğun nem",
-      "Ferahlık",
-      "Yumuşaklık"
+      "NMF odağı",
+      "Sheet mask",
+      "Yoğun nem hissi",
+      "Pratik bakım"
     ],
-    "lead": "Mediheal NMF Aquaring Ampoule Mask; anlık nem, ferahlık ve yumuşak cilt hissi isteyen kullanıcılar için pratik bir yaprak maske adımıdır. NMF ve nem odağıyla cildi hızlıca daha konforlu hissettirmeye yardımcı olur.",
-    "editorNote": "Özellikle yoğun günlerin ardından cilde hızlı nem desteği vermek için iyi bir tek kullanımlık maskedir. Maskeden sonra kalan serumu boyun bölgesine yayabilirsiniz.",
+    "lead": "NMF Aquaring Ampoule Mask; kısa sürede yoğun nem hissi ve konforlu bakım isteyenler için ampul emdirilmiş sheet mask seçeneğidir.",
+    "editorNote": "COSMOSKIN notu: Ampul sheet mask karakteriyle Maskeler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "NMF Focus",
-        "description": "Cildin nemli ve rahat hissetmesine yardımcı nem faktörü odağı."
+        "name": "NMF / nem faktörü odağı",
+        "description": "Cilde su tutma ve yoğun nem hissi vermeye yardımcı bakım yaklaşımı."
       },
       {
-        "name": "Hyaluronic Moisture",
-        "description": "Anlık dolgun ve ferah his için nem desteği sağlar."
+        "name": "Ampul essence dokusu",
+        "description": "Maske kumaşına emdirilmiş nemli, kaygan serum yapısı."
       },
       {
-        "name": "Sheet Mask Fabric",
-        "description": "Serumun cilt yüzeyinde eşit dağılmasına yardımcı olur."
+        "name": "Sheet mask formu",
+        "description": "Haftalık destek veya özel bakım akşamlarında pratik uygulama sunar."
       }
     ],
-    "usageTime": "Sabah & Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Akşam / haftalık",
+    "usage": "Temiz cilde maskeyi yerleştirin; ürün talimatındaki süre sonunda çıkarıp kalan essence’i cilde yedirin.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1528,12 +1756,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/mediheal-nmf-aquaring-sheet-mask/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/mediheal-nmf-aquaring-sheet-mask/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/mediheal-nmf-aquaring-sheet-mask-ingredient-texture.png",
       "product": "/assets/img/products/mediheal/mediheal-nmf-aquaring-sheet-mask-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/mediheal-nmf-aquaring-sheet-mask-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/mediheal/mediheal-nmf-aquaring-sheet-mask-card.webp",
+        "/assets/img/ingredients/mediheal-nmf-aquaring-sheet-mask-ingredient-texture.png"
+      ]
+    },
+    "texture": "Ampul sheet mask",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "round-lab-1025-dokdo-cleanser": {
     "title": "1025 Dokdo Cleanser kimler için uygun?",
@@ -1542,33 +1778,35 @@
     "category": "Temizleyiciler",
     "kind": "cleanser",
     "idealSkinTypes": [
-      "Günlük temizlik",
       "Hassas cilt",
-      "Nazik arındırma"
+      "Normal cilt",
+      "Günlük temizlik",
+      "Karma cilt"
     ],
     "benefits": [
-      "Nazik temizlik",
-      "Ferahlık",
-      "Denge"
+      "Dokdo mineral water",
+      "Nazik köpük",
+      "Günlük arındırma",
+      "Konforlu temizlik"
     ],
-    "lead": "Round Lab 1025 Dokdo Cleanser; günlük, nazik ve dengeli bir temizlik isteyen ciltler için uygundur. Mineral su odağıyla ferah ve temiz bir his sunarken cildi aşırı germeden arındırmayı hedefler.",
-    "editorNote": "Günlük temizleyici olarak sade ve güvenli bir temel ürün hissi verir. Hassasiyete yatkın rutinlerde agresif temizlikten kaçınmak isteyenler için iyi bir seçenektir.",
+    "lead": "1025 Dokdo Cleanser; günlük kullanımda cildi nazikçe arındırmayı ve temizleme sonrası konfor hissini korumayı hedefleyen köpüren temizleyicidir.",
+    "editorNote": "COSMOSKIN notu: Nazik köpük temizleyici karakteriyle Temizleyiciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "1025 Dokdo Water",
-        "description": "Mineral odağıyla cilde ferah ve dengeli bir temizlik hissi sağlar."
+        "name": "Dokdo mineral water odağı",
+        "description": "Mineral su konseptiyle cilt konforu ve ferahlık hissi desteklenir."
       },
       {
-        "name": "Creamy Foam Texture",
-        "description": "Cilt yüzeyini germeden arındırmaya yardımcı köpük yapı."
+        "name": "Nazik köpüren baz",
+        "description": "Günlük sabah/akşam temizliğinde dengeli arındırma sağlar."
       },
       {
-        "name": "Daily Cleanse Base",
-        "description": "Sabah-akşam kullanıma uygun sade temizleme desteği."
+        "name": "Nem destekleyici yapı",
+        "description": "Temizleme sonrası gerginlik hissini azaltmaya yardımcı formül karakteri."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Islak cilde nazikçe masaj yapıp durulayın; ardından toner ve bakım adımlarıyla devam edin.",
+    "usage": "Islak cilde köpürtüp masaj yapın ve ılık suyla durulayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1592,12 +1830,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/round-lab-1025-dokdo-cleanser/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/round-lab-1025-dokdo-cleanser/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/round-lab-1025-dokdo-cleanser-ingredient-texture.png",
       "product": "/assets/img/products/round-lab/round-lab-1025-dokdo-cleanser-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/cleanser-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/cleanser-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/round-lab-1025-dokdo-cleanser-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/round-lab/round-lab-1025-dokdo-cleanser-card.webp",
+        "/assets/img/ingredients/round-lab-1025-dokdo-cleanser-ingredient-texture.png"
+      ]
+    },
+    "texture": "Nazik köpük temizleyici",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "round-lab-dokdo-toner": {
     "title": "Dokdo Toner kimler için uygun?",
@@ -1607,32 +1853,34 @@
     "kind": "toner",
     "idealSkinTypes": [
       "Hassas cilt",
-      "Günlük tonik",
-      "Nem dengesi"
+      "Nemsizlik",
+      "Normal cilt",
+      "Karma cilt"
     ],
     "benefits": [
-      "Denge",
-      "Hafif nem",
-      "Konfor"
+      "Dokdo mineral water",
+      "Hafif toner",
+      "Nem dengesi",
+      "Temizlik sonrası hazırlık"
     ],
-    "lead": "Round Lab Dokdo Toner; günlük kullanımda sade, hafif ve hassas ciltlere uyumlu bir tonik arayanlar için uygundur. Mineral su odağıyla cildi ferahlatır ve sonraki bakım adımlarına hazırlar.",
-    "editorNote": "Minimal ve sakin bir tonik isteyenler için güçlü bir temel ürün gibi çalışır. Katmanlı toner uygulamasıyla nem hissi artırılabilir.",
+    "lead": "Dokdo Toner; temizleme sonrası cilde hafif nem ve konfor hissi veren, katmanlanabilir sulu tonik adımıdır.",
+    "editorNote": "COSMOSKIN notu: Sulu mineral toner karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "1025 Dokdo Water",
-        "description": "Mineral dengesiyle ciltte ferah ve rahat bir his sağlar."
+        "name": "Deep Sea Water / mineral konsepti",
+        "description": "Cilde ferah ve dengeli his veren mineral su odağı."
       },
       {
-        "name": "Light Toner Base",
-        "description": "Temizleme sonrası hızlı emilen, sade ve katmanlanabilir yapı."
+        "name": "Hafif tonik bazı",
+        "description": "Günlük kullanımda ağırlık yapmadan nem katmanı oluşturur."
       },
       {
-        "name": "Soothing Support",
-        "description": "Hassasiyet hissini artırmadan günlük nem desteği sunar."
+        "name": "Dengeleyici bakım",
+        "description": "Sonraki serum/nemlendirici adımlarına cildi hazırlar."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Temizleme sonrası avuç içi veya pamukla uygulayın; ihtiyaç halinde ince katmanlar halinde kullanılabilir.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1656,12 +1904,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/round-lab-dokdo-toner/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/round-lab-dokdo-toner/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/round-lab-dokdo-toner-ingredient-texture.png",
       "product": "/assets/img/products/round-lab/round-lab-dokdo-toner-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/round-lab-dokdo-toner-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/round-lab/round-lab-dokdo-toner-card.webp",
+        "/assets/img/ingredients/round-lab-dokdo-toner-ingredient-texture.png"
+      ]
+    },
+    "texture": "Sulu mineral toner",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "round-lab-birch-juice-sunscreen": {
     "title": "Birch Juice Moisturizing Sunscreen SPF 50+ PA++++ kimler için uygun?",
@@ -1670,33 +1926,35 @@
     "category": "Güneş Koruyucular",
     "kind": "sunscreen",
     "idealSkinTypes": [
-      "Günlük SPF",
-      "Nem desteği",
-      "Hafif bitiş"
+      "Kuru cilt",
+      "Normal cilt",
+      "Nemsizlik",
+      "Günlük SPF"
     ],
     "benefits": [
-      "UV koruma",
-      "Nemli his",
-      "Konfor"
+      "Birch sap",
+      "Niacinamide",
+      "Hyaluronic acid",
+      "SPF50+ PA++++"
     ],
-    "lead": "Round Lab Birch Juice Moisturizing Sunscreen SPF 50+ PA++++; nemli bitiş, hafiflik ve günlük UV koruması arayan kullanıcılar için uygundur. Huş suyu odağıyla cildi konforlu hissettirirken son adım SPF görevini üstlenir.",
-    "editorNote": "Günlük güneş koruyucuda nem hissi arayanlar için iyi bir dengedir. Makyaj altına da daha yumuşak bir zemin hazırlayabilir.",
+    "lead": "Birch Juice Moisturizing Sunscreen; huş ağacı suyu, niacinamide ve hyaluronic acid odağıyla nemli bitişli SPF50+ PA++++ güneş koruması arayanlar için konumlanır.",
+    "editorNote": "COSMOSKIN notu: Nemli krem SPF karakteriyle Güneş Koruyucular adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "SPF 50+ PA++++",
-        "description": "Gündüz rutininde yüksek UV koruma desteği sağlar."
+        "name": "Birch Sap / Silver Birch Juice",
+        "description": "Cilde nemli ve konforlu bir his vermeye yardımcı huş özü odağı."
       },
       {
-        "name": "Birch Sap",
-        "description": "Cilde nemli ve ferah bir his vermeye yardımcı huş suyu odağı."
+        "name": "Niacinamide",
+        "description": "Cilt tonu ve parlaklık görünümü odağında destekleyici bakım bileşeni."
       },
       {
-        "name": "Moisturizing Cream Texture",
-        "description": "Güneş korumasını nem konforuyla birleştiren yapı."
+        "name": "Hyaluronic Acid Complex",
+        "description": "Nem tutma hissini destekleyerek SPF dokusunu daha konforlu kılar."
       }
     ],
     "usageTime": "Sabah",
-    "usage": "Gündüz rutininin son adımı olarak bol miktarda uygulayın; gün içinde ihtiyaç oldukça yenileyin.",
+    "usage": "Sabah rutininin son adımı olarak yeterli miktarda uygulayın; gün içinde yenileyin.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1720,12 +1978,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/round-lab-birch-juice-sunscreen/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/round-lab-birch-juice-sunscreen/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/round-lab-birch-juice-sunscreen-ingredient-texture.png",
       "product": "/assets/img/products/round-lab/round-lab-birch-juice-sunscreen-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/sunscreen-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/round-lab-birch-juice-sunscreen-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/round-lab/round-lab-birch-juice-sunscreen-card.webp",
+        "/assets/img/ingredients/round-lab-birch-juice-sunscreen-ingredient-texture.png"
+      ]
+    },
+    "texture": "Nemli krem SPF",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Güneş koruyucular düzenli yenileme gerektirir; ürün ambalajındaki kullanım talimatını esas alın."
   },
   "round-lab-soybean-nourishing-cream": {
     "title": "Soybean Nourishing Cream kimler için uygun?",
@@ -1735,32 +2001,34 @@
     "kind": "moisturizer",
     "idealSkinTypes": [
       "Kuru cilt",
-      "Besleyici krem",
-      "Gece rutini"
+      "Bariyer desteği",
+      "Besleyici bakım",
+      "Normal cilt"
     ],
     "benefits": [
-      "Besleyici nem",
-      "Yumuşaklık",
-      "Bariyer konforu"
+      "Soybean extract",
+      "Besleyici krem",
+      "Bariyer konforu",
+      "Yumuşak bitiş"
     ],
-    "lead": "Round Lab Soybean Nourishing Cream; besleyici, daha yoğun ve konforlu bir nemlendirici arayan normal-kuru ciltler için uygundur. Soya odağıyla ciltte yumuşak ve bakımlı bir bitiş hedefler.",
-    "editorNote": "Daha zengin bir krem hissi isteyenler için özellikle gece rutininde iyi çalışır. Gündüz kullanımında az miktar yeterli olabilir.",
+    "lead": "Soybean Nourishing Cream; soya fasulyesi özü odağıyla kuru/normal ciltlerde besleyici, yumuşak ve konforlu nemlendirme hissi için kullanılan kremdir.",
+    "editorNote": "COSMOSKIN notu: Besleyici krem karakteriyle Nemlendiriciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Soybean Extract",
-        "description": "Cilde beslenmiş ve daha yumuşak bir his vermeye yardımcı soya odağı."
+        "description": "Besleyici bakım hissi ve daha yumuşak cilt görünümü için soya fasulyesi özü odağı."
       },
       {
-        "name": "Rich Cream Base",
-        "description": "Kuru ciltlerde daha konforlu bir kapanış adımı sağlar."
+        "name": "Krem bazlı nem desteği",
+        "description": "Kuru ve gergin hissi azaltmaya yardımcı zengin doku."
       },
       {
-        "name": "Barrier Support",
-        "description": "Nem kaybı hissine karşı cildi destekleyen bakım yapısı."
+        "name": "Bariyer konforu",
+        "description": "Nemlendirici adımda cilt konforunu destekleyen bakım yaklaşımı."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Serum/essence adımından sonra cilde yeterli miktarda uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Serum sonrası yeterli miktarda uygulayın; sabah kullanımında SPF ile tamamlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1784,12 +2052,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/round-lab-soybean-nourishing-cream/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/round-lab-soybean-nourishing-cream/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/round-lab-soybean-nourishing-cream-ingredient-texture.png",
       "product": "/assets/img/products/round-lab/soybean-nourishing-cream-card.png",
       "fallbackHeroBg": "/assets/img/guide/fallback/moisturizer-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/round-lab-soybean-nourishing-cream-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/round-lab/soybean-nourishing-cream-card.png",
+        "/assets/img/ingredients/round-lab-soybean-nourishing-cream-ingredient-texture.png"
+      ]
+    },
+    "texture": "Besleyici krem",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "skin1004-madagascar-centella-ampoule": {
     "title": "Madagascar Centella Ampoule kimler için uygun?",
@@ -1799,32 +2075,34 @@
     "kind": "serum",
     "idealSkinTypes": [
       "Hassas cilt",
-      "Kızarıklığa yatkın cilt",
-      "Minimal serum"
+      "Kızarıklık eğilimi",
+      "Bariyer desteği",
+      "Minimal bakım"
     ],
     "benefits": [
+      "Centella Asiatica",
+      "Tek içerik odağı",
       "Yatıştırıcı his",
-      "Bariyer konforu",
-      "Hafif bakım"
+      "Hafif ampul"
     ],
-    "lead": "SKIN1004 Madagascar Centella Ampoule; hassasiyet, kızarıklık görünümü ve cilt konforu odağında sade bir serum/ampul arayan ciltler için uygundur. Centella Asiatica özüyle cildi daha sakin ve dengeli hissettirmeye yardımcı olur.",
-    "editorNote": "Rutininde çok aktif içerik kullanmak istemeyenler için güvenli bir destek adımıdır. Bariyer konforu aranan dönemlerde serum öncesi veya serum gibi kullanılabilir.",
+    "lead": "Madagascar Centella Ampoule; Madagascar Centella Asiatica extract odağıyla hassasiyet ve konfor hedefleyen, minimal yapılı hafif ampul adımıdır.",
+    "editorNote": "COSMOSKIN notu: Şeffaf centella ampul karakteriyle Serum & Ampul adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Centella Asiatica Extract",
-        "description": "Hassasiyet ve kızarıklık görünümü odağında cildi rahat hissettirmeye yardımcı öz."
+        "description": "Ciltte yatışmış, daha konforlu ve dengeli bir his sağlamaya yardımcı ana içerik."
       },
       {
-        "name": "Ampoule Texture",
-        "description": "Hafif ve hızlı emilen bakım katmanı sunar."
+        "name": "Hafif ampul dokusu",
+        "description": "Su gibi emilen, günlük rutinde kolay katmanlanan yapı."
       },
       {
-        "name": "Minimal Formula Feel",
-        "description": "Sade rutinlerde kolay eşleşen konforlu yapı."
+        "name": "Minimal formül yaklaşımı",
+        "description": "Hassas ciltlerde sade rutin kurmak isteyenler için uygun konumlandırma."
       }
     ],
-    "usageTime": "Sabah & Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Rutine göre",
+    "usage": "Tonik sonrası birkaç damla uygulayın; nemlendiriciyle tamamlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1848,12 +2126,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/skin1004-madagascar-centella-ampoule/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/skin1004-madagascar-centella-ampoule/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/skin1004-madagascar-centella-ampoule-ingredient-texture.png",
       "product": "/assets/img/products/skin1004/skin1004-madagascar-centella-ampoule-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/skin1004-madagascar-centella-ampoule-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/skin1004/skin1004-madagascar-centella-ampoule-card.webp",
+        "/assets/img/ingredients/skin1004-madagascar-centella-ampoule-ingredient-texture.png"
+      ]
+    },
+    "texture": "Şeffaf centella ampul",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "skin1004-centella-toning-toner": {
     "title": "Madagascar Centella Tone Brightening Toner kimler için uygun?",
@@ -1863,32 +2149,34 @@
     "kind": "toner",
     "idealSkinTypes": [
       "Hassas cilt",
-      "Ton eşitsizliği",
-      "Günlük tonik"
+      "Matlık",
+      "Ton görünümü",
+      "Karma cilt"
     ],
     "benefits": [
-      "Yatıştırıcı bakım",
-      "Ton desteği",
-      "Nem"
+      "Centella Asiatica",
+      "Tone brightening odağı",
+      "Hafif tonik",
+      "Günlük hazırlık"
     ],
-    "lead": "SKIN1004 Madagascar Centella Tone Brightening Toner; hassasiyet hissiyle birlikte ton eşitsizliği görünümünü hedefleyen ciltler için uygun bir tonik adımıdır. Centella odağıyla yatıştırıcı konfor ve aydınlık görünüm desteği sunar.",
-    "editorNote": "Sakinleştirici tonik hissini aydınlık görünüm hedefiyle birleştirir. Günlük kullanımda cildi serum adımına hazırlar.",
+    "lead": "Madagascar Centella Tone Brightening Toner; centella odağını ton ve parlaklık görünümü desteğiyle birleştiren hafif tonik adımıdır.",
+    "editorNote": "COSMOSKIN notu: Sulu centella tonik karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Centella Asiatica Extract",
-        "description": "Cildi daha sakin ve konforlu hissettirmeye yardımcı centella özü."
+        "description": "Hassasiyet hissi ve cilt konforu odağında yatıştırıcı bakım desteği."
       },
       {
-        "name": "Tone Brightening Care",
-        "description": "Daha dengeli ve aydınlık cilt görünümü hedefleyen bakım desteği."
+        "name": "Tone brightening kompleksi",
+        "description": "Daha canlı ve dengeli görünüm hedefleyen destekleyici içerik yaklaşımı."
       },
       {
-        "name": "Light Toner Texture",
-        "description": "Temizleme sonrası kolay emilen günlük tonik yapısı."
+        "name": "Sulu tonik bazı",
+        "description": "Temizleme sonrası cildi ince nem katmanıyla hazırlar."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Temizleme sonrası avuç içi veya pamukla uygulayın; gündüz SPF ile tamamlayın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1912,12 +2200,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/skin1004-centella-toning-toner/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/skin1004-centella-toning-toner/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/skin1004-centella-toning-toner-ingredient-texture.png",
       "product": "/assets/img/products/skin1004/skin1004-centella-toning-toner-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/skin1004-centella-toning-toner-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/skin1004/skin1004-centella-toning-toner-card.webp",
+        "/assets/img/ingredients/skin1004-centella-toning-toner-ingredient-texture.png"
+      ]
+    },
+    "texture": "Sulu centella tonik",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "skin1004-hyalu-cica-water-fit-sun-serum": {
     "title": "Hyalu-Cica Water-Fit Sun Serum SPF 50+ PA++++ kimler için uygun?",
@@ -1927,32 +2223,34 @@
     "kind": "sunscreen",
     "idealSkinTypes": [
       "Hassas cilt",
-      "Günlük SPF",
-      "Nemli bitiş"
+      "Kuru cilt",
+      "Nemsizlik",
+      "Hafif SPF"
     ],
     "benefits": [
-      "UV koruma",
-      "Nem",
-      "Yatıştırıcı his"
+      "Hyalu-Cica",
+      "Centella",
+      "Hyaluronic acid",
+      "SPF50+ PA++++"
     ],
-    "lead": "SKIN1004 Hyalu-Cica Water-Fit Sun Serum SPF 50+ PA++++; hassasiyete yatkın, nemli ve hafif bir güneş koruyucu arayan ciltler için uygundur. Hyalu-Cica formül odağıyla SPF adımını daha konforlu hale getirir.",
-    "editorNote": "Serum hissi veren güneş koruyucu arayanlar için çok iyi bir günlük seçenek gibi durur. Nemlendirici sonrası son adım olarak uygulanmalıdır.",
+    "lead": "Hyalu-Cica Water-Fit Sun Serum; centella ve hyaluronic acid odağıyla serum gibi hafif his veren, nemli bitişli SPF50+ PA++++ güneş koruyucudur.",
+    "editorNote": "COSMOSKIN notu: Su bazlı güneş serumu karakteriyle Güneş Koruyucular adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "SPF 50+ PA++++",
-        "description": "Gündüz rutininde yüksek UV koruma desteği sağlar."
-      },
-      {
         "name": "Hyalu-Cica Formula",
-        "description": "Hyalüronik asit ve centella odağıyla nem ve konfor hissini destekler."
+        "description": "Hyaluronic acid ve centella odağıyla nem ve konfor hissini birlikte hedefler."
       },
       {
-        "name": "Serum-like Texture",
-        "description": "Hafif, sulu ve günlük kullanıma uygun bitiş sunar."
+        "name": "SPF50+ PA++++",
+        "description": "Gündüz rutininin yüksek UV koruma adımı olarak konumlanır."
+      },
+      {
+        "name": "Water-fit serum dokusu",
+        "description": "Hafif, su bazlı ve hızlı yayılan güneş serumu hissi verir."
       }
     ],
     "usageTime": "Sabah",
-    "usage": "Gündüz rutininin son adımı olarak bol miktarda uygulayın; gün içinde ihtiyaç oldukça yenileyin.",
+    "usage": "Sabah bakımının son adımı olarak yeterli miktarda uygulayın; dış ortamda gün içinde yenileyin.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -1976,12 +2274,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/skin1004-hyalu-cica-water-fit-sun-serum/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/skin1004-hyalu-cica-water-fit-sun-serum/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/skin1004-hyalu-cica-water-fit-sun-serum-ingredient-texture.png",
       "product": "/assets/img/products/skin1004/skin1004-hyalu-cica-water-fit-sun-serum-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/sunscreen-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/skin1004-hyalu-cica-water-fit-sun-serum-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/skin1004/skin1004-hyalu-cica-water-fit-sun-serum-card.webp",
+        "/assets/img/ingredients/skin1004-hyalu-cica-water-fit-sun-serum-ingredient-texture.png"
+      ]
+    },
+    "texture": "Su bazlı güneş serumu",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Güneş koruyucular düzenli yenileme gerektirir; ürün ambalajındaki kullanım talimatını esas alın."
   },
   "some-by-mi-aha-bha-miracle-toner": {
     "title": "AHA BHA PHA 30 Days Miracle Toner kimler için uygun?",
@@ -1990,33 +2296,35 @@
     "category": "Tonik & Essence",
     "kind": "toner",
     "idealSkinTypes": [
-      "Akneye yatkın cilt",
+      "Akne eğilimi",
       "Gözenek görünümü",
-      "Arındırıcı bakım"
+      "Yağlı cilt",
+      "Doku pürüzü"
     ],
     "benefits": [
-      "Pürüzsüzlük",
-      "Sebum dengesi",
-      "Arındırma"
+      "AHA/BHA/PHA",
+      "Tea Tree",
+      "Niacinamide",
+      "Arındırıcı tonik"
     ],
-    "lead": "Some By Mi AHA BHA PHA 30 Days Miracle Toner; akneye yatkınlık, gözenek görünümü ve pürüzlü doku odağında aktif bakım isteyen ciltler için uygundur. Asit içerikli tonik olduğu için toleransla kullanılmalıdır.",
-    "editorNote": "Güçlü arındırıcı tonik etkisi nedeniyle her gün başlanmamalı. Haftada birkaç gece kullanıp cilt tepkisine göre sıklığı ayarlamak daha doğru olur.",
+    "lead": "AHA BHA PHA 30 Days Miracle Toner; asit kompleksi, tea tree ve niacinamide odağıyla gözenek, sebum ve pürüzlü doku görünümünü hedefleyen arındırıcı toniktir.",
+    "editorNote": "COSMOSKIN notu: Arındırıcı asit tonik karakteriyle Tonik & Essence adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "AHA/BHA/PHA",
-        "description": "Cilt yüzeyi, gözenek görünümü ve pürüzlü doku odağında arındırıcı destek."
+        "name": "AHA/BHA/PHA kompleksi",
+        "description": "Cilt yüzeyi ve gözenek görünümü odağında kontrollü arındırıcı bakım sağlar."
       },
       {
-        "name": "Tea Tree Water",
-        "description": "Yağlanma ve problemli cilt hissine karşı ferahlatıcı bakım desteği."
+        "name": "Tea Tree Leaf Water",
+        "description": "Yağlı/akneye eğilimli ciltlerde ferah ve dengeli his desteği sunar."
       },
       {
         "name": "Niacinamide",
-        "description": "Daha dengeli ve aydınlık cilt görünümü hedefler."
+        "description": "Sebum dengesi ve ton görünümü odağında formül karakterini tamamlar."
       }
     ],
-    "usageTime": "Akşam ağırlıklı",
-    "usage": "Temizleme sonrası avuç içi, pamuk ya da pad ile uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usageTime": "Sabah & Akşam",
+    "usage": "Temizleme sonrası haftada birkaç kez başlayın; hassasiyet durumunda seyrekleştirin ve gündüz SPF kullanın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -2040,12 +2348,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/some-by-mi-aha-bha-miracle-toner/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/some-by-mi-aha-bha-miracle-toner/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/some-by-mi-aha-bha-miracle-toner-ingredient-texture.png",
       "product": "/assets/img/products/some-by-mi/some-by-mi-aha-bha-miracle-toner-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/toner-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/toner-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/some-by-mi-aha-bha-miracle-toner-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/some-by-mi/some-by-mi-aha-bha-miracle-toner-card.webp",
+        "/assets/img/ingredients/some-by-mi-aha-bha-miracle-toner-ingredient-texture.png"
+      ]
+    },
+    "texture": "Arındırıcı asit tonik",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Aktif/asit/arındırıcı ürünlerde haftada birkaç kez başlayın; tahriş durumunda kullanımı azaltın ve gündüz SPF kullanın."
   },
   "torriden-dive-in-hyaluronic-acid-serum": {
     "title": "DIVE-IN Low Molecular Hyaluronic Acid Serum kimler için uygun?",
@@ -2054,33 +2370,35 @@
     "category": "Serum & Ampul",
     "kind": "serum",
     "idealSkinTypes": [
-      "Tüm cilt tipleri",
-      "Susuz cilt",
-      "Hassas cilt"
+      "Nemsizlik",
+      "Kuru cilt",
+      "Karma cilt",
+      "Hafif serum"
     ],
     "benefits": [
-      "Yoğun nem",
-      "Dolgun görünüm",
-      "Bariyer desteği"
+      "5D Hyaluronic Acid",
+      "Panthenol",
+      "Allantoin",
+      "Katmanlı nem"
     ],
-    "lead": "Torriden DIVE-IN Low Molecular Hyaluronic Acid Serum; yoğun nem, dolgunluk ve hafif yapı arayan ciltler için geliştirilmiş bir serumdur. 5D düşük molekül hyaluronik asit kompleksi ile çok katmanlı nem desteği sunarken, Panthenol ve Allantoin ile cilt konforunu desteklemeye yardımcı olur. Özellikle susuz kalmış, hassas veya nem dengesini güçlendirmek isteyen ciltler için uygundur.",
-    "editorNote": "Ağırlık yapmadan yoğun nem vermesiyle öne çıkan bir serum. Hızlı emilen yapısı sayesinde cildi yapışkan his bırakmadan daha dolgun ve konforlu hissettirir. Hassas cilt rutinlerinde de rahatlıkla kullanılabilecek dengeli bir formüldür.",
+    "lead": "DIVE-IN Low Molecular Hyaluronic Acid Serum; farklı molekül ağırlıklarında hyaluronik asit, panthenol ve allantoin odağıyla hafif ama dolgun nem hissi sunan serumdur.",
+    "editorNote": "COSMOSKIN notu: Mavi sulu serum karakteriyle Serum & Ampul adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "5D Hyaluronic Acid Complex",
-        "description": "Farklı molekül boyutlarıyla çok katmanlı nem desteği sağlar."
+        "description": "Farklı boyutlarda hyaluronik asitlerle çok katmanlı nem hissi sağlamaya yardımcı olur."
       },
       {
-        "name": "D-Panthenol",
-        "description": "Cildi yatıştırmaya ve nem bariyerini desteklemeye yardımcı olur."
+        "name": "Panthenol",
+        "description": "Cilt konforu ve nem desteği için kullanılan yatıştırıcı B5 vitamini türevi."
       },
       {
         "name": "Allantoin",
-        "description": "Cilt konforunu destekler, yumuşak ve rahat bir his bırakır."
+        "description": "Hassasiyet hissi ve konfor odağında destekleyici bakım bileşeni."
       }
     ],
-    "usageTime": "Sabah & Akşam",
-    "usage": "Tonikten sonra, nemlendiriciden önce 2–4 damla uygulayın; gündüz kullanımında SPF ile tamamlayın.",
+    "usageTime": "Rutine göre",
+    "usage": "Tonik sonrası 2-4 damla uygulayın; nemlendiriciyle kapatın.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -2105,11 +2423,19 @@
     ],
     "images": {
       "heroBgCustom": "/assets/img/guide/torriden-dive-in-hyaluronic-acid-serum/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/torriden-dive-in-hyaluronic-acid-serum/ingredient-visual.png",
+      "ingredientVisualCustom": "/assets/img/ingredients/torriden-dive-in-hyaluronic-acid-serum-ingredient-texture.png",
       "product": "/assets/img/products/torriden/torriden-dive-in-hyaluronic-acid-serum-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/serum-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/serum-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/torriden-dive-in-hyaluronic-acid-serum-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/torriden/torriden-dive-in-hyaluronic-acid-serum-card.webp",
+        "/assets/img/ingredients/torriden-dive-in-hyaluronic-acid-serum-ingredient-texture.png"
+      ]
+    },
+    "texture": "Mavi sulu serum",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "torriden-solid-in-ceramide-cream": {
     "title": "SOLID-IN Ceramide Cream kimler için uygun?",
@@ -2120,31 +2446,33 @@
     "idealSkinTypes": [
       "Kuru cilt",
       "Bariyer desteği",
-      "Hassas cilt"
+      "Hassasiyet",
+      "Nem kaybı"
     ],
     "benefits": [
+      "Ceramide",
+      "Panthenol",
       "Bariyer konforu",
-      "Yoğun nem",
-      "Yumuşaklık"
+      "Yoğun nem"
     ],
-    "lead": "Torriden SOLID-IN Ceramide Cream; bariyer konforu, kuruluk ve hassasiyet hissi odağında daha yoğun nemlendirici arayan ciltler için uygundur. Seramid ve panthenol odağıyla cildi daha rahat ve yumuşak hissettirmeye yardımcı olur.",
-    "editorNote": "Bariyer desteği aranan dönemlerde rutinin sağlam kapanış adımıdır. Serumdan sonra uygulandığında nemi kilitlemeye ve cildi daha konforlu hissettirmeye yardımcı olur.",
+    "lead": "SOLID-IN Ceramide Cream; seramid ve bariyer konforu odağıyla kuru/hassas ciltlerde nem kaybı hissini azaltmaya yardımcı zengin nemlendirici adımdır.",
+    "editorNote": "COSMOSKIN notu: Seramid krem karakteriyle Nemlendiriciler adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
         "name": "Ceramide Complex",
-        "description": "Cilt bariyeri konforunu desteklemeye yardımcı seramid odağı."
+        "description": "Cilt bariyeri görünümünü ve nem tutma hissini destekleyen seramid odağı."
       },
       {
         "name": "Panthenol",
-        "description": "Cildi yatıştırmaya ve yumuşaklık hissini artırmaya yardımcı olur."
+        "description": "Gerginlik ve hassasiyet hissinde konfor sağlayan yatıştırıcı nem desteği."
       },
       {
-        "name": "Rich Cream Texture",
-        "description": "Kuru ve hassas ciltlerde koruyucu bir nem katmanı hissi sağlar."
+        "name": "Zengin krem bazı",
+        "description": "Kuru bölgelerde uzun süreli yumuşaklık ve koruyucu bakım hissi verir."
       }
     ],
     "usageTime": "Sabah & Akşam",
-    "usage": "Serum/essence adımından sonra cilde yeterli miktarda uygulayın; gündüz rutininde SPF ile tamamlayın.",
+    "usage": "Serum sonrası uygulayın; çok kuru bölgelerde daha yoğun katmanlanabilir.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -2168,12 +2496,20 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/torriden-solid-in-ceramide-cream/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/torriden-solid-in-ceramide-cream/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/torriden-solid-in-ceramide-cream-ingredient-texture.png",
       "product": "/assets/img/products/torriden/torriden-solid-in-ceramide-cream-card.webp",
       "fallbackHeroBg": "/assets/img/guide/fallback/moisturizer-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/moisturizer-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/torriden-solid-in-ceramide-cream-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/torriden/torriden-solid-in-ceramide-cream-card.webp",
+        "/assets/img/ingredients/torriden-solid-in-ceramide-cream-ingredient-texture.png"
+      ]
+    },
+    "texture": "Seramid krem",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Hassas ciltlerde ilk kullanım öncesi yama testi önerilir."
   },
   "torriden-dive-in-watery-moisture-sun-cream": {
     "title": "DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++ kimler için uygun?",
@@ -2182,33 +2518,35 @@
     "category": "Güneş Koruyucular",
     "kind": "sunscreen",
     "idealSkinTypes": [
-      "Nemsiz cilt",
-      "Günlük SPF",
-      "Hafif doku"
+      "Nemsizlik",
+      "Karma cilt",
+      "Kuru cilt",
+      "Günlük SPF"
     ],
     "benefits": [
-      "UV koruma",
-      "Nem",
-      "Sulu bitiş"
+      "Watery moisture",
+      "Hyaluronic acid",
+      "SPF50+ PA++++",
+      "Hafif nemli bitiş"
     ],
-    "lead": "Torriden DIVE-IN Watery Moisture Sun Cream SPF 50+ PA++++; nemli, sulu ve hafif bir güneş koruyucu arayan kullanıcılar için uygundur. Hyalüronik asit odağıyla cildi ferah hissettirirken gündüz rutininin son adımı olarak koruma sağlar.",
-    "editorNote": "Nem serisiyle uyumlu, hafif hisli bir SPF seçeneğidir. Günlük kullanımda nemlendirici sonrası bol miktarda uygulanmalıdır.",
+    "lead": "DIVE-IN Watery Moisture Sun Cream; Torriden’in nem odağını SPF adımıyla birleştiren, hafif ve su bazlı his veren günlük güneş koruyucu seçeneğidir.",
+    "editorNote": "COSMOSKIN notu: Su bazlı SPF krem karakteriyle Güneş Koruyucular adımında konumlanır; cilt profilinizdeki hassasiyet ve bakım hedeflerine göre kademeli kullanım önerilir.",
     "ingredients": [
       {
-        "name": "SPF 50+ PA++++",
-        "description": "Gündüz rutininde yüksek UV koruma desteği sağlar."
+        "name": "Hyaluronic Acid odağı",
+        "description": "Nemli ve dolgun his veren Torriden DIVE-IN çizgisine uyumlu bakım karakteri."
       },
       {
-        "name": "Low Molecular Hyaluronic Acid",
-        "description": "Cilde sulu ve nemli bir his vermeye yardımcı hyalüronik asit odağı."
+        "name": "SPF50+ PA++++",
+        "description": "Gündüz rutininin yüksek koruma adımı olarak konumlanır."
       },
       {
-        "name": "Watery Moisture Texture",
-        "description": "Hafif, ferah ve günlük kullanıma uygun güneş kremi dokusu."
+        "name": "Watery cream texture",
+        "description": "Hafif krem-su dokusuyla hızlı yayılan ve nemli bitiş bırakan yapı."
       }
     ],
     "usageTime": "Sabah",
-    "usage": "Gündüz rutininin son adımı olarak bol miktarda uygulayın; gün içinde ihtiyaç oldukça yenileyin.",
+    "usage": "Sabah rutininizin son adımı olarak uygulayın; güneşe maruz kalma süresince yenileyin.",
     "routineSteps": [
       {
         "label": "Temizleyici",
@@ -2232,11 +2570,19 @@
       }
     ],
     "images": {
-      "heroBgCustom": "/assets/img/guide/torriden-dive-in-watery-moisture-sun-cream/hero-bg.webp",
-      "ingredientVisualCustom": "/assets/img/guide/torriden-dive-in-watery-moisture-sun-cream/ingredient-visual.png",
+      "heroBgCustom": "",
+      "ingredientVisualCustom": "/assets/img/ingredients/torriden-dive-in-watery-moisture-sun-cream-ingredient-texture.png",
       "product": "/assets/img/products/torriden/watery-moisture-sun-cream-card.png",
       "fallbackHeroBg": "/assets/img/guide/fallback/sunscreen-guide-bg.webp",
-      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png"
-    }
+      "fallbackIngredientVisual": "/assets/img/guide/fallback/sunscreen-ingredient-visual.png",
+      "ingredientVisual": "/assets/img/ingredients/torriden-dive-in-watery-moisture-sun-cream-ingredient-texture.png",
+      "gallery": [
+        "/assets/img/products/torriden/watery-moisture-sun-cream-card.png",
+        "/assets/img/ingredients/torriden-dive-in-watery-moisture-sun-cream-ingredient-texture.png"
+      ]
+    },
+    "texture": "Su bazlı SPF krem",
+    "inciNote": "Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.",
+    "caution": "Güneş koruyucular düzenli yenileme gerektirir; ürün ambalajındaki kullanım talimatını esas alın."
   }
 }

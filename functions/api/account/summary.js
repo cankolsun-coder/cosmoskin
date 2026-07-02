@@ -83,7 +83,7 @@ export async function onRequestGet(context) {
       selectRows(context, 'customer_routine_results', {
         select: '*',
         user_id: `eq.${user.id}`,
-        order: 'created_at.desc',
+        order: 'is_active.desc,updated_at.desc,created_at.desc',
         limit: '10'
       }).catch(() => []),
       selectRows(context, 'consent_records', {
@@ -185,8 +185,14 @@ export async function onRequestGet(context) {
         skin_type: skinProfiles?.[0]?.skin_type || meta.skin_type || '',
         skin_sensitivity: skinProfiles?.[0]?.skin_sensitivity || skinProfiles?.[0]?.sensitivity || meta.skin_sensitivity || '',
         skin_concerns: Array.isArray(skinProfiles?.[0]?.skin_concerns) ? skinProfiles[0].skin_concerns : (Array.isArray(skinProfiles?.[0]?.concerns) ? skinProfiles[0].concerns : (Array.isArray(meta.skin_concerns) ? meta.skin_concerns : [])),
-        routine_goal: skinProfiles?.[0]?.routine_goal || meta.routine_goal || '',
+        primary_goal: skinProfiles?.[0]?.primary_goal || skinProfiles?.[0]?.routine_goal || meta.primary_goal || meta.routine_goal || '',
+        secondary_goals: Array.isArray(skinProfiles?.[0]?.secondary_goals) ? skinProfiles[0].secondary_goals : [],
+        routine_goal: skinProfiles?.[0]?.routine_goal || skinProfiles?.[0]?.primary_goal || meta.routine_goal || '',
         routine_style: skinProfiles?.[0]?.routine_style || meta.routine_style || meta.routine_intensity || '',
+        budget_band: skinProfiles?.[0]?.budget_band || meta.budget_band || '',
+        avoid_ingredients: Array.isArray(skinProfiles?.[0]?.avoid_ingredients) ? skinProfiles[0].avoid_ingredients : [],
+        preferred_texture: skinProfiles?.[0]?.preferred_texture || meta.preferred_texture || '',
+        spf_habit: skinProfiles?.[0]?.spf_habit || meta.spf_habit || '',
         skin_profile_updated_at: skinProfiles?.[0]?.updated_at || meta.skin_profile_updated_at || meta.skinProfileUpdatedAt || meta.updatedAt || '',
         communication: {
           ...(meta.comm_prefs || meta.communication || {}),

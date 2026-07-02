@@ -159,7 +159,7 @@ export async function onRequestPost(context) {
       status: 'acknowledged',
       source: 'account_register',
       document_key: 'kvkk-aydinlatma-metni',
-      document_version: 'checkout-20260626',
+      document_version: 'legal-20260702',
       metadata: { page: 'account_register', note: 'Account registration KVKK notice acknowledged.' }
     }, {
       user_id: body.user.id,
@@ -168,7 +168,7 @@ export async function onRequestPost(context) {
       status: 'accepted',
       source: 'account_register',
       document_key: 'uyelik-sozlesmesi',
-      document_version: 'checkout-20260626',
+      document_version: 'legal-20260702',
       metadata: { page: 'account_register' }
     }]).catch((error) => console.error('registration consent record failed:', { message: error.message }));
   }

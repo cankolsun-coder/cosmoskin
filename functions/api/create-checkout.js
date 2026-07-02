@@ -746,7 +746,7 @@ export async function onRequestPost(context) {
       customer_last_name: customer.last_name,
       customer_phone: customer.phone,
       invoice_type: invoiceDetails.invoice_type,
-      identity_number: customer.identity_number,
+      identity_number: paymentMethod === 'card' ? customer.identity_number : null,
       city: customer.city,
       district: customer.district,
       postal_code: customer.postal_code,
@@ -788,9 +788,9 @@ export async function onRequestPost(context) {
         consents: {
           marketing_email_opt_in: consents.marketing_email_opt_in,
           newsletter_opt_in: consents.newsletter_opt_in,
-          pre_information_version: payload.legal?.pre_information_version || 'checkout-20260626',
-          distance_sales_version: payload.legal?.distance_sales_version || 'checkout-20260626',
-          privacy_notice_version: payload.legal?.privacy_notice_version || 'checkout-20260626',
+          pre_information_version: payload.legal?.pre_information_version || 'legal-20260702',
+          distance_sales_version: payload.legal?.distance_sales_version || 'legal-20260702',
+          privacy_notice_version: payload.legal?.privacy_notice_version || 'legal-20260702',
           accepted_terms_at: payload.legal?.accepted_terms_at || payload.legal_approved_at || new Date().toISOString(),
           accepted_privacy_at: payload.legal?.accepted_privacy_at || payload.legal_approved_at || new Date().toISOString(),
           marketing_consent_at: consents.marketing_email_opt_in ? (payload.legal?.marketing_consent_at || new Date().toISOString()) : null

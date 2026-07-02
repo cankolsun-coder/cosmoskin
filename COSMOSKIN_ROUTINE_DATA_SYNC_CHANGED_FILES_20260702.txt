@@ -1,0 +1,14 @@
+assets/routine-data-model.js
+assets/js/smart-routine.js
+assets/routines.js
+assets/account-dashboard.js
+assets/account-premium.css
+functions/api/account/skin-profile.js
+functions/api/account/routine-results.js
+functions/api/account/summary.js
+supabase/migrations/20260702_routine_data_sync.sql
+index.html
+routine.html
+account/profile.html
+COSMOSKIN_ROUTINE_DATA_SYNC_REPORT_20260702.md
+COSMOSKIN_ROUTINE_DATA_SYNC_CHANGED_FILES_20260702.txt

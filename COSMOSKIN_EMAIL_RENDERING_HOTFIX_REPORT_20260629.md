@@ -4,7 +4,7 @@
 
 1. Transactional order emails were using the normal storefront product image URL for the Beauty of Joseon Relief Sun product:
 
-`/assets/img/products/beauty-of-joseon/beauty-of-joseon-relief-sun-spf50-card.webp`
+`/assets/img/products/beauty-of-joseon/relief-sun-spf50-card.png`
 
 Older sent emails and Gmail image proxy could keep showing the previously cached broken/cyan version because the URL did not change. Updating the image content at the same URL is not enough for Gmail because Gmail proxies and caches remote images.
 

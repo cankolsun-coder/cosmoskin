@@ -1,15 +1,15 @@
 (function () {
   'use strict';
   var DOCS = {
-    '/legal/kvkk-aydinlatma-metni.html': { key: 'kvkk-aydinlatma-metni', title: 'KVKK Aydınlatma Metni', version: 'checkout-20260626' },
-    '/legal/on-bilgilendirme-formu.html': { key: 'on-bilgilendirme-formu', title: 'Ön Bilgilendirme Formu', version: 'checkout-20260626' },
-    '/legal/mesafeli-satis-sozlesmesi.html': { key: 'mesafeli-satis-sozlesmesi', title: 'Mesafeli Satış Sözleşmesi', version: 'checkout-20260626' },
-    '/legal/ticari-elektronik-ileti-izni.html': { key: 'ticari-elektronik-ileti-izni', title: 'Ticari Elektronik İleti Onayı', version: 'checkout-20260626' },
-    '/legal/uyelik-sozlesmesi.html': { key: 'uyelik-sozlesmesi', title: 'Üyelik Sözleşmesi', version: 'checkout-20260626' },
-    '/legal/cosmoskin-club-kurallari.html': { key: 'cosmoskin-club-kurallari', title: 'COSMOSKIN Club Kuralları', version: 'checkout-20260626' },
-    '/legal/cerez-politikasi.html': { key: 'cerez-politikasi', title: 'Çerez Politikası', version: 'checkout-20260626' },
-    '/legal/iade-ve-cayma-politikasi.html': { key: 'iade-ve-cayma-politikasi', title: 'İade ve Cayma Politikası', version: 'checkout-20260626' },
-    '/legal/teslimat-ve-kargo.html': { key: 'teslimat-ve-kargo', title: 'Teslimat ve Kargo', version: 'checkout-20260626' }
+    '/legal/kvkk-aydinlatma-metni.html': { key: 'kvkk-aydinlatma-metni', title: 'KVKK Aydınlatma Metni', version: 'checkout-20260702-v9' },
+    '/legal/on-bilgilendirme-formu.html': { key: 'on-bilgilendirme-formu', title: 'Ön Bilgilendirme Formu', version: 'checkout-20260702-v9' },
+    '/legal/mesafeli-satis-sozlesmesi.html': { key: 'mesafeli-satis-sozlesmesi', title: 'Mesafeli Satış Sözleşmesi', version: 'checkout-20260702-v9' },
+    '/legal/ticari-elektronik-ileti-izni.html': { key: 'ticari-elektronik-ileti-izni', title: 'Ticari Elektronik İleti Onayı', version: 'checkout-20260702-v9' },
+    '/legal/uyelik-sozlesmesi.html': { key: 'uyelik-sozlesmesi', title: 'Üyelik Sözleşmesi', version: 'checkout-20260702-v9' },
+    '/legal/cosmoskin-club-kurallari.html': { key: 'cosmoskin-club-kurallari', title: 'COSMOSKIN Club Kuralları', version: 'checkout-20260702-v9' },
+    '/legal/cerez-politikasi.html': { key: 'cerez-politikasi', title: 'Çerez Politikası', version: 'checkout-20260702-v9' },
+    '/legal/iade-ve-cayma-politikasi.html': { key: 'iade-ve-cayma-politikasi', title: 'İade ve Cayma Politikası', version: 'checkout-20260702-v9' },
+    '/legal/teslimat-ve-kargo.html': { key: 'teslimat-ve-kargo', title: 'Teslimat ve Kargo', version: 'checkout-20260702-v9' }
   };
   var lastTrigger = null;
   var cache = new Map();

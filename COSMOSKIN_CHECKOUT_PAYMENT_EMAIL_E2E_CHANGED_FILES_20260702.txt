@@ -1,0 +1,15 @@
+assets/checkout-flow.js
+functions/api/create-checkout.js
+functions/api/_lib/order-email.js
+odeme-ve-guvenlik.html
+email-previews/order_created.html
+email-previews/bank_transfer_pending.html
+email-previews/bank_transfer_reminder.html
+email-previews/bank_transfer_not_received_cancelled.html
+email-previews/payment_confirmed_manual.html
+email-previews/order_preparing.html
+email-previews/shipment_created.html
+email-previews/shipment_delivered.html
+scripts/validate-checkout-payment-email-e2e.mjs
+COSMOSKIN_CHECKOUT_PAYMENT_EMAIL_E2E_REPORT_20260702.md
+COSMOSKIN_CHECKOUT_PAYMENT_EMAIL_E2E_CHANGED_FILES_20260702.txt
