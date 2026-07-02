@@ -796,3 +796,10 @@
   }
   .account-page .announcement .marquee span + span::before{margin-right:36px!important;}
 }
+
+
+/* COSMOSKIN return request success/detail hotfix */
+.cs-return-success{margin:0 0 18px;padding:15px 17px;border-radius:18px;border:1px solid rgba(57,94,67,.16);background:linear-gradient(135deg,rgba(237,248,237,.94),rgba(255,250,244,.98));color:#25462d;font-weight:800;box-shadow:0 14px 34px rgba(20,13,8,.055)}
+.cs-return-details{margin-top:14px;border:1px solid rgba(22,18,14,.08);border-radius:18px;background:rgba(255,250,244,.72);overflow:hidden}.cs-return-details summary{cursor:pointer;padding:12px 14px;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#6b4b2b}.cs-return-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 14px 14px}.cs-return-detail-grid>div{display:grid;gap:4px;padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(22,18,14,.06)}.cs-return-detail-grid .full{grid-column:1/-1}.cs-return-detail-grid span{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#8b7664}.cs-return-detail-grid strong{font-size:13px;color:#1d1712}.cs-return-file-list{display:flex;flex-wrap:wrap;gap:7px}.cs-return-file-list span{display:inline-flex;padding:6px 9px;border-radius:999px;background:#f4eadf;color:#5a3b24;font-size:11px;letter-spacing:0;text-transform:none}
+.cs-return-products li{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.cs-return-products li span{color:#7a6a5c;font-size:12px;text-align:right}
+@media (max-width:640px){.cs-return-detail-grid{grid-template-columns:1fr}.cs-return-products li{display:grid}.cs-return-products li span{text-align:left}}

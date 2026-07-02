@@ -179,3 +179,21 @@ export async function upsertRows(context, table, rows, onConflict = 'id') {
   await parseSupabaseResponse(response);
   return true;
 }
+
+
+export async function createSignedStorageUrl(context, bucket, objectPath, expiresIn = 3600) {
+  if (!bucket || !objectPath) return null;
+  const { url } = getEnv(context);
+  const encodedPath = String(objectPath).split('/').map(encodeURIComponent).join('/');
+  const response = await fetchWithTimeout(`${url}/storage/v1/object/sign/${encodeURIComponent(bucket)}/${encodedPath}`, {
+    method: 'POST',
+    headers: adminHeaders(context, {
+      'Content-Type': 'application/json'
+    }),
+    body: JSON.stringify({ expiresIn })
+  }, timeoutMs(context), 'Dosya bağlantısı hazırlanırken zaman aşımı oluştu.');
+  const data = await parseSupabaseResponse(response);
+  const signed = data?.signedURL || data?.signedUrl || data?.signed_url || data?.url || null;
+  if (!signed) return null;
+  return /^https?:\/\//i.test(signed) ? signed : `${url}${signed.startsWith('/') ? '' : '/'}${signed}`;
+}

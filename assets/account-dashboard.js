@@ -8,7 +8,8 @@
     summary: null,
     activeTab: 'overview',
     ready: false,
-    fatal: null
+    fatal: null,
+    returnSuccessMessage: ''
   };
 
   var moneyFmt = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
@@ -597,9 +598,13 @@
     var cards = rows.length ? '<div class="cs-order-list cs-return-list">' + rows.map(function (r) {
       var items = asArray(r.items || r.requested_items);
       var attachments = asArray(r.attachments);
-      return '<article class="cs-card cs-return-card"><div class="cs-card-head"><span>' + escapeHtml(returnStatusLabel(r.status)) + '</span><small>' + escapeHtml(r.return_number || ('CS-RET-' + String(r.id || '').replace(/-/g,'').slice(0,10).toUpperCase())) + '</small></div><h3>' + escapeHtml(r.reason || 'İade talebi') + '</h3><p>' + escapeHtml(r.customer_note || 'Talebiniz COSMOSKIN ekibi tarafından incelenir.') + '</p>' + (items.length ? '<ul class="cs-return-products">' + items.map(function(item){ return '<li>' + escapeHtml(item.product_name_snapshot || item.product_name || item.name || 'Ürün') + ' · ' + escapeHtml(item.quantity || 1) + ' adet</li>'; }).join('') + '</ul>' : '') + '<div class="cs-return-meta"><small>Talep tarihi: ' + escapeHtml(formatDate(r.created_at, true)) + '</small><small>Ek dosya: ' + attachments.length + '</small></div></article>';
+      var requestNo = r.return_number || ('CS-RET-' + String(r.id || '').replace(/-/g,'').slice(0,10).toUpperCase());
+      var productList = items.length ? '<ul class="cs-return-products">' + items.map(function(item){ return '<li><strong>' + escapeHtml(item.product_name_snapshot || item.product_name || item.name || 'Ürün') + '</strong><span>' + escapeHtml(item.quantity || 1) + ' adet · ' + escapeHtml(item.reason || r.reason || 'İade talebi') + '</span></li>'; }).join('') + '</ul>' : '<p class="cs-field-help">Ürün detayları hazırlanıyor.</p>';
+      var attachmentList = attachments.length ? '<div class="cs-return-file-list">' + attachments.map(function(file){ return '<span>' + escapeHtml(file.file_name || file.file_path || 'Ek dosya') + '</span>'; }).join('') + '</div>' : '<span>Ek dosya yok</span>';
+      return '<article class="cs-card cs-return-card"><div class="cs-card-head"><span>' + escapeHtml(returnStatusLabel(r.status)) + '</span><small>' + escapeHtml(requestNo) + '</small></div><h3>' + escapeHtml(r.reason || 'İade talebi') + '</h3><p>' + escapeHtml(r.customer_note || 'Talebiniz COSMOSKIN ekibi tarafından incelenir.') + '</p>' + productList + '<details class="cs-return-details"><summary>İade detayını görüntüle</summary><div class="cs-return-detail-grid"><div><span>Talep No</span><strong>' + escapeHtml(requestNo) + '</strong></div><div><span>Sipariş</span><strong>' + escapeHtml(r.order_number || r.order_id || 'Sipariş bilgisi') + '</strong></div><div><span>Talep tarihi</span><strong>' + escapeHtml(formatDate(r.created_at || r.requested_at, true)) + '</strong></div><div><span>Durum</span><strong>' + escapeHtml(returnStatusLabel(r.status)) + '</strong></div><div class="full"><span>Ekler</span>' + attachmentList + '</div></div></details><div class="cs-return-meta"><small>Talep tarihi: ' + escapeHtml(formatDate(r.created_at || r.requested_at, true)) + '</small><small>Ek dosya: ' + attachments.length + '</small></div></article>';
     }).join('') + '</div>' : emptyState('Henüz iade talebiniz bulunmuyor.', 'Teslim edilmiş ve iade süresi devam eden siparişleriniz için iade talebi oluşturabilirsiniz.', null);
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>İade Taleplerim</h1><p>İade Taleplerim, teslim edilmiş ve iade süresi devam eden siparişleriniz için oluşturduğunuz resmi iade taleplerini gösterir. Genel destek konuları için Destek Taleplerim alanını kullanabilirsiniz.</p></div><button class="cs-pill-btn cs-pill-btn--dark" data-open-return-form type="button">İade Talebi Oluştur</button></div>' + (createOpen ? returnRequestFormHtml() : '') + cards;
+    var success = state.returnSuccessMessage ? '<div class="cs-return-success" role="status">' + escapeHtml(state.returnSuccessMessage) + '</div>' : '';
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>İade Taleplerim</h1><p>İade Taleplerim, teslim edilmiş ve iade süresi devam eden siparişleriniz için oluşturduğunuz resmi iade taleplerini gösterir. Genel destek konuları için Destek Taleplerim alanını kullanabilirsiniz.</p></div><button class="cs-pill-btn cs-pill-btn--dark" data-open-return-form type="button">İade Talebi Oluştur</button></div>' + success + (createOpen ? returnRequestFormHtml() : '') + cards;
   }
   function renderFavorites() {
     var el = $('#favoritesPanel'); if (!el) return;
@@ -867,8 +872,14 @@
     if (status) status.textContent = 'İade talebiniz oluşturuluyor...';
     await apiFetch('/returns', { method:'POST', body:payload });
     form.reset();
-    await loadSummary();
+    state.returnSuccessMessage = 'İade talebiniz alındı. Talebiniz COSMOSKIN ekibi tarafından incelenecektir.';
+    var currentUrl = new URL(window.location.href);
+    if (currentUrl.searchParams.has('createReturn')) {
+      currentUrl.searchParams.delete('createReturn');
+      window.history.replaceState({}, '', currentUrl.pathname + (currentUrl.searchParams.toString() ? '?' + currentUrl.searchParams.toString() : '') + currentUrl.hash);
+    }
     var panel = $('#returnsPanel'); if (panel) panel.dataset.returnFormOpen = 'false';
+    await loadSummary();
     switchTab('returns', false);
     showToast('İade talebiniz alındı.');
   }

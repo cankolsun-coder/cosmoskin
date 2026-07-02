@@ -1,4 +1,4 @@
-import { selectRows, updateRows, insertRow } from '../_lib/supabase.js';
+import { selectRows, updateRows, insertRow, createSignedStorageUrl } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
@@ -25,6 +25,21 @@ async function sendReturnEmail(context, order, type, note=''){
   }
 }
 function group(rows = [], key) { return (rows || []).reduce((map,row)=>{ const list = map.get(row[key]) || []; list.push(row); map.set(row[key], list); return map; }, new Map()); }
+
+async function withSignedAttachmentUrls(context, rows = []) {
+  return await Promise.all((rows || []).map(async (file) => {
+    const bucket = file.storage_bucket || 'return-attachments';
+    const path = file.file_path || '';
+    if (!path || file.file_url) return file;
+    try {
+      const signedUrl = await createSignedStorageUrl(context, bucket, path, 60 * 60);
+      return { ...file, file_url: signedUrl, file_preview_url: signedUrl, signed_url_expires_in: 3600 };
+    } catch (error) {
+      return { ...file, file_url: null, file_preview_error: error.message || 'signed_url_failed' };
+    }
+  }));
+}
+
 export async function onRequestGet(context){
   try{
     await assertAdmin(context); const url=new URL(context.request.url); const params={select:'*',order:'created_at.desc',limit:String(Math.min(100,Math.max(1,Number(url.searchParams.get('limit')||100))))};
@@ -40,6 +55,7 @@ export async function onRequestGet(context){
         selectRows(context,'return_status_events',{select:'*',return_request_id:inFilter(ids),order:'created_at.asc'}).catch(()=>[])
       ]);
     }
+    attachments = await withSignedAttachmentUrls(context, attachments);
     const gi=group(items,'return_request_id'),ga=group(attachments,'return_request_id'),ge=group(events,'return_request_id');
     return json({ok:true,returns:(rows||[]).map((row)=>({...row,return_number:returnNumber(row),items:gi.get(row.id)||[],attachments:ga.get(row.id)||[],status_events:ge.get(row.id)||[]}))});
   }catch(error){ return adminError(error,'İade talepleri alınamadı.'); }
