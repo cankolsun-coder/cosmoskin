@@ -1,0 +1,5 @@
+functions/api/returns.js
+assets/account-dashboard.js
+assets/admin-returns.js
+scripts/validate-return-attachment-persistence.mjs
+COSMOSKIN_RETURN_ATTACHMENT_PERSISTENCE_HOTFIX_REPORT_20260703.md

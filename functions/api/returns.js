@@ -195,7 +195,7 @@ export async function onRequestPost(context){
     if (!created?.return_number) {
       // return_number is also derived client-side/report-side if migration has not run yet.
     }
-    await insertRows(context,'return_request_items',items.map((item)=>({
+    const itemRows = items.map((item)=>({
       return_request_id: created.id,
       order_item_id: item.order_item_id,
       product_id: item.product_id,
@@ -208,8 +208,11 @@ export async function onRequestPost(context){
       unit_price_snapshot: item.unit_price_snapshot,
       refundable_amount: item.refundable_amount,
       condition_status: item.condition_status
-    }))).catch(()=>null);
-    await insertRows(context,'return_request_attachments',attachments.map((file)=>({
+    }));
+    if (itemRows.length) {
+      await insertRows(context,'return_request_items',itemRows);
+    }
+    const attachmentRows = attachments.map((file)=>({
       return_request_id: created.id,
       order_id: order.id,
       customer_id: user.id || null,
@@ -218,9 +221,12 @@ export async function onRequestPost(context){
       file_name: file.file_name,
       mime_type: file.mime_type,
       file_size: file.file_size,
-      storage_bucket: 'return-attachments',
+      storage_bucket: file.storage_bucket || 'return-attachments',
       uploaded_by: file.uploaded_by
-    }))).catch(()=>null);
+    }));
+    if (attachmentRows.length) {
+      await insertRows(context,'return_request_attachments',attachmentRows);
+    }
     await insertRow(context,'return_status_events',{return_request_id:created.id,old_status:null,new_status:'requested',event_type:'return_requested',actor_type:'customer',actor_id:user.id||null,note:'Müşteri iade talebi oluşturdu.',metadata:{return_number:returnNo,attachment_count:attachments.length}}).catch(()=>null);
     await recordCrmEvent(context, { event_type: 'return_requested', email: lower(user.email || order.customer_email || ''), order_id: order.id, metadata: { return_request_id: created?.id || null, return_number:returnNo, items:items.length } }).catch(()=>null);
     await insertRow(context,'order_status_events',{order_id:order.id,status:'return_requested',event_type:'return_requested',previous_status:order.status||null,new_status:'return_requested',source:'customer',created_by:'customer',message:'Müşteri iade talebi oluşturdu.',note:items.map((item)=>item.reason).join(', '),metadata:{return_request_id:created?.id||null,return_number:returnNo,items:items.length,attachments:attachments.length}}).catch(()=>null);
