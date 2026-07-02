@@ -664,6 +664,35 @@ function broadcastFavoritesChange() {
     window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: state.favorites } }));
   }
 
+  async function favoriteAccountRequest(method, body) {
+    const client = window.cosmoskinSupabase;
+    if (!client?.auth?.getSession) return null;
+    const { data: { session } } = await client.auth.getSession();
+    if (!session?.access_token) return null;
+    const res = await fetch('/api/account/favorites', {
+      method,
+      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + session.access_token },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) throw new Error(data.error || 'Favori senkronizasyonu tamamlanamadı.');
+    return data;
+  }
+
+  function favoriteApiPayload(item) {
+    const normalized = normalizeFavoriteItem(item);
+    if (!normalized?.id) return null;
+    return {
+      product_slug: normalized.id,
+      product_id: normalized.id,
+      product_name: normalized.name,
+      brand: normalized.brand,
+      price: normalized.price,
+      image: normalized.image,
+      url: normalized.url
+    };
+  }
+
   async function saveFavoritesToAccount() {
     const client = window.cosmoskinSupabase;
     if (!client || !favoriteAccountSyncReady) return;
@@ -671,16 +700,21 @@ function broadcastFavoritesChange() {
       const { data: { user } } = await client.auth.getUser();
       if (!user) return;
       const metadata = user.user_metadata || {};
-      const { error } = await client.auth.updateUser({
-        data: {
-          ...metadata,
-          favorites: state.favorites
-        }
-      });
+      const { error } = await client.auth.updateUser({ data: { ...metadata, favorites: state.favorites } });
       if (error) throw error;
+      for (const item of state.favorites) {
+        const payload = favoriteApiPayload(item);
+        if (payload) await favoriteAccountRequest('POST', payload).catch((err) => console.warn('Favorites DB sync warning:', err));
+      }
     } catch (error) {
       console.warn('Favorites account sync warning:', error);
     }
+  }
+
+  async function removeFavoriteFromAccount(item) {
+    const payload = favoriteApiPayload(item);
+    if (!payload) return;
+    await favoriteAccountRequest('DELETE', { product_slug: payload.product_slug }).catch((err) => console.warn('Favorites DB remove warning:', err));
   }
 
   function persistFavorites(options = {}) {
@@ -761,9 +795,15 @@ function broadcastFavoritesChange() {
       const { data: { user } } = await client.auth.getUser();
       favoriteAccountSyncReady = Boolean(user);
       if (!user) return;
-      const remoteFavorites = Array.isArray(user.user_metadata?.favorites) ? user.user_metadata.favorites : [];
+      let remoteFavorites = Array.isArray(user.user_metadata?.favorites) ? user.user_metadata.favorites : [];
+      try {
+        const api = await favoriteAccountRequest('GET');
+        if (Array.isArray(api?.favorites)) {
+          remoteFavorites = api.favorites.map((fav) => ({ id: fav.product_slug || fav.product_id || fav.id, slug: fav.product_slug || fav.product_id, name: fav.product_name || fav.name, brand: fav.brand, price: fav.price, image: fav.image, url: fav.url }));
+        }
+      } catch (error) { console.warn('Favorites API hydrate warning:', error); }
       const localFavorites = uniqueFavorites(state.favorites);
-      const resolvedFavorites = localFavorites.length ? localFavorites : uniqueFavorites(remoteFavorites);
+      const resolvedFavorites = uniqueFavorites(localFavorites.concat(remoteFavorites));
       const remoteIds = JSON.stringify(uniqueFavorites(remoteFavorites).map((item) => item.id).sort());
       const resolvedIds = JSON.stringify(resolvedFavorites.map((item) => item.id).sort());
       state.favorites = resolvedFavorites;
@@ -816,11 +856,13 @@ function broadcastFavoritesChange() {
     if (alreadyFavorite) {
       state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
       showFavoriteToast('Favorilerden çıkarıldı');
+      persistFavorites({ skipRemote: true });
+      removeFavoriteFromAccount(normalized).catch((error) => console.warn('Favorite remote remove warning:', error));
     } else {
       state.favorites.unshift(normalized);
       showFavoriteToast('Favorilere eklendi');
+      persistFavorites();
     }
-    persistFavorites();
   }
 
   function getProductDataFromButton(btn) {

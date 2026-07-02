@@ -685,3 +685,114 @@
 .account-page .cs-account-nav a:not(.is-active) .cs-nav-icon img.cs-icon,
 .account-page .cs-stat-icon img.cs-icon,
 .account-page .cs-help-icon img.cs-icon{filter:brightness(0) saturate(100%) sepia(23%) saturate(824%) hue-rotate(350deg) brightness(88%) contrast(88%);}
+
+
+/* 2026-07-02 — Customer Returns + Account Premium Polish */
+.account-premium-page :where(.cs-tab-title h1,.cs-tab-title h2,.cs-card h3,.cs-panel h2):focus{outline:0!important;box-shadow:none!important;}
+.account-premium-page :where(a,button,input,select,textarea):focus-visible{outline:0;box-shadow:0 0 0 3px rgba(178,132,76,.24),0 0 0 1px rgba(96,64,39,.22);border-color:rgba(178,132,76,.48)!important;}
+.cs-tab-title{gap:18px;align-items:flex-start;}
+.cs-tab-title p{max-width:760px;line-height:1.68;}
+.cs-form label,.cs-form-compact label{min-width:0;}
+.cs-input{min-width:0;}
+.cs-return-create-card,.cs-return-card{background:linear-gradient(145deg,#fffdf9,#f8f0e6);border:1px solid rgba(125,91,54,.13);box-shadow:0 16px 34px rgba(24,16,10,.055);}
+.cs-return-item-list{display:grid;gap:12px;margin-top:8px;}
+.cs-return-item{display:grid;grid-template-columns:34px 74px minmax(0,1fr);gap:12px;align-items:start;padding:13px;border:1px solid rgba(45,34,24,.08);border-radius:18px;background:rgba(255,255,255,.72);}
+.cs-return-item__media{display:grid;place-items:center;height:74px;border-radius:16px;background:linear-gradient(145deg,#f7eddf,#efe0cf);overflow:hidden;}
+.cs-return-item__media img{width:100%;height:100%;object-fit:contain;padding:8px;}
+.cs-return-item__check{display:grid!important;place-items:center;min-height:74px;}
+.cs-return-item__body{min-width:0;display:grid;gap:8px;}
+.cs-return-item__body strong{line-height:1.3;overflow-wrap:anywhere;}
+.cs-return-item__controls{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px;}
+.cs-return-item__note{display:grid!important;gap:6px;}
+.cs-return-hygiene-box{display:grid;gap:9px;padding:16px;border-radius:18px;background:#fffaf3;border:1px solid rgba(159,122,72,.16);}
+.cs-return-hygiene-box strong{color:#1a1510;}
+.cs-return-hygiene-box label{display:flex!important;gap:9px;align-items:flex-start;font-size:13px;color:#5f5145;line-height:1.45;}
+.cs-return-hygiene-box p{margin:4px 0 0;color:#8a7868;font-size:12px;line-height:1.5;}
+.cs-return-products{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:6px;color:#61564c;font-size:12.5px;}
+.cs-return-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;color:#897766;}
+.cs-return-empty-eligible{padding:18px;display:grid;gap:8px;}
+.cs-tier-grid--premium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}
+.cs-tier-card{position:relative;overflow:hidden;text-align:left;border:0;border-radius:24px;padding:18px;min-height:150px;display:grid;align-content:end;gap:8px;color:#fff;cursor:pointer;box-shadow:0 18px 42px rgba(23,16,9,.12);}
+.cs-tier-card span{font-family:var(--cs-serif);font-size:28px;line-height:1;}
+.cs-tier-card strong{font-size:12px;letter-spacing:.08em;text-transform:uppercase;}
+.cs-tier-card small{opacity:.78;}
+.cs-tier-card--essential{background:linear-gradient(145deg,#3a271c,#1b120d);}
+.cs-tier-card--signature{background:linear-gradient(145deg,#d7ad63,#7c5522);}
+.cs-tier-card--elite{background:radial-gradient(circle at 28% 12%,rgba(255,255,255,.25),transparent 18%),radial-gradient(circle at 78% 30%,rgba(255,255,255,.14),transparent 12%),linear-gradient(145deg,#6c1327,#250711);}
+.cs-tier-card--elite:after{content:"✦ ✧ ✦";position:absolute;right:18px;top:14px;color:rgba(255,255,255,.24);letter-spacing:8px;}
+.cs-tier-detail{border:1px solid rgba(159,122,72,.14);border-radius:22px;background:#fffdf9;padding:16px;box-shadow:0 14px 30px rgba(23,16,9,.05);}
+.cs-tier-detail h3{margin:0 0 8px;font-family:var(--cs-serif);font-size:24px;}
+.cs-tier-detail p{margin:10px 0 0;color:#75685d;font-size:12.5px;line-height:1.55;}
+.cs-coupon-note{display:block;margin-top:8px;color:#8a7868;font-size:12px;line-height:1.5;}
+.cs-content-help-card.full{grid-column:1/-1;}
+@media(max-width:760px){.cs-return-item{grid-template-columns:28px 62px minmax(0,1fr);}.cs-return-item__controls{grid-template-columns:1fr}.cs-tier-grid--premium{grid-template-columns:1fr}.cs-tab-title{display:grid}.cs-tab-title .cs-pill-btn{justify-self:start}}
+
+
+/* 2026-07-02 — Account announcement ticker parity with homepage.
+   Uses the homepage announcement typography, spacing and motion values without redesigning header/footer. */
+.account-page .announcement{
+  height:40px!important;
+  display:grid!important;
+  align-items:center!important;
+  justify-content:initial!important;
+  overflow:hidden!important;
+  background:#000!important;
+  color:var(--ticker-text, rgba(255,255,255,.78))!important;
+  border-bottom:1px solid rgba(255,255,255,.06)!important;
+}
+.account-page .announcement .marquee{
+  height:auto!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  width:max-content!important;
+  min-width:0!important;
+  gap:64px!important;
+  padding:0 32px!important;
+  white-space:nowrap!important;
+  color:var(--ticker-text, rgba(255,255,255,.78))!important;
+  font-family:var(--sans, "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif)!important;
+  font-size:10px!important;
+  font-weight:500!important;
+  line-height:1!important;
+  letter-spacing:.32em!important;
+  text-transform:uppercase!important;
+  animation-name:marqueeMove!important;
+  animation-duration:22s!important;
+  animation-timing-function:linear!important;
+  animation-iteration-count:infinite!important;
+  will-change:transform!important;
+}
+.account-page .announcement .marquee span{
+  flex:0 0 auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  white-space:nowrap!important;
+  font:inherit!important;
+  letter-spacing:inherit!important;
+  text-transform:inherit!important;
+  color:inherit!important;
+  line-height:1!important;
+  opacity:.88!important;
+}
+.account-page .announcement .marquee span:first-child{display:inline-flex!important;}
+.account-page .announcement .marquee span + span::before{
+  content:'·'!important;
+  margin-right:64px!important;
+  opacity:.3!important;
+  font-size:16px!important;
+  line-height:1!important;
+  letter-spacing:0!important;
+}
+.account-page .header.account-header{top:40px!important;}
+@media(max-width:768px){
+  .account-page .announcement{height:36px!important;}
+  .account-page .announcement .marquee{
+    height:100%!important;
+    font-size:11px!important;
+    letter-spacing:.025em!important;
+    gap:36px!important;
+    animation-duration:22s!important;
+  }
+  .account-page .announcement .marquee span + span::before{margin-right:36px!important;}
+}

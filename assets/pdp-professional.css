@@ -45,3 +45,24 @@
 .pdp8-routine-intel-note{font-size:13px}.pdp8-routine-intel-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.pdp8-routine-intel-actions .btn{justify-content:center;text-align:center;min-height:42px}.pdp8-routine-intel-actions button{cursor:pointer}
 .pdp5-media-thumbs[hidden]{display:none}.pdp5-thumb[aria-pressed="true"]{border-color:rgba(159,122,72,.44)}
 @media(max-width:760px){.pdp8-routine-mini{grid-template-columns:repeat(3,minmax(0,1fr))}.pdp8-routine-intel-actions{grid-template-columns:1fr}.pdp8-routine-intel-score{display:block}.pdp8-routine-intel-score span{display:block;text-align:left;margin-top:4px}}
+
+
+/* 2026-07-02 — PDP Polish: remove guide dependency, premium tabs, softer gallery arrows. */
+.pdp5-page .pdp5-price{font-size:clamp(30px,2.6vw,38px)!important;line-height:1.05!important;}
+.pdp5-page .pdp5-purchase-card{margin-top:-4px!important;}
+.pdp5-tablist{gap:8px!important;padding:7px!important;border-radius:999px!important;background:rgba(248,239,229,.72)!important;border:1px solid rgba(159,122,72,.13)!important;}
+.pdp5-tab{border-radius:999px!important;min-height:42px!important;padding:0 15px!important;font-size:11px!important;letter-spacing:.08em!important;text-transform:uppercase!important;}
+.pdp5-tab.is-active{background:#17110d!important;color:#fffaf3!important;box-shadow:0 10px 26px rgba(23,16,9,.12)!important;}
+.pdp5-panel{border-radius:28px!important;background:linear-gradient(145deg,#fffdf9,#f8f0e6)!important;border:1px solid rgba(159,122,72,.12)!important;}
+.pdp8-gallery-arrow{opacity:.18!important;background:rgba(255,255,255,.58)!important;backdrop-filter:blur(8px);transition:opacity .18s ease,transform .18s ease,background .18s ease!important;}
+.pdp5-media-card:hover .pdp8-gallery-arrow,.pdp8-gallery-arrow:focus-visible{opacity:.92!important;background:rgba(255,255,255,.84)!important;}
+.pdp8-club-points__tiers span:nth-child(1){background:linear-gradient(145deg,#3a271c,#1b120d)!important;color:#fff8ef!important;}
+.pdp8-club-points__tiers span:nth-child(2){background:linear-gradient(145deg,#d7ad63,#8a6328)!important;color:#fff8ef!important;}
+.pdp8-club-points__tiers span:nth-child(3){background:linear-gradient(145deg,#6c1327,#260711)!important;color:#fff8ef!important;}
+.pdp8-club-points__tiers span b{color:inherit!important;}
+.pdp8-faq-enhanced{display:grid;gap:10px;border-radius:30px;background:linear-gradient(145deg,#fffdf9,#f5eadc);border:1px solid rgba(159,122,72,.13);padding:clamp(20px,3vw,34px);box-shadow:0 16px 40px rgba(23,16,9,.06);}
+.pdp8-faq-enhanced h2{font-family:var(--serif,serif);font-size:clamp(30px,4vw,46px);margin:0 0 8px;color:#17110d;}
+.pdp8-faq-enhanced details{border:1px solid rgba(22,18,14,.08);background:rgba(255,255,255,.66);border-radius:18px;padding:14px 16px;}
+.pdp8-faq-enhanced summary{cursor:pointer;font-weight:800;color:#231a14;}
+.pdp8-faq-enhanced p{color:#65584d;line-height:1.7;margin:10px 0 0;}
+@media(max-width:640px){.pdp5-tablist{border-radius:22px!important;display:grid!important;grid-template-columns:1fr 1fr!important}.pdp5-tab{white-space:normal!important;line-height:1.25!important}.pdp5-page .pdp5-price{font-size:30px!important}}

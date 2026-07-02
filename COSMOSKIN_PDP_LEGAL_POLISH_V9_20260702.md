@@ -58,7 +58,7 @@ Güncellenen mantık:
 - İade talebi ve gönderim talimatı kod üzerinden yürütülür.
 
 ### Hediye / tester / kampanya ürünleri
-Aşağıdaki kural yasal metinlere ve footer’daki iade/değişim sayfasına işlendi:
+Aşağıdaki kural yasal metinlere ve footer’daki iade/cayma sayfasına işlendi:
 
 İade edilen sipariş kapsamında kampanya, kupon, sepet hediyesi, numune/tester veya promosyon ürün gönderilmişse; bu ürünlerin de eksiksiz, kullanılmamış ve gönderildiği haliyle iade paketi içinde yer alması gerekir. Hediye/tester/promosyon ürün iade edilmezse iade incelemesi bekletilebilir veya kampanya koşullarına göre ilgili ürün bedeli iade tutarından mahsup edilebilir.
 

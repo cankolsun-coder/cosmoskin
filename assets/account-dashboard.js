@@ -124,6 +124,7 @@
   }
 
   var COSMOSKIN_ICON_BASE = '/assets/icons/cosmoskin/';
+  // Club tier CSS classes: cs-tier-card--essential cs-tier-card--signature cs-tier-card--elite
   var COSMOSKIN_ACCOUNT_ICON_MAP = {
     home:'account-overview', bag:'account-orders', return:'account-returns', heart:'account-favorites', invoice:'account-orders', pin:'account-addresses', drop:'account-skin-profile', crown:'account-club', ticket:'commerce-gift', bell:'account-notifications', shield:'account-security', support:'account-support', truck:'commerce-truck', sparkle:'account-routine', user:'account-overview', clock:'status-sync', routine:'account-routine', payments:'account-payments', lock:'status-lock', empty:'status-empty', info:'status-info', check:'status-check'
   };
@@ -388,7 +389,7 @@
         '<div class="cs-nav-label">ALIŞVERİŞ</div>',
         navItem('overview', 'home', 'Genel Bakış'),
         navItem('orders', 'bag', 'Siparişlerim', 'ordersBadge'),
-        navItem('returns', 'return', 'İade ve Taleplerim', 'returnsBadge'),
+        navItem('returns', 'return', 'İade Taleplerim', 'returnsBadge'),
         navItem('favorites', 'heart', 'Favorilerim', 'favoritesBadge'),
         navItem('invoices', 'invoice', 'Faturalarım'),
         '<div class="cs-nav-label">BAKIM & AVANTAJLAR</div>',
@@ -562,15 +563,52 @@
   }
 
   function renderOrders() { var el = $('#ordersPanel'); if (!el) return; var orders = state.summary.orders; el.innerHTML = '<div class="cs-tab-title"><div><h1>Siparişlerim</h1><p>Sipariş durumunu, kargo bilgisini ve ürün detaylarını takip edin.</p></div></div>' + (orders.length ? '<div class="cs-order-list">' + orders.map(function (o) { return orderCard(o, false); }).join('') + '</div>' : emptyState('Henüz siparişiniz yok.', 'Sipariş verdiğinizde durumunu ve teslimat bilgilerini burada takip edebilirsiniz.', 'Alışverişe Başla', '/allproducts.html')); }
+
+  function returnStatusLabel(status) {
+    return ({ requested:'İade talebiniz alındı.', under_review:'Talebiniz inceleniyor.', approved:'İade talebiniz onaylandı.', return_code_shared:'İade gönderim kodunuz hazır.', waiting_customer_ship:'Ürününüzü kargoya vermeniz bekleniyor.', in_transit:'İade gönderiniz yolda.', received:'Ürününüz tarafımıza ulaştı.', inspection:'Ürün kontrol ediliyor.', refund_pending:'Ücret iadeniz hazırlanıyor.', refunded:'Ücret iadeniz tamamlandı.', rejected:'İade talebiniz reddedildi.', cancelled:'İade talebiniz iptal edildi.', closed:'İade süreci kapatıldı.' })[String(status || '').toLowerCase()] || 'İade talebi alındı.';
+  }
+  function deliveredDate(order) { return order && (order.delivered_at || order.fulfilled_at || order.updated_at || order.created_at); }
+  function returnWindowEnds(order) { var d = deliveredDate(order); if (!d) return null; var end = new Date(d); end.setDate(end.getDate() + 14); return end; }
+  function isDeliveredOrder(order) { var s = String(order?.status || '').toLowerCase(); var f = String(order?.fulfillment_status || '').toLowerCase(); return ['shipped','delivered','completed'].includes(s) || ['shipped','delivered'].includes(f) || Boolean(order?.delivered_at || order?.fulfilled_at); }
+  function isReturnEligible(order) { var end = returnWindowEnds(order); return isDeliveredOrder(order) && end && Date.now() <= end.getTime(); }
+  function returnEligibleOrders() { return asArray(state.summary?.orders).filter(isReturnEligible); }
+  function returnReasonOptions(selected) { return ['Vazgeçtim','Yanlış ürün gönderildi','Ürün hasarlı geldi','Eksik ürün gönderildi','Ürün beklentimi karşılamadı','Diğer'].map(function(reason){ return '<option value="' + escapeHtml(reason) + '" ' + (reason === selected ? 'selected' : '') + '>' + escapeHtml(reason) + '</option>'; }).join(''); }
+  function orderReturnItemsHtml(order) {
+    var items = orderItems(order);
+    if (!items.length) return '<p class="cs-field-help full">Bu sipariş için ürün satırı bulunamadı. Destek ekibimizle iletişime geçebilirsiniz.</p>';
+    return '<div class="cs-return-item-list">' + items.map(function(item, index){
+      var qty = Number(item.quantity || item.qty || 1);
+      var slug = item.product_slug || item.product_id || item.id || ('item-' + index);
+      return '<article class="cs-return-item"><label class="cs-return-item__check"><input type="checkbox" name="return_item" value="' + escapeHtml(item.id || slug) + '" data-product-slug="' + escapeHtml(slug) + '" data-product-name="' + escapeHtml(item.product_name || item.name || 'Ürün') + '" data-unit-price="' + escapeHtml(item.unit_price || item.price || 0) + '"><span></span></label><div class="cs-return-item__media">' + (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.product_name || item.name || 'Ürün') + '">' : iconSvg('bag')) + '</div><div class="cs-return-item__body"><strong>' + escapeHtml(item.product_name || item.name || 'Ürün') + '</strong><small>' + escapeHtml(item.brand || item.sku || '') + '</small><div class="cs-return-item__controls"><label><span>Adet</span><select class="cs-input" name="quantity_' + escapeHtml(item.id || slug) + '">' + Array.from({length:Math.max(1,qty)}, function(_, i){ return '<option value="' + (i+1) + '">' + (i+1) + '</option>'; }).join('') + '</select></label><label><span>İade sebebi</span><select class="cs-input" name="reason_' + escapeHtml(item.id || slug) + '">' + returnReasonOptions('Vazgeçtim') + '</select></label></div><label class="cs-return-item__note"><span>Ürün notu</span><input class="cs-input" name="note_' + escapeHtml(item.id || slug) + '" maxlength="240" placeholder="Ürünle ilgili kısa açıklama"></label></div></article>';
+    }).join('') + '</div>';
+  }
+  function returnRequestFormHtml() {
+    var orders = returnEligibleOrders();
+    if (!orders.length) return '<section class="cs-card cs-return-create-card"><div class="cs-card-head"><span>İADE TALEBİ OLUŞTUR</span></div><div class="cs-return-empty-eligible"><strong>İade edilebilir sipariş bulunmuyor.</strong><p>Sipariş teslim edilmediyse iade talebi oluşturulamaz. Teslim tarihinden itibaren 14 gün geçtikten sonra yasal iade süresi sona erer.</p><a class="cs-mini-btn dark" data-tab-link="orders" href="/account/profile.html?tab=orders">Siparişlerime Git</a></div></section>';
+    var orderOptions = orders.map(function(order){ return '<option value="' + escapeHtml(order.id || '') + '">' + escapeHtml(safeOrderNumber(order)) + ' · Son gün: ' + escapeHtml(formatDate(returnWindowEnds(order))) + '</option>'; }).join('');
+    var first = orders[0];
+    return '<section class="cs-card cs-return-create-card" id="returnCreateCard"><div class="cs-card-head"><span>İADE TALEBİ OLUŞTUR</span><button class="cs-mini-btn" type="button" data-close-return-form>Vazgeç</button></div><form class="cs-form cs-return-form" id="returnRequestForm"><label class="full"><span>Sipariş seçimi</span><select class="cs-input" name="order_id" data-return-order-select>' + orderOptions + '</select></label><div class="full" data-return-order-items>' + orderReturnItemsHtml(first) + '</div><label class="full"><span>Açıklama</span><textarea class="cs-input" name="customer_note" rows="4" maxlength="900" placeholder="Talebinizi değerlendirmemize yardımcı olacak kısa açıklama yazın."></textarea></label><label class="full"><span>Fotoğraf / Video</span><input class="cs-input" name="attachments" type="file" accept="image/jpeg,image/png,image/webp,video/mp4" multiple data-return-attachments><small class="cs-field-help">Hasarlı, yanlış veya eksik ürün taleplerinde fotoğraf/video zorunludur. JPG, PNG, WEBP veya MP4 · en fazla 5 dosya · dosya başına 10 MB.</small></label><div class="cs-return-hygiene-box full"><strong>Kozmetik/hijyen iade koşulları</strong><label><input type="checkbox" name="unused_confirmed"> Ürünün kullanılmadığını onaylıyorum.</label><label><input type="checkbox" name="hygiene_confirmed"> Ürünün ambalajının açılmadığını onaylıyorum.</label><label><input type="checkbox" name="seal_intact_confirmed"> Koruma bandı, mühür veya jelatinin bozulmadığını onaylıyorum.</label><label><input type="checkbox" name="resaleable_confirmed"> Ürünün yeniden satışa uygun durumda olduğunu onaylıyorum.</label><label><input type="checkbox" name="return_terms_confirmed" required> İade koşullarını okuduğumu ve talebin inceleme sonrası sonuçlandırılacağını kabul ediyorum.</label><p>Lütfen fotoğraf/video içinde kimlik, banka kartı, özel belge veya gereksiz kişisel bilgi görünmediğinden emin olun.</p></div><div class="cs-form-status full" id="returnRequestStatus" role="status"></div><button class="cs-pill-btn cs-pill-btn--dark full" type="submit">İade Talebi Oluştur</button></form></section>';
+  }
+
   function renderReturns() {
-    var el = $('#returnsPanel'); if (!el) return; var rows = state.summary.returns;
-    var html = rows.length ? '<div class="cs-order-list">' + rows.map(function (r) { return '<article class="cs-card"><div class="cs-card-head"><span>' + escapeHtml(r.status || 'Talep') + '</span><a data-tab-link="support" href="/account/profile.html?tab=support">Destek</a></div><h3>' + escapeHtml(r.reason || 'İade talebi') + '</h3><p>' + escapeHtml(r.customer_note || r.message || 'Talep detayları destek sürecinde görüntülenir.') + '</p><small>' + escapeHtml(formatDate(r.created_at, true)) + '</small></article>'; }).join('') + '</div>' : emptyState('Henüz iade talebiniz bulunmuyor.', 'Teslim edilen ve iade koşullarına uygun siparişler için destek talebi oluşturabilirsiniz.', 'Destek Talebi Oluştur', '/account/profile.html?tab=support', 'support');
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>İade ve Taleplerim</h1><p>İade/değişim süreçlerini gerçek talep kayıtlarıyla takip edin.</p></div></div>' + html;
+    var el = $('#returnsPanel'); if (!el) return;
+    var rows = asArray(state.summary.returns || []);
+    var createOpen = String(new URL(window.location.href).searchParams.get('createReturn') || '') === '1' || el.dataset.returnFormOpen === 'true';
+    var cards = rows.length ? '<div class="cs-order-list cs-return-list">' + rows.map(function (r) {
+      var items = asArray(r.items || r.requested_items);
+      var attachments = asArray(r.attachments);
+      return '<article class="cs-card cs-return-card"><div class="cs-card-head"><span>' + escapeHtml(returnStatusLabel(r.status)) + '</span><small>' + escapeHtml(r.return_number || ('CS-RET-' + String(r.id || '').replace(/-/g,'').slice(0,10).toUpperCase())) + '</small></div><h3>' + escapeHtml(r.reason || 'İade talebi') + '</h3><p>' + escapeHtml(r.customer_note || 'Talebiniz COSMOSKIN ekibi tarafından incelenir.') + '</p>' + (items.length ? '<ul class="cs-return-products">' + items.map(function(item){ return '<li>' + escapeHtml(item.product_name_snapshot || item.product_name || item.name || 'Ürün') + ' · ' + escapeHtml(item.quantity || 1) + ' adet</li>'; }).join('') + '</ul>' : '') + '<div class="cs-return-meta"><small>Talep tarihi: ' + escapeHtml(formatDate(r.created_at, true)) + '</small><small>Ek dosya: ' + attachments.length + '</small></div></article>';
+    }).join('') + '</div>' : emptyState('Henüz iade talebiniz bulunmuyor.', 'Teslim edilmiş ve iade süresi devam eden siparişleriniz için iade talebi oluşturabilirsiniz.', null);
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>İade Taleplerim</h1><p>İade Taleplerim, teslim edilmiş ve iade süresi devam eden siparişleriniz için oluşturduğunuz resmi iade taleplerini gösterir. Genel destek konuları için Destek Taleplerim alanını kullanabilirsiniz.</p></div><button class="cs-pill-btn cs-pill-btn--dark" data-open-return-form type="button">İade Talebi Oluştur</button></div>' + (createOpen ? returnRequestFormHtml() : '') + cards;
   }
   function renderFavorites() {
     var el = $('#favoritesPanel'); if (!el) return;
-    var favs = state.summary.favorites.map(function (f) { var p = getProductByHandle(f.product_slug || f.product_id) || normalizeProduct(f); return p ? Object.assign({ favorite_id: f.id }, p) : null; }).filter(Boolean);
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Favorilerim</h1><p>Favorilediğiniz ürünleri tek yerden yönetin.</p></div><a class="cs-pill-btn" href="/allproducts.html">Ürünleri Keşfet</a></div>' + (favs.length ? '<div class="cs-product-mini-row cs-favorites-grid">' + favs.map(function (p) { return productCard(p, { favoriteId: p.favorite_id }); }).join('') + '</div>' : emptyState('Favori ürününüz bulunmuyor.', 'Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.', 'Ürünleri Keşfet', '/allproducts.html'));
+    var local = [];
+    try { local = JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]'); if (!Array.isArray(local)) local = []; } catch (_) { local = []; }
+    var combined = asArray(state.summary.favorites).concat(local.map(function(item){ return { product_slug:item.id || item.slug, product_id:item.id || item.slug, product_name:item.name, name:item.name, brand:item.brand, price:item.price, image:item.image, url:item.url, id:item.favorite_id || item.id }; }));
+    var seen = Object.create(null);
+    var favs = combined.map(function (f) { var key = f.product_slug || f.product_id || f.id; if (!key || seen[key]) return null; seen[key] = true; var p = getProductByHandle(f.product_slug || f.product_id || f.id) || normalizeProduct(f); return p ? Object.assign({ favorite_id: f.id, product_slug: p.product_slug || f.product_slug || f.product_id }, p) : null; }).filter(Boolean);
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Favorilerim</h1><p>Favorilediğiniz ürünleri tek yerden yönetin. Anasayfa, Favoriler ve Hesabım aynı favori kaynağıyla senkronize edilir.</p></div><a class="cs-pill-btn" href="/allproducts.html">Ürünleri Keşfet</a></div>' + (favs.length ? '<div class="cs-product-mini-row cs-favorites-grid">' + favs.map(function (p) { return productCard(p, { favoriteId: p.favorite_id }); }).join('') + '</div>' : emptyState('Favori ürününüz bulunmuyor.', 'Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.', 'Ürünleri Keşfet', '/allproducts.html'));
   }
   function renderInvoices() {
     var el = $('#invoicesPanel'); if (!el) return; var rows = [];
@@ -604,16 +642,16 @@
       '<section class="cs-card cs-skin-products"><div class="cs-card-head"><span>PROFİLE GÖRE ÜRÜNLER</span><a href="/allproducts.html">Tümünü Gör</a></div>' + productHtml + '</section>';
   }
   function renderClub() {
-    var el = $('#clubPanel'); if (!el) return; var l = loyalty(); var rows = asArray(state.summary.points.ledger).slice(0, 8);
+    var el = $('#clubPanel'); if (!el) return; var l = loyalty(); var ledger = asArray(state.summary.points?.ledger);
     var tiers = [
-      ['Essential', '0 - 4.999 TL net alışveriş', '1 TL = 1 puan, cilt profili, rutin merkezi, stok bildirimi'],
-      ['Signature', '5.000 - 14.999 TL', '1 TL = 1.25 puan, uygun dönemlerde sabit kupon ve erken kampanya bildirimi'],
-      ['Elite', '15.000 TL+', '1 TL = 1.5 puan, seçili kampanya avantajları ve erken stok bildirimi']
-    ].map(function (t) { return '<article class="cs-card"><div class="cs-card-head"><span>' + escapeHtml(t[0]) + '</span></div><h3>' + escapeHtml(t[1]) + '</h3><p>' + escapeHtml(t[2]) + '</p></article>'; }).join('');
-    var ledger = rows.length ? '<div class="cs-point-list">' + rows.map(function (r) { return '<div class="cs-point-row"><b>' + escapeHtml(r.reason || r.event_type || 'Puan hareketi') + '</b><span>' + escapeHtml(formatDate(r.created_at || r.available_at)) + '</span><strong>' + escapeHtml(numberFmt.format(Number(r.points_delta || r.points || 0))) + ' P</strong></div>'; }).join('') + '</div>' : emptyState('Puan hareketi bulunmuyor.', 'Tamamlanan siparişlerden sonra puan hareketleri burada görünür.', null);
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>COSMOSKIN Club</h1><p>Seviye ve puan bilgileri başarılı sipariş geçmişine göre hesaplanır; puanlar iade süresi sonrasında kullanılabilir hale gelir.</p></div></div>' +
-      '<section class="cs-club-hero"><div><span class="cs-overline">MEVCUT SEVİYE</span><h2>' + escapeHtml(l.label) + '</h2><p>' + (l.next ? escapeHtml(l.next + ' için kalan: ' + formatMoney(l.remaining)) : 'En üst seviyedesiniz.') + '</p><div class="cs-loyalty-progress"><span style="width:' + l.progress + '%"></span></div></div><div class="cs-loyalty-metrics"><article><span>Kullanılabilir</span><strong>' + escapeHtml(numberFmt.format(l.available)) + ' P</strong></article><article><span>Bekleyen</span><strong>' + escapeHtml(numberFmt.format(l.pending)) + ' P</strong></article><article><span>Çevrim</span><strong>100 P = 1 TL</strong></article></div></section>' +
-      '<div class="cs-club-bottom"><section><div class="cs-card-head"><span>SEVİYELER</span></div><div class="cs-tier-list">' + tiers + '</div></section><section><div class="cs-card-head"><span>PUAN GEÇMİŞİ</span></div>' + ledger + '</section></div>';
+      { key:'essential', name:'Essential', color:'Koyu kahve', range:'Başlangıç seviyesi', benefits:['COSMOSKIN hesabı ile sipariş ve iade takibi','Seçili dönem kampanyalarına erişim','Puanların iade süresi sonrası kullanılabilir hale gelmesi'] },
+      { key:'signature', name:'Signature', color:'Gold', range:'5.000 TL+ alışveriş', benefits:['Essential avantajları','Daha güçlü puan ilerlemesi','Özel seçki ve kampanya öncelikleri'] },
+      { key:'elite', name:'Elite', color:'Bordo', range:'15.000 TL+ alışveriş', benefits:['Signature avantajları','Premium kampanya ve özel dönem öncelikleri','Elite müşteri deneyimi ve seçki notları'] }
+    ];
+    var tierCards = tiers.map(function(t){ return '<button class="cs-tier-card cs-tier-card--' + t.key + '" type="button" data-club-tier="' + t.key + '"><span>' + escapeHtml(t.name) + '</span><strong>' + escapeHtml(t.range) + '</strong><small>' + escapeHtml(t.color) + ' seviye</small></button><div class="cs-tier-detail" data-club-tier-detail="' + t.key + '" hidden><h3>' + escapeHtml(t.name) + ' özellikleri</h3><ul>' + t.benefits.map(function(b){ return '<li>' + escapeHtml(b) + '</li>'; }).join('') + '</ul><p>Puanlar nakde çevrilemez; iade/iptal edilen siparişlerde ilgili puanlar geri alınabilir.</p></div>'; }).join('');
+    var history = ledger.length ? '<div class="cs-point-history">' + ledger.map(function (p) { return '<div class="cs-point-row"><span><strong>' + escapeHtml(p.reason || p.event_type || 'Puan hareketi') + '</strong><small>' + escapeHtml(formatDate(p.created_at, true)) + '</small></span><b>' + escapeHtml(p.points_delta || p.points || 0) + ' P</b><span>' + escapeHtml(p.status || 'kayıt') + '</span></div>'; }).join('') + '</div>' : emptyState('Puan hareketi bulunmuyor.', 'Siparişler tamamlandığında puan hareketleri burada görünür.', null);
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>COSMOSKIN Club</h1><p>Essential, Signature ve Elite seviyelerini, puan geçmişinizi ve seviye avantajlarını takip edin.</p></div></div>' +
+      '<section class="cs-loyalty-detail"><article class="cs-loyalty-summary cs-loyalty-summary--club"><strong>' + escapeHtml(l.label) + '</strong><p>Mevcut harcama: ' + escapeHtml(formatMoney(l.spend)) + '. Sonraki seviye: ' + escapeHtml(l.next || 'En üst seviye') + '.</p><div class="cs-loyalty-progress"><span style="width:' + l.progress + '%"></span></div><div class="cs-loyalty-metrics"><span>Kullanılabilir<b>' + escapeHtml(numberFmt.format(l.available)) + ' P</b></span><span>Bekleyen<b>' + escapeHtml(numberFmt.format(l.pending)) + ' P</b></span><span>İade/İptal<b>' + escapeHtml(numberFmt.format(l.reversed)) + ' P</b></span></div></article><div class="cs-tier-grid cs-tier-grid--premium">' + tierCards + '</div><article class="cs-card"><div class="cs-card-head"><span>PUAN GEÇMİŞİ</span></div>' + history + '</article></section>';
   }
   function renderCoupons() {
     var el = $('#couponsPanel'); if (!el) return; var available = activeCoupons(); var used = usedCoupons(); var expired = expiredCoupons(); var locked = state.summary.locked_coupons.filter(function (c) { return c && c.code && !deprecatedCoupons.has(String(c.code).toUpperCase()); });
@@ -628,7 +666,7 @@
   function renderProfile() {
     var el = $('#profilePanel'); if (!el) return; var user = state.summary.user || {};
     el.innerHTML = '<div class="cs-tab-title"><div><h1>Hesap Bilgilerim</h1><p>Ad, soyad, telefon ve doğum günü bilgileri gerçek hesap profiline kaydedilir.</p></div><button class="cs-pill-btn cs-pill-btn--dark" id="saveProfileBtn" type="button">Bilgileri Kaydet</button></div>' +
-      '<section class="cs-card"><div class="cs-card-head"><span>PROFİL BİLGİLERİ</span></div><form class="cs-form cs-form-compact" id="profileForm"><label><span>Ad</span><input class="cs-input" name="first_name" value="' + escapeHtml(user.first_name || '') + '" autocomplete="given-name"></label><label><span>Soyad</span><input class="cs-input" name="last_name" value="' + escapeHtml(user.last_name || '') + '" autocomplete="family-name"></label><label><span>E-posta</span><input class="cs-input" name="email" type="email" readonly value="' + escapeHtml(user.email || '') + '"></label><label><span>Telefon</span><input class="cs-input" name="phone" value="' + escapeHtml(user.phone || '') + '" autocomplete="tel"></label><label><span>Doğum Tarihi</span><input class="cs-input" name="birthday" type="date" value="' + escapeHtml(user.birthday || '') + '" ' + (user.birthday ? 'readonly' : '') + '></label><p class="cs-field-help full">Doğum tarihi bir kez kaydedildikten sonra hesap ekranından serbestçe değiştirilemez. Değişiklik için destek talebi oluşturabilirsiniz.</p></form></section>';
+      '<section class="cs-card"><div class="cs-card-head"><span>PROFİL BİLGİLERİ</span></div><form class="cs-form cs-form-compact" id="profileForm"><label><span>Ad</span><input class="cs-input" name="first_name" value="' + escapeHtml(user.first_name || '') + '" autocomplete="given-name"></label><label><span>Soyad</span><input class="cs-input" name="last_name" value="' + escapeHtml(user.last_name || '') + '" autocomplete="family-name"></label><label><span>E-posta</span><input class="cs-input" name="email" type="email" readonly value="' + escapeHtml(user.email || '') + '"></label><label><span>Telefon</span><input class="cs-input" name="phone" value="' + escapeHtml(user.phone || '') + '" autocomplete="tel"></label><label><span>Doğum Tarihi</span><input class="cs-input" name="birthday" type="date" value="' + escapeHtml(user.birthday || '') + '"></label><p class="cs-field-help full">Doğum tarihinizi profilinizde ekleyebilir veya düzeltebilirsiniz. Doğum günü kuponları otomatik uygulanmaz; uygun olduğunda kupon kodu manuel kullanılır.</p></form></section>';
   }
   function renderAddresses() {
     var el = $('#addressesPanel'); if (!el) return; var addresses = state.summary.addresses;
@@ -676,13 +714,13 @@
       '<article class="cs-card"><div class="cs-card-head"><span>HESAP / VERİ TALEBİ</span></div><p class="cs-card-intro">Hesap kapatma veya KVKK veri talepleri için destek talebi oluşturabilirsiniz.</p><button class="cs-mini-btn dark" type="button" data-tab-link="support">Destek Talebi Oluştur</button></article></section>';
   }
   function renderSupport() {
-    var el = $('#supportPanel'); if (!el) return; var tickets = state.summary.support_requests; var orders = state.summary.orders;
-    var ticketList = tickets.length ? '<div class="cs-order-list">' + tickets.map(function (t) { return '<article class="cs-card"><div class="cs-card-head"><span>' + escapeHtml(supportCategoryLabel(t.category || 'Destek')) + '</span><span class="cs-status-pill">' + escapeHtml(t.status || 'açık') + '</span></div><h3>' + escapeHtml(t.subject || 'Destek talebi') + '</h3><p>' + escapeHtml(t.message || '') + '</p><small>' + escapeHtml(formatDate(t.created_at, true)) + '</small></article>'; }).join('') + '</div>' : emptyState('Henüz destek talebiniz bulunmuyor.', 'Sipariş, ürün seçimi, kargo, iade/değişim veya ödeme konularında destek talebi oluşturabilirsiniz.', null);
+    var el = $('#supportPanel'); if (!el) return; var tickets = asArray(state.summary.support_requests); var orders = asArray(state.summary.orders);
+    var ticketList = tickets.length ? '<div class="cs-order-list">' + tickets.map(function (t) { return '<article class="cs-card"><div class="cs-card-head"><span>' + escapeHtml(supportCategoryLabel(t.category || 'Destek')) + '</span><span class="cs-status-pill">' + escapeHtml(t.status || 'açık') + '</span></div><h3>' + escapeHtml(t.subject || 'Destek talebi') + '</h3><p>' + escapeHtml(t.message || '') + '</p><small>' + escapeHtml(formatDate(t.created_at, true)) + '</small></article>'; }).join('') + '</div>' : emptyState('Henüz destek talebiniz bulunmuyor.', 'Sipariş, ürün seçimi, kargo, ödeme veya hesap konularında destek talebi oluşturabilirsiniz. Resmi iade süreci için İade Taleplerim alanını kullanın.', null);
     var orderOptions = '<option value="">Sipariş seçmek istemiyorum</option>' + orders.map(function (o) { return '<option value="' + escapeHtml(o.id || '') + '">' + escapeHtml(safeOrderNumber(o)) + '</option>'; }).join('');
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Destek Taleplerim</h1><p>Destek taleplerinizi hesabınızla ilişkili şekilde takip edin.</p></div></div>' +
-      '<article class="cs-card"><div class="cs-card-head"><span>YENİ DESTEK TALEBİ</span></div><form class="cs-form cs-form-compact" id="supportRequestForm"><label><span>Kategori</span><select class="cs-input" name="category"><option value="order">Sipariş desteği</option><option value="product_selection">Ürün seçimi yönlendirmesi</option><option value="shipping">Kargo/teslimat</option><option value="return_exchange">İade/değişim</option><option value="payment">Ödeme</option><option value="account">Hesap</option><option value="routine">Rutin Merkezi</option><option value="other">Diğer</option></select></label><label><span>Sipariş</span><select class="cs-input" name="order_id">' + orderOptions + '</select></label><label class="full"><span>Konu</span><input class="cs-input" name="subject" maxlength="140" required></label><label class="full"><span>Mesaj</span><textarea class="cs-input" name="message" rows="4" required></textarea></label><button class="cs-pill-btn cs-pill-btn--dark full" type="submit">Destek Talebi Oluştur</button></form></article>' + ticketList;
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Destek Taleplerim</h1><p>Destek Taleplerim, sipariş, ödeme, kargo, ürün bilgisi veya hesap konularındaki genel destek kayıtlarınızı gösterir. Teslim edilmiş ürünler için resmi iade süreci başlatmak istiyorsanız İade Taleplerim alanını kullanın.</p></div></div>' +
+      '<article class="cs-card"><div class="cs-card-head"><span>YENİ DESTEK TALEBİ</span></div><form class="cs-form cs-form-compact" id="supportRequestForm"><label><span>Kategori</span><select class="cs-input" name="category" data-support-category><option value="order">Sipariş desteği</option><option value="product_selection">Ürün seçimi yönlendirmesi</option><option value="shipping">Kargo/teslimat</option><option value="return_request">İade süreci yönlendirmesi</option><option value="payment">Ödeme</option><option value="account">Hesap</option><option value="routine">Rutin Merkezi</option><option value="other">Diğer</option></select></label><label><span>Sipariş</span><select class="cs-input" name="order_id">' + orderOptions + '</select></label><div class="cs-content-help-card full" data-return-support-hint hidden><div><span class="cs-overline">İADE SÜRECİ</span><p>Bu konu resmi iade süreciyle ilgiliyse teslim edilmiş siparişiniz için İade Taleplerim alanından iade talebi oluşturabilirsiniz.</p></div><a class="cs-mini-btn dark" data-tab-link="returns" href="/account/profile.html?tab=returns&createReturn=1">İade Talebi Oluştur</a></div><label class="full"><span>Konu</span><input class="cs-input" name="subject" maxlength="140" required></label><label class="full"><span>Mesaj</span><textarea class="cs-input" name="message" rows="4" required></textarea></label><button class="cs-pill-btn cs-pill-btn--dark full" type="submit">Destek Talebi Oluştur</button></form></article>' + ticketList;
   }
-  function supportCategoryLabel(cat) { return ({ order:'Sipariş', product_selection:'Ürün Seçimi', shipping:'Kargo/Teslimat', return_exchange:'İade/Değişim', payment:'Ödeme', account:'Hesap', routine:'Rutin Merkezi', other:'Diğer' })[cat] || cat; }
+  function supportCategoryLabel(cat) { return ({ order:'Sipariş', product_selection:'Ürün Seçimi', shipping:'Kargo/Teslimat', return_request:'İade Süreci', payment:'Ödeme', account:'Hesap', routine:'Rutin Merkezi', other:'Diğer' })[cat] || cat; }
 
   function switchTab(tab, push) {
     tab = normalizeTab(tab);
@@ -725,13 +763,18 @@
       if (e.target.matches('#markAllNotificationsBtn')) markAllNotificationsRead().catch(handleError);
       if (e.target.matches('#logoutBtn') || e.target.matches('#logoutInlineBtn')) logout();
       if (e.target.closest('[data-newsletter-unsubscribe]')) { e.preventDefault(); unsubscribeJournal().catch(handleError); }
+      var openReturn = e.target.closest('[data-open-return-form]'); if (openReturn) { e.preventDefault(); var panel = $('#returnsPanel'); if (panel) panel.dataset.returnFormOpen = 'true'; renderReturns(); }
+      var closeReturn = e.target.closest('[data-close-return-form]'); if (closeReturn) { e.preventDefault(); var rpanel = $('#returnsPanel'); if (rpanel) rpanel.dataset.returnFormOpen = 'false'; renderReturns(); }
+      var clubTier = e.target.closest('[data-club-tier]'); if (clubTier) { e.preventDefault(); var key = clubTier.dataset.clubTier; $$('[data-club-tier-detail]').forEach(function(panel){ panel.hidden = panel.dataset.clubTierDetail !== key || !panel.hidden; }); }
       if (e.target.matches('#addressModal')) { e.preventDefault(); closeAddressModal(); }
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAddressModal(); });
+    document.addEventListener('change', function(e){ var sel = e.target.closest('[data-return-order-select]'); if (sel) { var order = state.summary.orders.find(function(o){ return String(o.id) === String(sel.value); }); var target = $('[data-return-order-items]'); if (target && order) target.innerHTML = orderReturnItemsHtml(order); } var cat = e.target.closest('[data-support-category]'); if (cat) { var hint = $('[data-return-support-hint]'); if (hint) hint.hidden = cat.value !== 'return_request'; } });
     document.addEventListener('submit', function (e) {
       if (e.target.matches('#passwordForm')) { e.preventDefault(); updatePassword(e.target).catch(handleError); }
       if (e.target.matches('#addressForm')) { e.preventDefault(); saveAddress(e.target).catch(handleError); }
       if (e.target.matches('#supportRequestForm')) { e.preventDefault(); createSupportRequest(e.target).catch(handleError); }
+      if (e.target.matches('#returnRequestForm')) { e.preventDefault(); createReturnRequest(e.target).catch(handleError); }
     });
     window.addEventListener('popstate', function () { switchTab(new URL(window.location.href).searchParams.get('tab') || 'overview', false); });
   }
@@ -779,8 +822,59 @@
   async function unsubscribeJournal() { var current = Object.assign({}, safeObject(state.summary?.user?.communication), safeObject(state.summary?.notification_preferences)); var payload = { order_updates:current.order_updates !== false, cargo_updates:current.cargo_updates !== false, campaign_emails:Boolean(current.campaign_emails || current.marketing_email_opt_in), stock_notifications:Boolean(current.stock_notifications || current.stock_alert_opt_in), routine_reminders:Boolean(current.routine_reminders || current.routine_reminder_opt_in), sms_notifications:Boolean(current.sms_notifications || current.marketing_sms_opt_in), newsletter:false }; await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } }); await loadSummary(); switchTab(state.activeTab, false); showToast('COSMOSKIN Journal aboneliğiniz kapatıldı.'); }
   async function updatePassword(form) { var p = form.elements.password.value; var p2 = form.elements.password_confirm.value; if (p !== p2) return showToast('Şifreler eşleşmiyor.', 'warning'); if (p.length < 8) return showToast('Şifre en az 8 karakter olmalı.', 'warning'); if (!state.client) return showToast('Şifre güncelleme için oturum gerekli.', 'warning'); var res = await state.client.auth.updateUser({ password:p }); if (res.error) throw res.error; form.reset(); showToast('Şifreniz güncellendi.'); }
   async function createSupportRequest(form) { var data = new FormData(form); var payload = { category:data.get('category'), order_id:data.get('order_id') || undefined, subject:data.get('subject'), message:data.get('message') }; await apiFetch('/account/support-requests', { method:'POST', body:payload }); form.reset(); await loadSummary(); switchTab('support', false); showToast('Destek talebiniz oluşturuldu.'); }
+  async function uploadReturnAttachments(files, orderId) {
+    var list = Array.prototype.slice.call(files || []).slice(0, 5);
+    if (!list.length) return [];
+    var allowed = ['image/jpeg','image/png','image/webp','video/mp4'];
+    var uploaded = [];
+    for (var i = 0; i < list.length; i += 1) {
+      var file = list[i];
+      if (!allowed.includes(file.type)) throw new Error('Yalnızca JPG, PNG, WEBP veya MP4 dosyaları yüklenebilir.');
+      if (file.size > 10 * 1024 * 1024) throw new Error('Dosya başına maksimum 10 MB yüklenebilir.');
+      var ext = (file.name.split('.').pop() || 'file').replace(/[^a-z0-9]/gi,'').toLowerCase();
+      var path = 'customer/' + (state.summary.user.id || 'user') + '/' + String(orderId || 'order') + '/' + Date.now() + '-' + i + '.' + ext;
+      if (state.client?.storage?.from) {
+        var result = await state.client.storage.from('return-attachments').upload(path, file, { cacheControl:'3600', upsert:false });
+        if (result.error) throw result.error;
+      }
+      uploaded.push({ file_path:path, file_name:file.name, mime_type:file.type, file_size:file.size, uploaded_by:'customer' });
+    }
+    return uploaded;
+  }
+  async function createReturnRequest(form) {
+    var status = $('#returnRequestStatus');
+    var data = new FormData(form);
+    var orderId = data.get('order_id');
+    var selected = $$('input[name="return_item"]:checked', form);
+    if (!orderId) throw new Error('İade için sipariş seçmelisiniz.');
+    if (!selected.length) throw new Error('İade etmek istediğiniz ürünü seçmelisiniz.');
+    var items = selected.map(function(input){ var id = input.value; return { order_item_id:id, product_slug:input.dataset.productSlug, product_name:input.dataset.productName, unit_price:input.dataset.unitPrice, quantity:Number((form.elements['quantity_' + id] || {}).value || 1), reason:(form.elements['reason_' + id] || {}).value || '', note:(form.elements['note_' + id] || {}).value || '' }; });
+    var needsAttachment = items.some(function(item){ return ['Yanlış ürün gönderildi','Ürün hasarlı geldi','Eksik ürün gönderildi'].includes(item.reason); });
+    var files = form.elements.attachments ? form.elements.attachments.files : [];
+    if (needsAttachment && (!files || !files.length)) throw new Error('Hasarlı, yanlış veya eksik ürün taleplerinde fotoğraf/video eklenmelidir.');
+    var attachments = await uploadReturnAttachments(files, orderId);
+    var payload = {
+      order_id: orderId,
+      items: items,
+      customer_note: data.get('customer_note') || '',
+      attachments: attachments,
+      unused_confirmed: Boolean(data.get('unused_confirmed')),
+      hygiene_confirmed: Boolean(data.get('hygiene_confirmed')),
+      seal_intact_confirmed: Boolean(data.get('seal_intact_confirmed')),
+      resaleable_confirmed: Boolean(data.get('resaleable_confirmed')),
+      return_terms_confirmed: Boolean(data.get('return_terms_confirmed'))
+    };
+    if (status) status.textContent = 'İade talebiniz oluşturuluyor...';
+    await apiFetch('/returns', { method:'POST', body:payload });
+    form.reset();
+    await loadSummary();
+    var panel = $('#returnsPanel'); if (panel) panel.dataset.returnFormOpen = 'false';
+    switchTab('returns', false);
+    showToast('İade talebiniz alındı.');
+  }
+
   function logout() { if (state.client) return state.client.auth.signOut().finally(function () { window.location.href = '/index.html'; }); window.location.href = '/index.html'; }
-  function handleError(error) { console.error(error); showToast(error?.message || 'İşlem tamamlanamadı.', 'error'); }
+  function handleError(error) { console.error(error); var msg = error?.message || 'İşlem tamamlanamadı.'; if (/schema cache|campaign_emails|Supabase|column/i.test(msg)) msg = 'Tercihleriniz şu anda kaydedilemedi. Lütfen daha sonra tekrar deneyin.'; showToast(msg, 'error'); }
 
   async function initSession() {
     cfg = window.COSMOSKIN_CONFIG || {};

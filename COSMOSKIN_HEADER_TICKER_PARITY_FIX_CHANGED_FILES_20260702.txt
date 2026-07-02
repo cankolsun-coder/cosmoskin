@@ -1,0 +1,6 @@
+account/profile.html
+account/order-detail.html
+assets/account-premium.css
+scripts/validate-header-ticker-parity.mjs
+COSMOSKIN_HEADER_TICKER_PARITY_FIX_REPORT_20260702.md
+COSMOSKIN_HEADER_TICKER_PARITY_FIX_CHANGED_FILES_20260702.txt

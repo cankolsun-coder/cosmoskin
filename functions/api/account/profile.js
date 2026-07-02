@@ -32,25 +32,14 @@ export async function onRequestPatch(context) {
   const body = await context.request.json().catch(() => ({}));
   const existing = await getProfile(context, auth.user);
   const requestedBirthday = body.birthday || body.birth_date || null;
-  if (requestedBirthday && existing?.birthday && String(existing.birthday) !== String(requestedBirthday)) {
-    await insertRow(context, 'birth_date_change_log', {
-      user_id: auth.user.id,
-      previous_birth_date: existing.birthday,
-      new_birth_date: requestedBirthday,
-      changed_by: 'customer_attempt',
-      change_reason: 'account_profile_update_blocked',
-      changed_at: new Date().toISOString()
-    }).catch(() => null);
-    return json({ ok: false, error: 'Doğum tarihiniz bir kez kaydedildikten sonra hesap ekranından değiştirilemez. Değişiklik için destek talebi oluşturabilirsiniz.' }, { status: 409 });
-  }
   const payload = {
     id: auth.user.id,
     email: String(auth.user.email || body.email || '').toLowerCase(),
     first_name: cleanText(body.first_name, 80),
     last_name: cleanText(body.last_name, 80),
     phone: cleanText(body.phone, 40),
-    birthday: existing?.birthday || requestedBirthday || null,
-    birth_date_locked: Boolean(existing?.birthday || requestedBirthday),
+    birthday: requestedBirthday || existing?.birthday || null,
+    birth_date_locked: false,
     marketing_email_opt_in: normalizeBool(body.marketing_email_opt_in),
     newsletter_opt_in: normalizeBool(body.newsletter_opt_in),
     stock_alert_opt_in: normalizeBool(body.stock_alert_opt_in),

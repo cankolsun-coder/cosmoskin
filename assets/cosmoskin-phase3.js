@@ -102,7 +102,7 @@
     if(qs('#csStockFilterInline'))return;
     addCss();
     var anchor=qs('.filter-row,.filters,.collection-controls,.search-tools,.section-head')||qs('main'); if(!anchor)return;
-    var label=document.createElement('label');label.id='csStockFilterInline';label.className='cs-stock-filter-inline';label.innerHTML='<input type="checkbox" aria-label="Sadece stokta olan ürünleri göster"> Stokta var';
+    var label=document.createElement('label');label.id='csStockFilterInline';label.className='cs-stock-filter-inline';label.innerHTML=''; label.hidden=true;
     anchor.parentNode.insertBefore(label, anchor.nextSibling);
     var input=qs('input',label);
     input.addEventListener('change',function(){

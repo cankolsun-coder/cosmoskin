@@ -61,7 +61,7 @@ Instagram: existing `https://instagram.com/cosmoskin.tr` was preserved.
 - Support pathway cards:
   - Siparişim Nerede?
   - Sipariş / Teslimat Desteği
-  - İade / Değişim Talebi
+  - İade / Cayma Talebi
   - Ürün / İçerik Soruları
   - Genel İletişim
   - İş Ortaklığı

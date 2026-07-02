@@ -1004,7 +1004,7 @@
       contact: ['İletişim', 'Sipariş, teslimat, iade ve iş ortaklığı talepleri için COSMOSKIN destek kanalları.', 'Destek'],
       paymentSecurity: ['Ödeme ve Güvenlik', 'iyzico altyapısı, Visa, Mastercard, Havale/EFT ve ETBİS güven bilgileri.', 'Güvenli Ödeme'],
       shipping: ['Teslimat ve Kargo', 'DHL kurumsal gönderi altyapısı ve 2.500 TL üzeri ücretsiz kargo bilgileri.', 'Teslimat'],
-      returns: ['İade ve Değişim', 'Kozmetik hijyen kuralları, cayma hakkı ve iade adresi bilgileri.', 'İade'],
+      returns: ['İade ve Cayma', 'Kozmetik hijyen kuralları, cayma hakkı ve iade adresi bilgileri.', 'İade'],
       preInformation: ['Ön Bilgilendirme Formu', 'Sipariş öncesi temel ticari ve operasyonel bilgilendirme.', 'Yasal'],
       distanceSales: ['Mesafeli Satış Sözleşmesi', 'COSMOSKIN mesafeli satış sözleşmesi ve temel sipariş hükümleri.', 'Yasal'],
       legalContent: [document.title.replace(/\s+\|\s+.*$/, '') || 'Yasal Bilgilendirme', 'COSMOSKIN yasal, gizlilik ve veri işleme bilgilendirme içeriği.', 'Yasal']
