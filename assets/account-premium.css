@@ -803,3 +803,56 @@
 .cs-return-details{margin-top:14px;border:1px solid rgba(22,18,14,.08);border-radius:18px;background:rgba(255,250,244,.72);overflow:hidden}.cs-return-details summary{cursor:pointer;padding:12px 14px;font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#6b4b2b}.cs-return-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 14px 14px}.cs-return-detail-grid>div{display:grid;gap:4px;padding:12px;border-radius:14px;background:#fff;border:1px solid rgba(22,18,14,.06)}.cs-return-detail-grid .full{grid-column:1/-1}.cs-return-detail-grid span{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#8b7664}.cs-return-detail-grid strong{font-size:13px;color:#1d1712}.cs-return-file-list{display:flex;flex-wrap:wrap;gap:7px}.cs-return-file-list span{display:inline-flex;padding:6px 9px;border-radius:999px;background:#f4eadf;color:#5a3b24;font-size:11px;letter-spacing:0;text-transform:none}
 .cs-return-products li{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.cs-return-products li span{color:#7a6a5c;font-size:12px;text-align:right}
 @media (max-width:640px){.cs-return-detail-grid{grid-template-columns:1fr}.cs-return-products li{display:grid}.cs-return-products li span{text-align:left}}
+
+
+/* 2026-07-03 — Account runtime polish: header parity, readable panels, favorites/orders/security fixes */
+.account-page .header.account-header{
+  top:40px!important;
+  height:80px!important;
+  max-width:calc(var(--container,1360px) + 56px)!important;
+  margin:0 auto!important;
+  padding:0 28px!important;
+  grid-template-columns:auto 1fr auto!important;
+  gap:24px!important;
+  align-items:center!important;
+  background:rgba(248,243,237,.78)!important;
+}
+.account-page .header.account-header .brand{gap:22px!important;align-items:center!important;min-width:0!important;}
+.account-page .header.account-header .brand .brand-logo{width:46px!important;height:46px!important;flex:0 0 46px!important;object-fit:contain!important;}
+.account-page .header.account-header .brand .brand-word{font-family:var(--serif,'Cormorant Garamond',serif)!important;font-size:24px!important;font-weight:400!important;letter-spacing:.42em!important;line-height:1!important;white-space:nowrap!important;}
+.account-page .header.account-header .site-nav{justify-self:center!important;}
+.account-page .header.account-header .nav{gap:32px!important;}
+.account-page .header.account-header .header-tools{justify-content:flex-end!important;}
+.account-premium-page :where(.cs-tab-title h1,.cs-tab-title h2,.cs-card h1,.cs-card h2,.cs-card h3,.cs-panel h1,.cs-panel h2,.cs-panel h3){outline:0!important;box-shadow:none!important;}
+.account-page .cs-account-layout{grid-template-columns:minmax(260px,300px) minmax(0,1fr)!important;}
+.account-page .cs-account-content,.account-page .cs-panel{min-width:0!important;}
+.account-page .cs-overview-main-card{grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr) minmax(280px,.8fr)!important;gap:24px!important;align-items:stretch!important;}
+.account-page .cs-account-welcome-card h1{max-width:100%!important;font-size:clamp(28px,2.35vw,38px)!important;line-height:1.05!important;letter-spacing:-.04em!important;overflow-wrap:normal!important;word-break:normal!important;}
+.account-page .cs-account-welcome-card{min-width:0!important;overflow:hidden!important;}
+.account-page .cs-hero-chips{display:flex!important;gap:10px!important;flex-wrap:wrap!important;}
+.account-page .cs-hero-chips span{max-width:100%!important;}
+.account-page .cs-product-mini-row,.account-page .cs-favorites-grid{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(240px,300px))!important;gap:18px!important;align-items:stretch!important;}
+.account-page .cs-product-mini{display:grid!important;grid-template-rows:auto 1fr!important;grid-template-columns:1fr!important;overflow:hidden!important;min-width:0!important;border-radius:24px!important;}
+.account-page .cs-product-mini__media{height:170px!important;width:100%!important;border-radius:18px!important;overflow:hidden!important;background:#f4eadc!important;}
+.account-page .cs-product-mini__media img{width:100%!important;height:100%!important;object-fit:contain!important;padding:12px!important;}
+.account-page .cs-product-mini>div{min-width:0!important;padding:14px!important;}
+.account-page .cs-product-mini strong{display:block!important;line-height:1.35!important;word-break:normal!important;overflow-wrap:break-word!important;}
+.account-page .cs-product-mini__bottom{display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important;}
+.account-page .cs-order-card{overflow:hidden!important;}
+.account-page .cs-order-body{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(220px,300px)!important;gap:22px!important;align-items:stretch!important;}
+.account-page .cs-order-side{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;min-width:0!important;border-left:1px solid rgba(42,32,24,.10)!important;padding-left:18px!important;}
+.account-page .cs-order-side article{min-width:0!important;padding:13px 14px!important;border-radius:16px!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;}
+.account-page .cs-order-side article strong,.account-page .cs-order-side article span{display:block!important;white-space:normal!important;line-height:1.35!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important;}
+.account-page .cs-order-items,.account-page .cs-order-product{min-width:0!important;}
+.account-page .cs-security-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important;}
+.account-page .cs-security-list li{grid-template-columns:minmax(160px,.75fr) minmax(0,1fr)!important;align-items:center!important;}
+.account-page .cs-security-list span{white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;line-height:1.45!important;}
+.account-page .cs-help-card{grid-template-columns:54px minmax(0,1fr)!important;align-items:center!important;padding:22px!important;}
+.account-page .cs-help-card strong{color:#d7ad63!important;font-family:var(--cs-serif,'Cormorant Garamond',serif)!important;font-size:24px!important;font-weight:500!important;line-height:1.05!important;}
+.account-page .cs-help-card small{display:block!important;margin-top:4px!important;line-height:1.55!important;color:rgba(255,248,239,.76)!important;}
+.account-page .cs-coupon-tabs,.account-page .cs-card,.account-page .cs-club-hero{overflow:hidden!important;}
+.account-page .cs-tier-grid--premium{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))!important;}
+.account-page .cs-club-hero .cs-stat,.account-page .cs-loyalty-card .cs-stat{min-width:0!important;}
+.account-page .cs-loyalty-card strong,.account-page .cs-loyalty-card span,.account-page .cs-loyalty-card p{word-break:normal!important;overflow-wrap:break-word!important;}
+@media(max-width:1220px){.account-page .cs-overview-main-card{grid-template-columns:1fr!important}.account-page .cs-order-body{grid-template-columns:1fr!important}.account-page .cs-order-side{border-left:0!important;border-top:1px solid rgba(42,32,24,.10)!important;padding-left:0!important;padding-top:14px!important}.account-page .cs-security-grid{grid-template-columns:1fr!important}}
+@media(max-width:760px){.account-page .header.account-header{height:70px!important;padding:0 16px!important}.account-page .header.account-header .brand{gap:12px!important}.account-page .header.account-header .brand .brand-logo{width:34px!important;height:34px!important;flex-basis:34px!important}.account-page .header.account-header .brand .brand-word{font-size:20px!important;letter-spacing:.28em!important}.account-page .cs-product-mini-row,.account-page .cs-favorites-grid{grid-template-columns:1fr!important}.account-page .cs-security-list li{grid-template-columns:1fr!important}.account-page .cs-help-card{grid-template-columns:1fr!important}.account-page .cs-account-welcome-card h1{font-size:30px!important}}

@@ -2,6 +2,11 @@ import { deleteRows, insertRow, selectRows, updateRows } from '../_lib/supabase.
 import { json } from '../_lib/response.js';
 import { cleanString, normalizeFavoritePayload, requireUser } from '../_lib/account.js';
 
+
+function isUuid(value = '') {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || '').trim());
+}
+
 export async function onRequestGet(context) {
   try {
     const auth = await requireUser(context);
@@ -48,8 +53,12 @@ export async function onRequestDelete(context) {
     if (auth.response) return auth.response;
     const url = new URL(context.request.url);
     const body = await context.request.json().catch(() => ({}));
-    const id = cleanString(url.searchParams.get('id') || body.id || '', 80);
-    const slug = cleanString(url.searchParams.get('product_slug') || body.product_slug || body.slug || body.product_id || '', 160);
+    let id = cleanString(url.searchParams.get('id') || body.id || body.favorite_id || '', 80);
+    let slug = cleanString(url.searchParams.get('product_slug') || body.product_slug || body.slug || body.product_id || '', 160);
+    if (id && !isUuid(id)) {
+      slug = slug || id;
+      id = '';
+    }
     if (!id && !slug) return json({ ok: false, error: 'Favori id veya ürün slug zorunlu.' }, { status: 400 });
     if (id) {
       const rows = await selectRows(context, 'user_favorites', { select: 'id', id: `eq.${id}`, user_id: `eq.${auth.user.id}`, limit: '1' });

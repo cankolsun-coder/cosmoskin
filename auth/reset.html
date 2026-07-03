@@ -416,7 +416,7 @@
       btn.disabled=true;
       btn.textContent='Gönderiliyor…';
 
-      const siteUrl = (cfg.siteUrl || cfg.siteURL || window.location.origin).replace(/\/$/, '');
+      const siteUrl = (window.location.origin || cfg.siteUrl || cfg.siteURL || 'https://www.cosmoskin.com.tr').replace(/\/$/, '');
       const { error } = await client.auth.resetPasswordForEmail(email, {
         redirectTo: `${siteUrl}/auth/reset.html`
       });

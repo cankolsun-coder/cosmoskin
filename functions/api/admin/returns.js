@@ -55,9 +55,31 @@ export async function onRequestGet(context){
         selectRows(context,'return_status_events',{select:'*',return_request_id:inFilter(ids),order:'created_at.asc'}).catch(()=>[])
       ]);
     }
-    attachments = await withSignedAttachmentUrls(context, attachments);
+    const childAttachmentRequestIds = new Set((attachments || []).map((file) => file.return_request_id).filter(Boolean));
+    const snapshotAttachments = [];
+    for (const row of rows || []) {
+      if (childAttachmentRequestIds.has(row.id)) continue;
+      const snapshot = Array.isArray(row.requested_attachments) ? row.requested_attachments : [];
+      for (const file of snapshot) {
+        if (!file) continue;
+        snapshotAttachments.push({
+          ...file,
+          return_request_id: row.id,
+          storage_bucket: file.storage_bucket || file.bucket || 'return-attachments',
+          file_path: file.file_path || file.path || file.storage_path || ''
+        });
+      }
+    }
+    attachments = await withSignedAttachmentUrls(context, [...attachments, ...snapshotAttachments]);
     const gi=group(items,'return_request_id'),ga=group(attachments,'return_request_id'),ge=group(events,'return_request_id');
-    return json({ok:true,returns:(rows||[]).map((row)=>({...row,return_number:returnNumber(row),items:gi.get(row.id)||[],attachments:ga.get(row.id)||[],status_events:ge.get(row.id)||[]}))});
+    return json({ok:true,returns:(rows||[]).map((row)=>({
+      ...row,
+      return_number:returnNumber(row),
+      items:gi.get(row.id)|| (Array.isArray(row.requested_items) ? row.requested_items : []),
+      attachments:ga.get(row.id)||[],
+      status_events:ge.get(row.id)||[],
+      attachment_count:Number(row.attachment_count || (ga.get(row.id) || []).length || 0)
+    }))});
   }catch(error){ return adminError(error,'İade talepleri alınamadı.'); }
 }
 export async function onRequestPatch(context){

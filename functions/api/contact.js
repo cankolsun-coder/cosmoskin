@@ -394,16 +394,18 @@ function consentAccepted(value) {
 }
 
 function buildSupportData(values, config) {
-  const firstName = values.first_name.trim();
-  const lastName = values.last_name.trim();
-  const email = values.email.trim();
-  const topic = values.topic.trim();
-  const reference = values.reference.trim();
-  const message = values.message.trim();
+  const rawFullName = String(values.full_name || values.name || '').trim();
+  const parts = rawFullName.split(/\s+/).filter(Boolean);
+  const firstName = String(values.first_name || parts.shift() || '').trim();
+  const lastName = String(values.last_name || parts.join(' ') || '').trim();
+  const email = String(values.email || values.order_email || '').trim();
+  const topic = String(values.topic || values.subject || values.request_category || '').trim();
+  const reference = String(values.reference || values.order_number || values.order_id || '').trim();
+  const message = String(values.message || '').trim();
   const privacyAcknowledged = consentAccepted(values.privacy_acknowledged) || consentAccepted(values.kvkk_acknowledged);
-  const fullName = `${firstName} ${lastName}`.trim();
+  const fullName = rawFullName || `${firstName} ${lastName}`.trim();
 
-  if (!firstName || !lastName || !email || !topic || !message) {
+  if (!fullName || !email || !topic || !message) {
     throw new Error('Lütfen zorunlu alanları doldurun.');
   }
   if (!privacyAcknowledged) {

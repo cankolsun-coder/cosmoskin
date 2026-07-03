@@ -184,6 +184,8 @@ export async function onRequestPost(context){
       customer_note: clean(body.customer_note || body.note, 900),
       refund_status:'not_started',
       requested_items: items,
+      requested_attachments: attachments,
+      attachment_count: attachments.length,
       return_number: body.return_number || null,
       delivered_at: delivered,
       requested_at: new Date().toISOString(),

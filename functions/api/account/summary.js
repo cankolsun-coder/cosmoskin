@@ -14,6 +14,15 @@ function computeTier(orders = []) {
   return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 5000) * 100)), next: 'Signature Üye' };
 }
 
+function groupBy(rows = [], key) {
+  return (rows || []).reduce((map, row) => {
+    const list = map.get(row[key]) || [];
+    list.push(row);
+    map.set(row[key], list);
+    return map;
+  }, new Map());
+}
+
 function normalizeOrder(order = {}) {
   return {
     ...order,
@@ -111,6 +120,9 @@ export async function onRequestGet(context) {
     let events = [];
     let invoices = [];
     let returns = [];
+    let returnItems = [];
+    let returnAttachments = [];
+    let returnEvents = [];
     if (ids.length) {
       const inFilter = buildInFilter(ids);
       [orderItems, shipments, events, invoices, returns] = await Promise.all([
@@ -135,7 +147,7 @@ export async function onRequestGet(context) {
           order: 'created_at.desc'
         }).catch(() => []),
         selectRows(context, 'return_requests', {
-          select: 'id,order_id,reason,status,refund_status,customer_note,admin_note,created_at,updated_at',
+          select: 'id,order_id,return_number,reason,status,refund_status,customer_note,admin_note,requested_items,requested_attachments,attachment_count,created_at,updated_at,requested_at,return_window_ends_at',
           order_id: inFilter,
           order: 'created_at.desc'
         }).catch(() => [])
@@ -146,6 +158,36 @@ export async function onRequestGet(context) {
     const groupedShipments = groupByOrderId(shipments);
     const groupedEvents = groupByOrderId(events);
     const groupedInvoices = groupByOrderId(invoices);
+    const returnIds = (returns || []).map((row) => row.id).filter(Boolean);
+    if (returnIds.length) {
+      const returnInFilter = buildInFilter(returnIds);
+      [returnItems, returnAttachments, returnEvents] = await Promise.all([
+        selectRows(context, 'return_request_items', {
+          select: '*',
+          return_request_id: returnInFilter,
+          order: 'created_at.asc'
+        }).catch(() => []),
+        selectRows(context, 'return_request_attachments', {
+          select: '*',
+          return_request_id: returnInFilter,
+          order: 'created_at.asc'
+        }).catch(() => []),
+        selectRows(context, 'return_status_events', {
+          select: '*',
+          return_request_id: returnInFilter,
+          order: 'created_at.asc'
+        }).catch(() => [])
+      ]);
+    }
+    const groupedReturnItems = groupBy(returnItems, 'return_request_id');
+    const groupedReturnAttachments = groupBy(returnAttachments, 'return_request_id');
+    const groupedReturnEvents = groupBy(returnEvents, 'return_request_id');
+    returns = (returns || []).map((row) => ({
+      ...row,
+      items: groupedReturnItems.get(row.id) || (Array.isArray(row.requested_items) ? row.requested_items : []),
+      attachments: groupedReturnAttachments.get(row.id) || (Array.isArray(row.requested_attachments) ? row.requested_attachments : []),
+      status_events: groupedReturnEvents.get(row.id) || []
+    }));
     const groupedReturns = groupByOrderId(returns);
     const orders = (ordersRaw || []).map((order) => normalizeOrder({
       ...order,

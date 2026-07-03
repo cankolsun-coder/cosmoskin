@@ -72,11 +72,19 @@ export async function onRequestPatch(context) {
     if (body.preferences || body.order_updates !== undefined || body.campaign_emails !== undefined || body.newsletter !== undefined) {
       const preferences = normalizePreferences(body);
       const now = new Date().toISOString();
-      const saved = await upsertRow(context, 'notification_preferences', {
-        user_id: auth.user.id,
-        ...preferences,
-        updated_at: now
-      }, 'user_id');
+      let saved = null;
+      let preferenceWarning = null;
+      try {
+        saved = await upsertRow(context, 'notification_preferences', {
+          user_id: auth.user.id,
+          ...preferences,
+          updated_at: now
+        }, 'user_id');
+      } catch (error) {
+        preferenceWarning = /schema cache|column|campaign_emails|notification_preferences/i.test(error?.message || '')
+          ? 'notification_preferences_schema_pending'
+          : 'notification_preferences_save_skipped';
+      }
       await upsertRow(context, 'profiles', {
         id: auth.user.id,
         email: auth.user.email || null,
@@ -87,7 +95,7 @@ export async function onRequestPatch(context) {
         marketing_sms_opt_in: preferences.sms_notifications,
         updated_at: now
       }, 'id').catch(() => null);
-      return json({ ok: true, preferences: saved || preferences });
+      return json({ ok: true, preferences: saved || preferences, warning: preferenceWarning });
     }
 
     const id = cleanString(body.id || body.notification_id || '', 80);

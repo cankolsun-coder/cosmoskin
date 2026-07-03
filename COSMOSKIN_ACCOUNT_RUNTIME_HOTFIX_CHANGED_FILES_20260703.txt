@@ -1,0 +1,16 @@
+COSMOSKIN_ACCOUNT_RUNTIME_HOTFIX_CHANGED_FILES_20260703.txt
+COSMOSKIN_ACCOUNT_RUNTIME_HOTFIX_REPORT_20260703.md
+account/profile.html
+assets/account-dashboard.js
+assets/account-premium.css
+auth/reset.html
+functions/api/account/favorites.js
+functions/api/account/notifications.js
+functions/api/account/summary.js
+functions/api/account/support-requests.js
+functions/api/admin/returns.js
+functions/api/contact.js
+functions/api/returns.js
+scripts/validate-account-runtime-hotfix.mjs
+scripts/validate-header-ticker-parity.mjs
+supabase/migrations/20260703_account_runtime_hotfixes.sql

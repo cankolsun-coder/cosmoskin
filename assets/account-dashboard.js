@@ -64,6 +64,8 @@
     } catch (_) { return String(value).slice(0, 10); }
   }
   function normalizeTab(tab) { return tabAliases[String(tab || 'overview').replace(/^#/, '')] || 'overview'; }
+  function isUuid(value) { return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || '').trim()); }
+  function readLocalFavorites() { try { var local = JSON.parse(localStorage.getItem('cosmoskin_favorites') || '[]'); return Array.isArray(local) ? local : []; } catch (_) { return []; } }
   function showToast(message, type) {
     var t = $('#accountToast');
     if (!t) return;
@@ -357,7 +359,7 @@
     return products.slice().sort(function (a, b) { return scoreProduct(b, sp) - scoreProduct(a, sp) || String(a.product_name).localeCompare(String(b.product_name), 'tr'); }).slice(0, Number(limit || 4));
   }
   function getCoupons() {
-    return asArray(state.summary?.coupons).map(function (c) {
+    var coupons = asArray(state.summary?.coupons).map(function (c) {
       c = safeObject(c);
       var code = String(c.code || c.coupon_code || '').toUpperCase();
       var status = String(c.status || c.usage_status || 'available').toLowerCase();
@@ -373,6 +375,19 @@
         copyable: c.copyable !== false && ['available', 'active'].includes(status)
       }, c, { code: code, status: status });
     }).filter(function (c) { return c.code && !deprecatedCoupons.has(c.code); });
+    if (!coupons.some(function (c) { return String(c.code || '').toUpperCase() === 'WELCOME10'; })) {
+      coupons.unshift({
+        id: 'virtual-welcome10',
+        code: 'WELCOME10',
+        status: 'available',
+        title: 'Hoş geldin indirimi',
+        description: 'Yeni hesaplara özel. Checkout’ta manuel kopyalanır; kullanım koşulları sipariş sırasında doğrulanır.',
+        scope_label: 'Uygun ilk siparişte manuel kullanım',
+        copyable: true,
+        source: 'account-default'
+      });
+    }
+    return coupons;
   }
   function couponExpired(c) { return c.expires_at ? new Date(c.expires_at).getTime() <= Date.now() : false; }
   function couponUsed(c) { return ['used','redeemed','consumed'].includes(String(c.status || '').toLowerCase()); }
@@ -436,7 +451,7 @@
     setText('#accountMemberSince', user.created_at ? 'Üyelik: ' + formatDate(user.created_at) : 'Üyelik bilgisi mevcut değil');
     setText('#ordersBadge', String(summary.orders.length));
     setText('#returnsBadge', String(summary.returns.length));
-    setText('#favoritesBadge', String(summary.favorites.length || summary.stats.favorites_count || 0));
+    setText('#favoritesBadge', String(uniqueFavoriteList().length));
     setText('#addressesBadge', String(summary.addresses.length || summary.stats.addresses_count || 0));
     setText('#routinesBadge', String(summary.routine_results.length));
     setText('#couponsBadge', String(activeCoupons().length));
@@ -494,7 +509,7 @@
       { icon:'bag', label:'Toplam Sipariş', value:s.order_count || state.summary.orders.length || 0, hint:'Tüm sipariş geçmişi' },
       { icon:'truck', label:'Aktif Sipariş', value:activeOrders().length, hint:'Devam eden süreç' },
       { icon:'sparkle', label:'Kullanılabilir Puan', value:numberFmt.format(l.available), hint:'100 P = 1 TL' },
-      { icon:'heart', label:'Favoriler', value:s.favorites_count || state.summary.favorites.length || 0, hint:'Kaydedilen ürünler' },
+      { icon:'heart', label:'Favoriler', value:uniqueFavoriteList().length, hint:'Kaydedilen ürünler' },
       { icon:'pin', label:'Kayıtlı Adres', value:s.addresses_count || state.summary.addresses.length || 0, hint:'Teslimat/fatura' },
       { icon:'ticket', label:'Aktif Kupon', value:activeCoupons().length, hint:'Uygun avantaj' }
     ];
@@ -524,7 +539,7 @@
     return '<article class="cs-product-mini">' +
       '<a class="cs-product-mini__media" href="' + escapeHtml(product.url || '/allproducts.html') + '"><img src="' + escapeHtml(product.image || '/assets/logo-mark-beige.png') + '" alt="' + escapeHtml(product.product_name || 'Ürün') + '" loading="lazy"></a>' +
       '<div><small>' + escapeHtml(product.brand || 'COSMOSKIN') + '</small><a href="' + escapeHtml(product.url || '/allproducts.html') + '"><strong>' + escapeHtml(product.product_name || 'Ürün') + '</strong></a><p>' + escapeHtml(product.category || 'K-Beauty seçkisi') + '</p>' +
-      '<div class="cs-product-mini__bottom"><b>' + escapeHtml(formatMoney(product.price || 0)) + '</b><button class="cs-mini-btn dark" type="button" data-add-product-cart="' + escapeHtml(slug) + '" ' + (!stock.sellable ? 'disabled aria-disabled="true"' : '') + '>Sepete Ekle</button>' + (opts.favoriteId ? '<button class="cs-heart-btn is-active" type="button" aria-label="Favoriden çıkar" data-remove-favorite="' + escapeHtml(opts.favoriteId) + '" data-remove-favorite-slug="' + escapeHtml(slug) + '">♥</button>' : '<button class="cs-heart-btn" type="button" aria-label="Favoriye ekle" data-add-favorite="' + escapeHtml(slug) + '">♡</button>') + '</div>' +
+      '<div class="cs-product-mini__bottom"><b>' + escapeHtml(formatMoney(product.price || 0)) + '</b><button class="cs-mini-btn dark" type="button" data-add-product-cart="' + escapeHtml(slug) + '" ' + (!stock.sellable ? 'disabled aria-disabled="true"' : '') + '>Sepete Ekle</button>' + (opts.favoriteId ? '<button class="cs-heart-btn is-active" type="button" aria-label="Favoriden çıkar" data-remove-favorite="' + escapeHtml(opts.favoriteId || '') + '" data-remove-favorite-slug="' + escapeHtml(opts.favoriteSlug || slug) + '">♥</button>' : '<button class="cs-heart-btn" type="button" aria-label="Favoriye ekle" data-add-favorite="' + escapeHtml(slug) + '">♡</button>') + '</div>' +
       '<em class="cs-stock-dot ' + escapeHtml(stock.className) + '">' + escapeHtml(stock.label) + '</em></div></article>';
   }
   function couponMiniCard() {
@@ -606,6 +621,28 @@
     }).join('') + '</div>' : emptyState('Henüz iade talebiniz bulunmuyor.', 'Teslim edilmiş ve iade süresi devam eden siparişleriniz için iade talebi oluşturabilirsiniz.', null);
     var success = state.returnSuccessMessage ? '<div class="cs-return-success" role="status">' + escapeHtml(state.returnSuccessMessage) + '</div>' : '';
     el.innerHTML = '<div class="cs-tab-title"><div><h1>İade Taleplerim</h1><p>İade Taleplerim, teslim edilmiş ve iade süresi devam eden siparişleriniz için oluşturduğunuz resmi iade taleplerini gösterir. Genel destek konuları için Destek Taleplerim alanını kullanabilirsiniz.</p></div><button class="cs-pill-btn cs-pill-btn--dark" data-open-return-form type="button">İade Talebi Oluştur</button></div>' + success + (createOpen ? returnRequestFormHtml() : '') + cards;
+  }
+  function uniqueFavoriteList() {
+    var local = readLocalFavorites();
+    var combined = asArray(state.summary.favorites).concat(local.map(function(item){ return {
+      product_slug:item.product_slug || item.slug || item.id,
+      product_id:item.product_id || item.slug || item.id,
+      product_name:item.product_name || item.name,
+      name:item.name,
+      brand:item.brand,
+      price:item.price,
+      image:item.image,
+      url:item.url,
+      favorite_id:isUuid(item.favorite_id || item.id) ? (item.favorite_id || item.id) : ''
+    }; }));
+    var seen = {};
+    return combined.map(function (f) {
+      var key = f.product_slug || f.product_id || f.slug || f.id;
+      if (!key || seen[key]) return null;
+      seen[key] = true;
+      var p = getProductByHandle(f.product_slug || f.product_id || f.slug || f.id) || normalizeProduct(f);
+      return p ? Object.assign({ favorite_id: isUuid(f.id || f.favorite_id) ? (f.id || f.favorite_id) : '', product_slug: p.product_slug || f.product_slug || f.product_id || key }, p) : null;
+    }).filter(Boolean);
   }
   function renderFavorites() {
     var el = $('#favoritesPanel'); if (!el) return;
@@ -736,7 +773,7 @@
     $$('.cs-panel').forEach(function (p) { p.classList.toggle('is-active', p.dataset.panel === tab); });
     var url = new URL(window.location.href); url.searchParams.set('tab', tab);
     if (push) history.pushState({ tab: tab }, '', url.pathname + url.search); else history.replaceState({ tab: tab }, '', url.pathname + url.search);
-    var h = $('[data-panel="' + tab + '"] h1,[data-panel="' + tab + '"] h2'); if (h) { h.setAttribute('tabindex', '-1'); setTimeout(function(){ h.focus({ preventScroll: true }); }, 0); }
+    var h = $('[data-panel="' + tab + '"] h1,[data-panel="' + tab + '"] h2'); if (h) h.removeAttribute('tabindex');
   }
   async function loadSummary() {
     var data = await apiFetch('/account/summary');
@@ -798,7 +835,15 @@
     showToast('Ürün sepetinize eklendi.');
   }
   async function addFavorite(slug) { if (!slug) return; await apiFetch('/account/favorites', { method:'POST', body:{ product_slug: slug } }); await loadSummary(); switchTab(state.activeTab, false); showToast('Ürün favorilerinize eklendi.'); }
-  async function removeFavorite(id, slug) { if (!id && !slug) return; await apiFetch('/account/favorites', { method:'DELETE', body:{ id: id, product_slug: slug } }); await loadSummary(); switchTab(state.activeTab, false); showToast('Ürün favorilerinizden çıkarıldı.'); }
+  async function removeFavorite(id, slug) {
+    if (!id && !slug) return;
+    await apiFetch('/account/favorites', { method:'DELETE', body:{ id: id, product_slug: slug } });
+    if (slug) {
+      var local = readLocalFavorites().filter(function(item){ return String(item.id || item.slug || item.product_slug || '') !== String(slug); });
+      try { localStorage.setItem('cosmoskin_favorites', JSON.stringify(local)); } catch (_) {}
+    }
+    await loadSummary(); switchTab(state.activeTab, false); showToast('Ürün favorilerinizden çıkarıldı.');
+  }
   function repeatOrder(orderId) { var order = state.summary.orders.find(function (o) { return String(o.id) === String(orderId); }); if (!order) return showToast('Sipariş bilgisi bulunamadı.', 'warning'); orderItems(order).forEach(function (item) { var p = getProductByHandle(item.product_slug || item.product_id) || normalizeProduct(item); if (p) addToCart(p); }); }
   function addSavedRoutineToCart(id) { var r = state.summary.routine_results.find(function (item) { return String(item.id || '') === String(id || ''); }); var products = asArray(r?.recommended_products || r?.products || r?.result?.recommended_products || r?.result?.products).map(function (p) { return getProductByHandle(p.product_slug || p.slug || p.id) || normalizeProduct(p); }).filter(Boolean); if (!products.length) return showToast('Bu rutinde sepete eklenebilecek ürün bulunamadı.', 'warning'); products.forEach(addToCart); }
   function copyCoupon(code) { if (!code) return; (navigator.clipboard?.writeText(code) || Promise.reject()).then(function () { showToast('Kupon kodu kopyalandı.'); }).catch(function () { window.prompt('Kupon kodunu kopyalayın:', code); }); }

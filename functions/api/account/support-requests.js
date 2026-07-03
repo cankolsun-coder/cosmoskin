@@ -2,7 +2,7 @@ import { insertRow, selectRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { cleanString, requireUser } from '../_lib/account.js';
 
-const CATEGORIES = new Set(['order', 'product_selection', 'shipping', 'return_exchange', 'payment', 'account', 'routine', 'other']);
+const CATEGORIES = new Set(['order', 'product_selection', 'shipping', 'return_request', 'payment', 'account', 'routine', 'other']);
 
 function normalizeCategory(value) {
   const raw = String(value || '').trim().toLowerCase();

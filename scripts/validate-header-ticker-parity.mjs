@@ -16,7 +16,7 @@ expect(accountProfile.includes('class="header account-header" style="top:40px;"'
 expect(orderDetail.includes('class="header account-header" style="top:40px;"'), 'account/order-detail.html account header top must be 40px');
 expect(!accountProfile.includes('top:38px'), 'account/profile.html still contains top:38px');
 expect(!orderDetail.includes('top:38px'), 'account/order-detail.html still contains top:38px');
-expect(accountProfile.includes('/assets/account-premium.css?v=20260702-ticker-parity'), 'account-premium.css cache version was not bumped on account/profile.html');
+expect(/\/assets\/account-premium\.css\?v=2026070[23]-/.test(accountProfile), 'account-premium.css cache version was not bumped on account/profile.html');
 
 expect(styleCss.includes('.announcement') && styleCss.includes('@keyframes marqueeMove'), 'base homepage announcement styles/keyframes missing');
 expect(accountCss.includes('Account announcement ticker parity with homepage'), 'account ticker parity override missing');
