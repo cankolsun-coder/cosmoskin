@@ -432,12 +432,12 @@ function buildSupportData(values, config) {
 }
 
 function buildPartnershipData(values, config) {
-  const company = values.company.trim();
-  const name = values.name.trim();
-  const email = values.email.trim();
-  const requestType = values.request_type.trim();
-  const region = values.region.trim();
-  const message = values.message.trim();
+  const company = String(values.company || '').trim();
+  const name = String(values.name || '').trim();
+  const email = String(values.email || '').trim();
+  const requestType = String(values.request_type || '').trim();
+  const region = String(values.region || '').trim();
+  const message = String(values.message || '').trim();
   const privacyAcknowledged = consentAccepted(values.privacy_acknowledged) || consentAccepted(values.kvkk_acknowledged);
 
   if (!company || !name || !email || !requestType || !message) {

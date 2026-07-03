@@ -6,12 +6,38 @@ function safeMeta(meta = {}) {
   return meta && typeof meta === 'object' ? meta : {};
 }
 
+function isSuccessfulOrder(order = {}) {
+  const status = String(order.status || '').toLowerCase();
+  const payment = String(order.payment_status || '').toLowerCase();
+  return ['paid', 'confirmed', 'processing', 'preparing', 'shipped', 'delivered', 'completed'].includes(status) || ['paid', 'confirmed', 'captured'].includes(payment) || Boolean(order.paid_at);
+}
+
+function finiteNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function orderProductNetAmount(order = {}) {
+  const items = Array.isArray(order.order_items) ? order.order_items : [];
+  const itemsTotal = items.reduce((sum, item) => {
+    const line = finiteNumber(item.line_total, NaN);
+    if (Number.isFinite(line) && line > 0) return sum + line;
+    return sum + (finiteNumber(item.unit_price || item.price, 0) * Math.max(1, finiteNumber(item.quantity, 1)));
+  }, 0);
+  if (itemsTotal > 0) return itemsTotal;
+  const subtotal = finiteNumber(order.subtotal_amount, NaN);
+  if (Number.isFinite(subtotal) && subtotal > 0) return subtotal;
+  const total = finiteNumber(order.total_amount, 0);
+  const shipping = finiteNumber(order.shipping_amount, 0);
+  return Math.max(0, total - shipping);
+}
+
 function computeTier(orders = []) {
-  const paidOrders = orders.filter((order) => ['paid', 'confirmed', 'processing', 'preparing', 'shipped', 'delivered', 'completed'].includes(String(order.status || '').toLowerCase()) || ['paid', 'confirmed', 'captured'].includes(String(order.payment_status || '').toLowerCase()));
-  const paidTotal = paidOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
-  if (paidTotal >= 15000) return { key: 'elite', label: 'Elite Üye', progress: 100, next: null };
-  if (paidTotal >= 5000) return { key: 'signature', label: 'Signature Üye', progress: Math.min(96, Math.round(((paidTotal - 5000) / 10000) * 100)), next: 'Elite Üye' };
-  return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 5000) * 100)), next: 'Signature Üye' };
+  const paidOrders = orders.filter(isSuccessfulOrder);
+  const paidTotal = paidOrders.reduce((sum, order) => sum + orderProductNetAmount(order), 0);
+  if (paidTotal >= 15000) return { key: 'elite', label: 'Elite Üye', progress: 100, next: null, spend: Math.round(paidTotal * 100) / 100 };
+  if (paidTotal >= 5000) return { key: 'signature', label: 'Signature Üye', progress: Math.min(96, Math.round(((paidTotal - 5000) / 10000) * 100)), next: 'Elite Üye', spend: Math.round(paidTotal * 100) / 100 };
+  return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 5000) * 100)), next: 'Signature Üye', spend: Math.round(paidTotal * 100) / 100 };
 }
 
 function groupBy(rows = [], key) {
@@ -198,16 +224,17 @@ export async function onRequestGet(context) {
       return_requests: groupedReturns.get(order.id) || []
     }));
 
-    const paidOrders = orders.filter((order) => ['paid', 'confirmed', 'processing', 'preparing', 'shipped', 'delivered', 'completed'].includes(String(order.status || '').toLowerCase()) || ['paid', 'confirmed', 'captured'].includes(String(order.payment_status || '').toLowerCase()));
-    const totalSpent = paidOrders.reduce((sum, order) => sum + Number(order.total_amount || 0), 0);
-    const activeOrders = orders.filter((order) => ['paid', 'preparing', 'shipped'].includes(order.status)).length;
+    const paidOrders = orders.filter(isSuccessfulOrder);
+    const totalSpent = paidOrders.reduce((sum, order) => sum + orderProductNetAmount(order), 0);
+    const activeOrders = orders.filter((order) => ['paid', 'confirmed', 'processing', 'preparing', 'packed', 'shipped'].includes(String(order.status || '').toLowerCase())).length;
     const profile = Array.isArray(profiles) ? profiles[0] || null : null;
     const membership = Array.isArray(membershipRows) ? membershipRows[0] || null : null;
     const pointLedger = Array.isArray(pointsRows) ? pointsRows : [];
-    const availablePoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'available').reduce((sum, row) => sum + Number(row.points_delta || row.points || 0), 0);
-    const pendingPoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'pending').reduce((sum, row) => sum + Math.max(0, Number(row.points_delta || row.points || 0)), 0);
-    const reversedPoints = pointLedger.filter((row) => ['reversed', 'expired'].includes(String(row.status || '').toLowerCase())).reduce((sum, row) => sum + Math.abs(Number(row.points_delta || row.points || 0)), 0);
-    const pointsBalance = Math.max(0, Number(membership?.available_points ?? availablePoints ?? 0));
+    const availablePoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'available').reduce((sum, row) => sum + finiteNumber(row.points_delta || row.points, 0), 0);
+    const pendingPoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'pending').reduce((sum, row) => sum + Math.max(0, finiteNumber(row.points_delta || row.points, 0)), 0);
+    const reversedPoints = pointLedger.filter((row) => ['reversed', 'expired'].includes(String(row.status || '').toLowerCase())).reduce((sum, row) => sum + Math.abs(finiteNumber(row.points_delta || row.points, 0)), 0);
+    const derivedPoints = Math.max(0, Math.round(totalSpent));
+    const pointsBalance = Math.max(0, Math.round(finiteNumber(membership?.available_points ?? (availablePoints || derivedPoints), derivedPoints)));
     const notifications = Array.isArray(dbNotifications) ? dbNotifications : [];
     const notificationPreferences = Array.isArray(preferenceRows) ? preferenceRows[0] || null : null;
     const supportRequests = Array.isArray(supportRows) ? supportRows : [];
@@ -223,6 +250,7 @@ export async function onRequestGet(context) {
         full_name: profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : (meta.full_name || meta.name || [meta.first_name, meta.last_name].filter(Boolean).join(' ')),
         phone: profile?.phone || meta.phone || meta.phone_number || '',
         birthday: profile?.birthday || '',
+        birth_date_locked: Boolean(profile?.birth_date_locked),
         account_status: profile?.account_status || 'active',
         skin_type: skinProfiles?.[0]?.skin_type || meta.skin_type || '',
         skin_sensitivity: skinProfiles?.[0]?.skin_sensitivity || skinProfiles?.[0]?.sensitivity || meta.skin_sensitivity || '',
@@ -253,6 +281,7 @@ export async function onRequestGet(context) {
         paid_order_count: paidOrders.length,
         active_order_count: activeOrders,
         total_spent: Math.round(totalSpent * 100) / 100,
+        product_spend_total: Math.round(totalSpent * 100) / 100,
         favorites_count: favorites.length,
         addresses_count: addresses.length,
         unread_notifications: notifications.filter((n) => !n.is_read).length,
@@ -266,13 +295,14 @@ export async function onRequestGet(context) {
         points_balance: pointsBalance,
         available_coupons_count: Array.isArray(couponRows) ? couponRows.filter((coupon) => coupon.status === 'available').length : 0
       },
-      membership,
+      membership: membership ? { ...membership, loyalty_spend_ex_shipping: Math.round(totalSpent * 100) / 100 } : null,
       points: {
         balance: pointsBalance,
         available: Math.max(0, Math.round(pointsBalance)),
         pending: Math.max(0, Math.round(pendingPoints)),
         reversed: Math.max(0, Math.round(reversedPoints)),
-        ledger: pointLedger
+        ledger: pointLedger,
+        derived_from_orders: pointLedger.length === 0
       },
       coupons: couponRows || [],
       skin_profile: skinProfiles?.[0] || null,

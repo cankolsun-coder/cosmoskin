@@ -1,0 +1,11 @@
+COSMOSKIN_ACCOUNT_EXPERIENCE_FINAL_POLISH_CHANGED_FILES_20260703.txt
+COSMOSKIN_ACCOUNT_EXPERIENCE_FINAL_POLISH_REPORT_20260703.md
+COSMOSKIN_ACCOUNT_EXPERIENCE_FINAL_POLISH_SUPABASE_NOTES_20260703.md
+account/profile.html
+assets/account-dashboard.js
+assets/account-premium.css
+functions/api/account/profile.js
+functions/api/account/summary.js
+functions/api/contact.js
+scripts/validate-account-experience-final-polish.mjs
+supabase/migrations/20260703_account_experience_final_polish.sql

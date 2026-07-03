@@ -31,15 +31,16 @@ export async function onRequestPatch(context) {
   if (auth.response) return auth.response;
   const body = await context.request.json().catch(() => ({}));
   const existing = await getProfile(context, auth.user);
-  const requestedBirthday = body.birthday || body.birth_date || null;
+  const requestedBirthday = body.birthday || body.birth_date || undefined;
+  const birthdayLocked = Boolean(existing?.birth_date_locked && existing?.birthday);
   const payload = {
     id: auth.user.id,
     email: String(auth.user.email || body.email || '').toLowerCase(),
     first_name: cleanText(body.first_name, 80),
     last_name: cleanText(body.last_name, 80),
     phone: cleanText(body.phone, 40),
-    birthday: requestedBirthday || existing?.birthday || null,
-    birth_date_locked: false,
+    birthday: birthdayLocked ? existing.birthday : (requestedBirthday || existing?.birthday || null),
+    birth_date_locked: birthdayLocked,
     marketing_email_opt_in: normalizeBool(body.marketing_email_opt_in),
     newsletter_opt_in: normalizeBool(body.newsletter_opt_in),
     stock_alert_opt_in: normalizeBool(body.stock_alert_opt_in),

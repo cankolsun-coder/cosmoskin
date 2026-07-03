@@ -856,3 +856,83 @@
 .account-page .cs-loyalty-card strong,.account-page .cs-loyalty-card span,.account-page .cs-loyalty-card p{word-break:normal!important;overflow-wrap:break-word!important;}
 @media(max-width:1220px){.account-page .cs-overview-main-card{grid-template-columns:1fr!important}.account-page .cs-order-body{grid-template-columns:1fr!important}.account-page .cs-order-side{border-left:0!important;border-top:1px solid rgba(42,32,24,.10)!important;padding-left:0!important;padding-top:14px!important}.account-page .cs-security-grid{grid-template-columns:1fr!important}}
 @media(max-width:760px){.account-page .header.account-header{height:70px!important;padding:0 16px!important}.account-page .header.account-header .brand{gap:12px!important}.account-page .header.account-header .brand .brand-logo{width:34px!important;height:34px!important;flex-basis:34px!important}.account-page .header.account-header .brand .brand-word{font-size:20px!important;letter-spacing:.28em!important}.account-page .cs-product-mini-row,.account-page .cs-favorites-grid{grid-template-columns:1fr!important}.account-page .cs-security-list li{grid-template-columns:1fr!important}.account-page .cs-help-card{grid-template-columns:1fr!important}.account-page .cs-account-welcome-card h1{font-size:30px!important}}
+
+/* 2026-07-03 — Account Experience Final Polish + Loyalty Logic Correction */
+.account-page .header.account-header{
+  top:40px!important;
+  height:80px!important;
+  max-width:calc(var(--container,1360px) + 56px)!important;
+  margin:0 auto!important;
+  padding:0 28px!important;
+  display:grid!important;
+  grid-template-columns:auto 1fr auto!important;
+  gap:24px!important;
+  align-items:center!important;
+  background:rgba(248,243,237,.78)!important;
+  border-bottom:1px solid var(--line,rgba(42,32,24,.10))!important;
+  box-shadow:none!important;
+}
+.account-page .header.account-header .brand{gap:22px!important;align-items:center!important;min-width:0!important;display:inline-flex!important;}
+.account-page .header.account-header .brand .brand-logo{width:46px!important;height:46px!important;flex:0 0 46px!important;object-fit:contain!important;}
+.account-page .header.account-header .brand .brand-word{font-family:var(--serif,'Cormorant Garamond',serif)!important;font-size:24px!important;font-weight:400!important;letter-spacing:.42em!important;line-height:1!important;color:#18130f!important;white-space:nowrap!important;}
+.account-page .header.account-header .site-nav{justify-self:center!important;}
+.account-page .header.account-header .nav{gap:32px!important;}
+.account-page .header.account-header .nav a{font-family:var(--sans,'Plus Jakarta Sans',sans-serif)!important;font-size:12px!important;font-weight:800!important;letter-spacing:.14em!important;}
+.account-page .header.account-header .header-tools{justify-content:flex-end!important;gap:10px!important;min-width:max-content!important;}
+.account-page :where(.cs-tab-title h1,.cs-tab-title h2,.cs-card h1,.cs-card h2,.cs-card h3,.cs-panel h1,.cs-panel h2,.cs-panel h3,[data-panel] h1,[data-panel] h2):focus{outline:0!important;box-shadow:none!important;}
+.account-page :where(a,button,input,select,textarea,summary):focus-visible{outline:0!important;box-shadow:0 0 0 3px rgba(180,132,72,.20),0 0 0 1px rgba(135,97,57,.34)!important;}
+.account-page .cs-coupon-row strong,.account-page .cs-coupon-hero h2,.account-page .cs-stat strong,.account-page .cs-order-card strong,.account-page .cs-security-list strong,.account-page .cs-security-list span,.account-page .cs-toggle-grid span,.account-page .cs-toggle-grid small,.account-page .cs-product-mini strong,.account-page .cs-return-detail-grid strong,.account-page .cs-point-row b,.account-page .cs-loyalty-metrics b{font-family:var(--cs-sans,'Plus Jakarta Sans',system-ui,sans-serif)!important;letter-spacing:0!important;}
+.account-page .cs-coupon-hero h2{font-size:clamp(28px,3.6vw,44px)!important;font-weight:850!important;line-height:1.05!important;}
+.account-page .cs-overview-hero-grid--final{grid-template-columns:minmax(260px,.9fr) minmax(300px,1.08fr) minmax(280px,.92fr)!important;gap:20px!important;margin-bottom:20px!important;}
+.account-page .cs-overview-main-card--minimal{display:block!important;overflow:visible!important;}
+.account-page .cs-overview-grid--final-minimal{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr)!important;gap:16px!important;padding:16px!important;}
+.account-page .cs-overview-grid--final-minimal>.cs-card{min-width:0!important;overflow:hidden!important;}
+.account-page .cs-stat-grid--six{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:12px!important;}
+.account-page .cs-stat{min-width:0!important;align-items:center!important;}
+.account-page .cs-stat strong{font-size:24px!important;font-weight:850!important;}
+.account-page .cs-stat small,.account-page .cs-stat em{word-break:normal!important;overflow-wrap:break-word!important;}
+.account-page .cs-quick-grid--compact{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}
+.account-page .cs-quick-grid--compact .cs-quick-card{min-height:118px!important;padding:16px!important;}
+.account-page .cs-quick-grid--compact .cs-quick-card strong{font-family:var(--cs-sans,'Plus Jakarta Sans',sans-serif)!important;font-size:14px!important;line-height:1.25!important;}
+.account-page .cs-quick-grid--compact .cs-quick-card small{font-size:12px!important;line-height:1.45!important;}
+.account-page .cs-security-list--compact li{grid-template-columns:minmax(130px,.7fr) minmax(0,1fr)!important;}
+.account-page .cs-security-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important;}
+.account-page .cs-security-list li{display:grid!important;grid-template-columns:minmax(160px,.75fr) minmax(0,1fr)!important;align-items:center!important;gap:10px!important;padding:12px 14px!important;min-width:0!important;}
+.account-page .cs-security-list strong,.account-page .cs-security-list span{white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;line-height:1.35!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important;}
+.account-page .cs-order-progress{grid-template-columns:repeat(5,minmax(0,1fr))!important;}
+.account-page .cs-order-step strong{font-family:var(--cs-sans,'Plus Jakarta Sans',sans-serif)!important;font-size:10.5px!important;line-height:1.25!important;white-space:normal!important;word-break:normal!important;}
+.account-page .cs-order-body{grid-template-columns:minmax(0,1fr) minmax(260px,320px)!important;}
+.account-page .cs-order-side{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;}
+.account-page .cs-order-side div,.account-page .cs-order-side article{min-width:0!important;white-space:normal!important;writing-mode:horizontal-tb!important;text-orientation:mixed!important;}
+.account-page .cs-order-side span,.account-page .cs-order-side strong{display:block!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;line-height:1.35!important;}
+.account-page .cs-product-mini-row,.account-page .cs-favorites-grid{grid-template-columns:repeat(auto-fit,minmax(245px,310px))!important;justify-content:flex-start!important;}
+.account-page .cs-product-mini{min-width:0!important;max-width:310px!important;}
+.account-page .cs-product-mini__media{height:184px!important;}
+.account-page .cs-product-mini__bottom{flex-wrap:wrap!important;}
+.account-page .cs-help-card strong{color:#d7ad63!important;text-shadow:0 1px 0 rgba(0,0,0,.08)!important;}
+.account-page .cs-form-status{min-height:22px;margin-top:8px;color:#2e6845;font:800 12px/1.5 var(--cs-sans,'Plus Jakarta Sans',sans-serif);}
+.account-page .cs-toggle-grid label{min-height:100px!important;transition:background .18s ease,border-color .18s ease,transform .18s ease;}
+.account-page .cs-toggle-grid label:has(input:checked){border-color:rgba(139,98,52,.34)!important;background:linear-gradient(135deg,#fffdf8,#f6eadb)!important;}
+.account-page .cs-journal-state{border:1px solid rgba(42,32,24,.10)!important;border-radius:22px!important;background:linear-gradient(135deg,#fffdf9,#fbf2e7)!important;}
+.account-page .cs-loyalty-card--essential,.account-page .cs-loyalty-summary--essential{background:radial-gradient(circle at 18% 18%,rgba(224,181,130,.22),transparent 30%),linear-gradient(135deg,#4b3527 0%,#2a1d16 48%,#18110d 100%)!important;}
+.account-page .cs-loyalty-card--signature,.account-page .cs-loyalty-summary--signature{background:radial-gradient(circle at 20% 12%,rgba(255,236,186,.34),transparent 30%),linear-gradient(135deg,#cda45d 0%,#9b7034 55%,#6e471f 100%)!important;color:#fffaf2!important;}
+.account-page .cs-loyalty-card--elite,.account-page .cs-loyalty-summary--elite{background:radial-gradient(circle at 20% 10%,rgba(255,220,220,.22),transparent 27%),radial-gradient(circle at 82% 20%,rgba(255,255,255,.12),transparent 20%),linear-gradient(135deg,#7d0f2f 0%,#4d071d 54%,#21020d 100%)!important;color:#fff7f1!important;}
+.account-page .cs-loyalty-summary--club{position:relative;overflow:hidden;border-radius:26px!important;padding:32px!important;}
+.account-page .cs-loyalty-summary--club:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.28;background:linear-gradient(120deg,transparent 0%,rgba(255,255,255,.18) 34%,transparent 55%);}
+.account-page .cs-loyalty-summary--essential:before{content:"";position:absolute;right:20px;top:22px;width:140px;height:140px;border-radius:50%;border:1px solid rgba(244,203,155,.12);box-shadow:inset 0 0 34px rgba(244,203,155,.08);}
+.account-page .cs-loyalty-summary--signature:before{content:"";position:absolute;right:22px;top:24px;width:154px;height:154px;border-radius:50%;background:repeating-radial-gradient(circle,rgba(255,246,216,.20) 0 1px,transparent 1px 16px);}
+.account-page .cs-loyalty-summary--elite:before{content:"✦ ✧ ✦";position:absolute;right:30px;top:28px;color:rgba(255,230,230,.34);font-size:32px;letter-spacing:12px;}
+.account-page .cs-loyalty-summary--club strong{font-family:var(--cs-serif,'Cormorant Garamond',serif)!important;font-size:42px!important;font-weight:500!important;letter-spacing:-.03em!important;color:#fff7ea!important;}
+.account-page .cs-loyalty-metrics{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;position:relative;z-index:1;}
+.account-page .cs-loyalty-metrics span{min-width:0!important;}
+.account-page .cs-tier-card{position:relative;overflow:hidden;border:0!important;min-height:150px!important;text-align:left!important;color:#fffaf2!important;}
+.account-page .cs-tier-card small{display:none!important;}
+.account-page .cs-tier-card--essential{background:radial-gradient(circle at 10% 0,rgba(234,191,142,.22),transparent 28%),linear-gradient(135deg,#523a2b,#2d1d14)!important;}
+.account-page .cs-tier-card--signature{background:radial-gradient(circle at 15% 0,rgba(255,239,190,.28),transparent 30%),linear-gradient(135deg,#d4ad64,#9b6c30)!important;}
+.account-page .cs-tier-card--elite{background:radial-gradient(circle at 12% 0,rgba(255,225,225,.22),transparent 28%),linear-gradient(135deg,#85163b,#4a061c)!important;}
+.account-page .cs-tier-card--signature:after{content:"";position:absolute;right:18px;top:18px;width:90px;height:90px;border-radius:50%;border:1px solid rgba(255,249,226,.22);}
+.account-page .cs-tier-card--elite:after{content:"✦ ✧ ✦";position:absolute;right:18px;top:17px;color:rgba(255,239,239,.42);letter-spacing:8px;}
+.account-page .cs-coupon-row{grid-template-columns:minmax(120px,160px) minmax(0,1fr) auto auto!important;}
+.account-page .cs-coupon-row>strong{font-weight:900!important;font-size:18px!important;}
+@media(max-width:1220px){.account-page .cs-overview-hero-grid--final,.account-page .cs-overview-grid--final-minimal{grid-template-columns:1fr!important}.account-page .cs-stat-grid--six{grid-template-columns:repeat(3,minmax(0,1fr))!important}.account-page .cs-security-grid{grid-template-columns:1fr!important}.account-page .cs-order-body{grid-template-columns:1fr!important}.account-page .cs-order-side{border-left:0!important;border-top:1px solid rgba(42,32,24,.10)!important;padding-left:0!important;padding-top:14px!important}}
+@media(max-width:760px){.account-page .header.account-header{height:70px!important;padding:0 16px!important}.account-page .header.account-header .brand{gap:12px!important}.account-page .header.account-header .brand .brand-logo{width:34px!important;height:34px!important;flex-basis:34px!important}.account-page .header.account-header .brand .brand-word{font-size:20px!important;letter-spacing:.28em!important}.account-page .header.account-header .site-nav{display:none!important}.account-page .cs-stat-grid--six,.account-page .cs-quick-grid--compact,.account-page .cs-loyalty-metrics,.account-page .cs-coupon-row{grid-template-columns:1fr!important}.account-page .cs-security-list li{grid-template-columns:1fr!important}.account-page .cs-order-progress{grid-template-columns:1fr!important}.account-page .cs-product-mini{max-width:none!important}.account-page .cs-product-mini-row,.account-page .cs-favorites-grid{grid-template-columns:1fr!important}}
