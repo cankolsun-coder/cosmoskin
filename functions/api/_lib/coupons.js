@@ -21,12 +21,13 @@ const APPROVED_RULES = {
     min_subtotal: 1500,
     max_discount_amount: 150,
     per_customer_limit: 1,
-    birthday_month_only: true,
+    birthday_date_only: true,
+    birthday_window_days: 0,
     once_per_calendar_year: true,
     account_age_days_or_paid_order: 30,
     manualApplyRequired: true,
-    title: 'Doğum günü ayına özel %10 avantaj',
-    description: 'Doğum günü ayında, uygunluk kontrolleri tamamlandığında kullanılabilir.',
+    title: 'Doğum gününe özel %10 avantaj',
+    description: 'Doğum gününüzde, uygunluk kontrolleri tamamlandığında kullanılabilir.',
     scope_label: '1.500 TL ve üzeri alışverişlerde'
   },
   ROUTINE5: {
@@ -78,6 +79,27 @@ function lower(value) { return String(value || '').trim().toLowerCase(); }
 function monthNumber(value) { return value ? new Date(value).getUTCMonth() + 1 : null; }
 function currentYear() { return new Date().getFullYear(); }
 function daysBetween(a, b) { return Math.floor((Number(b) - Number(a)) / (24 * 60 * 60 * 1000)); }
+
+function parseBirthdayParts(value) {
+  const raw = String(value || '').trim().slice(0, 10);
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!match) return null;
+  return { month: Number(match[2]), day: Number(match[3]) };
+}
+
+export function isBirthdayCouponEligible(birthDate, now = new Date(), windowDays = 0) {
+  const parts = parseBirthdayParts(birthDate);
+  if (!parts) return false;
+  const window = Math.max(0, Number(windowDays) || 0);
+  if (window <= 0) {
+    return parts.month === (now.getMonth() + 1) && parts.day === now.getDate();
+  }
+  const year = now.getFullYear();
+  const birthday = new Date(year, parts.month - 1, parts.day);
+  const today = new Date(year, now.getMonth(), now.getDate());
+  const diffDays = Math.round((today.getTime() - birthday.getTime()) / (24 * 60 * 60 * 1000));
+  return diffDays >= 0 && diffDays <= window;
+}
 
 export function approvedCouponCodes() {
   return Object.keys(APPROVED_RULES);
@@ -266,7 +288,12 @@ export async function validateCouponEligibility(context, { code: rawCode, subtot
     const profile = await findProfile(context, user);
     const birthDate = profile?.birthday || profile?.birth_date || user?.user_metadata?.birthday || user?.user_metadata?.birth_date || '';
     if (!birthDate) return fail(code, 'BIRTHDAY_NOT_ELIGIBLE', 'Doğum günü avantajı için doğum tarihinizi hesabınıza ekleyin.');
-    if (monthNumber(birthDate) !== monthNumber(new Date().toISOString())) return fail(code, 'BIRTHDAY_NOT_ELIGIBLE', 'BIRTHDAY10 yalnızca doğum günü ayınızda aktif olur.');
+    const windowDays = Number(rule?.birthday_window_days ?? 0);
+    if (!isBirthdayCouponEligible(birthDate, new Date(), windowDays)) {
+      return fail(code, 'BIRTHDAY_NOT_ELIGIBLE', windowDays > 0
+        ? 'BIRTHDAY10 yalnızca doğum günü döneminizde aktif olur.'
+        : 'BIRTHDAY10 yalnızca doğum gününüzde aktif olur.');
+    }
     const orders = await findOrders(context, user, email);
     const hasPaidOrder = (orders || []).some(successOrder);
     const accountAge = user.created_at ? daysBetween(new Date(user.created_at).getTime(), now) : 0;

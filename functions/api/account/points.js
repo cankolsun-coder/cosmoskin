@@ -1,6 +1,7 @@
 import { json } from '../_lib/response.js';
 import { requireUser } from '../_lib/account.js';
 import { selectRows } from '../_lib/supabase.js';
+import { getLoyaltyBalance } from '../_lib/loyalty-ledger.js';
 
 export async function onRequestGet(context) {
   const auth = await requireUser(context);
@@ -11,6 +12,15 @@ export async function onRequestGet(context) {
     order: 'created_at.desc',
     limit: '100'
   }).catch(() => []);
-  const balance = (rows || []).filter((row) => !row.expires_at || new Date(row.expires_at) > new Date()).reduce((sum, row) => sum + Number(row.points_delta || 0), 0);
-  return json({ ok: true, balance, ledger: rows || [] });
+  // Balance MUST come from the ledger via status = available only — never a
+  // raw sum of points_delta across all rows, which would double-count
+  // pending and reversed points as if they were spendable today.
+  const ledgerBalance = await getLoyaltyBalance(context, auth.user.id);
+  return json({
+    ok: true,
+    balance: ledgerBalance.available_points,
+    pending: ledgerBalance.pending_points,
+    reversed: ledgerBalance.reversed_points,
+    ledger: rows || []
+  });
 }

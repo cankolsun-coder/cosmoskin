@@ -2,6 +2,7 @@ import { json } from '../../../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../../../_lib/admin.js';
 import { insertRow, selectRows, updateRows } from '../../../_lib/supabase.js';
 import { convertInventoryReservations, releaseInventoryReservations } from '../../../_lib/inventory.js';
+import { awardOrderPoints, promoteOrderPoints, reverseOrderPoints } from '../../../_lib/loyalty-ledger.js';
 
 const VALID_STATUS = new Set(['pending_payment','pending_bank_transfer','paid','preparing','shipped','delivered','cancelled','payment_failed','refunded','partially_refunded']);
 const VALID_FULFILLMENT = new Set(['not_started','unfulfilled','preparing','packed','shipped','delivered','cancelled','returned']);
@@ -45,6 +46,24 @@ export async function onRequestPatch(context) {
     }
     await updateRows(context, 'orders', { id }, payload);
     await insertRow(context, 'order_status_events', { order_id: id, status: body.status || body.fulfillment_status || 'updated', source: 'admin', message: body.message || 'Admin panelinden durum güncellendi.' }).catch(() => null);
+
+    // Minimal loyalty hooks, gated on actual before/after transitions.
+    // Idempotent and non-throwing — cannot block or alter this response.
+    const finalPayment = payload.payment_status || current.payment_status;
+    const finalStatus = payload.status || current.status;
+    const finalFulfillment = payload.fulfillment_status || current.fulfillment_status;
+    if (finalPayment === 'paid' && current.payment_status !== 'paid') {
+      await awardOrderPoints(context, id);
+    }
+    if ((finalStatus === 'delivered' || finalFulfillment === 'delivered') && current.status !== 'delivered' && current.fulfillment_status !== 'delivered') {
+      await promoteOrderPoints(context, id);
+    }
+    const wasSettled = ['cancelled', 'refunded', 'partially_refunded'].includes(current.status) || ['refunded', 'partially_refunded'].includes(current.payment_status) || current.fulfillment_status === 'returned';
+    const isSettled = ['cancelled', 'refunded', 'partially_refunded'].includes(finalStatus) || ['refunded', 'partially_refunded'].includes(finalPayment) || finalFulfillment === 'returned';
+    if (isSettled && !wasSettled) {
+      await reverseOrderPoints(context, id, { reason: body.message || null, source: 'admin', ratio: 1 });
+    }
+
     return json({ ok: true, message: 'Sipariş durumu güncellendi.' });
   } catch (error) {
     return adminError(error, 'Sipariş durumu güncellenemedi.');

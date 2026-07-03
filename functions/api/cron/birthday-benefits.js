@@ -20,7 +20,19 @@ export async function onRequestPost(context) {
       if (!p.birthday || String(p.birthday).slice(5, 10) !== `${month}-${day}`) continue;
       const benefit = await insertRow(context, 'birthday_benefits', { user_id: p.id, benefit_year: year, points_awarded: 500, expires_at: new Date(Date.now() + 1000*60*60*24*30).toISOString() }).catch(() => null);
       if (!benefit) continue;
-      await insertRow(context, 'loyalty_points_ledger', { user_id: p.id, email: p.email, event_type: 'birthday', points_delta: 500, source: 'cron', metadata: { benefit_year: year } }).catch(() => null);
+      // Double idempotency guard: birthday_benefits has unique(user_id, benefit_year)
+      // above, and transaction_reference has its own unique index — a rerun of this
+      // cron for the same user/year can never create a second ledger row either way.
+      await insertRow(context, 'loyalty_points_ledger', {
+        user_id: p.id,
+        email: p.email,
+        event_type: 'birthday',
+        points_delta: 500,
+        status: 'available',
+        source: 'cron',
+        transaction_reference: `birthday:${p.id}:${year}`,
+        metadata: { benefit_year: year }
+      }).catch(() => null);
       issued += 1;
     }
     return json({ ok: true, issued });

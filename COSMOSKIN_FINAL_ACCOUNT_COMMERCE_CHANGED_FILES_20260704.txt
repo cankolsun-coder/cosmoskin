@@ -1,0 +1,102 @@
+COSMOSKIN FINAL ACCOUNT/COMMERCE RELEASE — CHANGED FILES SINCE BATCH 1
+Generated: 2026-07-04 (post-Batch 4 production readiness audit)
+
+This is the consolidated, deduplicated file list across Batch 1, Batch 2, Batch 3 and Batch 4.
+No files were changed as part of this audit itself (read-only verification only).
+
+=== CREATED — Application code ===
+
+functions/api/_lib/order-cancellation.js         (Batch 3 — cancellation eligibility + execution logic)
+functions/api/account/orders/[id]/cancel.js      (Batch 3 — POST /api/account/orders/:id/cancel)
+functions/api/_lib/loyalty-config.js             (Batch 4 — canonical tier config)
+functions/api/_lib/loyalty-ledger.js             (Batch 4 — non-throwing RPC wrappers)
+
+=== MODIFIED — Application code ===
+
+account/profile.html                             (Batch 2 — header parity markup)
+assets/account-dashboard.js                      (Batch 1/2/3/4 — coupons, birthday UI, header, favorites,
+                                                   cancellation UI, Club/loyalty UI)
+assets/account-premium.css                       (Batch 2/4 — CSS consolidation + Club point history polish)
+functions/api/_lib/coupons.js                    (Batch 1 — WELCOME10/BIRTHDAY10 exact-date rule)
+functions/api/account/membership.js              (Batch 4 — ledger-backed fallback, product-net spend)
+functions/api/account/notifications.js           (Batch 1 — notification_preferences persistence)
+functions/api/account/points.js                  (Batch 4 — getLoyaltyBalance, status-aware)
+functions/api/account/profile.js                 (Batch 1 — birthday one-correction-then-lock rule)
+functions/api/account/summary.js                 (Batch 1/3/4 — birthday fields, cancel-eligibility columns,
+                                                   ledger-backed points/tier)
+functions/api/admin/orders.js                    (Batch 4 — award/promote/reverse loyalty hooks)
+functions/api/admin/orders/[id]/status.js        (Batch 4 — award/promote/reverse loyalty hooks)
+functions/api/admin/refunds.js                   (Batch 4 — proportional reversal hook)
+functions/api/admin/returns.js                   (Batch 4 — manual-review reversal hook)
+functions/api/cron/birthday-benefits.js          (Batch 4 — transaction_reference + explicit status)
+functions/api/iyzico-callback.js                 (Batch 4 — award hook after payment success)
+functions/api/loyalty/redeem.js                  (Batch 4 — status=available only, idempotency reference)
+
+=== CREATED — Validation scripts ===
+
+scripts/validate-account-batch-1-safe-fixes.mjs
+scripts/validate-account-batch-3-order-cancellation.mjs
+scripts/validate-account-batch-4-loyalty-ledger.mjs
+scripts/validate-account-ui-polish.mjs
+
+=== MODIFIED — Validation scripts ===
+
+scripts/validate-account-experience-final-polish.mjs   (Batch 1 — tightened: no Koşullu, /checkout.html,
+                                                          birthday-date guards)
+
+=== PRE-EXISTING validators, unchanged, re-run every batch as guardrails ===
+
+scripts/validate-account-runtime-hotfix.mjs
+scripts/validate-checkout-payment-email-e2e.mjs
+scripts/validate-production-launch-readiness.mjs
+tests/local-integration.test.mjs
+
+=== CREATED — Supabase migrations ===
+
+supabase/migrations/20260703_batch1_account_safe_functional_fixes.sql
+supabase/migrations/20260703_batch3_customer_order_cancellation.sql
+supabase/migrations/20260704_batch4_loyalty_ledger.sql
+
+=== CREATED — Supabase manual scripts (operator-run only, NOT auto-applied) ===
+
+supabase/scripts/manual/backfill_loyalty_purchase_points_20260704.sql
+
+=== CREATED — Docs / project memory ===
+
+COSMOSKIN_PROJECT_MEMORY.md
+docs/audits/claude-account-audit-20260703.md
+docs/prompts/batch-1-safe-functional-fixes.md
+
+=== CREATED — Environment template ===
+
+.env.example                                     (placeholder values only, no real secrets)
+
+=== CREATED — Deliverable reports (one set per batch + this final audit) ===
+
+COSMOSKIN_BATCH_1_SAFE_FUNCTIONAL_FIXES_REPORT_20260703.md
+COSMOSKIN_BATCH_1_SAFE_FUNCTIONAL_FIXES_CHANGED_FILES_20260703.txt
+COSMOSKIN_BATCH_1_SAFE_FUNCTIONAL_FIXES_SUPABASE_NOTES_20260703.md
+COSMOSKIN_BATCH_2_ACCOUNT_UI_POLISH_REPORT_20260703.md
+COSMOSKIN_BATCH_2_ACCOUNT_UI_POLISH_CHANGED_FILES_20260703.txt
+COSMOSKIN_BATCH_3_ORDER_CANCELLATION_REPORT_20260703.md
+COSMOSKIN_BATCH_3_ORDER_CANCELLATION_CHANGED_FILES_20260703.txt
+COSMOSKIN_BATCH_3_ORDER_CANCELLATION_SUPABASE_NOTES_20260703.md
+COSMOSKIN_BATCH_4_LOYALTY_LEDGER_REPORT_20260704.md
+COSMOSKIN_BATCH_4_LOYALTY_LEDGER_CHANGED_FILES_20260704.txt
+COSMOSKIN_BATCH_4_LOYALTY_LEDGER_SUPABASE_NOTES_20260704.md
+COSMOSKIN_FINAL_ACCOUNT_COMMERCE_RELEASE_CHECKLIST_20260704.md   (this audit)
+COSMOSKIN_FINAL_ACCOUNT_COMMERCE_CHANGED_FILES_20260704.txt      (this audit)
+COSMOSKIN_FINAL_ACCOUNT_COMMERCE_SUPABASE_RUNBOOK_20260704.md    (this audit)
+COSMOSKIN_FINAL_ACCOUNT_COMMERCE_ROLLBACK_PLAN_20260704.md       (this audit)
+
+=== CONFIRMED UNTOUCHED across all of Batch 1-4 (zero git diff from HEAD) ===
+
+functions/api/returns.js
+functions/api/create-checkout.js
+checkout.html
+assets/checkout.js
+assets/checkout-flow.js
+assets/mobile-redesign.js / assets/mobile-redesign.css
+Site header partial / footer partial (outside account/profile.html's own header markup)
+functions/api/iyzico-callback.js's core payment RPC calls (process_iyzico_payment_success/failure) and
+  iyzicoRequest() call count (exactly 1) — only the loyalty award hook line was added

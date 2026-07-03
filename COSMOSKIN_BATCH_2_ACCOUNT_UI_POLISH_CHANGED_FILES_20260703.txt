@@ -1,0 +1,7 @@
+account/profile.html
+assets/account-dashboard.js
+assets/account-premium.css
+scripts/validate-account-ui-polish.mjs
+scripts/validate-account-experience-final-polish.mjs
+COSMOSKIN_BATCH_2_ACCOUNT_UI_POLISH_REPORT_20260703.md
+COSMOSKIN_BATCH_2_ACCOUNT_UI_POLISH_CHANGED_FILES_20260703.txt

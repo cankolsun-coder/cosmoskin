@@ -1,6 +1,7 @@
 import { json } from '../_lib/response.js';
 import { requireUser } from '../_lib/account.js';
 import { insertRow, selectRows } from '../_lib/supabase.js';
+import { getLoyaltyBalance } from '../_lib/loyalty-ledger.js';
 
 const REDEMPTIONS = {
   '1000': { points: 1000, amount: 30, minSubtotal: 350, label: '30 TL indirim' },
@@ -13,15 +14,45 @@ function codeFor(points) {
   return `CSCLUB-${points}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 }
 
+async function findReplay(context, transactionReference) {
+  if (!transactionReference) return null;
+  const rows = await selectRows(context, 'loyalty_points_ledger', {
+    select: '*',
+    transaction_reference: `eq.${transactionReference}`,
+    limit: '1'
+  }).catch(() => []);
+  const row = rows?.[0] || null;
+  if (!row) return null;
+  const coupon = row.coupon_id
+    ? (await selectRows(context, 'customer_coupons', { select: '*', id: `eq.${row.coupon_id}`, limit: '1' }).catch(() => []))?.[0] || null
+    : null;
+  return { coupon, balance_after: row.balance_after };
+}
+
 export async function onRequestPost(context) {
   const auth = await requireUser(context);
   if (auth.response) return auth.response;
   const body = await context.request.json().catch(() => ({}));
   const tier = REDEMPTIONS[String(body.points || body.points_spent || '')];
   if (!tier) return json({ ok: false, error: 'Geçersiz puan kullanım seçeneği.' }, { status: 400 });
-  const rows = await selectRows(context, 'loyalty_points_ledger', { select: 'points_delta,expires_at', user_id: `eq.${auth.user.id}`, limit: '500' }).catch(() => []);
-  const balance = (rows || []).filter((row) => !row.expires_at || new Date(row.expires_at) > new Date()).reduce((sum, row) => sum + Number(row.points_delta || 0), 0);
-  if (balance < tier.points) return json({ ok: false, error: 'Bu kullanım için yeterli puanınız yok.' }, { status: 409 });
+
+  // Optional client-supplied idempotency key: prevents a double-submit
+  // (double click / retry) from creating two coupons and double-deducting
+  // points for the same logical redemption. Backward compatible — if the
+  // caller doesn't send one, behavior is unchanged from before.
+  const idempotencyKey = String(body.idempotency_key || '').trim().slice(0, 120);
+  const transactionReference = idempotencyKey ? `redeem:${auth.user.id}:${idempotencyKey}` : null;
+  if (transactionReference) {
+    const replay = await findReplay(context, transactionReference);
+    if (replay) return json({ ok: true, coupon: replay.coupon, balance_after: replay.balance_after, replay: true });
+  }
+
+  // Redeemable balance MUST come from ledger status = available only.
+  // Pending, reversed, cancelled or expired points cannot be redeemed.
+  const ledgerBalance = await getLoyaltyBalance(context, auth.user.id);
+  const available = ledgerBalance.available_points;
+  if (available < tier.points) return json({ ok: false, error: 'Bu kullanım için yeterli puanınız yok.' }, { status: 409 });
+
   const couponCode = codeFor(tier.points);
   const coupon = await insertRow(context, 'customer_coupons', {
     user_id: auth.user.id,
@@ -35,16 +66,30 @@ export async function onRequestPost(context) {
     expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 60).toISOString(),
     metadata: { label: tier.label, points_spent: tier.points }
   });
-  await insertRow(context, 'loyalty_points_ledger', {
-    user_id: auth.user.id,
-    email: String(auth.user.email || '').toLowerCase(),
-    event_type: 'redemption',
-    points_delta: -tier.points,
-    balance_after: balance - tier.points,
-    coupon_id: coupon?.id || null,
-    source: 'account',
-    metadata: { label: tier.label, coupon_code: couponCode }
-  });
+
+  const balanceAfter = available - tier.points;
+  let ledgerRow = null;
+  try {
+    ledgerRow = await insertRow(context, 'loyalty_points_ledger', {
+      user_id: auth.user.id,
+      email: String(auth.user.email || '').toLowerCase(),
+      event_type: 'redemption',
+      points_delta: -tier.points,
+      balance_after: balanceAfter,
+      status: 'available',
+      coupon_id: coupon?.id || null,
+      source: 'account',
+      transaction_reference: transactionReference,
+      metadata: { label: tier.label, coupon_code: couponCode }
+    });
+  } catch (error) {
+    // Unique transaction_reference race: another concurrent request already
+    // recorded this exact redemption. Return that one instead of a second.
+    const replay = await findReplay(context, transactionReference);
+    if (replay) return json({ ok: true, coupon: replay.coupon, balance_after: replay.balance_after, replay: true });
+    throw error;
+  }
+
   await insertRow(context, 'loyalty_redemptions', {
     user_id: auth.user.id,
     email: String(auth.user.email || '').toLowerCase(),
@@ -52,7 +97,8 @@ export async function onRequestPost(context) {
     benefit_type: tier.label,
     coupon_id: coupon?.id || null,
     status: 'issued',
-    metadata: { coupon_code: couponCode }
+    metadata: { coupon_code: couponCode, ledger_id: ledgerRow?.id || null }
   });
-  return json({ ok: true, coupon, balance_after: balance - tier.points });
+
+  return json({ ok: true, coupon, balance_after: balanceAfter });
 }

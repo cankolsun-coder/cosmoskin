@@ -5,6 +5,7 @@ import { deriveCommerceSegments, mapSegmentsToLists, upsertBrevoContact } from '
 import { iyzicoRequest } from './_lib/iyzico.js';
 import { recordCrmEvent } from './_lib/crm-events.js';
 import { redirect } from './_lib/response.js';
+import { awardOrderPoints } from './_lib/loyalty-ledger.js';
 
 async function syncBrevoAfterPayment(context, conversationId) {
   if (!context?.env?.BREVO_API_KEY || !conversationId) return;
@@ -179,6 +180,11 @@ async function finalizeCommerceAfterPayment(context, orderId) {
       }
     }).catch(() => null);
   }
+
+  // Loyalty purchase-points earn hook — smallest possible post-success call.
+  // Idempotent (safe on webhook retries/duplicate callbacks); never throws;
+  // does not alter payment/order state or the caller's control flow.
+  await awardOrderPoints(context, orderId);
 }
 
 function normalizeMoney(value) {

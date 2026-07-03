@@ -1,0 +1,12 @@
+assets/account-dashboard.js
+functions/api/account/profile.js
+functions/api/account/notifications.js
+functions/api/account/summary.js
+functions/api/_lib/coupons.js
+supabase/migrations/20260703_batch1_account_safe_functional_fixes.sql
+scripts/validate-account-batch-1-safe-fixes.mjs
+scripts/validate-account-experience-final-polish.mjs
+COSMOSKIN_PROJECT_MEMORY.md
+COSMOSKIN_BATCH_1_SAFE_FUNCTIONAL_FIXES_REPORT_20260703.md
+COSMOSKIN_BATCH_1_SAFE_FUNCTIONAL_FIXES_CHANGED_FILES_20260703.txt
+COSMOSKIN_BATCH_1_SAFE_FUNCTIONAL_FIXES_SUPABASE_NOTES_20260703.md

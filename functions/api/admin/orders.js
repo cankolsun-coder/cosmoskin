@@ -5,6 +5,7 @@ import { sendOrderStatusEmail, sendShipmentEmail, sendCommerceTransactionalEmail
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { convertInventoryReservations, releaseInventoryReservations } from '../_lib/inventory.js';
 import { getValidatedBankAccounts } from '../_lib/bank-accounts.js';
+import { awardOrderPoints, promoteOrderPoints, reverseOrderPoints } from '../_lib/loyalty-ledger.js';
 
 const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
 const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
@@ -432,6 +433,25 @@ export async function onRequestPatch(context) {
     }
 
     const order = await loadOrder(context, id);
+
+    // Minimal loyalty hooks, gated on actual before/after transitions so they
+    // never fire on unrelated PATCHes (e.g. a shipment tracking update alone).
+    // Each helper is internally idempotent and non-throwing — this can never
+    // block or alter the response above.
+    if (order && before) {
+      if (order.payment_status === 'paid' && before.payment_status !== 'paid') {
+        await awardOrderPoints(context, id);
+      }
+      if ((order.status === 'delivered' || order.fulfillment_status === 'delivered') && before.status !== 'delivered' && before.fulfillment_status !== 'delivered') {
+        await promoteOrderPoints(context, id);
+      }
+      const wasSettled = ['cancelled', 'refunded', 'partially_refunded'].includes(before.status) || ['refunded', 'partially_refunded'].includes(before.payment_status) || before.fulfillment_status === 'returned';
+      const isSettled = ['cancelled', 'refunded', 'partially_refunded'].includes(order.status) || ['refunded', 'partially_refunded'].includes(order.payment_status) || order.fulfillment_status === 'returned';
+      if (isSettled && !wasSettled) {
+        await reverseOrderPoints(context, id, { reason: body.message || null, source: 'admin', ratio: 1 });
+      }
+    }
+
     return json({ ok: true, order, message: shipmentMessage || (deliveredEmail ? (deliveredEmail.sent ? 'Sipariş teslim edildi ve müşteriye e-posta gönderildi.' : 'Sipariş teslim edildi ancak e-posta gönderilemedi.') : 'Sipariş güncellendi.'), email: shipmentEmail || deliveredEmail, notification: shipmentEmail || deliveredEmail });
   } catch (error) {
     return adminError(error, 'Sipariş güncellenemedi.');

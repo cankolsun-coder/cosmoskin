@@ -1,0 +1,22 @@
+COSMOSKIN Batch 3 — Order Cancellation Changed Files (2026-07-03)
+
+Created:
+- supabase/migrations/20260703_batch3_customer_order_cancellation.sql
+- functions/api/_lib/order-cancellation.js
+- functions/api/account/orders/[id]/cancel.js
+- scripts/validate-account-batch-3-order-cancellation.mjs
+- COSMOSKIN_BATCH_3_ORDER_CANCELLATION_REPORT_20260703.md
+- COSMOSKIN_BATCH_3_ORDER_CANCELLATION_CHANGED_FILES_20260703.txt
+- COSMOSKIN_BATCH_3_ORDER_CANCELLATION_SUPABASE_NOTES_20260703.md
+
+Modified:
+- functions/api/account/summary.js
+- assets/account-dashboard.js
+- assets/account-premium.css
+
+Not modified (Batch 3 scope guard):
+- functions/api/iyzico-callback.js
+- functions/api/create-checkout.js
+- functions/api/returns.js
+- functions/api/admin/**
+- assets/order-detail.js

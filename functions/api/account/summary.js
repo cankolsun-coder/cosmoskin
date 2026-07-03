@@ -1,6 +1,9 @@
 import { selectRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { requireUser, buildInFilter, groupByOrderId, resolveOrderItem } from '../_lib/account.js';
+import { isBirthdayCouponEligible } from '../_lib/coupons.js';
+import { getLoyaltyBalance } from '../_lib/loyalty-ledger.js';
+import { computeTierFromSpend, tierLabel } from '../_lib/loyalty-config.js';
 
 function safeMeta(meta = {}) {
   return meta && typeof meta === 'object' ? meta : {};
@@ -25,19 +28,25 @@ function orderProductNetAmount(order = {}) {
     return sum + (finiteNumber(item.unit_price || item.price, 0) * Math.max(1, finiteNumber(item.quantity, 1)));
   }, 0);
   if (itemsTotal > 0) return itemsTotal;
+  // Fallback to subtotal_amount ONLY — never total_amount, which includes
+  // shipping. Matches public.cosmoskin_order_points_basis() in
+  // supabase/migrations/20260704_batch4_loyalty_ledger.sql exactly, so the
+  // account API and the SQL ledger never disagree about product-net spend.
   const subtotal = finiteNumber(order.subtotal_amount, NaN);
-  if (Number.isFinite(subtotal) && subtotal > 0) return subtotal;
-  const total = finiteNumber(order.total_amount, 0);
-  const shipping = finiteNumber(order.shipping_amount, 0);
-  return Math.max(0, total - shipping);
+  return Number.isFinite(subtotal) ? Math.max(0, subtotal) : 0;
 }
 
 function computeTier(orders = []) {
   const paidOrders = orders.filter(isSuccessfulOrder);
   const paidTotal = paidOrders.reduce((sum, order) => sum + orderProductNetAmount(order), 0);
-  if (paidTotal >= 15000) return { key: 'elite', label: 'Elite Üye', progress: 100, next: null, spend: Math.round(paidTotal * 100) / 100 };
-  if (paidTotal >= 5000) return { key: 'signature', label: 'Signature Üye', progress: Math.min(96, Math.round(((paidTotal - 5000) / 10000) * 100)), next: 'Elite Üye', spend: Math.round(paidTotal * 100) / 100 };
-  return { key: 'essential', label: 'Essential Üye', progress: Math.min(92, Math.round((paidTotal / 5000) * 100)), next: 'Signature Üye', spend: Math.round(paidTotal * 100) / 100 };
+  const tier = computeTierFromSpend(paidTotal, paidOrders.length);
+  return {
+    key: tier.code,
+    label: tier.label,
+    progress: tier.progress,
+    next: tier.nextLabel,
+    spend: Math.round(paidTotal * 100) / 100
+  };
 }
 
 function groupBy(rows = [], key) {
@@ -66,7 +75,7 @@ export async function onRequestGet(context) {
 
     const [ordersRaw, addresses, favorites, dbNotifications, profiles, membershipRows, pointsRows, couponRows, skinProfiles, routineResults, consentRows, preferenceRows, supportRows] = await Promise.all([
       selectRows(context, 'orders', {
-        select: 'id,order_number,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,created_at,updated_at,paid_at,fulfilled_at,delivered_at',
+        select: 'id,order_number,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,cancel_reason,cancel_requested_at,cancelled_by,cancel_request_reason,cancellation_status,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at',
         or: `(user_id.eq.${user.id},customer_email.eq.${String(user.email || '').toLowerCase()})`,
         order: 'created_at.desc',
         limit: '12'
@@ -230,14 +239,34 @@ export async function onRequestGet(context) {
     const profile = Array.isArray(profiles) ? profiles[0] || null : null;
     const membership = Array.isArray(membershipRows) ? membershipRows[0] || null : null;
     const pointLedger = Array.isArray(pointsRows) ? pointsRows : [];
-    const availablePoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'available').reduce((sum, row) => sum + finiteNumber(row.points_delta || row.points, 0), 0);
-    const pendingPoints = pointLedger.filter((row) => String(row.status || '').toLowerCase() === 'pending').reduce((sum, row) => sum + Math.max(0, finiteNumber(row.points_delta || row.points, 0)), 0);
-    const reversedPoints = pointLedger.filter((row) => ['reversed', 'expired'].includes(String(row.status || '').toLowerCase())).reduce((sum, row) => sum + Math.abs(finiteNumber(row.points_delta || row.points, 0)), 0);
-    const derivedPoints = Math.max(0, Math.round(totalSpent));
-    const pointsBalance = Math.max(0, Math.round(finiteNumber(membership?.available_points ?? (availablePoints || derivedPoints), derivedPoints)));
+    // Balances MUST come from the ledger via the shared RPC (status-aware,
+    // not limited by the `limit: 20` display select above) — never guessed
+    // from spend/totals. No points are ever fabricated for display.
+    const ledgerBalance = await getLoyaltyBalance(context, user.id);
+    const availablePoints = ledgerBalance.available_points;
+    const pendingPoints = ledgerBalance.pending_points;
+    const reversedPoints = ledgerBalance.reversed_points;
+    const pointsBalance = Math.max(0, availablePoints);
+    const hasLedgerHistory = pointLedger.length > 0;
+    const paidOrdersWithoutLedgerHistory = paidOrders.length > 0 && !hasLedgerHistory;
+    const membershipTier = membership
+      ? computeTierFromSpend(membership.loyalty_spend_ex_shipping ?? membership.rolling_spend_12m, membership.completed_orders_12m)
+      : null;
     const notifications = Array.isArray(dbNotifications) ? dbNotifications : [];
     const notificationPreferences = Array.isArray(preferenceRows) ? preferenceRows[0] || null : null;
     const supportRequests = Array.isArray(supportRows) ? supportRows : [];
+    const profileBirthday = profile?.birthday ? String(profile.birthday).slice(0, 10) : '';
+    const birthdayUsedThisYear = (couponRows || []).some((row) => {
+      const code = String(row.code || row.coupon_code || '').toUpperCase();
+      if (code !== 'BIRTHDAY10') return false;
+      const status = String(row.status || '').toLowerCase();
+      if (!['used', 'redeemed', 'consumed'].includes(status)) return false;
+      const usedAt = row.used_at || row.redeemed_at || row.updated_at || row.created_at;
+      return usedAt ? new Date(usedAt).getFullYear() === new Date().getFullYear() : false;
+    });
+    const birthday10Eligible = Boolean(profileBirthday)
+      && isBirthdayCouponEligible(profileBirthday, new Date(), 0)
+      && !birthdayUsedThisYear;
 
     return json({
       ok: true,
@@ -250,6 +279,8 @@ export async function onRequestGet(context) {
         full_name: profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : (meta.full_name || meta.name || [meta.first_name, meta.last_name].filter(Boolean).join(' ')),
         phone: profile?.phone || meta.phone || meta.phone_number || '',
         birthday: profile?.birthday || '',
+        birthday_change_count: Number(profile?.birthday_change_count || 0),
+        birthday_last_changed_at: profile?.birthday_last_changed_at || null,
         birth_date_locked: Boolean(profile?.birth_date_locked),
         account_status: profile?.account_status || 'active',
         skin_type: skinProfiles?.[0]?.skin_type || meta.skin_type || '',
@@ -265,14 +296,17 @@ export async function onRequestGet(context) {
         spf_habit: skinProfiles?.[0]?.spf_habit || meta.spf_habit || '',
         skin_profile_updated_at: skinProfiles?.[0]?.updated_at || meta.skin_profile_updated_at || meta.skinProfileUpdatedAt || meta.updatedAt || '',
         communication: {
-          ...(meta.comm_prefs || meta.communication || {}),
           order_updates: notificationPreferences?.order_updates !== false,
           cargo_updates: notificationPreferences?.cargo_updates !== false,
+          campaign_emails: Boolean(notificationPreferences?.campaign_emails),
           marketing_email_opt_in: Boolean(notificationPreferences?.campaign_emails ?? profile?.marketing_email_opt_in),
+          newsletter: Boolean(notificationPreferences?.newsletter),
           newsletter_opt_in: Boolean(notificationPreferences?.newsletter ?? profile?.newsletter_opt_in),
+          stock_notifications: Boolean(notificationPreferences?.stock_notifications),
           stock_alert_opt_in: Boolean(notificationPreferences?.stock_notifications ?? profile?.stock_alert_opt_in),
+          routine_reminders: Boolean(notificationPreferences?.routine_reminders),
           routine_reminder_opt_in: Boolean(notificationPreferences?.routine_reminders ?? profile?.routine_reminder_opt_in),
-          sms_notifications: Boolean(notificationPreferences?.sms_notifications ?? profile?.marketing_sms_opt_in)
+          sms_notifications: Boolean(notificationPreferences?.sms_notifications)
         },
         routine_reminders: meta.routine_reminders || {}
       },
@@ -286,10 +320,10 @@ export async function onRequestGet(context) {
         addresses_count: addresses.length,
         unread_notifications: notifications.filter((n) => !n.is_read).length,
         tier: membership ? {
-          key: membership.level_code,
-          label: membership.level_code === 'elite' ? 'Elite Üye' : membership.level_code === 'signature' ? 'Signature Üye' : 'Essential Üye',
-          progress: Number(membership.progress_percent || 0),
-          next: membership.next_level_code || null,
+          key: membership.level_code || membershipTier.code,
+          label: tierLabel(membership.level_code || membershipTier.code),
+          progress: membershipTier.progress,
+          next: membership.next_level_code || membershipTier.nextCode || null,
           points_balance: pointsBalance
         } : computeTier(orders),
         points_balance: pointsBalance,
@@ -298,17 +332,30 @@ export async function onRequestGet(context) {
       membership: membership ? { ...membership, loyalty_spend_ex_shipping: Math.round(totalSpent * 100) / 100 } : null,
       points: {
         balance: pointsBalance,
-        available: Math.max(0, Math.round(pointsBalance)),
+        available: Math.max(0, Math.round(availablePoints)),
         pending: Math.max(0, Math.round(pendingPoints)),
         reversed: Math.max(0, Math.round(reversedPoints)),
         ledger: pointLedger,
-        derived_from_orders: pointLedger.length === 0
+        has_ledger_history: hasLedgerHistory,
+        maintenance_note_required: paidOrdersWithoutLedgerHistory
       },
       coupons: couponRows || [],
       skin_profile: skinProfiles?.[0] || null,
       routine_results: routineResults || [],
       legal_consents: consentRows || [],
-      notification_preferences: notificationPreferences || null,
+      notification_preferences: notificationPreferences ? {
+        order_updates: notificationPreferences.order_updates !== false,
+        cargo_updates: notificationPreferences.cargo_updates !== false,
+        campaign_emails: Boolean(notificationPreferences.campaign_emails),
+        sms_notifications: Boolean(notificationPreferences.sms_notifications),
+        stock_notifications: Boolean(notificationPreferences.stock_notifications),
+        routine_reminders: Boolean(notificationPreferences.routine_reminders),
+        newsletter: Boolean(notificationPreferences.newsletter)
+      } : null,
+      coupon_eligibility: {
+        welcome10_eligible: paidOrders.length === 0,
+        birthday10_eligible: birthday10Eligible
+      },
       support_requests: supportRequests,
       supportSummary: { open_count: supportRequests.filter((row) => ['open', 'açık'].includes(String(row.status || '').toLowerCase())).length, total_count: supportRequests.length },
       orders,

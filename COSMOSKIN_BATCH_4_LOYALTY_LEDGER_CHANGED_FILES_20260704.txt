@@ -1,0 +1,73 @@
+COSMOSKIN BATCH 4 — CLUB LOYALTY LEDGER COMPLETION — CHANGED FILES (cumulative, Steps 1-3)
+Generated: 2026-07-04
+
+=== STEP 1 — SQL migration + RPCs + manual backfill ===
+
+CREATED:
+- supabase/migrations/20260704_batch4_loyalty_ledger.sql
+- supabase/scripts/manual/backfill_loyalty_purchase_points_20260704.sql
+
+=== STEP 2 — Backend JS loyalty wiring + account API fixes ===
+
+CREATED:
+- functions/api/_lib/loyalty-config.js
+- functions/api/_lib/loyalty-ledger.js
+
+MODIFIED:
+- functions/api/iyzico-callback.js            (award hook after payment success)
+- functions/api/admin/orders.js               (award/promote/reverse hooks)
+- functions/api/admin/orders/[id]/status.js   (award/promote/reverse hooks)
+- functions/api/admin/refunds.js              (proportional reversal hook)
+- functions/api/admin/returns.js              (manual-review reversal hook)
+- functions/api/account/summary.js            (ledger-backed points/tier, removed fictional fallback)
+- functions/api/account/membership.js         (product-net spend basis, ledger-backed fallback balance)
+- functions/api/account/points.js             (getLoyaltyBalance, removed naive sum)
+- functions/api/loyalty/redeem.js             (status=available only, idempotency reference)
+- functions/api/cron/birthday-benefits.js     (transaction_reference + explicit status)
+- scripts/validate-account-batch-3-order-cancellation.mjs (updated to allow Batch 4's loyalty hooks in
+  iyzico-callback.js/admin files while still asserting Batch 3 behavioral invariants)
+
+CREATED (validation):
+- scripts/validate-account-batch-4-loyalty-ledger.mjs
+
+=== STEP 3 — Account Club UI + frontend ledger truth (this delivery) ===
+
+MODIFIED:
+- assets/account-dashboard.js
+  - Added canonical LOYALTY_TIERS / LOYALTY_POINT_STATUS_LABELS / LOYALTY_POINT_EVENT_LABELS config.
+  - normalizeTierName(): removed Select/Silver matching and hardcoded 5,000 threshold.
+  - loyalty(): removed fictional Math.round(spend) fallback; available/pending/reversed now read only from
+    the backend ledger (summary.points); tier progress prefers backend stats.tier.progress.
+  - renderClub(): fixed stale "5.000 TL+" Signature range text to canonical "6.000 TL+".
+  - Added pointEventLabel(), pointStatusLabel(), pointStatusClass(), pointHistoryTable(), pointMaintenanceNote().
+  - Point history rendered as a Tarih / Sipariş No / Açıklama / Puan / Durum table with Turkish status +
+    event labels, sourced from every row of summary.points.ledger (no filtering).
+  - Maintenance/backfill note wired to summary.points.maintenance_note_required.
+- assets/account-premium.css
+  - Added BATCH4_LOYALTY_HISTORY-marked block: .cs-point-history-table, .cs-point-status (+ status
+    variants), .cs-point-maintenance-note, and a max-width:720px mobile card-stack treatment.
+
+MODIFIED (validation):
+- scripts/validate-account-batch-4-loyalty-ledger.mjs
+  - Added assets/account-dashboard.js and assets/account-premium.css to requiredFiles.
+  - Removed both files from the byte-for-byte frozen-hash list (Step 3 is explicitly allowed to modify them).
+  - Added behavioral checks: no Math.round(spend) fallback, no spend-based available-points condition,
+    loyalty() reads only from summary.points.*, canonical 6,000/15,000 thresholds present, 5,000/Select/
+    Silver/Essantial absent from account-dashboard.js, point history renders unconditionally from the full
+    ledger array, required Turkish status/event labels present, maintenance-note flag + copy present,
+    Overview and Club share one loyalty() call, Stok kontrolü regression guard, BATCH4_LOYALTY_HISTORY CSS
+    marker present and scoped (no header/footer/PDP/checkout selectors touched).
+
+CREATED / UPDATED (deliverables):
+- COSMOSKIN_BATCH_4_LOYALTY_LEDGER_REPORT_20260704.md
+- COSMOSKIN_BATCH_4_LOYALTY_LEDGER_CHANGED_FILES_20260704.txt
+- COSMOSKIN_BATCH_4_LOYALTY_LEDGER_SUPABASE_NOTES_20260704.md
+
+=== NOT TOUCHED (confirmed out of scope for all of Batch 4) ===
+- assets/mobile-redesign.js / assets/mobile-redesign.css
+- Site header / footer
+- checkout.html, assets/checkout.js, assets/checkout-flow.js, functions/api/create-checkout.js
+- functions/api/returns.js (return creation flow)
+- account/profile.html
+- functions/api/_lib/order-cancellation.js, functions/api/account/orders/[id]/cancel.js (Batch 3)
+- Any iyzico refund API call

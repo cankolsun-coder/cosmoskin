@@ -3,6 +3,7 @@ import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
+import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
 
 const VALID_STATUS = new Set(['requested','under_review','approved','return_code_shared','waiting_customer_ship','in_transit','received','inspection','refund_pending','refunded','rejected','cancelled','closed']);
 const VALID_REFUND = new Set(['not_started','pending','completed','failed']);
@@ -99,6 +100,22 @@ export async function onRequestPatch(context){
       if(status==='return_code_shared') email=await sendReturnEmail(context,order,'return_approved','İade gönderim kodunuz hesabınızda görüntülenebilir.');
       if(status==='rejected') email=await sendReturnEmail(context,order,'return_rejected',payload.rejection_reason||payload.admin_note||'');
       if(status==='refunded') email=await sendReturnEmail(context,order,'refund_completed',payload.admin_note||'');
+    }
+    // Loyalty reversal hook: a return is one of the three "actually cancelled/
+    // refunded/returned" trigger events. This endpoint has no reliable
+    // per-return refund amount (a return can cover only some of an order's
+    // items), so we intentionally do NOT guess a full/partial ratio here —
+    // pass no ratio, which flags the purchase earn row for manual review.
+    // The precise proportional reversal happens via functions/api/admin/
+    // refunds.js, which does carry a real refund amount and computes an
+    // accurate ratio against the ledger's stored points basis. If that hook
+    // already reversed the order, this call safely no-ops (idempotent).
+    if (order && (status !== current.status || refundStatus !== current.refund_status)) {
+      const becameRefunded = status === 'refunded' && current.status !== 'refunded';
+      const refundCompleted = refundStatus === 'completed' && current.refund_status !== 'completed';
+      if (becameRefunded || refundCompleted) {
+        await reverseOrderPoints(context, order.id, { reason: payload.admin_note || 'return_refunded', source: 'admin_return' });
+      }
     }
     return json({ok:true,returnRequest:{...updated,return_number:returnNumber(updated)},email,message:'İade talebi güncellendi.'});
   }catch(error){ return adminError(error,'İade talebi güncellenemedi.'); }

@@ -26,17 +26,32 @@ function normalizePreferences(input = {}, profile = {}) {
     stock_notifications: bool(p.stock_notifications ?? p.stock_alert_opt_in, Boolean(profile.stock_alert_opt_in)),
     routine_reminders: bool(p.routine_reminders ?? p.routine_reminder_opt_in, Boolean(profile.routine_reminder_opt_in)),
     newsletter: bool(p.newsletter ?? p.newsletter_opt_in, Boolean(profile.newsletter_opt_in)),
-    sms_notifications: bool(p.sms_notifications ?? p.marketing_sms_opt_in, Boolean(profile.marketing_sms_opt_in))
+    sms_notifications: bool(p.sms_notifications, Boolean(profile.sms_notifications))
   };
 }
 
 async function readPreferences(context, user) {
   const [prefRows, profileRows] = await Promise.all([
     selectRows(context, 'notification_preferences', { select: '*', user_id: `eq.${user.id}`, limit: '1' }).catch(() => []),
-    selectRows(context, 'profiles', { select: 'marketing_email_opt_in,newsletter_opt_in,stock_alert_opt_in,routine_reminder_opt_in,marketing_sms_opt_in', id: `eq.${user.id}`, limit: '1' }).catch(() => [])
+    selectRows(context, 'profiles', {
+      select: 'marketing_email_opt_in,newsletter_opt_in,stock_alert_opt_in,routine_reminder_opt_in',
+      id: `eq.${user.id}`,
+      limit: '1'
+    }).catch(() => [])
   ]);
   const prefs = prefRows?.[0];
-  if (prefs) return { ...DEFAULT_PREFERENCES, ...prefs };
+  if (prefs) {
+    return {
+      ...DEFAULT_PREFERENCES,
+      order_updates: prefs.order_updates !== false,
+      cargo_updates: prefs.cargo_updates !== false,
+      campaign_emails: Boolean(prefs.campaign_emails),
+      stock_notifications: Boolean(prefs.stock_notifications),
+      routine_reminders: Boolean(prefs.routine_reminders),
+      newsletter: Boolean(prefs.newsletter),
+      sms_notifications: Boolean(prefs.sms_notifications)
+    };
+  }
   return { ...DEFAULT_PREFERENCES, ...normalizePreferences({}, profileRows?.[0] || {}) };
 }
 
@@ -55,7 +70,8 @@ export async function onRequestGet(context) {
     ]);
     return json({ ok: true, notifications: rows || [], preferences });
   } catch (error) {
-    return json({ ok: false, error: error.message || 'Bildirimler alınamadı.' }, { status: 500 });
+    console.error('notifications get failed:', error);
+    return json({ ok: false, error: 'Bildirimler alınamadı.' }, { status: 500 });
   }
 }
 
@@ -73,29 +89,21 @@ export async function onRequestPatch(context) {
       const preferences = normalizePreferences(body);
       const now = new Date().toISOString();
       let saved = null;
-      let preferenceWarning = null;
       try {
         saved = await upsertRow(context, 'notification_preferences', {
           user_id: auth.user.id,
+          email: auth.user.email || null,
           ...preferences,
           updated_at: now
         }, 'user_id');
       } catch (error) {
-        preferenceWarning = /schema cache|column|campaign_emails|notification_preferences/i.test(error?.message || '')
-          ? 'notification_preferences_schema_pending'
-          : 'notification_preferences_save_skipped';
+        console.error('notification_preferences save failed:', error);
+        return json({
+          ok: false,
+          error: 'Tercihleriniz şu anda kaydedilemedi. Lütfen daha sonra tekrar deneyin.'
+        }, { status: 500 });
       }
-      await upsertRow(context, 'profiles', {
-        id: auth.user.id,
-        email: auth.user.email || null,
-        marketing_email_opt_in: preferences.campaign_emails,
-        newsletter_opt_in: preferences.newsletter,
-        stock_alert_opt_in: preferences.stock_notifications,
-        routine_reminder_opt_in: preferences.routine_reminders,
-        marketing_sms_opt_in: preferences.sms_notifications,
-        updated_at: now
-      }, 'id').catch(() => null);
-      return json({ ok: true, preferences: saved || preferences, warning: preferenceWarning });
+      return json({ ok: true, preferences: saved || preferences });
     }
 
     const id = cleanString(body.id || body.notification_id || '', 80);
@@ -110,6 +118,7 @@ export async function onRequestPatch(context) {
     await updateRows(context, 'notifications', { id }, { is_read: Boolean(body.is_read !== false), read_at: new Date().toISOString() });
     return json({ ok: true });
   } catch (error) {
-    return json({ ok: false, error: error.message || 'Bildirim güncellenemedi.' }, { status: 500 });
+    console.error('notifications patch failed:', error);
+    return json({ ok: false, error: 'Bildirim güncellenemedi.' }, { status: 500 });
   }
 }
