@@ -1,0 +1,35 @@
+COSMOSKIN H0 — Emergency Live DB Payment/RPC Compatibility Hotfix
+Changed files — 2026-07-04
+
+CREATED (new files only — nothing existing was modified):
+- supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql
+- scripts/validate-h0-live-payment-rpc-hotfix.mjs
+- COSMOSKIN_H0_LIVE_PAYMENT_RPC_HOTFIX_REPORT_20260704.md
+- COSMOSKIN_H0_LIVE_PAYMENT_RPC_HOTFIX_CHANGED_FILES_20260704.txt (this file)
+- COSMOSKIN_H0_LIVE_PAYMENT_RPC_HOTFIX_SUPABASE_RUNBOOK_20260704.md
+- COSMOSKIN_H0_LIVE_PAYMENT_RPC_HOTFIX_ROLLBACK_PLAN_20260704.md
+
+MODIFIED:
+- (none)
+
+DELETED:
+- (none)
+
+Confirmed NOT touched (verified via `git diff --name-only HEAD` before/after this batch,
+and asserted by scripts/validate-h0-live-payment-rpc-hotfix.mjs):
+- checkout.html, assets/checkout.js, functions/api/create-checkout.js  (checkout UI/API)
+- functions/api/admin/refunds.js, functions/api/_lib/iyzico.js          (iyzico/refund logic)
+- functions/api/account/orders/[id]/cancel.js, functions/api/_lib/order-cancellation.js  (Batch 3 customer cancellation)
+- functions/api/returns.js, functions/api/admin/returns.js              (returns)
+- functions/api/_lib/admin.js, functions/api/_lib/admin-audit.js        (RBAC)
+- any storage/RLS policy migration
+- functions/api/iyzico-callback.js, functions/api/cron/release-expired-inventory.js
+  (existing callers — signatures already matched; no code change needed or made)
+- assets/account-dashboard.js, account-premium.css, account/profile.html, header/footer/PDP
+- Batch 1/2/3/4 SQL migrations and validators (all re-run and passing unchanged)
+
+Supabase objects created/replaced by the new migration (all additive, service_role only):
+- FUNCTION public.process_iyzico_payment_success(uuid, text, text, jsonb)         [new — was missing live]
+- FUNCTION public.process_iyzico_payment_failure(uuid, text, text, jsonb)         [new — was missing live]
+- FUNCTION public.release_expired_inventory_reservations(integer)                 [new — was missing live]
+- CONSTRAINT public.orders.orders_fulfillment_status_final_chk                    [replaced: additive value 'review_required' added, all 8 existing values preserved]

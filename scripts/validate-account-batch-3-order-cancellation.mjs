@@ -25,11 +25,18 @@ const migration = read('supabase/migrations/20260703_batch3_customer_order_cance
 const accountJs = read('assets/account-dashboard.js');
 const summaryJs = read('functions/api/account/summary.js');
 
-// These files must never change at all — no legitimate future batch touches
-// checkout UI or the customer return-creation flow.
+// This file must never change at all — no legitimate future batch touches
+// checkout UI.
+//
+// functions/api/returns.js is no longer zero-diff-forbidden as of H1
+// (2026-07-04), which added a minimal client-supplied file_path ownership
+// guard to close a storage RLS gap (see
+// COSMOSKIN_H1_RETURN_ATTACHMENT_STORAGE_RLS_REPORT_20260704.md). H1's own
+// validator (scripts/validate-h1-return-attachment-storage-rls.mjs) asserts
+// the new guard's invariants; this validator has no Batch-3-specific
+// behavior tied to returns.js, so no replacement assertion is needed here.
 const forbiddenPaths = [
-  'functions/api/create-checkout.js',
-  'functions/api/returns.js'
+  'functions/api/create-checkout.js'
 ];
 
 for (const file of forbiddenPaths) {

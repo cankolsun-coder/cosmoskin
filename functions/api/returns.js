@@ -43,6 +43,18 @@ function returnNumber(row) {
   const seed = String(row?.id || crypto.randomUUID()).replace(/-/g,'').slice(0,10).toUpperCase();
   return `CS-RET-${seed}`;
 }
+function isSafeAttachmentPath(value) {
+  if (typeof value !== 'string' || !value || value.length > 420) return false;
+  if (value.includes('..') || value.includes('\\') || value.includes('\0')) return false;
+  if (value.startsWith('/') || value.includes(':')) return false;
+  return /^[A-Za-z0-9/_.-]+$/.test(value);
+}
+// Mirrors the storage RLS ownership predicate (customer/{auth.uid()}/...) so a
+// client-supplied file_path can never be persisted against another customer's
+// object, even though the upload path itself is otherwise client-constructed.
+function isOwnedAttachmentPath(value, userId) {
+  return Boolean(userId) && isSafeAttachmentPath(value) && value.startsWith(`customer/${userId}/`);
+}
 function normalizeAttachments(input = []) {
   return (Array.isArray(input) ? input : []).slice(0, MAX_ATTACHMENTS).map((file) => ({
     file_path: clean(file.file_path || file.path || '', 420),
@@ -165,6 +177,12 @@ export async function onRequestPost(context){
     if(!items.length) return json({ok:false,error:'İade etmek istediğiniz ürünleri ve iade sebebini seçin.'},{status:400});
     const hygiene = hygienePayload(body);
     if(requiresHygiene(items) && !(hygiene.hygiene_confirmed && hygiene.unused_confirmed && hygiene.seal_intact_confirmed && hygiene.resaleable_confirmed && hygiene.return_terms_confirmed)) return json({ok:false,error:'Kozmetik/hijyen iade koşulları için gerekli onayları tamamlayın.'},{status:400});
+    const rawAttachmentPaths = (Array.isArray(body.attachments) ? body.attachments : [])
+      .map((file) => String(file?.file_path || file?.path || '').trim())
+      .filter(Boolean);
+    if (rawAttachmentPaths.some((filePath) => !isOwnedAttachmentPath(filePath, user.id))) {
+      return json({ok:false,error:'Ek dosyalardan biri bu hesaba ait değil veya geçersiz bir dosya yolu içeriyor. Lütfen dosyaları yeniden yükleyip tekrar deneyin.'},{status:403});
+    }
     const attachments = normalizeAttachments(body.attachments);
     if(requiresAttachment(items) && !attachments.length) return json({ok:false,error:'Hasarlı, yanlış veya eksik ürün taleplerinde fotoğraf/video eklenmelidir.'},{status:400});
 

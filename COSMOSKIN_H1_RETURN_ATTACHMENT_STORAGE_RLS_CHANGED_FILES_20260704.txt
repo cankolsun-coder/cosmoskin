@@ -1,0 +1,65 @@
+COSMOSKIN H1 — Return Attachment Storage RLS Ownership Fix
+Changed files — 2026-07-04
+
+CREATED (new files):
+- supabase/migrations/20260704_h1_return_attachment_storage_rls.sql
+- scripts/validate-h1-return-attachment-storage-rls.mjs
+- COSMOSKIN_H1_RETURN_ATTACHMENT_STORAGE_RLS_PLAN_20260704.md (prior planning step)
+- COSMOSKIN_H1_RETURN_ATTACHMENT_STORAGE_RLS_REPORT_20260704.md
+- COSMOSKIN_H1_RETURN_ATTACHMENT_STORAGE_RLS_CHANGED_FILES_20260704.txt (this file)
+- COSMOSKIN_H1_RETURN_ATTACHMENT_STORAGE_RLS_SUPABASE_RUNBOOK_20260704.md
+- COSMOSKIN_H1_RETURN_ATTACHMENT_STORAGE_RLS_ROLLBACK_PLAN_20260704.md
+
+MODIFIED (functional change):
+- functions/api/returns.js
+  - Added isSafeAttachmentPath() / isOwnedAttachmentPath() helper functions.
+  - Added an ownership/traversal guard in onRequestPost() that rejects (403, friendly
+    Turkish error) any return-request submission containing a client-supplied
+    attachment file_path that does not start with "customer/{auth.uid()}/" or that
+    fails a path-traversal/malformed-path check.
+  - No other logic in this file was changed (order lookup, eligibility, items,
+    hygiene, attachment mime/size normalization, insert, email, CRM/event logging
+    are all unchanged).
+
+MODIFIED (scope-guard maintenance only — required so H1's own required test list can
+pass; no assertion about H0's or Batch 3's own payment/cancellation behavior changed):
+- scripts/validate-h0-live-payment-rpc-hotfix.mjs
+  - Removed functions/api/returns.js from the zero-diff forbiddenPaths list (it is no
+    longer out-of-scope as of H1; functions/api/admin/returns.js remains forbidden).
+  - Widened the storageOrRlsTouched filename-pattern guard to explicitly recognize the
+    known H1 migration/validator/report filenames (which otherwise false-match the
+    guard's "storage"/"rls" substring check purely because of their own filenames),
+    while still failing on any other unexpected RLS/storage/RBAC-named file.
+- scripts/validate-account-batch-3-order-cancellation.mjs
+  - Removed functions/api/returns.js from the zero-diff forbiddenPaths list (same
+    reasoning as above; functions/api/create-checkout.js remains forbidden,
+    unchanged). No replacement assertion was added — this validator never checked
+    Batch-3-specific behavior inside returns.js; H1's own validator now owns that.
+
+DELETED:
+- (none)
+
+Confirmed NOT touched (verified via `git diff --name-only HEAD` before/after this
+batch, and asserted by scripts/validate-h1-return-attachment-storage-rls.mjs):
+- checkout.html, assets/checkout.js, functions/api/create-checkout.js          (checkout)
+- functions/api/iyzico-callback.js, functions/api/cron/release-expired-inventory.js
+  (payment RPC callers)
+- supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql
+- supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql
+- supabase/migrations/20260704_h0c_release_expired_pending_status_patch.sql   (H0/H0b/H0c)
+- functions/api/_lib/loyalty-ledger.js                                        (loyalty ledger)
+- functions/api/_lib/order-cancellation.js, functions/api/account/orders/[id]/cancel.js
+  (order cancellation)
+- functions/api/_lib/coupons.js                                               (coupons)
+- assets/account-premium.css, assets/account-dashboard.js (only returns-attachment
+  path/upload code already existed and required no change)                    (account UI design)
+- functions/api/_lib/admin.js, functions/api/_lib/admin-audit.js              (admin RBAC default)
+- functions/api/admin/returns.js                                              (already correct)
+- review-images bucket / any storage.objects policy other than the 3 named
+  return-attachments policies
+
+Supabase objects created/replaced by the new migration (all additive; no data change,
+no file deletion, bucket stays private):
+- POLICY "Customers can upload own return attachments" ON storage.objects  [replaced condition only, same name/command/role]
+- POLICY "Customers can read own return attachments" ON storage.objects   [replaced condition only, same name/command/role]
+- POLICY "Customers can delete own return attachments" ON storage.objects [replaced condition only, same name/command/role]
