@@ -74,7 +74,11 @@ async function signOneAttachment(context, row = {}, { expiresIn = DEFAULT_EXPIRE
 
   try {
     const signedUrl = await createSignedStorageUrl(context, bucket, path, expiresIn);
-    if (!signedUrl) {
+    // Defense-in-depth: only ever hand back a URL that is actually a signed
+    // Supabase Storage object URL (bears /storage/v1/object/sign/ and a
+    // token). Anything else — null, a public URL, a malformed path — is
+    // treated the same as "could not sign" rather than forwarded as-is.
+    if (!signedUrl || !/\/storage\/v1\/object\/sign\//.test(signedUrl) || !/[?&]token=/.test(signedUrl)) {
       return { ...base, signed_url: null, download_url: null, preview_error: 'attachment_unavailable' };
     }
     return {

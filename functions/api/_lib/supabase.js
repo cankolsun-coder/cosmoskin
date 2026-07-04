@@ -195,5 +195,17 @@ export async function createSignedStorageUrl(context, bucket, objectPath, expire
   const data = await parseSupabaseResponse(response);
   const signed = data?.signedURL || data?.signedUrl || data?.signed_url || data?.url || null;
   if (!signed) return null;
-  return /^https?:\/\//i.test(signed) ? signed : `${url}${signed.startsWith('/') ? '' : '/'}${signed}`;
+  if (/^https?:\/\//i.test(signed)) return signed;
+  // H2B fix: Supabase's POST /storage/v1/object/sign/... response returns
+  // signedURL as a path relative to the storage service root, e.g.
+  // "/object/sign/{bucket}/{path}?token=...", NOT relative to the project
+  // root. Naively doing `${url}${signed}` drops the required "/storage/v1"
+  // segment, producing a URL that hits the wrong route and fails with
+  // "No API key found in request" instead of serving the file. See
+  // https://github.com/supabase/storage (getSignedURL route) and
+  // supabase-js's own storageFileApi, both of which always resolve against
+  // `${storageUrl}` = `${projectUrl}/storage/v1`, never the bare project URL.
+  const relativePath = signed.startsWith('/') ? signed : `/${signed}`;
+  const withStoragePrefix = relativePath.startsWith('/storage/v1/') ? relativePath : `/storage/v1${relativePath}`;
+  return `${url}${withStoragePrefix}`;
 }

@@ -14,11 +14,12 @@ const ADMIN_RETURNS_API = 'functions/api/admin/returns.js';
 const DASHBOARD_JS = 'assets/account-dashboard.js';
 const ADMIN_RETURNS_JS = 'assets/admin-returns.js';
 const CSS_FILE = 'assets/account-premium.css';
+const SUPABASE_LIB = 'functions/api/_lib/supabase.js';
 
 // ---------------------------------------------------------------------------
 // 1) Required files exist
 // ---------------------------------------------------------------------------
-const requiredFiles = [HELPER, SUMMARY_API, RETURNS_API, ADMIN_RETURNS_API, DASHBOARD_JS, ADMIN_RETURNS_JS, CSS_FILE];
+const requiredFiles = [HELPER, SUMMARY_API, RETURNS_API, ADMIN_RETURNS_API, DASHBOARD_JS, ADMIN_RETURNS_JS, CSS_FILE, SUPABASE_LIB];
 for (const file of requiredFiles) {
   if (!exists(file)) failures.push(`Missing required file: ${file}`);
 }
@@ -41,6 +42,38 @@ const adminReturnsApi = read(ADMIN_RETURNS_API);
 const dashboardJs = read(DASHBOARD_JS);
 const adminReturnsJs = read(ADMIN_RETURNS_JS);
 const css = read(CSS_FILE);
+const supabaseLib = read(SUPABASE_LIB);
+
+// ---------------------------------------------------------------------------
+// 2a) H2B root-cause guard: createSignedStorageUrl() must resolve the
+//     Supabase-returned relative signedURL ("/object/sign/{bucket}/{path}
+//     ?token=...", relative to the STORAGE SERVICE root) against
+//     "${SUPABASE_URL}/storage/v1", never the bare project URL — the bug
+//     that produced "No API key found in request" on every Görüntüle/İndir
+//     click. See functions/api/_lib/supabase.js for the full explanation.
+// ---------------------------------------------------------------------------
+const signFnMatch = supabaseLib.match(/export async function createSignedStorageUrl[\s\S]*?\n\}/);
+if (!signFnMatch) {
+  failures.push(`${SUPABASE_LIB}: createSignedStorageUrl() function not found`);
+} else {
+  const fnBody = signFnMatch[0];
+  // Regression guard: the exact pre-H2B buggy return line, which dropped the
+  // required "/storage/v1" segment from Supabase's relative signedURL.
+  if (/\$\{url\}\$\{signed\.startsWith\(['"]\/['"]\)\s*\?\s*['"]{2}\s*:\s*['"]\/['"]\}\$\{signed\}/.test(fnBody)) {
+    failures.push(`${SUPABASE_LIB}: createSignedStorageUrl() still contains the pre-H2B buggy URL construction that drops "/storage/v1" (root cause of "No API key found in request")`);
+  }
+  // "/storage/v1" must appear both in the outgoing POST request URL AND
+  // again in the response-URL-construction logic (the fix) — a single
+  // occurrence means only the POST request has it, which is what the bug
+  // looked like.
+  const storageV1Occurrences = (fnBody.match(/\/storage\/v1/g) || []).length;
+  if (storageV1Occurrences < 2) {
+    failures.push(`${SUPABASE_LIB}: createSignedStorageUrl() must ensure the final returned URL includes "/storage/v1" even when Supabase's response is a bare "/object/sign/..." relative path (found "/storage/v1" only ${storageV1Occurrences} time(s) — expected at least 2: once in the request, once in the fix)`);
+  }
+  if (!/startsWith\(['"]\/storage\/v1/.test(fnBody)) {
+    failures.push(`${SUPABASE_LIB}: createSignedStorageUrl() must guard against double-prefixing "/storage/v1" when Supabase's response already includes it`);
+  }
+}
 
 // ---------------------------------------------------------------------------
 // 2) Shared helper: single-purpose, never accepts client input, never
@@ -193,6 +226,43 @@ if (!/preview_kind/.test(dashboardJs)) {
 }
 if (!/cs-return-attachment/.test(dashboardJs)) {
   failures.push(`${DASHBOARD_JS}: new attachment card markup (cs-return-attachment*) is missing`);
+}
+
+// ---------------------------------------------------------------------------
+// 7b) H2B: no fallback to storage_path/raw object URL/public URL; the
+//     missing-signed-URL branch must not render active Görüntüle/İndir
+//     buttons; a real-signed-URL guard must gate what the renderer treats
+//     as usable at all.
+// ---------------------------------------------------------------------------
+if (/file\.storage_path|file\.storage_bucket/.test(dashboardJs)) {
+  failures.push(`${DASHBOARD_JS}: must never reference file.storage_path/file.storage_bucket (raw storage location) in customer UI`);
+}
+if (/object\/public\/|file\.file_url\b/.test(dashboardJs)) {
+  failures.push(`${DASHBOARD_JS}: must never use a raw/public Supabase object URL as a fallback for signed_url`);
+}
+if (!/isRealSignedUrl/.test(dashboardJs) || !dashboardJs.includes('storage\\/v1\\/object\\/sign\\/')) {
+  failures.push(`${DASHBOARD_JS}: renderReturnAttachment() must only treat a URL as usable when it matches a real Supabase signed-object URL shape (/storage/v1/object/sign/) — regression guard for the "No API key found in request" root cause`);
+}
+const renderReturnAttachmentMatch = dashboardJs.match(/function renderReturnAttachment\s*\([\s\S]*?\n  \}/);
+if (!renderReturnAttachmentMatch) {
+  failures.push(`${DASHBOARD_JS}: could not isolate renderReturnAttachment() body for the missing-signed-URL branch check`);
+} else {
+  const fnBody = renderReturnAttachmentMatch[0];
+  const missingBranchMatch = fnBody.match(/if\s*\(!viewUrl\)\s*\{[\s\S]*?\n\s*\}/);
+  if (!missingBranchMatch) {
+    failures.push(`${DASHBOARD_JS}: renderReturnAttachment() must have an explicit "if (!viewUrl)" missing-signed-URL branch`);
+  } else {
+    const missingBranch = missingBranchMatch[0];
+    if (/Görüntüle|İndir|cs-mini-btn/.test(missingBranch)) {
+      failures.push(`${DASHBOARD_JS}: the missing-signed-URL branch must not render active Görüntüle/İndir buttons`);
+    }
+    if (!/Dosya şu anda görüntülenemiyor/.test(missingBranch)) {
+      failures.push(`${DASHBOARD_JS}: the missing-signed-URL branch must show the friendly "Dosya şu anda görüntülenemiyor." message`);
+    }
+  }
+  if (!/onerror/.test(fnBody)) {
+    failures.push(`${DASHBOARD_JS}: the image thumbnail must have an onerror fallback so a broken image never remains the main preview`);
+  }
 }
 
 // ---------------------------------------------------------------------------

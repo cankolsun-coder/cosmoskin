@@ -795,19 +795,28 @@
   // functions/api/_lib/return-attachments.js). Never reads/renders a raw
   // storage path; falls back to a friendly "unavailable" card when the
   // backend could not produce a signed URL (expired/failed).
+  // H2B: a URL is only ever treated as usable if it is a real Supabase
+  // signed-object URL (contains /storage/v1/object/sign/). This is a
+  // frontend defense-in-depth check on top of the backend contract
+  // (functions/api/_lib/return-attachments.js only ever returns a real
+  // signed URL or null) — it deliberately refuses any raw/public object URL,
+  // file_path, or storage_path, even if one ever leaked through by mistake.
+  function isRealSignedUrl(value) {
+    return typeof value === 'string' && /\/storage\/v1\/object\/sign\//.test(value);
+  }
   function renderReturnAttachment(file) {
     var name = escapeHtml(file.file_name || 'Ek dosya');
     var meta = [formatFileSize(file.file_size), file.created_at ? formatDate(file.created_at) : ''].filter(Boolean).map(escapeHtml).join(' · ');
     var metaHtml = meta ? '<small>' + meta + '</small>' : '';
-    var viewUrl = file.signed_url || '';
-    var downloadUrl = file.download_url || viewUrl;
+    var viewUrl = isRealSignedUrl(file.signed_url) ? file.signed_url : '';
+    var downloadUrl = isRealSignedUrl(file.download_url) ? file.download_url : viewUrl;
     if (!viewUrl) {
-      return '<div class="cs-return-attachment cs-return-attachment--missing"><div class="cs-return-attachment__media cs-return-attachment__media--file"><span>Dosya</span></div><div class="cs-return-attachment__body"><strong>' + name + '</strong>' + metaHtml + '<em>Önizleme şu anda hazırlanamıyor.</em></div></div>';
+      return '<div class="cs-return-attachment cs-return-attachment--missing"><div class="cs-return-attachment__media cs-return-attachment__media--file"><span>Dosya</span></div><div class="cs-return-attachment__body"><strong>' + name + '</strong>' + metaHtml + '<em>Dosya şu anda görüntülenemiyor.</em></div></div>';
     }
     var isImage = file.preview_kind === 'image';
     var isVideo = file.preview_kind === 'video';
     var mediaHtml = isImage
-      ? '<div class="cs-return-attachment__media"><img src="' + escapeHtml(viewUrl) + '" alt="' + name + '" loading="lazy"></div>'
+      ? '<div class="cs-return-attachment__media"><img src="' + escapeHtml(viewUrl) + '" alt="' + name + '" loading="lazy" onerror="this.hidden=true;this.parentElement.classList.add(&#39;cs-return-attachment__media--broken&#39;);"></div>'
       : '<div class="cs-return-attachment__media cs-return-attachment__media--file"><span>' + (isVideo ? 'Video' : 'Dosya') + '</span></div>';
     return '<div class="cs-return-attachment"><a href="' + escapeHtml(viewUrl) + '" target="_blank" rel="noopener" aria-label="' + name + ' görüntüle">' + mediaHtml + '</a><div class="cs-return-attachment__body"><strong>' + name + '</strong>' + metaHtml + '<div class="cs-return-attachment__actions"><a class="cs-mini-btn" href="' + escapeHtml(viewUrl) + '" target="_blank" rel="noopener">Görüntüle</a><a class="cs-mini-btn dark" href="' + escapeHtml(downloadUrl) + '" target="_blank" rel="noopener">İndir</a></div></div></div>';
   }
