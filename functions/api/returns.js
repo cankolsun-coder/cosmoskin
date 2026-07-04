@@ -4,6 +4,7 @@ import { json } from './_lib/response.js';
 import { recordEmailEvent } from './_lib/email-events.js';
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from './_lib/order-email.js';
 import { assertRateLimit } from './_lib/security.js';
+import { signReturnAttachments } from './_lib/return-attachments.js';
 
 const ACTIVE_RETURN_STATUSES = ['requested','under_review','approved','return_code_shared','waiting_customer_ship','in_transit','received','inspection','refund_pending'];
 const ELIGIBLE_ORDER_STATUSES = new Set(['shipped','delivered','completed']);
@@ -151,7 +152,18 @@ export async function onRequestGet(context){
     }
     const group = (rows, key) => (rows || []).reduce((map,row)=>{ const list = map.get(row[key]) || []; list.push(row); map.set(row[key], list); return map; }, new Map());
     const gi = group(items,'return_request_id'), ga = group(attachments,'return_request_id'), ge = group(events,'return_request_id');
-    return json({ok:true,returns:(rows||[]).map((row)=>({ ...row, items:gi.get(row.id)||[], attachments:ga.get(row.id)||[], status_events:ge.get(row.id)||[] }))});
+    // H2 parity fix: attachments here are already scoped to this authenticated
+    // customer's own return_requests (rows -> ids -> return_request_id filter
+    // above), so signing them is safe — see functions/api/_lib/return-attachments.js
+    // for the ownership contract. No client-supplied attachment id/path is
+    // accepted anywhere in this handler.
+    const returnsWithSignedAttachments = await Promise.all((rows||[]).map(async (row)=>({
+      ...row,
+      items:gi.get(row.id)||[],
+      attachments: await signReturnAttachments(context, ga.get(row.id)||[]),
+      status_events:ge.get(row.id)||[]
+    })));
+    return json({ok:true,returns:returnsWithSignedAttachments});
   }catch(error){
     return json({ok:false,error:error.message||'İade talepleri alınamadı.'},{status:500});
   }

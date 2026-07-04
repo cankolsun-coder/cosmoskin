@@ -4,6 +4,7 @@ import { requireUser, buildInFilter, groupByOrderId, resolveOrderItem } from '..
 import { isBirthdayCouponEligible } from '../_lib/coupons.js';
 import { getLoyaltyBalance } from '../_lib/loyalty-ledger.js';
 import { computeTierFromSpend, tierLabel } from '../_lib/loyalty-config.js';
+import { signReturnAttachments } from '../_lib/return-attachments.js';
 
 function safeMeta(meta = {}) {
   return meta && typeof meta === 'object' ? meta : {};
@@ -217,11 +218,22 @@ export async function onRequestGet(context) {
     const groupedReturnItems = groupBy(returnItems, 'return_request_id');
     const groupedReturnAttachments = groupBy(returnAttachments, 'return_request_id');
     const groupedReturnEvents = groupBy(returnEvents, 'return_request_id');
-    returns = (returns || []).map((row) => ({
-      ...row,
-      items: groupedReturnItems.get(row.id) || (Array.isArray(row.requested_items) ? row.requested_items : []),
-      attachments: groupedReturnAttachments.get(row.id) || (Array.isArray(row.requested_attachments) ? row.requested_attachments : []),
-      status_events: groupedReturnEvents.get(row.id) || []
+    // H2: every row passed to signReturnAttachments() below comes from
+    // `returnAttachments`, which was fetched with
+    // `return_request_id: returnInFilter` where returnInFilter is built only
+    // from `returnIds` — the ids of `returns`, which were themselves fetched
+    // with `order_id: inFilter` scoped to this authenticated user's own
+    // orders (see `ordersRaw`/`requireUser` above). Ownership is therefore
+    // already guaranteed by this query chain before signing ever happens; no
+    // client-supplied attachment id/path is accepted anywhere in this file.
+    returns = await Promise.all((returns || []).map(async (row) => {
+      const rawAttachments = groupedReturnAttachments.get(row.id) || (Array.isArray(row.requested_attachments) ? row.requested_attachments : []);
+      return {
+        ...row,
+        items: groupedReturnItems.get(row.id) || (Array.isArray(row.requested_items) ? row.requested_items : []),
+        attachments: await signReturnAttachments(context, rawAttachments),
+        status_events: groupedReturnEvents.get(row.id) || []
+      };
     }));
     const groupedReturns = groupByOrderId(returns);
     const orders = (ordersRaw || []).map((order) => normalizeOrder({

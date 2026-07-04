@@ -187,6 +187,14 @@ if (/return_request_attachments'[^;]+catch\(\(\)=>null\)/s.test(returnsApi)) {
 //    migrations, loyalty ledger, order cancellation, coupons, account UI
 //    design files, admin RBAC default, or any other bucket's policy file.
 // ---------------------------------------------------------------------------
+// assets/account-premium.css is no longer zero-diff-forbidden as of H2
+// (2026-07-04), which added a minimal, scoped, additive CSS block (marker:
+// H2_RETURN_ATTACHMENT_PREVIEW) for customer return-attachment preview/
+// download cards — see COSMOSKIN_H2_RETURN_ATTACHMENT_PREVIEW_REPORT_20260704.md.
+// H2's own validator (scripts/validate-h2-return-attachment-preview.mjs)
+// asserts that addition stays scoped; this file has no H1-specific CSS
+// behavior tied to account-premium.css, so no replacement assertion is
+// needed here.
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
@@ -200,7 +208,6 @@ const forbiddenPaths = [
   'functions/api/admin/returns.js',
   'functions/api/_lib/admin.js',
   'functions/api/_lib/admin-audit.js',
-  'assets/account-premium.css',
   'supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql',
   'supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql',
   'supabase/migrations/20260704_h0c_release_expired_pending_status_patch.sql'

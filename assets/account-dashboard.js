@@ -783,6 +783,34 @@
       return '<article class="cs-return-item"><label class="cs-return-item__check"><input type="checkbox" name="return_item" value="' + escapeHtml(item.id || slug) + '" data-product-slug="' + escapeHtml(slug) + '" data-product-name="' + escapeHtml(item.product_name || item.name || 'Ürün') + '" data-unit-price="' + escapeHtml(item.unit_price || item.price || 0) + '"><span></span></label><div class="cs-return-item__media">' + (item.image ? '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.product_name || item.name || 'Ürün') + '">' : iconSvg('bag')) + '</div><div class="cs-return-item__body"><strong>' + escapeHtml(item.product_name || item.name || 'Ürün') + '</strong><small>' + escapeHtml(item.brand || item.sku || '') + '</small><div class="cs-return-item__controls"><label><span>Adet</span><select class="cs-input" name="quantity_' + escapeHtml(item.id || slug) + '">' + Array.from({length:Math.max(1,qty)}, function(_, i){ return '<option value="' + (i+1) + '">' + (i+1) + '</option>'; }).join('') + '</select></label><label><span>İade sebebi</span><select class="cs-input" name="reason_' + escapeHtml(item.id || slug) + '">' + returnReasonOptions('Vazgeçtim') + '</select></label></div><label class="cs-return-item__note"><span>Ürün notu</span><input class="cs-input" name="note_' + escapeHtml(item.id || slug) + '" maxlength="240" placeholder="Ürünle ilgili kısa açıklama"></label></div></article>';
     }).join('') + '</div>';
   }
+  function formatFileSize(bytes) {
+    var n = Number(bytes);
+    if (!Number.isFinite(n) || n <= 0) return '';
+    if (n < 1024) return n + ' B';
+    if (n < 1024 * 1024) return Math.round(n / 1024) + ' KB';
+    return (n / (1024 * 1024)).toFixed(1).replace('.', ',') + ' MB';
+  }
+  // H2: renders one already-signed return attachment (file_name, mime_type,
+  // file_size, created_at, signed_url, download_url, preview_kind — see
+  // functions/api/_lib/return-attachments.js). Never reads/renders a raw
+  // storage path; falls back to a friendly "unavailable" card when the
+  // backend could not produce a signed URL (expired/failed).
+  function renderReturnAttachment(file) {
+    var name = escapeHtml(file.file_name || 'Ek dosya');
+    var meta = [formatFileSize(file.file_size), file.created_at ? formatDate(file.created_at) : ''].filter(Boolean).map(escapeHtml).join(' · ');
+    var metaHtml = meta ? '<small>' + meta + '</small>' : '';
+    var viewUrl = file.signed_url || '';
+    var downloadUrl = file.download_url || viewUrl;
+    if (!viewUrl) {
+      return '<div class="cs-return-attachment cs-return-attachment--missing"><div class="cs-return-attachment__media cs-return-attachment__media--file"><span>Dosya</span></div><div class="cs-return-attachment__body"><strong>' + name + '</strong>' + metaHtml + '<em>Önizleme şu anda hazırlanamıyor.</em></div></div>';
+    }
+    var isImage = file.preview_kind === 'image';
+    var isVideo = file.preview_kind === 'video';
+    var mediaHtml = isImage
+      ? '<div class="cs-return-attachment__media"><img src="' + escapeHtml(viewUrl) + '" alt="' + name + '" loading="lazy"></div>'
+      : '<div class="cs-return-attachment__media cs-return-attachment__media--file"><span>' + (isVideo ? 'Video' : 'Dosya') + '</span></div>';
+    return '<div class="cs-return-attachment"><a href="' + escapeHtml(viewUrl) + '" target="_blank" rel="noopener" aria-label="' + name + ' görüntüle">' + mediaHtml + '</a><div class="cs-return-attachment__body"><strong>' + name + '</strong>' + metaHtml + '<div class="cs-return-attachment__actions"><a class="cs-mini-btn" href="' + escapeHtml(viewUrl) + '" target="_blank" rel="noopener">Görüntüle</a><a class="cs-mini-btn dark" href="' + escapeHtml(downloadUrl) + '" target="_blank" rel="noopener">İndir</a></div></div></div>';
+  }
   function returnRequestFormHtml() {
     var orders = returnEligibleOrders();
     if (!orders.length) return '<section class="cs-card cs-return-create-card"><div class="cs-card-head"><span>İADE TALEBİ OLUŞTUR</span></div><div class="cs-return-empty-eligible"><strong>İade edilebilir sipariş bulunmuyor.</strong><p>Sipariş teslim edilmediyse iade talebi oluşturulamaz. Teslim tarihinden itibaren 14 gün geçtikten sonra yasal iade süresi sona erer.</p><a class="cs-mini-btn dark" data-tab-link="orders" href="/account/profile.html?tab=orders">Siparişlerime Git</a></div></section>';
@@ -801,7 +829,7 @@
       var requestNo = r.return_number || ('CS-RET-' + String(r.id || '').replace(/-/g,'').slice(0,10).toUpperCase());
       var productList = items.length ? '<ul class="cs-return-products">' + items.map(function(item){ return '<li><strong>' + escapeHtml(item.product_name_snapshot || item.product_name || item.name || 'Ürün') + '</strong><span>' + escapeHtml(item.quantity || 1) + ' adet · ' + escapeHtml(item.reason || r.reason || 'İade talebi') + '</span></li>'; }).join('') + '</ul>' : '<p class="cs-field-help">Ürün detayları hazırlanıyor.</p>';
       var expectedAttachmentCount = Number(r.attachment_count || r.attachments_count || r.metadata?.attachment_count || 0);
-      var attachmentList = attachments.length ? '<div class="cs-return-file-list">' + attachments.map(function(file){ return '<span>' + escapeHtml(file.file_name || file.file_path || 'Ek dosya') + '</span>'; }).join('') + '</div>' : (expectedAttachmentCount > 0 ? '<span>Ek dosya kaydı hazırlanamadı. Lütfen destek ekibiyle iletişime geçin.</span>' : '<span>Ek dosya yok</span>');
+      var attachmentList = attachments.length ? '<div class="cs-return-attachment-list">' + attachments.map(renderReturnAttachment).join('') + '</div>' : (expectedAttachmentCount > 0 ? '<span>Ek dosya kaydı hazırlanamadı. Lütfen destek ekibiyle iletişime geçin.</span>' : '<span>Ek dosya yok</span>');
       return '<article class="cs-card cs-return-card"><div class="cs-card-head"><span>' + escapeHtml(returnStatusLabel(r.status)) + '</span><small>' + escapeHtml(requestNo) + '</small></div><h3>' + escapeHtml(r.reason || 'İade talebi') + '</h3><p>' + escapeHtml(r.customer_note || 'Talebiniz COSMOSKIN ekibi tarafından incelenir.') + '</p>' + productList + '<details class="cs-return-details"><summary>İade detayını görüntüle</summary><div class="cs-return-detail-grid"><div><span>Talep No</span><strong>' + escapeHtml(requestNo) + '</strong></div><div><span>Sipariş</span><strong>' + escapeHtml(r.order_number || r.order_id || 'Sipariş bilgisi') + '</strong></div><div><span>Talep tarihi</span><strong>' + escapeHtml(formatDate(r.created_at || r.requested_at, true)) + '</strong></div><div><span>Durum</span><strong>' + escapeHtml(returnStatusLabel(r.status)) + '</strong></div><div class="full"><span>Ekler</span>' + attachmentList + '</div></div></details><div class="cs-return-meta"><small>Talep tarihi: ' + escapeHtml(formatDate(r.created_at || r.requested_at, true)) + '</small><small>Ek dosya: ' + attachments.length + '</small></div></article>';
     }).join('') + '</div>' : emptyState('Henüz iade talebiniz bulunmuyor.', 'Teslim edilmiş ve iade süresi devam eden siparişleriniz için iade talebi oluşturabilirsiniz.', null);
     var success = state.returnSuccessMessage ? '<div class="cs-return-success" role="status">' + escapeHtml(state.returnSuccessMessage) + '</div>' : '';

@@ -1,0 +1,82 @@
+COSMOSKIN H2 — Return Attachment Preview + Admin Visibility — Changed Files (2026-07-04)
+
+NEW FILES
+---------
+functions/api/_lib/return-attachments.js
+  Shared signReturnAttachments() helper. Signs already-fetched, ownership-scoped
+  return_request_attachments rows into { file_name, mime_type, file_size,
+  created_at, signed_url, download_url, preview_kind, preview_error? }. Never
+  accepts client-supplied path/id, never forwards raw Supabase/Storage errors,
+  never exposes the service-role key (delegates to existing createSignedStorageUrl()).
+
+scripts/validate-h2-return-attachment-preview.mjs
+  H2 validator. Fails on plain-file-name-only regression, raw file_path exposure
+  in customer UI, missing/misused signing wiring, a new unauthorized signing call
+  site, admin auth/signing regressions, raw-error forwarding, public-bucket/
+  migration changes, H1 guard removal, out-of-scope CSS, or forbidden-path diffs.
+  Chains validate-h1-return-attachment-storage-rls.mjs.
+
+COSMOSKIN_H2_RETURN_ATTACHMENT_PREVIEW_PLAN_20260704.md
+  Pre-implementation plan (approved, implemented as written).
+
+COSMOSKIN_H2_RETURN_ATTACHMENT_PREVIEW_REPORT_20260704.md
+COSMOSKIN_H2_RETURN_ATTACHMENT_PREVIEW_CHANGED_FILES_20260704.txt (this file)
+COSMOSKIN_H2_RETURN_ATTACHMENT_PREVIEW_RUNBOOK_20260704.md
+COSMOSKIN_H2_RETURN_ATTACHMENT_PREVIEW_ROLLBACK_PLAN_20260704.md
+  H2 deliverable documentation.
+
+MODIFIED FILES
+--------------
+functions/api/account/summary.js
+  Imports signReturnAttachments; each return's attachments array (already
+  scoped to the authenticated user's own orders/returns) is now signed before
+  the response is built. This is the primary fix — confirmed to be the actual
+  data source for the customer account Returns tab (GET /api/returns is unused
+  by any current UI).
+
+functions/api/returns.js
+  Imports signReturnAttachments; onRequestGet's own attachment list is now
+  signed for parity with summary.js. onRequestPost's H1 ownership guard
+  (isSafeAttachmentPath / isOwnedAttachmentPath / rawAttachmentPaths rejection)
+  is unchanged.
+
+assets/account-dashboard.js
+  New formatFileSize() and renderReturnAttachment() functions. Replaced the
+  plain-text-only attachment list in renderReturns() with the new attachment
+  card renderer (thumbnail/card + Görüntüle/İndir actions, never renders
+  file_path). No change to the upload flow (uploadReturnAttachments) or the
+  return-creation form.
+
+assets/admin-returns.js
+  Added fmtDate() and extended renderAttachment() with a file-type + upload-
+  date meta line. No change to load()/update()/the admin fetch or signing call
+  (withSignedAttachmentUrls lives in functions/api/admin/returns.js and was
+  not touched).
+
+assets/account-premium.css
+  New additive, marked block (H2_RETURN_ATTACHMENT_PREVIEW) defining
+  .cs-return-attachment-list / .cs-return-attachment / .cs-return-attachment__*
+  for the customer preview/download cards, with a 640px responsive rule. No
+  existing selector modified.
+
+assets/phase6-commerce.css
+  One new rule, .phase6-return-attachment__meta, styling the admin card's new
+  file-type/date meta line. No existing selector modified.
+
+scripts/validate-h1-return-attachment-storage-rls.mjs
+  Removed assets/account-premium.css from the zero-diff forbiddenPaths list
+  (documented inline) — H2 legitimately owns a minimal, additive, marked CSS
+  change to that file. No other change to this validator; H1's storage RLS
+  assertions are untouched and still pass.
+
+UNCHANGED (explicitly verified, re-asserted by the new validator)
+-------------------------------------------------------------------
+functions/api/admin/returns.js         — no diff (admin signing/fetch logic + assertAdmin untouched)
+supabase/migrations/*                  — no diff, no new migration (H2 is migration-free)
+checkout.html, assets/checkout.js, functions/api/create-checkout.js
+functions/api/iyzico-callback.js, functions/api/cron/release-expired-inventory.js
+functions/api/_lib/loyalty-ledger.js
+functions/api/_lib/order-cancellation.js, functions/api/account/orders/[id]/cancel.js
+functions/api/_lib/coupons.js
+functions/api/_lib/admin.js, functions/api/_lib/admin-audit.js
+functions/api/admin/orders.js, functions/api/admin/orders/[id]/status.js, functions/api/admin/refunds.js, functions/api/admin/loyalty/adjust-points.js

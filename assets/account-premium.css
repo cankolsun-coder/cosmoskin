@@ -822,6 +822,21 @@
 .cs-return-products li{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.cs-return-products li span{color:#7a6a5c;font-size:12px;text-align:right}
 @media (max-width:640px){.cs-return-detail-grid{grid-template-columns:1fr}.cs-return-products li{display:grid}.cs-return-products li span{text-align:left}}
 
+/* H2_RETURN_ATTACHMENT_PREVIEW: customer return attachment preview/download cards */
+.cs-return-attachment-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.cs-return-attachment{display:grid;gap:8px;align-content:start;padding:10px;border:1px solid rgba(22,18,14,.08);border-radius:16px;background:#fffaf4}
+.cs-return-attachment--missing{opacity:.75}
+.cs-return-attachment__media{display:grid;place-items:center;aspect-ratio:1/1;border-radius:12px;background:linear-gradient(145deg,#f7eddf,#efe0cf);overflow:hidden;text-decoration:none}
+.cs-return-attachment__media img{width:100%;height:100%;object-fit:cover}
+.cs-return-attachment__media--file span{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#8b7664}
+.cs-return-attachment__body{display:grid;gap:4px;min-width:0}
+.cs-return-attachment__body strong{font-size:12.5px;line-height:1.35;color:#1d1712;overflow-wrap:anywhere}
+.cs-return-attachment__body small{font-size:10.5px;color:#8b7664}
+.cs-return-attachment__body em{font-size:11px;font-style:normal;color:#a08a72}
+.cs-return-attachment__actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.cs-return-attachment__actions .cs-mini-btn{padding:6px 10px;font-size:10.5px}
+@media (max-width:640px){.cs-return-attachment-list{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}}
+
 
 /* 2026-07-03 — Account runtime polish: readable panels, favorites/orders/security fixes */
 .account-premium-page :where(.cs-tab-title h1,.cs-tab-title h2,.cs-card h1,.cs-card h2,.cs-card h3,.cs-panel h1,.cs-panel h2,.cs-panel h3){outline:0!important;box-shadow:none!important;}
