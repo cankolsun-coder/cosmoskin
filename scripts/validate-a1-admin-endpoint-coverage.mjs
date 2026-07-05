@@ -242,9 +242,22 @@ function stripPermissionScaffolding(src) {
     .replace(/\s*import\s*\{\s*requireAdminPermission\s*\}\s*from\s*['"][./]*_lib\/admin-audit\.js['"];?/g, '')
     .replace(/\s*await\s+requireAdminPermission\(context,\s*['"][a-zA-Z_]+:[a-zA-Z_]+['"]\);?/g, '');
 }
+// functions/api/admin/orders.js and functions/api/admin/orders/[id]/status.js
+// are no longer expected to be byte-identical-to-HEAD-minus-RBAC-scaffolding
+// as of B1 (2026-07-05, bank transfer approval finalization) — B1 legitimately
+// added confirmManualBankTransferPayment() wiring, an admin-identity capture
+// fix, and an email de-dup guard to these two files. Their B1-specific
+// correctness (scope, idempotency, business-logic markers) is verified by
+// scripts/validate-b1-bank-transfer-finalization.mjs instead; this check
+// still covers every other A1.2a/A1.2b/A1.2c file untouched by B1.
+const BYTE_DIFF_EXEMPT_FILES = new Set([
+  'functions/api/admin/orders.js',
+  'functions/api/admin/orders/[id]/status.js'
+]);
 const allTouchedFiles = new Set(ALL_GATED_ENDPOINTS.map((e) => e.file));
 for (const file of allTouchedFiles) {
   if (!exists(file)) continue;
+  if (BYTE_DIFF_EXEMPT_FILES.has(file)) continue;
   const headContent = gitShowHead(file);
   if (headContent === null) continue; // file did not exist at HEAD (unexpected here, skip)
   const workingContent = read(file);
@@ -374,11 +387,18 @@ if (!exists(AUDIT_LIB)) {
 // in this list — their zero-drift is instead verified by the byte-diff check
 // (§5) and the cross-contamination/ungated-handler checks (§2/§3) above,
 // which are stricter and more precise than a blanket zero-diff would allow.
+// functions/api/iyzico-callback.js is no longer zero-diff-forbidden as of B1
+// (2026-07-05, bank transfer approval finalization) — see
+// COSMOSKIN_B1_BANK_TRANSFER_FINALIZATION_REPORT_20260705.md and its own
+// validator (scripts/validate-b1-bank-transfer-finalization.mjs), which
+// asserts the only change is a byte-identical extraction of
+// finalizeCommerceAfterPayment()/ensureShipmentShell() into
+// functions/api/_lib/commerce-finalization.js — card payment behavior is
+// unchanged.
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
   'functions/api/create-checkout.js',
-  'functions/api/iyzico-callback.js',
   'functions/api/cron/release-expired-inventory.js',
   'functions/api/_lib/loyalty-ledger.js',
   'functions/api/_lib/order-cancellation.js',

@@ -99,7 +99,16 @@ if (iyzicoRequestCalls !== 1) {
 if (!/process_iyzico_payment_success/.test(iyzicoCallback) || !/process_iyzico_payment_failure/.test(iyzicoCallback)) {
   failures.push('iyzico-callback.js: core payment success/failure RPC calls must remain unchanged');
 }
-if (!/awardOrderPoints/.test(iyzicoCallback)) {
+// B1 (2026-07-05) moved finalizeCommerceAfterPayment() — which calls
+// awardOrderPoints() — verbatim into functions/api/_lib/commerce-finalization.js
+// and iyzico-callback.js now calls it via import. The literal string
+// 'awardOrderPoints' therefore no longer appears in iyzico-callback.js itself;
+// accept the indirect path (finalizeCommerceAfterPayment imported + called,
+// and awardOrderPoints present in the shared helper) as equivalent.
+const commerceFinalizationLib = exists('functions/api/_lib/commerce-finalization.js') ? read('functions/api/_lib/commerce-finalization.js') : '';
+const hasDirectAwardHook = /awardOrderPoints/.test(iyzicoCallback);
+const hasIndirectAwardHook = /finalizeCommerceAfterPayment/.test(iyzicoCallback) && /awardOrderPoints/.test(commerceFinalizationLib);
+if (!hasDirectAwardHook && !hasIndirectAwardHook) {
   failures.push('iyzico-callback.js: purchase earn writer hook (awardOrderPoints) is missing');
 }
 

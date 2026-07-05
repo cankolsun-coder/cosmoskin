@@ -206,11 +206,14 @@ if (/return_request_attachments'[^;]+catch\(\(\)=>null\)/s.test(returnsApi)) {
 // (scripts/validate-a1-admin-endpoint-coverage.mjs), which asserts only the
 // GET handler gained a permission gate and the PATCH/storage-signing logic
 // this H1 validator cares about is unchanged.
+// functions/api/iyzico-callback.js is no longer zero-diff-forbidden as of B1
+// (2026-07-05, bank transfer approval finalization) — see
+// COSMOSKIN_B1_BANK_TRANSFER_FINALIZATION_REPORT_20260705.md and its own
+// validator (scripts/validate-b1-bank-transfer-finalization.mjs).
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
   'functions/api/create-checkout.js',
-  'functions/api/iyzico-callback.js',
   'functions/api/cron/release-expired-inventory.js',
   'functions/api/_lib/loyalty-ledger.js',
   'functions/api/_lib/order-cancellation.js',

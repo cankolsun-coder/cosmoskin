@@ -32,6 +32,7 @@ import { onRequestGet as adminEmailLogsGet } from '../functions/api/admin/email-
 import { onRequestGet as adminRefundsGet, onRequestPost as adminRefundsPost } from '../functions/api/admin/refunds.js';
 import { onRequestGet as adminInvoicesGet, onRequestPost as adminInvoicesPost, onRequestPatch as adminInvoicesPatch } from '../functions/api/admin/invoices.js';
 import { onRequestGet as adminBankAccountsGet, onRequestPost as adminBankAccountsPost, onRequestPatch as adminBankAccountsPatch } from '../functions/api/admin/bank-accounts.js';
+import { confirmManualBankTransferPayment, rejectManualBankTransferPayment } from '../functions/api/_lib/commerce-finalization.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const env = { SUPABASE_URL:'https://local.supabase.test', SUPABASE_SERVICE_ROLE_KEY:'service-test', SUPABASE_TIMEOUT_MS:'3000' };
@@ -647,4 +648,531 @@ test('contact form has Turnstile-ready spam protection without exposing secrets'
   assert.match(api, /verifyTurnstile/);
   assert.match(headers, /https:\/\/challenges\.cloudflare\.com/);
   assert.doesNotMatch(client, /TURNSTILE_SECRET_KEY/);
+});
+
+// ---------------------------------------------------------------------------
+// B1: Bank Transfer Approval Finalization. Small in-memory fake-Postgres
+// harness (table-name + eq./in.() filter matching only — enough to exercise
+// the real code paths end-to-end) so a full mark_payment_paid bank-transfer
+// admin approval can be tested without a real database.
+// ---------------------------------------------------------------------------
+function createFakeSupabase(seed = {}) {
+  const tables = new Map();
+  for (const [name, rows] of Object.entries(seed)) tables.set(name, rows.map((r) => ({ ...r })));
+  const rpcCalls = [];
+  let autoId = 1;
+  function table(name) {
+    if (!tables.has(name)) tables.set(name, []);
+    return tables.get(name);
+  }
+  function matchesFilters(row, params) {
+    for (const [key, value] of params.entries()) {
+      if (['select', 'order', 'limit', 'offset'].includes(key)) continue;
+      const v = String(value);
+      if (v.startsWith('eq.')) {
+        if (String(row[key] ?? '') !== v.slice(3)) return false;
+      } else if (v.startsWith('in.(') && v.endsWith(')')) {
+        const list = v.slice(4, -1).split(',');
+        if (!list.includes(String(row[key] ?? ''))) return false;
+      }
+    }
+    return true;
+  }
+  function rpcResult(name) {
+    if (name === 'convert_order_inventory') return { ok: true, converted: 1, deducted: 1, idempotent: false };
+    if (name === 'release_order_inventory') return { ok: true, released: 0, idempotent: true };
+    if (name === 'cosmoskin_award_loyalty_for_order') return { ok: true, awarded: true };
+    if (name === 'cosmoskin_promote_loyalty_for_order') return { ok: true };
+    if (name === 'cosmoskin_reverse_loyalty_for_order') return { ok: true };
+    return { ok: true };
+  }
+  async function fetchHandler(url, options = {}) {
+    const u = new URL(String(url));
+    const method = (options.method || 'GET').toUpperCase();
+    const rpcMatch = u.pathname.match(/\/rest\/v1\/rpc\/([^/]+)$/);
+    if (rpcMatch) {
+      const name = rpcMatch[1];
+      const body = options.body ? JSON.parse(options.body) : {};
+      rpcCalls.push({ name, body });
+      return response(rpcResult(name));
+    }
+    const tableMatch = u.pathname.match(/\/rest\/v1\/([^/]+)$/);
+    const name = tableMatch ? tableMatch[1] : null;
+    if (!name) return response([]);
+    if (method === 'GET') {
+      return response(table(name).filter((row) => matchesFilters(row, u.searchParams)));
+    }
+    if (method === 'POST') {
+      const body = options.body ? JSON.parse(options.body) : {};
+      const rows = (Array.isArray(body) ? body : [body]).map((row) => ({ id: row.id || `${name}-${autoId++}`, created_at: row.created_at || new Date().toISOString(), ...row }));
+      table(name).push(...rows);
+      return response(rows);
+    }
+    if (method === 'PATCH') {
+      const body = options.body ? JSON.parse(options.body) : {};
+      for (const row of table(name)) {
+        if (matchesFilters(row, u.searchParams)) Object.assign(row, body);
+      }
+      return response([]);
+    }
+    return response([]);
+  }
+  return { fetchHandler, tables, rpcCalls, table };
+}
+
+function seedBankTransferOrder(overrides = {}) {
+  return {
+    id: 'order-bt-1',
+    order_number: 'CS-B1-1001',
+    user_id: 'user-1',
+    status: 'pending_bank_transfer',
+    payment_status: 'awaiting_transfer',
+    fulfillment_status: 'not_started',
+    payment_method: 'bank_transfer',
+    customer_email: 'buyer@example.com',
+    customer_first_name: 'Ayşe',
+    customer_last_name: 'Yılmaz',
+    coupon_code: 'FREESHIP',
+    discount_amount: 89,
+    total_amount: 899,
+    invoice_type: 'Bireysel',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides
+  };
+}
+function b1AdminEnv() {
+  return { ADMIN_TOKEN: 'a'.repeat(64), ADMIN_ALLOW_LEGACY_TOKEN: 'true', SUPABASE_URL: env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY };
+}
+function b1OwnerAdminUsersRow() {
+  return { id: 'admin-1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' };
+}
+function b1PatchRequest(url, method, email, body) {
+  const headers = { 'x-admin-token': 'a'.repeat(64), 'CF-Connecting-IP': '192.0.2.40', 'content-type': 'application/json' };
+  if (email) headers['Cf-Access-Authenticated-User-Email'] = email;
+  return new Request(url, { method, headers, body: JSON.stringify(body) });
+}
+async function installFakeSupabaseWithAdmin(seed) {
+  const fake = createFakeSupabase(seed);
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users')) return response([b1OwnerAdminUsersRow()]);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    return await fake.fetchHandler(url, options);
+  });
+  return { fake, restore };
+}
+
+test('B1: confirmManualBankTransferPayment finalizes payments/payment_events/coupon/invoice/loyalty and is idempotent on a repeat call', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder()],
+    payments: [{ id: 'pay-1', order_id: 'order-bt-1', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupons: [{ id: 'coupon-1', code: 'FREESHIP' }]
+  });
+  try {
+    const ctx = { env: b1AdminEnv() };
+    const first = await confirmManualBankTransferPayment(ctx, 'order-bt-1', { approvedByEmail: 'owner@cosmoskin.com.tr' });
+    assert.equal(first.ok, true);
+    assert.equal(first.idempotent, false);
+
+    assert.equal(fake.table('payments')[0].status, 'paid');
+    assert.equal(fake.table('payment_events').length, 1);
+    assert.equal(fake.table('payment_events')[0].event_type, 'bank_transfer_payment_confirmed');
+    assert.equal(fake.table('payment_events')[0].provider, 'bank_transfer');
+    assert.equal(fake.table('payment_events')[0].metadata.approved_by_email, 'owner@cosmoskin.com.tr');
+    assert.equal(fake.table('coupon_redemptions').length, 1);
+    assert.equal(fake.table('coupon_redemptions')[0].status, 'used');
+    assert.equal(fake.table('invoice_records').length, 1);
+    assert.equal(fake.table('shipments').length, 1);
+    assert.ok(fake.rpcCalls.some((c) => c.name === 'convert_order_inventory'));
+    assert.ok(fake.rpcCalls.some((c) => c.name === 'cosmoskin_award_loyalty_for_order' && c.body.p_order_id === 'order-bt-1'));
+
+    // Repeat approval must be a safe no-op: no new payment_events/coupon/invoice/shipment rows.
+    const second = await confirmManualBankTransferPayment(ctx, 'order-bt-1', { approvedByEmail: 'owner@cosmoskin.com.tr' });
+    assert.equal(second.ok, true);
+    assert.equal(second.idempotent, true);
+    assert.equal(fake.table('payment_events').length, 1, 'repeat approval must not duplicate payment_events');
+    assert.equal(fake.table('coupon_redemptions').length, 1, 'repeat approval must not duplicate coupon finalization');
+    assert.equal(fake.table('invoice_records').length, 1, 'repeat approval must not duplicate the invoice shell');
+    assert.equal(fake.table('shipments').length, 1, 'repeat approval must not duplicate the shipment shell');
+  } finally { restore(); }
+});
+
+test('B1: confirmManualBankTransferPayment rejects a non-bank_transfer (card) order', async () => {
+  const { restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-card-1', payment_method: 'iyzico' })]
+  });
+  try {
+    await assert.rejects(
+      confirmManualBankTransferPayment({ env: b1AdminEnv() }, 'order-card-1'),
+      (error) => error.code === 'NOT_BANK_TRANSFER_ORDER' && error.status === 400
+    );
+  } finally { restore(); }
+});
+
+test('B1: admin/orders.js mark_payment_paid finalizes a bank-transfer order end-to-end, sends payment_confirmed_manual exactly once across two approval clicks, and records the real admin identity', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder()],
+    payments: [{ id: 'pay-1', order_id: 'order-bt-1', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupons: [{ id: 'coupon-1', code: 'FREESHIP' }]
+  });
+  try {
+    const req1 = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-1', action: 'mark_payment_paid' });
+    const res1 = await adminOrdersPatch({ request: req1, env: b1AdminEnv(), params: {} });
+    const data1 = await res1.json();
+    assert.equal(res1.status, 200);
+    assert.equal(data1.ok, true);
+    assert.equal(data1.bank_transfer_confirmation.idempotent, false);
+    assert.equal(fake.table('orders')[0].payment_status, 'paid');
+    assert.equal(fake.table('payment_events').length, 1);
+
+    const paidEvent = fake.table('order_status_events').find((e) => e.event_type === 'mark_payment_paid');
+    assert.ok(paidEvent, 'mark_payment_paid order_status_events row must be recorded');
+    assert.equal(paidEvent.created_by, 'cankolsun@gmail.com', 'real admin identity must be captured instead of a hardcoded "admin" literal');
+
+    const emailEventsAfterFirst = fake.table('email_events').filter((e) => e.email_type === 'payment_confirmed_manual');
+    assert.equal(emailEventsAfterFirst.length, 1, 'payment_confirmed_manual must be logged exactly once after the first approval');
+
+    // Second click on the same (now-paid) order must not duplicate anything.
+    const req2 = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-1', action: 'mark_payment_paid' });
+    const res2 = await adminOrdersPatch({ request: req2, env: b1AdminEnv(), params: {} });
+    const data2 = await res2.json();
+    assert.equal(res2.status, 200);
+    assert.equal(data2.bank_transfer_confirmation.idempotent, true);
+    assert.equal(fake.table('payment_events').length, 1, 'second approval must not duplicate payment_events');
+    const emailEventsAfterSecond = fake.table('email_events').filter((e) => e.email_type === 'payment_confirmed_manual');
+    assert.equal(emailEventsAfterSecond.length, 1, 'payment_confirmed_manual must not be sent a second time on the repeat approval click');
+    assert.equal(fake.table('coupon_redemptions').length, 1);
+    assert.equal(fake.table('invoice_records').length, 1);
+  } finally { restore(); }
+});
+
+test('B1: admin/orders.js mark_payment_paid never calls confirmManualBankTransferPayment for a card-payment order', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-card-2', payment_method: 'iyzico', payment_status: 'initiated', status: 'pending_payment', coupon_code: null })],
+    payments: [{ id: 'pay-2', order_id: 'order-card-2', provider: 'iyzico', status: 'initiated', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-card-2', action: 'mark_payment_paid' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.bank_transfer_confirmation, null, 'confirmManualBankTransferPayment must not run for a card-payment order');
+    assert.equal(fake.table('payment_events').length, 0, 'no bank-transfer payment_events row must be written for a card order');
+    // Existing (pre-B1) admin correction behavior must still work: email sent once.
+    const emailEvents = fake.table('email_events').filter((e) => e.email_type === 'payment_confirmed_manual');
+    assert.equal(emailEvents.length, 1);
+  } finally { restore(); }
+});
+
+test('B1: admin/orders.js unauthorized admin cannot approve a bank-transfer order (403, no writes)', async () => {
+  const fake = createFakeSupabase({ orders: [seedBankTransferOrder()] });
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users')) return response([]);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    return await fake.fetchHandler(url, options);
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'attacker@example.com', { id: 'order-bt-1', action: 'mark_payment_paid' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    assert.equal(res.status, 403);
+    assert.equal(fake.table('orders')[0].payment_status, 'awaiting_transfer', 'no write may occur for a denied caller');
+    assert.equal(fake.table('payment_events').length, 0);
+  } finally { restore(); }
+});
+
+test('B1: admin/orders/[id]/status.js also finalizes a bank-transfer order marked paid via confirmManualBankTransferPayment', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-bt-2' })],
+    payments: [{ id: 'pay-3', order_id: 'order-bt-2', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupons: [{ id: 'coupon-1', code: 'FREESHIP' }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders/order-bt-2/status', 'PATCH', 'cankolsun@gmail.com', { status: 'paid' });
+    const res = await adminStatusPatch({ request: req, env: b1AdminEnv(), params: { id: 'order-bt-2' } });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.bank_transfer_confirmation.idempotent, false);
+    assert.equal(fake.table('payment_events').length, 1);
+    assert.equal(fake.table('payments').find((p) => p.order_id === 'order-bt-2').status, 'paid');
+    assert.equal(fake.table('invoice_records').length, 1);
+
+    const repeat = b1PatchRequest('https://local.test/api/admin/orders/order-bt-2/status', 'PATCH', 'cankolsun@gmail.com', { status: 'paid' });
+    const resRepeat = await adminStatusPatch({ request: repeat, env: b1AdminEnv(), params: { id: 'order-bt-2' } });
+    const dataRepeat = await resRepeat.json();
+    assert.equal(dataRepeat.bank_transfer_confirmation.idempotent, true);
+    assert.equal(fake.table('payment_events').length, 1, 'repeat status.js approval must not duplicate payment_events');
+  } finally { restore(); }
+});
+
+// NOTE: at B1 time this test asserted that mark_bank_transfer_not_received
+// left payment_events empty and the payments row untouched, because B1 was
+// explicitly forbidden from touching rejection. B2
+// (COSMOSKIN_B2_BANK_TRANSFER_REJECTION_FINALIZATION_PLAN_20260705.md)
+// intentionally and legitimately closes that exact gap via
+// rejectManualBankTransferPayment() — see the "B2:" tests below for full
+// coverage. This test is updated in place to assert the new, correct
+// behavior instead of the old (intentionally incomplete) B1 behavior; it
+// still proves confirmManualBankTransferPayment is never called on rejection.
+test('B1→B2: mark_bank_transfer_not_received now finalizes the payments row/payment_events for a bank-transfer order, still never calls confirmManualBankTransferPayment', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder()],
+    payments: [{ id: 'pay-1', order_id: 'order-bt-1', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-1', action: 'mark_bank_transfer_not_received' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.bank_transfer_confirmation, null, 'rejection flow must never call confirmManualBankTransferPayment');
+    assert.equal(data.bank_transfer_rejection.idempotent, false);
+    assert.equal(fake.table('orders')[0].status, 'cancelled');
+    assert.equal(fake.table('orders')[0].payment_status, 'failed');
+    assert.equal(fake.table('payment_events').length, 1, 'B2: rejection must now write exactly one payment_events row');
+    assert.equal(fake.table('payment_events')[0].event_type, 'bank_transfer_payment_rejected');
+    assert.ok(fake.rpcCalls.some((c) => c.name === 'release_order_inventory'), 'rejection must still release inventory');
+    assert.equal(fake.table('payments')[0].status, 'failed', 'B2: the payments row must now be finalized to failed on rejection');
+  } finally { restore(); }
+});
+
+// ---------------------------------------------------------------------------
+// B2: Bank Transfer Rejection / Cancellation Finalization.
+// ---------------------------------------------------------------------------
+test('B2: rejectManualBankTransferPayment finalizes payments/payment_events/inventory/coupon release and is idempotent on a repeat call', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder()],
+    payments: [{ id: 'pay-1', order_id: 'order-bt-1', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupons: [{ id: 'coupon-1', code: 'FREESHIP' }],
+    coupon_redemptions: [{ id: 'redemption-1', order_id: 'order-bt-1', coupon_id: 'coupon-1', status: 'pending' }]
+  });
+  try {
+    const ctx = { env: b1AdminEnv() };
+    const first = await rejectManualBankTransferPayment(ctx, 'order-bt-1', { rejectedByEmail: 'owner@cosmoskin.com.tr', reason: 'Ödeme alınamadı.' });
+    assert.equal(first.ok, true);
+    assert.equal(first.idempotent, false);
+    assert.equal(first.blocked, false);
+
+    assert.equal(fake.table('payments')[0].status, 'failed');
+    assert.equal(fake.table('payment_events').length, 1);
+    assert.equal(fake.table('payment_events')[0].event_type, 'bank_transfer_payment_rejected');
+    assert.equal(fake.table('payment_events')[0].provider, 'bank_transfer');
+    assert.equal(fake.table('payment_events')[0].metadata.rejected_by_email, 'owner@cosmoskin.com.tr');
+    assert.equal(fake.table('coupon_redemptions')[0].status, 'released');
+    assert.ok(fake.rpcCalls.some((c) => c.name === 'release_order_inventory'), 'reserved inventory for the order must be released');
+    assert.equal(fake.table('invoice_records').length, 0, 'a rejected order must never gain an invoice shell');
+    assert.equal(fake.table('shipments').length, 0, 'a rejected order must never gain a shipment shell');
+    assert.equal(fake.rpcCalls.some((c) => c.name === 'cosmoskin_award_loyalty_for_order'), false, 'a rejected order must never be awarded loyalty points');
+
+    // Repeat rejection must be a safe no-op: no new payment_events row, no
+    // second inventory-release/coupon-release write.
+    const couponWritesBefore = fake.table('coupon_redemptions').length;
+    const second = await rejectManualBankTransferPayment(ctx, 'order-bt-1', { rejectedByEmail: 'owner@cosmoskin.com.tr' });
+    assert.equal(second.ok, true);
+    assert.equal(second.idempotent, true);
+    assert.equal(fake.table('payment_events').length, 1, 'repeat rejection must not duplicate payment_events');
+    assert.equal(fake.table('coupon_redemptions').length, couponWritesBefore, 'repeat rejection must not duplicate coupon release rows');
+  } finally { restore(); }
+});
+
+test('B2: rejectManualBankTransferPayment rejects a non-bank_transfer (card) order', async () => {
+  const { restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-card-3', payment_method: 'iyzico' })]
+  });
+  try {
+    await assert.rejects(
+      rejectManualBankTransferPayment({ env: b1AdminEnv() }, 'order-card-3'),
+      (error) => error.code === 'NOT_BANK_TRANSFER_ORDER' && error.status === 400
+    );
+  } finally { restore(); }
+});
+
+test('B2: rejectManualBankTransferPayment blocks and performs zero writes against an already-paid bank-transfer order', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-bt-paid', status: 'paid', payment_status: 'paid', fulfillment_status: 'preparing' })],
+    payments: [{ id: 'pay-4', order_id: 'order-bt-paid', provider: 'bank_transfer', status: 'paid', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupon_redemptions: [{ id: 'redemption-2', order_id: 'order-bt-paid', coupon_id: 'coupon-1', status: 'used' }]
+  });
+  try {
+    const result = await rejectManualBankTransferPayment({ env: b1AdminEnv() }, 'order-bt-paid', { rejectedByEmail: 'owner@cosmoskin.com.tr' });
+    assert.equal(result.ok, false);
+    assert.equal(result.blocked, true);
+    assert.equal(result.reason, 'already_paid_or_settled');
+    assert.equal(fake.table('payments')[0].status, 'paid', 'an already-paid order\'s payments row must never be marked failed');
+    assert.equal(fake.table('orders')[0].payment_status, 'paid', 'an already-paid order must never be marked payment_status failed');
+    assert.equal(fake.table('orders')[0].status, 'paid');
+    assert.equal(fake.table('coupon_redemptions')[0].status, 'used', 'an already-used coupon must never be released by a blocked rejection');
+    assert.equal(fake.table('payment_events').length, 0, 'a blocked rejection must write zero payment_events rows');
+    assert.equal(fake.rpcCalls.some((c) => c.name === 'release_order_inventory'), false, 'a blocked rejection must never release already-converted inventory');
+  } finally { restore(); }
+});
+
+test('B2: admin/orders.js mark_bank_transfer_not_received finalizes rejection end-to-end and sends bank_transfer_not_received_cancelled exactly once across two rejection clicks', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-bt-3' })],
+    payments: [{ id: 'pay-5', order_id: 'order-bt-3', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupons: [{ id: 'coupon-1', code: 'FREESHIP' }],
+    coupon_redemptions: [{ id: 'redemption-3', order_id: 'order-bt-3', coupon_id: 'coupon-1', status: 'pending' }]
+  });
+  try {
+    const req1 = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-3', action: 'mark_bank_transfer_not_received', message: 'Havale 3 gün içinde alınamadı.' });
+    const res1 = await adminOrdersPatch({ request: req1, env: b1AdminEnv(), params: {} });
+    const data1 = await res1.json();
+    assert.equal(res1.status, 200);
+    assert.equal(data1.ok, true);
+    assert.equal(data1.bank_transfer_rejection.idempotent, false);
+    assert.equal(data1.bank_transfer_confirmation, null);
+    assert.equal(fake.table('orders')[0].payment_status, 'failed');
+    assert.equal(fake.table('orders')[0].status, 'cancelled');
+    assert.equal(fake.table('payment_events').length, 1);
+    assert.equal(fake.table('coupon_redemptions')[0].status, 'released');
+
+    const rejectionEvent = fake.table('order_status_events').find((e) => e.event_type === 'mark_bank_transfer_not_received');
+    assert.ok(rejectionEvent, 'mark_bank_transfer_not_received order_status_events row must be recorded');
+    assert.equal(rejectionEvent.created_by, 'cankolsun@gmail.com', 'real admin identity must be captured');
+
+    const emailEventsAfterFirst = fake.table('email_events').filter((e) => e.order_id === 'order-bt-3');
+    assert.equal(emailEventsAfterFirst.length, 1, 'exactly one rejection email must be logged after the first click');
+
+    // Second click on the same (now-rejected) order must not duplicate anything.
+    const req2 = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-3', action: 'mark_bank_transfer_not_received' });
+    const res2 = await adminOrdersPatch({ request: req2, env: b1AdminEnv(), params: {} });
+    const data2 = await res2.json();
+    assert.equal(res2.status, 200);
+    assert.equal(data2.bank_transfer_rejection.idempotent, true);
+    assert.equal(fake.table('payment_events').length, 1, 'second rejection click must not duplicate payment_events');
+    const emailEventsAfterSecond = fake.table('email_events').filter((e) => e.order_id === 'order-bt-3');
+    assert.equal(emailEventsAfterSecond.length, 1, 'the rejection email must not be sent a second time on the repeat click');
+  } finally { restore(); }
+});
+
+test('B2: admin/orders.js mark_bank_transfer_not_received never calls rejectManualBankTransferPayment for a card-payment order (legacy inline release path preserved)', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-card-4', payment_method: 'iyzico', payment_status: 'initiated', status: 'pending_payment', coupon_code: null })],
+    payments: [{ id: 'pay-6', order_id: 'order-card-4', provider: 'iyzico', status: 'initiated', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-card-4', action: 'mark_bank_transfer_not_received' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.bank_transfer_rejection, null, 'rejectManualBankTransferPayment must not run for a card-payment order');
+    assert.equal(fake.table('payment_events').length, 0, 'no bank-transfer payment_events row must be written for a card order');
+    // Existing (pre-B2) legacy behavior must still work: inventory still released.
+    assert.ok(fake.rpcCalls.some((c) => c.name === 'release_order_inventory'));
+  } finally { restore(); }
+});
+
+test('B2: admin/orders.js unauthorized admin cannot reject a bank-transfer order (403, no writes)', async () => {
+  const fake = createFakeSupabase({ orders: [seedBankTransferOrder({ id: 'order-bt-4' })] });
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users')) return response([]);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    return await fake.fetchHandler(url, options);
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'attacker@example.com', { id: 'order-bt-4', action: 'mark_bank_transfer_not_received' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    assert.equal(res.status, 403);
+    assert.equal(fake.table('orders')[0].payment_status, 'awaiting_transfer', 'no write may occur for a denied caller');
+    assert.equal(fake.table('payment_events').length, 0);
+  } finally { restore(); }
+});
+
+test('B2: admin/orders/[id]/status.js also finalizes a bank-transfer order cancelled via rejectManualBankTransferPayment, and captures the real admin identity', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-bt-5' })],
+    payments: [{ id: 'pay-7', order_id: 'order-bt-5', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupons: [{ id: 'coupon-1', code: 'FREESHIP' }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders/order-bt-5/status', 'PATCH', 'cankolsun@gmail.com', { status: 'cancelled', message: 'Havale alınamadı.' });
+    const res = await adminStatusPatch({ request: req, env: b1AdminEnv(), params: { id: 'order-bt-5' } });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.bank_transfer_rejection.idempotent, false);
+    assert.equal(data.bank_transfer_confirmation, null);
+    assert.equal(fake.table('payment_events').length, 1);
+    assert.equal(fake.table('payments').find((p) => p.order_id === 'order-bt-5').status, 'failed');
+    assert.equal(fake.table('invoice_records').length, 0);
+
+    const statusEvent = fake.table('order_status_events').find((e) => e.order_id === 'order-bt-5');
+    assert.ok(statusEvent, 'order_status_events row must be recorded');
+    assert.equal(statusEvent.created_by, 'cankolsun@gmail.com', 'B2: real admin identity must now be captured (previously missing entirely)');
+
+    const repeat = b1PatchRequest('https://local.test/api/admin/orders/order-bt-5/status', 'PATCH', 'cankolsun@gmail.com', { status: 'cancelled' });
+    const resRepeat = await adminStatusPatch({ request: repeat, env: b1AdminEnv(), params: { id: 'order-bt-5' } });
+    const dataRepeat = await resRepeat.json();
+    assert.equal(dataRepeat.bank_transfer_rejection.idempotent, true);
+    assert.equal(fake.table('payment_events').length, 1, 'repeat status.js rejection must not duplicate payment_events');
+  } finally { restore(); }
+});
+
+test('B2: generic cancel_order action and the paid-order direct-cancel 409 guard remain unchanged', async () => {
+  // cancel_order is a generic action shared by card and bank-transfer orders
+  // alike; B2 is deliberately scoped to mark_bank_transfer_not_received only
+  // (see COSMOSKIN_B2_BANK_TRANSFER_REJECTION_FINALIZATION_PLAN_20260705.md
+  // §6) and must not wire rejectManualBankTransferPayment into it.
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-bt-6' })],
+    payments: [{ id: 'pay-8', order_id: 'order-bt-6', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-6', action: 'cancel_order' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.bank_transfer_rejection, null, 'cancel_order must not call rejectManualBankTransferPayment in this batch');
+    assert.equal(fake.table('orders')[0].status, 'cancelled');
+    assert.equal(fake.table('payment_events').length, 0, 'cancel_order must not gain a payment_events row in this batch (out of scope, documented deferral)');
+    assert.equal(fake.table('payments')[0].status, 'awaiting_transfer', 'cancel_order must not touch the payments row in this batch (out of scope, documented deferral)');
+  } finally { restore(); }
+
+  // Paid-order direct-cancel guard: unchanged by B2, still blocks before
+  // rejectManualBankTransferPayment (or any other new B2 code) can run.
+  const paid = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-bt-paid-2', status: 'paid', payment_status: 'paid', fulfillment_status: 'preparing' })],
+    payments: [{ id: 'pay-9', order_id: 'order-bt-paid-2', provider: 'bank_transfer', status: 'paid', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-paid-2', action: 'mark_bank_transfer_not_received' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 409, 'the pre-existing paid-order direct-cancel guard must still fire before any B2 code runs');
+    assert.equal(data.bank_transfer_rejection, undefined);
+    assert.equal(paid.fake.table('payments')[0].status, 'paid');
+  } finally { paid.restore(); }
+});
+
+test('B2: B1 approval behavior remains fully intact alongside the new rejection helper', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-bt-7' })],
+    payments: [{ id: 'pay-10', order_id: 'order-bt-7', provider: 'bank_transfer', status: 'awaiting_transfer', amount: 899, currency: 'TRY', created_at: new Date().toISOString() }],
+    coupons: [{ id: 'coupon-1', code: 'FREESHIP' }]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-7', action: 'mark_payment_paid' });
+    const res = await adminOrdersPatch({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.bank_transfer_confirmation.idempotent, false);
+    assert.equal(data.bank_transfer_rejection, null, 'approving an order must never touch the new rejection helper');
+    assert.equal(fake.table('orders')[0].payment_status, 'paid');
+    assert.equal(fake.table('payment_events')[0].event_type, 'bank_transfer_payment_confirmed');
+    assert.equal(fake.table('coupon_redemptions')[0].status, 'used');
+    assert.equal(fake.table('invoice_records').length, 1);
+  } finally { restore(); }
+});
+
+test('B1: card payment (iyzico) callback behavior is unchanged — still calls the payment RPCs, now via the shared commerce-finalization helpers, and never calls confirmManualBankTransferPayment', async () => {
+  const source = await fs.readFile(path.join(root, 'functions/api/iyzico-callback.js'), 'utf8');
+  assert.match(source, /process_iyzico_payment_success/);
+  assert.match(source, /process_iyzico_payment_failure/);
+  assert.match(source, /import \{ ensureShipmentShell, finalizeCommerceAfterPayment \} from '\.\/_lib\/commerce-finalization\.js';/);
+  assert.match(source, /finalizeCommerceAfterPayment\(context, orderId\)/);
+  assert.match(source, /ensureShipmentShell\(context, orderId\)/);
+  assert.doesNotMatch(source, /confirmManualBankTransferPayment/);
+  assert.doesNotMatch(source, /\basync function finalizeCommerceAfterPayment\b/);
+  assert.doesNotMatch(source, /\basync function ensureShipmentShell\b/);
 });

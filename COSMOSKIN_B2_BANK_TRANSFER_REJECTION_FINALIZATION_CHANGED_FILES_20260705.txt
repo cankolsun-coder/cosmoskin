@@ -1,0 +1,55 @@
+COSMOSKIN B2 — Bank Transfer Rejection / Cancellation Finalization
+Changed files list — 2026-07-05
+
+MODIFIED BY B2
+--------------
+functions/api/_lib/commerce-finalization.js
+  - Added new export: rejectManualBankTransferPayment(context, orderId, opts)
+  - No existing export edited (confirmManualBankTransferPayment,
+    finalizeCommerceAfterPayment, ensureShipmentShell all byte-unchanged)
+
+functions/api/admin/orders.js
+  - mark_bank_transfer_not_received block: wired to rejectManualBankTransferPayment()
+    for bank_transfer orders; inline releaseInventoryReservations/coupon_redemptions
+    calls kept only as a fallback for the (unreachable via current UI) non-bank_transfer
+    case
+  - Rejection email (bank_transfer_not_received_cancelled) send now gated on
+    bankTransferRejection?.idempotent !== true && bankTransferRejection?.blocked !== true
+  - Response payload now includes bank_transfer_rejection
+
+functions/api/admin/orders/[id]/status.js
+  - body.status === 'cancelled' && current.payment_method === 'bank_transfer' now
+    calls rejectManualBankTransferPayment()
+  - order_status_events insert now sets created_by: getAccessEmail(context) || 'admin'
+    (previously missing entirely for every status change through this route)
+  - Response payload now includes bank_transfer_rejection
+
+scripts/validate-b1-bank-transfer-finalization.mjs
+  - Removed the byte-identical-to-HEAD assertions for the mark_bank_transfer_not_received
+    block and the cancelled-status branch (B2 now legitimately owns this code)
+  - Kept: helper extraction byte-identical proof, confirmManualBankTransferPayment
+    structural checks, assertOperationalTransition byte-identical check, paid-order
+    direct-cancel guard presence check, chained validators
+
+tests/local-integration.test.mjs
+  - Updated 1 pre-existing B1-era test in place to reflect the new, correct B2 behavior
+  - Added 13 new B2-specific tests
+
+CREATED BY B2
+-------------
+scripts/validate-b2-bank-transfer-rejection-finalization.mjs
+COSMOSKIN_B2_BANK_TRANSFER_REJECTION_FINALIZATION_REPORT_20260705.md
+COSMOSKIN_B2_BANK_TRANSFER_REJECTION_FINALIZATION_CHANGED_FILES_20260703.txt
+COSMOSKIN_B2_BANK_TRANSFER_REJECTION_FINALIZATION_RUNBOOK_20260705.md
+COSMOSKIN_B2_BANK_TRANSFER_REJECTION_FINALIZATION_ROLLBACK_PLAN_20260705.md
+
+NOT CHANGED BY B2 (verified)
+-----------------------------
+functions/api/iyzico-callback.js               (zero diff since B1)
+functions/api/_lib/email-events.js             (zero diff — EMAIL_TYPES fix deferred)
+supabase/migrations/*                          (no new/modified migration files)
+functions/api/admin/orders.js cancel_order action (intentionally left unwired — see report §"cancel_order scope decision")
+assertOperationalTransition() (admin/orders.js)
+Paid-order direct-cancel 409 guards (both admin route files)
+
+NO MIGRATIONS. NO SQL RUN. NOT DEPLOYED.

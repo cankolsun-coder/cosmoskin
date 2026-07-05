@@ -289,11 +289,14 @@ for (const file of A1_2_DEFERRED_FILES) {
 //    COSMOSKIN_A1_2A_ADMIN_READ_COVERAGE_REPORT_20260705.md and its own
 //    validator, scripts/validate-a1-admin-endpoint-coverage.mjs.
 // ---------------------------------------------------------------------------
+// functions/api/iyzico-callback.js is no longer zero-diff-forbidden as of B1
+// (2026-07-05, bank transfer approval finalization) — see
+// COSMOSKIN_B1_BANK_TRANSFER_FINALIZATION_REPORT_20260705.md and its own
+// validator (scripts/validate-b1-bank-transfer-finalization.mjs).
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
   'functions/api/create-checkout.js',
-  'functions/api/iyzico-callback.js',
   'functions/api/cron/release-expired-inventory.js',
   'functions/api/_lib/loyalty-ledger.js',
   'functions/api/_lib/order-cancellation.js',

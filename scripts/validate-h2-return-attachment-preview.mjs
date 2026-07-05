@@ -333,11 +333,14 @@ if (/public\s*=\s*true/i.test(helper) || /public\s*=\s*true/i.test(summaryApi) |
 // — see COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_REPORT_20260705.md and the same
 // validator, which asserts its refund creation/completion/loyalty-reversal
 // business logic is unchanged beyond the added permission check.
+// functions/api/iyzico-callback.js is no longer zero-diff-forbidden as of B1
+// (2026-07-05, bank transfer approval finalization) — see
+// COSMOSKIN_B1_BANK_TRANSFER_FINALIZATION_REPORT_20260705.md and its own
+// validator (scripts/validate-b1-bank-transfer-finalization.mjs).
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
   'functions/api/create-checkout.js',
-  'functions/api/iyzico-callback.js',
   'functions/api/cron/release-expired-inventory.js',
   'functions/api/_lib/loyalty-ledger.js',
   'functions/api/_lib/order-cancellation.js',

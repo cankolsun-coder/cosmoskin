@@ -1,12 +1,13 @@
 import { selectRows, updateRows, insertRow } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
-import { requireAdminPermission } from '../_lib/admin-audit.js';
+import { requireAdminPermission, getAccessEmail } from '../_lib/admin-audit.js';
 import { sendOrderStatusEmail, sendShipmentEmail, sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { convertInventoryReservations, releaseInventoryReservations } from '../_lib/inventory.js';
 import { getValidatedBankAccounts } from '../_lib/bank-accounts.js';
 import { awardOrderPoints, promoteOrderPoints, reverseOrderPoints } from '../_lib/loyalty-ledger.js';
+import { confirmManualBankTransferPayment, rejectManualBankTransferPayment } from '../_lib/commerce-finalization.js';
 
 const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
 const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
@@ -315,6 +316,8 @@ export async function onRequestPatch(context) {
 
     const before = await loadOrder(context, id);
     if (!before) return json({ ok: false, error: 'Sipariş bulunamadı.' }, { status: 404 });
+    let bankTransferConfirmation = null;
+    let bankTransferRejection = null;
 
     const actionPayload = statusFromAction(body.action);
     const payload = {};
@@ -349,20 +352,56 @@ export async function onRequestPatch(context) {
         new_status: status || before.status || null,
         message: body.message || 'Admin panelinden durum güncellendi.',
         note: body.message || 'Admin panelinden durum güncellendi.',
-        created_by: 'admin',
+        created_by: getAccessEmail(context) || 'admin',
         metadata: { payment_status: paymentStatus || null, fulfillment_status: fulfillment || null }
       });
       if (body.action === 'mark_bank_transfer_not_received') {
-        await releaseInventoryReservations(context, id, 'bank_transfer_payment_not_received').catch(() => null);
-        await updateRows(context, 'coupon_redemptions', { order_id: id }, { status: 'released', metadata: { source: 'admin_bank_transfer_not_received' } }).catch(() => null);
-        const latestOrderForCancel = await loadOrder(context, id);
-        await sendAndLogCommerceEmail(context, latestOrderForCancel, 'bank_transfer_not_received_cancelled', body.message || 'Havale/EFT ödemesi alınamadı.');
+        if (before.payment_method === 'bank_transfer') {
+          // B2: finalize the rejection-side commerce state a cancelled
+          // bank-transfer order needs (payments row, payment_events audit,
+          // inventory/coupon release) — see
+          // COSMOSKIN_B2_BANK_TRANSFER_REJECTION_FINALIZATION_PLAN_20260705.md.
+          // Internally idempotent on payment_events, so re-clicking "ödeme
+          // alınamadı" on an already-rejected order is a safe no-op, and
+          // internally blocked (zero writes) if the order is already paid.
+          // Centralizes the release/coupon calls that used to be inline
+          // here, avoiding duplicate release logic for this action.
+          bankTransferRejection = await rejectManualBankTransferPayment(context, id, {
+            rejectedByEmail: getAccessEmail(context),
+            reason: body.message || null
+          }).catch((error) => {
+            console.error('rejectManualBankTransferPayment failed:', { orderId: id, message: error?.message || String(error) });
+            return null;
+          });
+        } else {
+          await releaseInventoryReservations(context, id, 'bank_transfer_payment_not_received').catch(() => null);
+          await updateRows(context, 'coupon_redemptions', { order_id: id }, { status: 'released', metadata: { source: 'admin_bank_transfer_not_received' } }).catch(() => null);
+        }
+        if (bankTransferRejection?.idempotent !== true && bankTransferRejection?.blocked !== true) {
+          const latestOrderForCancel = await loadOrder(context, id);
+          await sendAndLogCommerceEmail(context, latestOrderForCancel, 'bank_transfer_not_received_cancelled', body.message || 'Havale/EFT ödemesi alınamadı.');
+        }
       }
       if (body.action === 'mark_preparing' || body.status === 'preparing' || body.fulfillment_status === 'preparing') {
         const latestOrderForPreparing = await loadOrder(context, id);
         await sendAndLogStatusEmail(context, latestOrderForPreparing, 'preparing', 'order_preparing');
       }
-      if (body.action === 'mark_payment_paid' || paymentStatus === 'paid') {
+      if (body.action === 'mark_payment_paid' && before.payment_method === 'bank_transfer') {
+        // B1: finalize the same commerce side effects a successful card
+        // payment gets (payments row, payment_events audit, coupon
+        // finalization, invoice shell) — see
+        // COSMOSKIN_B1_BANK_TRANSFER_FINALIZATION_PLAN_20260705.md. Internally
+        // idempotent on payment_events, so re-clicking "mark paid" on an
+        // already-confirmed bank transfer order is a safe no-op.
+        bankTransferConfirmation = await confirmManualBankTransferPayment(context, id, {
+          approvedByEmail: getAccessEmail(context),
+          note: body.message || null
+        }).catch((error) => {
+          console.error('confirmManualBankTransferPayment failed:', { orderId: id, message: error?.message || String(error) });
+          return null;
+        });
+      }
+      if ((body.action === 'mark_payment_paid' || paymentStatus === 'paid') && before.payment_status !== 'paid' && bankTransferConfirmation?.idempotent !== true) {
         const latestOrderForPayment = await loadOrder(context, id);
         await sendAndLogStatusEmail(context, latestOrderForPayment, 'paid', 'payment_confirmed_manual');
       }
@@ -455,7 +494,7 @@ export async function onRequestPatch(context) {
       }
     }
 
-    return json({ ok: true, order, message: shipmentMessage || (deliveredEmail ? (deliveredEmail.sent ? 'Sipariş teslim edildi ve müşteriye e-posta gönderildi.' : 'Sipariş teslim edildi ancak e-posta gönderilemedi.') : 'Sipariş güncellendi.'), email: shipmentEmail || deliveredEmail, notification: shipmentEmail || deliveredEmail });
+    return json({ ok: true, order, message: shipmentMessage || (deliveredEmail ? (deliveredEmail.sent ? 'Sipariş teslim edildi ve müşteriye e-posta gönderildi.' : 'Sipariş teslim edildi ancak e-posta gönderilemedi.') : 'Sipariş güncellendi.'), email: shipmentEmail || deliveredEmail, notification: shipmentEmail || deliveredEmail, bank_transfer_confirmation: bankTransferConfirmation, bank_transfer_rejection: bankTransferRejection });
   } catch (error) {
     return adminError(error, 'Sipariş güncellenemedi.');
   }

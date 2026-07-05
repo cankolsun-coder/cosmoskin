@@ -5,7 +5,7 @@ import { deriveCommerceSegments, mapSegmentsToLists, upsertBrevoContact } from '
 import { iyzicoRequest } from './_lib/iyzico.js';
 import { recordCrmEvent } from './_lib/crm-events.js';
 import { redirect } from './_lib/response.js';
-import { awardOrderPoints } from './_lib/loyalty-ledger.js';
+import { ensureShipmentShell, finalizeCommerceAfterPayment } from './_lib/commerce-finalization.js';
 
 async function syncBrevoAfterPayment(context, conversationId) {
   if (!context?.env?.BREVO_API_KEY || !conversationId) return;
@@ -82,109 +82,6 @@ async function recordStatusEvent(context, orderId, status, message, metadata = {
   } catch (error) {
     console.error('order_status_events insert failed:', error);
   }
-}
-
-async function ensureShipmentShell(context, orderId) {
-  if (!orderId) return;
-  try {
-    const existing = await selectRows(context, 'shipments', {
-      select: 'id',
-      order_id: `eq.${orderId}`,
-      limit: '1'
-    });
-    if (Array.isArray(existing) && existing.length) return;
-    await insertRow(context, 'shipments', {
-      order_id: orderId,
-      status: 'preparing'
-    });
-  } catch (error) {
-    console.error('shipment shell insert failed:', error);
-  }
-}
-
-async function finalizeCommerceAfterPayment(context, orderId) {
-  if (!orderId) return;
-  const orders = await selectRows(context, 'orders', {
-    select: 'id,user_id,customer_email,customer_first_name,customer_last_name,customer_phone,order_number,coupon_code,discount_amount,total_amount,invoice_type,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,billing_address_line,billing_city,billing_district,billing_postal_code,legal_consents',
-    id: `eq.${orderId}`,
-    limit: '1'
-  }).catch(() => []);
-  const order = orders?.[0] || null;
-  if (!order) return;
-
-  if (order.coupon_code) {
-    const now = new Date().toISOString();
-    const existingRedemption = await selectRows(context, 'coupon_redemptions', {
-      select: 'id,status', order_id: `eq.${orderId}`, code: `eq.${order.coupon_code}`, limit: '1'
-    }).catch(() => []);
-    if (existingRedemption?.[0]?.id) {
-      await updateRows(context, 'coupon_redemptions', { id: existingRedemption[0].id }, {
-        status: 'used',
-        metadata: { source: 'iyzico_callback', previous_status: existingRedemption[0].status || null },
-        updated_at: now
-      }).catch(() => null);
-    } else {
-      const coupons = await selectRows(context, 'coupons', {
-        select: 'id,code', code: `eq.${order.coupon_code}`, limit: '1'
-      }).catch(() => []);
-      await insertRow(context, 'coupon_redemptions', {
-        coupon_id: coupons?.[0]?.id || null,
-        order_id: orderId,
-        user_id: order.user_id || null,
-        customer_email: order.customer_email || null,
-        code: order.coupon_code,
-        discount_amount: Number(order.discount_amount || 0),
-        status: 'used',
-        metadata: { source: 'iyzico_callback' },
-        created_at: now
-      }).catch(() => null);
-    }
-    if (order.user_id) {
-      await updateRows(context, 'customer_coupons', { user_id: order.user_id, code: order.coupon_code }, {
-        status: 'used', used_at: now, order_id: orderId, updated_at: now
-      }).catch(() => null);
-    }
-    if (order.customer_email) {
-      await updateRows(context, 'customer_coupons', { customer_email: String(order.customer_email).toLowerCase(), code: order.coupon_code }, {
-        status: 'used', used_at: now, order_id: orderId, updated_at: now
-      }).catch(() => null);
-    }
-  }
-
-  const existingInvoice = await selectRows(context, 'invoice_records', {
-    select: 'id', order_id: `eq.${orderId}`, limit: '1'
-  }).catch(() => []);
-  if (!existingInvoice?.[0]) {
-    await insertRow(context, 'invoice_records', {
-      order_id: orderId,
-      provider: context.env.EARCHIVE_PROVIDER || 'manual',
-      invoice_status: 'pending',
-      metadata: {
-        order_number: order.order_number || '',
-        total_amount: order.total_amount || 0,
-        source: 'iyzico_callback',
-        invoice_ready_data: {
-          billing_type: order.invoice_type === 'Kurumsal' ? 'corporate' : 'individual',
-          billing_name: order.company_title || [order.billing_first_name, order.billing_last_name].filter(Boolean).join(' '),
-          billing_tax_number: order.tax_number || null,
-          billing_tax_office: order.tax_office || null,
-          billing_email: order.billing_email || order.corporate_email || order.customer_email,
-          billing_phone: order.billing_phone || order.customer_phone || null,
-          billing_address: order.billing_address_line || null,
-          billing_city: order.billing_city || null,
-          billing_district: order.billing_district || null,
-          billing_postal_code: order.billing_postal_code || null,
-          e_invoice_taxpayer: Boolean(order.is_e_invoice_taxpayer),
-          legal_consents: order.legal_consents || null
-        }
-      }
-    }).catch(() => null);
-  }
-
-  // Loyalty purchase-points earn hook — smallest possible post-success call.
-  // Idempotent (safe on webhook retries/duplicate callbacks); never throws;
-  // does not alter payment/order state or the caller's control flow.
-  await awardOrderPoints(context, orderId);
 }
 
 function normalizeMoney(value) {
