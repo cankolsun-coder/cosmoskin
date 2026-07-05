@@ -1,0 +1,26 @@
+COSMOSKIN B2E — Email Events Type Integrity — Changed Files (2026-07-06)
+
+MODIFIED
+functions/api/_lib/email-events.js
+scripts/validate-b2-bank-transfer-rejection-finalization.mjs
+tests/local-integration.test.mjs
+
+CREATED
+scripts/validate-b2e-email-events-integrity.mjs
+COSMOSKIN_B2E_EMAIL_EVENTS_INTEGRITY_REPORT_20260706.md
+COSMOSKIN_B2E_EMAIL_EVENTS_INTEGRITY_CHANGED_FILES_20260706.txt
+COSMOSKIN_B2E_EMAIL_EVENTS_INTEGRITY_RUNBOOK_20260706.md
+COSMOSKIN_B2E_EMAIL_EVENTS_INTEGRITY_ROLLBACK_PLAN_20260706.md
+
+NOT MODIFIED (explicit scope boundary)
+functions/api/_lib/order-email.js
+functions/api/admin/orders.js
+functions/api/_lib/commerce-finalization.js
+functions/api/_lib/admin.js
+functions/api/_lib/admin-audit.js
+functions/api/_lib/cloudflare-access-jwt.js
+assets/admin-runtime.js
+supabase/migrations/*
+
+DELETED
+(none)

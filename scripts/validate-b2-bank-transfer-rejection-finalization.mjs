@@ -62,7 +62,6 @@ const commerceLib = read(COMMERCE_LIB);
 const callback = read(CALLBACK);
 const adminOrders = read(ADMIN_ORDERS);
 const adminOrderStatus = read(ADMIN_ORDER_STATUS);
-const emailEventsLib = read(EMAIL_EVENTS_LIB);
 
 const rejectFnBody = extractFn(commerceLib, 'rejectManualBankTransferPayment');
 const confirmFnBody = extractFn(commerceLib, 'confirmManualBankTransferPayment');
@@ -273,22 +272,11 @@ if (/body\.action === 'cancel_order'[^\n]*&&[^\n]*rejectManualBankTransferPaymen
 }
 
 // ---------------------------------------------------------------------------
-// 8) email-events.js EMAIL_TYPES fix must NOT be bundled into this batch —
-//    per instruction, this is deferred to a separate future task requiring
-//    live constraint verification first.
+// 8) email-events.js audit type integrity is owned by B2E (separate batch).
+//    B2 payment/rejection behavior must remain unchanged; B2E may add
+//    bank_transfer_reminder / bank_transfer_not_received_cancelled to EMAIL_TYPES
+//    and harden safeEmailType() without failing this B2 validator.
 // ---------------------------------------------------------------------------
-if (/bank_transfer_not_received_cancelled/.test(emailEventsLib)) {
-  failures.push(`${EMAIL_EVENTS_LIB}: 'bank_transfer_not_received_cancelled' was added to EMAIL_TYPES — the EMAIL_TYPES fix must NOT be bundled into B2 (deferred to a separate future task pending live email_events constraint verification)`);
-}
-let emailEventsLibStatus = '';
-try {
-  emailEventsLibStatus = execSync(`git status --porcelain -- ${JSON.stringify(EMAIL_EVENTS_LIB)}`, { cwd: root, encoding: 'utf8' }).trim();
-} catch (_) {
-  emailEventsLibStatus = '';
-}
-if (emailEventsLibStatus) {
-  failures.push(`${EMAIL_EVENTS_LIB}: file was modified by this batch — the EMAIL_TYPES fix (or any other email-events.js change) must NOT be bundled into B2`);
-}
 
 // ---------------------------------------------------------------------------
 // 9) No migration/SQL added by this batch, and no email_events database

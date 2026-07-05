@@ -6,6 +6,8 @@ export const EMAIL_TYPES = new Set([
   'payment_confirmed_manual',
   'payment_failed',
   'bank_transfer_pending',
+  'bank_transfer_reminder',
+  'bank_transfer_not_received_cancelled',
   'order_preparing',
   'order_packed',
   'shipment_created',
@@ -27,9 +29,10 @@ function cleanString(value, max = 500) {
   return text ? text.slice(0, max) : null;
 }
 
-export function safeEmailType(value, fallback = 'order_created') {
+export function safeEmailType(value) {
   const type = String(value || '').trim();
-  return EMAIL_TYPES.has(type) ? type : fallback;
+  if (!type) return null;
+  return EMAIL_TYPES.has(type) ? type : null;
 }
 
 export function safeEmailStatus(value, fallback = 'pending') {
@@ -40,10 +43,26 @@ export function safeEmailStatus(value, fallback = 'pending') {
 export async function recordEmailEvent(context, event = {}) {
   const customerEmail = cleanString(event.customer_email || event.to, 254);
   if (!customerEmail) return null;
+
+  const requestedType = String(event.email_type || '').trim();
+  const emailType = safeEmailType(requestedType);
+  if (!emailType) {
+    if (requestedType) {
+      const metaSource = event.metadata && typeof event.metadata === 'object' && !Array.isArray(event.metadata)
+        ? cleanString(event.metadata.source, 80)
+        : null;
+      console.warn('email_events insert skipped: unsupported email_type', {
+        email_type: requestedType.slice(0, 80),
+        ...(metaSource ? { source: metaSource } : {})
+      });
+    }
+    return null;
+  }
+
   const payload = {
     order_id: event.order_id || null,
     customer_email: customerEmail.toLowerCase(),
-    email_type: safeEmailType(event.email_type),
+    email_type: emailType,
     provider: cleanString(event.provider, 60),
     status: safeEmailStatus(event.status),
     subject: cleanString(event.subject, 300),

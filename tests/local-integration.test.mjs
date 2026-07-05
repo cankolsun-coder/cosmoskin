@@ -36,6 +36,8 @@ import { onRequestGet as adminRefundsGet, onRequestPost as adminRefundsPost } fr
 import { onRequestGet as adminInvoicesGet, onRequestPost as adminInvoicesPost, onRequestPatch as adminInvoicesPatch } from '../functions/api/admin/invoices.js';
 import { onRequestGet as adminBankAccountsGet, onRequestPost as adminBankAccountsPost, onRequestPatch as adminBankAccountsPatch } from '../functions/api/admin/bank-accounts.js';
 import { confirmManualBankTransferPayment, rejectManualBankTransferPayment } from '../functions/api/_lib/commerce-finalization.js';
+import { EMAIL_TYPES, safeEmailType, recordEmailEvent } from '../functions/api/_lib/email-events.js';
+import { resendOrderEmail } from '../functions/api/admin/orders.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const env = { SUPABASE_URL:'https://local.supabase.test', SUPABASE_SERVICE_ROLE_KEY:'service-test', SUPABASE_TIMEOUT_MS:'3000' };
@@ -1045,6 +1047,7 @@ test('B2: admin/orders.js mark_bank_transfer_not_received finalizes rejection en
 
     const emailEventsAfterFirst = fake.table('email_events').filter((e) => e.order_id === 'order-bt-3');
     assert.equal(emailEventsAfterFirst.length, 1, 'exactly one rejection email must be logged after the first click');
+    assert.equal(emailEventsAfterFirst[0].email_type, 'bank_transfer_not_received_cancelled', 'B2E: rejection audit row must use bank_transfer_not_received_cancelled, not order_created');
 
     // Second click on the same (now-rejected) order must not duplicate anything.
     const req2 = b1PatchRequest('https://local.test/api/admin/orders', 'PATCH', 'cankolsun@gmail.com', { id: 'order-bt-3', action: 'mark_bank_transfer_not_received' });
@@ -1118,6 +1121,61 @@ test('B2: admin/orders/[id]/status.js also finalizes a bank-transfer order cance
     const dataRepeat = await resRepeat.json();
     assert.equal(dataRepeat.bank_transfer_rejection.idempotent, true);
     assert.equal(fake.table('payment_events').length, 1, 'repeat status.js rejection must not duplicate payment_events');
+  } finally { restore(); }
+});
+
+test('B2E: safeEmailType returns bank-transfer audit types and never maps unknown types to order_created', () => {
+  assert.ok(EMAIL_TYPES.has('bank_transfer_reminder'));
+  assert.ok(EMAIL_TYPES.has('bank_transfer_not_received_cancelled'));
+  assert.equal(safeEmailType('bank_transfer_reminder'), 'bank_transfer_reminder');
+  assert.equal(safeEmailType('bank_transfer_not_received_cancelled'), 'bank_transfer_not_received_cancelled');
+  assert.equal(safeEmailType('payment_confirmed_manual'), 'payment_confirmed_manual');
+  assert.equal(safeEmailType('order_created'), 'order_created');
+  assert.equal(safeEmailType('cosmoskin_unsupported_email_type_b2e_test'), null);
+  assert.notEqual(safeEmailType('bank_transfer_reminder'), 'order_created');
+  assert.notEqual(safeEmailType('bank_transfer_not_received_cancelled'), 'order_created');
+});
+
+test('B2E: recordEmailEvent skips unsupported email_type without inserting order_created audit rows', async () => {
+  const fake = createFakeSupabase({});
+  const restore = installFetch(fake.fetchHandler);
+  try {
+    const ctx = { env: b1AdminEnv() };
+    const result = await recordEmailEvent(ctx, {
+      order_id: 'order-b2e-unknown',
+      customer_email: 'buyer@example.com',
+      email_type: 'cosmoskin_unsupported_email_type_b2e_test',
+      status: 'sent',
+      subject: 'Test',
+      metadata: { source: 'local_integration_test' }
+    });
+    assert.equal(result, null);
+    assert.equal(fake.table('email_events').length, 0, 'unsupported email_type must not create a mislabeled audit row');
+  } finally { restore(); }
+});
+
+test('B2E: resendOrderEmail logs bank_transfer_reminder with correct email_type', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-b2e-reminder' })]
+  });
+  try {
+    await resendOrderEmail({ env: b1AdminEnv() }, 'order-b2e-reminder', 'bank_transfer_reminder');
+    const events = fake.table('email_events');
+    assert.equal(events.length, 1);
+    assert.equal(events[0].email_type, 'bank_transfer_reminder');
+    assert.equal(events[0].customer_email, 'buyer@example.com');
+  } finally { restore(); }
+});
+
+test('B2E: resendOrderEmail still logs order_created with correct email_type', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedBankTransferOrder({ id: 'order-b2e-created' })]
+  });
+  try {
+    await resendOrderEmail({ env: b1AdminEnv() }, 'order-b2e-created', 'order_created');
+    const events = fake.table('email_events');
+    assert.equal(events.length, 1);
+    assert.equal(events[0].email_type, 'order_created');
   } finally { restore(); }
 });
 
