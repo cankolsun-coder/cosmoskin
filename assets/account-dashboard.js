@@ -768,10 +768,28 @@
   function returnStatusLabel(status) {
     return ({ requested:'İade talebiniz alındı.', under_review:'Talebiniz inceleniyor.', approved:'İade talebiniz onaylandı.', return_code_shared:'İade gönderim kodunuz hazır.', waiting_customer_ship:'Ürününüzü kargoya vermeniz bekleniyor.', in_transit:'İade gönderiniz yolda.', received:'Ürününüz tarafımıza ulaştı.', inspection:'Ürün kontrol ediliyor.', refund_pending:'Ücret iadeniz hazırlanıyor.', refunded:'Ücret iadeniz tamamlandı.', rejected:'İade talebiniz reddedildi.', cancelled:'İade talebiniz iptal edildi.', closed:'İade süreci kapatıldı.' })[String(status || '').toLowerCase()] || 'İade talebi alındı.';
   }
-  function deliveredDate(order) { return order && (order.delivered_at || order.fulfilled_at || order.updated_at || order.created_at); }
+  function resolveDeliveryTimestampForOrder(order) {
+    if (!order) return null;
+    if (order.delivery_resolved_at) return order.delivery_resolved_at;
+    if (order.delivered_at) return order.delivered_at;
+    var ship = shipment(order);
+    if (ship && ship.delivered_at) return ship.delivered_at;
+    return null;
+  }
+  function deliveredDate(order) { return resolveDeliveryTimestampForOrder(order); }
   function returnWindowEnds(order) { var d = deliveredDate(order); if (!d) return null; var end = new Date(d); end.setDate(end.getDate() + 14); return end; }
-  function isDeliveredOrder(order) { var s = String(order?.status || '').toLowerCase(); var f = String(order?.fulfillment_status || '').toLowerCase(); return ['shipped','delivered','completed'].includes(s) || ['shipped','delivered'].includes(f) || Boolean(order?.delivered_at || order?.fulfilled_at); }
-  function isReturnEligible(order) { var end = returnWindowEnds(order); return isDeliveredOrder(order) && end && Date.now() <= end.getTime(); }
+  function isDeliveredOrder(order) {
+    var deliveryAt = deliveredDate(order);
+    if (!deliveryAt) return false;
+    var s = String(order?.status || '').toLowerCase();
+    if (['pending', 'pending_payment', 'pending_bank_transfer', 'payment_failed', 'cancelled', 'preparing', 'packed'].indexOf(s) >= 0) return false;
+    return true;
+  }
+  function isReturnEligible(order) {
+    if (order && typeof order.is_return_eligible === 'boolean') return order.is_return_eligible;
+    var end = returnWindowEnds(order);
+    return isDeliveredOrder(order) && end && Date.now() <= end.getTime();
+  }
   function returnEligibleOrders() { return asArray(state.summary?.orders).filter(isReturnEligible); }
   function returnReasonOptions(selected) { return ['Vazgeçtim','Yanlış ürün gönderildi','Ürün hasarlı geldi','Eksik ürün gönderildi','Ürün beklentimi karşılamadı','Diğer'].map(function(reason){ return '<option value="' + escapeHtml(reason) + '" ' + (reason === selected ? 'selected' : '') + '>' + escapeHtml(reason) + '</option>'; }).join(''); }
   function orderReturnItemsHtml(order) {
@@ -822,7 +840,7 @@
   }
   function returnRequestFormHtml() {
     var orders = returnEligibleOrders();
-    if (!orders.length) return '<section class="cs-card cs-return-create-card"><div class="cs-card-head"><span>İADE TALEBİ OLUŞTUR</span></div><div class="cs-return-empty-eligible"><strong>İade edilebilir sipariş bulunmuyor.</strong><p>Sipariş teslim edilmediyse iade talebi oluşturulamaz. Teslim tarihinden itibaren 14 gün geçtikten sonra yasal iade süresi sona erer.</p><a class="cs-mini-btn dark" data-tab-link="orders" href="/account/profile.html?tab=orders">Siparişlerime Git</a></div></section>';
+    if (!orders.length) return '<section class="cs-card cs-return-create-card"><div class="cs-card-head"><span>İADE TALEBİ OLUŞTUR</span></div><div class="cs-return-empty-eligible"><strong>İade edilebilir sipariş bulunmuyor.</strong><p>Sipariş teslim edildikten sonra iade talebi oluşturabilirsiniz. Teslim tarihinden itibaren 14 gün geçtikten sonra iade süresi dolmuştur.</p><a class="cs-mini-btn dark" data-tab-link="orders" href="/account/profile.html?tab=orders">Siparişlerime Git</a></div></section>';
     var orderOptions = orders.map(function(order){ return '<option value="' + escapeHtml(order.id || '') + '">' + escapeHtml(safeOrderNumber(order)) + ' · Son gün: ' + escapeHtml(formatDate(returnWindowEnds(order))) + '</option>'; }).join('');
     var first = orders[0];
     return '<section class="cs-card cs-return-create-card" id="returnCreateCard"><div class="cs-card-head"><span>İADE TALEBİ OLUŞTUR</span><button class="cs-mini-btn" type="button" data-close-return-form>Vazgeç</button></div><form class="cs-form cs-return-form" id="returnRequestForm"><label class="full"><span>Sipariş seçimi</span><select class="cs-input" name="order_id" data-return-order-select>' + orderOptions + '</select></label><div class="full" data-return-order-items>' + orderReturnItemsHtml(first) + '</div><label class="full"><span>Açıklama</span><textarea class="cs-input" name="customer_note" rows="4" maxlength="900" placeholder="Talebinizi değerlendirmemize yardımcı olacak kısa açıklama yazın."></textarea></label><label class="full"><span>Fotoğraf / Video</span><input class="cs-input" name="attachments" type="file" accept="image/jpeg,image/png,image/webp,video/mp4" multiple data-return-attachments><small class="cs-field-help">Hasarlı, yanlış veya eksik ürün taleplerinde fotoğraf/video zorunludur. JPG, PNG, WEBP veya MP4 · en fazla 5 dosya · dosya başına 10 MB.</small></label><div class="cs-return-hygiene-box full"><strong>Kozmetik/hijyen iade koşulları</strong><label><input type="checkbox" name="unused_confirmed"> Ürünün kullanılmadığını onaylıyorum.</label><label><input type="checkbox" name="hygiene_confirmed"> Ürünün ambalajının açılmadığını onaylıyorum.</label><label><input type="checkbox" name="seal_intact_confirmed"> Koruma bandı, mühür veya jelatinin bozulmadığını onaylıyorum.</label><label><input type="checkbox" name="resaleable_confirmed"> Ürünün yeniden satışa uygun durumda olduğunu onaylıyorum.</label><label><input type="checkbox" name="return_terms_confirmed" required> İade koşullarını okuduğumu ve talebin inceleme sonrası sonuçlandırılacağını kabul ediyorum.</label><p>Lütfen fotoğraf/video içinde kimlik, banka kartı, özel belge veya gereksiz kişisel bilgi görünmediğinden emin olun.</p></div><div class="cs-form-status full" id="returnRequestStatus" role="status"></div><button class="cs-pill-btn cs-pill-btn--dark full" type="submit">İade Talebi Oluştur</button></form></section>';

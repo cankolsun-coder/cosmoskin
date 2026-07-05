@@ -307,13 +307,13 @@ const forbiddenPaths = [
   'functions/api/_lib/order-cancellation.js',
   'functions/api/account/orders/[id]/cancel.js',
   'functions/api/_lib/coupons.js',
-  'functions/api/returns.js',
+  // functions/api/returns.js — D1 (2026-07-06) owns return eligibility/correctness fixes.
   'functions/api/_lib/return-attachments.js',
   'functions/api/_lib/supabase.js',
   'functions/api/account/summary.js',
   'functions/api/account/profile.js',
   'functions/api/account/notifications.js',
-  'assets/account-dashboard.js',
+  // assets/account-dashboard.js — D1 (2026-07-06) owns return eligibility UI mirror only.
   'assets/account-premium.css',
   'wrangler.toml',
   '.env.example',

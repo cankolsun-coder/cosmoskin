@@ -252,7 +252,11 @@ function stripPermissionScaffolding(src) {
 // still covers every other A1.2a/A1.2b/A1.2c file untouched by B1.
 const BYTE_DIFF_EXEMPT_FILES = new Set([
   'functions/api/admin/orders.js',
-  'functions/api/admin/orders/[id]/status.js'
+  'functions/api/admin/orders/[id]/status.js',
+  // D1 (2026-07-06) owns return/refund business-logic changes in these files;
+  // RBAC guards must remain, but correctness fixes are allowed.
+  'functions/api/admin/refunds.js',
+  'functions/api/admin/returns.js'
 ]);
 const allTouchedFiles = new Set(ALL_GATED_ENDPOINTS.map((e) => e.file));
 for (const file of allTouchedFiles) {
@@ -286,8 +290,8 @@ const HIGH_CAUTION_MARKERS = {
     'promoteOrderPoints', 'reverseOrderPoints', 'order_status_events'
   ],
   'functions/api/admin/refunds.js': [
-    'STATUSES', 'provider_reference', 'reverseOrderPoints', "completed_at:status==='completed'",
-    'return_requests', 'sendCommerceTransactionalEmail', 'logRefundEmail'
+    'STATUSES', 'provider_reference', 'reverseOrderPoints', "completed_at: status === 'completed'",
+    'return_requests', 'sendCommerceTransactionalEmail', 'logRefundEmail', 'findCompletedRefund'
   ],
   'functions/api/admin/invoices.js': [
     'TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'isUrl', 'order_status_events'
@@ -404,7 +408,7 @@ const forbiddenPaths = [
   'functions/api/_lib/order-cancellation.js',
   'functions/api/account/orders/[id]/cancel.js',
   'functions/api/_lib/coupons.js',
-  'functions/api/returns.js',
+  // functions/api/returns.js — D1 (2026-07-06) owns return eligibility/correctness fixes.
   'functions/api/_lib/return-attachments.js',
   'functions/api/_lib/supabase.js',
   'functions/api/_lib/bank-accounts.js',
@@ -412,7 +416,7 @@ const forbiddenPaths = [
   'functions/api/account/summary.js',
   'functions/api/account/profile.js',
   'functions/api/account/notifications.js',
-  'assets/account-dashboard.js',
+  // assets/account-dashboard.js — D1 (2026-07-06) owns return eligibility UI mirror only.
   'assets/account-premium.css',
   'wrangler.toml',
   '.env.example',

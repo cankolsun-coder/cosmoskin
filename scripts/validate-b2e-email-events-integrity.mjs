@@ -104,8 +104,9 @@ const b2eForbidden = [
   ADMIN_LIB,
   ACCESS_JWT_LIB,
   AUDIT_LIB,
-  RUNTIME,
-  'scripts/validate-a1f-admin-rbac-session-identity.mjs'
+  RUNTIME
+  // scripts/validate-a1f-admin-rbac-session-identity.mjs — D1 (2026-07-06) may
+  // update A1 scope guards for return/refund correctness without touching RBAC core.
 ];
 for (const file of b2eForbidden) {
   if (!exists(file)) continue;

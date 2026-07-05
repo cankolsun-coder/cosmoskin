@@ -38,6 +38,14 @@ import { onRequestGet as adminBankAccountsGet, onRequestPost as adminBankAccount
 import { confirmManualBankTransferPayment, rejectManualBankTransferPayment } from '../functions/api/_lib/commerce-finalization.js';
 import { EMAIL_TYPES, safeEmailType, recordEmailEvent } from '../functions/api/_lib/email-events.js';
 import { resendOrderEmail } from '../functions/api/admin/orders.js';
+import { onRequestPost as customerReturnsPost } from '../functions/api/returns.js';
+import {
+  resolveDeliveryTimestamp,
+  isDeliveredForReturn,
+  withinReturnWindow,
+  validateCumulativeReturnQuantities,
+  buildClaimedQuantityMap
+} from '../functions/api/returns.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const env = { SUPABASE_URL:'https://local.supabase.test', SUPABASE_SERVICE_ROLE_KEY:'service-test', SUPABASE_TIMEOUT_MS:'3000' };
@@ -566,7 +574,7 @@ test('A1.2c: high-caution finance endpoints keep their business-logic markers al
   const refundsSrc = await fs.readFile(path.join(root, 'functions/api/admin/refunds.js'), 'utf8');
   const invoicesSrc = await fs.readFile(path.join(root, 'functions/api/admin/invoices.js'), 'utf8');
   const bankAccountsSrc = await fs.readFile(path.join(root, 'functions/api/admin/bank-accounts.js'), 'utf8');
-  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail']) {
+  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund']) {
     assert.match(refundsSrc, new RegExp(marker), `admin/refunds.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
   }
   for (const marker of ['TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'order_status_events']) {
@@ -1176,6 +1184,294 @@ test('B2E: resendOrderEmail still logs order_created with correct email_type', a
     const events = fake.table('email_events');
     assert.equal(events.length, 1);
     assert.equal(events[0].email_type, 'order_created');
+  } finally { restore(); }
+});
+
+const D1_USER = { id: 'user-d1', email: 'buyer@example.com' };
+
+function seedReturnOrder(overrides = {}) {
+  return {
+    id: 'order-d1-1',
+    order_number: 'CS-D1-1001',
+    user_id: D1_USER.id,
+    status: 'delivered',
+    payment_status: 'paid',
+    fulfillment_status: 'delivered',
+    payment_method: 'iyzico',
+    customer_email: D1_USER.email,
+    total_amount: 899,
+    currency: 'TRY',
+    delivered_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides
+  };
+}
+
+function seedReturnOrderItem(overrides = {}) {
+  return {
+    id: 'oi-d1-1',
+    order_id: 'order-d1-1',
+    product_id: 'prod-a',
+    product_slug: 'beauty-of-joseon-relief-sun-spf50',
+    product_name: 'Relief Sun SPF50',
+    unit_price: 899,
+    quantity: 2,
+    line_total: 1798,
+    ...overrides
+  };
+}
+
+function d1ReturnPost(body, token = 'customer-token') {
+  return customerReturnsPost({
+    request: new Request('https://local.test/api/returns', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    }),
+    env
+  });
+}
+
+function installReturnsCustomerFetch(fake) {
+  return installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/auth/v1/user')) return response(D1_USER);
+    return await fake.fetchHandler(url, options);
+  });
+}
+
+test('D1: customer cannot create return for shipped order without delivery timestamp', async () => {
+  const fake = createFakeSupabase({
+    orders: [seedReturnOrder({ id: 'order-d1-shipped', status: 'shipped', fulfillment_status: 'shipped', delivered_at: null })],
+    order_items: [seedReturnOrderItem({ id: 'oi-shipped', order_id: 'order-d1-shipped' })],
+    shipments: [{ id: 'ship-1', order_id: 'order-d1-shipped', status: 'shipped', delivered_at: null, created_at: new Date().toISOString() }]
+  });
+  const restore = installReturnsCustomerFetch(fake);
+  try {
+    const res = await d1ReturnPost({
+      order_id: 'order-d1-shipped',
+      items: [{ order_item_id: 'oi-shipped', product_slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 1, reason: 'Vazgeçtim' }],
+      unused_confirmed: true,
+      hygiene_confirmed: true,
+      seal_intact_confirmed: true,
+      resaleable_confirmed: true,
+      return_terms_confirmed: true
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /teslim edildikten sonra/i);
+    assert.equal(fake.table('return_requests').length, 0);
+  } finally { restore(); }
+});
+
+test('D1: customer can create return for delivered order within return window', async () => {
+  const fake = createFakeSupabase({
+    orders: [seedReturnOrder()],
+    order_items: [seedReturnOrderItem()]
+  });
+  const restore = installReturnsCustomerFetch(fake);
+  try {
+    const res = await d1ReturnPost({
+      order_id: 'order-d1-1',
+      items: [{ order_item_id: 'oi-d1-1', product_slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 1, reason: 'Vazgeçtim' }],
+      unused_confirmed: true,
+      hygiene_confirmed: true,
+      seal_intact_confirmed: true,
+      resaleable_confirmed: true,
+      return_terms_confirmed: true
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(fake.table('return_requests').length, 1);
+    assert.equal(fake.table('return_request_items')[0].quantity, 1);
+    assert.equal(fake.table('return_requests')[0].status, 'requested');
+  } finally { restore(); }
+});
+
+test('D1: customer cannot create return for delivered order outside return window', async () => {
+  const fake = createFakeSupabase({
+    orders: [seedReturnOrder({ delivered_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString() })],
+    order_items: [seedReturnOrderItem()]
+  });
+  const restore = installReturnsCustomerFetch(fake);
+  try {
+    const res = await d1ReturnPost({
+      order_id: 'order-d1-1',
+      items: [{ order_item_id: 'oi-d1-1', product_slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 1, reason: 'Vazgeçtim' }],
+      unused_confirmed: true,
+      hygiene_confirmed: true,
+      seal_intact_confirmed: true,
+      resaleable_confirmed: true,
+      return_terms_confirmed: true
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /İade süresi dolmuştur/i);
+  } finally { restore(); }
+});
+
+test('D1: customer cannot return more than purchased quantity cumulatively', async () => {
+  const fake = createFakeSupabase({
+    orders: [seedReturnOrder()],
+    order_items: [seedReturnOrderItem({ quantity: 2 })],
+    return_requests: [{ id: 'ret-prev', order_id: 'order-d1-1', status: 'requested', customer_email: D1_USER.email }],
+    return_request_items: [{ id: 'rri-1', return_request_id: 'ret-prev', order_item_id: 'oi-d1-1', product_slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 2 }]
+  });
+  const restore = installReturnsCustomerFetch(fake);
+  try {
+    const res = await d1ReturnPost({
+      order_id: 'order-d1-1',
+      items: [{ order_item_id: 'oi-d1-1', product_slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 1, reason: 'Vazgeçtim' }],
+      unused_confirmed: true,
+      hygiene_confirmed: true,
+      seal_intact_confirmed: true,
+      resaleable_confirmed: true,
+      return_terms_confirmed: true
+    });
+    const data = await res.json();
+    assert.equal(res.status, 409);
+    assert.match(data.error, /daha önce iade talebi/i);
+    assert.equal(fake.table('return_requests').length, 1);
+  } finally { restore(); }
+});
+
+test('D1: rejected prior return does not count against cumulative quantity budget', () => {
+  const claimed = buildClaimedQuantityMap(
+    [{ return_request_id: 'ret-rej', order_item_id: 'oi-d1-1', product_slug: 'sku-a', quantity: 2 }],
+    new Map([['ret-rej', { id: 'ret-rej', status: 'rejected' }]])
+  );
+  assert.equal(claimed.get('oi-d1-1') || 0, 0);
+  const check = validateCumulativeReturnQuantities(
+    [{ order_item_id: 'oi-d1-1', product_slug: 'sku-a', quantity: 2, purchased_quantity: 2 }],
+    claimed
+  );
+  assert.equal(check.ok, true);
+});
+
+test('D1: resolveDeliveryTimestamp ignores created_at and uses shipment delivered_at fallback', () => {
+  const order = { status: 'shipped', delivered_at: null, created_at: '2020-01-01T00:00:00.000Z', updated_at: '2025-01-01T00:00:00.000Z' };
+  const ts = resolveDeliveryTimestamp(order, [{ status: 'delivered', delivered_at: '2026-06-10T12:00:00.000Z' }]);
+  assert.equal(ts, '2026-06-10T12:00:00.000Z');
+  assert.equal(withinReturnWindow(order.created_at), false);
+});
+
+test('D1: customer return rejects foreign-owned attachment path (H1)', async () => {
+  const fake = createFakeSupabase({
+    orders: [seedReturnOrder()],
+    order_items: [seedReturnOrderItem()]
+  });
+  const restore = installReturnsCustomerFetch(fake);
+  try {
+    const res = await d1ReturnPost({
+      order_id: 'order-d1-1',
+      items: [{ order_item_id: 'oi-d1-1', product_slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 1, reason: 'Ürün hasarlı geldi' }],
+      attachments: [{ file_path: 'customer/other-user/photo.jpg', file_name: 'photo.jpg', mime_type: 'image/jpeg', file_size: 1000 }],
+      unused_confirmed: true,
+      hygiene_confirmed: true,
+      seal_intact_confirmed: true,
+      resaleable_confirmed: true,
+      return_terms_confirmed: true
+    });
+    assert.equal(res.status, 403);
+  } finally { restore(); }
+});
+
+test('D1: admin cannot complete refund without provider_reference', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d1-refund' })]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/refunds', 'POST', 'cankolsun@gmail.com', {
+      order_id: 'order-d1-refund',
+      status: 'completed',
+      amount: 899
+    });
+    req.headers.set('content-type', 'application/json');
+    const res = await adminRefundsPost({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /işlem referansı zorunludur/i);
+    assert.equal(fake.table('refund_records').length, 0);
+  } finally { restore(); }
+});
+
+test('D1: admin can complete refund with provider_reference and cannot complete twice', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d1-refund-2' })],
+    return_requests: [{ id: 'ret-ref-1', order_id: 'order-d1-refund-2', status: 'received', customer_email: D1_USER.email, refund_status: 'pending' }]
+  });
+  try {
+    const body = {
+      order_id: 'order-d1-refund-2',
+      return_request_id: 'ret-ref-1',
+      status: 'completed',
+      amount: 899,
+      provider_reference: 'IYZICO-REF-12345'
+    };
+    const req1 = new Request('https://local.test/api/admin/refunds', {
+      method: 'POST',
+      headers: { 'x-admin-token': 'a'.repeat(64), 'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com', 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const res1 = await adminRefundsPost({ request: req1, env: b1AdminEnv(), params: {} });
+    const data1 = await res1.json();
+    assert.equal(res1.status, 200);
+    assert.equal(data1.ok, true);
+    assert.equal(fake.table('refund_records').length, 1);
+    assert.equal(fake.table('refund_records')[0].provider_reference, 'IYZICO-REF-12345');
+
+    const req2 = new Request('https://local.test/api/admin/refunds', {
+      method: 'POST',
+      headers: { 'x-admin-token': 'a'.repeat(64), 'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com', 'content-type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const res2 = await adminRefundsPost({ request: req2, env: b1AdminEnv(), params: {} });
+    const data2 = await res2.json();
+    assert.equal(res2.status, 200);
+    assert.equal(data2.idempotent, true);
+    assert.equal(fake.table('refund_records').length, 1);
+  } finally { restore(); }
+});
+
+test('D1: unauthorized admin cannot mutate returns or refunds', async () => {
+  const fake = createFakeSupabase({
+    return_requests: [{ id: 'ret-d1-auth', order_id: 'order-d1-1', status: 'requested', customer_email: D1_USER.email }]
+  });
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users')) return response([]);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    return await fake.fetchHandler(url, options);
+  });
+  try {
+    const retReq = b1PatchRequest('https://local.test/api/admin/returns', 'PATCH', 'attacker@example.com', { id: 'ret-d1-auth', status: 'approved' });
+    const retRes = await adminReturnsPatch({ request: retReq, env: b1AdminEnv(), params: {} });
+    assert.equal(retRes.status, 403);
+
+    const refundReq = new Request('https://local.test/api/admin/refunds', {
+      method: 'POST',
+      headers: { 'x-admin-token': 'a'.repeat(64), 'Cf-Access-Authenticated-User-Email': 'attacker@example.com', 'content-type': 'application/json' },
+      body: JSON.stringify({ order_id: 'order-d1-1', status: 'pending' })
+    });
+    const refundRes = await adminRefundsPost({ request: refundReq, env: b1AdminEnv(), params: {} });
+    assert.equal(refundRes.status, 403);
+  } finally { restore(); }
+});
+
+test('D1: admin return approve rejects invalid status transition', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    return_requests: [{ id: 'ret-tr-1', order_id: 'order-d1-1', status: 'refunded', customer_email: D1_USER.email, refund_status: 'completed' }],
+    orders: [seedReturnOrder()]
+  });
+  try {
+    const req = b1PatchRequest('https://local.test/api/admin/returns', 'PATCH', 'cankolsun@gmail.com', { id: 'ret-tr-1', status: 'approved' });
+    const res = await adminReturnsPatch({ request: req, env: b1AdminEnv(), params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /Onay yalnızca/i);
+    assert.equal(fake.table('return_requests')[0].status, 'refunded');
   } finally { restore(); }
 });
 

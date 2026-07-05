@@ -1,0 +1,36 @@
+# COSMOSKIN D1 — Returns / Refunds Commerce Correctness — Changed Files
+# Date: 2026-07-06
+# No migration created. No SQL run. No deploy.
+
+## Core behavior (D1 scope)
+functions/api/returns.js
+functions/api/admin/refunds.js
+functions/api/admin/returns.js
+assets/account-dashboard.js
+assets/account-returns.js
+
+## Tests & validator
+scripts/validate-d1-returns-refunds-correctness.mjs
+tests/local-integration.test.mjs
+
+## Prior-batch scope-guard updates (D1-owned files exempted; RBAC core untouched)
+scripts/validate-a1-admin-endpoint-coverage.mjs
+scripts/validate-a1-admin-rbac-hardening.mjs
+scripts/validate-a1f-admin-rbac-session-identity.mjs
+scripts/validate-b2e-email-events-integrity.mjs
+
+## Deliverables (this batch)
+COSMOSKIN_D1_RETURNS_REFUNDS_CORRECTNESS_REPORT_20260706.md
+COSMOSKIN_D1_RETURNS_REFUNDS_CORRECTNESS_CHANGED_FILES_20260706.txt
+COSMOSKIN_D1_RETURNS_REFUNDS_CORRECTNESS_RUNBOOK_20260706.md
+COSMOSKIN_D1_RETURNS_REFUNDS_CORRECTNESS_ROLLBACK_PLAN_20260706.md
+
+## Explicitly NOT changed
+functions/api/_lib/admin.js
+functions/api/_lib/admin-audit.js
+functions/api/_lib/cloudflare-access-jwt.js
+functions/api/_lib/commerce-finalization.js
+functions/api/_lib/order-email.js
+functions/api/_lib/email-events.js
+functions/api/iyzico-callback.js
+supabase/migrations/*

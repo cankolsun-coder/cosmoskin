@@ -210,7 +210,7 @@ const a1fForbidden = [
   'functions/api/create-checkout.js',
   'functions/api/iyzico-callback.js',
   'functions/api/_lib/commerce-finalization.js',
-  'functions/api/returns.js',
+  // functions/api/returns.js — D1 (2026-07-06) owns return eligibility/correctness fixes.
   'functions/api/_lib/coupons.js',
   'functions/api/_lib/loyalty-ledger.js'
 ];

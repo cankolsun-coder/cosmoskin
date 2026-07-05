@@ -8,6 +8,28 @@ import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
 
 const VALID_STATUS = new Set(['requested','under_review','approved','return_code_shared','waiting_customer_ship','in_transit','received','inspection','refund_pending','refunded','rejected','cancelled','closed']);
 const VALID_REFUND = new Set(['not_started','pending','completed','failed']);
+const APPROVE_FROM = new Set(['requested','under_review']);
+const REJECT_FROM = new Set(['requested','under_review']);
+const RECEIVE_FROM = new Set(['approved','return_code_shared','waiting_customer_ship','in_transit']);
+const REFUND_FROM = new Set(['received','inspection','refund_pending']);
+
+function validateReturnStatusTransition(currentStatus, nextStatus) {
+  if (!nextStatus || nextStatus === currentStatus) return null;
+  if (nextStatus === 'approved' && !APPROVE_FROM.has(currentStatus)) {
+    return 'Onay yalnızca yeni veya incelenmekte olan iade talepleri için yapılabilir.';
+  }
+  if (nextStatus === 'rejected' && !REJECT_FROM.has(currentStatus)) {
+    return 'Ret yalnızca yeni veya incelenmekte olan iade talepleri için yapılabilir.';
+  }
+  if (nextStatus === 'received' && !RECEIVE_FROM.has(currentStatus)) {
+    return 'Teslim alma yalnızca onaylanmış iade talepleri için yapılabilir.';
+  }
+  if (nextStatus === 'refunded' && !REFUND_FROM.has(currentStatus)) {
+    return 'Refund tamamlama yalnızca teslim alınmış veya iade sürecindeki talepler için yapılabilir.';
+  }
+  return null;
+}
+
 function clean(value,max=700){return String(value||'').replace(/\s+/g,' ').trim().slice(0,max);}
 function inFilter(values = []) { return `in.(${values.filter(Boolean).join(',')})`; }
 async function loadOrder(context, id){ const rows=await selectRows(context,'orders',{select:'*',id:`eq.${id}`,limit:'1'}).catch(()=>[]); return rows?.[0]||null; }
@@ -91,6 +113,8 @@ export async function onRequestPatch(context){
     const status=clean(body.status,40)||current.status; const refundStatus=clean(body.refund_status,40)||current.refund_status||'not_started';
     if(!VALID_STATUS.has(status)) return json({ok:false,error:'status geçersiz.'},{status:400}); if(!VALID_REFUND.has(refundStatus)) return json({ok:false,error:'refund_status geçersiz.'},{status:400});
     if(status==='rejected' && !clean(body.rejection_reason || body.admin_note,600)) return json({ok:false,error:'Ret nedeni zorunlu.'},{status:400});
+    const transitionError = validateReturnStatusTransition(current.status, status);
+    if (transitionError) return json({ ok:false, error: transitionError }, { status:400 });
     const payload={status,refund_status:refundStatus,admin_note:clean(body.admin_note,1000)||current.admin_note||null,rejection_reason:clean(body.rejection_reason,700)||current.rejection_reason||null,updated_at:new Date().toISOString()};
     if(status==='return_code_shared') payload.return_code_shared_at=new Date().toISOString();
     await updateRows(context,'return_requests',{id},payload);

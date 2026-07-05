@@ -6,15 +6,25 @@ import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from './_lib/
 import { assertRateLimit } from './_lib/security.js';
 import { signReturnAttachments } from './_lib/return-attachments.js';
 
-const ACTIVE_RETURN_STATUSES = ['requested','under_review','approved','return_code_shared','waiting_customer_ship','in_transit','received','inspection','refund_pending'];
-const ELIGIBLE_ORDER_STATUSES = new Set(['shipped','delivered','completed']);
-const ELIGIBLE_FULFILLMENT = new Set(['shipped','delivered']);
+export const RETURN_CLAIM_STATUSES = [
+  'requested', 'under_review', 'approved', 'return_code_shared', 'waiting_customer_ship',
+  'in_transit', 'received', 'inspection', 'refund_pending', 'refunded'
+];
+export const RETURN_WINDOW_DAYS = 14;
+
+const NON_RETURNABLE_ORDER_STATUSES = new Set([
+  'pending', 'pending_payment', 'pending_bank_transfer', 'payment_failed', 'cancelled', 'preparing', 'packed'
+]);
 const RETURN_REASONS = new Set(['Vazgeçtim','Yanlış ürün gönderildi','Ürün hasarlı geldi','Eksik ürün gönderildi','Ürün beklentimi karşılamadı','Diğer']);
 const ATTACHMENT_REQUIRED_REASONS = new Set(['Yanlış ürün gönderildi','Ürün hasarlı geldi','Eksik ürün gönderildi']);
 const ALLOWED_MIME = new Set(['image/jpeg','image/png','image/webp','video/mp4']);
 const MAX_ATTACHMENTS = 5;
 const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024;
-const RETURN_WINDOW_DAYS = 14;
+
+const ERR_NOT_DELIVERED = 'Sipariş teslim edildikten sonra iade talebi oluşturabilirsiniz.';
+const ERR_WINDOW_EXPIRED = 'İade süresi dolmuştur.';
+const ERR_QUANTITY_EXCEEDED = 'Bu ürün için iade adedi satın aldığınız miktarı aşamaz.';
+const ERR_ACTIVE_RETURN = 'Bu ürün için daha önce iade talebi oluşturulmuş.';
 
 function tokenFromReq(req){ return (req.headers.get('authorization') || '').replace(/^Bearer\s+/i,''); }
 function clean(value, max = 500){ return String(value || '').replace(/\s+/g,' ').trim().slice(0, max); }
@@ -22,40 +32,80 @@ function inFilter(values = []) { return `in.(${values.filter(Boolean).join(',')}
 function lower(value){ return String(value || '').trim().toLowerCase(); }
 function bool(value){ return value === true || value === 'true' || value === '1' || value === 'on'; }
 function orderNumber(order = {}) { return order.order_number || order.id || 'COSMOSKIN'; }
-function deliveredAt(order = {}) { return order.delivered_at || order.fulfilled_at || order.updated_at || order.created_at || null; }
 function addDays(date, days){ const d = new Date(date); d.setDate(d.getDate() + days); return d; }
-function withinReturnWindow(order = {}) {
-  const value = deliveredAt(order);
-  if (!value) return false;
-  const end = addDays(value, RETURN_WINDOW_DAYS);
+
+/** Canonical delivery timestamp — order.delivered_at or shipment delivered_at only. */
+export function resolveDeliveryTimestamp(order = {}, shipmentRows = []) {
+  const orderTs = order.delivered_at || null;
+  if (orderTs) return orderTs;
+  for (const row of shipmentRows || []) {
+    if (row?.delivered_at) return row.delivered_at;
+  }
+  for (const row of shipmentRows || []) {
+    if (lower(row?.status) === 'delivered') return row.updated_at || row.created_at || null;
+  }
+  return null;
+}
+
+export function isDeliveredForReturn(order = {}, deliveryAt = null) {
+  if (!deliveryAt) return false;
+  const status = lower(order.status);
+  if (NON_RETURNABLE_ORDER_STATUSES.has(status)) return false;
+  if (status === 'shipped' && !order.delivered_at) {
+    // Shipped without order.delivered_at is allowed only when a shipment delivery timestamp exists.
+    return Boolean(deliveryAt);
+  }
+  return true;
+}
+
+export function withinReturnWindow(deliveryAt) {
+  if (!deliveryAt) return false;
+  const end = addDays(deliveryAt, RETURN_WINDOW_DAYS);
   return Date.now() <= end.getTime();
 }
-function isDelivered(order = {}) {
-  const status = lower(order.status);
-  const fulfillment = lower(order.fulfillment_status);
-  return ELIGIBLE_ORDER_STATUSES.has(status) || ELIGIBLE_FULFILLMENT.has(fulfillment) || Boolean(order.delivered_at || order.fulfilled_at);
+
+export function returnWindowEndsAt(deliveryAt) {
+  if (!deliveryAt) return null;
+  return addDays(deliveryAt, RETURN_WINDOW_DAYS).toISOString();
 }
-function isEligible(order = {}) { return isDelivered(order) && withinReturnWindow(order); }
+
+async function loadShipmentRows(context, orderId) {
+  if (!orderId) return [];
+  return await selectRows(context, 'shipments', {
+    select: 'id,order_id,status,delivered_at,created_at,updated_at',
+    order_id: `eq.${orderId}`,
+    order: 'created_at.desc',
+    limit: '5'
+  }).catch(() => []);
+}
+
+async function resolveOrderDelivery(context, order) {
+  const shipments = await loadShipmentRows(context, order.id);
+  const deliveryAt = resolveDeliveryTimestamp(order, shipments);
+  return { deliveryAt, shipments };
+}
+
 async function getAuthUser(context, body = {}) {
   const token = body.accessToken || tokenFromReq(context.request);
   return token ? await getUserFromAccessToken(context, token) : null;
 }
+
 function returnNumber(row) {
   const seed = String(row?.id || crypto.randomUUID()).replace(/-/g,'').slice(0,10).toUpperCase();
   return `CS-RET-${seed}`;
 }
+
 function isSafeAttachmentPath(value) {
   if (typeof value !== 'string' || !value || value.length > 420) return false;
   if (value.includes('..') || value.includes('\\') || value.includes('\0')) return false;
   if (value.startsWith('/') || value.includes(':')) return false;
   return /^[A-Za-z0-9/_.-]+$/.test(value);
 }
-// Mirrors the storage RLS ownership predicate (customer/{auth.uid()}/...) so a
-// client-supplied file_path can never be persisted against another customer's
-// object, even though the upload path itself is otherwise client-constructed.
+
 function isOwnedAttachmentPath(value, userId) {
   return Boolean(userId) && isSafeAttachmentPath(value) && value.startsWith(`customer/${userId}/`);
 }
+
 function normalizeAttachments(input = []) {
   return (Array.isArray(input) ? input : []).slice(0, MAX_ATTACHMENTS).map((file) => ({
     file_path: clean(file.file_path || file.path || '', 420),
@@ -66,15 +116,16 @@ function normalizeAttachments(input = []) {
     uploaded_by: clean(file.uploaded_by || 'customer', 40)
   })).filter((file) => file.file_path && ALLOWED_MIME.has(file.mime_type) && file.file_size <= MAX_ATTACHMENT_SIZE);
 }
+
 function normalizeItems(input = [], orderItems = []) {
-  const byId = new Map((orderItems || []).map((item) => [String(item.id || item.product_id || item.product_slug || ''), item]));
-  const bySlug = new Map((orderItems || []).map((item) => [String(item.product_slug || item.product_id || item.id || ''), item]));
+  const byId = new Map((orderItems || []).map((item) => [String(item.id || ''), item]));
+  const bySlug = new Map((orderItems || []).map((item) => [String(item.product_slug || item.product_id || ''), item]));
   return (Array.isArray(input) ? input : []).map((raw) => {
     const orderItemId = clean(raw.order_item_id || raw.id || '', 120);
     const slug = clean(raw.product_slug || raw.product_id || '', 180);
     const source = byId.get(orderItemId) || bySlug.get(slug) || null;
-    const maxQty = Number(source?.quantity || 1);
-    const quantity = Math.max(1, Math.min(maxQty || 1, Number(raw.quantity || 1)));
+    const maxQty = Number(source?.quantity || 0);
+    const quantity = Math.max(0, Math.min(maxQty || 0, Number(raw.quantity || 1)));
     const reason = clean(raw.reason || raw.return_reason || '', 120);
     return {
       order_item_id: orderItemId || source?.id || null,
@@ -87,10 +138,71 @@ function normalizeItems(input = [], orderItems = []) {
       note: clean(raw.note || raw.customer_note || '', 420),
       unit_price_snapshot: Number(source?.unit_price || raw.unit_price || raw.price || 0),
       refundable_amount: Math.max(0, Number(source?.unit_price || raw.unit_price || raw.price || 0) * quantity),
-      condition_status: clean(raw.condition_status || 'customer_declared', 80)
+      condition_status: clean(raw.condition_status || 'customer_declared', 80),
+      purchased_quantity: maxQty
     };
-  }).filter((item) => item.product_slug && RETURN_REASONS.has(item.reason));
+  }).filter((item) => item.product_slug && RETURN_REASONS.has(item.reason) && item.quantity > 0);
 }
+
+function aggregateItemsByLine(items = []) {
+  const map = new Map();
+  for (const item of items) {
+    const key = String(item.order_item_id || item.product_slug || '');
+    if (!key) continue;
+    const existing = map.get(key);
+    if (existing) {
+      existing.quantity += item.quantity;
+      existing.refundable_amount = Math.max(0, existing.unit_price_snapshot * existing.quantity);
+    } else {
+      map.set(key, { ...item });
+    }
+  }
+  return Array.from(map.values());
+}
+
+export function buildClaimedQuantityMap(returnItems = [], returnRequestsById = new Map()) {
+  const claimed = new Map();
+  for (const row of returnItems || []) {
+    const parent = returnRequestsById.get(row.return_request_id);
+    if (!parent || !RETURN_CLAIM_STATUSES.includes(String(parent.status || ''))) continue;
+    const key = String(row.order_item_id || row.product_slug || '');
+    if (!key) continue;
+    claimed.set(key, (claimed.get(key) || 0) + Number(row.quantity || 0));
+  }
+  return claimed;
+}
+
+export function validateCumulativeReturnQuantities(items = [], claimedMap = new Map()) {
+  for (const item of items) {
+    const key = String(item.order_item_id || item.product_slug || '');
+    const purchased = Number(item.purchased_quantity || 0);
+    const requested = Number(item.quantity || 0);
+    const claimed = Number(claimedMap.get(key) || 0);
+    if (requested <= 0) return { ok: false, error: ERR_QUANTITY_EXCEEDED, item };
+    if (purchased <= 0) return { ok: false, error: ERR_QUANTITY_EXCEEDED, item };
+    if (claimed + requested > purchased) return { ok: false, error: ERR_QUANTITY_EXCEEDED, item };
+  }
+  return { ok: true };
+}
+
+async function loadClaimedQuantitiesForOrder(context, orderId) {
+  const requests = await selectRows(context, 'return_requests', {
+    select: 'id,status',
+    order_id: `eq.${orderId}`,
+    status: inFilter(RETURN_CLAIM_STATUSES),
+    limit: '100'
+  }).catch(() => []);
+  const requestMap = new Map((requests || []).map((row) => [row.id, row]));
+  const ids = [...requestMap.keys()];
+  if (!ids.length) return new Map();
+  const itemRows = await selectRows(context, 'return_request_items', {
+    select: 'return_request_id,order_item_id,product_slug,quantity',
+    return_request_id: inFilter(ids),
+    limit: '500'
+  }).catch(() => []);
+  return buildClaimedQuantityMap(itemRows, requestMap);
+}
+
 function hygienePayload(body = {}) {
   return {
     hygiene_confirmed: bool(body.hygiene_confirmed),
@@ -100,10 +212,13 @@ function hygienePayload(body = {}) {
     return_terms_confirmed: bool(body.return_terms_confirmed)
   };
 }
+
 function requiresHygiene(items = []) {
   return items.some((item) => ['Vazgeçtim','Ürün beklentimi karşılamadı'].includes(item.reason));
 }
+
 function requiresAttachment(items = []) { return items.some((item) => ATTACHMENT_REQUIRED_REASONS.has(item.reason)); }
+
 async function sendAndLog(context, order, emailType, note = '', toOverride = '') {
   try {
     const result = await sendCommerceTransactionalEmail(context.env, { order, type: emailType, note, to: toOverride || undefined, subject: toOverride ? `${getCommerceEmailSubject(emailType)} | ${orderNumber(order)}` : undefined });
@@ -132,13 +247,24 @@ export async function onRequestGet(context){
     const url = new URL(context.request.url);
     const scope = url.searchParams.get('scope') || '';
     if (scope === 'eligible-orders') {
-      const orders = await selectRows(context,'orders',{select:'id,order_number,status,payment_status,fulfillment_status,total_amount,currency,customer_email,delivered_at,fulfilled_at,created_at,updated_at',or:`(user_id.eq.${user.id},customer_email.eq.${lower(user.email)})`,order:'created_at.desc',limit:'30'}).catch(()=>[]);
+      const orders = await selectRows(context,'orders',{select:'id,order_number,status,payment_status,fulfillment_status,total_amount,currency,customer_email,delivered_at,created_at,updated_at',or:`(user_id.eq.${user.id},customer_email.eq.${lower(user.email)})`,order:'created_at.desc',limit:'30'}).catch(()=>[]);
       const ids = (orders || []).map((o)=>o.id).filter(Boolean);
       let items = [];
       if (ids.length) items = await selectRows(context,'order_items',{select:'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total',order_id:inFilter(ids),order:'created_at.asc'}).catch(()=>[]);
       const grouped = new Map();
       (items || []).forEach((item)=>{ const list = grouped.get(item.order_id) || []; list.push(item); grouped.set(item.order_id, list); });
-      return json({ ok:true, orders:(orders || []).map((order)=>({ ...order, is_return_eligible:isEligible(order), return_window_ends_at:deliveredAt(order) ? addDays(deliveredAt(order), RETURN_WINDOW_DAYS).toISOString() : null, order_items:grouped.get(order.id)||[] })) });
+      const enriched = await Promise.all((orders || []).map(async (order) => {
+        const { deliveryAt } = await resolveOrderDelivery(context, order);
+        const eligible = isDeliveredForReturn(order, deliveryAt) && withinReturnWindow(deliveryAt);
+        return {
+          ...order,
+          is_return_eligible: eligible,
+          return_window_ends_at: returnWindowEndsAt(deliveryAt),
+          delivery_resolved_at: deliveryAt,
+          order_items: grouped.get(order.id) || []
+        };
+      }));
+      return json({ ok:true, orders: enriched });
     }
     const rows = await selectRows(context,'return_requests',{select:'*',customer_email:`eq.${lower(user.email)}`,order:'created_at.desc'}).catch(()=>[]);
     const ids = (rows || []).map((row)=>row.id).filter(Boolean);
@@ -152,11 +278,6 @@ export async function onRequestGet(context){
     }
     const group = (rows, key) => (rows || []).reduce((map,row)=>{ const list = map.get(row[key]) || []; list.push(row); map.set(row[key], list); return map; }, new Map());
     const gi = group(items,'return_request_id'), ga = group(attachments,'return_request_id'), ge = group(events,'return_request_id');
-    // H2 parity fix: attachments here are already scoped to this authenticated
-    // customer's own return_requests (rows -> ids -> return_request_id filter
-    // above), so signing them is safe — see functions/api/_lib/return-attachments.js
-    // for the ownership contract. No client-supplied attachment id/path is
-    // accepted anywhere in this handler.
     const returnsWithSignedAttachments = await Promise.all((rows||[]).map(async (row)=>({
       ...row,
       items:gi.get(row.id)||[],
@@ -181,12 +302,28 @@ export async function onRequestPost(context){
     const orders = await selectRows(context,'orders',{select:'*',id:`eq.${orderId}`,limit:'1'}).catch(()=>[]);
     const order = orders?.[0] || null;
     if(!order || lower(order.customer_email) !== lower(user.email)) return json({ok:false,error:'Sipariş bulunamadı.'},{status:404});
-    if(!isDelivered(order)) return json({ok:false,error:'Sipariş teslim edildikten sonra iade talebi oluşturabilirsiniz.'},{status:400});
-    if(!withinReturnWindow(order)) return json({ok:false,error:'Yasal iade süresi sona erdi.'},{status:400});
+
+    const { deliveryAt } = await resolveOrderDelivery(context, order);
+    if(!isDeliveredForReturn(order, deliveryAt)) return json({ok:false,error:ERR_NOT_DELIVERED},{status:400});
+    if(!withinReturnWindow(deliveryAt)) return json({ok:false,error:ERR_WINDOW_EXPIRED},{status:400});
 
     const orderItems = await selectRows(context,'order_items',{select:'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total',order_id:`eq.${order.id}`,order:'created_at.asc'}).catch(()=>[]);
-    const items = normalizeItems(body.items, orderItems);
+    let items = aggregateItemsByLine(normalizeItems(body.items, orderItems));
     if(!items.length) return json({ok:false,error:'İade etmek istediğiniz ürünleri ve iade sebebini seçin.'},{status:400});
+
+    const claimedMap = await loadClaimedQuantitiesForOrder(context, order.id);
+    const qtyCheck = validateCumulativeReturnQuantities(items, claimedMap);
+    if (!qtyCheck.ok) {
+      const activeSlugBlock = items.find((item) => {
+        const key = String(item.order_item_id || item.product_slug || '');
+        return (claimedMap.get(key) || 0) > 0;
+      });
+      if (activeSlugBlock && qtyCheck.error === ERR_QUANTITY_EXCEEDED) {
+        return json({ ok:false, error: ERR_ACTIVE_RETURN }, { status:409 });
+      }
+      return json({ ok:false, error: qtyCheck.error || ERR_QUANTITY_EXCEEDED }, { status:400 });
+    }
+
     const hygiene = hygienePayload(body);
     if(requiresHygiene(items) && !(hygiene.hygiene_confirmed && hygiene.unused_confirmed && hygiene.seal_intact_confirmed && hygiene.resaleable_confirmed && hygiene.return_terms_confirmed)) return json({ok:false,error:'Kozmetik/hijyen iade koşulları için gerekli onayları tamamlayın.'},{status:400});
     const rawAttachmentPaths = (Array.isArray(body.attachments) ? body.attachments : [])
@@ -198,13 +335,6 @@ export async function onRequestPost(context){
     const attachments = normalizeAttachments(body.attachments);
     if(requiresAttachment(items) && !attachments.length) return json({ok:false,error:'Hasarlı, yanlış veya eksik ürün taleplerinde fotoğraf/video eklenmelidir.'},{status:400});
 
-    const active = await selectRows(context,'return_requests',{select:'id,status,requested_items',order_id:`eq.${order.id}`,status:inFilter(ACTIVE_RETURN_STATUSES),limit:'20'}).catch(()=>[]);
-    const activeProductSlugs = new Set();
-    (active || []).forEach((request)=>{ (Array.isArray(request.requested_items) ? request.requested_items : []).forEach((item)=>activeProductSlugs.add(String(item.product_slug || item.product_id || ''))); });
-    const duplicate = items.find((item)=>activeProductSlugs.has(item.product_slug));
-    if(duplicate) return json({ok:false,error:`${duplicate.product_name_snapshot} için aktif bir iade talebi zaten bulunuyor.`},{status:409});
-
-    const delivered = deliveredAt(order);
     const created = await insertRow(context,'return_requests',{
       order_id: order.id,
       user_id: user.id || null,
@@ -217,16 +347,13 @@ export async function onRequestPost(context){
       requested_attachments: attachments,
       attachment_count: attachments.length,
       return_number: body.return_number || null,
-      delivered_at: delivered,
+      delivered_at: deliveryAt,
       requested_at: new Date().toISOString(),
-      return_window_ends_at: delivered ? addDays(delivered, RETURN_WINDOW_DAYS).toISOString() : null,
+      return_window_ends_at: returnWindowEndsAt(deliveryAt),
       is_within_return_window: true,
       ...hygiene
     });
     const returnNo = created?.return_number || returnNumber(created);
-    if (!created?.return_number) {
-      // return_number is also derived client-side/report-side if migration has not run yet.
-    }
     const itemRows = items.map((item)=>({
       return_request_id: created.id,
       order_item_id: item.order_item_id,
