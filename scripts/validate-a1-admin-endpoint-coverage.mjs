@@ -254,7 +254,7 @@ const BYTE_DIFF_EXEMPT_FILES = new Set([
   'functions/api/admin/orders.js',
   'functions/api/admin/orders/[id]/status.js',
   // D1 (2026-07-06) owns return/refund business-logic changes in these files;
-  // RBAC guards must remain, but correctness fixes are allowed.
+  // D2 (2026-07-06) extends admin/refunds.js with amount balance validation.
   'functions/api/admin/refunds.js',
   'functions/api/admin/returns.js'
 ]);
@@ -291,7 +291,9 @@ const HIGH_CAUTION_MARKERS = {
   ],
   'functions/api/admin/refunds.js': [
     'STATUSES', 'provider_reference', 'reverseOrderPoints', "completed_at: status === 'completed'",
-    'return_requests', 'sendCommerceTransactionalEmail', 'logRefundEmail', 'findCompletedRefund'
+    'return_requests', 'sendCommerceTransactionalEmail', 'logRefundEmail', 'findCompletedRefund',
+    'validateRefundAmount', 'computeRemainingRefundable',
+    'resolveProductRefundableCap', 'resolveShippingRefundableCap', 'buildRefundCaps'
   ],
   'functions/api/admin/invoices.js': [
     'TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'isUrl', 'order_status_events'

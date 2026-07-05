@@ -574,7 +574,7 @@ test('A1.2c: high-caution finance endpoints keep their business-logic markers al
   const refundsSrc = await fs.readFile(path.join(root, 'functions/api/admin/refunds.js'), 'utf8');
   const invoicesSrc = await fs.readFile(path.join(root, 'functions/api/admin/invoices.js'), 'utf8');
   const bankAccountsSrc = await fs.readFile(path.join(root, 'functions/api/admin/bank-accounts.js'), 'utf8');
-  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund']) {
+  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund', 'validateRefundAmount', 'resolveProductRefundableCap', 'resolveShippingRefundableCap']) {
     assert.match(refundsSrc, new RegExp(marker), `admin/refunds.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
   }
   for (const marker of ['TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'order_status_events']) {
@@ -1199,6 +1199,9 @@ function seedReturnOrder(overrides = {}) {
     fulfillment_status: 'delivered',
     payment_method: 'iyzico',
     customer_email: D1_USER.email,
+    subtotal_amount: 839,
+    shipping_amount: 60,
+    discount_amount: 0,
     total_amount: 899,
     currency: 'TRY',
     delivered_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
@@ -1386,7 +1389,7 @@ test('D1: admin cannot complete refund without provider_reference', async () => 
     const req = b1PatchRequest('https://local.test/api/admin/refunds', 'POST', 'cankolsun@gmail.com', {
       order_id: 'order-d1-refund',
       status: 'completed',
-      amount: 899
+      amount: 839
     });
     req.headers.set('content-type', 'application/json');
     const res = await adminRefundsPost({ request: req, env: b1AdminEnv(), params: {} });
@@ -1407,7 +1410,7 @@ test('D1: admin can complete refund with provider_reference and cannot complete 
       order_id: 'order-d1-refund-2',
       return_request_id: 'ret-ref-1',
       status: 'completed',
-      amount: 899,
+      amount: 839,
       provider_reference: 'IYZICO-REF-12345'
     };
     const req1 = new Request('https://local.test/api/admin/refunds', {
@@ -1472,6 +1475,291 @@ test('D1: admin return approve rejects invalid status transition', async () => {
     assert.equal(res.status, 400);
     assert.match(data.error, /Onay yalnızca/i);
     assert.equal(fake.table('return_requests')[0].status, 'refunded');
+  } finally { restore(); }
+});
+
+function d2RefundPost(body, email = 'cankolsun@gmail.com') {
+  return adminRefundsPost({
+    request: new Request('https://local.test/api/admin/refunds', {
+      method: 'POST',
+      headers: {
+        'x-admin-token': 'a'.repeat(64),
+        'Cf-Access-Authenticated-User-Email': email,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    }),
+    env: b1AdminEnv(),
+    params: {}
+  });
+}
+
+test('D2A: customer-preference refund excludes shipping from cap', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2a-product' })],
+    payments: [{ id: 'pay-d2a-1', order_id: 'order-d2a-product', status: 'paid', amount: 899, currency: 'TRY' }]
+  });
+  try {
+    const blocked = await d2RefundPost({
+      order_id: 'order-d2a-product',
+      status: 'completed',
+      amount: 899,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-SHIP-BLOCK'
+    });
+    const blockedData = await blocked.json();
+    assert.equal(blocked.status, 400);
+    assert.match(blockedData.error, /kalan iade edilebilir tutarı aşamaz/i);
+
+    const ok = await d2RefundPost({
+      order_id: 'order-d2a-product',
+      status: 'completed',
+      amount: 839,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-PRODUCT-ONLY'
+    });
+    const okData = await ok.json();
+    assert.equal(ok.status, 200);
+    assert.equal(okData.ok, true);
+    assert.equal(fake.table('refund_records').length, 1);
+  } finally { restore(); }
+});
+
+test('D2A: seller-fault refund can include shipping when approved', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2a-seller' })]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2a-seller',
+      status: 'completed',
+      amount: 899,
+      refund_responsibility: 'seller_fault',
+      provider_reference: 'REF-SELLER-FAULT'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(data.balance.shipping_included, true);
+    assert.equal(fake.table('refund_records')[0].amount, 899);
+  } finally { restore(); }
+});
+
+test('D2A: carrier-damage refund can include shipping', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2a-carrier' })]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2a-carrier',
+      status: 'completed',
+      amount: 899,
+      refund_responsibility: 'carrier_damage',
+      provider_reference: 'REF-CARRIER'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.balance.shipping_included, true);
+  } finally { restore(); }
+});
+
+test('D2A: standard refund cannot exceed product-only refundable cap', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-over' })]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2-over',
+      status: 'pending',
+      amount: 850,
+      refund_responsibility: 'customer_preference'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /kalan iade edilebilir tutarı aşamaz/i);
+    assert.equal(fake.table('refund_records').length, 0);
+  } finally { restore(); }
+});
+
+test('D2A: refund cannot exceed product plus approved shipping cap', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2a-cap' })]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2a-cap',
+      status: 'completed',
+      amount: 950,
+      refund_responsibility: 'seller_fault',
+      provider_reference: 'REF-OVER-CAP'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /kalan iade edilebilir tutarı aşamaz/i);
+  } finally { restore(); }
+});
+
+test('D2A: cannot create cumulative completed refunds above remaining cap', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-cum' })],
+    refund_records: [{ id: 'ref-cum-1', order_id: 'order-d2-cum', status: 'completed', amount: 500, provider_reference: 'REF-500', created_at: new Date().toISOString() }]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2-cum',
+      status: 'completed',
+      amount: 400,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-500B'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /kalan iade edilebilir tutarı aşamaz/i);
+    assert.equal(fake.table('refund_records').length, 1);
+  } finally { restore(); }
+});
+
+test('D2A: pending refund reserves remaining balance', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-reserve' })],
+    refund_records: [{ id: 'ref-pend-1', order_id: 'order-d2-reserve', status: 'pending', amount: 400, created_at: new Date().toISOString() }]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2-reserve',
+      status: 'completed',
+      amount: 500,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-RESERVE'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /kalan iade edilebilir tutarı aşamaz/i);
+    assert.equal(fake.table('refund_records').length, 1);
+  } finally { restore(); }
+});
+
+test('D2A: failed/cancelled refund does not reduce remaining balance', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-failed' })],
+    refund_records: [
+      { id: 'ref-fail-1', order_id: 'order-d2-failed', status: 'failed', amount: 899, created_at: new Date().toISOString() },
+      { id: 'ref-cancel-1', order_id: 'order-d2-failed', status: 'cancelled', amount: 899, created_at: new Date().toISOString() }
+    ]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2-failed',
+      status: 'completed',
+      amount: 839,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-PRODUCT'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(fake.table('refund_records').length, 3);
+  } finally { restore(); }
+});
+
+test('D2A: can complete partial refund within remaining product balance', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-partial' })],
+    refund_records: [
+      { id: 'ref-done-1', order_id: 'order-d2-partial', status: 'completed', amount: 400, provider_reference: 'REF-400', created_at: new Date().toISOString() },
+      { id: 'ref-pend-2', order_id: 'order-d2-partial', status: 'pending', amount: 200, created_at: new Date().toISOString() }
+    ]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2-partial',
+      status: 'completed',
+      amount: 239,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-239'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(fake.table('refund_records').length, 3);
+    assert.equal(fake.table('refund_records')[2].amount, 239);
+  } finally { restore(); }
+});
+
+test('D2A: manual shipping refund requires reason when enabled', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2a-manual' })]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2a-manual',
+      status: 'pending',
+      amount: 899,
+      refund_responsibility: 'manual_review',
+      include_shipping_refund: true
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /Kargo bedeli iadesi için onay ve gerekçe zorunludur/i);
+  } finally { restore(); }
+});
+
+test('D2A: manual shipping refund with reason can include shipping', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2a-manual-ok' })]
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: 'order-d2a-manual-ok',
+      status: 'completed',
+      amount: 899,
+      refund_responsibility: 'manual_review',
+      include_shipping_refund: true,
+      shipping_refund_reason: 'Operasyon onayı ile kargo iadesi',
+      provider_reference: 'REF-MANUAL-SHIP'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.balance.shipping_included, true);
+  } finally { restore(); }
+});
+
+test('D2A: cannot create refund with zero amount', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-zero' })]
+  });
+  try {
+    const res = await d2RefundPost({ order_id: 'order-d2-zero', status: 'pending', amount: 0 });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /geçerli bir tutar olmalıdır/i);
+    assert.equal(fake.table('refund_records').length, 0);
+  } finally { restore(); }
+});
+
+test('D2A: cannot create refund with negative amount', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-neg' })]
+  });
+  try {
+    const res = await d2RefundPost({ order_id: 'order-d2-neg', status: 'pending', amount: -50 });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /geçerli bir tutar olmalıdır/i);
+    assert.equal(fake.table('refund_records').length, 0);
+  } finally { restore(); }
+});
+
+test('D2A: cannot create refund for unpaid order', async () => {
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: 'order-d2-unpaid', payment_status: 'pending_payment', status: 'pending_payment' })]
+  });
+  try {
+    const res = await d2RefundPost({ order_id: 'order-d2-unpaid', status: 'pending', amount: 100 });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /ödeme henüz alınmamış/i);
+    assert.equal(fake.table('refund_records').length, 0);
   } finally { restore(); }
 });
 

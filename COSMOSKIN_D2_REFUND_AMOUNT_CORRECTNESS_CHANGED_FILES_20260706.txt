@@ -1,0 +1,38 @@
+# COSMOSKIN D2A — Refund Amount Correctness (Product/Shipping Separation) — Changed Files
+# Date: 2026-07-06
+# No migration created. No SQL run. No deploy. No commit.
+
+## Core behavior (D2A scope)
+functions/api/admin/refunds.js
+assets/admin-orders.js
+
+## Tests & validator
+scripts/validate-d2-refund-amount-correctness.mjs
+tests/local-integration.test.mjs
+
+## Prior-batch scope-guard updates
+scripts/validate-a1-admin-endpoint-coverage.mjs
+
+## Deliverables (this batch)
+COSMOSKIN_D2_REFUND_AMOUNT_CORRECTNESS_REPORT_20260706.md
+COSMOSKIN_D2_REFUND_AMOUNT_CORRECTNESS_CHANGED_FILES_20260706.txt
+COSMOSKIN_D2_REFUND_AMOUNT_CORRECTNESS_RUNBOOK_20260706.md
+COSMOSKIN_D2_REFUND_AMOUNT_CORRECTNESS_ROLLBACK_PLAN_20260706.md
+
+## Explicitly NOT changed
+functions/api/_lib/admin.js
+functions/api/_lib/admin-audit.js
+functions/api/_lib/cloudflare-access-jwt.js
+functions/api/_lib/commerce-finalization.js
+functions/api/_lib/order-email.js
+functions/api/_lib/email-events.js
+functions/api/_lib/coupons.js
+functions/api/_lib/loyalty-ledger.js
+functions/api/iyzico-callback.js
+functions/api/returns.js
+supabase/migrations/*
+
+## Deferred (D2B / D3)
+- Item-level coupon/discount proration
+- refund_items schema
+- DB CHECK / RPC for atomic refund balance

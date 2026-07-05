@@ -610,12 +610,123 @@
       '<label>Fatura tipi<select name="invoice_type"><option value="e_arsiv">e-Arşiv</option><option value="e_fatura">e-Fatura</option><option value="manual">Manuel</option></select></label><label>Durum<select name="invoice_status"><option value="pending">Bekliyor</option><option value="issued">Oluşturuldu</option><option value="failed">Başarısız</option><option value="cancelled">İptal Edildi</option></select></label>' +
       '<label>Fatura No<input name="invoice_number" placeholder="FTR-..." /></label><label>PDF URL<input name="pdf_url" type="url" placeholder="https://" /></label><label>Sağlayıcı<input name="provider" placeholder="manual / Paraşüt / Mikro" /></label><label>Sağlayıcı Referansı<input name="provider_reference" placeholder="Opsiyonel" /></label><label class="span-2">Not<textarea name="note" placeholder="Sipariş notu"></textarea></label></div><div class="cs-form-actions"><span class="cs-muted">Sahte resmi fatura başarı durumu üretilmez.</span><button class="cs-btn cs-btn-dark" type="submit">Fatura Kaydı Ekle</button></div></form></details>';
   }
+  function sumRefundAmountByStatus(refunds, statuses) {
+    var allowed = {};
+    (statuses || []).forEach(function (s) { allowed[s] = true; });
+    return (refunds || []).reduce(function (sum, row) {
+      if (!allowed[String(row.status || '')]) return sum;
+      return sum + Math.max(0, Number(row.amount || 0));
+    }, 0);
+  }
+  function resolveProductRefundableCap(order) {
+    var total = Number(order.total_amount || 0);
+    var shipping = Number(order.shipping_amount || 0);
+    if (total >= shipping) return Math.max(0, Math.round((total - shipping) * 100) / 100);
+    var subtotal = Number(order.subtotal_amount || 0);
+    var discount = Number(order.discount_amount || 0);
+    return Math.max(0, Math.round((subtotal - discount) * 100) / 100);
+  }
+  function readRefundFormState(form) {
+    if (!form) return { responsibility: 'customer_preference', include_shipping_refund: false, shipping_refund_reason: '', full_order_refund: false };
+    var fd = new FormData(form);
+    return {
+      responsibility: String(fd.get('refund_responsibility') || 'customer_preference'),
+      include_shipping_refund: fd.get('include_shipping_refund') === 'on',
+      shipping_refund_reason: String(fd.get('shipping_refund_reason') || ''),
+      full_order_refund: fd.get('full_order_refund') === 'on'
+    };
+  }
+  function resolveShippingRefundableCap(order, state) {
+    var shipping = Math.max(0, Number(order.shipping_amount || 0));
+    if (!shipping) return 0;
+    if (state.responsibility === 'seller_fault' || state.responsibility === 'carrier_damage') return shipping;
+    if (state.full_order_refund) return shipping;
+    if (state.responsibility === 'manual_review' && state.include_shipping_refund && state.shipping_refund_reason.trim()) return shipping;
+    return 0;
+  }
+  function refundBalanceSummary(order, formState) {
+    var refunds = order.refunds || [];
+    var state = formState || { responsibility: 'customer_preference', include_shipping_refund: false, shipping_refund_reason: '', full_order_refund: false };
+    var productCap = resolveProductRefundableCap(order);
+    var shippingAmount = Math.max(0, Number(order.shipping_amount || 0));
+    var shippingCap = resolveShippingRefundableCap(order, state);
+    var maxRefundable = Math.round((productCap + shippingCap) * 100) / 100;
+    var completed = Math.round(sumRefundAmountByStatus(refunds, ['completed']) * 100) / 100;
+    var pending = Math.round(sumRefundAmountByStatus(refunds, ['pending']) * 100) / 100;
+    var remaining = Math.max(0, Math.round((maxRefundable - completed - pending) * 100) / 100);
+    var refundable = ['paid', 'refunded', 'partially_refunded'].indexOf(String(order.payment_status || '')) >= 0;
+    return {
+      paid: Number(order.total_amount || 0),
+      productCap: productCap,
+      shippingAmount: shippingAmount,
+      shippingCap: shippingCap,
+      shippingIncluded: shippingCap > 0,
+      maxRefundable: maxRefundable,
+      completed: completed,
+      pending: pending,
+      remaining: remaining,
+      refundable: refundable,
+      responsibility: state.responsibility
+    };
+  }
+  function renderRefundBalanceSummary(order, formState) {
+    var balance = refundBalanceSummary(order, formState);
+    if (!balance.refundable) {
+      return '<div class="cs-warning">Bu sipariş için iade tutarı oluşturulamaz; ödeme henüz alınmamış veya iade edilebilir durumda değil.</div>';
+    }
+    return '<div class="cs-muted cs-refund-policy-copy"><p>Kargo bedeli standart ürün iadesine dahil edilmez.</p><p>Satıcı kaynaklı hata durumunda kargo bedeli iade kapsamına alınabilir.</p></div>' +
+      '<div class="cs-grid-2 cs-refund-balance-summary">' +
+      infoCell('Ödenen tutar', formatMoney(balance.paid, order.currency)) +
+      infoCell('İade edilebilir ürün tutarı', formatMoney(balance.productCap, order.currency)) +
+      infoCell('Kargo bedeli', formatMoney(balance.shippingAmount, order.currency)) +
+      infoCell('Kargo iade kapsamı', balance.shippingIncluded ? ('Dahil (' + formatMoney(balance.shippingCap, order.currency) + ')') : 'Hariç') +
+      infoCell('Tamamlanan iade', formatMoney(balance.completed, order.currency)) +
+      infoCell('Bekleyen iade', formatMoney(balance.pending, order.currency)) +
+      infoCell('Kalan iade edilebilir ürün tutarı', formatMoney(balance.remaining, order.currency)) +
+      '</div>';
+  }
+  function syncRefundFormBalance(form, order) {
+    if (!form || !order) return;
+    var state = readRefundFormState(form);
+    var balance = refundBalanceSummary(order, state);
+    form.setAttribute('data-remaining-refundable', String(balance.remaining));
+    form.setAttribute('data-product-cap', String(balance.productCap));
+    form.setAttribute('data-shipping-cap', String(balance.shippingCap));
+    form.setAttribute('data-shipping-included', balance.shippingIncluded ? '1' : '0');
+    var amountInput = form.querySelector('input[name="amount"]');
+    if (amountInput) {
+      amountInput.max = String(balance.remaining);
+      if (Number(amountInput.value || 0) > balance.remaining) amountInput.value = String(balance.remaining);
+    }
+    var manualShipping = form.querySelector('[data-manual-shipping-fields]');
+    if (manualShipping) manualShipping.style.display = state.responsibility === 'manual_review' ? '' : 'none';
+    updateRefundAmountHint(form);
+  }
+  function updateRefundAmountHint(form) {
+    if (!form) return;
+    var hint = form.querySelector('[data-refund-amount-hint]');
+    var input = form.querySelector('input[name="amount"]');
+    if (!hint || !input) return;
+    var remaining = Number(form.getAttribute('data-remaining-refundable') || 0);
+    var shippingIncluded = form.getAttribute('data-shipping-included') === '1';
+    var amount = Number(input.value || 0);
+    if (amount > remaining + 0.001) {
+      hint.textContent = 'İade tutarı kalan iade edilebilir tutarı aşamaz.';
+      hint.classList.add('cs-error-box');
+    } else {
+      hint.textContent = 'Kalan iade edilebilir ürün tutarı: ' + formatMoney(remaining, form.getAttribute('data-currency') || 'TRY') + (shippingIncluded ? ' (kargo dahil)' : ' (kargo hariç)');
+      hint.classList.remove('cs-error-box');
+    }
+  }
   function renderReturnTab(order) {
     var returns = order.return_requests || [];
     var refunds = order.refunds || [];
+    var balance = refundBalanceSummary(order);
+    var defaultAmount = balance.refundable ? balance.remaining : 0;
     return '<section class="cs-detail-card"><h3>İade / Refund</h3>' + (returns.length ? '<div class="cs-record-list">' + returns.map(renderReturnRecord).join('') + '</div>' : '<p>Bu sipariş için iade talebi bulunmuyor.</p>') + '</section>' +
       '<section class="cs-detail-card"><h3>Refund kayıtları</h3>' + (refunds.length ? '<div class="cs-record-list">' + refunds.map(function (r) { return '<article class="cs-record"><div class="cs-record-head"><strong>' + escapeHtml(formatMoney(r.amount, r.currency || order.currency)) + '</strong>' + renderBadge('refund', r.status || 'pending') + '</div><small>' + escapeHtml(r.provider || 'manual') + ' · Ref: ' + escapeHtml(r.provider_reference || '—') + ' · ' + escapeHtml(formatDate(r.completed_at || r.created_at)) + '</small>' + (r.error_message ? '<div class="cs-error-box">' + escapeHtml(r.error_message) + '</div>' : '') + '</article>'; }).join('') + '</div>' : '<p>Refund kaydı bulunmuyor.</p>') + '</section>' +
-      '<details class="cs-op-form"><summary>Refund kaydı oluştur</summary><form id="refundCreateForm" data-order-id="' + attr(order.id) + '"><div class="cs-warning">Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.</div><div class="cs-form-grid"><label>İade talebi<select name="return_request_id"><option value="">Seçiniz</option>' + returns.map(function (r) { return '<option value="' + attr(r.id) + '">' + escapeHtml(r.reason || r.id) + '</option>'; }).join('') + '</select></label><label>Tutar<input name="amount" type="number" min="0" step="0.01" value="' + attr(order.total_amount || '') + '" /></label><label>Para birimi<input name="currency" value="' + attr(order.currency || 'TRY') + '" /></label><label>Durum<select name="status"><option value="pending">Bekliyor</option><option value="completed">Tamamlandı</option><option value="failed">Başarısız</option><option value="cancelled">İptal Edildi</option></select></label><label>Sağlayıcı referansı<input name="provider_reference" placeholder="Opsiyonel" /></label><label class="span-2">Not<textarea name="note" placeholder="Refund operasyon notu"></textarea></label></div><div class="cs-form-actions"><span class="cs-muted">Tamamlandı seçilirse refund completed e-postası backend tarafından denenebilir.</span><button class="cs-btn cs-btn-dark" type="submit">Refund Kaydı Oluştur</button></div></form></details>';
+      '<details class="cs-op-form"><summary>Refund kaydı oluştur</summary><form id="refundCreateForm" data-order-id="' + attr(order.id) + '" data-remaining-refundable="' + attr(defaultAmount) + '" data-product-cap="' + attr(balance.productCap) + '" data-shipping-cap="0" data-shipping-included="0" data-currency="' + attr(order.currency || 'TRY') + '"><div class="cs-warning">Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.</div>' + renderRefundBalanceSummary(order) +
+      '<div class="cs-form-grid"><label>İade talebi<select name="return_request_id"><option value="">Seçiniz</option>' + returns.map(function (r) { return '<option value="' + attr(r.id) + '">' + escapeHtml(r.reason || r.id) + '</option>'; }).join('') + '</select></label><label>İade sorumluluğu<select name="refund_responsibility"><option value="customer_preference">Müşteri tercihi</option><option value="seller_fault">Satıcı kaynaklı hata</option><option value="carrier_damage">Kargo / taşıma hasarı</option><option value="manual_review">Manuel inceleme</option></select></label><label class="span-2"><input type="checkbox" name="full_order_refund" /> Tam sipariş iadesi (politika uygunsa kargo dahil)</label><div class="span-2" data-manual-shipping-fields style="display:none"><label class="span-2"><input type="checkbox" name="include_shipping_refund" /> Kargo bedelini iade kapsamına al</label><label class="span-2">Kargo iade gerekçesi<input name="shipping_refund_reason" placeholder="Manuel onay gerekçesi" /></label></div><label>Tutar<input name="amount" type="number" min="0.01" step="0.01" max="' + attr(defaultAmount) + '" value="' + attr(defaultAmount) + '" /></label><label>Para birimi<input name="currency" value="' + attr(order.currency || 'TRY') + '" /></label><label>Durum<select name="status"><option value="pending">Bekliyor</option><option value="completed">Tamamlandı</option><option value="failed">Başarısız</option><option value="cancelled">İptal Edildi</option></select></label><label>Sağlayıcı referansı<input name="provider_reference" placeholder="Tamamlanan iade için zorunlu" /></label><label class="span-2">Not<textarea name="note" placeholder="Refund operasyon notu"></textarea></label></div><p class="cs-muted" data-refund-amount-hint>Kalan iade edilebilir ürün tutarı: ' + escapeHtml(formatMoney(defaultAmount, order.currency)) + '</p><div class="cs-form-actions"><span class="cs-muted">Tamamlandı seçilirse refund completed e-postası backend tarafından denenebilir.</span><button class="cs-btn cs-btn-dark" type="submit"' + (balance.refundable && defaultAmount > 0 ? '' : ' disabled') + '>Refund Kaydı Oluştur</button></div></form></details>';
   }
   function renderReturnRecord(r) {
     return '<article class="cs-record"><div class="cs-record-head"><strong>' + escapeHtml(r.reason || 'İade talebi') + '</strong>' + renderBadge('return', r.status || 'requested') + '</div><small>' + escapeHtml(r.customer_note || 'Müşteri notu yok') + '</small><form class="returnUpdateForm" data-return-id="' + attr(r.id) + '"><div class="cs-form-grid"><label>İade durumu<select name="status">' + optionsHtml(RETURN_STATUSES.filter(notAll), r.status || 'requested') + '</select></label><label>Refund durumu<select name="refund_status"><option value="not_started"' + (r.refund_status === 'not_started' ? ' selected' : '') + '>Başlamadı</option><option value="pending"' + (r.refund_status === 'pending' ? ' selected' : '') + '>Bekliyor</option><option value="completed"' + (r.refund_status === 'completed' ? ' selected' : '') + '>Tamamlandı</option><option value="failed"' + (r.refund_status === 'failed' ? ' selected' : '') + '>Başarısız</option></select></label><label class="span-2">Admin notu<textarea name="admin_note">' + escapeHtml(r.admin_note || '') + '</textarea></label></div><div class="cs-action-row"><button class="cs-btn cs-btn-dark" type="submit">İade Sürecini Güncelle</button><button class="cs-btn" type="button" data-return-action="under_review" data-return-id="' + attr(r.id) + '">İncelemeye al</button><button class="cs-btn" type="button" data-return-action="approved" data-return-id="' + attr(r.id) + '">İadeyi onayla</button><button class="cs-btn cs-btn-danger" type="button" data-return-action="rejected" data-return-id="' + attr(r.id) + '">İadeyi reddet</button><button class="cs-btn" type="button" data-return-action="received" data-return-id="' + attr(r.id) + '">Ürün teslim alındı</button><button class="cs-btn cs-btn-danger" type="button" data-return-action="closed" data-return-id="' + attr(r.id) + '">Süreci kapat</button></div></form></article>';
@@ -687,7 +798,30 @@
   }
   async function createRefund(orderId, form) {
     var fd = new FormData(form);
-    var payload = { order_id: orderId, return_request_id: fd.get('return_request_id'), amount: fd.get('amount'), currency: fd.get('currency') || 'TRY', status: fd.get('status'), provider: 'manual', provider_reference: fd.get('provider_reference'), note: fd.get('note') };
+    var amount = Number(fd.get('amount') || 0);
+    var remaining = Number(form.getAttribute('data-remaining-refundable') || 0);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showToast('Refund kaydı başarısız', 'İade tutarı geçerli bir tutar olmalıdır.', 'error');
+      return;
+    }
+    if (amount > remaining + 0.001) {
+      showToast('Refund kaydı başarısız', 'İade tutarı kalan iade edilebilir tutarı aşamaz.', 'error');
+      return;
+    }
+    var payload = {
+      order_id: orderId,
+      return_request_id: fd.get('return_request_id'),
+      amount: amount,
+      currency: fd.get('currency') || 'TRY',
+      status: fd.get('status'),
+      provider: 'manual',
+      provider_reference: fd.get('provider_reference'),
+      note: fd.get('note'),
+      refund_responsibility: fd.get('refund_responsibility'),
+      include_shipping_refund: fd.get('include_shipping_refund') === 'on',
+      shipping_refund_reason: fd.get('shipping_refund_reason'),
+      full_order_refund: fd.get('full_order_refund') === 'on'
+    };
     var ok = await openConfirmModal('Refund kaydı oluşturulsun mu?', 'Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.', 'Refund Kaydı Oluştur');
     if (!ok) return;
     try {
@@ -840,6 +974,12 @@
       state.hasUnsavedChanges = true;
       var chip = byId('unsavedChip');
       if (chip) chip.classList.add('is-visible');
+    }
+    if (event.target && event.target.name === 'amount' && event.target.closest('#refundCreateForm')) {
+      updateRefundAmountHint(event.target.closest('#refundCreateForm'));
+    }
+    if (event.target && event.target.closest('#refundCreateForm') && state.selectedOrder) {
+      syncRefundFormBalance(event.target.closest('#refundCreateForm'), state.selectedOrder);
     }
   }
   function onKeydown(event) {
