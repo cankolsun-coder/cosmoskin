@@ -1,6 +1,7 @@
 import { selectRows, updateRows, insertRow, createSignedStorageUrl } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
 import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
@@ -43,7 +44,7 @@ async function withSignedAttachmentUrls(context, rows = []) {
 
 export async function onRequestGet(context){
   try{
-    await assertAdmin(context); const url=new URL(context.request.url); const params={select:'*',order:'created_at.desc',limit:String(Math.min(100,Math.max(1,Number(url.searchParams.get('limit')||100))))};
+    await assertAdmin(context); await requireAdminPermission(context, 'returns:read'); const url=new URL(context.request.url); const params={select:'*',order:'created_at.desc',limit:String(Math.min(100,Math.max(1,Number(url.searchParams.get('limit')||100))))};
     const status=clean(url.searchParams.get('status'),50); const refund=clean(url.searchParams.get('refund_status'),50); const email=clean(url.searchParams.get('email'),120);
     if(status&&status!=='all') params.status=`eq.${status}`; if(refund&&refund!=='all') params.refund_status=`eq.${refund}`; if(email) params.customer_email=`ilike.*${email.replace(/[%*]/g,'')}*`;
     const rows=await selectRows(context,'return_requests',params).catch(()=>[]);
@@ -85,7 +86,7 @@ export async function onRequestGet(context){
 }
 export async function onRequestPatch(context){
   try{
-    await assertAdmin(context); const body=await readJsonBody(context); const id=clean(body.id,120); if(!id) return json({ok:false,error:'id gerekli.'},{status:400});
+    await assertAdmin(context); await requireAdminPermission(context, 'returns:update'); const body=await readJsonBody(context); const id=clean(body.id,120); if(!id) return json({ok:false,error:'id gerekli.'},{status:400});
     const current=(await selectRows(context,'return_requests',{select:'*',id:`eq.${id}`,limit:'1'}).catch(()=>[]))?.[0]; if(!current) return json({ok:false,error:'İade talebi bulunamadı.'},{status:404});
     const status=clean(body.status,40)||current.status; const refundStatus=clean(body.refund_status,40)||current.refund_status||'not_started';
     if(!VALID_STATUS.has(status)) return json({ok:false,error:'status geçersiz.'},{status:400}); if(!VALID_REFUND.has(refundStatus)) return json({ok:false,error:'refund_status geçersiz.'},{status:400});

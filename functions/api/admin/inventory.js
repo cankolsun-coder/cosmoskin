@@ -1,5 +1,6 @@
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { catalogProducts, getInventoryRows, normalizeInventoryRow } from '../_lib/inventory.js';
 import { selectRows } from '../_lib/supabase.js';
 
@@ -12,6 +13,7 @@ function textIncludes(product, q) {
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'inventory:read');
     const url = new URL(context.request.url);
     const q = (url.searchParams.get('search') || '').trim();
     const filter = (url.searchParams.get('filter') || url.searchParams.get('status') || 'all').trim();

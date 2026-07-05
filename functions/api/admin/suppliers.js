@@ -2,6 +2,7 @@
 import { selectRows, insertRow, updateRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { cleanText, normalizeEmail, validEmail } from '../_lib/security.js';
 
 function cleanUrl(value = '') {
@@ -26,6 +27,7 @@ function payload(body = {}) {
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'suppliers:read');
     const url = new URL(context.request.url);
     const query = cleanText(url.searchParams.get('search') || '', 120);
     const params = { select: '*', order: 'name.asc', limit: '200' };
@@ -40,6 +42,7 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'suppliers:manage');
     const body = await readJsonBody(context);
     const row = payload(body);
     if (!row.name) return json({ ok: false, error: 'Tedarikçi adı gerekli.' }, { status: 400 });
@@ -53,6 +56,7 @@ export async function onRequestPost(context) {
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'suppliers:manage');
     const body = await readJsonBody(context);
     if (!body.id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });
     const row = payload(body);

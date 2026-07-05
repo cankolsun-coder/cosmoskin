@@ -1,6 +1,7 @@
 import { selectRows, insertRow, updateRows } from '../../_lib/supabase.js';
 import { json } from '../../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../../_lib/admin.js';
+import { requireAdminPermission } from '../../_lib/admin-audit.js';
 
 function numberOrNull(value) {
   if (value === '' || value === null || value === undefined) return null;
@@ -29,6 +30,7 @@ function payloadFrom(body = {}) {
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'coupons:read');
     const rows = await selectRows(context, 'coupons', { select: '*', order: 'created_at.desc' });
     return json({ ok: true, coupons: rows || [] }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (error) {
@@ -39,6 +41,7 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'coupons:manage');
     const body = await readJsonBody(context);
     const payload = payloadFrom(body);
     if (!payload.code) return json({ ok: false, error: 'Kupon kodu gereklidir.' }, { status: 400 });
@@ -52,6 +55,7 @@ export async function onRequestPost(context) {
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'coupons:manage');
     const body = await readJsonBody(context);
     if (!body.id && !body.code) return json({ ok: false, error: 'Kupon kimliği veya kodu gereklidir.' }, { status: 400 });
     const payload = payloadFrom(body);

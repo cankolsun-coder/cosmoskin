@@ -1,6 +1,7 @@
 import { selectRows, updateRows, insertRow } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { sendOrderStatusEmail, sendShipmentEmail, sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { convertInventoryReservations, releaseInventoryReservations } from '../_lib/inventory.js';
@@ -284,6 +285,7 @@ async function sendAndLogCommerceEmail(context, order, emailType, note = '') {
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'orders:read');
     const url = new URL(context.request.url);
     const status = url.searchParams.get('status');
     const email = url.searchParams.get('email');
@@ -306,6 +308,7 @@ export async function onRequestGet(context) {
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'orders:update');
     const body = await readJsonBody(context);
     const id = body.id || body.order_id;
     if (!id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });

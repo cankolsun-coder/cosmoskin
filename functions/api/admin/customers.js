@@ -1,10 +1,12 @@
 import { selectRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'customers:read');
     const rows = await selectRows(context, 'orders', {
       select: 'customer_email,customer_first_name,customer_last_name,total_amount,payment_status,created_at',
       order: 'created_at.desc',

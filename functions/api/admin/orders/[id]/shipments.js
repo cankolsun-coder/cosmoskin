@@ -1,5 +1,6 @@
 import { json } from '../../../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../../../_lib/admin.js';
+import { requireAdminPermission } from '../../../_lib/admin-audit.js';
 import { insertRow, selectRows, updateRows } from '../../../_lib/supabase.js';
 import { sendShipmentEmail } from '../../../_lib/order-email.js';
 import { recordEmailEvent } from '../../../_lib/email-events.js';
@@ -34,6 +35,7 @@ async function logShipmentEmail(context, order, shipment, result, errorMessage =
 export async function onRequestPost(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'shipments:create');
     const id = context.params?.id || '';
     const body = await readJsonBody(context);
     const carrier = String(body.carrier_name || body.carrier || '').trim();

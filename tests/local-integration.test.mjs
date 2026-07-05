@@ -10,6 +10,28 @@ import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as c
 import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations } from '../functions/api/_lib/inventory.js';
 import { issueAdminSession, assertAdmin } from '../functions/api/_lib/admin.js';
 import { onRequestPatch as adminStatusPatch } from '../functions/api/admin/orders/[id]/status.js';
+import { hasAdminPermission } from '../functions/api/_lib/admin-audit.js';
+import { onRequestPost as adminUsersPost } from '../functions/api/admin/users.js';
+import { onRequestGet as adminOrdersGet, onRequestPatch as adminOrdersPatch } from '../functions/api/admin/orders.js';
+import { onRequestGet as adminOrderDetailGet } from '../functions/api/admin/orders/[id].js';
+import { onRequestPost as adminOrderEmailsPost } from '../functions/api/admin/orders/[id]/emails.js';
+import { onRequestPost as adminOrderShipmentsPost } from '../functions/api/admin/orders/[id]/shipments.js';
+import { onRequestGet as adminReturnsGet, onRequestPatch as adminReturnsPatch } from '../functions/api/admin/returns.js';
+import { onRequestGet as adminCustomersGet } from '../functions/api/admin/customers.js';
+import { onRequestGet as adminProductsGet, onRequestPatch as adminProductsPatch, onRequestPost as adminProductsPost } from '../functions/api/admin/products.js';
+import { onRequestGet as adminInventoryGet } from '../functions/api/admin/inventory.js';
+import { onRequestPost as adminInventoryAdjustPost } from '../functions/api/admin/inventory/adjust.js';
+import { onRequestPatch as adminInventorySlugPatch } from '../functions/api/admin/inventory/[slug].js';
+import { onRequestGet as adminInventoryMovementsGet } from '../functions/api/admin/inventory/[slug]/movements.js';
+import { onRequestGet as adminLotsGet, onRequestPost as adminLotsPost, onRequestPatch as adminLotsPatch } from '../functions/api/admin/lots.js';
+import { onRequestGet as adminSuppliersGet, onRequestPost as adminSuppliersPost, onRequestPatch as adminSuppliersPatch } from '../functions/api/admin/suppliers.js';
+import { onRequestGet as adminComplianceGet, onRequestPatch as adminCompliancePatch } from '../functions/api/admin/compliance.js';
+import { onRequestGet as adminCouponsGet, onRequestPost as adminCouponsPost, onRequestPatch as adminCouponsPatch } from '../functions/api/admin/coupons/index.js';
+import { onRequestGet as adminShipmentsGet } from '../functions/api/admin/shipments.js';
+import { onRequestGet as adminEmailLogsGet } from '../functions/api/admin/email-logs.js';
+import { onRequestGet as adminRefundsGet, onRequestPost as adminRefundsPost } from '../functions/api/admin/refunds.js';
+import { onRequestGet as adminInvoicesGet, onRequestPost as adminInvoicesPost, onRequestPatch as adminInvoicesPatch } from '../functions/api/admin/invoices.js';
+import { onRequestGet as adminBankAccountsGet, onRequestPost as adminBankAccountsPost, onRequestPatch as adminBankAccountsPatch } from '../functions/api/admin/bank-accounts.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const env = { SUPABASE_URL:'https://local.supabase.test', SUPABASE_SERVICE_ROLE_KEY:'service-test', SUPABASE_TIMEOUT_MS:'3000' };
@@ -162,6 +184,382 @@ test('unauthorized admin mutation is rejected server-side before database access
     const res=await adminStatusPatch({request:req,env:{ADMIN_TOKEN:'a'.repeat(64),ADMIN_SESSION_SECRET:'b'.repeat(64),ADMIN_ALLOW_LEGACY_TOKEN:'false'},params:{id:'1'}});
     assert.equal(res.status,401); assert.equal(fetchCount,0);
   }finally{restore();}
+});
+
+function installAdminUsersFetch(row) {
+  return installFetch(async (url) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users')) return response(row ? [row] : []);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    return response([]);
+  });
+}
+function ctxWithAccessEmail(email) {
+  const headers = { 'CF-Connecting-IP': '192.0.2.20' };
+  if (email) headers['Cf-Access-Authenticated-User-Email'] = email;
+  return contextFor(new Request('https://local.test/api/admin/loyalty/adjust-points', { headers }));
+}
+
+test('A1: hasAdminPermission denies by default when no admin_users row matches (no allow-all bypass)', async () => {
+  const restore = installAdminUsersFetch(null);
+  try {
+    assert.equal(await hasAdminPermission(ctxWithAccessEmail('unknown@example.com'), 'orders:read'), false);
+    assert.equal(await hasAdminPermission(ctxWithAccessEmail(null), 'orders:read'), false);
+  } finally { restore(); }
+});
+
+test('A1: hasAdminPermission denies an inactive or disabled admin regardless of role', async () => {
+  const restoreInactive = installAdminUsersFetch({ id: '1', email: 'ops@cosmoskin.com.tr', role: 'operations', role_code: 'operations', permissions: [], is_active: false, status: 'active' });
+  try { assert.equal(await hasAdminPermission(ctxWithAccessEmail('ops@cosmoskin.com.tr'), 'orders:read'), false); } finally { restoreInactive(); }
+  const restoreDisabled = installAdminUsersFetch({ id: '1', email: 'ops@cosmoskin.com.tr', role: 'operations', role_code: 'operations', permissions: [], is_active: true, status: 'disabled' });
+  try { assert.equal(await hasAdminPermission(ctxWithAccessEmail('ops@cosmoskin.com.tr'), 'orders:read'), false); } finally { restoreDisabled(); }
+});
+
+test('A1: owner permissions [\'*\'] pass every permission check after the deny-by-default flip', async () => {
+  const restore = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  try {
+    assert.equal(await hasAdminPermission(ctxWithAccessEmail('cankolsun@gmail.com'), 'loyalty:adjust'), true);
+    assert.equal(await hasAdminPermission(ctxWithAccessEmail('cankolsun@gmail.com'), 'admin.users.manage'), true);
+    assert.equal(await hasAdminPermission(ctxWithAccessEmail('cankolsun@gmail.com'), 'anything:not_seeded'), true);
+  } finally { restore(); }
+});
+
+test('A1: client-supplied is_admin/role/permissions body fields cannot grant admin access', async () => {
+  const restore = installAdminUsersFetch(null);
+  try {
+    const forged = ctxWithAccessEmail('attacker@example.com');
+    forged.request = new Request('https://local.test/api/admin/loyalty/adjust-points', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'Cf-Access-Authenticated-User-Email': 'attacker@example.com' },
+      body: JSON.stringify({ is_admin: true, role: 'owner', role_code: 'owner', permissions: ['*'] })
+    });
+    assert.equal(await hasAdminPermission(forged, 'loyalty:adjust'), false);
+  } finally { restore(); }
+});
+
+test('A1: admin/users.js mutation requires admin.users.manage (or owner) — ADMIN_TOKEN alone is not enough', async () => {
+  const adminEnv = { ADMIN_TOKEN: 'a'.repeat(64), ADMIN_SESSION_SECRET: 'b'.repeat(64), ADMIN_ALLOW_LEGACY_TOKEN: 'false', SUPABASE_URL: env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY };
+  const issueRequest = new Request('https://local.test/api/admin/session', { method: 'POST', headers: { 'x-admin-token': adminEnv.ADMIN_TOKEN, 'CF-Connecting-IP': '192.0.2.21' } });
+  const issued = await issueAdminSession({ request: issueRequest, env: adminEnv });
+
+  const restoreNoMatch = installAdminUsersFetch(null);
+  try {
+    const req = new Request('https://local.test/api/admin/users', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-admin-token': issued.token, 'CF-Connecting-IP': '192.0.2.21' },
+      body: JSON.stringify({ email: 'new-admin@cosmoskin.com.tr', role: 'owner' })
+    });
+    const res = await adminUsersPost({ request: req, env: adminEnv, params: {} });
+    assert.equal(res.status, 403);
+  } finally { restoreNoMatch(); }
+
+  const restoreOwner = installFetch(async (url, init) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users') && (!init || init.method === undefined || init.method === 'GET')) {
+      return response([{ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' }]);
+    }
+    if (href.includes('/rest/v1/admin_users')) return response([{ id: '2', email: 'new-admin@cosmoskin.com.tr', role: 'operations' }]);
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/admin/users', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-admin-token': issued.token, 'CF-Connecting-IP': '192.0.2.21', 'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com' },
+      body: JSON.stringify({ email: 'new-admin@cosmoskin.com.tr', role: 'operations' })
+    });
+    const res = await adminUsersPost({ request: req, env: adminEnv, params: {} });
+    assert.equal(res.status, 200);
+  } finally { restoreOwner(); }
+});
+
+// ---------------------------------------------------------------------------
+// A1.2a: admin GET/read endpoint permission coverage. Shared parametrized
+// helper reused across all 13 gated endpoints instead of hand-writing near-
+// duplicate tests per file.
+// ---------------------------------------------------------------------------
+function adminReadEnv() {
+  return { ADMIN_TOKEN: 'a'.repeat(64), ADMIN_ALLOW_LEGACY_TOKEN: 'true', SUPABASE_URL: env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY };
+}
+function adminReadRequest(url, email) {
+  const headers = { 'x-admin-token': 'a'.repeat(64), 'CF-Connecting-IP': '192.0.2.30' };
+  if (email) headers['Cf-Access-Authenticated-User-Email'] = email;
+  return new Request(url, { headers });
+}
+const A1_2A_READ_ENDPOINTS = [
+  { label: 'admin/orders.js', permission: 'orders:read', handler: adminOrdersGet, url: 'https://local.test/api/admin/orders', params: {} },
+  { label: 'admin/orders/[id].js', permission: 'orders:read', handler: adminOrderDetailGet, url: 'https://local.test/api/admin/orders/order-1', params: { id: 'order-1' } },
+  { label: 'admin/returns.js', permission: 'returns:read', handler: adminReturnsGet, url: 'https://local.test/api/admin/returns', params: {} },
+  { label: 'admin/customers.js', permission: 'customers:read', handler: adminCustomersGet, url: 'https://local.test/api/admin/customers', params: {} },
+  { label: 'admin/products.js', permission: 'products:read', handler: adminProductsGet, url: 'https://local.test/api/admin/products', params: {} },
+  { label: 'admin/inventory.js', permission: 'inventory:read', handler: adminInventoryGet, url: 'https://local.test/api/admin/inventory', params: {} },
+  { label: 'admin/inventory/[slug]/movements.js', permission: 'inventory:read', handler: adminInventoryMovementsGet, url: 'https://local.test/api/admin/inventory/test-slug/movements', params: { slug: 'test-slug' } },
+  { label: 'admin/lots.js', permission: 'lots:read', handler: adminLotsGet, url: 'https://local.test/api/admin/lots', params: {} },
+  { label: 'admin/suppliers.js', permission: 'suppliers:read', handler: adminSuppliersGet, url: 'https://local.test/api/admin/suppliers', params: {} },
+  { label: 'admin/compliance.js', permission: 'compliance:read', handler: adminComplianceGet, url: 'https://local.test/api/admin/compliance', params: {} },
+  { label: 'admin/coupons/index.js', permission: 'coupons:read', handler: adminCouponsGet, url: 'https://local.test/api/admin/coupons', params: {} },
+  { label: 'admin/shipments.js', permission: 'shipments:read', handler: adminShipmentsGet, url: 'https://local.test/api/admin/shipments', params: {} },
+  { label: 'admin/email-logs.js', permission: 'email_logs:read', handler: adminEmailLogsGet, url: 'https://local.test/api/admin/email-logs', params: {} }
+];
+
+test('A1.2a: every gated GET/read admin endpoint denies an assertAdmin()-valid caller with no matching admin_users row (403)', async () => {
+  const restore = installAdminUsersFetch(null);
+  try {
+    for (const { label, handler, url, params } of A1_2A_READ_ENDPOINTS) {
+      const res = await handler({ request: adminReadRequest(url, 'unknown@example.com'), env: adminReadEnv(), params });
+      assert.equal(res.status, 403, `${label}: expected 403 for a caller with no matching admin_users row, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2a: every gated GET/read admin endpoint lets the seeded owner (permissions [\'*\']) through the new permission gate', async () => {
+  const restore = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  try {
+    for (const { label, handler, url, params } of A1_2A_READ_ENDPOINTS) {
+      const res = await handler({ request: adminReadRequest(url, 'cankolsun@gmail.com'), env: adminReadEnv(), params });
+      assert.notEqual(res.status, 403, `${label}: owner must not be blocked by the new permission gate, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2a: an inactive or disabled admin is still denied on a gated read endpoint, even with the right role', async () => {
+  const restoreInactive = installAdminUsersFetch({ id: '2', email: 'ops@cosmoskin.com.tr', role: 'operations', role_code: 'operations', permissions: ['orders:read'], is_active: false, status: 'active' });
+  try {
+    const res = await adminOrdersGet({ request: adminReadRequest('https://local.test/api/admin/orders', 'ops@cosmoskin.com.tr'), env: adminReadEnv(), params: {} });
+    assert.equal(res.status, 403);
+  } finally { restoreInactive(); }
+  const restoreDisabled = installAdminUsersFetch({ id: '2', email: 'ops@cosmoskin.com.tr', role: 'operations', role_code: 'operations', permissions: ['orders:read'], is_active: true, status: 'disabled' });
+  try {
+    const res = await adminOrdersGet({ request: adminReadRequest('https://local.test/api/admin/orders', 'ops@cosmoskin.com.tr'), env: adminReadEnv(), params: {} });
+    assert.equal(res.status, 403);
+  } finally { restoreDisabled(); }
+});
+
+test('A1.2a: a caller whose only permission is unrelated cannot pass a differently-named read gate', async () => {
+  const restore = installAdminUsersFetch({ id: '3', email: 'warehouse@cosmoskin.com.tr', role: 'warehouse', role_code: 'warehouse', permissions: ['inventory:read'], is_active: true, status: 'active' });
+  try {
+    const res = await adminReturnsGet({ request: adminReadRequest('https://local.test/api/admin/returns', 'warehouse@cosmoskin.com.tr'), env: adminReadEnv(), params: {} });
+    assert.equal(res.status, 403, 'a warehouse-role caller holding only inventory:read must not pass the returns:read gate');
+  } finally { restore(); }
+});
+
+test('A1.2a/A1.2b: mutation handlers sharing a file with a gated GET carry only their own (mutation) permission, never the GET one', async () => {
+  function handlerBody(src, name) {
+    const start = src.indexOf(`export async function ${name}`);
+    if (start === -1) return '';
+    const next = src.indexOf('\nexport ', start + 1);
+    return src.slice(start, next === -1 ? undefined : next);
+  }
+  const filesWithMutationPermission = {
+    orders: { src: await fs.readFile(path.join(root, 'functions/api/admin/orders.js'), 'utf8'), handlers: { onRequestPatch: 'orders:update' } },
+    returns: { src: await fs.readFile(path.join(root, 'functions/api/admin/returns.js'), 'utf8'), handlers: { onRequestPatch: 'returns:update' } },
+    products: { src: await fs.readFile(path.join(root, 'functions/api/admin/products.js'), 'utf8'), handlers: { onRequestPatch: 'inventory:adjust', onRequestPost: 'inventory:adjust' } },
+    lots: { src: await fs.readFile(path.join(root, 'functions/api/admin/lots.js'), 'utf8'), handlers: { onRequestPost: 'inventory:adjust', onRequestPatch: 'inventory:adjust' } },
+    suppliers: { src: await fs.readFile(path.join(root, 'functions/api/admin/suppliers.js'), 'utf8'), handlers: { onRequestPost: 'suppliers:manage', onRequestPatch: 'suppliers:manage' } },
+    compliance: { src: await fs.readFile(path.join(root, 'functions/api/admin/compliance.js'), 'utf8'), handlers: { onRequestPatch: 'products:update' } },
+    coupons: { src: await fs.readFile(path.join(root, 'functions/api/admin/coupons/index.js'), 'utf8'), handlers: { onRequestPost: 'coupons:manage', onRequestPatch: 'coupons:manage' } }
+  };
+  for (const [name, { src, handlers }] of Object.entries(filesWithMutationPermission)) {
+    for (const [handlerName, expectedPermission] of Object.entries(handlers)) {
+      const body = handlerBody(src, handlerName);
+      assert.ok(body, `${name}.js: ${handlerName} not found`);
+      assert.match(body, /assertAdmin\(context\)/, `${name}.js ${handlerName}: assertAdmin must remain present`);
+      const calls = Array.from(body.matchAll(/requireAdminPermission\(context,\s*['"]([a-zA-Z_]+:[a-zA-Z_]+)['"]\)/g)).map((m) => m[1]);
+      assert.deepEqual(calls, [expectedPermission], `${name}.js ${handlerName}: must call requireAdminPermission with exactly its own mutation permission '${expectedPermission}', not the file's GET/read permission`);
+    }
+  }
+});
+
+test('A1.2c: the deliberate escape-hatch routes remain untouched (dashboard.js, inventory/health.js)', async () => {
+  const escapeHatches = {
+    dashboard: await fs.readFile(path.join(root, 'functions/api/admin/dashboard.js'), 'utf8'),
+    inventoryHealth: await fs.readFile(path.join(root, 'functions/api/admin/inventory/health.js'), 'utf8')
+  };
+  for (const [name, source] of Object.entries(escapeHatches)) {
+    assert.doesNotMatch(source, /requireAdminPermission/, `${name}: must remain the deliberate assertAdmin-only escape hatch — must not gain a requireAdminPermission(...) call`);
+    assert.match(source, /assertAdmin\(context\)/, `${name}: must remain assertAdmin-gated`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// A1.2b: admin mutation endpoint permission coverage. Shared parametrized
+// helper reused across all 16 gated mutation handlers instead of hand-writing
+// near-duplicate tests per file.
+// ---------------------------------------------------------------------------
+function adminMutationRequest(url, method, email, body = {}) {
+  const headers = { 'x-admin-token': 'a'.repeat(64), 'CF-Connecting-IP': '192.0.2.31', 'content-type': 'application/json' };
+  if (email) headers['Cf-Access-Authenticated-User-Email'] = email;
+  return new Request(url, { method, headers, body: JSON.stringify(body) });
+}
+const A1_2B_MUTATION_ENDPOINTS = [
+  { label: 'admin/orders.js PATCH', permission: 'orders:update', handler: adminOrdersPatch, method: 'PATCH', url: 'https://local.test/api/admin/orders', params: {}, body: { id: 'order-1', status: 'preparing' } },
+  { label: 'admin/orders/[id]/status.js PATCH', permission: 'orders:update', handler: adminStatusPatch, method: 'PATCH', url: 'https://local.test/api/admin/orders/order-1/status', params: { id: 'order-1' }, body: { status: 'preparing' } },
+  { label: 'admin/orders/[id]/emails.js POST', permission: 'orders:update', handler: adminOrderEmailsPost, method: 'POST', url: 'https://local.test/api/admin/orders/order-1/emails', params: { id: 'order-1' }, body: { email_type: 'order_created' } },
+  { label: 'admin/orders/[id]/shipments.js POST', permission: 'shipments:create', handler: adminOrderShipmentsPost, method: 'POST', url: 'https://local.test/api/admin/orders/order-1/shipments', params: { id: 'order-1' }, body: { carrier: 'DHL', tracking_number: '123' } },
+  { label: 'admin/returns.js PATCH', permission: 'returns:update', handler: adminReturnsPatch, method: 'PATCH', url: 'https://local.test/api/admin/returns', params: {}, body: { id: 'ret-1', status: 'approved' } },
+  { label: 'admin/products.js PATCH', permission: 'inventory:adjust', handler: adminProductsPatch, method: 'PATCH', url: 'https://local.test/api/admin/products', params: {}, body: { product_slug: 'test-slug', stock_qty: 5 } },
+  { label: 'admin/products.js POST', permission: 'inventory:adjust', handler: adminProductsPost, method: 'POST', url: 'https://local.test/api/admin/products', params: {}, body: { product_slug: 'test-slug' } },
+  { label: 'admin/inventory/adjust.js POST', permission: 'inventory:adjust', handler: adminInventoryAdjustPost, method: 'POST', url: 'https://local.test/api/admin/inventory/adjust', params: {}, body: { product_slug: 'test-slug', quantity: 1 } },
+  { label: 'admin/inventory/[slug].js PATCH', permission: 'inventory:adjust', handler: adminInventorySlugPatch, method: 'PATCH', url: 'https://local.test/api/admin/inventory/test-slug', params: { slug: 'test-slug' }, body: { stock_on_hand: 5 } },
+  { label: 'admin/lots.js POST', permission: 'inventory:adjust', handler: adminLotsPost, method: 'POST', url: 'https://local.test/api/admin/lots', params: {}, body: { product_slug: 'test-slug', quantity: 1 } },
+  { label: 'admin/lots.js PATCH', permission: 'inventory:adjust', handler: adminLotsPatch, method: 'PATCH', url: 'https://local.test/api/admin/lots', params: {}, body: { id: 'lot-1' } },
+  { label: 'admin/suppliers.js POST', permission: 'suppliers:manage', handler: adminSuppliersPost, method: 'POST', url: 'https://local.test/api/admin/suppliers', params: {}, body: { name: 'Test Tedarikçi' } },
+  { label: 'admin/suppliers.js PATCH', permission: 'suppliers:manage', handler: adminSuppliersPatch, method: 'PATCH', url: 'https://local.test/api/admin/suppliers', params: {}, body: { id: 'sup-1', name: 'Test Tedarikçi' } },
+  { label: 'admin/compliance.js PATCH', permission: 'products:update', handler: adminCompliancePatch, method: 'PATCH', url: 'https://local.test/api/admin/compliance', params: {}, body: { product_slug: 'test-slug' } },
+  { label: 'admin/coupons/index.js POST', permission: 'coupons:manage', handler: adminCouponsPost, method: 'POST', url: 'https://local.test/api/admin/coupons', params: {}, body: { code: 'TEST10' } },
+  { label: 'admin/coupons/index.js PATCH', permission: 'coupons:manage', handler: adminCouponsPatch, method: 'PATCH', url: 'https://local.test/api/admin/coupons', params: {}, body: { id: 'cp-1' } }
+];
+
+test('A1.2b: every gated mutation admin endpoint denies an assertAdmin()-valid caller with no matching admin_users row (403)', async () => {
+  const restore = installAdminUsersFetch(null);
+  try {
+    for (const { label, handler, method, url, params, body } of A1_2B_MUTATION_ENDPOINTS) {
+      const res = await handler({ request: adminMutationRequest(url, method, 'unknown@example.com', body), env: adminReadEnv(), params });
+      assert.equal(res.status, 403, `${label}: expected 403 for a caller with no matching admin_users row, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2b: every gated mutation admin endpoint lets the seeded owner (permissions [\'*\']) through the new permission gate', async () => {
+  const restore = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  try {
+    for (const { label, handler, method, url, params, body } of A1_2B_MUTATION_ENDPOINTS) {
+      const res = await handler({ request: adminMutationRequest(url, method, 'cankolsun@gmail.com', body), env: adminReadEnv(), params });
+      assert.notEqual(res.status, 403, `${label}: owner must not be blocked by the new permission gate, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2b: a caller holding only the file\'s read permission cannot perform the mutation (read does not imply write)', async () => {
+  const cases = [
+    { readOnlyPermission: 'orders:read', endpoint: A1_2B_MUTATION_ENDPOINTS[0] }, // admin/orders.js PATCH needs orders:update
+    { readOnlyPermission: 'inventory:read', endpoint: A1_2B_MUTATION_ENDPOINTS.find((e) => e.label === 'admin/inventory/adjust.js POST') },
+    { readOnlyPermission: 'coupons:read', endpoint: A1_2B_MUTATION_ENDPOINTS.find((e) => e.label === 'admin/coupons/index.js POST') }
+  ];
+  for (const { readOnlyPermission, endpoint } of cases) {
+    const restore = installAdminUsersFetch({ id: '4', email: 'reader@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: [readOnlyPermission], is_active: true, status: 'active' });
+    try {
+      const res = await endpoint.handler({ request: adminMutationRequest(endpoint.url, endpoint.method, 'reader@cosmoskin.com.tr', endpoint.body), env: adminReadEnv(), params: endpoint.params });
+      assert.equal(res.status, 403, `${endpoint.label}: a caller holding only '${readOnlyPermission}' must not be able to perform the mutation (needs '${endpoint.permission}')`);
+    } finally { restore(); }
+  }
+});
+
+test('A1.2b: a mutation permission does not accidentally unlock the file\'s unrelated GET/read route', async () => {
+  const cases = [
+    { mutationOnlyPermission: 'orders:update', getHandler: adminOrdersGet, url: 'https://local.test/api/admin/orders', params: {} },
+    { mutationOnlyPermission: 'suppliers:manage', getHandler: adminSuppliersGet, url: 'https://local.test/api/admin/suppliers', params: {} },
+    { mutationOnlyPermission: 'coupons:manage', getHandler: adminCouponsGet, url: 'https://local.test/api/admin/coupons', params: {} }
+  ];
+  for (const { mutationOnlyPermission, getHandler, url, params } of cases) {
+    const restore = installAdminUsersFetch({ id: '5', email: 'writer@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: [mutationOnlyPermission], is_active: true, status: 'active' });
+    try {
+      const res = await getHandler({ request: adminReadRequest(url, 'writer@cosmoskin.com.tr'), env: adminReadEnv(), params });
+      assert.equal(res.status, 403, `a caller holding only '${mutationOnlyPermission}' must not be able to pass the file's separate GET/read permission gate`);
+    } finally { restore(); }
+  }
+});
+
+test('A1.2b: high-caution order status transition endpoints keep their business-logic markers alongside the new permission gate', async () => {
+  const ordersSrc = await fs.readFile(path.join(root, 'functions/api/admin/orders.js'), 'utf8');
+  const statusSrc = await fs.readFile(path.join(root, 'functions/api/admin/orders/[id]/status.js'), 'utf8');
+  for (const marker of ['assertOperationalTransition', 'releaseInventoryReservations', 'convertInventoryReservations', 'awardOrderPoints', 'promoteOrderPoints', 'reverseOrderPoints']) {
+    assert.match(ordersSrc, new RegExp(marker), `admin/orders.js: business-logic marker '${marker}' must remain present alongside the A1.2b permission gate`);
+  }
+  for (const marker of ['releaseInventoryReservations', 'convertInventoryReservations', 'awardOrderPoints', 'promoteOrderPoints', 'reverseOrderPoints']) {
+    assert.match(statusSrc, new RegExp(marker), `admin/orders/[id]/status.js: business-logic marker '${marker}' must remain present alongside the A1.2b permission gate`);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// A1.2c: admin finance / refund / bank-account endpoint permission coverage.
+// refunds.js has no separate seeded read permission, so GET and POST both
+// reuse 'refunds:update' (per the A1.2 plan). bank-accounts.js deliberately
+// uses a single 'bank_accounts:manage' string across GET/POST/PATCH (per the
+// plan's "fraud-sensitive even to read" rationale for IBAN/payment-routing
+// data) rather than a read/write split.
+// ---------------------------------------------------------------------------
+const A1_2C_FINANCE_READ_ENDPOINTS = [
+  { label: 'admin/refunds.js GET', permission: 'refunds:update', handler: adminRefundsGet, url: 'https://local.test/api/admin/refunds', params: {} },
+  { label: 'admin/invoices.js GET', permission: 'invoices:read', handler: adminInvoicesGet, url: 'https://local.test/api/admin/invoices', params: {} },
+  { label: 'admin/bank-accounts.js GET', permission: 'bank_accounts:manage', handler: adminBankAccountsGet, url: 'https://local.test/api/admin/bank-accounts', params: {} }
+];
+const A1_2C_FINANCE_MUTATION_ENDPOINTS = [
+  { label: 'admin/refunds.js POST', permission: 'refunds:update', handler: adminRefundsPost, method: 'POST', url: 'https://local.test/api/admin/refunds', params: {}, body: { order_id: 'order-1', status: 'pending' } },
+  { label: 'admin/invoices.js POST', permission: 'invoices:update', handler: adminInvoicesPost, method: 'POST', url: 'https://local.test/api/admin/invoices', params: {}, body: { order_id: 'order-1' } },
+  { label: 'admin/invoices.js PATCH', permission: 'invoices:update', handler: adminInvoicesPatch, method: 'PATCH', url: 'https://local.test/api/admin/invoices', params: {}, body: { id: 'inv-1' } },
+  { label: 'admin/bank-accounts.js POST', permission: 'bank_accounts:manage', handler: adminBankAccountsPost, method: 'POST', url: 'https://local.test/api/admin/bank-accounts', params: {}, body: { bank_name: 'Test Bank', account_holder: 'Test Holder', iban: 'TR330006100519786457841326' } },
+  { label: 'admin/bank-accounts.js PATCH', permission: 'bank_accounts:manage', handler: adminBankAccountsPatch, method: 'PATCH', url: 'https://local.test/api/admin/bank-accounts', params: {}, body: { id: 'bank-1' } }
+];
+
+test('A1.2c: non-authorized admin cannot access finance read endpoints (403)', async () => {
+  const restore = installAdminUsersFetch(null);
+  try {
+    for (const { label, handler, url, params } of A1_2C_FINANCE_READ_ENDPOINTS) {
+      const res = await handler({ request: adminReadRequest(url, 'unknown@example.com'), env: adminReadEnv(), params });
+      assert.equal(res.status, 403, `${label}: expected 403 for a caller with no matching admin_users row, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2c: non-authorized admin cannot call finance mutation endpoints (403)', async () => {
+  const restore = installAdminUsersFetch(null);
+  try {
+    for (const { label, handler, method, url, params, body } of A1_2C_FINANCE_MUTATION_ENDPOINTS) {
+      const res = await handler({ request: adminMutationRequest(url, method, 'unknown@example.com', body), env: adminReadEnv(), params });
+      assert.equal(res.status, 403, `${label}: expected 403 for a caller with no matching admin_users row, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2c: owner (permissions [\'*\']) can access finance read endpoints', async () => {
+  const restore = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  try {
+    for (const { label, handler, url, params } of A1_2C_FINANCE_READ_ENDPOINTS) {
+      const res = await handler({ request: adminReadRequest(url, 'cankolsun@gmail.com'), env: adminReadEnv(), params });
+      assert.notEqual(res.status, 403, `${label}: owner must not be blocked by the new permission gate, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2c: owner (permissions [\'*\']) can call finance mutation endpoints', async () => {
+  const restore = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  try {
+    for (const { label, handler, method, url, params, body } of A1_2C_FINANCE_MUTATION_ENDPOINTS) {
+      const res = await handler({ request: adminMutationRequest(url, method, 'cankolsun@gmail.com', body), env: adminReadEnv(), params });
+      assert.notEqual(res.status, 403, `${label}: owner must not be blocked by the new permission gate, got ${res.status}`);
+    }
+  } finally { restore(); }
+});
+
+test('A1.2c: read-only finance permission cannot perform the finance mutation (read does not imply write)', async () => {
+  const restore = installAdminUsersFetch({ id: '6', email: 'accountant@cosmoskin.com.tr', role: 'accountant', role_code: 'accountant', permissions: ['invoices:read'], is_active: true, status: 'active' });
+  try {
+    const res = await adminInvoicesPost({ request: adminMutationRequest('https://local.test/api/admin/invoices', 'POST', 'accountant@cosmoskin.com.tr', { order_id: 'order-1' }), env: adminReadEnv(), params: {} });
+    assert.equal(res.status, 403, 'a caller holding only invoices:read must not be able to perform the invoices:update mutation');
+  } finally { restore(); }
+});
+
+test('A1.2c: a finance mutation permission does not accidentally unlock the file\'s unrelated GET/read route', async () => {
+  const restore = installAdminUsersFetch({ id: '7', email: 'writer@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: ['invoices:update'], is_active: true, status: 'active' });
+  try {
+    const res = await adminInvoicesGet({ request: adminReadRequest('https://local.test/api/admin/invoices', 'writer@cosmoskin.com.tr'), env: adminReadEnv(), params: {} });
+    assert.equal(res.status, 403, 'a caller holding only invoices:update must not be able to pass the separate invoices:read gate');
+  } finally { restore(); }
+});
+
+test('A1.2c: high-caution finance endpoints keep their business-logic markers alongside the new permission gate', async () => {
+  const refundsSrc = await fs.readFile(path.join(root, 'functions/api/admin/refunds.js'), 'utf8');
+  const invoicesSrc = await fs.readFile(path.join(root, 'functions/api/admin/invoices.js'), 'utf8');
+  const bankAccountsSrc = await fs.readFile(path.join(root, 'functions/api/admin/bank-accounts.js'), 'utf8');
+  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail']) {
+    assert.match(refundsSrc, new RegExp(marker), `admin/refunds.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
+  }
+  for (const marker of ['TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'order_status_events']) {
+    assert.match(invoicesSrc, new RegExp(marker), `admin/invoices.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
+  }
+  for (const marker of ['normalizeBankAccount', 'validateBankAccount', 'toDbPayload', 'sort_order']) {
+    assert.match(bankAccountsSrc, new RegExp(marker), `admin/bank-accounts.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
+  }
 });
 
 test('callback source contains no direct inventory read/update fallback and uses atomic processor', async () => {

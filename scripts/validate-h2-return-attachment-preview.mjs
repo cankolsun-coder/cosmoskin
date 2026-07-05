@@ -182,21 +182,20 @@ for (const file of allJsFiles) {
 // ---------------------------------------------------------------------------
 // 6) Admin attachment view must keep requiring real admin auth, and must
 //    not be rewritten — H2 does not touch admin signing/fetch logic.
+//    NOTE: the original absolute "must not be modified at all" check (a
+//    git-diff-based zero-diff guard) was superseded by A1.2a (2026-07-05),
+//    which legitimately adds a read-only requireAdminPermission('returns:read')
+//    gate to this file's GET handler only (see
+//    COSMOSKIN_A1_2A_ADMIN_READ_COVERAGE_REPORT_20260705.md and its own
+//    validator, scripts/validate-a1-admin-endpoint-coverage.mjs). The two
+//    content assertions below (assertAdmin present, withSignedAttachmentUrls
+//    present) are what actually protect H2's invariants and remain in force.
 // ---------------------------------------------------------------------------
 if (!/assertAdmin\(context\)/.test(adminReturnsApi)) {
   failures.push(`${ADMIN_RETURNS_API}: assertAdmin(context) guard must remain present`);
 }
 if (!/withSignedAttachmentUrls/.test(adminReturnsApi)) {
   failures.push(`${ADMIN_RETURNS_API}: existing withSignedAttachmentUrls() signing must remain present (H2 does not rewrite admin signing logic)`);
-}
-let adminReturnsApiDiff = '';
-try {
-  adminReturnsApiDiff = execSync(`git diff --name-only HEAD -- ${JSON.stringify(ADMIN_RETURNS_API)}`, { cwd: root, encoding: 'utf8' }).trim();
-} catch (_) {
-  adminReturnsApiDiff = '';
-}
-if (adminReturnsApiDiff) {
-  failures.push(`${ADMIN_RETURNS_API}: must not be modified by H2 (admin signing/fetch logic is explicitly out of scope)`);
 }
 
 // ---------------------------------------------------------------------------
@@ -314,6 +313,26 @@ if (/public\s*=\s*true/i.test(helper) || /public\s*=\s*true/i.test(summaryApi) |
 //     migrations, H1 storage RLS migration, loyalty ledger, order
 //     cancellation, coupons, RBAC, or unrelated admin flows.
 // ---------------------------------------------------------------------------
+// functions/api/_lib/admin-audit.js is no longer zero-diff-forbidden as of A1.1
+// (2026-07-04, RBAC deny-by-default hardening) — see
+// COSMOSKIN_A1_ADMIN_RBAC_HARDENING_REPORT_20260704.md and its own validator
+// (scripts/validate-a1-admin-rbac-hardening.mjs). functions/api/_lib/admin.js
+// and the other admin route files below are untouched by A1.1 and stay frozen.
+// functions/api/admin/returns.js and functions/api/admin/orders.js are no
+// longer zero-diff-forbidden as of A1.2a (2026-07-05, admin GET/read endpoint
+// permission coverage) — see COSMOSKIN_A1_2A_ADMIN_READ_COVERAGE_REPORT_20260705.md
+// and its own validator (scripts/validate-a1-admin-endpoint-coverage.mjs),
+// which asserts only their GET handlers gained a permission gate.
+// functions/api/admin/orders/[id]/status.js is no longer zero-diff-forbidden
+// as of A1.2b (2026-07-05, admin mutation endpoint permission coverage) — see
+// COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_REPORT_20260705.md and the same
+// validator, which asserts its status-transition/inventory/loyalty business
+// logic is unchanged beyond the added permission check.
+// functions/api/admin/refunds.js is no longer zero-diff-forbidden as of A1.2c
+// (2026-07-05, admin finance/refund/bank-account endpoint permission coverage)
+// — see COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_REPORT_20260705.md and the same
+// validator, which asserts its refund creation/completion/loyalty-reversal
+// business logic is unchanged beyond the added permission check.
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
@@ -324,12 +343,7 @@ const forbiddenPaths = [
   'functions/api/_lib/order-cancellation.js',
   'functions/api/account/orders/[id]/cancel.js',
   'functions/api/_lib/coupons.js',
-  'functions/api/admin/returns.js',
   'functions/api/_lib/admin.js',
-  'functions/api/_lib/admin-audit.js',
-  'functions/api/admin/orders.js',
-  'functions/api/admin/orders/[id]/status.js',
-  'functions/api/admin/refunds.js',
   'functions/api/admin/loyalty/adjust-points.js',
   'supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql',
   'supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql',

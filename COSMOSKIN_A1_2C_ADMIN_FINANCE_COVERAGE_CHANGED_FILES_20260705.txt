@@ -1,0 +1,94 @@
+COSMOSKIN — A1.2c: Admin Finance / Refund / Bank-Account Endpoint Permission Coverage — CHANGED FILES
+Date: 2026-07-05
+
+MODIFIED (finance handlers gated with requireAdminPermission, per COSMOSKIN_A1_2_ADMIN_ENDPOINT_COVERAGE_PLAN_20260705.md):
+- functions/api/admin/refunds.js
+    added import { requireAdminPermission } from '../_lib/admin-audit.js';
+    onRequestGet: added `await requireAdminPermission(context, 'refunds:update');` after assertAdmin(context)
+    onRequestPost: added `await requireAdminPermission(context, 'refunds:update');` after assertAdmin(context)
+    (GET and POST intentionally share the same string — no separate 'refunds:read' is seeded; see report §2)
+- functions/api/admin/invoices.js
+    added import { requireAdminPermission } from '../_lib/admin-audit.js';
+    onRequestGet: added `await requireAdminPermission(context, 'invoices:read');` after assertAdmin(context)
+    onRequestPost: added `await requireAdminPermission(context, 'invoices:update');` after assertAdmin(context)
+    onRequestPatch: added `await requireAdminPermission(context, 'invoices:update');` after assertAdmin(context)
+- functions/api/admin/bank-accounts.js
+    added import { requireAdminPermission } from '../_lib/admin-audit.js';
+    onRequestGet: added `await requireAdminPermission(context, 'bank_accounts:manage');` after assertAdmin(context)
+    onRequestPost: added `await requireAdminPermission(context, 'bank_accounts:manage');` after assertAdmin(context)
+    onRequestPatch: added `await requireAdminPermission(context, 'bank_accounts:manage');` after assertAdmin(context)
+    (all three handlers intentionally share one string — no read/write split — per the plan's
+    "fraud-sensitive even to read" rationale for IBAN/payment-routing data; see report §2)
+
+MODIFIED (validator scope adjustments for files A1.2c legitimately touches):
+- scripts/validate-a1-admin-rbac-hardening.mjs
+    A1_2_DEFERRED_FILES list shrunk: removed the 3 finance files now covered by A1.2c
+    (refunds.js, invoices.js, bank-accounts.js). Only admin/inventory/health.js,
+    admin/dashboard.js, and functions/api/reviews/[[path]].js remain deferred.
+- scripts/validate-h2-return-attachment-preview.mjs
+    Removed functions/api/admin/refunds.js from forbiddenPaths (legitimately
+    modified by A1.2c), with explanatory comment.
+- scripts/validate-h0-live-payment-rpc-hotfix.mjs
+    Removed functions/api/admin/refunds.js from forbiddenPaths (legitimately
+    modified by A1.2c), with explanatory comment.
+
+REWRITTEN:
+- scripts/validate-a1-admin-endpoint-coverage.mjs
+    Rewritten to validate A1.2a (13 GET handlers), A1.2b (16 mutation handlers
+    across 12 files), and A1.2c (8 finance handlers across 3 files) in a single
+    pass. New GATED_FINANCE_ENDPOINTS matrix, unioned with the existing two
+    matrices into ALL_GATED_ENDPOINTS for the cross-contamination and
+    "must stay fully ungated" checks. Old "finance files must show zero
+    requireAdminPermission calls" check removed (no longer applicable — finance
+    files are now validated the same way as every other gated file). High-caution
+    business-logic-marker check extended with refunds.js/invoices.js/bank-accounts.js
+    entries. forbiddenPaths no longer lists the 3 finance files; two new defensive
+    zero-diff guards added (_lib/bank-accounts.js, _lib/inventory.js). Still chains
+    A1.1 + H0 + H1 + H2 + Batch 1/3/4 + UI-polish validators.
+
+MODIFIED (tests):
+- tests/local-integration.test.mjs
+    New imports: onRequestGet/onRequestPost from admin/refunds.js,
+    onRequestGet/onRequestPost/onRequestPatch from admin/invoices.js and
+    admin/bank-accounts.js.
+    Retitled and narrowed the stale A1.2a/A1.2b "finance/refund/bank-account
+    endpoints and the deliberate escape-hatch routes remain untouched" test to
+    "A1.2c: the deliberate escape-hatch routes remain untouched (dashboard.js,
+    inventory/health.js)" — the finance-files assertion was removed since those
+    files are now legitimately gated.
+    Added 7 new A1.2c test cases (see COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_REPORT_20260705.md §6).
+
+MODIFIED (docs):
+- COSMOSKIN_PROJECT_MEMORY.md
+    Added an "A1.2c — admin finance / refund / bank-account endpoint permission
+    coverage (2026-07-05)" subsection; removed the stale "A1.2c remains deferred"
+    line from the A1.2b subsection; updated the Cloudflare Access production-deploy
+    warning to also reference this batch's runbook.
+
+CREATED (this batch's deliverables):
+- COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_REPORT_20260705.md
+- COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_CHANGED_FILES_20260705.txt (this file)
+- COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_RUNBOOK_20260705.md
+- COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_ROLLBACK_PLAN_20260705.md
+
+NOT TOUCHED (verified zero diff, in scope of this batch's guardrails):
+- functions/api/admin/dashboard.js (deliberate escape hatch — deferred indefinitely)
+- functions/api/admin/inventory/health.js (deliberate escape hatch — deferred indefinitely)
+- functions/api/admin/session.js (never gated, by design — circular otherwise)
+- functions/api/admin/users.js (A1.1 scope only, unchanged)
+- functions/api/_lib/admin-audit.js (A1.1 scope only — RBAC core helper untouched by A1.2c)
+- functions/api/_lib/bank-accounts.js (IBAN validation helper consumed by admin/bank-accounts.js — untouched)
+- All 13 A1.2a GET handlers and all 16 A1.2b mutation handlers across their 12+13 files — untouched, unchanged
+- functions/api/returns.js, functions/api/_lib/return-attachments.js, functions/api/_lib/coupons.js,
+  functions/api/_lib/loyalty-ledger.js, functions/api/_lib/order-cancellation.js,
+  functions/api/account/orders/[id]/cancel.js, functions/api/iyzico-callback.js,
+  functions/api/create-checkout.js, checkout.html, assets/checkout.js — untouched
+- functions/api/admin/products.js, functions/api/admin/inventory.js, functions/api/admin/inventory/adjust.js,
+  functions/api/admin/inventory/[slug].js, functions/api/admin/inventory/[slug]/movements.js,
+  functions/api/admin/shipments.js, functions/api/admin/shipments/[id]/sync.js,
+  functions/api/admin/shipments/[id]/label.js, functions/api/admin/orders/[id]/dhl-shipment.js,
+  functions/api/admin/returns/[id]/dhl-return-shipment.js — untouched
+- No supabase/migrations/*.sql file created or modified.
+- No SQL run. No deployment performed.
+
+NO FILES DELETED.

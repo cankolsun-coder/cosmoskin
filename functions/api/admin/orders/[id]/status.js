@@ -1,5 +1,6 @@
 import { json } from '../../../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../../../_lib/admin.js';
+import { requireAdminPermission } from '../../../_lib/admin-audit.js';
 import { insertRow, selectRows, updateRows } from '../../../_lib/supabase.js';
 import { convertInventoryReservations, releaseInventoryReservations } from '../../../_lib/inventory.js';
 import { awardOrderPoints, promoteOrderPoints, reverseOrderPoints } from '../../../_lib/loyalty-ledger.js';
@@ -10,6 +11,7 @@ const VALID_FULFILLMENT = new Set(['not_started','unfulfilled','preparing','pack
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'orders:update');
     const id = context.params?.id || '';
     const body = await readJsonBody(context);
     const payload = { updated_at: new Date().toISOString() };

@@ -1,4 +1,5 @@
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { normalizeBankAccount, validateBankAccount } from '../_lib/bank-accounts.js';
 import { json } from '../_lib/response.js';
 import { insertRow, selectRows, updateRows } from '../_lib/supabase.js';
@@ -28,6 +29,7 @@ function toDbPayload(raw = {}) {
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'bank_accounts:manage');
     const rows = await selectRows(context, 'payment_bank_accounts', { select: SELECT, order: 'sort_order.asc,created_at.asc' });
     return json({ ok: true, accounts: (rows || []).map(normalizeBankAccount) }, { headers: NO_STORE });
   } catch (error) {
@@ -38,6 +40,7 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'bank_accounts:manage');
     const body = await readJsonBody(context);
     const payload = toDbPayload(body);
     const created = await insertRow(context, 'payment_bank_accounts', { ...payload, created_at: new Date().toISOString() });
@@ -50,6 +53,7 @@ export async function onRequestPost(context) {
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'bank_accounts:manage');
     const body = await readJsonBody(context);
     const id = String(body.id || '').trim();
     if (!id) return json({ ok: false, error: 'Hesap kimliği gerekli.' }, { status: 400, headers: NO_STORE });

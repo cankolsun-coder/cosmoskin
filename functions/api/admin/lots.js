@@ -2,6 +2,7 @@
 import { selectRows, insertRow, updateRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { cleanText } from '../_lib/security.js';
 import { normalizeSlug } from '../_lib/inventory.js';
 
@@ -38,6 +39,7 @@ function payload(body = {}) {
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'lots:read');
     const url = new URL(context.request.url);
     const slug = normalizeSlug(url.searchParams.get('product_slug') || url.searchParams.get('slug') || '');
     const params = { select: '*', order: 'expiry_date.asc.nullslast,created_at.desc', limit: '200' };
@@ -69,6 +71,7 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'inventory:adjust');
     const body = await readJsonBody(context);
     const row = payload(body);
     if (!row.product_slug) return json({ ok: false, error: 'product_slug gerekli.' }, { status: 400 });
@@ -82,6 +85,7 @@ export async function onRequestPost(context) {
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'inventory:adjust');
     const body = await readJsonBody(context);
     if (!body.id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });
     const row = payload(body);

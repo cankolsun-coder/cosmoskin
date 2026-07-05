@@ -17,7 +17,7 @@ export async function getAdminRecord(context) {
   const email = getAccessEmail(context);
   if (!email) return null;
   const rows = await selectRows(context, 'admin_users', {
-    select: 'id,email,role,role_code,permissions,is_active',
+    select: 'id,email,role,role_code,permissions,is_active,status',
     email: `eq.${String(email).toLowerCase()}`,
     limit: '1'
   }).catch(() => []);
@@ -25,9 +25,15 @@ export async function getAdminRecord(context) {
 }
 
 export async function hasAdminPermission(context, permission) {
+  // A1: deny-by-default. Caller identity comes only from getAdminRecord(), which
+  // resolves the server-trusted Cf-Access-Authenticated-User-Email header against
+  // admin_users. No client-provided is_admin/role/role_code/permissions field is
+  // ever read here or anywhere in this function — a request whose identity does
+  // not match an active admin_users row is denied, full stop.
   const admin = await getAdminRecord(context);
-  if (!admin) return true; // Cloudflare Access + signed session remains the P0 gate until table rows are seeded.
+  if (!admin) return false;
   if (admin.is_active === false) return false;
+  if (admin.status === 'disabled') return false;
   const direct = Array.isArray(admin.permissions) ? admin.permissions : [];
   if (direct.includes('*') || direct.includes(permission)) return true;
   const role = admin.role_code || admin.role || 'operations';

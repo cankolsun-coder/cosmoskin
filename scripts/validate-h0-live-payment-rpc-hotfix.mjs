@@ -184,17 +184,32 @@ if (!/GRANT EXECUTE ON FUNCTION public\.release_expired_inventory_reservations[\
 // which added a minimal client-supplied file_path ownership guard to close a
 // storage RLS gap (see COSMOSKIN_H1_RETURN_ATTACHMENT_STORAGE_RLS_REPORT_20260704.md).
 // H1 does not touch functions/api/admin/returns.js, so that file remains frozen here.
+// functions/api/_lib/admin-audit.js is no longer zero-diff-forbidden as of A1.1
+// (2026-07-04), which flipped hasAdminPermission()'s allow-all default to
+// deny-by-default (see COSMOSKIN_A1_ADMIN_RBAC_HARDENING_REPORT_20260704.md).
+// A1.1's own validator (scripts/validate-a1-admin-rbac-hardening.mjs) asserts
+// that change stays scoped; functions/api/_lib/admin.js (session/token layer)
+// remains untouched and stays frozen here.
+// functions/api/admin/returns.js is no longer zero-diff-forbidden as of A1.2a
+// (2026-07-05), which added a read-only requireAdminPermission('returns:read')
+// gate to its GET handler only (see
+// COSMOSKIN_A1_2A_ADMIN_READ_COVERAGE_REPORT_20260705.md and its own validator,
+// scripts/validate-a1-admin-endpoint-coverage.mjs, which asserts the PATCH
+// handler and all business logic stay untouched).
+// functions/api/admin/refunds.js is no longer zero-diff-forbidden as of A1.2c
+// (2026-07-05, admin finance/refund/bank-account endpoint permission coverage)
+// — see COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_REPORT_20260705.md and its own
+// validator (scripts/validate-a1-admin-endpoint-coverage.mjs), which asserts
+// only a requireAdminPermission('refunds:update') guard was added and all
+// refund creation/completion business logic stays byte-identical.
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
   'functions/api/create-checkout.js',
-  'functions/api/admin/refunds.js',
   'functions/api/_lib/iyzico.js',
   'functions/api/account/orders/[id]/cancel.js',
   'functions/api/_lib/order-cancellation.js',
-  'functions/api/admin/returns.js',
-  'functions/api/_lib/admin.js',
-  'functions/api/_lib/admin-audit.js'
+  'functions/api/_lib/admin.js'
 ];
 
 function gitDiffFile(file) {

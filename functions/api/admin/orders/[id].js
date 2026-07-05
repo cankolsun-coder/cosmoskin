@@ -1,11 +1,13 @@
 
 import { json } from '../../_lib/response.js';
 import { assertAdmin, adminError } from '../../_lib/admin.js';
+import { requireAdminPermission } from '../../_lib/admin-audit.js';
 import { selectRows } from '../../_lib/supabase.js';
 
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'orders:read');
     const id = context.params?.id || '';
     const orders = await selectRows(context, 'orders', { select: '*', id: `eq.${id}`, limit: '1' });
     const order = orders?.[0];

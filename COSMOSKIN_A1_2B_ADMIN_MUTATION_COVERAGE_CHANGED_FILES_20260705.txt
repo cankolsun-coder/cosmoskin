@@ -1,0 +1,117 @@
+COSMOSKIN — A1.2b: Admin Mutation Endpoint Permission Coverage — CHANGED FILES
+Date: 2026-07-05
+
+MODIFIED (mutation handlers gated with requireAdminPermission, per COSMOSKIN_A1_2_ADMIN_ENDPOINT_COVERAGE_PLAN_20260705.md):
+- functions/api/admin/orders.js
+    onRequestPatch: added `await requireAdminPermission(context, 'orders:update');` after assertAdmin(context)
+    (onRequestGet already gated in A1.2a with 'orders:read', unchanged)
+- functions/api/admin/orders/[id]/status.js
+    added import { requireAdminPermission } from '../../../_lib/admin-audit.js';
+    onRequestPatch: added `await requireAdminPermission(context, 'orders:update');` after assertAdmin(context)
+- functions/api/admin/orders/[id]/emails.js
+    added import { requireAdminPermission } from '../../../_lib/admin-audit.js';
+    onRequestPost: added `await requireAdminPermission(context, 'orders:update');` after assertAdmin(context)
+- functions/api/admin/orders/[id]/shipments.js
+    added import { requireAdminPermission } from '../../../_lib/admin-audit.js';
+    onRequestPost: added `await requireAdminPermission(context, 'shipments:create');` after assertAdmin(context)
+- functions/api/admin/returns.js
+    onRequestPatch: added `await requireAdminPermission(context, 'returns:update');` after assertAdmin(context)
+    (onRequestGet already gated in A1.2a with 'returns:read', unchanged)
+- functions/api/admin/products.js
+    onRequestPatch: added `await requireAdminPermission(context, 'inventory:adjust');` after assertAdmin(context)
+    onRequestPost: added `await requireAdminPermission(context, 'inventory:adjust');` after assertAdmin(context)
+    (onRequestGet already gated in A1.2a with 'products:read', unchanged)
+- functions/api/admin/inventory/adjust.js
+    added import { requireAdminPermission } from '../../_lib/admin-audit.js';
+    onRequestPost: added `await requireAdminPermission(context, 'inventory:adjust');` after assertAdmin(context)
+- functions/api/admin/inventory/[slug].js
+    added import { requireAdminPermission } from '../../_lib/admin-audit.js';
+    onRequestPatch: added `await requireAdminPermission(context, 'inventory:adjust');` after assertAdmin(context)
+- functions/api/admin/lots.js
+    onRequestPost: added `await requireAdminPermission(context, 'inventory:adjust');` after assertAdmin(context)
+    onRequestPatch: added `await requireAdminPermission(context, 'inventory:adjust');` after assertAdmin(context)
+    (onRequestGet already gated in A1.2a with 'lots:read', unchanged)
+- functions/api/admin/suppliers.js
+    onRequestPost: added `await requireAdminPermission(context, 'suppliers:manage');` after assertAdmin(context)
+    onRequestPatch: added `await requireAdminPermission(context, 'suppliers:manage');` after assertAdmin(context)
+    (onRequestGet already gated in A1.2a with 'suppliers:read', unchanged)
+- functions/api/admin/compliance.js
+    onRequestPatch: added `await requireAdminPermission(context, 'products:update');` after assertAdmin(context)
+    (onRequestGet already gated in A1.2a with 'compliance:read', unchanged)
+- functions/api/admin/coupons/index.js
+    onRequestPost: added `await requireAdminPermission(context, 'coupons:manage');` after assertAdmin(context)
+    onRequestPatch: added `await requireAdminPermission(context, 'coupons:manage');` after assertAdmin(context)
+    (onRequestGet already gated in A1.2a with 'coupons:read', unchanged)
+
+MODIFIED (validator scope adjustments for files A1.2b legitimately touches):
+- scripts/validate-a1-admin-rbac-hardening.mjs
+    A1_2_DEFERRED_FILES list shrunk: removed the 5 files now covered by A1.2b
+    (orders/[id]/status.js, orders/[id]/emails.js, orders/[id]/shipments.js,
+    inventory/adjust.js, inventory/[slug].js). A1.2c finance files, the 2 escape
+    hatches, and functions/api/reviews/[[path]].js remain deferred.
+- scripts/validate-h2-return-attachment-preview.mjs
+    Removed functions/api/admin/orders/[id]/status.js from forbiddenPaths
+    (legitimately modified by A1.2b), with explanatory comment.
+- scripts/validate-h1-return-attachment-storage-rls.mjs
+    No functional change beyond a clarifying comment (was already updated for
+    A1.2a; no new file conflicts found for A1.2b's file set).
+- scripts/validate-h0-live-payment-rpc-hotfix.mjs
+    No functional change beyond a clarifying comment (was already updated for
+    A1.2a; no new file conflicts found for A1.2b's file set).
+
+REWRITTEN:
+- scripts/validate-a1-admin-endpoint-coverage.mjs
+    Rewritten to validate both A1.2a (13 GET handlers) and A1.2b (16 mutation
+    handlers across 12 files) in a single pass. New checks: mutation coverage
+    matrix, cross-contamination guard (no permission string leaking between a
+    file's GET and mutation handlers), "must stay fully ungated" guard for
+    every handler not in either matrix, high-caution business-logic-marker
+    regression guard for orders.js PATCH and orders/[id]/status.js PATCH,
+    updated forbiddenPaths (5 files removed as legitimately touched, several
+    "already done" A1.1-era routes and admin/session.js added as explicit
+    zero-diff guards). Still chains A1.1 + H0 + H1 + H2 + Batch 1/3/4 +
+    UI-polish validators.
+
+MODIFIED (tests):
+- tests/local-integration.test.mjs
+    New imports: onRequestPatch from admin/orders.js, onRequestPost from
+    admin/orders/[id]/emails.js and admin/orders/[id]/shipments.js,
+    onRequestPatch from admin/returns.js, onRequestPatch/onRequestPost from
+    admin/products.js, onRequestPost from admin/inventory/adjust.js,
+    onRequestPatch from admin/inventory/[slug].js, onRequestPost/onRequestPatch
+    from admin/lots.js, admin/suppliers.js, and admin/coupons/index.js,
+    onRequestPatch from admin/compliance.js.
+    Rewrote the stale A1.2a "mutation handlers stay ungated" test into
+    "A1.2a/A1.2b: mutation handlers ... carry only their own (mutation)
+    permission, never the GET one" (now that A1.2b legitimately gates them).
+    Added 5 new A1.2b test cases (see COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_REPORT_20260705.md §7).
+
+MODIFIED (docs):
+- COSMOSKIN_PROJECT_MEMORY.md
+    Added an "A1.2b — admin mutation endpoint permission coverage (2026-07-05)"
+    subsection; updated the Cloudflare Access production-deploy warning to
+    also reference this batch's runbook.
+
+CREATED (this batch's deliverables):
+- COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_REPORT_20260705.md
+- COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_CHANGED_FILES_20260705.txt (this file)
+- COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_RUNBOOK_20260705.md
+- COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_ROLLBACK_PLAN_20260705.md
+
+NOT TOUCHED (verified zero diff, in scope of this batch's guardrails):
+- functions/api/admin/refunds.js (A1.2c — deferred)
+- functions/api/admin/invoices.js (A1.2c — deferred)
+- functions/api/admin/bank-accounts.js (A1.2c — deferred)
+- functions/api/admin/dashboard.js (deliberate escape hatch — deferred indefinitely)
+- functions/api/admin/inventory/health.js (deliberate escape hatch — deferred indefinitely)
+- functions/api/admin/session.js (never gated, by design — circular otherwise)
+- functions/api/admin/users.js (A1.1 scope only — GET remains assertAdmin-only, per A1.1's explicit decision)
+- functions/api/_lib/admin-audit.js (A1.1 scope only — RBAC core helper untouched by A1.2b)
+- functions/api/admin/loyalty/adjust-points.js, admin/coupons/issue-customer-coupon.js,
+  admin/shipments/[id]/sync.js, admin/shipments/[id]/label.js,
+  admin/orders/[id]/dhl-shipment.js, admin/returns/[id]/dhl-return-shipment.js
+  (already gated pre-A1.2, untouched)
+- No supabase/migrations/*.sql file created or modified.
+- No SQL run. No deployment performed.
+
+NO FILES DELETED.

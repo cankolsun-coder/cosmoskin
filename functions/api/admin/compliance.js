@@ -3,6 +3,7 @@ import { selectRows, insertRow, updateRows } from '../_lib/supabase.js';
 import { catalogProducts, normalizeSlug } from '../_lib/inventory.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { cleanText } from '../_lib/security.js';
 
 function normalizePayload(body = {}) {
@@ -18,6 +19,7 @@ function normalizePayload(body = {}) {
 export async function onRequestGet(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'compliance:read');
     const url = new URL(context.request.url);
     const slug = normalizeSlug(url.searchParams.get('product_slug') || url.searchParams.get('slug') || '');
     if (slug) {
@@ -43,6 +45,7 @@ export async function onRequestGet(context) {
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'products:update');
     const body = await readJsonBody(context);
     const slug = normalizeSlug(body.product_slug || body.slug);
     if (!slug) return json({ ok: false, error: 'product_slug gerekli.' }, { status: 400 });

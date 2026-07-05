@@ -2,7 +2,14 @@
 import { selectRows, insertRow, updateRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
+import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { cleanText, normalizeEmail, validEmail } from '../_lib/security.js';
+
+// A1: admin_users is the source of RBAC truth. Minting or elevating an admin_users
+// row (including granting role: 'owner') must itself require an existing,
+// permission-checked admin identity — not just the shared ADMIN_TOKEN/session that
+// assertAdmin() verifies. Owner rows (permissions: ['*']) pass this automatically.
+const MANAGE_ADMINS_PERMISSION = 'admin.users.manage';
 
 const ROLES = new Set(['owner','operations','warehouse','customer_support','content_editor']);
 const STATUSES = new Set(['active','disabled','invited']);
@@ -18,6 +25,7 @@ export async function onRequestGet(context) {
 export async function onRequestPost(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, MANAGE_ADMINS_PERMISSION);
     const body = await readJsonBody(context);
     const email = normalizeEmail(body.email);
     const role = cleanText(body.role || 'operations', 40);
@@ -31,6 +39,7 @@ export async function onRequestPost(context) {
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, MANAGE_ADMINS_PERMISSION);
     const body = await readJsonBody(context);
     if (!body.id) return json({ ok: false, error: 'id gerekli.' }, { status: 400 });
     const payload = { updated_at: new Date().toISOString() };

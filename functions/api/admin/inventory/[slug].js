@@ -1,10 +1,12 @@
 import { json } from '../../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../../_lib/admin.js';
+import { requireAdminPermission } from '../../_lib/admin-audit.js';
 import { assertAdminInventoryPayload, normalizeSlug, setInventory } from '../../_lib/inventory.js';
 
 export async function onRequestPatch(context) {
   try {
     await assertAdmin(context);
+    await requireAdminPermission(context, 'inventory:adjust');
     const slug = normalizeSlug(context.params?.slug || '');
     const body = await readJsonBody(context);
     const payload = assertAdminInventoryPayload(body);
