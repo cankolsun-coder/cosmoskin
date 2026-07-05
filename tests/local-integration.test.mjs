@@ -8,7 +8,8 @@ import { normalizeIban, isValidTurkishIban, validateBankAccount } from '../funct
 import { calculateCouponPreview, onRequestPost as validateCoupon } from '../functions/api/coupons/validate.js';
 import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout } from '../functions/api/create-checkout.js';
 import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations } from '../functions/api/_lib/inventory.js';
-import { issueAdminSession, assertAdmin, getVerifiedSessionEmail } from '../functions/api/_lib/admin.js';
+import { issueAdminSession, assertAdmin, getVerifiedSessionEmail, resolveCloudflareAccessEmail } from '../functions/api/_lib/admin.js';
+import { clearAccessCertsCacheForTests } from '../functions/api/_lib/cloudflare-access-jwt.js';
 import { onRequestPatch as adminStatusPatch } from '../functions/api/admin/orders/[id]/status.js';
 import { hasAdminPermission } from '../functions/api/_lib/admin-audit.js';
 import { onRequestPost as adminUsersPost } from '../functions/api/admin/users.js';
@@ -1376,4 +1377,222 @@ test('A1F: invalid admin token still returns 401 and does not issue a session', 
       (error) => error.status === 401
     );
   } finally { restore(); }
+});
+
+// ---------------------------------------------------------------------------
+// A1F2: Cloudflare Access JWT email fallback for admin RBAC session issuance.
+// ---------------------------------------------------------------------------
+const A1F2_TEAM = 'cosmoskin-test';
+const A1F2_AUD = 'test-access-audience';
+
+function a1f2AdminEnv(extra = {}) {
+  return { ...a1fAdminEnv(), CF_ACCESS_TEAM_DOMAIN: A1F2_TEAM, CF_ACCESS_AUD: A1F2_AUD, ...extra };
+}
+
+async function generateTestAccessKeyPair() {
+  return crypto.subtle.generateKey(
+    { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: new Uint8Array([0x01, 0x00, 0x01]), hash: 'SHA-256' },
+    true,
+    ['sign', 'verify'],
+  );
+}
+
+async function exportPublicAccessJwk(keyPair, kid = 'test-kid') {
+  const jwk = await crypto.subtle.exportKey('jwk', keyPair.publicKey);
+  return { ...jwk, kid, use: 'sig', alg: 'RS256' };
+}
+
+async function createTestAccessJwt(keyPair, { email, teamDomain = A1F2_TEAM, aud = A1F2_AUD, kid = 'test-kid', expOffset = 3600, includeEmail = true }) {
+  const header = { alg: 'RS256', kid };
+  const payload = {
+    aud,
+    exp: Math.floor(Date.now() / 1000) + expOffset,
+    iat: Math.floor(Date.now() / 1000),
+    iss: `https://${teamDomain}.cloudflareaccess.com`,
+    sub: includeEmail ? email : 'missing-email-subject',
+  };
+  if (includeEmail) payload.email = email;
+  const encode = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+  const encodedHeader = encode(header);
+  const encodedPayload = encode(payload);
+  const data = new TextEncoder().encode(`${encodedHeader}.${encodedPayload}`);
+  const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', keyPair.privateKey, data);
+  const encodedSignature = Buffer.from(signature).toString('base64url');
+  return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
+}
+
+function installAccessCertsFetch(publicJwk) {
+  return installFetch(async (url) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/cdn-cgi/access/certs')) return response({ keys: [publicJwk] });
+    if (href.includes('/rest/v1/admin_users')) return response([A1F_OWNER]);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    if (href.includes('/rest/v1/products')) return response([]);
+    if (href.includes('/rest/v1/inventory')) return response([]);
+    return response([]);
+  });
+}
+
+test('A1F2: direct Cf-Access-Authenticated-User-Email still works for session issuance', async () => {
+  const { issued } = await issueA1fSession(A1F_OWNER, 'cankolsun@gmail.com');
+  assert.equal(issued.email, 'cankolsun@gmail.com');
+});
+
+test('A1F2: Cf-Access-Jwt-Assertion fallback works when direct email header is absent', async () => {
+  const keyPair = await generateTestAccessKeyPair();
+  const publicJwk = await exportPublicAccessJwk(keyPair);
+  const adminEnv = a1f2AdminEnv();
+  const restoreUsers = installAdminUsersFetch(A1F_OWNER);
+  const restoreFetch = installAccessCertsFetch(publicJwk);
+  try {
+    clearAccessCertsCacheForTests();
+    const jwt = await createTestAccessJwt(keyPair, { email: 'cankolsun@gmail.com' });
+    const issued = await issueAdminSession({
+      request: new Request('https://local.test/api/admin/session', {
+        method: 'POST',
+        headers: {
+          'x-admin-token': adminEnv.ADMIN_TOKEN,
+          'CF-Connecting-IP': '192.0.2.60',
+          'Cf-Access-Jwt-Assertion': jwt,
+        },
+      }),
+      env: adminEnv,
+    });
+    assert.equal(issued.email, 'cankolsun@gmail.com');
+    assert.equal(issued.token.split('.').length, 5);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+    clearAccessCertsCacheForTests();
+  }
+});
+
+test('A1F2: unverified/forged JWT fails session issuance', async () => {
+  const keyPair = await generateTestAccessKeyPair();
+  const otherKeyPair = await generateTestAccessKeyPair();
+  const publicJwk = await exportPublicAccessJwk(keyPair);
+  const adminEnv = a1f2AdminEnv();
+  const restoreUsers = installAdminUsersFetch(A1F_OWNER);
+  const restoreFetch = installAccessCertsFetch(publicJwk);
+  try {
+    clearAccessCertsCacheForTests();
+    const jwt = await createTestAccessJwt(otherKeyPair, { email: 'cankolsun@gmail.com' });
+    await assert.rejects(
+      issueAdminSession({
+        request: new Request('https://local.test/api/admin/session', {
+          method: 'POST',
+          headers: {
+            'x-admin-token': adminEnv.ADMIN_TOKEN,
+            'CF-Connecting-IP': '192.0.2.61',
+            'Cf-Access-Jwt-Assertion': jwt,
+          },
+        }),
+        env: adminEnv,
+      }),
+      (error) => error.status === 403
+    );
+  } finally {
+    restoreFetch();
+    restoreUsers();
+    clearAccessCertsCacheForTests();
+  }
+});
+
+test('A1F2: JWT with wrong audience fails when audience config is present', async () => {
+  const keyPair = await generateTestAccessKeyPair();
+  const publicJwk = await exportPublicAccessJwk(keyPair);
+  const adminEnv = a1f2AdminEnv();
+  const restoreUsers = installAdminUsersFetch(A1F_OWNER);
+  const restoreFetch = installAccessCertsFetch(publicJwk);
+  try {
+    clearAccessCertsCacheForTests();
+    const jwt = await createTestAccessJwt(keyPair, { email: 'cankolsun@gmail.com', aud: 'wrong-audience' });
+    await assert.rejects(
+      issueAdminSession({
+        request: new Request('https://local.test/api/admin/session', {
+          method: 'POST',
+          headers: {
+            'x-admin-token': adminEnv.ADMIN_TOKEN,
+            'CF-Connecting-IP': '192.0.2.62',
+            'Cf-Access-Jwt-Assertion': jwt,
+          },
+        }),
+        env: adminEnv,
+      }),
+      (error) => error.status === 403
+    );
+  } finally {
+    restoreFetch();
+    restoreUsers();
+    clearAccessCertsCacheForTests();
+  }
+});
+
+test('A1F2: JWT without email claim fails', async () => {
+  const keyPair = await generateTestAccessKeyPair();
+  const publicJwk = await exportPublicAccessJwk(keyPair);
+  const adminEnv = a1f2AdminEnv();
+  const restoreUsers = installAdminUsersFetch(A1F_OWNER);
+  const restoreFetch = installAccessCertsFetch(publicJwk);
+  try {
+    clearAccessCertsCacheForTests();
+    const jwt = await createTestAccessJwt(keyPair, { email: 'cankolsun@gmail.com', includeEmail: false });
+    await assert.rejects(
+      issueAdminSession({
+        request: new Request('https://local.test/api/admin/session', {
+          method: 'POST',
+          headers: {
+            'x-admin-token': adminEnv.ADMIN_TOKEN,
+            'CF-Connecting-IP': '192.0.2.63',
+            'Cf-Access-Jwt-Assertion': jwt,
+          },
+        }),
+        env: adminEnv,
+      }),
+      (error) => error.status === 403
+    );
+  } finally {
+    restoreFetch();
+    restoreUsers();
+    clearAccessCertsCacheForTests();
+  }
+});
+
+test('A1F2: JWT-only identity resolves through resolveCloudflareAccessEmail()', async () => {
+  const keyPair = await generateTestAccessKeyPair();
+  const publicJwk = await exportPublicAccessJwk(keyPair);
+  const adminEnv = a1f2AdminEnv();
+  const restoreFetch = installAccessCertsFetch(publicJwk);
+  try {
+    clearAccessCertsCacheForTests();
+    const jwt = await createTestAccessJwt(keyPair, { email: 'cankolsun@gmail.com' });
+    const email = await resolveCloudflareAccessEmail({
+      request: new Request('https://local.test/api/admin/session', {
+        headers: { 'Cf-Access-Jwt-Assertion': jwt },
+      }),
+      env: adminEnv,
+    });
+    assert.equal(email, 'cankolsun@gmail.com');
+  } finally {
+    restoreFetch();
+    clearAccessCertsCacheForTests();
+  }
+});
+
+test('A1F2: missing team domain fails closed when only JWT header is present', async () => {
+  const adminEnv = a1fAdminEnv();
+  await assert.rejects(
+    issueAdminSession({
+      request: new Request('https://local.test/api/admin/session', {
+        method: 'POST',
+        headers: {
+          'x-admin-token': adminEnv.ADMIN_TOKEN,
+          'CF-Connecting-IP': '192.0.2.64',
+          'Cf-Access-Jwt-Assertion': 'eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3RlYW0uY2xvdWRmbGFyZWFjY2Vzcy5jb20ifQ.sig',
+        },
+      }),
+      env: adminEnv,
+    }),
+    (error) => error.status === 403 && /CF_ACCESS_TEAM_DOMAIN/i.test(error.message)
+  );
 });

@@ -1,0 +1,42 @@
+COSMOSKIN A1F2 — Cloudflare Access JWT Identity Fallback
+Changed files list — 2026-07-06
+
+MODIFIED BY A1F2
+----------------
+functions/api/_lib/admin.js
+  - issueAdminSession() uses resolveCloudflareAccessEmail() (direct header + JWT)
+  - assertCloudflareAccess() accepts JWT-only OR email-only (not both required)
+  - Clear 403 when JWT present but CF_ACCESS_TEAM_DOMAIN missing
+  - Optional ADMIN_ACCESS_IDENTITY_DEBUG safe diagnostics
+
+functions/api/_lib/admin-audit.js
+  - getAdminRecord() identity order:
+    1) Cf-Access-Authenticated-User-Email
+    2) verified Cf-Access-Jwt-Assertion email
+    3) HMAC-protected signed session email
+
+scripts/validate-a1f-admin-rbac-session-identity.mjs
+  - Extended for A1F2 JWT verification guardrails
+
+tests/local-integration.test.mjs
+  - Added 7 A1F2 integration tests
+
+CREATED BY A1F2
+---------------
+functions/api/_lib/cloudflare-access-jwt.js
+  - Verified Cf-Access-Jwt-Assertion email extraction
+  - RS256 signature verification via Cloudflare Access certs endpoint
+  - Issuer/audience/exp checks; fail closed when team domain missing
+COSMOSKIN_A1F2_CLOUDFLARE_ACCESS_JWT_IDENTITY_REPORT_20260706.md
+COSMOSKIN_A1F2_CLOUDFLARE_ACCESS_JWT_IDENTITY_RUNBOOK_20260706.md
+COSMOSKIN_A1F2_CLOUDFLARE_ACCESS_JWT_IDENTITY_ROLLBACK_PLAN_20260706.md
+COSMOSKIN_A1F2_CLOUDFLARE_ACCESS_JWT_IDENTITY_CHANGED_FILES_20260706.txt
+
+EXPLICITLY NOT CHANGED BY A1F2
+--------------------------------
+assets/admin-runtime.js (401/403 UX unchanged from A1F)
+assets/admin-runtime.css
+checkout, payment, B1/B2 bank transfer, returns, storage, loyalty, coupons
+order business logic
+supabase/migrations (no SQL)
+.env.example (documented in runbook only — A1 scope guard)

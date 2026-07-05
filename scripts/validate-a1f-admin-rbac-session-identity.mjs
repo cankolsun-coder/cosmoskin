@@ -8,6 +8,7 @@ const exists = (file) => fs.existsSync(path.join(root, file));
 const failures = [];
 
 const ADMIN_LIB = 'functions/api/_lib/admin.js';
+const ACCESS_JWT_LIB = 'functions/api/_lib/cloudflare-access-jwt.js';
 const AUDIT_LIB = 'functions/api/_lib/admin-audit.js';
 const RUNTIME = 'assets/admin-runtime.js';
 const INVENTORY = 'functions/api/admin/inventory.js';
@@ -25,7 +26,7 @@ function extractFn(src, name) {
   return src.slice(start, next === -1 ? undefined : next);
 }
 
-const requiredFiles = [ADMIN_LIB, AUDIT_LIB, RUNTIME, INVENTORY, DASHBOARD, SESSION];
+const requiredFiles = [ADMIN_LIB, ACCESS_JWT_LIB, AUDIT_LIB, RUNTIME, INVENTORY, DASHBOARD, SESSION];
 for (const file of requiredFiles) {
   if (!exists(file)) failures.push(`Missing required file: ${file}`);
 }
@@ -37,6 +38,8 @@ if (failures.length) {
 
 const adminLib = read(ADMIN_LIB);
 const adminLibCode = stripComments(adminLib);
+const accessJwtLib = read(ACCESS_JWT_LIB);
+const accessJwtLibCode = stripComments(accessJwtLib);
 const auditLib = read(AUDIT_LIB);
 const auditLibCode = stripComments(auditLib);
 const runtime = read(RUNTIME);
@@ -62,15 +65,41 @@ if (!/Bu işlem için yetkiniz bulunmuyor\./.test(runtime)) {
   failures.push(`${RUNTIME}: must surface the Turkish permission-denied copy for 403 responses`);
 }
 
+if (!/export async function resolveCloudflareAccessEmailFromJwt/.test(accessJwtLib)) {
+  failures.push(`${ACCESS_JWT_LIB}: must export resolveCloudflareAccessEmailFromJwt(context) for verified JWT email fallback`);
+}
+if (!/Cf-Access-Jwt-Assertion/.test(accessJwtLibCode)) {
+  failures.push(`${ACCESS_JWT_LIB}: must read Cf-Access-Jwt-Assertion server-side`);
+}
+const jwtVerifyIdx = accessJwtLibCode.indexOf('crypto.subtle.verify(');
+const jwtEmailIdx = accessJwtLibCode.indexOf('payload.email');
+if (jwtVerifyIdx === -1) {
+  failures.push(`${ACCESS_JWT_LIB}: JWT email must be extracted only after crypto.subtle.verify() signature verification`);
+} else if (jwtEmailIdx !== -1 && jwtEmailIdx < jwtVerifyIdx) {
+  failures.push(`${ACCESS_JWT_LIB}: must not read JWT payload email before crypto.subtle.verify()`);
+}
+if (!/accessTeamDomain\(/.test(accessJwtLibCode) || !/CF_ACCESS_TEAM_DOMAIN|CLOUDFLARE_ACCESS_TEAM_DOMAIN/.test(accessJwtLib)) {
+  failures.push(`${ACCESS_JWT_LIB}: must read CF_ACCESS_TEAM_DOMAIN / CLOUDFLARE_ACCESS_TEAM_DOMAIN and fail closed when missing`);
+}
+if (!/accessAudience\(/.test(accessJwtLibCode) || !/CF_ACCESS_AUD|CLOUDFLARE_ACCESS_AUD/.test(accessJwtLib)) {
+  failures.push(`${ACCESS_JWT_LIB}: must verify JWT audience when CF_ACCESS_AUD / CLOUDFLARE_ACCESS_AUD is configured`);
+}
+if (/body\.email|searchParams\.get\(['"]email['"]\)|x-admin-email/i.test(accessJwtLibCode)) {
+  failures.push(`${ACCESS_JWT_LIB}: must not trust client-supplied email from body/query/custom headers`);
+}
+
 // ---------------------------------------------------------------------------
-// 2) Signed admin session must include verified email protected by HMAC.
+// 2b) Signed admin session must include verified email protected by HMAC.
 // ---------------------------------------------------------------------------
 const issueFn = extractFn(adminLib, 'issueAdminSession');
 if (!issueFn) {
   failures.push(`${ADMIN_LIB}: issueAdminSession() export not found`);
 } else {
-  if (!/Cf-Access-Authenticated-User-Email|getCloudflareAccessEmail\(context\)/.test(issueFn)) {
-    failures.push(`${ADMIN_LIB}: issueAdminSession() must read Cf-Access-Authenticated-User-Email from the request`);
+  if (!/resolveCloudflareAccessEmail\(context\)/.test(issueFn)) {
+    failures.push(`${ADMIN_LIB}: issueAdminSession() must resolve Cloudflare Access identity via resolveCloudflareAccessEmail(context)`);
+  }
+  if (!/Cf-Access-Jwt-Assertion|resolveCloudflareAccessEmailFromJwt\(/.test(adminLibCode)) {
+    failures.push(`${ADMIN_LIB}: admin identity must support Cf-Access-Jwt-Assertion fallback, not only Cf-Access-Authenticated-User-Email`);
   }
   if (!/Cloudflare Access kimliği doğrulanamadı\. \/api\/admin\/\* route kapsamını kontrol edin\./.test(issueFn)) {
     failures.push(`${ADMIN_LIB}: issueAdminSession() must return the documented 403 message when Cloudflare Access email is missing`);
@@ -107,10 +136,20 @@ if (!getRecordFn) {
     failures.push(`${AUDIT_LIB}: getAdminRecord() must still resolve Cloudflare Access email via getAccessEmail(context) first`);
   }
   if (!/getVerifiedSessionEmail\(context\)/.test(getRecordFn)) {
-    failures.push(`${AUDIT_LIB}: getAdminRecord() must fall back to getVerifiedSessionEmail(context) when the Access header is absent`);
+    failures.push(`${AUDIT_LIB}: getAdminRecord() must fall back to getVerifiedSessionEmail(context) when Access identity is absent`);
+  }
+  if (!/resolveCloudflareAccessEmailFromJwt\(context\)/.test(getRecordFn)) {
+    failures.push(`${AUDIT_LIB}: getAdminRecord() must fall back to verified Cf-Access-Jwt-Assertion email before signed session email`);
   }
   const accessIdx = getRecordFn.indexOf('getAccessEmail(context)');
+  const jwtIdx = getRecordFn.indexOf('resolveCloudflareAccessEmailFromJwt(context)');
   const sessionIdx = getRecordFn.indexOf('getVerifiedSessionEmail(context)');
+  if (accessIdx !== -1 && jwtIdx !== -1 && jwtIdx < accessIdx) {
+    failures.push(`${AUDIT_LIB}: resolveCloudflareAccessEmailFromJwt() must occur only after getAccessEmail(context)`);
+  }
+  if (jwtIdx !== -1 && sessionIdx !== -1 && sessionIdx < jwtIdx) {
+    failures.push(`${AUDIT_LIB}: getVerifiedSessionEmail() fallback must occur only after resolveCloudflareAccessEmailFromJwt()`);
+  }
   if (accessIdx !== -1 && sessionIdx !== -1 && sessionIdx < accessIdx) {
     failures.push(`${AUDIT_LIB}: getVerifiedSessionEmail() fallback must occur only after checking getAccessEmail(context)`);
   }
@@ -221,4 +260,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log('COSMOSKIN A1F admin RBAC session identity validation passed.');
+console.log('COSMOSKIN A1F/A1F2 admin RBAC session identity validation passed.');

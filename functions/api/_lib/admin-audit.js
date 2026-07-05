@@ -1,5 +1,6 @@
 import { insertRow, selectRows } from './supabase.js';
 import { getVerifiedSessionEmail } from './admin.js';
+import { resolveCloudflareAccessEmailFromJwt } from './cloudflare-access-jwt.js';
 
 function requestIp(context) {
   const headers = context?.request?.headers || new Headers();
@@ -17,6 +18,9 @@ export function getAccessEmail(context) {
 export async function getAdminRecord(context) {
   let email = getAccessEmail(context);
   if (!email) {
+    email = await resolveCloudflareAccessEmailFromJwt(context);
+  }
+  if (!email) {
     email = await getVerifiedSessionEmail(context);
   }
   if (!email) return null;
@@ -29,11 +33,10 @@ export async function getAdminRecord(context) {
 }
 
 export async function hasAdminPermission(context, permission) {
-  // A1: deny-by-default. Caller identity comes only from getAdminRecord(), which
-  // resolves the server-trusted Cf-Access-Authenticated-User-Email header against
-  // admin_users. No client-provided is_admin/role/role_code/permissions field is
-  // ever read here or anywhere in this function — a request whose identity does
-  // not match an active admin_users row is denied, full stop.
+  // A1/A1F2: deny-by-default. Caller identity comes only from getAdminRecord(),
+  // which resolves trusted Cloudflare Access identity (direct header or verified
+  // Cf-Access-Jwt-Assertion) or a signature-valid signed admin session email.
+  // No client-provided is_admin/role/role_code/permissions field is ever read.
   const admin = await getAdminRecord(context);
   if (!admin) return false;
   if (admin.is_active === false) return false;

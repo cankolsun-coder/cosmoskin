@@ -1,5 +1,13 @@
 import { json } from './response.js';
 import { selectRows } from './supabase.js';
+import {
+  accessTeamDomain,
+  describeAccessIdentity,
+  getDirectAccessEmail,
+  hasAccessEmailHeader,
+  hasAccessJwtHeader,
+  resolveCloudflareAccessEmail,
+} from './cloudflare-access-jwt.js';
 
 const FAILURE_WINDOW_MS = 10 * 60 * 1000;
 const MAX_FAILURES = 8;
@@ -88,15 +96,16 @@ function assertCloudflareAccess(context) {
   const headers = context.request.headers;
   const assertion = headers.get('Cf-Access-Jwt-Assertion');
   const email = headers.get('Cf-Access-Authenticated-User-Email');
-  if (!assertion || !email) {
+  if (!assertion && !email) {
     throw new AdminAuthError('Admin erişimi doğrulanamadı.');
   }
 }
 
 export function getCloudflareAccessEmail(context) {
-  const email = String(context?.request?.headers?.get('Cf-Access-Authenticated-User-Email') || '').trim();
-  return email || null;
+  return getDirectAccessEmail(context);
 }
+
+export { describeAccessIdentity, resolveCloudflareAccessEmail };
 
 function encodeSessionEmail(email) {
   return toBase64Url(encoder.encode(String(email).trim().toLowerCase()));
@@ -200,8 +209,14 @@ export async function issueAdminSession(context) {
     throw new AdminAuthError();
   }
 
-  const accessEmail = getCloudflareAccessEmail(context);
+  const accessEmail = await resolveCloudflareAccessEmail(context);
   if (!accessEmail) {
+    if (String(context?.env?.ADMIN_ACCESS_IDENTITY_DEBUG || '').toLowerCase() === 'true') {
+      console.info('admin access identity:', await describeAccessIdentity(context));
+    }
+    if (hasAccessJwtHeader(context) && !hasAccessEmailHeader(context) && !accessTeamDomain(context)) {
+      throw new AdminAuthError('Cloudflare Access JWT doğrulanamadı: CF_ACCESS_TEAM_DOMAIN yapılandırılmamış.', 403);
+    }
     throw new AdminAuthError('Cloudflare Access kimliği doğrulanamadı. /api/admin/* route kapsamını kontrol edin.', 403);
   }
 
