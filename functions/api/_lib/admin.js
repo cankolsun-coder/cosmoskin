@@ -1,4 +1,5 @@
 import { json } from './response.js';
+import { selectRows } from './supabase.js';
 
 const FAILURE_WINDOW_MS = 10 * 60 * 1000;
 const MAX_FAILURES = 8;
@@ -92,19 +93,91 @@ function assertCloudflareAccess(context) {
   }
 }
 
-async function verifySignedSession(context, token) {
+export function getCloudflareAccessEmail(context) {
+  const email = String(context?.request?.headers?.get('Cf-Access-Authenticated-User-Email') || '').trim();
+  return email || null;
+}
+
+function encodeSessionEmail(email) {
+  return toBase64Url(encoder.encode(String(email).trim().toLowerCase()));
+}
+
+function decodeSessionEmail(encoded) {
+  if (!encoded) return null;
+  try {
+    const normalized = String(encoded).replace(/-/g, '+').replace(/_/g, '/');
+    const pad = normalized.length % 4 === 0 ? normalized : normalized + '='.repeat(4 - (normalized.length % 4));
+    const binary = atob(pad);
+    const email = binary.trim().toLowerCase();
+    return email.includes('@') ? email : null;
+  } catch {
+    return null;
+  }
+}
+
+async function resolveActiveAdminByEmail(context, email) {
+  const normalized = String(email || '').trim().toLowerCase();
+  if (!normalized) return null;
+  const rows = await selectRows(context, 'admin_users', {
+    select: 'id,email,role,role_code,permissions,is_active,status',
+    email: `eq.${normalized}`,
+    limit: '1'
+  }).catch(() => []);
+  const admin = rows?.[0] || null;
+  if (!admin || admin.is_active === false || admin.status === 'disabled') return null;
+  return admin;
+}
+
+async function verifySignedSessionPayload(context, token) {
   assertSessionSecret(context);
   const parts = String(token || '').split('.');
-  if (parts.length !== 4 || parts[0] !== 'v1') return false;
-  const [, expRaw, nonce, signature] = parts;
-  const expiresAt = Number(expRaw);
-  if (!Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) {
-    throw new AdminAuthError('Admin oturumunun süresi doldu.');
+  if (parts[0] !== 'v1') return { valid: false, email: null };
+
+  if (parts.length === 4) {
+    const [, expRaw, nonce, signature] = parts;
+    const expiresAt = Number(expRaw);
+    if (!Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) {
+      throw new AdminAuthError('Admin oturumunun süresi doldu.');
+    }
+    if (!nonce || nonce.length < 16 || !signature || signature.length < 32) return { valid: false, email: null };
+    const base = `v1.${expiresAt}.${nonce}`;
+    const expected = await hmac(sessionSecret(context), base);
+    if (!timingSafeEqual(signature, expected)) return { valid: false, email: null };
+    return { valid: true, email: null };
   }
-  const secret = sessionSecret(context);
-  if (!secret || nonce.length < 16 || signature.length < 32) return false;
-  const expected = await hmac(secret, `v1.${expiresAt}.${nonce}`);
-  return timingSafeEqual(signature, expected);
+
+  if (parts.length === 5) {
+    const [, expRaw, nonce, emailB64, signature] = parts;
+    const expiresAt = Number(expRaw);
+    if (!Number.isFinite(expiresAt) || expiresAt <= Math.floor(Date.now() / 1000)) {
+      throw new AdminAuthError('Admin oturumunun süresi doldu.');
+    }
+    const email = decodeSessionEmail(emailB64);
+    if (!email || !nonce || nonce.length < 16 || !signature || signature.length < 32) {
+      return { valid: false, email: null };
+    }
+    const base = `v1.${expiresAt}.${nonce}.${emailB64}`;
+    const expected = await hmac(sessionSecret(context), base);
+    if (!timingSafeEqual(signature, expected)) return { valid: false, email: null };
+    return { valid: true, email };
+  }
+
+  return { valid: false, email: null };
+}
+
+async function verifySignedSession(context, token) {
+  return (await verifySignedSessionPayload(context, token)).valid;
+}
+
+export async function getVerifiedSessionEmail(context) {
+  const token = String(context?.request?.headers?.get('x-admin-token') || '');
+  if (!token.startsWith('v1.')) return null;
+  try {
+    const verified = await verifySignedSessionPayload(context, token);
+    return verified.valid ? verified.email : null;
+  } catch {
+    return null;
+  }
 }
 
 export class AdminAuthError extends Error {
@@ -126,12 +199,28 @@ export async function issueAdminSession(context) {
     recordFailure(context);
     throw new AdminAuthError();
   }
+
+  const accessEmail = getCloudflareAccessEmail(context);
+  if (!accessEmail) {
+    throw new AdminAuthError('Cloudflare Access kimliği doğrulanamadı. /api/admin/* route kapsamını kontrol edin.', 403);
+  }
+
+  const admin = await resolveActiveAdminByEmail(context, accessEmail);
+  if (!admin) {
+    throw new AdminAuthError('Bu işlem için admin yetkiniz bulunmuyor.', 403);
+  }
+
   clearFailures(context);
   const expiresAt = Math.floor(Date.now() / 1000) + sessionTtlSeconds(context);
   const nonce = crypto.randomUUID().replace(/-/g, '');
-  const base = `v1.${expiresAt}.${nonce}`;
+  const emailB64 = encodeSessionEmail(admin.email || accessEmail);
+  const base = `v1.${expiresAt}.${nonce}.${emailB64}`;
   const signature = await hmac(sessionSecret(context), base);
-  return { token: `${base}.${signature}`, expiresAt: new Date(expiresAt * 1000).toISOString() };
+  return {
+    token: `${base}.${signature}`,
+    expiresAt: new Date(expiresAt * 1000).toISOString(),
+    email: String(admin.email || accessEmail).trim().toLowerCase()
+  };
 }
 
 export async function assertAdmin(context) {

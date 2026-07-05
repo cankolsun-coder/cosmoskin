@@ -188,8 +188,12 @@ if (!/GRANT EXECUTE ON FUNCTION public\.release_expired_inventory_reservations[\
 // (2026-07-04), which flipped hasAdminPermission()'s allow-all default to
 // deny-by-default (see COSMOSKIN_A1_ADMIN_RBAC_HARDENING_REPORT_20260704.md).
 // A1.1's own validator (scripts/validate-a1-admin-rbac-hardening.mjs) asserts
-// that change stays scoped; functions/api/_lib/admin.js (session/token layer)
-// remains untouched and stays frozen here.
+// that change stays scoped.
+// functions/api/_lib/admin.js is no longer zero-diff-forbidden as of A1F
+// (2026-07-05, admin RBAC session identity bridge) — see
+// COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_REPORT_20260705.md and its own
+// validator (scripts/validate-a1f-admin-rbac-session-identity.mjs), which
+// asserts session email binding and assertAdmin compatibility stay scoped.
 // functions/api/admin/returns.js is no longer zero-diff-forbidden as of A1.2a
 // (2026-07-05), which added a read-only requireAdminPermission('returns:read')
 // gate to its GET handler only (see
@@ -208,8 +212,7 @@ const forbiddenPaths = [
   'functions/api/create-checkout.js',
   'functions/api/_lib/iyzico.js',
   'functions/api/account/orders/[id]/cancel.js',
-  'functions/api/_lib/order-cancellation.js',
-  'functions/api/_lib/admin.js'
+  'functions/api/_lib/order-cancellation.js'
 ];
 
 function gitDiffFile(file) {

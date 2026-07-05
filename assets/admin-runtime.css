@@ -114,3 +114,19 @@ button.is-admin-loading::after {
 .cs-admin-logout-btn {
   white-space: nowrap;
 }
+
+.cs-admin-runtime-permission {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483001;
+  max-width: min(92vw, 520px);
+  padding: 12px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(122, 31, 31, .24);
+  background: #fff4f2;
+  color: #7a1f1f;
+  box-shadow: 0 16px 40px rgba(28, 22, 17, .14);
+  font: 600 14px/1.45 Manrope, system-ui, sans-serif;
+}

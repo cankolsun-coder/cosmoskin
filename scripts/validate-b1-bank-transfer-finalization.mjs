@@ -61,6 +61,27 @@ function gitShowHead(file) {
     return null;
   }
 }
+function gitShowRef(ref, file) {
+  try {
+    return execSync(`git show ${ref}:${JSON.stringify(file).replace(/^"|"$/g, '')}`, { cwd: root, encoding: 'utf8' });
+  } catch (_) {
+    return null;
+  }
+}
+/** Pre-extraction iyzico-callback: HEAD when B1 is uncommitted, else walk history. */
+function getPreExtractionCallback() {
+  const head = gitShowHead(CALLBACK);
+  if (head && /\basync function finalizeCommerceAfterPayment\b/.test(head)) {
+    return head;
+  }
+  for (let n = 1; n <= 30; n += 1) {
+    const prev = gitShowRef(`HEAD~${n}`, CALLBACK);
+    if (prev && /\basync function finalizeCommerceAfterPayment\b/.test(prev)) {
+      return prev;
+    }
+  }
+  return null;
+}
 
 // ---------------------------------------------------------------------------
 // 1) Required files exist
@@ -92,27 +113,27 @@ if (!shipmentFnBody) failures.push(`${COMMERCE_LIB}: ensureShipmentShell() expor
 
 // ---------------------------------------------------------------------------
 // 3) Byte-identical extraction proof: the two functions that used to live in
-//    iyzico-callback.js (at HEAD) must be byte-identical to the versions now
-//    living in the shared helper. This is the strongest possible proof that
-//    B1 did not change card-payment behavior while moving this code.
+//    iyzico-callback.js (pre-extraction baseline) must be byte-identical to
+//    the versions now living in the shared helper. When B1 is already
+//    committed at HEAD, the baseline is read from git history (HEAD~n).
 // ---------------------------------------------------------------------------
-const headCallback = gitShowHead(CALLBACK);
-if (headCallback === null) {
-  failures.push(`${CALLBACK}: could not read HEAD version via git show — cannot prove byte-identical extraction`);
+const baselineCallback = getPreExtractionCallback();
+if (baselineCallback === null) {
+  failures.push(`${CALLBACK}: could not locate pre-extraction version via git show — cannot prove byte-identical extraction`);
 } else {
-  // HEAD defined these as plain `async function`, not `export async function`.
-  const headFinalizeBody = extractBalancedFn(headCallback, 'async function', 'finalizeCommerceAfterPayment');
-  const headShipmentBody = extractBalancedFn(headCallback, 'async function', 'ensureShipmentShell');
+  // Baseline defined these as plain `async function`, not `export async function`.
+  const headFinalizeBody = extractBalancedFn(baselineCallback, 'async function', 'finalizeCommerceAfterPayment');
+  const headShipmentBody = extractBalancedFn(baselineCallback, 'async function', 'ensureShipmentShell');
 
   if (!headFinalizeBody) {
-    failures.push(`${CALLBACK} (HEAD): finalizeCommerceAfterPayment() body not found — cannot prove byte-identical extraction`);
+    failures.push(`${CALLBACK} (baseline): finalizeCommerceAfterPayment() body not found — cannot prove byte-identical extraction`);
   } else if (headFinalizeBody.replace(/^async function/, 'export async function').trim() !== finalizeFnBody.trim()) {
-    failures.push(`${COMMERCE_LIB}: finalizeCommerceAfterPayment() is not byte-identical to the version previously in ${CALLBACK} at HEAD — card payment behavior may have changed`);
+    failures.push(`${COMMERCE_LIB}: finalizeCommerceAfterPayment() is not byte-identical to the version previously in ${CALLBACK} — card payment behavior may have changed`);
   }
   if (!headShipmentBody) {
-    failures.push(`${CALLBACK} (HEAD): ensureShipmentShell() body not found — cannot prove byte-identical extraction`);
+    failures.push(`${CALLBACK} (baseline): ensureShipmentShell() body not found — cannot prove byte-identical extraction`);
   } else if (headShipmentBody.replace(/^async function/, 'export async function').trim() !== shipmentFnBody.trim()) {
-    failures.push(`${COMMERCE_LIB}: ensureShipmentShell() is not byte-identical to the version previously in ${CALLBACK} at HEAD — card payment behavior may have changed`);
+    failures.push(`${COMMERCE_LIB}: ensureShipmentShell() is not byte-identical to the version previously in ${CALLBACK} — card payment behavior may have changed`);
   }
 }
 
@@ -143,14 +164,14 @@ if (/confirmManualBankTransferPayment/.test(callback)) {
 }
 
 // ---------------------------------------------------------------------------
-// 5) iyzico-callback.js: everything else must be byte-identical to HEAD once
-//    the extracted function bodies and the changed import line are removed
-//    from both copies. Proves no other card-payment behavior changed.
+// 5) iyzico-callback.js: everything else must be byte-identical to the
+//    pre-extraction baseline once the extracted function bodies and the
+//    changed import line are removed from both copies.
 // ---------------------------------------------------------------------------
-if (headCallback !== null) {
-  function stripExtractedAndImports(src, isHead) {
+if (baselineCallback !== null) {
+  function stripExtractedAndImports(src, isBaseline) {
     let out = src;
-    if (isHead) {
+    if (isBaseline) {
       out = out.replace(/\nasync function ensureShipmentShell[\s\S]*?\n}\n\nasync function finalizeCommerceAfterPayment[\s\S]*?\n}\n/, '\n');
       out = out.replace(/import \{ awardOrderPoints \} from '\.\/_lib\/loyalty-ledger\.js';/, '');
     } else {
@@ -158,9 +179,9 @@ if (headCallback !== null) {
     }
     return out.replace(/\s+/g, ' ').trim();
   }
-  const headStripped = stripExtractedAndImports(headCallback, true);
+  const baselineStripped = stripExtractedAndImports(baselineCallback, true);
   const workingStripped = stripExtractedAndImports(callback, false);
-  if (headStripped !== workingStripped) {
+  if (baselineStripped !== workingStripped) {
     failures.push(`${CALLBACK}: changes beyond the finalizeCommerceAfterPayment/ensureShipmentShell extraction were detected — B1 must not alter card payment (iyzico) behavior`);
   }
 }

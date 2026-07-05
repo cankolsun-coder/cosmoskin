@@ -1,0 +1,73 @@
+COSMOSKIN A1F — Admin RBAC Session Identity Bridge + 403 UX Fix
+Changed files list — 2026-07-05
+
+MODIFIED BY A1F
+---------------
+assets/admin-runtime.js
+  - 401: still clears session + shows token login panel
+  - 403: shows permission banner only; does NOT clear session or redirect to token screen
+  - Session exchange on /api/admin/session: 403 from login does not clear existing session
+
+assets/admin-runtime.css
+  - Added .cs-admin-runtime-permission banner styles for 403 UX
+
+functions/api/_lib/admin.js
+  - Extended signed session format to v1.<exp>.<nonce>.<emailB64>.<sig>
+  - HMAC now covers email segment (tamper-proof identity binding)
+  - issueAdminSession(): requires Cf-Access-Authenticated-User-Email + active admin_users row
+  - Missing Access email → 403 with clear Turkish message
+  - Legacy 4-part sessions still verify for assertAdmin() but carry no email
+  - Exported getCloudflareAccessEmail(), getVerifiedSessionEmail()
+
+functions/api/_lib/admin-audit.js
+  - getAdminRecord() identity priority:
+    1) Cf-Access-Authenticated-User-Email header
+    2) verified email from signed session (signature-checked)
+  - Deny-by-default, owner ['*'], inactive/disabled checks unchanged
+
+scripts/validate-a1-admin-rbac-hardening.mjs
+  - Removed admin.js and admin-runtime.js from zero-diff-forbidden paths (A1F owns them)
+
+scripts/validate-a1-admin-endpoint-coverage.mjs
+  - Removed admin.js, admin-runtime.js, admin/session.js from zero-diff-forbidden paths
+  - Fixed stray typo in .env.example forbidden path entry
+
+scripts/validate-h0-live-payment-rpc-hotfix.mjs
+  - Removed functions/api/_lib/admin.js from zero-diff-forbidden (A1F owns it)
+
+scripts/validate-h1-return-attachment-storage-rls.mjs
+  - Removed functions/api/_lib/admin.js from zero-diff-forbidden (A1F owns it)
+
+scripts/validate-h2-return-attachment-preview.mjs
+  - Removed functions/api/_lib/admin.js from zero-diff-forbidden (A1F owns it)
+
+scripts/validate-b1-bank-transfer-finalization.mjs
+  - Post-commit baseline fix: byte-identical extraction proof now reads pre-extraction
+    iyzico-callback from git history (HEAD~n) when B1 is already committed at HEAD
+  - No B1 business logic changed; validator infrastructure only
+
+tests/local-integration.test.mjs
+  - Updated issueAdminSession() callers to supply Access email + admin_users mock
+  - Added 10 A1F integration tests (403 UX, session identity, RBAC bridge, forged email,
+    inactive admin, owner ['*'], dashboard/inventory gates, invalid token 401)
+
+CREATED BY A1F
+--------------
+scripts/validate-a1f-admin-rbac-session-identity.mjs
+  - New guardrail for session identity binding, 401/403 UX split, identity resolution,
+    endpoint coverage regression checks, chained validators
+
+COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_REPORT_20260705.md
+COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_RUNBOOK_20260705.md
+COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_ROLLBACK_PLAN_20260705.md
+COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_CHANGED_FILES_20260705.txt
+
+EXPLICITLY NOT CHANGED BY A1F
+-----------------------------
+- checkout.html, assets/checkout.js, functions/api/create-checkout.js
+- functions/api/_lib/iyzico.js, functions/api/iyzico-callback.js
+- functions/api/_lib/commerce-finalization.js (B1/B2 bank transfer logic)
+- functions/api/admin/orders.js business logic (B1/B2 paths)
+- Customer returns, storage RLS, loyalty ledger, coupons
+- No supabase/migrations/*.sql created or modified; no SQL run
+- No deploy performed

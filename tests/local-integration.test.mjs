@@ -8,7 +8,7 @@ import { normalizeIban, isValidTurkishIban, validateBankAccount } from '../funct
 import { calculateCouponPreview, onRequestPost as validateCoupon } from '../functions/api/coupons/validate.js';
 import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout } from '../functions/api/create-checkout.js';
 import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations } from '../functions/api/_lib/inventory.js';
-import { issueAdminSession, assertAdmin } from '../functions/api/_lib/admin.js';
+import { issueAdminSession, assertAdmin, getVerifiedSessionEmail } from '../functions/api/_lib/admin.js';
 import { onRequestPatch as adminStatusPatch } from '../functions/api/admin/orders/[id]/status.js';
 import { hasAdminPermission } from '../functions/api/_lib/admin-audit.js';
 import { onRequestPost as adminUsersPost } from '../functions/api/admin/users.js';
@@ -20,6 +20,8 @@ import { onRequestGet as adminReturnsGet, onRequestPatch as adminReturnsPatch } 
 import { onRequestGet as adminCustomersGet } from '../functions/api/admin/customers.js';
 import { onRequestGet as adminProductsGet, onRequestPatch as adminProductsPatch, onRequestPost as adminProductsPost } from '../functions/api/admin/products.js';
 import { onRequestGet as adminInventoryGet } from '../functions/api/admin/inventory.js';
+import { onRequestGet as adminDashboardGet } from '../functions/api/admin/dashboard.js';
+import { onRequestPost as adminSessionPost } from '../functions/api/admin/session.js';
 import { onRequestPost as adminInventoryAdjustPost } from '../functions/api/admin/inventory/adjust.js';
 import { onRequestPatch as adminInventorySlugPatch } from '../functions/api/admin/inventory/[slug].js';
 import { onRequestGet as adminInventoryMovementsGet } from '../functions/api/admin/inventory/[slug]/movements.js';
@@ -168,14 +170,19 @@ test('checkout blocks missing EFT bank account before inventory reservation or o
 });
 
 test('admin signed session is accepted and raw legacy token is disabled by default', async () => {
-  const adminEnv={ADMIN_TOKEN:'a'.repeat(64),ADMIN_SESSION_SECRET:'b'.repeat(64),ADMIN_ALLOW_LEGACY_TOKEN:'false'};
-  const issueRequest=new Request('https://local.test/api/admin/session',{method:'POST',headers:{'x-admin-token':adminEnv.ADMIN_TOKEN,'CF-Connecting-IP':'192.0.2.10'}});
-  const issued=await issueAdminSession({request:issueRequest,env:adminEnv});
-  assert.match(issued.token,/^v1\./);
-  const signedRequest=new Request('https://local.test/api/admin/orders',{headers:{'x-admin-token':issued.token,'CF-Connecting-IP':'192.0.2.10'}});
-  assert.equal(await assertAdmin({request:signedRequest,env:adminEnv}),true);
-  const rawRequest=new Request('https://local.test/api/admin/orders',{headers:{'x-admin-token':adminEnv.ADMIN_TOKEN,'CF-Connecting-IP':'192.0.2.11'}});
-  await assert.rejects(assertAdmin({request:rawRequest,env:adminEnv}),/yetkilendirmesi/i);
+  const adminEnv={ADMIN_TOKEN:'a'.repeat(64),ADMIN_SESSION_SECRET:'b'.repeat(64),ADMIN_ALLOW_LEGACY_TOKEN:'false', SUPABASE_URL: env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY};
+  const restore = installAdminUsersFetch({ id: '1', email: 'owner@cosmoskin.com.tr', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  try {
+    const issueRequest=new Request('https://local.test/api/admin/session',{method:'POST',headers:{'x-admin-token':adminEnv.ADMIN_TOKEN,'CF-Connecting-IP':'192.0.2.10','Cf-Access-Authenticated-User-Email':'owner@cosmoskin.com.tr'}});
+    const issued=await issueAdminSession({request:issueRequest,env:adminEnv});
+    assert.match(issued.token,/^v1\./);
+    assert.equal(issued.token.split('.').length, 5);
+    assert.equal(issued.email, 'owner@cosmoskin.com.tr');
+    const signedRequest=new Request('https://local.test/api/admin/orders',{headers:{'x-admin-token':issued.token,'CF-Connecting-IP':'192.0.2.10'}});
+    assert.equal(await assertAdmin({request:signedRequest,env:adminEnv}),true);
+    const rawRequest=new Request('https://local.test/api/admin/orders',{headers:{'x-admin-token':adminEnv.ADMIN_TOKEN,'CF-Connecting-IP':'192.0.2.11'}});
+    await assert.rejects(assertAdmin({request:rawRequest,env:adminEnv}),/yetkilendirmesi/i);
+  } finally { restore(); }
 });
 
 test('unauthorized admin mutation is rejected server-side before database access', async () => {
@@ -240,8 +247,12 @@ test('A1: client-supplied is_admin/role/permissions body fields cannot grant adm
 
 test('A1: admin/users.js mutation requires admin.users.manage (or owner) — ADMIN_TOKEN alone is not enough', async () => {
   const adminEnv = { ADMIN_TOKEN: 'a'.repeat(64), ADMIN_SESSION_SECRET: 'b'.repeat(64), ADMIN_ALLOW_LEGACY_TOKEN: 'false', SUPABASE_URL: env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY };
-  const issueRequest = new Request('https://local.test/api/admin/session', { method: 'POST', headers: { 'x-admin-token': adminEnv.ADMIN_TOKEN, 'CF-Connecting-IP': '192.0.2.21' } });
-  const issued = await issueAdminSession({ request: issueRequest, env: adminEnv });
+  const restoreIssueOwner = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  let issued;
+  try {
+    const issueRequest = new Request('https://local.test/api/admin/session', { method: 'POST', headers: { 'x-admin-token': adminEnv.ADMIN_TOKEN, 'CF-Connecting-IP': '192.0.2.21', 'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com' } });
+    issued = await issueAdminSession({ request: issueRequest, env: adminEnv });
+  } finally { restoreIssueOwner(); }
 
   const restoreNoMatch = installAdminUsersFetch(null);
   try {
@@ -1175,4 +1186,194 @@ test('B1: card payment (iyzico) callback behavior is unchanged — still calls t
   assert.doesNotMatch(source, /confirmManualBankTransferPayment/);
   assert.doesNotMatch(source, /\basync function finalizeCommerceAfterPayment\b/);
   assert.doesNotMatch(source, /\basync function ensureShipmentShell\b/);
+});
+
+// ---------------------------------------------------------------------------
+// A1F: Admin RBAC session identity bridge + 403 UX fix.
+// ---------------------------------------------------------------------------
+const A1F_OWNER = { id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' };
+const A1F_WAREHOUSE = { id: '2', email: 'warehouse@cosmoskin.com.tr', role: 'warehouse', role_code: 'warehouse', permissions: ['inventory:read'], is_active: true, status: 'active' };
+function a1fAdminEnv() {
+  return { ADMIN_TOKEN: 'a'.repeat(64), ADMIN_SESSION_SECRET: 'b'.repeat(64), ADMIN_ALLOW_LEGACY_TOKEN: 'false', SUPABASE_URL: env.SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY };
+}
+async function issueA1fSession(adminRow = A1F_OWNER, email = adminRow.email) {
+  const adminEnv = a1fAdminEnv();
+  const restore = installAdminUsersFetch(adminRow);
+  try {
+    const issueRequest = new Request('https://local.test/api/admin/session', {
+      method: 'POST',
+      headers: {
+        'x-admin-token': adminEnv.ADMIN_TOKEN,
+        'CF-Connecting-IP': '192.0.2.50',
+        'Cf-Access-Authenticated-User-Email': email
+      }
+    });
+    const issued = await issueAdminSession({ request: issueRequest, env: adminEnv });
+    return { adminEnv, issued };
+  } finally {
+    restore();
+  }
+}
+
+test('A1F: admin-runtime.js clears session only on 401, not on 403', async () => {
+  const source = await fs.readFile(path.join(root, 'assets/admin-runtime.js'), 'utf8');
+  assert.doesNotMatch(source, /response\.status === 401 \|\| response\.status === 403/);
+  assert.match(source, /response\.status === 401/);
+  assert.match(source, /response\.status === 403/);
+  assert.match(source, /showPermissionError\(/);
+  assert.match(source, /Bu işlem için yetkiniz bulunmuyor\./);
+});
+
+test('A1F: missing Cloudflare Access email during login fails with clear 403', async () => {
+  const adminEnv = a1fAdminEnv();
+  const restore = installAdminUsersFetch(A1F_OWNER);
+  try {
+    await assert.rejects(
+      issueAdminSession({
+        request: new Request('https://local.test/api/admin/session', {
+          method: 'POST',
+          headers: { 'x-admin-token': adminEnv.ADMIN_TOKEN, 'CF-Connecting-IP': '192.0.2.51' }
+        }),
+        env: adminEnv
+      }),
+      (error) => error.status === 403 && /Cloudflare Access kimliği doğrulanamadı/i.test(error.message)
+    );
+    const req = new Request('https://local.test/api/admin/session', {
+      method: 'POST',
+      headers: { 'x-admin-token': adminEnv.ADMIN_TOKEN, 'CF-Connecting-IP': '192.0.2.51' }
+    });
+    const res = await adminSessionPost({ request: req, env: adminEnv, params: {} });
+    const data = await res.json();
+    assert.equal(res.status, 403);
+    assert.match(data.error, /Cloudflare Access kimliği doğrulanamadı/i);
+  } finally { restore(); }
+});
+
+test('A1F: valid ADMIN_TOKEN + verified Cloudflare email issues identity-bearing session', async () => {
+  const { issued } = await issueA1fSession(A1F_OWNER, 'cankolsun@gmail.com');
+  assert.equal(issued.token.split('.').length, 5);
+  assert.equal(issued.email, 'cankolsun@gmail.com');
+});
+
+test('A1F: signed session email allows inventory:read when admin_users owner exists, even without Access header on the API call', async () => {
+  const { adminEnv, issued } = await issueA1fSession(A1F_OWNER, 'cankolsun@gmail.com');
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users')) return response([A1F_OWNER]);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    if (href.includes('/rest/v1/products')) return response([]);
+    if (href.includes('/rest/v1/inventory')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/admin/inventory', {
+      headers: { 'x-admin-token': issued.token, 'CF-Connecting-IP': '192.0.2.52' }
+    });
+    const res = await adminInventoryGet({ request: req, env: adminEnv, params: {} });
+    assert.notEqual(res.status, 403);
+    assert.equal(await getVerifiedSessionEmail({ request: req, env: adminEnv }), 'cankolsun@gmail.com');
+  } finally { restore(); }
+});
+
+test('A1F: forged email in request body or x-admin-email header does not grant RBAC', async () => {
+  const { adminEnv, issued } = await issueA1fSession(A1F_WAREHOUSE, 'warehouse@cosmoskin.com.tr');
+  const restore = installAdminUsersFetch(A1F_WAREHOUSE);
+  try {
+    const forgedBody = contextFor(new Request('https://local.test/api/admin/inventory', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-admin-token': issued.token,
+        'x-admin-email': 'cankolsun@gmail.com'
+      },
+      body: JSON.stringify({ email: 'cankolsun@gmail.com', role: 'owner', permissions: ['*'] })
+    }));
+    forgedBody.env = adminEnv;
+    assert.equal(await hasAdminPermission(forgedBody, 'admin.users.manage'), false);
+  } finally { restore(); }
+});
+
+test('A1F: inactive admin email fails session issuance', async () => {
+  const adminEnv = a1fAdminEnv();
+  const restore = installAdminUsersFetch({ ...A1F_OWNER, is_active: false });
+  try {
+    await assert.rejects(
+      issueAdminSession({
+        request: new Request('https://local.test/api/admin/session', {
+          method: 'POST',
+          headers: {
+            'x-admin-token': adminEnv.ADMIN_TOKEN,
+            'CF-Connecting-IP': '192.0.2.53',
+            'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+          }
+        }),
+        env: adminEnv
+      }),
+      (error) => error.status === 403
+    );
+  } finally { restore(); }
+});
+
+test('A1F: non-owner without inventory:read fails inventory gate', async () => {
+  const limited = { id: '3', email: 'reader@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: ['orders:read'], is_active: true, status: 'active' };
+  const adminEnv = a1fAdminEnv();
+  const restoreIssue = installAdminUsersFetch(limited);
+  let issued;
+  try {
+    issued = await issueAdminSession({
+      request: new Request('https://local.test/api/admin/session', {
+        method: 'POST',
+        headers: {
+          'x-admin-token': adminEnv.ADMIN_TOKEN,
+          'CF-Connecting-IP': '192.0.2.54',
+          'Cf-Access-Authenticated-User-Email': 'reader@cosmoskin.com.tr'
+        }
+      }),
+      env: adminEnv
+    });
+  } finally { restoreIssue(); }
+
+  const restore = installFetch(async (url) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/rest/v1/admin_users')) return response([limited]);
+    if (href.includes('/rest/v1/admin_permissions')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/admin/inventory', { headers: { 'x-admin-token': issued.token, 'CF-Connecting-IP': '192.0.2.54' } });
+    const res = await adminInventoryGet({ request: req, env: adminEnv, params: {} });
+    assert.equal(res.status, 403);
+  } finally { restore(); }
+});
+
+test('A1F: owner permissions [\'*\'] still pass after session identity bridge', async () => {
+  const restore = installAdminUsersFetch(A1F_OWNER);
+  try {
+    const { adminEnv, issued } = await issueA1fSession(A1F_OWNER, 'cankolsun@gmail.com');
+    const ctx = { request: new Request('https://local.test/api/admin/inventory', { headers: { 'x-admin-token': issued.token } }), env: adminEnv };
+    assert.equal(await hasAdminPermission(ctx, 'inventory:read'), true);
+    assert.equal(await hasAdminPermission(ctx, 'admin.users.manage'), true);
+  } finally { restore(); }
+});
+
+test('A1F: dashboard remains assertAdmin-only and inventory remains permission-gated', async () => {
+  const dashboardSrc = await fs.readFile(path.join(root, 'functions/api/admin/dashboard.js'), 'utf8');
+  const inventorySrc = await fs.readFile(path.join(root, 'functions/api/admin/inventory.js'), 'utf8');
+  assert.match(dashboardSrc, /assertAdmin\(context\)/);
+  assert.doesNotMatch(dashboardSrc, /requireAdminPermission\(/);
+  assert.match(inventorySrc, /requireAdminPermission\(context,\s*['"]inventory:read['"]\)/);
+});
+
+test('A1F: invalid admin token still returns 401 and does not issue a session', async () => {
+  const adminEnv = a1fAdminEnv();
+  const restore = installAdminUsersFetch(A1F_OWNER);
+  try {
+    await assert.rejects(
+      assertAdmin({
+        request: new Request('https://local.test/api/admin/dashboard', { headers: { 'x-admin-token': 'wrong-token', 'CF-Connecting-IP': '192.0.2.55' } }),
+        env: adminEnv
+      }),
+      (error) => error.status === 401
+    );
+  } finally { restore(); }
 });

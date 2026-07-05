@@ -8,6 +8,7 @@
     ['cosmoskin', 'admin', 'token'],
   ];
   const SESSION_END_MESSAGE = 'Admin oturumu geçersiz veya süresi dolmuş. Lütfen tekrar giriş yapın.';
+  const PERMISSION_DENIED_MESSAGE = 'Bu işlem için yetkiniz bulunmuyor.';
   const originalFetch = window.fetch.bind(window);
   const originalSetItem = Storage.prototype.setItem;
   const pendingMutations = new Map();
@@ -117,7 +118,7 @@
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok || !payload.token) {
-        clearSession();
+        if (response.status !== 403) clearSession();
         throw new Error(payload.error || 'Admin oturumu başlatılamadı.');
       }
       return storeSignedSession(payload.token, payload.expiresAt);
@@ -197,9 +198,11 @@
 
     try {
       const response = await operation;
-      if (response.status === 401 || response.status === 403) {
+      if (response.status === 401) {
         clearSession(SESSION_END_MESSAGE);
         showLoginPanel(SESSION_END_MESSAGE);
+      } else if (response.status === 403) {
+        showPermissionError(PERMISSION_DENIED_MESSAGE);
       }
       document.dispatchEvent(new CustomEvent('cosmoskin:admin-request-end', {
         detail: { method, path: url.pathname, mutation: isMutation, ok: response.ok, status: response.status },
@@ -270,6 +273,21 @@
     tokenInputs().forEach((input) => {
       try { input.value = token; } catch (_) {}
     });
+  }
+
+  function showPermissionError(message = PERMISSION_DENIED_MESSAGE) {
+    document.dispatchEvent(new CustomEvent('cosmoskin:admin-permission-denied', { detail: { message } }));
+    let banner = document.getElementById('csAdminRuntimePermission');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'csAdminRuntimePermission';
+      banner.className = 'cs-admin-runtime-permission';
+      banner.setAttribute('role', 'alert');
+      document.body.appendChild(banner);
+    }
+    banner.textContent = message;
+    banner.hidden = false;
+    window.setTimeout(() => { banner.hidden = true; }, 8000);
   }
 
   function closeLoginPanel() {

@@ -407,7 +407,6 @@ const forbiddenPaths = [
   'functions/api/returns.js',
   'functions/api/_lib/return-attachments.js',
   'functions/api/_lib/supabase.js',
-  'functions/api/_lib/admin.js',
   'functions/api/_lib/bank-accounts.js',
   'functions/api/_lib/inventory.js',
   'functions/api/account/summary.js',
@@ -415,13 +414,11 @@ const forbiddenPaths = [
   'functions/api/account/notifications.js',
   'assets/account-dashboard.js',
   'assets/account-premium.css',
-  'assets/admin-runtime.js',
   'wrangler.toml',
   '.env.example',
   '_headers',
   'functions/api/admin/inventory/health.js',
   'functions/api/admin/dashboard.js',
-  'functions/api/admin/session.js',
   'functions/api/admin/loyalty/adjust-points.js',
   'functions/api/admin/coupons/issue-customer-coupon.js',
   'functions/api/admin/shipments/[id]/sync.js',
@@ -429,6 +426,9 @@ const forbiddenPaths = [
   'functions/api/admin/orders/[id]/dhl-shipment.js',
   'functions/api/admin/returns/[id]/dhl-return-shipment.js'
 ];
+// functions/api/_lib/admin.js, assets/admin-runtime.js, and
+// functions/api/admin/session.js are no longer zero-diff-forbidden as of A1F
+// (2026-07-05) — see COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_REPORT_20260705.md.
 function gitDiffFile(file) {
   try {
     return execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim();

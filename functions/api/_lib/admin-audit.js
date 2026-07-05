@@ -1,4 +1,5 @@
 import { insertRow, selectRows } from './supabase.js';
+import { getVerifiedSessionEmail } from './admin.js';
 
 function requestIp(context) {
   const headers = context?.request?.headers || new Headers();
@@ -14,7 +15,10 @@ export function getAccessEmail(context) {
 }
 
 export async function getAdminRecord(context) {
-  const email = getAccessEmail(context);
+  let email = getAccessEmail(context);
+  if (!email) {
+    email = await getVerifiedSessionEmail(context);
+  }
   if (!email) return null;
   const rows = await selectRows(context, 'admin_users', {
     select: 'id,email,role,role_code,permissions,is_active,status',

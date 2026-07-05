@@ -316,8 +316,11 @@ if (/public\s*=\s*true/i.test(helper) || /public\s*=\s*true/i.test(summaryApi) |
 // functions/api/_lib/admin-audit.js is no longer zero-diff-forbidden as of A1.1
 // (2026-07-04, RBAC deny-by-default hardening) — see
 // COSMOSKIN_A1_ADMIN_RBAC_HARDENING_REPORT_20260704.md and its own validator
-// (scripts/validate-a1-admin-rbac-hardening.mjs). functions/api/_lib/admin.js
-// and the other admin route files below are untouched by A1.1 and stay frozen.
+// (scripts/validate-a1-admin-rbac-hardening.mjs).
+// functions/api/_lib/admin.js is no longer zero-diff-forbidden as of A1F
+// (2026-07-05, admin RBAC session identity bridge) — see
+// COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_REPORT_20260705.md and its own
+// validator (scripts/validate-a1f-admin-rbac-session-identity.mjs).
 // functions/api/admin/returns.js and functions/api/admin/orders.js are no
 // longer zero-diff-forbidden as of A1.2a (2026-07-05, admin GET/read endpoint
 // permission coverage) — see COSMOSKIN_A1_2A_ADMIN_READ_COVERAGE_REPORT_20260705.md
@@ -346,7 +349,6 @@ const forbiddenPaths = [
   'functions/api/_lib/order-cancellation.js',
   'functions/api/account/orders/[id]/cancel.js',
   'functions/api/_lib/coupons.js',
-  'functions/api/_lib/admin.js',
   'functions/api/admin/loyalty/adjust-points.js',
   'supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql',
   'supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql',

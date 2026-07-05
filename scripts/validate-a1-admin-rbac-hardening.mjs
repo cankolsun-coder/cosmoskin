@@ -293,6 +293,11 @@ for (const file of A1_2_DEFERRED_FILES) {
 // (2026-07-05, bank transfer approval finalization) — see
 // COSMOSKIN_B1_BANK_TRANSFER_FINALIZATION_REPORT_20260705.md and its own
 // validator (scripts/validate-b1-bank-transfer-finalization.mjs).
+// functions/api/_lib/admin.js and assets/admin-runtime.js are no longer
+// zero-diff-forbidden as of A1F (2026-07-05, admin RBAC session identity
+// bridge + 403 UX fix) — see
+// COSMOSKIN_A1F_ADMIN_RBAC_SESSION_IDENTITY_REPORT_20260705.md and its own
+// validator (scripts/validate-a1f-admin-rbac-session-identity.mjs).
 const forbiddenPaths = [
   'checkout.html',
   'assets/checkout.js',
@@ -305,13 +310,11 @@ const forbiddenPaths = [
   'functions/api/returns.js',
   'functions/api/_lib/return-attachments.js',
   'functions/api/_lib/supabase.js',
-  'functions/api/_lib/admin.js',
   'functions/api/account/summary.js',
   'functions/api/account/profile.js',
   'functions/api/account/notifications.js',
   'assets/account-dashboard.js',
   'assets/account-premium.css',
-  'assets/admin-runtime.js',
   'wrangler.toml',
   '.env.example',
   '_headers'
