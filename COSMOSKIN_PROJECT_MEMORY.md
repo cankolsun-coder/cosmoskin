@@ -1,6 +1,7 @@
 # COSMOSKIN Project Memory
 
-> **Before modifying `account-dashboard.js`, `account-premium.css`, account APIs, checkout, returns, favorites, notifications, loyalty or header-related CSS, read this file first and preserve listed working behavior.**
+> **Before modifying `account-dashboard.js`, `account-premium.css`, account APIs, checkout, returns, favorites, notifications, loyalty or header-related CSS, read this file first and preserve listed working behavior.**  
+> **Before modifying admin auth, RBAC, or `admin-runtime.js`, read `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md` first.**
 
 ## Working account flows (do not break)
 
@@ -51,12 +52,95 @@ Migration reference: `supabase/migrations/20260703_batch1_account_safe_functiona
 - **Favorites UUID vs slug:** Two merge paths can desync heart state on Favorites tab.
 - **Duplicate profile CREATE migrations:** Schema depends on migration order; only add idempotent `ADD COLUMN IF NOT EXISTS`.
 
-## Admin RBAC (A1, 2026-07-04)
+## Admin RBAC (A1–A1F2, permanent guardrails)
 
-- **Deny-by-default.** `hasAdminPermission()` (`functions/api/_lib/admin-audit.js`) no longer allows a request through when no matching `admin_users` row is found — the prior `if (!admin) return true` allow-all bypass is removed. A request with no matching, active `admin_users` row is denied for every permission check.
-- **`admin_users` is the source of permission truth.** Identity is resolved only from the server-trusted `Cf-Access-Authenticated-User-Email` request header (never a client-supplied `is_admin`/`role`/`role_code`/`permissions` field — none exist anywhere in this codebase), looked up against `admin_users`. `is_active === false` or `status === 'disabled'` both deny. Owner rows (`role_code='owner'` or `permissions` containing `'*'`) pass every permission check, exactly as before the hardening.
-- **`functions/api/admin/users.js` (admin_users mutation) now requires `admin.users.manage` or owner `['*']`.** Previously this endpoint was gated only by `assertAdmin()` (the shared `ADMIN_TOKEN`/signed-session check), meaning any token holder could mint or elevate an `admin_users` row (including to `role: 'owner'`) with no RBAC check at all. `onRequestPost`/`onRequestPatch` now call `requireAdminPermission(context, 'admin.users.manage')` before writing. No new `admin_permissions` row was seeded for this — the owner shortcut already covers it.
-- **Cloudflare Access dependency — must be verified before production deploy.** `hasAdminPermission()`'s only identity source is the `Cf-Access-Authenticated-User-Email` header. This header cannot be spoofed by an external client (Cloudflare's edge strips client-supplied headers of this name), but it is only ever *populated* if Cloudflare Access is actually configured and enforcing on the admin routes in production. `wrangler.toml` does not set `REQUIRE_CLOUDFLARE_ACCESS` (only `.env.example` recommends it) — this cannot be confirmed from the repository. **Do not deploy to production until Cloudflare Access is confirmed (in the Cloudflare dashboard) to inject `Cf-Access-Authenticated-User-Email` for admin routes for both `cankolsun@gmail.com` and `cankolsun@cosmoskin.com.tr`** — otherwise permission-gated endpoints will 403 for everyone, including the owner. See `COSMOSKIN_A1_ADMIN_RBAC_HARDENING_RUNBOOK_20260704.md`, `COSMOSKIN_A1_2A_ADMIN_READ_COVERAGE_RUNBOOK_20260705.md`, `COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_RUNBOOK_20260705.md`, and `COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_RUNBOOK_20260705.md` (widest blast radius yet — covers refunds, invoices, and bank accounts).
+> **Before modifying admin auth, RBAC, session identity, Cloudflare Access JWT handling, or admin-runtime UX, read `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md` first.**
+
+# COSMOSKIN Admin Auth / RBAC Guardrails
+
+The admin panel uses a two-layer authentication model:
+
+### 1. Cloudflare Access
+
+- First gate.
+- Must protect both:
+  - `/admin/*`
+  - `/api/admin/*`
+- Allowed owner emails:
+  - `cankolsun@gmail.com`
+  - `cankolsun@cosmoskin.com.tr`
+
+### 2. Admin token screen
+
+- Second gate.
+- Must remain enabled for now.
+- Do not remove the token screen unless explicitly approved.
+
+### 3. Admin session identity
+
+- Signed admin session must include verified admin email.
+- Email must come only from:
+  - `Cf-Access-Authenticated-User-Email`, or
+  - verified `Cf-Access-Jwt-Assertion`, or
+  - HMAC-protected signed admin session email after valid issuance.
+- Never trust email from:
+  - request body
+  - query string
+  - localStorage directly
+  - arbitrary `x-admin-email` header
+  - hardcoded owner fallback
+
+### 4. Cloudflare Access JWT
+
+- Production requires:
+  - `CF_ACCESS_TEAM_DOMAIN`
+  - `CF_ACCESS_AUD`
+- Do not remove JWT verification.
+- Do not decode `Cf-Access-Jwt-Assertion` without signature verification.
+- If required env variables are missing, fail closed.
+
+### 5. RBAC
+
+- **`admin_users` is the source of permission truth.** Identity is resolved from trusted Access headers/JWT or HMAC-signed session email (see §3), never client-supplied fields.
+- **Deny-by-default.** `hasAdminPermission()` (`functions/api/_lib/admin-audit.js`) no longer allows a request through when no matching `admin_users` row is found — the prior `if (!admin) return true` allow-all bypass is removed.
+- Owner users with `permissions: ['*']` must pass. `is_active === false` or `status === 'disabled'` both deny.
+- Do not reintroduce: `if (!admin) return true`, self-declared admin flags, or client-provided role/permission trust.
+- **`functions/api/admin/users.js`** requires `admin.users.manage` or owner `['*']` (A1.1).
+
+### 6. Frontend admin UX
+
+- **401** → clear session, show token screen.
+- **403** → do **not** clear session; show **“Bu işlem için yetkiniz bulunmuyor.”** — never treat 403 like 401.
+- Implementation: `assets/admin-runtime.js`.
+
+### 7. Protected files
+
+Do not modify without explicit approval:
+
+- `functions/api/_lib/admin.js`
+- `functions/api/_lib/admin-audit.js`
+- `functions/api/_lib/cloudflare-access-jwt.js`
+- `assets/admin-runtime.js`
+- `assets/admin-runtime.css`
+- `scripts/validate-a1f-admin-rbac-session-identity.mjs`
+
+### 8. Required validation after any admin auth/RBAC change
+
+```bash
+node scripts/validate-a1f-admin-rbac-session-identity.mjs
+node scripts/validate-a1-admin-rbac-hardening.mjs
+node scripts/validate-a1-admin-endpoint-coverage.mjs
+node scripts/validate-production-launch-readiness.mjs
+node --test tests/local-integration.test.mjs
+```
+
+### 9. Deployment warning
+
+Before production deploy, confirm: `/admin/*` and `/api/admin/*` behind Cloudflare Access; `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` set; owner login via Access + admin token works; Inventory, Orders, Returns and Products screens open without returning to token screen.
+
+---
+
+## Admin RBAC batch history (A1, 2026-07-04)
 
 ### A1.2a — admin GET/read endpoint permission coverage (2026-07-05)
 
@@ -78,11 +162,11 @@ Migration reference: `supabase/migrations/20260703_batch1_account_safe_functiona
 - **`invoices.js` reuses the pre-existing seeded pair `invoices:read` (GET) / `invoices:update` (POST, PATCH)** — both already seeded to `accountant`, and `invoices:update` also to `operations`. No new permission string, no migration needed.
 - **`bank-accounts.js` deliberately uses one `bank_accounts:manage` string across all of GET/POST/PATCH — not a read/write split.** This is an intentional exception to the read-vs-write pattern used everywhere else in A1.2a/A1.2b, per the plan's explicit rationale (§2 row 17): IBAN/payment-routing data is "fraud-sensitive even to read", so there is deliberately no low-bar `bank_accounts:read` string. `bank_accounts:manage` is a brand-new string, not yet seeded to any non-owner role in `admin_permissions` — **only the owner (`permissions: ['*']`) can currently pass this gate; a future, separately-approved `admin_permissions` seed migration is required before any non-owner role (e.g. `accountant` or `operations`) can read or write bank accounts.** Same caveat applies to `refunds:update` and `invoices:*` for any role not already in the existing seed.
 - **Zero business-logic drift.** Refund creation/completion rules, `provider_reference` handling, the loyalty-points reversal hook (`reverseOrderPoints`) on refund completion, invoice generation/update fields (`invoice_number`, `pdf_url`, `order_status_events`), and bank-account IBAN validation (`normalizeBankAccount`/`validateBankAccount`/`toDbPayload`) are all byte-identical to before this batch — verified by the validator's byte-diff check and a dedicated business-logic-marker regression test, exactly like A1.2b's high-caution files.
-- **Cloudflare Access dependency is now at its widest blast radius.** A1.2c gates every remaining mutable admin surface, including money-adjacent flows (refund records, invoice records, bank-account routing). If Cloudflare Access → `admin_users` resolution fails in production, refund/invoice/bank-account admin actions — not just reads — will 403 for everyone except the two escape-hatch routes. See `COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_RUNBOOK_20260705.md` before any production deploy.
+- **Cloudflare Access dependency — must be verified before production deploy.** See guardrails §1, §4, §9 and `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md`. Runbooks: `COSMOSKIN_A1_ADMIN_RBAC_HARDENING_RUNBOOK_20260704.md`, `COSMOSKIN_A1_2A_ADMIN_READ_COVERAGE_RUNBOOK_20260705.md`, `COSMOSKIN_A1_2B_ADMIN_MUTATION_COVERAGE_RUNBOOK_20260705.md`, `COSMOSKIN_A1_2C_ADMIN_FINANCE_COVERAGE_RUNBOOK_20260705.md`, `COSMOSKIN_A1F2_CLOUDFLARE_ACCESS_JWT_IDENTITY_RUNBOOK_20260706.md`.
 
 ## Do not touch casually
 
-- `functions/api/admin/**` — reference for future customer cancel; admin-only.
+- **Admin auth / RBAC protected files** — see guardrails §7 (`admin.js`, `admin-audit.js`, `cloudflare-access-jwt.js`, `admin-runtime.js`, `admin-runtime.css`, `validate-a1f-admin-rbac-session-identity.mjs`). Other `functions/api/admin/**` routes — reference for future customer cancel; admin-only.
 - `iyzico-callback.js` / payment webhooks — high blast radius.
 - `assets/mobile-redesign.js` — separate mobile DOM.
 - Old migration files — never rewrite; add new migrations on top.
@@ -105,6 +189,7 @@ node --check functions/api/account/notifications.js
 node scripts/validate-account-batch-1-safe-fixes.mjs
 node scripts/validate-account-runtime-hotfix.mjs
 node scripts/validate-account-experience-final-polish.mjs
+node scripts/validate-a1f-admin-rbac-session-identity.mjs
 node scripts/validate-a1-admin-rbac-hardening.mjs
 node scripts/validate-a1-admin-endpoint-coverage.mjs
 node scripts/validate-production-launch-readiness.mjs

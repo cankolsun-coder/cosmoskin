@@ -10,7 +10,9 @@ Server-only secrets must be configured with Cloudflare Pages secrets, never comm
 
 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `IYZICO_API_KEY`, `IYZICO_SECRET_KEY`, `IYZICO_BASE_URL`, `ADMIN_TOKEN`, `ADMIN_SESSION_SECRET`, `CRON_SECRET`.
 
-Operational variables: `PUBLIC_SITE_URL`, `SITE_URL`, `SUPABASE_TIMEOUT_MS`, `IYZICO_TIMEOUT_MS`, `ADMIN_SESSION_TTL_SECONDS`, `ADMIN_ALLOW_LEGACY_TOKEN=false`, `REQUIRE_CLOUDFLARE_ACCESS=true`, `EFT_RESERVATION_MINUTES`, `CRON_BATCH_LIMIT` and configured Brevo/email variables where those features are enabled.
+Operational variables: `PUBLIC_SITE_URL`, `SITE_URL`, `SUPABASE_TIMEOUT_MS`, `IYZICO_TIMEOUT_MS`, `ADMIN_SESSION_TTL_SECONDS`, `ADMIN_ALLOW_LEGACY_TOKEN=false`, `REQUIRE_CLOUDFLARE_ACCESS=true`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD`, `EFT_RESERVATION_MINUTES`, `CRON_BATCH_LIMIT` and configured Brevo/email variables where those features are enabled.
+
+Admin auth guardrails: `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md`.
 
 Example secret command:
 
@@ -24,14 +26,14 @@ wrangler pages secret put CRON_SECRET --project-name cosmoskin
 ## Exact deployment order
 
 1. **Backup current production state.** Export Supabase schema/data for orders, payments, inventory, reservations, bank accounts, coupons and RLS policies. Record current Cloudflare deployment ID.
-2. **Configure environment variables and secrets.** Compare Cloudflare variables with `.env.example`; keep `ADMIN_ALLOW_LEGACY_TOKEN=false` and `REQUIRE_CLOUDFLARE_ACCESS=true`.
+2. **Configure environment variables and secrets.** Compare Cloudflare variables with `.env.example`; keep `ADMIN_ALLOW_LEGACY_TOKEN=false`, `REQUIRE_CLOUDFLARE_ACCESS=true`, and set `CF_ACCESS_TEAM_DOMAIN` + `CF_ACCESS_AUD` (see `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md`).
 3. **Apply Supabase migrations in order.** On an existing environment, apply only migrations not already recorded; never replay a migration blindly.
 4. **Run verification SQL.** Execute `supabase/verification/20260616_prelaunch_verification.sql` and save its output.
 5. **Run inventory reconciliation.** Start in check mode: `node scripts/reconcile-inventory.mjs --check`; review all missing/duplicate/negative/inconsistent rows before any seed mode.
 6. **Configure one active bank account.** Insert via protected admin API or SQL with bank name, account holder, valid Turkish IBAN, `TRY`, active status and deterministic sort order. Never commit a real IBAN.
 7. **Configure iyzico sandbox first.** Set sandbox base URL/key/secret and callback URL; do not switch to production before all callback gates pass.
 8. **Configure protected EFT expiry cron.** Use `CRON_SECRET`; schedule `/api/cron/release-expired-eft`; verify paid orders are excluded.
-9. **Configure Cloudflare Access/MFA.** Protect `/admin/*` and `/api/admin/*`; require organization identity plus MFA. Preserve only explicitly required service-token paths.
+9. **Configure Cloudflare Access/MFA.** Protect `/admin/*` and `/api/admin/*`; require organization identity plus MFA. Set `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD`. Verify owner login (Access + admin token) and that Inventory/Orders/Returns/Products do not redirect to token screen. See `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md` §9.
 10. **Deploy Cloudflare Functions and static assets.** Deploy the validated final ZIP/repository revision as a single release.
 11. **Purge required caches.** Purge HTML, JS/CSS changed files and inventory-related cache keys; inventory/checkout/payment APIs must remain `no-store`.
 12. **Run post-deployment smoke tests.** Homepage, search, PDP, cart, checkout, Smart Routine, account, admin, legal and payment result pages.

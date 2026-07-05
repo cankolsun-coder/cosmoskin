@@ -2,6 +2,8 @@
 
 This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain: https://www.cosmoskin.com.tr
 
+> **Before modifying admin auth, RBAC, session identity, or `admin-runtime.js`, read `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md` and `COSMOSKIN_PROJECT_MEMORY.md` (Admin RBAC guardrails) first.**
+
 ## Identity
 - Premium Korean skincare curation, Turkish-language store.
 - Visual standard: minimal, elegant, calm, readable, trustworthy. Reference benchmarks: Aesop, Sephora, Apple.
@@ -14,6 +16,8 @@ This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain
 - **Do not create demo/scratch projects.** Modify the real files in this repo.
 - **Do not add emojis to UI** unless the user explicitly asks. Use SVG icons in the existing thin-stroke style.
 - **Do not create new MD reports unless asked** for a final deliverable. Use commit messages and the conversation.
+
+- **Do not modify admin auth/RBAC protected files** without explicit approval — see `COSMOSKIN_ADMIN_AUTH_RBAC_GUARDRAILS_20260706.md` (`admin.js`, `admin-audit.js`, `cloudflare-access-jwt.js`, `admin-runtime.js`, `admin-runtime.css`). Do not remove the admin token screen, JWT signature verification, or treat 403 like 401.
 
 ## Real product data
 - Source of truth: `products.json` (root) + `assets/products-data.js` (window.COSMOSKIN_PRODUCTS).
