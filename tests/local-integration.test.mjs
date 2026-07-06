@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { normalizeIban, isValidTurkishIban, validateBankAccount } from '../functions/api/_lib/bank-accounts.js';
 import { calculateCouponPreview, onRequestPost as validateCoupon } from '../functions/api/coupons/validate.js';
 import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout } from '../functions/api/create-checkout.js';
+import { PRICING_SNAPSHOT_VERSION_V2, allocateOrderDiscountSnapshots, buildOrderItemPricingSnapshots } from '../functions/api/_lib/order-pricing-snapshot.js';
 import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations } from '../functions/api/_lib/inventory.js';
 import { issueAdminSession, assertAdmin, getVerifiedSessionEmail, resolveCloudflareAccessEmail } from '../functions/api/_lib/admin.js';
 import { clearAccessCertsCacheForTests } from '../functions/api/_lib/cloudflare-access-jwt.js';
@@ -166,6 +167,100 @@ test('coupon API: valid free shipping, invalid and expired outcomes', async () =
       const res=await validateCoupon(contextFor(req)); const data=await res.json(); assert.equal(res.status,scenario.status); if(scenario.free) assert.equal(data.freeShipping,true);
     }finally{restore();}
   }
+});
+
+test('C1B1: exclusion-aware allocation gives excluded lines zero discount and v2 snapshots', () => {
+  const cart = [
+    { product_id: 'a', product_slug: 'prod-a', product_name: 'A', quantity: 1, unit_price: 600, line_total: 600, categorySlug: 'care', category: 'Nemlendiriciler', is_coupon_eligible: true },
+    { product_id: 'b', product_slug: 'prod-b', product_name: 'B', quantity: 1, unit_price: 400, line_total: 400, categorySlug: 'protect', category: 'Güneş Koruyucular', is_coupon_eligible: false }
+  ];
+  const allocations = allocateOrderDiscountSnapshots(cart, 100, { eligibility: (row) => row.is_coupon_eligible === true });
+  const paidA = allocations.find((r) => r.item.product_slug === 'prod-a')?.paidLineTotal;
+  const paidB = allocations.find((r) => r.item.product_slug === 'prod-b')?.paidLineTotal;
+  const allocB = allocations.find((r) => r.item.product_slug === 'prod-b')?.allocatedDiscount;
+  assert.equal(paidA, 500);
+  assert.equal(allocB, 0);
+  assert.equal(paidB, 400);
+
+  const snapshots = buildOrderItemPricingSnapshots(cart, 100, { version: PRICING_SNAPSHOT_VERSION_V2, eligibility: (row) => row.is_coupon_eligible === true });
+  const snapA = snapshots.find((r) => r.product_slug === 'prod-a');
+  const snapB = snapshots.find((r) => r.product_slug === 'prod-b');
+  assert.equal(snapA.pricing_snapshot_version, PRICING_SNAPSHOT_VERSION_V2);
+  assert.equal(snapB.pricing_snapshot_version, PRICING_SNAPSHOT_VERSION_V2);
+  assert.equal(snapB.allocated_order_discount, 0);
+  assert.equal(snapB.paid_line_total, 400);
+});
+
+test('C1B1: validate endpoint applies coupon only to eligible lines (slug + category exclusions)', async () => {
+  const now = new Date().toISOString();
+  const user = { id: 'user-1', email: 'qa.user@cosmoskin.invalid', created_at: now, email_confirmed_at: now, email_verified: true, user_metadata: {} };
+
+  const coupon = {
+    id: 'c-ex',
+    code: 'EXCL10',
+    is_active: true,
+    discount_type: 'percent',
+    discount_value: 10,
+    min_subtotal: 0,
+    max_discount_amount: 999,
+    per_customer_limit: 1,
+    excluded_product_slugs: ['anua-heartleaf-77-soothing-toner']
+  };
+
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/auth/v1/user')) return response(user);
+    if (href.includes('/rest/v1/coupons')) return response([coupon]);
+    if (href.includes('/rest/v1/coupon_redemptions')) return response([]);
+    if (href.includes('/rest/v1/coupon_reservations')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/coupons/validate', {
+      code: 'EXCL10',
+      accessToken: 't',
+      cart: [
+        { slug: 'anua-heartleaf-77-soothing-toner', quantity: 1 },
+        { slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 1 }
+      ]
+    });
+    const res = await validateCoupon(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    // eligible line is Relief Sun (899) only -> 10% = 89.9
+    assert.equal(data.discount_amount, 89.9);
+  } finally { restore(); }
+
+  const couponCat = {
+    ...coupon,
+    id: 'c-ex2',
+    code: 'EXCLCAT',
+    excluded_product_slugs: [],
+    excluded_categories: ['protect']
+  };
+  const restore2 = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/auth/v1/user')) return response(user);
+    if (href.includes('/rest/v1/coupons')) return response([couponCat]);
+    if (href.includes('/rest/v1/coupon_redemptions')) return response([]);
+    if (href.includes('/rest/v1/coupon_reservations')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/coupons/validate', {
+      code: 'EXCLCAT',
+      accessToken: 't',
+      cart: [
+        { slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 1 } // categorySlug protect, excluded => all excluded
+      ]
+    });
+    const res = await validateCoupon(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.equal(data.reasonCode, 'category_excluded');
+    assert.match(String(data.message || ''), /sepetinizdeki ürünler için uygun değil/i);
+  } finally { restore2(); }
 });
 
 test('C1A: coupon eligibility is enforced server-side (tier, routine, first-order, reservations)', async () => {

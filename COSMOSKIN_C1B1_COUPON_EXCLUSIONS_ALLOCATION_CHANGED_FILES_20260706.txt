@@ -1,0 +1,8 @@
+functions/api/_lib/catalog.js
+functions/api/_lib/coupons.js
+functions/api/_lib/order-pricing-snapshot.js
+functions/api/coupons/validate.js
+functions/api/create-checkout.js
+scripts/validate-c1b-coupon-exclusions-metadata.mjs
+tests/local-integration.test.mjs
+

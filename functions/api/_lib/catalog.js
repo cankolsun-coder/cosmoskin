@@ -12,6 +12,28 @@ function normalizeText(value) {
     .toLocaleLowerCase('tr-TR');
 }
 
+function slugify(value) {
+  return String(value || '')
+    .toLocaleLowerCase('tr-TR')
+    .replace(/ç/g, 'c')
+    .replace(/ğ/g, 'g')
+    .replace(/ı/g, 'i')
+    .replace(/ö/g, 'o')
+    .replace(/ş/g, 's')
+    .replace(/ü/g, 'u')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+const CATEGORY_SLUGS = {
+  'Temizleyiciler': 'cleanse',
+  'Tonik & Essence': 'hydrate',
+  'Serum & Ampul': 'treat',
+  'Nemlendiriciler': 'care',
+  'Güneş Koruyucular': 'protect',
+  'Maskeler': 'masks'
+};
+
 function extractSlug(value) {
   const raw = String(value || '').trim();
   if (!raw) return '';
@@ -24,6 +46,9 @@ function normalizeProduct(product) {
   const slug = extractSlug(product?.slug || product?.id || product?.url || '');
   if (!slug) return null;
 
+  const category = String(product.category || '').trim();
+  const categorySlug = String(product.categorySlug || CATEGORY_SLUGS[category] || slugify(category)).trim();
+
   return {
     id: slug,
     slug,
@@ -32,7 +57,8 @@ function normalizeProduct(product) {
     price: Number(product.price || 0),
     image: String(product.image || '').trim(),
     url: String(product.url || `/products/${slug}.html`).trim(),
-    category: String(product.category || '').trim(),
+    category,
+    categorySlug,
     aliases: toArray(product.aliases).map((alias) => String(alias || '').trim()).filter(Boolean)
   };
 }

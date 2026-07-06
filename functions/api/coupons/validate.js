@@ -50,10 +50,11 @@ function normalizeCartItem(raw = {}) {
   return { price: Number.isFinite(price) ? price : 0, quantity: Number.isFinite(quantity) ? quantity : 1 };
 }
 
-function subtotalFromCart(cart = []) {
+function buildTrustedCartLines(cart = []) {
   // Security: coupon eligibility must not trust client-supplied totals.
-  // For /api/coupons/validate we compute a best-effort subtotal from the server catalog.
-  if (!Array.isArray(cart) || cart.length === 0) return 0;
+  // For /api/coupons/validate we compute a best-effort cart from the server catalog
+  // (price + category) and pass it through the shared eligibility engine.
+  if (!Array.isArray(cart) || cart.length === 0) return [];
   const products = Array.isArray(catalog) ? catalog : Object.values(catalog || {});
   const index = new Map();
   for (const p of products) {
@@ -61,14 +62,25 @@ function subtotalFromCart(cart = []) {
     const keys = [p.id, p.slug, p.product_id, p.sku].filter(Boolean).map(String);
     for (const key of keys) index.set(key, p);
   }
-  return Math.round(cart.reduce((sum, raw) => {
+  return cart.map((raw) => {
     const normalized = normalizeCartItem(raw);
     const slug = String(raw.slug || raw.product_slug || raw.product_id || raw.productId || raw.id || '').trim();
     const product = index.get(slug);
     const unitPrice = Number(product?.price || 0);
     const trusted = Number.isFinite(unitPrice) && unitPrice > 0 ? unitPrice : 0;
-    return sum + trusted * normalized.quantity;
-  }, 0) * 100) / 100;
+    const lineTotal = normalizeMoney(trusted * normalized.quantity);
+    return {
+      product_id: String(product?.id || slug || '').trim() || null,
+      product_slug: String(product?.slug || slug || '').trim() || null,
+      product_name: String(product?.name || '').trim() || null,
+      brand: String(product?.brand || '').trim() || null,
+      category: String(product?.category || '').trim() || null,
+      categorySlug: String(product?.categorySlug || '').trim() || null,
+      unit_price: trusted,
+      quantity: normalized.quantity,
+      line_total: lineTotal
+    };
+  }).filter((row) => Number(row?.line_total) > 0 && (row.product_slug || row.product_id));
 }
 
 function authToken(context, body = {}) {
@@ -82,7 +94,8 @@ export async function onRequestPost(context) {
     const body = await context.request.json().catch(() => ({}));
     const code = String(body.code || body.coupon_code || '').trim().toUpperCase();
     const cart = Array.isArray(body.cart) ? body.cart : [];
-    const subtotal = subtotalFromCart(cart);
+    const trustedCart = buildTrustedCartLines(cart);
+    const subtotal = normalizeMoney(trustedCart.reduce((sum, row) => sum + Number(row.line_total || 0), 0));
     const token = authToken(context, body);
     const user = token ? await getUserFromAccessToken(context, token).catch(() => null) : null;
     const customerEmail = body.customer_email || body.email || body.customer?.email || user?.email || '';
@@ -91,7 +104,7 @@ export async function onRequestPost(context) {
       subtotal,
       user,
       customerEmail,
-      cartItems: cart
+      cartItems: trustedCart
     });
 
     if (!result.eligible) {

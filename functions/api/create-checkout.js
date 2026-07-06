@@ -8,7 +8,7 @@ import { legalDocumentKeyFromConsent, legalDocumentSnapshot } from './_lib/legal
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from './_lib/order-email.js';
 import { recordEmailEvent } from './_lib/email-events.js';
 import { validateCouponEligibility } from './_lib/coupons.js';
-import { buildOrderItemPricingSnapshots } from './_lib/order-pricing-snapshot.js';
+import { PRICING_SNAPSHOT_VERSION_V2, buildOrderItemPricingSnapshots } from './_lib/order-pricing-snapshot.js';
 
 const VAT_RATE = 0.20;
 const FREE_SHIPPING_LIMIT = 2500;
@@ -164,6 +164,8 @@ function normalizeCart(rawCart) {
       product_slug: product.slug || rawItem.slug || null,
       product_name: clampText(product.name || rawItem.name || 'COSMOSKIN Ürünü', 120),
       brand: clampText(product.brand || rawItem.brand || 'COSMOSKIN', 80),
+      category: clampText(product.category || '', 80) || null,
+      categorySlug: clampText(product.categorySlug || '', 40) || null,
       unit_price: unitPrice,
       quantity,
       image: product.image || rawItem.image || null,
@@ -258,6 +260,13 @@ async function applyCoupon(context, cart, subtotal, couponCode, customer = {}, u
     throw new CheckoutError(result.customer_message || result.message || 'Kupon kullanım koşullarını şu anda karşılamıyor.', status, reason || 'INVALID_COUPON');
   }
   const coupon = result.coupon || {};
+  const lineEligibility = Array.isArray(result.coupon_line_eligibility) ? result.coupon_line_eligibility : null;
+  const eligibleSlugs = lineEligibility
+    ? new Set(lineEligibility.filter((row) => row && row.eligible).map((row) => String(row.product_slug || '').trim()).filter(Boolean))
+    : null;
+  const allocationVersion = (lineEligibility && eligibleSlugs && eligibleSlugs.size > 0 && Number(result.discountAmount || 0) > 0)
+    ? PRICING_SNAPSHOT_VERSION_V2
+    : null;
   const label = result.discountType === 'percent'
     ? `%${Number(coupon.discount_value || 0)} indirim`
     : (result.freeShipping ? 'Ücretsiz kargo' : `₺${Number(result.discountAmount || coupon.discount_value || 0).toFixed(0)} indirim`);
@@ -270,7 +279,10 @@ async function applyCoupon(context, cart, subtotal, couponCode, customer = {}, u
     minSubtotal: result.minSubtotal,
     maxDiscount: result.maxDiscount,
     label,
-    eligibilityHash: `${result.code}:${Math.round(subtotal)}:${result.reason_code || result.reasonCode}`
+    eligibilityHash: `${result.code}:${Math.round(subtotal)}:${result.reason_code || result.reasonCode}`,
+    eligibleSlugs,
+    allocationVersion,
+    customerNotice: result.customer_notice || null
   };
 }
 
@@ -361,8 +373,11 @@ function serializeError(error) {
   };
 }
 
-function buildIyzicoBasketItems(cart, shipping, discount = 0) {
-  const snapshots = buildOrderItemPricingSnapshots(cart, discount);
+function buildIyzicoBasketItems(cart, shipping, discount = 0, coupon = null) {
+  const config = coupon?.eligibleSlugs
+    ? { version: coupon.allocationVersion || PRICING_SNAPSHOT_VERSION_V2, eligibility: coupon.eligibleSlugs }
+    : undefined;
+  const snapshots = buildOrderItemPricingSnapshots(cart, discount, config);
   const items = snapshots.map((item) => ({
     id: item.product_id,
     name: item.product_name,
@@ -800,7 +815,10 @@ export async function onRequestPost(context) {
 
     try {
       persistedOrder = await insertRow(context, 'orders', orderPayload);
-      const cartWithSnapshots = buildOrderItemPricingSnapshots(cart, totals.discount || 0);
+      const snapshotConfig = coupon?.eligibleSlugs
+        ? { version: coupon.allocationVersion || PRICING_SNAPSHOT_VERSION_V2, eligibility: coupon.eligibleSlugs }
+        : undefined;
+      const cartWithSnapshots = buildOrderItemPricingSnapshots(cart, totals.discount || 0, snapshotConfig);
       await insertRows(context, 'order_items', cartWithSnapshots.map((item) => ({ ...item, order_id: orderId })));
       await insertRow(context, 'order_status_events', {
         order_id: orderId,
@@ -915,7 +933,7 @@ export async function onRequestPost(context) {
     const callbackUrl = `${getPublicSiteUrl(context.env)}/api/iyzico-callback`;
     const ip = getClientIp(context.request);
     const buyerName = `${customer.first_name} ${customer.last_name}`.trim();
-    const basketItems = buildIyzicoBasketItems(cart, totals.shipping, totals.discount || 0);
+    const basketItems = buildIyzicoBasketItems(cart, totals.shipping, totals.discount || 0, coupon);
 
     let iyzicoRes = null;
     try {

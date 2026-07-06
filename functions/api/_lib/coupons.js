@@ -279,6 +279,13 @@ function customerFacingMessage(reasonCode) {
   }
 }
 
+function exclusionCustomerMessage(reasonCode) {
+  if (reasonCode === 'product_excluded' || reasonCode === 'category_excluded') {
+    return 'Bu kupon sepetinizdeki ürünler için uygun değil.';
+  }
+  return customerFacingMessage(reasonCode);
+}
+
 function resolveCouponEnvelope(couponRow, rule, code) {
   const merged = { ...(couponRow || {}), ...(rule || {}) };
   const metadata = asMetadataObject(couponRow?.metadata);
@@ -373,7 +380,7 @@ function failEligibility({ code, reason_code, internal_reason, eligibility_conte
     allowed: false,
     code: safeCode,
     reason_code,
-    customer_message: customerFacingMessage(reason_code),
+    customer_message: exclusionCustomerMessage(reason_code),
     internal_reason: internal_reason || reason_code,
     eligibility_context,
     coupon
@@ -484,23 +491,53 @@ export async function validateCouponEligibility(context, {
     return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
   }
 
-  // Exclusions: C1A safe mode — fail closed if exclusions are configured, unless we later add line-level allocation.
-  // This guarantees excluded items never silently receive a discount.
+  // Exclusions (C1B1): compute eligible subtotal and per-line eligibility.
   const hasExclusions = (coupon.excluded_product_slugs || []).length > 0 || (coupon.excluded_categories || []).length > 0;
-  if (hasExclusions) {
+  const normalizedExcludedSlugs = new Set((coupon.excluded_product_slugs || []).map(lower).map((v) => String(v || '').trim()).filter(Boolean));
+  const normalizedExcludedCats = new Set((coupon.excluded_categories || []).map(lower).map((v) => String(v || '').trim()).filter(Boolean));
+  const trustedCart = Array.isArray(cartItems) ? cartItems : [];
+  const normalizedLines = trustedCart
+    .filter((row) => Number(row?.line_total) > 0)
+    .map((row) => {
+      const slug = lower(row.product_slug || row.product_id || row.id || '');
+      const category = lower(row.category || '');
+      const categorySlug = lower(row.categorySlug || row.category_slug || '');
+      const lineSubtotal = normalizeMoney(Math.max(0, Number(row.line_total || 0)));
+      const excludedBySlug = slug && normalizedExcludedSlugs.has(slug);
+      const excludedByCategory = Boolean(
+        (categorySlug && normalizedExcludedCats.has(categorySlug))
+        || (category && normalizedExcludedCats.has(category))
+      );
+      const excluded = hasExclusions && (excludedBySlug || excludedByCategory);
+      return {
+        slug,
+        category,
+        categorySlug,
+        lineSubtotal,
+        is_coupon_eligible: !excluded,
+        exclusion_reason: excludedBySlug ? 'product_slug' : (excludedByCategory ? 'category' : null)
+      };
+    });
+  const eligibleSubtotal = normalizeMoney(normalizedLines.reduce((sum, line) => sum + (line.is_coupon_eligible ? line.lineSubtotal : 0), 0));
+  const excludedCount = normalizedLines.filter((line) => !line.is_coupon_eligible).length;
+  const eligibleCount = normalizedLines.filter((line) => line.is_coupon_eligible).length;
+  const partialExclusion = hasExclusions && excludedCount > 0 && eligibleCount > 0;
+  const effectiveSubtotalForMin = hasExclusions ? eligibleSubtotal : safeSubtotal;
+
+  if (hasExclusions && effectiveSubtotalForMin <= 0) {
     const denied = failEligibility({
       code,
-      reason_code: (coupon.excluded_product_slugs || []).length ? 'product_excluded' : 'category_excluded',
-      internal_reason: 'coupon_exclusions_present_fail_closed',
+      reason_code: (normalizedExcludedSlugs.size > 0 ? 'product_excluded' : 'category_excluded'),
+      internal_reason: 'all_cart_lines_excluded',
       eligibility_context: {
-        excluded_product_slugs: coupon.excluded_product_slugs || [],
-        excluded_categories: coupon.excluded_categories || []
+        excluded_product_slugs: Array.from(normalizedExcludedSlugs),
+        excluded_categories: Array.from(normalizedExcludedCats)
       }
     });
     return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
   }
 
-  if (safeSubtotal > 0 && minSubtotal > safeSubtotal) {
+  if (effectiveSubtotalForMin > 0 && minSubtotal > effectiveSubtotalForMin) {
     const denied = failEligibility({ code, reason_code: 'min_subtotal_not_met', internal_reason: 'subtotal_below_minimum', eligibility_context: { min_subtotal: minSubtotal, subtotal: safeSubtotal } });
     return {
       eligible: false,
@@ -640,7 +677,8 @@ export async function validateCouponEligibility(context, {
     }
   }
 
-  const discountAmount = discountFor(coupon, safeSubtotal);
+  const discountBaseSubtotal = hasExclusions ? eligibleSubtotal : safeSubtotal;
+  const discountAmount = discountFor(coupon, discountBaseSubtotal);
   if (discountType !== 'free_shipping' && discountAmount <= 0) {
     const denied = failEligibility({ code, reason_code: 'invalid_discount', internal_reason: 'computed_discount_zero', eligibility_context: { subtotal: safeSubtotal } });
     return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
@@ -655,6 +693,7 @@ export async function validateCouponEligibility(context, {
     freeShipping,
     eligibility_context: {
       subtotal: safeSubtotal,
+      eligible_subtotal: discountBaseSubtotal,
       min_subtotal: minSubtotal,
       tier: resolvedTier,
       checkout: Boolean(checkout),
@@ -679,6 +718,13 @@ export async function validateCouponEligibility(context, {
     description: coupon.description,
     scopeLabel: coupon.scope_label,
     coupon,
+    coupon_line_eligibility: hasExclusions ? normalizedLines.map((line) => ({
+      product_slug: line.slug,
+      category_slug: line.categorySlug || null,
+      eligible: Boolean(line.is_coupon_eligible),
+      exclusion_reason: line.exclusion_reason
+    })) : null,
+    customer_notice: partialExclusion ? 'Bu kupon bazı ürünlerde geçerli değildir.' : null,
     ...ok
   };
 }
