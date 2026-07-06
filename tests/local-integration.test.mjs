@@ -263,7 +263,9 @@ test('R1: uploadReviewPhoto blocks another customer and rejects invalid or overs
     fd.append('image', new File([new Uint8Array([0xff, 0xd8, 0xff])], 'photo.jpg', { type: 'image/jpeg' }));
     const req = new Request('https://local.test/api/reviews/review-r1/images', { method: 'POST', headers: { authorization: 'Bearer customer-token' }, body: fd });
     const res = await reviewsApi(contextFor(req));
-    assert.equal(res.status, 404);
+    assert.equal(res.status, 403);
+    const blocked = await res.json();
+    assert.equal(blocked.code, 'review_ownership_mismatch');
   } finally { restoreOther(); }
 
   const restoreInvalid = installFetch(async (url) => {
@@ -278,6 +280,7 @@ test('R1: uploadReviewPhoto blocks another customer and rejects invalid or overs
     const badTypeRes = await reviewsApi(contextFor(new Request('https://local.test/api/reviews/review-r1/images', { method: 'POST', headers: { authorization: 'Bearer customer-token' }, body: badType })));
     const badTypeData = await badTypeRes.json();
     assert.equal(badTypeRes.status, 400);
+    assert.equal(badTypeData.code, 'invalid_image_type');
     assert.equal(badTypeData.error, 'Desteklenmeyen görsel formatı.');
 
     const oversized = new FormData();
@@ -349,6 +352,120 @@ test('R1: admin reviews API returns normalized image objects and fallback-ready 
   assert.match(adminUi, /Görsel yüklenemedi/);
   assert.match(adminUi, /imagePreviewUrl/);
   assert.match(adminUi, /signed_url \|\| image\.thumbnail_url \|\| image\.public_url \|\| image\.url/);
+});
+
+const JPEG_BYTES = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0x10, 0x4a, 0x46, 0x49, 0x46]);
+const PNG_BYTES = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
+const WEBP_BYTES = (() => {
+  const bytes = new Uint8Array(12);
+  bytes.set([0x52, 0x49, 0x46, 0x46], 0);
+  bytes.set([0x57, 0x45, 0x42, 0x50], 8);
+  return bytes;
+})();
+
+function reviewUploadMocks(slug = 'beauty-of-joseon-relief-sun-spf50', userId = 'user-r1') {
+  return async (url, options = {}) => {
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) return response({ id: userId, email: 'r1@example.test', user_metadata: { first_name: 'R1' } });
+    if (href.includes('/rest/v1/reviews')) {
+      return response([{ id: 'review-r1', product_slug: slug, user_id: userId, review_images: [] }]);
+    }
+    if (href.includes('/storage/v1/object/review-images/')) return response({ Key: 'review-images/ok' }, 200);
+    if (href.includes('/rest/v1/review_images')) {
+      return response([{ id: 'image-r1', review_id: 'review-r1', storage_path: 'user-r1/review-r1/photo.jpg', public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1/photo.jpg', status: 'pending', width: null, height: null, created_at: '2026-07-06T00:00:00Z' }]);
+    }
+    return response([]);
+  };
+}
+
+let reviewUploadIpCounter = 0;
+
+async function postReviewImage(body, headers = { authorization: 'Bearer customer-token' }) {
+  reviewUploadIpCounter += 1;
+  const req = new Request('https://local.test/api/reviews/review-r1/images', {
+    method: 'POST',
+    headers: { ...headers, 'cf-connecting-ip': `10.0.0.${reviewUploadIpCounter}` },
+    body
+  });
+  const res = await reviewsApi(contextFor(req));
+  return { res, data: await res.json() };
+}
+
+test('R1B: upload accepts valid JPEG with normal image/jpeg type', async () => {
+  const restore = installFetch(reviewUploadMocks());
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([JPEG_BYTES], 'photo.jpg', { type: 'image/jpeg' }));
+    const { res, data } = await postReviewImage(fd);
+    assert.equal(res.status, 201);
+    assert.equal(data.ok, true);
+    assert.equal(data.image.mime_type, 'image/jpeg');
+  } finally { restore(); }
+});
+
+test('R1B: upload accepts valid JPEG when file.type is empty', async () => {
+  const restore = installFetch(reviewUploadMocks());
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([JPEG_BYTES], 'photo.jpg', { type: '' }));
+    const { res, data } = await postReviewImage(fd);
+    assert.equal(res.status, 201);
+    assert.equal(data.image.mime_type, 'image/jpeg');
+  } finally { restore(); }
+});
+
+test('R1B: upload accepts Blob-like multipart part', async () => {
+  const restore = installFetch(reviewUploadMocks());
+  try {
+    const fd = new FormData();
+    fd.append('image', new Blob([JPEG_BYTES], { type: '' }), 'photo.jpg');
+    const { res, data } = await postReviewImage(fd);
+    assert.equal(res.status, 201);
+    assert.equal(data.image.mime_type, 'image/jpeg');
+  } finally { restore(); }
+});
+
+test('R1B: upload accepts PNG and WEBP via byte sniffing', async () => {
+  const restore = installFetch(reviewUploadMocks());
+  try {
+    const pngFd = new FormData();
+    pngFd.append('image', new Blob([PNG_BYTES], { type: '' }), 'photo.png');
+    const pngRes = await postReviewImage(pngFd);
+    assert.equal(pngRes.res.status, 201);
+    assert.equal(pngRes.data.image.mime_type, 'image/png');
+
+    const webpFd = new FormData();
+    webpFd.append('image', new Blob([WEBP_BYTES], { type: '' }), 'photo.webp');
+    const webpRes = await postReviewImage(webpFd);
+    assert.equal(webpRes.res.status, 201);
+    assert.equal(webpRes.data.image.mime_type, 'image/webp');
+  } finally { restore(); }
+});
+
+test('R1B: upload rejects invalid bytes and unsupported declared types with structured codes', async () => {
+  const restore = installFetch(reviewUploadMocks());
+  try {
+    const invalidFd = new FormData();
+    invalidFd.append('image', new Blob([new Uint8Array([1, 2, 3, 4])], { type: '' }), 'bad.bin');
+    const invalid = await postReviewImage(invalidFd);
+    assert.equal(invalid.res.status, 400);
+    assert.equal(invalid.data.code, 'invalid_image_type');
+
+    const gifFd = new FormData();
+    gifFd.append('image', new File(['gif'], 'photo.gif', { type: 'image/gif' }));
+    const gif = await postReviewImage(gifFd);
+    assert.equal(gif.res.status, 400);
+    assert.equal(gif.data.code, 'invalid_image_type');
+  } finally { restore(); }
+});
+
+test('R1B: frontend markers support review id fallback and upload error detail', async () => {
+  const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
+  assert.match(src, /resolveReviewId/);
+  assert.match(src, /data\?\.review\?\.id/);
+  assert.match(src, /await refreshSession\(\)/);
+  assert.match(src, /await authHeaders\(\)/);
+  assert.match(src, /Yorumunuz kaydedildi ancak görsel yüklenemedi\.\$\{detail\}/);
 });
 
 test('atomic inventory RPC success and idempotent release/conversion responses', async () => {

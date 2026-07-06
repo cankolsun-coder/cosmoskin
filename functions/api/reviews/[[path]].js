@@ -130,6 +130,49 @@ function validationError(message, code = 'validation_error', status = 400) {
   return json({ ok: false, code, error: message }, { status });
 }
 
+function uploadError(message, code, status = 400) {
+  return json({ ok: false, code, error: message }, { status });
+}
+
+function isBlobLikeUploadPart(value) {
+  if (!value || typeof value !== 'object') return false;
+  if (Number(value.size) <= 0) return false;
+  if (typeof Blob !== 'undefined' && value instanceof Blob) return true;
+  return typeof value.arrayBuffer === 'function';
+}
+
+function detectImageType(bytes = new Uint8Array()) {
+  if (!bytes || bytes.length < 3) return null;
+
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return { mime_type: 'image/jpeg', extension: 'jpg' };
+  }
+
+  if (
+    bytes.length >= 8 &&
+    bytes[0] === 0x89 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x4e &&
+    bytes[3] === 0x47 &&
+    bytes[4] === 0x0d &&
+    bytes[5] === 0x0a &&
+    bytes[6] === 0x1a &&
+    bytes[7] === 0x0a
+  ) {
+    return { mime_type: 'image/png', extension: 'png' };
+  }
+
+  if (bytes.length >= 12) {
+    const riff = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]) === 'RIFF';
+    const webp = String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]) === 'WEBP';
+    if (riff && webp) {
+      return { mime_type: 'image/webp', extension: 'webp' };
+    }
+  }
+
+  return null;
+}
+
 function resolveProduct(reference) {
   if (!reference) return null;
   if (typeof reference === 'object') {
@@ -306,7 +349,10 @@ async function getUserFromRequest(context) {
 async function requireUser(context) {
   const { user } = await getUserFromRequest(context);
   if (!user) {
-    return { ok: false, response: json({ ok: false, error: 'Oturum gerekli.' }, { status: 401 }) };
+    return {
+      ok: false,
+      response: json({ ok: false, code: 'unauthorized', error: 'Oturum gerekli.' }, { status: 401 })
+    };
   }
   return { ok: true, user };
 }
@@ -623,8 +669,11 @@ async function uploadReviewPhoto(context, reviewId) {
   const required = await requireUser(context);
   if (!required.ok) return required.response;
   const review = await getReviewById(context, reviewId);
-  if (!review || review.user_id !== required.user.id) {
-    return json({ ok: false, error: 'Yorum bulunamadı.' }, { status: 404 });
+  if (!review) {
+    return uploadError('Yorum bulunamadı.', 'review_not_found', 404);
+  }
+  if (review.user_id !== required.user.id) {
+    return uploadError('Bu yoruma görsel ekleme yetkiniz bulunmuyor.', 'review_ownership_mismatch', 403);
   }
   const existingImages = Array.isArray(review.review_images) ? review.review_images : [];
   if (existingImages.length >= 5) return validationError('Bir yoruma en fazla 5 görsel eklenebilir.', 'photo_limit');
@@ -635,46 +684,61 @@ async function uploadReviewPhoto(context, reviewId) {
   }
   const form = await context.request.formData();
   const file = form.get('image');
-  if (!(file instanceof File)) return validationError('Görsel dosyası gerekli.', 'missing_image');
-  const allowed = new Map([['image/jpeg','jpg'],['image/png','png'],['image/webp','webp']]);
-  const extension = allowed.get(String(file.type || '').toLowerCase());
-  if (!extension) return validationError('Desteklenmeyen görsel formatı.', 'invalid_image_type');
-  if (file.size <= 0 || file.size > 2 * 1024 * 1024) return validationError('Görsel boyutu çok büyük.', 'image_too_large');
+  if (!isBlobLikeUploadPart(file)) {
+    return uploadError('Görsel dosyası gerekli.', 'missing_image', 400);
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    return uploadError('Görsel boyutu çok büyük.', 'image_too_large', 400);
+  }
 
   const bytes = new Uint8Array(await file.arrayBuffer());
-  const signatures = {
-    jpg: bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff,
-    png: bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47,
-    webp: String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP'
-  };
-  if (!signatures[extension]) return validationError('Desteklenmeyen görsel formatı.', 'invalid_image_signature');
+  const detected = detectImageType(bytes);
+  if (!detected) {
+    return uploadError('Desteklenmeyen görsel formatı.', 'invalid_image_type', 400);
+  }
 
   const { url, serviceRoleKey } = getSupabaseConfig(context);
-  const objectPath = `${required.user.id}/${reviewId}/${crypto.randomUUID()}.${extension}`;
+  const objectPath = `${required.user.id}/${reviewId}/${crypto.randomUUID()}.${detected.extension}`;
   const upload = await fetch(`${url}/storage/v1/object/review-images/${objectPath.split('/').map(encodeURIComponent).join('/')}`, {
     method: 'POST',
     headers: {
       apikey: serviceRoleKey,
       Authorization: `Bearer ${serviceRoleKey}`,
-      'Content-Type': file.type,
+      'Content-Type': detected.mime_type,
       'x-upsert': 'false'
     },
     body: bytes
   });
   if (!upload.ok) {
-    console.error('review_image_upload_failed', { status: upload.status, reviewId });
-    return json({ ok: false, error: 'Görsel yüklenemedi. Lütfen tekrar deneyin.' }, { status: 503 });
+    console.error('review_image_upload_failed', {
+      status: upload.status,
+      reviewId,
+      declaredType: String(file.type || ''),
+      sniffedType: detected.mime_type,
+      size: file.size
+    });
+    return uploadError('Görsel yüklenemedi. Lütfen tekrar deneyin.', 'storage_upload_failed', 503);
   }
   const publicUrl = `${url}/storage/v1/object/public/review-images/${objectPath.split('/').map(encodeURIComponent).join('/')}`;
-  const row = await insertRow(context, 'review_images', {
+  let row = null;
+  try {
+    row = await insertRow(context, 'review_images', {
+      review_id: reviewId,
+      storage_path: objectPath,
+      public_url: publicUrl,
+      status: 'pending',
+      width: null,
+      height: null
+    });
+  } catch (error) {
+    console.error('review_image_record_failed', { reviewId, message: error?.message || 'unknown' });
+    return uploadError('Görsel yüklenemedi. Lütfen tekrar deneyin.', 'image_record_failed', 503);
+  }
+  return json({
+    ok: true,
     review_id: reviewId,
-    storage_path: objectPath,
-    public_url: publicUrl,
-    status: 'pending',
-    width: null,
-    height: null
-  });
-  return json({ ok: true, review_id: reviewId, image: mapImage(row, { publicBase: reviewImagesPublicBase(context) }) }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
+    image: mapImage({ ...row, mime_type: detected.mime_type, size_bytes: file.size }, { publicBase: reviewImagesPublicBase(context) })
+  }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
 }
 
 async function handleHelpful(context) {

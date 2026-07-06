@@ -1,0 +1,24 @@
+COSMOSKIN R1B — Review Image Upload Failure Fix — Changed Files
+Date: 2026-07-06
+
+Implementation files:
+- functions/api/reviews/[[path]].js
+- js/reviews.js
+
+Validation and tests:
+- scripts/validate-r1b-review-image-upload-failure.mjs
+- scripts/validate-r1-admin-review-image-visibility.mjs
+- tests/local-integration.test.mjs
+
+Delivery docs:
+- COSMOSKIN_R1B_REVIEW_IMAGE_UPLOAD_FAILURE_REPORT_20260706.md
+- COSMOSKIN_R1B_REVIEW_IMAGE_UPLOAD_FAILURE_CHANGED_FILES_20260706.txt
+- COSMOSKIN_R1B_REVIEW_IMAGE_UPLOAD_FAILURE_RUNBOOK_20260706.md
+- COSMOSKIN_R1B_REVIEW_IMAGE_UPLOAD_FAILURE_ROLLBACK_PLAN_20260706.md
+
+Notes:
+- No migrations were created.
+- No SQL files were changed.
+- No storage bucket or RLS policy files were changed.
+- No admin auth/RBAC/JWT/session files were changed.
+- POST /api/reviews/images remains retired (410 Gone).
