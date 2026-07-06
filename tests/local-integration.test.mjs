@@ -8,7 +8,7 @@ import { normalizeIban, isValidTurkishIban, validateBankAccount } from '../funct
 import { calculateCouponPreview, onRequestPost as validateCoupon } from '../functions/api/coupons/validate.js';
 import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout } from '../functions/api/create-checkout.js';
 import { PRICING_SNAPSHOT_VERSION_V2, allocateOrderDiscountSnapshots, buildOrderItemPricingSnapshots } from '../functions/api/_lib/order-pricing-snapshot.js';
-import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations } from '../functions/api/_lib/inventory.js';
+import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations, validateCartStock } from '../functions/api/_lib/inventory.js';
 import { issueAdminSession, assertAdmin, getVerifiedSessionEmail, resolveCloudflareAccessEmail } from '../functions/api/_lib/admin.js';
 import { clearAccessCertsCacheForTests } from '../functions/api/_lib/cloudflare-access-jwt.js';
 import { onRequestPatch as adminStatusPatch } from '../functions/api/admin/orders/[id]/status.js';
@@ -100,13 +100,114 @@ test('EFT reservation duration is centrally bounded', () => {
 test('inventory rules distinguish missing, stock-zero, stock-one quantity-two and active stock', () => {
   const slug='beauty-of-joseon-relief-sun-spf50';
   const missing=buildCheckItem({product_slug:slug,quantity:1},new Map());
-  assert.equal(missing.can_purchase,false); assert.match(missing.message,/satışta değil|stok kaydı|stokta yok/i);
+  assert.equal(missing.can_purchase,false); assert.match(missing.message,/Ürün bulunamadı|satışta değil|stok kaydı|stokta yok/i);
   const zero=buildCheckItem({product_slug:slug,quantity:1},new Map([[slug,{status:'active',available_stock:0,allow_backorder:false}]]));
-  assert.equal(zero.can_purchase,false); assert.match(zero.message,/stokta yok/i);
+  assert.equal(zero.can_purchase,false); assert.equal(zero.reason,'out_of_stock'); assert.match(zero.message,/stokta yok/i);
   const tooMany=buildCheckItem({product_slug:slug,quantity:2},new Map([[slug,{status:'active',available_stock:1,allow_backorder:false}]]));
-  assert.equal(tooMany.can_purchase,false); assert.match(tooMany.message,/yalnızca 1/i);
+  assert.equal(tooMany.can_purchase,false); assert.equal(tooMany.reason,'insufficient_stock'); assert.match(tooMany.message,/yeterli stok|yalnızca 1/i);
   const ok=buildCheckItem({product_slug:slug,quantity:1},new Map([[slug,{status:'active',available_stock:1,allow_backorder:false,low_stock_threshold:2}]]));
   assert.equal(ok.can_purchase,true);
+});
+
+test('I1: validateCartStock returns structured stock_unavailable items from trusted inventory map', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const restore = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([{ product_slug: slug, stock_on_hand: 0, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+    }
+    return response([]);
+  });
+  try {
+    const result = await validateCartStock({ env }, [{ product_slug: slug, quantity: 1, product_name: 'Relief Sun' }]);
+    assert.equal(result.ok, false);
+    assert.equal(result.error, 'stock_unavailable');
+    assert.match(result.message, /stokta olmayan/i);
+    assert.equal(result.items.length, 1);
+    assert.equal(result.items[0].reason, 'out_of_stock');
+    assert.equal(result.items[0].requested_quantity, 1);
+    assert.equal(result.items[0].available_quantity, 0);
+  } finally { restore(); }
+});
+
+test('I1: create-checkout rejects out-of-stock cart before reservation with structured items[]', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const calls = [];
+  const restore = installFetch(async (url) => {
+    calls.push(String(url));
+    const href = String(url);
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([{ product_slug: slug, stock_on_hand: 0, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+    }
+    if (href.includes('/rest/v1/payment_bank_accounts')) {
+      return response([{ bank_name: 'Test Bankası', account_holder: 'COSMOSKIN TEST', iban: 'TR330006100519786457841326', currency: 'TRY', is_active: true }]);
+    }
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/create-checkout', {
+      payment_method: 'bank_transfer',
+      idempotency_key: 'local-i1-oos-0001',
+      cart: [{ slug, quantity: 1 }],
+      customer: validCustomer
+    });
+    const res = await createCheckout(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 409);
+    assert.equal(data.error, 'stock_unavailable');
+    assert.equal(Array.isArray(data.items), true);
+    assert.equal(data.items[0].reason, 'out_of_stock');
+    assert.equal(calls.some((url) => url.includes('/rpc/reserve_order_inventory')), false);
+    assert.equal(calls.some((url) => url.includes('/rest/v1/orders') && !url.includes('checkout_idempotency_key')), false);
+  } finally { restore(); }
+});
+
+test('I1: create-checkout rejects inactive product and quantity above available stock', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const bankRows = [{ bank_name: 'Test Bankası', account_holder: 'COSMOSKIN TEST', iban: 'TR330006100519786457841326', currency: 'TRY', is_active: true }];
+  const restoreInactive = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([{ product_slug: slug, stock_on_hand: 5, stock_reserved: 0, allow_backorder: false, status: 'inactive', low_stock_threshold: 5 }]);
+    }
+    if (href.includes('/rest/v1/payment_bank_accounts')) return response(bankRows);
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/create-checkout', {
+      payment_method: 'bank_transfer',
+      idempotency_key: 'local-i1-inactive-0001',
+      cart: [{ slug, quantity: 1 }],
+      customer: validCustomer
+    });
+    const res = await createCheckout(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 409);
+    assert.equal(data.code, 'PRODUCT_NOT_ACTIVE');
+    assert.equal(data.items[0].reason, 'product_inactive');
+  } finally { restoreInactive(); }
+
+  const restoreQty = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([{ product_slug: slug, stock_on_hand: 2, stock_reserved: 1, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+    }
+    if (href.includes('/rest/v1/payment_bank_accounts')) return response(bankRows);
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/create-checkout', {
+      payment_method: 'bank_transfer',
+      idempotency_key: 'local-i1-qty-0001',
+      cart: [{ slug, quantity: 2 }],
+      customer: validCustomer
+    });
+    const res = await createCheckout(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 409);
+    assert.equal(data.items[0].reason, 'insufficient_stock');
+    assert.equal(data.items[0].available_quantity, 1);
+  } finally { restoreQty(); }
 });
 
 test('atomic inventory RPC success and idempotent release/conversion responses', async () => {

@@ -1,7 +1,7 @@
 import { getUserFromAccessToken, insertRow, insertRows, updateRows, selectRows } from './_lib/supabase.js';
 import { iyzicoRequest } from './_lib/iyzico.js';
 import { catalog } from './_lib/catalog.js';
-import { releaseInventoryReservations, reserveInventoryForOrder } from './_lib/inventory.js';
+import { releaseInventoryReservations, reserveInventoryForOrder, stockValidationCode, validateCartStock } from './_lib/inventory.js';
 import { json } from './_lib/response.js';
 import { getPrimaryBankAccount, getValidatedBankAccounts } from './_lib/bank-accounts.js';
 import { legalDocumentKeyFromConsent, legalDocumentSnapshot } from './_lib/legal-documents.js';
@@ -23,11 +23,13 @@ const ALLOWED_INVOICE_TYPES = new Set(['Bireysel', 'Kurumsal']);
 const PAYMENT_METHODS = new Set(['card', 'bank_transfer']);
 
 class CheckoutError extends Error {
-  constructor(message, status = 400, code = 'CHECKOUT_ERROR') {
+  constructor(message, status = 400, code = 'CHECKOUT_ERROR', extras = {}) {
     super(message);
     this.name = 'CheckoutError';
     this.status = status;
     this.code = code;
+    this.errorKey = extras.error || null;
+    this.items = Array.isArray(extras.items) ? extras.items : null;
   }
 }
 
@@ -213,26 +215,17 @@ function responseItemsFromRows(rows = []) {
 }
 
 async function validateInventory(context, cart) {
-  const slugs = cart.map((item) => item.product_slug || item.product_id).filter(Boolean);
-  if (!slugs.length) return;
-  const rows = await selectRows(context, 'product_inventory', {
-    select: 'product_slug,stock_on_hand,stock_reserved,allow_backorder,status',
-    product_slug: `in.(${slugs.join(',')})`
+  const result = await validateCartStock(context, cart.map((item) => ({
+    product_slug: item.product_slug || item.product_id,
+    product_name: item.product_name,
+    quantity: item.quantity
+  })));
+  if (result.ok) return;
+  const primaryReason = result.items?.[0]?.reason || 'out_of_stock';
+  throw new CheckoutError(result.message, 409, stockValidationCode(primaryReason), {
+    error: result.error || 'stock_unavailable',
+    items: result.items || []
   });
-  const map = new Map((rows || []).map((row) => [row.product_slug, row]));
-  for (const item of cart) {
-    const inv = map.get(item.product_slug || item.product_id);
-    if (!inv) {
-      throw new CheckoutError(`${item.product_name} için stok kaydı bulunamadı.`, 409, 'INVENTORY_NOT_FOUND');
-    }
-    if (String(inv.status || 'active') !== 'active') {
-      throw new CheckoutError(`${item.product_name} şu anda satışta değil.`, 409, 'PRODUCT_NOT_ACTIVE');
-    }
-    const available = Math.max(0, Number(inv.stock_on_hand || 0) - Number(inv.stock_reserved || 0));
-    if (!inv.allow_backorder && available < Number(item.quantity || 1)) {
-      throw new CheckoutError('Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', 409, 'INSUFFICIENT_STOCK');
-    }
-  }
 }
 
 async function applyCoupon(context, cart, subtotal, couponCode, customer = {}, user = null) {
@@ -737,7 +730,12 @@ export async function onRequestPost(context) {
       });
       reservedOrderId = orderId;
     } catch (reservationError) {
-      throw new CheckoutError(reservationError.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.', reservationError.status || 409, reservationError.code || 'INSUFFICIENT_STOCK');
+      throw new CheckoutError(
+        reservationError.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.',
+        reservationError.status || 409,
+        reservationError.code || 'INSUFFICIENT_STOCK',
+        { error: 'stock_unavailable', items: cart.map((item) => ({ product_id: item.product_id, slug: item.product_slug, name: item.product_name, requested_quantity: item.quantity, available_quantity: null, reason: 'reservation_failed' })) }
+      );
     }
 
     const orderPayload = {
@@ -1062,7 +1060,18 @@ export async function onRequestPost(context) {
       await releaseInventoryReservations(context, reservedOrderId, 'checkout_failed_before_order_persisted').catch(() => null);
     }
     if (error instanceof CheckoutError) {
-      return json({ ok: false, code: error.code, error: error.message }, { status: error.status, headers: { 'Cache-Control': 'no-store, max-age=0' } });
+      const payload = {
+        ok: false,
+        code: error.code,
+        message: error.message
+      };
+      if (error.errorKey) {
+        payload.error = error.errorKey;
+        if (error.items) payload.items = error.items;
+      } else {
+        payload.error = error.message;
+      }
+      return json(payload, { status: error.status, headers: { 'Cache-Control': 'no-store, max-age=0' } });
     }
     console.error('Checkout create error:', { message: String(error?.message || 'unknown').slice(0, 220), code: error?.code || null });
     return json({ ok: false, code: 'CHECKOUT_INTERNAL_ERROR', error: 'Checkout başlatılamadı. Lütfen kısa süre sonra tekrar deneyin.' }, { status: 500, headers: { 'Cache-Control': 'no-store, max-age=0' } });

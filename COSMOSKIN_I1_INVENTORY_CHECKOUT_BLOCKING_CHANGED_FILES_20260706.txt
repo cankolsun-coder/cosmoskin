@@ -1,0 +1,36 @@
+COSMOSKIN I1 — Inventory Checkout Blocking — Changed Files (2026-07-06)
+
+MODIFIED
+- functions/api/_lib/inventory.js
+- functions/api/create-checkout.js
+- assets/inventory-client.js
+- assets/account-dashboard.js
+- assets/master-upgrade.js
+- assets/checkout-flow.js
+- tests/local-integration.test.mjs
+- scripts/validate-a1-admin-endpoint-coverage.mjs
+- scripts/validate-account-batch-4-loyalty-ledger.mjs
+
+CREATED
+- scripts/validate-i1-inventory-checkout-blocking.mjs
+- COSMOSKIN_I1_INVENTORY_CHECKOUT_BLOCKING_REPORT_20260706.md
+- COSMOSKIN_I1_INVENTORY_CHECKOUT_BLOCKING_RUNBOOK_20260706.md
+- COSMOSKIN_I1_INVENTORY_CHECKOUT_BLOCKING_ROLLBACK_PLAN_20260706.md
+- COSMOSKIN_I1_INVENTORY_CHECKOUT_BLOCKING_CHANGED_FILES_20260706.txt
+
+UNCHANGED (prior commit)
+- COSMOSKIN_I1_INVENTORY_CHECKOUT_BLOCKING_PLAN_20260706.md
+
+NOT CREATED
+- supabase/migrations/*
+- SQL scripts
+
+NOT MODIFIED
+- admin auth / RBAC / JWT / session files
+- coupon eligibility logic (C1)
+- refund logic (D1/D2/D2B)
+- bank transfer B1/B2 logic
+- email sending behavior
+- return attachment logic
+- loyalty ledger logic
+- unrelated admin UI

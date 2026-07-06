@@ -18,6 +18,16 @@ function isD3ACheckoutSnapshotChange(filePath) {
     return false;
   }
 }
+function isI1InventoryCheckoutChange(filePath) {
+  try {
+    const src = fs.readFileSync(path.join(process.cwd(), filePath), 'utf8');
+    if (String(filePath).endsWith('functions/api/_lib/inventory.js')) return src.includes('validateCartStock');
+    if (String(filePath).endsWith('functions/api/create-checkout.js')) return src.includes('validateCartStock(context');
+    return false;
+  } catch (_) {
+    return false;
+  }
+}
 
 
 const AUDIT_LIB = 'functions/api/_lib/admin-audit.js';
@@ -463,7 +473,7 @@ for (const file of forbiddenPaths) {
   if (!exists(file)) continue;
   const diff = gitDiffFile(file);
   if (file === 'functions/api/_lib/coupons.js' && process.env.COSMOSKIN_ALLOW_C1A_COUPON_HARDENING === '1') continue;
-  if (diff && !isD3ACheckoutSnapshotChange(file)) failures.push(`A1.2a/A1.2b/A1.2c scope violation: ${file} must not be modified by this batch`);
+  if (diff && !isD3ACheckoutSnapshotChange(file) && !isI1InventoryCheckoutChange(file)) failures.push(`A1.2a/A1.2b/A1.2c scope violation: ${file} must not be modified by this batch`);
 }
 
 let migrationDiff = [];

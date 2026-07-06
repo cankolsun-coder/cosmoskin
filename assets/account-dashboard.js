@@ -425,9 +425,18 @@
   function stockInfo(product) {
     product = product || {};
     var raw = String(product.stock || product.stock_status || product.inventory_status || product.status || '').toLowerCase();
-    if (['out','out_of_stock','sold_out','unavailable','tükendi','stokta_yok'].includes(raw)) return { sellable: false, label: 'Stok bekleniyor', className: 'is-out' };
-    if (['in','in_stock','available','stokta','active','true'].includes(raw)) return { sellable: true, label: 'Stokta', className: 'is-in' };
-    return { sellable: true, label: 'Stok kontrolü', className: 'is-unknown' };
+    if (['out','out_of_stock','sold_out','unavailable','tükendi','stokta_yok'].includes(raw)) return { sellable: false, label: 'Stok bekleniyor', className: 'is-out', buttonLabel: 'Stokta yok' };
+    if (['in','in_stock','available','stokta','active','true'].includes(raw)) return { sellable: true, label: 'Stokta', className: 'is-in', buttonLabel: 'Sepete Ekle' };
+    return { sellable: false, label: 'Stok kontrol ediliyor', className: 'is-unknown', buttonLabel: 'Stok kontrol ediliyor' };
+  }
+  function liveStockState(product, opts) {
+    opts = opts || {};
+    product = product || {};
+    var slug = product.product_slug || product.id || '';
+    if (opts.useLiveStock && window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.favoriteStockState === 'function') {
+      return window.COSMOSKIN_STOCK.favoriteStockState(slug);
+    }
+    return stockInfo(product);
   }
   function scoreProduct(product, sp) {
     product = product || {}; sp = sp || skinProfile();
@@ -655,16 +664,21 @@
   }
   function productCard(product, opts) {
     product = normalizeProduct(product) || {}; opts = opts || {};
-    var stock = stockInfo(product); var slug = product.product_slug || product.id || '';
+    var slug = product.product_slug || product.id || '';
+    var stock = liveStockState(product, opts);
     var isFavorite = Boolean(opts.favoriteId || opts.isFavorite);
     var stockLine = '';
-    if (!opts.hideStock && !isFavorite && stock.label !== 'Stok kontrolü') {
-      stockLine = '<em class="cs-stock-dot ' + escapeHtml(stock.className) + '">' + escapeHtml(stock.label) + '</em>';
+    if (!opts.hideStock) {
+      if (opts.useLiveStock && isFavorite && stock.label) {
+        stockLine = '<em class="cs-stock-dot ' + escapeHtml(stock.className) + '">' + escapeHtml(stock.label) + '</em>';
+      } else if (!isFavorite && stock.label !== 'Stok kontrolü') {
+        stockLine = '<em class="cs-stock-dot ' + escapeHtml(stock.className) + '">' + escapeHtml(stock.label) + '</em>';
+      }
     }
     return '<article class="cs-product-mini' + (isFavorite ? ' cs-product-mini--favorite' : '') + '">' +
       '<a class="cs-product-mini__media" href="' + escapeHtml(product.url || '/allproducts.html') + '"><img src="' + escapeHtml(product.image || '/assets/logo-mark-beige.png') + '" alt="' + escapeHtml(product.product_name || 'Ürün') + '" loading="lazy"></a>' +
       '<div class="cs-product-mini__body"><small>' + escapeHtml(product.brand || 'COSMOSKIN') + '</small><a href="' + escapeHtml(product.url || '/allproducts.html') + '"><strong>' + escapeHtml(product.product_name || 'Ürün') + '</strong></a><p>' + escapeHtml(product.category || 'K-Beauty seçkisi') + '</p>' +
-      '<div class="cs-product-mini__bottom"><b>' + escapeHtml(formatMoney(product.price || 0)) + '</b><button class="cs-mini-btn dark" type="button" data-add-product-cart="' + escapeHtml(slug) + '" ' + (!stock.sellable ? 'disabled aria-disabled="true"' : '') + '>Sepete Ekle</button>' + heartButtonHtml(slug, opts) + '</div>' +
+      '<div class="cs-product-mini__bottom"><b>' + escapeHtml(formatMoney(product.price || 0)) + '</b><button class="cs-mini-btn dark" type="button" data-add-product-cart="' + escapeHtml(slug) + '" ' + (!stock.sellable ? 'disabled aria-disabled="true"' : '') + '>' + escapeHtml(stock.buttonLabel || (stock.sellable ? 'Sepete Ekle' : 'Stokta yok')) + '</button>' + heartButtonHtml(slug, opts) + '</div>' +
       stockLine + '</div></article>';
   }
   function couponMiniCard() {
@@ -884,10 +898,42 @@
       return p ? Object.assign({ favorite_id: isUuid(f.id || f.favorite_id) ? (f.id || f.favorite_id) : '', product_slug: p.product_slug || f.product_slug || f.product_id || key }, p) : null;
     }).filter(Boolean);
   }
+  function refreshFavoritesStock() {
+    var favs = uniqueFavoriteList();
+    if (!favs.length || !window.COSMOSKIN_STOCK || typeof window.COSMOSKIN_STOCK.loadInventory !== 'function') return;
+    var slugs = favs.map(function (p) { return p.product_slug || p.id; }).filter(Boolean);
+    window.COSMOSKIN_STOCK.loadInventory(slugs).then(function () {
+      if (state.activeTab !== 'favorites') return;
+      var grid = document.querySelector('#favoritesPanel .cs-favorites-grid');
+      if (!grid) return;
+      favs.forEach(function (p) {
+        var slug = p.product_slug || p.id || '';
+        var stock = window.COSMOSKIN_STOCK.favoriteStockState(slug);
+        var btn = grid.querySelector('[data-add-product-cart="' + slug.replace(/"/g, '\\"') + '"]');
+        if (btn) {
+          btn.disabled = !stock.sellable;
+          btn.setAttribute('aria-disabled', stock.sellable ? 'false' : 'true');
+          btn.textContent = stock.buttonLabel || (stock.sellable ? 'Sepete Ekle' : 'Stokta yok');
+        }
+        var card = btn && btn.closest('.cs-product-mini');
+        if (card) {
+          var dot = card.querySelector('.cs-stock-dot');
+          if (!dot && stock.label) {
+            var body = card.querySelector('.cs-product-mini__body');
+            if (body) body.insertAdjacentHTML('beforeend', '<em class="cs-stock-dot ' + escapeHtml(stock.className) + '">' + escapeHtml(stock.label) + '</em>');
+          } else if (dot) {
+            dot.textContent = stock.label;
+            dot.className = 'cs-stock-dot ' + stock.className;
+          }
+        }
+      });
+    }).catch(function () {});
+  }
   function renderFavorites() {
     var el = $('#favoritesPanel'); if (!el) return;
     var favs = uniqueFavoriteList();
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Favorilerim</h1><p>Favorilediğiniz ürünleri tek yerden yönetin. Anasayfa, Favoriler ve Hesabım aynı favori kaynağıyla senkronize edilir.</p></div><a class="cs-pill-btn" href="/allproducts.html">Ürünleri Keşfet</a></div>' + (favs.length ? '<div class="cs-product-mini-row cs-favorites-grid" data-favorites-count="' + favs.length + '">' + favs.map(function (p) { return productCard(p, { favoriteId: p.favorite_id, favoriteSlug: p.product_slug, isFavorite: true, hideStock: true }); }).join('') + '</div>' : emptyState('Favori ürününüz bulunmuyor.', 'Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.', 'Ürünleri Keşfet', '/allproducts.html'));
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Favorilerim</h1><p>Favorilediğiniz ürünleri tek yerden yönetin. Anasayfa, Favoriler ve Hesabım aynı favori kaynağıyla senkronize edilir.</p></div><a class="cs-pill-btn" href="/allproducts.html">Ürünleri Keşfet</a></div>' + (favs.length ? '<div class="cs-product-mini-row cs-favorites-grid" data-favorites-count="' + favs.length + '">' + favs.map(function (p) { return productCard(p, { favoriteId: p.favorite_id, favoriteSlug: p.product_slug, isFavorite: true, useLiveStock: true }); }).join('') + '</div>' : emptyState('Favori ürününüz bulunmuyor.', 'Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.', 'Ürünleri Keşfet', '/allproducts.html'));
+    refreshFavoritesStock();
   }
   function renderInvoices() {
     var el = $('#invoicesPanel'); if (!el) return; var rows = [];
@@ -1073,7 +1119,7 @@
     $('#accountNav')?.addEventListener('click', function (e) { var a = e.target.closest('[data-tab]'); if (!a) return; e.preventDefault(); switchTab(a.dataset.tab, true); });
     document.addEventListener('click', function (e) {
       var tab = e.target.closest('[data-tab-link]'); if (tab) { e.preventDefault(); switchTab(tab.dataset.tabLink, true); }
-      var add = e.target.closest('[data-add-product-cart]'); if (add) { addToCart(getProductByHandle(add.dataset.addProductCart)); }
+      var add = e.target.closest('[data-add-product-cart]'); if (add) { e.preventDefault(); addToCart(getProductByHandle(add.dataset.addProductCart)).catch(handleError); }
       var fav = e.target.closest('[data-add-favorite]'); if (fav) { addFavorite(fav.dataset.addFavorite).catch(handleError); }
       var remFav = e.target.closest('[data-remove-favorite]'); if (remFav) { removeFavorite(remFav.dataset.removeFavorite, remFav.dataset.removeFavoriteSlug).catch(handleError); }
       var couponFilter = e.target.closest('[data-coupon-filter]'); if (couponFilter) { e.preventDefault(); var tabs = couponFilter.closest('[data-coupon-tabs]'); if (tabs) { $$('.cs-tabstrip button', tabs).forEach(function (b) { b.classList.toggle('is-active', b === couponFilter); }); $$('[data-coupon-panel]', tabs).forEach(function (panel) { panel.hidden = panel.dataset.couponPanel !== couponFilter.dataset.couponFilter; }); } }
@@ -1109,10 +1155,16 @@
     window.addEventListener('popstate', function () { switchTab(new URL(window.location.href).searchParams.get('tab') || 'overview', false); });
   }
 
-  function addToCart(product) {
+  async function addToCart(product) {
     product = normalizeProduct(product);
     if (!product) return showToast('Ürün bilgisi bulunamadı.', 'warning');
-    if (!stockInfo(product).sellable) return showToast('Bu ürün için stok bilgisi doğrulanmadan sepete eklenemez.', 'warning');
+    var slug = product.product_slug || product.id || '';
+    if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.validateAdd === 'function') {
+      var allowed = await window.COSMOSKIN_STOCK.validateAdd({ product_slug: slug, quantity: 1 });
+      if (!allowed) return;
+    } else if (!stockInfo(product).sellable) {
+      return showToast('Bu ürün şu anda stokta yok.', 'warning');
+    }
     var cart = []; try { cart = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]'); } catch (_) {}
     if (!Array.isArray(cart)) cart = [];
     var existing = cart.find(function (i) { return i.slug === product.product_slug || i.id === product.product_slug; });

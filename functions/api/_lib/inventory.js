@@ -85,6 +85,24 @@ export async function getInventoryMap(context, slugs = []) {
   return new Map(rows.map((row) => [row.product_slug, row]));
 }
 
+export const STOCK_VALIDATION_MESSAGES = {
+  cart_unavailable: 'Sepetinizde stokta olmayan ürünler var.',
+  remove_before_checkout: 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.',
+  out_of_stock: 'Bu ürün şu anda stokta yok.',
+  insufficient_stock: 'Bu miktar için yeterli stok bulunmuyor.',
+  product_inactive: 'Bu ürün şu anda satışta değil.',
+  product_not_found: 'Ürün bulunamadı.',
+  cart_invalid: 'Sepet boş veya geçersiz.'
+};
+
+export function stockBlockReason(product, inv, quantity, available, backorder) {
+  if (!product || !inv) return 'product_not_found';
+  if (inv.status !== 'active') return 'product_inactive';
+  if (!backorder && available <= 0) return 'out_of_stock';
+  if (!backorder && available < quantity) return 'insufficient_stock';
+  return null;
+}
+
 export function buildCheckItem(raw = {}, invMap = new Map()) {
   const slug = normalizeSlug(raw.product_slug || raw.slug || raw.id || raw.product_id);
   const quantity = Math.max(1, Math.floor(Number(raw.quantity ?? raw.qty ?? 1) || 1));
@@ -93,24 +111,87 @@ export function buildCheckItem(raw = {}, invMap = new Map()) {
   const available = inv ? inv.available_stock : 0;
   const active = inv ? inv.status === 'active' : false;
   const backorder = inv ? inv.allow_backorder : false;
-  let can_purchase = Boolean(product && active && (backorder || available >= quantity));
+  const reason = stockBlockReason(product, inv, quantity, available, backorder);
+  const can_purchase = !reason;
   let message = 'Stokta';
-  if (!product) {
-    can_purchase = false;
-    message = 'Ürün bulunamadı.';
-  } else if (!active) {
-    can_purchase = false;
-    message = 'Bu ürün şu anda satışta değil.';
-  } else if (!backorder && available <= 0) {
-    can_purchase = false;
-    message = 'Bu ürün şu anda stokta yok. Favorilerine ekleyerek tekrar geldiğinde haber alabilirsin.';
-  } else if (!backorder && available < quantity) {
-    can_purchase = false;
-    message = `Bu ürün için şu anda yalnızca ${available} adet satın alınabilir.`;
+  if (reason === 'product_not_found') {
+    message = STOCK_VALIDATION_MESSAGES.product_not_found;
+  } else if (reason === 'product_inactive') {
+    message = STOCK_VALIDATION_MESSAGES.product_inactive;
+  } else if (reason === 'out_of_stock') {
+    message = STOCK_VALIDATION_MESSAGES.out_of_stock;
+  } else if (reason === 'insufficient_stock') {
+    message = STOCK_VALIDATION_MESSAGES.insufficient_stock;
   } else if (available > 0 && inv && available <= inv.low_stock_threshold) {
     message = 'Son ürünler.';
   }
-  return { product_slug: slug, quantity, available_stock: available, can_purchase, message };
+  return {
+    product_slug: slug,
+    product_id: product?.id || slug || null,
+    slug,
+    name: raw.product_name || raw.name || product?.name || slug,
+    quantity,
+    requested_quantity: quantity,
+    available_stock: available,
+    available_quantity: available,
+    can_purchase,
+    reason: reason || null,
+    message
+  };
+}
+
+export function stockValidationCode(reason) {
+  if (reason === 'product_not_found') return 'INVENTORY_NOT_FOUND';
+  if (reason === 'product_inactive') return 'PRODUCT_NOT_ACTIVE';
+  if (reason === 'out_of_stock') return 'OUT_OF_STOCK';
+  if (reason === 'insufficient_stock') return 'INSUFFICIENT_STOCK';
+  if (reason === 'reservation_failed') return 'INSUFFICIENT_STOCK';
+  if (reason === 'cart_invalid') return 'INVALID_CART_ITEM';
+  return 'INSUFFICIENT_STOCK';
+}
+
+export async function validateCartStock(context, cartLines = []) {
+  if (!Array.isArray(cartLines) || !cartLines.length) {
+    return {
+      ok: false,
+      error: 'cart_invalid',
+      message: STOCK_VALIDATION_MESSAGES.cart_invalid,
+      items: []
+    };
+  }
+  const slugs = Array.from(new Set(cartLines.map((line) => normalizeSlug(line.product_slug || line.slug || line.product_id || line.id)).filter(Boolean)));
+  if (!slugs.length) {
+    return {
+      ok: false,
+      error: 'cart_invalid',
+      message: STOCK_VALIDATION_MESSAGES.cart_invalid,
+      items: []
+    };
+  }
+  const invMap = await getInventoryMap(context, slugs);
+  const items = cartLines.map((line) => buildCheckItem(line, invMap));
+  const blocked = items.filter((item) => !item.can_purchase);
+  if (!blocked.length) {
+    return { ok: true, can_purchase: true, items };
+  }
+  const onlyInsufficient = blocked.length === 1 && blocked[0].reason === 'insufficient_stock';
+  const message = onlyInsufficient
+    ? STOCK_VALIDATION_MESSAGES.insufficient_stock
+    : STOCK_VALIDATION_MESSAGES.cart_unavailable;
+  return {
+    ok: false,
+    error: 'stock_unavailable',
+    message,
+    items: blocked.map((item) => ({
+      product_id: item.product_id || item.product_slug,
+      slug: item.slug || item.product_slug,
+      name: item.name || item.product_slug,
+      requested_quantity: item.requested_quantity ?? item.quantity,
+      available_quantity: item.available_quantity ?? item.available_stock,
+      reason: item.reason || 'out_of_stock',
+      message: item.message
+    }))
+  };
 }
 
 export function assertAdminInventoryPayload(body = {}) {

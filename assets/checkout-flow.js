@@ -25,6 +25,8 @@
   var state = loadState();
   var cart = { key: CART_KEYS[0], data: [], items: [], found: false };
   var inventoryWarning = '';
+  var stockBlocked = false;
+  var stockValidationInFlight = false;
   var submitLocked = false;
   var currentUser = null;
   var savedAddresses = [];
@@ -589,12 +591,26 @@
   }
   async function validateStockSoft() {
     inventoryWarning = '';
-    if (!cart.items.length) return false;
+    if (!cart.items.length) {
+      stockBlocked = true;
+      return false;
+    }
     var payload = cart.items.map(function (item) {
       return { product_slug: item.slug || item.id, quantity: item.qty };
     });
     try {
       var data = null;
+      if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.validateCartPurchasable === 'function') {
+        var gate = await window.COSMOSKIN_STOCK.validateCartPurchasable(cart.items);
+        if (!gate.ok) {
+          stockBlocked = true;
+          inventoryWarning = gate.actionMessage || 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.';
+          setStatus(gate.message || 'Sepetinizde stokta olmayan ürünler var.', 'error');
+          return false;
+        }
+        stockBlocked = false;
+        return true;
+      }
       if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.checkItems === 'function') {
         data = await window.COSMOSKIN_STOCK.checkItems(payload);
       } else {
@@ -608,14 +624,32 @@
       }
       var blocked = data && ((data.items || []).find(function (item) { return item && item.can_purchase === false; }) || data.can_purchase === false);
       if (blocked) {
-        setStatus((blocked && blocked.message) || 'Sepetinizdeki bir ürün artık stokta bulunmuyor. Devam etmek için sepetinizi güncelleyin.', 'error');
+        stockBlocked = true;
+        inventoryWarning = 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.';
+        setStatus((blocked && blocked.message) || 'Sepetinizde stokta olmayan ürünler var.', 'error');
         return false;
       }
+      stockBlocked = false;
       return true;
     } catch (_) {
-      inventoryWarning = 'Stok bilgisi doğrulanamadı. Lütfen sepetinizi kontrol edip tekrar deneyin.';
-      setStatus(inventoryWarning, 'error');
+      stockBlocked = true;
+      inventoryWarning = 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.';
+      setStatus('Stok bilgisi doğrulanamadı. Lütfen sepetinizi kontrol edip tekrar deneyin.', 'error');
       return false;
+    }
+  }
+  async function refreshStockGate() {
+    if (stockValidationInFlight) return !stockBlocked;
+    if (!cart.items.length || state.step === 'success') {
+      stockBlocked = false;
+      inventoryWarning = '';
+      return true;
+    }
+    stockValidationInFlight = true;
+    try {
+      return await validateStockSoft();
+    } finally {
+      stockValidationInFlight = false;
     }
   }
   function normalizeIban(value) { return String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase(); }
@@ -751,6 +785,10 @@
 
   async function submitOrder() {
     if (submitLocked) return;
+    if (!await refreshStockGate()) {
+      render({ skipAuth: true });
+      return;
+    }
     submitLocked = true;
     renderSummary();
     setStatus(state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor...' : 'Ödeme başlatılıyor...', '');
@@ -1133,6 +1171,10 @@
       host.innerHTML = '<section class="cs-checkout-empty cs-checkout-empty--commerce"><div class="cs-checkout-empty-mark">' + icon('box') + '</div><h2>Sepetin boş</h2><p class="cs-checkout-note">Checkout’a devam etmek için sepetine ürün eklemelisin. Sana uygun ürünleri keşfedebilir veya favorilerine göz atabilirsin.</p><div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/allproducts.html">Ürünleri Keşfet</a><a class="cs-checkout-secondary" href="/account/profile.html?tab=favorites">Favorilerime Git</a><a class="cs-checkout-secondary" href="/collections/bestsellers.html">Çok Satanları Gör</a></div><p class="cs-checkout-empty-trust">Orijinal ürün · Güvenli ödeme · Kolay iade süreci</p></section>';
       return;
     }
+    if (stockBlocked && cart.items.length && state.step !== 'success') {
+      host.innerHTML = '<section class="cs-checkout-empty cs-checkout-empty--commerce"><div class="cs-checkout-empty-mark">' + icon('box') + '</div><h2>Stok doğrulaması gerekli</h2><p class="cs-checkout-note">Sepetinizde stokta olmayan ürünler var. Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.</p><div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/cart.html">Sepete Dön</a><a class="cs-checkout-secondary" href="/allproducts.html">Alışverişe Devam Et</a></div></section>';
+      return;
+    }
     if (state.step === 'payment') host.innerHTML = renderPayment();
     else if (state.step === 'review') host.innerHTML = renderReview();
     else if (state.step === 'success') host.innerHTML = renderSuccess();
@@ -1172,10 +1214,12 @@
     if (!action) return;
     var label = state.step === 'delivery' ? 'Ödeme Adımına Geç' : state.step === 'payment' ? 'Siparişi Kontrol Et' : state.step === 'review' ? (state.paymentMethod === 'bank_transfer' ? 'Siparişi Oluştur' : 'Siparişi Onayla ve Güvenli Ödemeye Geç') : 'Alışverişe Devam Et';
     action.textContent = submitLocked ? (state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor…' : 'Güvenli ödeme hazırlanıyor…') : label;
-    action.disabled = submitLocked || (!summaryItems.length && state.step !== 'success') || (state.paymentMethod === 'bank_transfer' && state.step !== 'delivery' && state.step !== 'success' && !bankConfig().configured);
+    action.disabled = submitLocked || stockBlocked || (!summaryItems.length && state.step !== 'success') || (state.paymentMethod === 'bank_transfer' && state.step !== 'delivery' && state.step !== 'success' && !bankConfig().configured);
     action.setAttribute('aria-busy', submitLocked ? 'true' : 'false');
     var note = byId('csCheckoutActionNote');
-    if (note) note.textContent = state.step === 'success'
+    if (note) note.textContent = stockBlocked
+      ? 'Sepetinizde stokta olmayan ürünler var. Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.'
+      : state.step === 'success'
       ? 'Siparişin oluşturuldu. Siparişlerim alanından takip edebilirsin.'
       : state.step === 'review' && state.paymentMethod === 'bank_transfer'
         ? 'Havale/EFT siparişleri ödeme bekleniyor durumuyla oluşturulur.'
@@ -1368,7 +1412,9 @@
       render();
     });
     window.addEventListener('storage', function () { render(); });
-    document.addEventListener('cosmoskin:cart:updated', function () { render(); revalidateCouponAfterCartChange(); });
+    document.addEventListener('cosmoskin:cart:updated', function () {
+      refreshStockGate().then(function () { render(); revalidateCouponAfterCartChange(); });
+    });
   }
   async function nextAction() {
     if (state.step === 'delivery') {
@@ -1437,7 +1483,9 @@
     if (state.step === 'success') state.order = state.order || readJSON(ORDER_KEY, null);
     saveState();
     bind();
-    fetchBankAccountConfig().then(function () { render({ skipAuth: true }); });
+    fetchBankAccountConfig().then(function () {
+      refreshStockGate().then(function () { render({ skipAuth: true }); });
+    });
     document.addEventListener('cosmoskin:auth-state', function (event) {
       currentUser = event.detail && event.detail.user || null;
       addressSyncLoaded = false;
