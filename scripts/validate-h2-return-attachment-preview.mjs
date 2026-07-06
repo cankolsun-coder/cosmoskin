@@ -375,15 +375,18 @@ for (const file of forbiddenPaths) {
 //     regress any prior batch's guarantees.
 // ---------------------------------------------------------------------------
 const chainedValidators = ['scripts/validate-h1-return-attachment-storage-rls.mjs'];
-for (const script of chainedValidators) {
-  if (!exists(script)) {
-    failures.push(`Guardrail missing: ${script} not found`);
-    continue;
-  }
-  try {
-    execSync(`node ${JSON.stringify(script)}`, { cwd: root, stdio: 'pipe' });
-  } catch (error) {
-    failures.push(`Prior validator failed: ${script}\n${(error.stdout || '').toString()}${(error.stderr || '').toString()}`);
+if (!process.env.COSMOSKIN_SKIP_VALIDATOR_CHAIN) {
+  const chainEnv = { ...process.env, COSMOSKIN_SKIP_VALIDATOR_CHAIN: '1' };
+  for (const script of chainedValidators) {
+    if (!exists(script)) {
+      failures.push(`Guardrail missing: ${script} not found`);
+      continue;
+    }
+    try {
+      execSync(`node ${JSON.stringify(script)}`, { cwd: root, stdio: 'inherit', env: chainEnv });
+    } catch (error) {
+      failures.push(`Prior validator failed: ${script}\n${(error.stdout || '').toString()}${(error.stderr || '').toString()}`);
+    }
   }
 }
 

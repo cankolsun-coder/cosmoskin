@@ -301,7 +301,7 @@ for (const script of priorValidators) {
     continue;
   }
   try {
-    execSync(`node ${JSON.stringify(script)}`, { cwd: root, stdio: 'pipe' });
+    execSync(`node ${JSON.stringify(script)}`, { cwd: root, stdio: 'inherit' });
   } catch (error) {
     failures.push(`Prior validator failed: ${script}\n${error.stdout?.toString() || error.message}`);
   }

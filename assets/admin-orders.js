@@ -626,6 +626,95 @@
     var discount = Number(order.discount_amount || 0);
     return Math.max(0, Math.round((subtotal - discount) * 100) / 100);
   }
+  function allocateOrderDiscount(orderItems, discountAmount, productSubtotal) {
+    var items = (orderItems || []).filter(function (row) { return Number(row.line_total || 0) > 0; });
+    var subtotal = productSubtotal != null ? Number(productSubtotal) : items.reduce(function (sum, row) { return sum + Math.max(0, Number(row.line_total || 0)); }, 0);
+    subtotal = Math.round(subtotal * 100) / 100;
+    var discount = Math.max(0, Math.min(subtotal, Number(discountAmount || 0)));
+    discount = Math.round(discount * 100) / 100;
+    if (!items.length || subtotal <= 0 || discount <= 0) {
+      return items.map(function (item) {
+        var lineSubtotal = Math.round(Number(item.line_total || 0) * 100) / 100;
+        return { orderItemId: String(item.id || ''), lineSubtotal: lineSubtotal, allocatedDiscount: 0, linePaidTotal: lineSubtotal, quantity: Math.max(1, Number(item.quantity || 1)) };
+      });
+    }
+    var allocatedSum = 0;
+    return items.map(function (item, index) {
+      var lineSubtotal = Math.round(Number(item.line_total || 0) * 100) / 100;
+      var allocatedDiscount = 0;
+      if (index === items.length - 1) {
+        allocatedDiscount = Math.round((discount - allocatedSum) * 100) / 100;
+      } else {
+        allocatedDiscount = Math.round(discount * (lineSubtotal / subtotal) * 100) / 100;
+        allocatedSum = Math.round((allocatedSum + allocatedDiscount) * 100) / 100;
+      }
+      return {
+        orderItemId: String(item.id || ''),
+        lineSubtotal: lineSubtotal,
+        allocatedDiscount: allocatedDiscount,
+        linePaidTotal: Math.max(0, Math.round((lineSubtotal - allocatedDiscount) * 100) / 100),
+        quantity: Math.max(1, Number(item.quantity || 1))
+      };
+    });
+  }
+  function selectedReturnItems(form, order) {
+    if (!form) return [];
+    var select = form.querySelector('select[name="return_request_id"]');
+    if (!select || !select.value) return [];
+    var option = select.options[select.selectedIndex];
+    if (option && option.getAttribute('data-return-items')) {
+      try { return JSON.parse(option.getAttribute('data-return-items') || '[]'); } catch (_) { return []; }
+    }
+    var ret = (order.return_requests || []).find(function (r) { return String(r.id) === String(select.value); });
+    return Array.isArray(ret && ret.requested_items) ? ret.requested_items : [];
+  }
+  function resolveItemProration(order, returnItems) {
+    var items = itemsOf(order).filter(function (row) { return Number(row.line_total || 0) > 0; });
+    if (!returnItems || !returnItems.length || !items.length) {
+      return { active: false, itemCap: null, breakdown: null, fallback: false };
+    }
+    var linesSum = items.reduce(function (sum, row) { return sum + Math.max(0, Number(row.line_total || 0)); }, 0);
+    linesSum = Math.round(linesSum * 100) / 100;
+    var orderSubtotal = Number(order.subtotal_amount || 0);
+    var productSubtotal = orderSubtotal > 0 ? orderSubtotal : linesSum;
+    if (linesSum > 0 && orderSubtotal > 0 && Math.abs(linesSum - orderSubtotal) > 0.01) {
+      return { active: false, itemCap: null, breakdown: null, fallback: true };
+    }
+    var discount = Math.max(0, Number(order.discount_amount || 0));
+    var allocations = allocateOrderDiscount(items, discount, productSubtotal);
+    var byId = {};
+    var bySlug = {};
+    allocations.forEach(function (row) { byId[row.orderItemId] = row; });
+    items.forEach(function (item) {
+      var key = String(item.product_slug || item.product_id || '');
+      if (key) bySlug[key] = byId[String(item.id || '')];
+    });
+    var originalSubtotal = 0;
+    var allocatedDiscount = 0;
+    var itemCap = 0;
+    for (var i = 0; i < returnItems.length; i++) {
+      var ret = returnItems[i];
+      var alloc = (ret.order_item_id && byId[String(ret.order_item_id)]) || (ret.product_slug && bySlug[String(ret.product_slug)]) || (ret.product_id && bySlug[String(ret.product_id)]);
+      if (!alloc) return { active: false, itemCap: null, breakdown: null, fallback: false, unsafe: true };
+      var purchasedQty = Math.max(1, Number(alloc.quantity || 1));
+      var returnedQty = Number(ret.quantity || 0);
+      if (!returnedQty || returnedQty <= 0 || returnedQty > purchasedQty) {
+        return { active: false, itemCap: null, breakdown: null, fallback: false, unsafe: true };
+      }
+      var unitPaid = Math.round((alloc.linePaidTotal / purchasedQty) * 100) / 100;
+      var unitSubtotal = Math.round((alloc.lineSubtotal / purchasedQty) * 100) / 100;
+      var unitDiscount = Math.round((alloc.allocatedDiscount / purchasedQty) * 100) / 100;
+      originalSubtotal = Math.round((originalSubtotal + unitSubtotal * returnedQty) * 100) / 100;
+      allocatedDiscount = Math.round((allocatedDiscount + unitDiscount * returnedQty) * 100) / 100;
+      itemCap = Math.round((itemCap + unitPaid * returnedQty) * 100) / 100;
+    }
+    return {
+      active: true,
+      itemCap: itemCap,
+      fallback: false,
+      breakdown: { originalSubtotal: originalSubtotal, allocatedDiscount: allocatedDiscount, paidItemValue: itemCap }
+    };
+  }
   function readRefundFormState(form) {
     if (!form) return { responsibility: 'customer_preference', include_shipping_refund: false, shipping_refund_reason: '', full_order_refund: false };
     var fd = new FormData(form);
@@ -644,7 +733,7 @@
     if (state.responsibility === 'manual_review' && state.include_shipping_refund && state.shipping_refund_reason.trim()) return shipping;
     return 0;
   }
-  function refundBalanceSummary(order, formState) {
+  function refundBalanceSummary(order, formState, form) {
     var refunds = order.refunds || [];
     var state = formState || { responsibility: 'customer_preference', include_shipping_refund: false, shipping_refund_reason: '', full_order_refund: false };
     var productCap = resolveProductRefundableCap(order);
@@ -655,6 +744,13 @@
     var pending = Math.round(sumRefundAmountByStatus(refunds, ['pending']) * 100) / 100;
     var remaining = Math.max(0, Math.round((maxRefundable - completed - pending) * 100) / 100);
     var refundable = ['paid', 'refunded', 'partially_refunded'].indexOf(String(order.payment_status || '')) >= 0;
+    var returnItems = selectedReturnItems(form, order);
+    var proration = resolveItemProration(order, returnItems);
+    var effectiveRemaining = remaining;
+    if (proration.active && proration.itemCap != null) {
+      var clampedItemCap = Math.min(proration.itemCap, productCap);
+      effectiveRemaining = Math.max(0, Math.min(remaining, Math.round((clampedItemCap + shippingCap) * 100) / 100));
+    }
     return {
       paid: Number(order.total_amount || 0),
       productCap: productCap,
@@ -665,41 +761,59 @@
       completed: completed,
       pending: pending,
       remaining: remaining,
+      effectiveRemaining: effectiveRemaining,
       refundable: refundable,
-      responsibility: state.responsibility
+      responsibility: state.responsibility,
+      itemProrationActive: proration.active,
+      itemProrationFallback: proration.fallback,
+      itemProratedProductCap: proration.itemCap,
+      itemProrationBreakdown: proration.breakdown
     };
   }
-  function renderRefundBalanceSummary(order, formState) {
-    var balance = refundBalanceSummary(order, formState);
+  function renderRefundBalanceSummary(order, formState, form) {
+    var balance = refundBalanceSummary(order, formState, form);
     if (!balance.refundable) {
       return '<div class="cs-warning">Bu sipariş için iade tutarı oluşturulamaz; ödeme henüz alınmamış veya iade edilebilir durumda değil.</div>';
     }
-    return '<div class="cs-muted cs-refund-policy-copy"><p>Kargo bedeli standart ürün iadesine dahil edilmez.</p><p>Satıcı kaynaklı hata durumunda kargo bedeli iade kapsamına alınabilir.</p></div>' +
+    var prorationHtml = '';
+    if (balance.itemProrationActive && balance.itemProrationBreakdown) {
+      prorationHtml = infoCell('Orijinal ürün ara toplamı', formatMoney(balance.itemProrationBreakdown.originalSubtotal, order.currency)) +
+        infoCell('Dağıtılan indirim', formatMoney(balance.itemProrationBreakdown.allocatedDiscount, order.currency)) +
+        infoCell('Ödenen ürün tutarı', formatMoney(balance.itemProrationBreakdown.paidItemValue, order.currency)) +
+        infoCell('Maksimum iade edilebilir ürün tutarı', formatMoney(balance.effectiveRemaining, order.currency));
+    }
+    return '<div class="cs-muted cs-refund-policy-copy"><p>İndirim tutarı iade edilecek ürünlere oransal olarak dağıtılır.</p><p>İade tutarı müşterinin ürün için fiilen ödediği tutarı aşamaz.</p><p>Kargo bedeli standart ürün iadesine dahil edilmez.</p><p>Satıcı kaynaklı hata durumunda kargo bedeli iade kapsamına alınabilir.</p></div>' +
       '<div class="cs-grid-2 cs-refund-balance-summary">' +
       infoCell('Ödenen tutar', formatMoney(balance.paid, order.currency)) +
       infoCell('İade edilebilir ürün tutarı', formatMoney(balance.productCap, order.currency)) +
+      prorationHtml +
       infoCell('Kargo bedeli', formatMoney(balance.shippingAmount, order.currency)) +
       infoCell('Kargo iade kapsamı', balance.shippingIncluded ? ('Dahil (' + formatMoney(balance.shippingCap, order.currency) + ')') : 'Hariç') +
       infoCell('Tamamlanan iade', formatMoney(balance.completed, order.currency)) +
       infoCell('Bekleyen iade', formatMoney(balance.pending, order.currency)) +
-      infoCell('Kalan iade edilebilir ürün tutarı', formatMoney(balance.remaining, order.currency)) +
+      infoCell('Kalan iade edilebilir ürün tutarı', formatMoney(balance.effectiveRemaining, order.currency)) +
       '</div>';
   }
   function syncRefundFormBalance(form, order) {
     if (!form || !order) return;
     var state = readRefundFormState(form);
-    var balance = refundBalanceSummary(order, state);
-    form.setAttribute('data-remaining-refundable', String(balance.remaining));
+    var balance = refundBalanceSummary(order, state, form);
+    form.setAttribute('data-remaining-refundable', String(balance.effectiveRemaining));
     form.setAttribute('data-product-cap', String(balance.productCap));
     form.setAttribute('data-shipping-cap', String(balance.shippingCap));
     form.setAttribute('data-shipping-included', balance.shippingIncluded ? '1' : '0');
+    form.setAttribute('data-item-proration-active', balance.itemProrationActive ? '1' : '0');
     var amountInput = form.querySelector('input[name="amount"]');
     if (amountInput) {
-      amountInput.max = String(balance.remaining);
-      if (Number(amountInput.value || 0) > balance.remaining) amountInput.value = String(balance.remaining);
+      amountInput.max = String(balance.effectiveRemaining);
+      if (Number(amountInput.value || 0) > balance.effectiveRemaining) amountInput.value = String(balance.effectiveRemaining);
     }
     var manualShipping = form.querySelector('[data-manual-shipping-fields]');
     if (manualShipping) manualShipping.style.display = state.responsibility === 'manual_review' ? '' : 'none';
+    var summaryHost = form.querySelector('.cs-refund-balance-summary');
+    if (summaryHost && summaryHost.parentElement) {
+      summaryHost.parentElement.innerHTML = renderRefundBalanceSummary(order, state, form);
+    }
     updateRefundAmountHint(form);
   }
   function updateRefundAmountHint(form) {
@@ -711,7 +825,9 @@
     var shippingIncluded = form.getAttribute('data-shipping-included') === '1';
     var amount = Number(input.value || 0);
     if (amount > remaining + 0.001) {
-      hint.textContent = 'İade tutarı kalan iade edilebilir tutarı aşamaz.';
+      hint.textContent = form.getAttribute('data-item-proration-active') === '1'
+        ? 'İade tutarı müşterinin ürün için fiilen ödediği tutarı aşamaz.'
+        : 'İade tutarı kalan iade edilebilir tutarı aşamaz.';
       hint.classList.add('cs-error-box');
     } else {
       hint.textContent = 'Kalan iade edilebilir ürün tutarı: ' + formatMoney(remaining, form.getAttribute('data-currency') || 'TRY') + (shippingIncluded ? ' (kargo dahil)' : ' (kargo hariç)');
@@ -722,11 +838,14 @@
     var returns = order.return_requests || [];
     var refunds = order.refunds || [];
     var balance = refundBalanceSummary(order);
-    var defaultAmount = balance.refundable ? balance.remaining : 0;
+    var defaultAmount = balance.refundable ? balance.effectiveRemaining : 0;
     return '<section class="cs-detail-card"><h3>İade / Refund</h3>' + (returns.length ? '<div class="cs-record-list">' + returns.map(renderReturnRecord).join('') + '</div>' : '<p>Bu sipariş için iade talebi bulunmuyor.</p>') + '</section>' +
       '<section class="cs-detail-card"><h3>Refund kayıtları</h3>' + (refunds.length ? '<div class="cs-record-list">' + refunds.map(function (r) { return '<article class="cs-record"><div class="cs-record-head"><strong>' + escapeHtml(formatMoney(r.amount, r.currency || order.currency)) + '</strong>' + renderBadge('refund', r.status || 'pending') + '</div><small>' + escapeHtml(r.provider || 'manual') + ' · Ref: ' + escapeHtml(r.provider_reference || '—') + ' · ' + escapeHtml(formatDate(r.completed_at || r.created_at)) + '</small>' + (r.error_message ? '<div class="cs-error-box">' + escapeHtml(r.error_message) + '</div>' : '') + '</article>'; }).join('') + '</div>' : '<p>Refund kaydı bulunmuyor.</p>') + '</section>' +
       '<details class="cs-op-form"><summary>Refund kaydı oluştur</summary><form id="refundCreateForm" data-order-id="' + attr(order.id) + '" data-remaining-refundable="' + attr(defaultAmount) + '" data-product-cap="' + attr(balance.productCap) + '" data-shipping-cap="0" data-shipping-included="0" data-currency="' + attr(order.currency || 'TRY') + '"><div class="cs-warning">Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.</div>' + renderRefundBalanceSummary(order) +
-      '<div class="cs-form-grid"><label>İade talebi<select name="return_request_id"><option value="">Seçiniz</option>' + returns.map(function (r) { return '<option value="' + attr(r.id) + '">' + escapeHtml(r.reason || r.id) + '</option>'; }).join('') + '</select></label><label>İade sorumluluğu<select name="refund_responsibility"><option value="customer_preference">Müşteri tercihi</option><option value="seller_fault">Satıcı kaynaklı hata</option><option value="carrier_damage">Kargo / taşıma hasarı</option><option value="manual_review">Manuel inceleme</option></select></label><label class="span-2"><input type="checkbox" name="full_order_refund" /> Tam sipariş iadesi (politika uygunsa kargo dahil)</label><div class="span-2" data-manual-shipping-fields style="display:none"><label class="span-2"><input type="checkbox" name="include_shipping_refund" /> Kargo bedelini iade kapsamına al</label><label class="span-2">Kargo iade gerekçesi<input name="shipping_refund_reason" placeholder="Manuel onay gerekçesi" /></label></div><label>Tutar<input name="amount" type="number" min="0.01" step="0.01" max="' + attr(defaultAmount) + '" value="' + attr(defaultAmount) + '" /></label><label>Para birimi<input name="currency" value="' + attr(order.currency || 'TRY') + '" /></label><label>Durum<select name="status"><option value="pending">Bekliyor</option><option value="completed">Tamamlandı</option><option value="failed">Başarısız</option><option value="cancelled">İptal Edildi</option></select></label><label>Sağlayıcı referansı<input name="provider_reference" placeholder="Tamamlanan iade için zorunlu" /></label><label class="span-2">Not<textarea name="note" placeholder="Refund operasyon notu"></textarea></label></div><p class="cs-muted" data-refund-amount-hint>Kalan iade edilebilir ürün tutarı: ' + escapeHtml(formatMoney(defaultAmount, order.currency)) + '</p><div class="cs-form-actions"><span class="cs-muted">Tamamlandı seçilirse refund completed e-postası backend tarafından denenebilir.</span><button class="cs-btn cs-btn-dark" type="submit"' + (balance.refundable && defaultAmount > 0 ? '' : ' disabled') + '>Refund Kaydı Oluştur</button></div></form></details>';
+      '<div class="cs-form-grid"><label>İade talebi<select name="return_request_id"><option value="">Seçiniz</option>' + returns.map(function (r) {
+        var itemsJson = attr(JSON.stringify(Array.isArray(r.requested_items) ? r.requested_items : []));
+        return '<option value="' + attr(r.id) + '" data-return-items="' + itemsJson + '">' + escapeHtml(r.reason || r.id) + '</option>';
+      }).join('') + '</select></label><label>İade sorumluluğu<select name="refund_responsibility"><option value="customer_preference">Müşteri tercihi</option><option value="seller_fault">Satıcı kaynaklı hata</option><option value="carrier_damage">Kargo / taşıma hasarı</option><option value="manual_review">Manuel inceleme</option></select></label><label class="span-2"><input type="checkbox" name="full_order_refund" /> Tam sipariş iadesi (politika uygunsa kargo dahil)</label><div class="span-2" data-manual-shipping-fields style="display:none"><label class="span-2"><input type="checkbox" name="include_shipping_refund" /> Kargo bedelini iade kapsamına al</label><label class="span-2">Kargo iade gerekçesi<input name="shipping_refund_reason" placeholder="Manuel onay gerekçesi" /></label></div><label>Tutar<input name="amount" type="number" min="0.01" step="0.01" max="' + attr(defaultAmount) + '" value="' + attr(defaultAmount) + '" /></label><label>Para birimi<input name="currency" value="' + attr(order.currency || 'TRY') + '" /></label><label>Durum<select name="status"><option value="pending">Bekliyor</option><option value="completed">Tamamlandı</option><option value="failed">Başarısız</option><option value="cancelled">İptal Edildi</option></select></label><label>Sağlayıcı referansı<input name="provider_reference" placeholder="Tamamlanan iade için zorunlu" /></label><label class="span-2">Not<textarea name="note" placeholder="Refund operasyon notu"></textarea></label></div><p class="cs-muted" data-refund-amount-hint>Kalan iade edilebilir ürün tutarı: ' + escapeHtml(formatMoney(defaultAmount, order.currency)) + '</p><div class="cs-form-actions"><span class="cs-muted">Tamamlandı seçilirse refund completed e-postası backend tarafından denenebilir.</span><button class="cs-btn cs-btn-dark" type="submit"' + (balance.refundable && defaultAmount > 0 ? '' : ' disabled') + '>Refund Kaydı Oluştur</button></div></form></details>';
   }
   function renderReturnRecord(r) {
     return '<article class="cs-record"><div class="cs-record-head"><strong>' + escapeHtml(r.reason || 'İade talebi') + '</strong>' + renderBadge('return', r.status || 'requested') + '</div><small>' + escapeHtml(r.customer_note || 'Müşteri notu yok') + '</small><form class="returnUpdateForm" data-return-id="' + attr(r.id) + '"><div class="cs-form-grid"><label>İade durumu<select name="status">' + optionsHtml(RETURN_STATUSES.filter(notAll), r.status || 'requested') + '</select></label><label>Refund durumu<select name="refund_status"><option value="not_started"' + (r.refund_status === 'not_started' ? ' selected' : '') + '>Başlamadı</option><option value="pending"' + (r.refund_status === 'pending' ? ' selected' : '') + '>Bekliyor</option><option value="completed"' + (r.refund_status === 'completed' ? ' selected' : '') + '>Tamamlandı</option><option value="failed"' + (r.refund_status === 'failed' ? ' selected' : '') + '>Başarısız</option></select></label><label class="span-2">Admin notu<textarea name="admin_note">' + escapeHtml(r.admin_note || '') + '</textarea></label></div><div class="cs-action-row"><button class="cs-btn cs-btn-dark" type="submit">İade Sürecini Güncelle</button><button class="cs-btn" type="button" data-return-action="under_review" data-return-id="' + attr(r.id) + '">İncelemeye al</button><button class="cs-btn" type="button" data-return-action="approved" data-return-id="' + attr(r.id) + '">İadeyi onayla</button><button class="cs-btn cs-btn-danger" type="button" data-return-action="rejected" data-return-id="' + attr(r.id) + '">İadeyi reddet</button><button class="cs-btn" type="button" data-return-action="received" data-return-id="' + attr(r.id) + '">Ürün teslim alındı</button><button class="cs-btn cs-btn-danger" type="button" data-return-action="closed" data-return-id="' + attr(r.id) + '">Süreci kapat</button></div></form></article>';
@@ -805,7 +924,9 @@
       return;
     }
     if (amount > remaining + 0.001) {
-      showToast('Refund kaydı başarısız', 'İade tutarı kalan iade edilebilir tutarı aşamaz.', 'error');
+      showToast('Refund kaydı başarısız', form.getAttribute('data-item-proration-active') === '1'
+        ? 'İade tutarı müşterinin ürün için fiilen ödediği tutarı aşamaz.'
+        : 'İade tutarı kalan iade edilebilir tutarı aşamaz.', 'error');
       return;
     }
     var payload = {

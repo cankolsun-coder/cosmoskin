@@ -37,6 +37,8 @@ export const ERR_PAYMENT_MISMATCH = 'Ödeme tutarı sipariş toplamıyla uyuşmu
 export const ERR_PRODUCT_CAP_UNKNOWN = 'Ürün iade tavanı güvenli biçimde hesaplanamadı.';
 export const ERR_SHIPPING_APPROVAL_REQUIRED = 'Kargo bedeli iadesi için onay ve gerekçe zorunludur.';
 export const ERR_INVALID_RESPONSIBILITY = 'İade sorumluluk kategorisi geçersiz.';
+export const ERR_PRORATION_UNSAFE = 'İade tutarı güvenli şekilde hesaplanamadı. Lütfen sipariş kalemlerini kontrol edin.';
+export const ERR_AMOUNT_EXCEEDS_PAID_ITEM = 'İade tutarı müşterinin ürün için fiilen ödediği tutarı aşamaz.';
 
 function clean(v, m = 500) { return String(v || '').trim().slice(0, m); }
 function bool(v) { return v === true || v === 'true' || v === '1' || v === 'on'; }
@@ -168,13 +170,169 @@ export function computeRemainingRefundable(caps = {}, refunds = []) {
   };
 }
 
+export function resolveOrderDiscountAmount(order = {}, couponRedemptions = []) {
+  const fromOrder = roundMoney(order.discount_amount);
+  if (fromOrder != null && fromOrder >= 0) {
+    return { amount: fromOrder, source: 'orders.discount_amount' };
+  }
+  const redemption = (couponRedemptions || []).find((row) => {
+    const status = String(row?.status || '');
+    return status === 'used' || status === 'reserved';
+  });
+  const fromRedemption = roundMoney(redemption?.discount_amount);
+  if (fromRedemption != null && fromRedemption >= 0) {
+    return { amount: fromRedemption, source: 'coupon_redemptions.discount_amount' };
+  }
+  return { amount: 0, source: 'none' };
+}
+
+/**
+ * Proportional discount allocation — mirrors create-checkout buildIyzicoBasketItems().
+ * Last eligible line absorbs rounding remainder.
+ */
+export function allocateOrderDiscount(orderItems = [], discountAmount = 0, productSubtotal = null) {
+  const items = (orderItems || []).filter((row) => Number(row?.line_total) > 0);
+  const subtotal = roundMoney(
+    productSubtotal ?? items.reduce((sum, row) => sum + Math.max(0, Number(row?.line_total) || 0), 0)
+  ) ?? 0;
+  const discount = roundMoney(Math.max(0, Math.min(subtotal, Number(discountAmount) || 0))) ?? 0;
+
+  if (!items.length || subtotal <= 0 || discount <= 0) {
+    return items.map((item) => {
+      const lineSubtotal = roundMoney(item.line_total) ?? 0;
+      return {
+        orderItemId: String(item.id || ''),
+        lineSubtotal,
+        allocatedDiscount: 0,
+        linePaidTotal: lineSubtotal,
+        quantity: Math.max(1, Number(item.quantity) || 1)
+      };
+    });
+  }
+
+  let allocatedSum = 0;
+  return items.map((item, index) => {
+    const lineSubtotal = roundMoney(item.line_total) ?? 0;
+    let allocatedDiscount = 0;
+    if (index === items.length - 1) {
+      allocatedDiscount = roundMoney(discount - allocatedSum) ?? 0;
+    } else {
+      allocatedDiscount = roundMoney(discount * (lineSubtotal / subtotal)) ?? 0;
+      allocatedSum = roundMoney(allocatedSum + allocatedDiscount) ?? allocatedSum;
+    }
+    const linePaidTotal = roundMoney(Math.max(0, lineSubtotal - allocatedDiscount)) ?? 0;
+    return {
+      orderItemId: String(item.id || ''),
+      lineSubtotal,
+      allocatedDiscount,
+      linePaidTotal,
+      quantity: Math.max(1, Number(item.quantity) || 1)
+    };
+  });
+}
+
+function normalizeReturnItemsForProration(rows = []) {
+  return (rows || []).map((row) => ({
+    order_item_id: clean(row.order_item_id || row.id, 120) || null,
+    product_slug: clean(row.product_slug || row.product_id, 180) || null,
+    product_id: clean(row.product_id || row.product_slug, 180) || null,
+    quantity: Math.max(0, Number(row.quantity) || 0)
+  })).filter((row) => row.quantity > 0);
+}
+
+export function resolveItemProratedRefundableCap(order = {}, orderItems = [], returnItems = [], couponRedemptions = []) {
+  const normalizedReturnItems = normalizeReturnItemsForProration(returnItems);
+  if (!normalizedReturnItems.length) {
+    return { ok: true, active: false, itemCap: null, fallback: false };
+  }
+
+  const items = (orderItems || []).filter((row) => Number(row?.line_total) > 0);
+  if (!items.length) {
+    return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+  }
+
+  const linesSum = roundMoney(items.reduce((sum, row) => sum + Math.max(0, Number(row?.line_total) || 0), 0)) ?? 0;
+  const orderSubtotal = roundMoney(order.subtotal_amount);
+  const productSubtotal = orderSubtotal != null && orderSubtotal > 0 ? orderSubtotal : linesSum;
+
+  if (linesSum > 0 && orderSubtotal != null && Math.abs(linesSum - orderSubtotal) > 0.01) {
+    return { ok: true, active: false, itemCap: null, fallback: true, reason: 'subtotal_mismatch' };
+  }
+
+  const discount = resolveOrderDiscountAmount(order, couponRedemptions);
+  const allocations = allocateOrderDiscount(items, discount.amount, productSubtotal);
+  const byId = new Map(allocations.map((row) => [row.orderItemId, row]));
+  const bySlug = new Map(
+    items.map((item) => [String(item.product_slug || item.product_id || ''), byId.get(String(item.id || ''))]).filter(([key]) => key)
+  );
+
+  let originalSubtotal = 0;
+  let allocatedDiscount = 0;
+  let itemCap = 0;
+
+  for (const ret of normalizedReturnItems) {
+    const alloc = (ret.order_item_id && byId.get(String(ret.order_item_id)))
+      || (ret.product_slug && bySlug.get(String(ret.product_slug)))
+      || (ret.product_id && bySlug.get(String(ret.product_id)));
+    if (!alloc) return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+
+    const purchasedQty = Math.max(1, Number(alloc.quantity) || 1);
+    const returnedQty = Number(ret.quantity);
+    if (!Number.isFinite(returnedQty) || returnedQty <= 0 || returnedQty > purchasedQty) {
+      return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+    }
+
+    const unitSubtotal = roundMoney(alloc.lineSubtotal / purchasedQty) ?? 0;
+    const unitDiscount = roundMoney(alloc.allocatedDiscount / purchasedQty) ?? 0;
+    const unitPaid = roundMoney(alloc.linePaidTotal / purchasedQty) ?? 0;
+    const lineRefund = roundMoney(unitPaid * returnedQty) ?? 0;
+
+    originalSubtotal = roundMoney(originalSubtotal + unitSubtotal * returnedQty) ?? originalSubtotal;
+    allocatedDiscount = roundMoney(allocatedDiscount + unitDiscount * returnedQty) ?? allocatedDiscount;
+    itemCap = roundMoney(itemCap + lineRefund) ?? itemCap;
+  }
+
+  itemCap = roundMoney(Math.max(0, itemCap)) ?? 0;
+  return {
+    ok: true,
+    active: true,
+    itemCap,
+    fallback: false,
+    discountSource: discount.source,
+    breakdown: {
+      originalSubtotal: roundMoney(originalSubtotal) ?? 0,
+      allocatedDiscount: roundMoney(allocatedDiscount) ?? 0,
+      paidItemValue: itemCap
+    }
+  };
+}
+
+export function resolveEffectiveRemainingRefundable(balance = {}) {
+  const remaining = roundMoney(balance.remaining) ?? 0;
+  if (!balance.itemProrationActive || balance.itemProratedProductCap == null) {
+    return remaining;
+  }
+  const productCap = roundMoney(balance.productRefundableCap) ?? 0;
+  const shippingCap = roundMoney(balance.shippingRefundableCap) ?? 0;
+  const clampedItemCap = roundMoney(Math.min(balance.itemProratedProductCap, productCap)) ?? 0;
+  const itemMaxWithShipping = roundMoney(clampedItemCap + shippingCap) ?? clampedItemCap;
+  return Math.max(0, Math.min(remaining, itemMaxWithShipping));
+}
+
 export function validateRefundAmount(amount, balance) {
   const parsed = roundMoney(amount);
   if (parsed == null || parsed <= 0) {
     return { ok: false, error: ERR_AMOUNT_INVALID };
   }
-  const remaining = roundMoney(balance?.remaining);
-  if (remaining == null || parsed > remaining + 0.001) {
+  const effectiveRemaining = roundMoney(balance?.effectiveRemaining ?? balance?.remaining);
+  if (effectiveRemaining == null || parsed > effectiveRemaining + 0.001) {
+    if (
+      balance?.itemProrationActive
+      && balance?.itemProratedProductCap != null
+      && parsed <= (roundMoney(balance?.remaining) ?? 0) + 0.001
+    ) {
+      return { ok: false, error: ERR_AMOUNT_EXCEEDS_PAID_ITEM };
+    }
     return { ok: false, error: ERR_AMOUNT_EXCEEDS };
   }
   return { ok: true, amount: parsed };
@@ -251,13 +409,34 @@ async function loadRefundsForOrder(context, orderId) {
   }).catch(() => []);
 }
 
+async function loadReturnRequestItems(context, returnRequestId) {
+  if (!returnRequestId) return [];
+  return await selectRows(context, 'return_request_items', {
+    select: 'id,return_request_id,order_item_id,product_id,product_slug,quantity,unit_price_snapshot,refundable_amount',
+    return_request_id: `eq.${returnRequestId}`,
+    order: 'created_at.asc',
+    limit: '100'
+  }).catch(() => []);
+}
+
+async function loadCouponRedemptions(context, orderId) {
+  if (!orderId) return [];
+  return await selectRows(context, 'coupon_redemptions', {
+    select: 'id,order_id,code,discount_amount,status',
+    order_id: `eq.${orderId}`,
+    order: 'created_at.desc',
+    limit: '5'
+  }).catch(() => []);
+}
+
 export async function loadRefundBalanceContext(context, order, options = {}) {
   const returnRequestId = clean(options.return_request_id, 120) || null;
-  const [payments, refunds, orderItems, returnRequest] = await Promise.all([
+  const [payments, refunds, orderItems, returnRequest, couponRedemptions] = await Promise.all([
     loadPayments(context, order.id),
     loadRefundsForOrder(context, order.id),
     loadOrderItems(context, order.id),
-    returnRequestId ? loadReturnRequest(context, returnRequestId) : Promise.resolve(null)
+    returnRequestId ? loadReturnRequest(context, returnRequestId) : Promise.resolve(null),
+    loadCouponRedemptions(context, order.id)
   ]);
 
   const paid = resolvePaidAmount(order, payments);
@@ -267,16 +446,39 @@ export async function loadRefundBalanceContext(context, order, options = {}) {
   if (!caps.ok) return { ok: false, error: caps.error, payments, refunds, orderItems };
 
   const balance = computeRemainingRefundable(caps, refunds);
-  return {
+
+  let returnItems = [];
+  if (returnRequestId) {
+    returnItems = await loadReturnRequestItems(context, returnRequestId);
+    if (!returnItems.length && Array.isArray(returnRequest?.requested_items)) {
+      returnItems = returnRequest.requested_items;
+    }
+  }
+
+  const proration = resolveItemProratedRefundableCap(order, orderItems, returnItems, couponRedemptions);
+  if (!proration.ok) {
+    return { ok: false, error: proration.error, payments, refunds, orderItems, returnRequest, couponRedemptions };
+  }
+
+  const ctx = {
     ok: true,
     payments,
     refunds,
     orderItems,
     returnRequest,
+    returnItems,
+    couponRedemptions,
     paidAmount: paid.paidAmount,
     ...caps,
-    ...balance
+    ...balance,
+    itemProrationActive: Boolean(proration.active),
+    itemProrationFallback: Boolean(proration.fallback),
+    itemProratedProductCap: proration.itemCap,
+    itemProrationBreakdown: proration.breakdown || null,
+    discountSource: proration.discountSource || resolveOrderDiscountAmount(order, couponRedemptions).source
   };
+  ctx.effectiveRemaining = resolveEffectiveRemainingRefundable(ctx);
+  return ctx;
 }
 
 async function logRefundEmail(context, order, result) {
@@ -406,7 +608,13 @@ export async function onRequestPost(context) {
         include_shipping_refund: bool(body.include_shipping_refund),
         shipping_refund_reason: clean(body.shipping_refund_reason, 500) || null,
         full_order_refund: bool(body.full_order_refund),
-        product_cap_source: balanceCtx.productCapSource
+        product_cap_source: balanceCtx.productCapSource,
+        item_proration_active: balanceCtx.itemProrationActive,
+        item_proration_fallback: balanceCtx.itemProrationFallback,
+        item_prorated_product_cap: balanceCtx.itemProratedProductCap,
+        item_proration_breakdown: balanceCtx.itemProrationBreakdown,
+        discount_source: balanceCtx.discountSource,
+        effective_remaining_before: balanceCtx.effectiveRemaining
       }
     };
 
@@ -465,8 +673,11 @@ export async function onRequestPost(context) {
         max_refundable: balanceCtx.maxRefundable,
         completed_total: balanceCtx.completedTotal,
         pending_total: balanceCtx.pendingTotal,
-        remaining_refundable: roundMoney(balanceCtx.remaining - payload.amount),
-        refund_responsibility: balanceCtx.responsibility
+        remaining_refundable: roundMoney((balanceCtx.effectiveRemaining ?? balanceCtx.remaining) - payload.amount),
+        refund_responsibility: balanceCtx.responsibility,
+        item_prorated_product_cap: balanceCtx.itemProratedProductCap,
+        item_proration_active: balanceCtx.itemProrationActive,
+        effective_remaining_before: balanceCtx.effectiveRemaining
       },
       message: 'Refund kaydı oluşturuldu. Gerçek ödeme sağlayıcı refund işlemi çalıştırılmadı.'
     });

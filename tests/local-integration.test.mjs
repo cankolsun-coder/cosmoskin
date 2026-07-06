@@ -574,7 +574,7 @@ test('A1.2c: high-caution finance endpoints keep their business-logic markers al
   const refundsSrc = await fs.readFile(path.join(root, 'functions/api/admin/refunds.js'), 'utf8');
   const invoicesSrc = await fs.readFile(path.join(root, 'functions/api/admin/invoices.js'), 'utf8');
   const bankAccountsSrc = await fs.readFile(path.join(root, 'functions/api/admin/bank-accounts.js'), 'utf8');
-  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund', 'validateRefundAmount', 'resolveProductRefundableCap', 'resolveShippingRefundableCap']) {
+  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund', 'validateRefundAmount', 'resolveProductRefundableCap', 'resolveShippingRefundableCap', 'allocateOrderDiscount', 'resolveItemProratedRefundableCap']) {
     assert.match(refundsSrc, new RegExp(marker), `admin/refunds.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
   }
   for (const marker of ['TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'order_status_events']) {
@@ -1225,6 +1225,47 @@ function seedReturnOrderItem(overrides = {}) {
   };
 }
 
+function seedDiscountedMultiLineOrder(overrides = {}) {
+  return seedReturnOrder({
+    subtotal_amount: 1000,
+    discount_amount: 100,
+    shipping_amount: 0,
+    total_amount: 900,
+    coupon_code: 'WELCOME10',
+    ...overrides
+  });
+}
+
+function seedMultiLineOrderItems(orderId = 'order-d2b-multi') {
+  return [
+    { id: 'oi-d2b-a', order_id: orderId, product_id: 'a', product_slug: 'prod-a', product_name: 'Product A', unit_price: 600, quantity: 1, line_total: 600 },
+    { id: 'oi-d2b-b', order_id: orderId, product_id: 'b', product_slug: 'prod-b', product_name: 'Product B', unit_price: 400, quantity: 1, line_total: 400 }
+  ];
+}
+
+function seedReturnBundle(orderId, returnId, items) {
+  return {
+    return_requests: [{
+      id: returnId,
+      order_id: orderId,
+      reason: 'Vazgeçtim',
+      status: 'approved',
+      refund_status: 'not_started',
+      requested_items: items
+    }],
+    return_request_items: items.map((item, index) => ({
+      id: `rri-${returnId}-${index}`,
+      return_request_id: returnId,
+      order_item_id: item.order_item_id,
+      product_slug: item.product_slug,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      unit_price_snapshot: item.unit_price_snapshot,
+      refundable_amount: item.refundable_amount
+    }))
+  };
+}
+
 function d1ReturnPost(body, token = 'customer-token') {
   return customerReturnsPost({
     request: new Request('https://local.test/api/returns', {
@@ -1759,6 +1800,235 @@ test('D2A: cannot create refund for unpaid order', async () => {
     const data = await res.json();
     assert.equal(res.status, 400);
     assert.match(data.error, /ödeme henüz alınmamış/i);
+    assert.equal(fake.table('refund_records').length, 0);
+  } finally { restore(); }
+});
+
+test('D2B: coupon discount prorates across returned items', async () => {
+  const orderId = 'order-d2b-prorate';
+  const returnId = 'ret-d2b-prorate';
+  const items = [{ order_item_id: 'oi-d2b-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }];
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId })],
+    order_items: seedMultiLineOrderItems(orderId),
+    payments: [{ id: 'pay-d2b-1', order_id: orderId, status: 'paid', amount: 900, currency: 'TRY' }],
+    ...seedReturnBundle(orderId, returnId, items)
+  });
+  try {
+    const blocked = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 600,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-PRE-DISC'
+    });
+    assert.equal(blocked.status, 400);
+    assert.match((await blocked.json()).error, /fiilen ödediği tutarı aşamaz/i);
+
+    const ok = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 540,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-PRORATED'
+    });
+    const data = await ok.json();
+    assert.equal(ok.status, 200);
+    assert.equal(data.balance.item_prorated_product_cap, 540);
+    assert.equal(fake.table('refund_records')[0].amount, 540);
+  } finally { restore(); }
+});
+
+test('D2B: full-order return refunds paid product subtotal with shipping separate', async () => {
+  const orderId = 'order-d2b-full';
+  const returnId = 'ret-d2b-full';
+  const items = [
+    { order_item_id: 'oi-d2b-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 },
+    { order_item_id: 'oi-d2b-b', product_slug: 'prod-b', quantity: 1, unit_price_snapshot: 400, refundable_amount: 400 }
+  ];
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId, shipping_amount: 89, total_amount: 989 })],
+    order_items: seedMultiLineOrderItems(orderId),
+    ...seedReturnBundle(orderId, returnId, items)
+  });
+  try {
+    const productOnly = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 900,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-FULL-PRODUCT'
+    });
+    assert.equal(productOnly.status, 200);
+    assert.equal(fake.table('refund_records')[0].amount, 900);
+
+    const shippingBlocked = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'pending',
+      amount: 89,
+      refund_responsibility: 'customer_preference'
+    });
+    assert.equal(shippingBlocked.status, 400);
+  } finally { restore(); }
+});
+
+test('D2B: multiple partial refunds cannot exceed prorated product amount', async () => {
+  const orderId = 'order-d2b-multi-partial';
+  const returnIdA = 'ret-d2b-a';
+  const returnIdB = 'ret-d2b-b';
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId })],
+    order_items: seedMultiLineOrderItems(orderId),
+    refund_records: [{ id: 'ref-done-a', order_id: orderId, status: 'completed', amount: 540, provider_reference: 'REF-A', created_at: new Date().toISOString() }],
+    ...seedReturnBundle(orderId, returnIdB, [{ order_item_id: 'oi-d2b-b', product_slug: 'prod-b', quantity: 1, unit_price_snapshot: 400, refundable_amount: 400 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnIdB,
+      status: 'completed',
+      amount: 360,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-B'
+    });
+    assert.equal(res.status, 200);
+    assert.equal(fake.table('refund_records').length, 2);
+
+    const over = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnIdB,
+      status: 'pending',
+      amount: 1,
+      refund_responsibility: 'customer_preference'
+    });
+    assert.equal(over.status, 400);
+  } finally { restore(); }
+});
+
+test('D2B: rounding remainder stays within paid product subtotal', async () => {
+  const orderId = 'order-d2b-round';
+  const returnId = 'ret-d2b-round';
+  const orderItems = [
+    { id: 'oi-r1', order_id: orderId, product_slug: 'p1', unit_price: 100, quantity: 1, line_total: 100 },
+    { id: 'oi-r2', order_id: orderId, product_slug: 'p2', unit_price: 100, quantity: 1, line_total: 100 },
+    { id: 'oi-r3', order_id: orderId, product_slug: 'p3', unit_price: 100, quantity: 1, line_total: 100 }
+  ];
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedReturnOrder({ id: orderId, subtotal_amount: 300, discount_amount: 10, shipping_amount: 0, total_amount: 290 })],
+    order_items: orderItems,
+    ...seedReturnBundle(orderId, returnId, [
+      { order_item_id: 'oi-r1', product_slug: 'p1', quantity: 1, unit_price_snapshot: 100, refundable_amount: 100 },
+      { order_item_id: 'oi-r2', product_slug: 'p2', quantity: 1, unit_price_snapshot: 100, refundable_amount: 100 },
+      { order_item_id: 'oi-r3', product_slug: 'p3', quantity: 1, unit_price_snapshot: 100, refundable_amount: 100 }
+    ])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 290,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-ROUND'
+    });
+    assert.equal(res.status, 200);
+    assert.equal(fake.table('refund_records')[0].amount, 290);
+  } finally { restore(); }
+});
+
+test('D2B: seller_fault shipping inclusion still works with item proration', async () => {
+  const orderId = 'order-d2b-ship';
+  const returnId = 'ret-d2b-ship';
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId, shipping_amount: 89, total_amount: 989 })],
+    order_items: seedMultiLineOrderItems(orderId),
+    ...seedReturnBundle(orderId, returnId, [{ order_item_id: 'oi-d2b-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 629,
+      refund_responsibility: 'seller_fault',
+      provider_reference: 'REF-SHIP-SELLER'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.balance.shipping_included, true);
+    assert.equal(fake.table('refund_records')[0].amount, 629);
+  } finally { restore(); }
+});
+
+test('D2B: free shipping is not clawed back on partial return', async () => {
+  const orderId = 'order-d2b-free-ship';
+  const returnId = 'ret-d2b-free-ship';
+  const { restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId, shipping_amount: 0, total_amount: 900 })],
+    order_items: seedMultiLineOrderItems(orderId),
+    ...seedReturnBundle(orderId, returnId, [{ order_item_id: 'oi-d2b-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 540,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-NO-CLAW'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.balance.shipping_included, false);
+    assert.equal(data.balance.shipping_refundable_cap, 0);
+  } finally { restore(); }
+});
+
+test('D2B: inconsistent order data falls back to D2A cap safely', async () => {
+  const orderId = 'order-d2b-fallback';
+  const returnId = 'ret-d2b-fallback';
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId, subtotal_amount: 1200 })],
+    order_items: seedMultiLineOrderItems(orderId),
+    ...seedReturnBundle(orderId, returnId, [{ order_item_id: 'oi-d2b-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 540,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-FALLBACK'
+    });
+    assert.equal(res.status, 200);
+    assert.equal(fake.table('refund_records')[0].amount, 540);
+  } finally { restore(); }
+});
+
+test('D2B: unsafe return item match blocks refund calculation', async () => {
+  const orderId = 'order-d2b-unsafe';
+  const returnId = 'ret-d2b-unsafe';
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId })],
+    order_items: seedMultiLineOrderItems(orderId),
+    ...seedReturnBundle(orderId, returnId, [{ order_item_id: 'missing-item', product_slug: 'missing-slug', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'pending',
+      amount: 100,
+      refund_responsibility: 'customer_preference'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 400);
+    assert.match(data.error, /güvenli şekilde hesaplanamadı/i);
     assert.equal(fake.table('refund_records').length, 0);
   } finally { restore(); }
 });
