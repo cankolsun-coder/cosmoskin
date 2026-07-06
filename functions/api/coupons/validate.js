@@ -1,6 +1,7 @@
 import { getUserFromAccessToken } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { validateCouponEligibility } from '../_lib/coupons.js';
+import { catalog } from '../_lib/catalog.js';
 
 
 const COUPON_PREVIEW_FREE_SHIPPING_LIMIT = 2500;
@@ -50,10 +51,23 @@ function normalizeCartItem(raw = {}) {
 }
 
 function subtotalFromCart(cart = []) {
-  if (!Array.isArray(cart)) return 0;
+  // Security: coupon eligibility must not trust client-supplied totals.
+  // For /api/coupons/validate we compute a best-effort subtotal from the server catalog.
+  if (!Array.isArray(cart) || cart.length === 0) return 0;
+  const products = Array.isArray(catalog) ? catalog : Object.values(catalog || {});
+  const index = new Map();
+  for (const p of products) {
+    if (!p) continue;
+    const keys = [p.id, p.slug, p.product_id, p.sku].filter(Boolean).map(String);
+    for (const key of keys) index.set(key, p);
+  }
   return Math.round(cart.reduce((sum, raw) => {
-    const item = normalizeCartItem(raw);
-    return sum + item.price * item.quantity;
+    const normalized = normalizeCartItem(raw);
+    const slug = String(raw.slug || raw.product_slug || raw.product_id || raw.productId || raw.id || '').trim();
+    const product = index.get(slug);
+    const unitPrice = Number(product?.price || 0);
+    const trusted = Number.isFinite(unitPrice) && unitPrice > 0 ? unitPrice : 0;
+    return sum + trusted * normalized.quantity;
   }, 0) * 100) / 100;
 }
 
@@ -67,21 +81,40 @@ export async function onRequestPost(context) {
   try {
     const body = await context.request.json().catch(() => ({}));
     const code = String(body.code || body.coupon_code || '').trim().toUpperCase();
-    const subtotal = Number(body.subtotal ?? subtotalFromCart(body.cart || []));
+    const cart = Array.isArray(body.cart) ? body.cart : [];
+    const subtotal = subtotalFromCart(cart);
     const token = authToken(context, body);
     const user = token ? await getUserFromAccessToken(context, token).catch(() => null) : null;
     const customerEmail = body.customer_email || body.email || body.customer?.email || user?.email || '';
-    const result = await validateCouponEligibility(context, { code, subtotal, user, customerEmail });
+    const result = await validateCouponEligibility(context, {
+      code,
+      subtotal,
+      user,
+      customerEmail,
+      cartItems: cart
+    });
 
     if (!result.eligible) {
+      const reason = result.reason_code || result.reasonCode || 'coupon_inactive';
+      const forbidden = new Set([
+        'authentication_required',
+        'membership_required',
+        'membership_tier_not_allowed',
+        'birthday_month_required',
+        'smart_routine_required',
+        'first_order_required'
+      ]);
+      const status = reason === 'coupon_not_found'
+        ? 404
+        : (forbidden.has(reason) ? 403 : 400);
       return json({
         ok: false,
-        code: result.reasonCode,
-        reasonCode: result.reasonCode,
-        error: result.message,
-        message: result.message,
-        clearStorage: ['DEPRECATED', 'EXPIRED', 'INACTIVE', 'ALREADY_USED'].includes(result.reasonCode)
-      }, { status: result.reasonCode === 'INACTIVE' ? 404 : (result.reasonCode === 'FIRST_ORDER_ONLY' || result.reasonCode === 'BIRTHDAY_NOT_ELIGIBLE' ? 403 : 400) });
+        code: reason,
+        reasonCode: reason,
+        error: result.customer_message || result.message,
+        message: result.customer_message || result.message,
+        clearStorage: ['coupon_deprecated', 'coupon_expired', 'coupon_inactive', 'coupon_not_found'].includes(reason)
+      }, { status });
     }
 
     return json({
@@ -96,7 +129,7 @@ export async function onRequestPost(context) {
       max_discount_amount: result.maxDiscount,
       expires_at: result.expiresAt,
       manual_apply_required: true,
-      eligibility_hash: `${result.code}:${Math.round(subtotal)}:${result.reasonCode}`,
+      eligibility_hash: `${result.code}:${Math.round(subtotal)}:${result.reason_code || result.reasonCode}`,
       message: result.message,
       coupon: {
         id: result.coupon?.id || null,

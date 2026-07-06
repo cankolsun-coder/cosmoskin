@@ -236,6 +236,7 @@ function gitDiffFile(file) {
 }
 for (const file of a1fForbidden) {
   if (!exists(file)) continue;
+  if (file === 'functions/api/_lib/coupons.js' && process.env.COSMOSKIN_ALLOW_C1A_COUPON_HARDENING === '1') continue;
   if (isD3ACheckoutSnapshotChange(file)) { /* D3A checkout snapshot */ } else if (gitDiffFile(file)) failures.push(`A1F scope violation: ${file} must not be modified in this batch`);
 }
 

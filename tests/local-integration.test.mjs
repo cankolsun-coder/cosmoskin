@@ -168,6 +168,140 @@ test('coupon API: valid free shipping, invalid and expired outcomes', async () =
   }
 });
 
+test('C1A: coupon eligibility is enforced server-side (tier, routine, first-order, reservations)', async () => {
+  const now = new Date().toISOString();
+  const baseUser = { id: 'user-1', email: '', created_at: now, email_confirmed_at: now, email_verified: true, user_metadata: {} };
+  const couponRows = {
+    WELCOME10: { id: 'c-welcome', code: 'WELCOME10', is_active: true, discount_type: 'percent', discount_value: 10, min_subtotal: 1000, max_discount_amount: 150, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, requires_first_order: true } } },
+    ROUTINE5: { id: 'c-routine', code: 'ROUTINE5', is_active: true, discount_type: 'percent', discount_value: 5, min_subtotal: 1500, max_discount_amount: 100, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, requires_smart_routine: true } } },
+    SIGNATURE75: { id: 'c-signature', code: 'SIGNATURE75', is_active: true, discount_type: 'amount', discount_value: 75, min_subtotal: 1500, max_discount_amount: 75, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, allowed_tiers: ['signature', 'elite'] } } },
+    ELITE100: { id: 'c-elite', code: 'ELITE100', is_active: true, discount_type: 'amount', discount_value: 100, min_subtotal: 2000, max_discount_amount: 100, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, allowed_tiers: ['elite'] } } },
+    BIRTHDAY10: { id: 'c-bday', code: 'BIRTHDAY10', is_active: true, discount_type: 'percent', discount_value: 10, min_subtotal: 1500, max_discount_amount: 150, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, requires_birthday_month: true } } },
+    COSMOSKIN10: { id: 'c-dep', code: 'COSMOSKIN10', is_active: false, discount_type: 'percent', discount_value: 0, min_subtotal: 0, max_discount_amount: 0, per_customer_limit: 0, metadata: {} }
+  };
+
+  async function validate(code, { token = null, seed = {} } = {}) {
+    const fake = createFakeSupabase(seed);
+    const restore = installFetch(async (url, options = {}) => {
+      const href = String(url instanceof Request ? url.url : url);
+      if (href.includes('/auth/v1/user')) return response(token ? baseUser : null);
+      if (href.includes('/rest/v1/coupons')) return response([couponRows[code]].filter(Boolean));
+      return await fake.fetchHandler(url, options);
+    });
+    try {
+      const req = requestJson('https://local.test/api/coupons/validate', { code, accessToken: token ? 'customer-token' : null, cart: [{ slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 3 }] });
+      const res = await validateCoupon(contextFor(req));
+      const data = await res.json();
+      return { res, data };
+    } finally { restore(); }
+  }
+
+  // COSMOSKIN10 remains unusable.
+  {
+    const { res, data } = await validate('COSMOSKIN10', { token: 't' });
+    assert.equal(res.status, 400);
+    assert.equal(data.reasonCode, 'coupon_deprecated');
+  }
+
+  // ROUTINE5: guest rejected; authenticated without routine rejected.
+  {
+    const guest = await validate('ROUTINE5', { token: null, seed: { coupons: [couponRows.ROUTINE5] } });
+    assert.equal(guest.res.status, 403);
+    assert.equal(guest.data.reasonCode, 'authentication_required');
+    const noRoutine = await validate('ROUTINE5', { token: 't', seed: { coupons: [couponRows.ROUTINE5], customer_routine_results: [] } });
+    assert.equal(noRoutine.res.status, 403);
+    assert.equal(noRoutine.data.reasonCode, 'smart_routine_required');
+  }
+
+  // ROUTINE5: trusted routine completion allows.
+  {
+    const ok = await validate('ROUTINE5', {
+      token: 't',
+      seed: {
+        coupons: [couponRows.ROUTINE5],
+        customer_routine_results: [{ id: 'rr-1', user_id: 'user-1', is_active: true, completed_at: now }]
+      }
+    });
+    assert.equal(ok.res.status, 200);
+    assert.equal(ok.data.ok, true);
+  }
+
+  // ELITE100: Essential blocked, Elite allowed.
+  {
+    const essential = await validate('ELITE100', {
+      token: 't',
+      seed: {
+        coupons: [couponRows.ELITE100],
+        customer_membership_status: [{ id: 'ms-1', user_id: 'user-1', level_code: 'essential' }]
+      }
+    });
+    assert.equal(essential.res.status, 403);
+    assert.equal(essential.data.reasonCode, 'membership_tier_not_allowed');
+
+    const elite = await validate('ELITE100', {
+      token: 't',
+      seed: {
+        coupons: [couponRows.ELITE100],
+        customer_membership_status: [{ id: 'ms-1', user_id: 'user-1', level_code: 'elite' }]
+      }
+    });
+    assert.equal(elite.res.status, 200);
+    assert.equal(elite.data.ok, true);
+  }
+
+  // SIGNATURE75: Signature and Elite allowed; Essential blocked.
+  {
+    const signature = await validate('SIGNATURE75', {
+      token: 't',
+      seed: {
+        coupons: [couponRows.SIGNATURE75],
+        customer_membership_status: [{ id: 'ms-1', user_id: 'user-1', level_code: 'signature' }]
+      }
+    });
+    assert.equal(signature.res.status, 200);
+
+    const elite = await validate('SIGNATURE75', {
+      token: 't',
+      seed: {
+        coupons: [couponRows.SIGNATURE75],
+        customer_membership_status: [{ id: 'ms-1', user_id: 'user-1', level_code: 'elite' }]
+      }
+    });
+    assert.equal(elite.res.status, 200);
+
+    const essential = await validate('SIGNATURE75', {
+      token: 't',
+      seed: {
+        coupons: [couponRows.SIGNATURE75],
+        customer_membership_status: [{ id: 'ms-1', user_id: 'user-1', level_code: 'essential' }]
+      }
+    });
+    assert.equal(essential.res.status, 403);
+    assert.equal(essential.data.reasonCode, 'membership_tier_not_allowed');
+  }
+
+  // WELCOME10: second use blocked by active reserved redemption.
+  {
+    const reserved = await validate('WELCOME10', {
+      token: 't',
+      seed: {
+        coupons: [couponRows.WELCOME10],
+        orders: [],
+        coupon_redemptions: [{ id: 'cr-1', code: 'WELCOME10', user_id: 'user-1', status: 'reserved', created_at: now }]
+      }
+    });
+    assert.equal(reserved.res.status, 400);
+    assert.equal(reserved.data.reasonCode, 'per_customer_limit_reached');
+  }
+
+  // BIRTHDAY10: missing birthday fails closed.
+  {
+    const missing = await validate('BIRTHDAY10', { token: 't', seed: { coupons: [couponRows.BIRTHDAY10], profiles: [{ id: 'user-1', birthday: null }] } });
+    assert.equal(missing.res.status, 403);
+    assert.equal(missing.data.reasonCode, 'birthday_month_required');
+  }
+});
+
 test('checkout blocks missing EFT bank account before inventory reservation or order creation', async () => {
   const calls=[];
   const restore=installFetch(async (url)=>{calls.push(String(url)); if(String(url).includes('/rest/v1/payment_bank_accounts')) return response([]); return response([]);});

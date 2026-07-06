@@ -241,11 +241,21 @@ async function applyCoupon(context, cart, subtotal, couponCode, customer = {}, u
     subtotal,
     user,
     customerEmail: customer.email,
-    checkout: true
+    checkout: true,
+    cartItems: cart
   });
   if (!result.eligible) {
-    const status = ['FIRST_ORDER_ONLY', 'BIRTHDAY_NOT_ELIGIBLE', 'TIER_NOT_ELIGIBLE', 'ACCOUNT_TOO_NEW'].includes(result.reasonCode) ? 403 : 400;
-    throw new CheckoutError(result.message || 'Kupon kullanım koşullarını şu anda karşılamıyor.', status, result.reasonCode || 'INVALID_COUPON');
+    const reason = result.reason_code || result.reasonCode || 'coupon_inactive';
+    const forbidden = new Set([
+      'authentication_required',
+      'membership_required',
+      'membership_tier_not_allowed',
+      'birthday_month_required',
+      'smart_routine_required',
+      'first_order_required'
+    ]);
+    const status = forbidden.has(reason) ? 403 : 400;
+    throw new CheckoutError(result.customer_message || result.message || 'Kupon kullanım koşullarını şu anda karşılamıyor.', status, reason || 'INVALID_COUPON');
   }
   const coupon = result.coupon || {};
   const label = result.discountType === 'percent'
@@ -260,7 +270,7 @@ async function applyCoupon(context, cart, subtotal, couponCode, customer = {}, u
     minSubtotal: result.minSubtotal,
     maxDiscount: result.maxDiscount,
     label,
-    eligibilityHash: `${result.code}:${Math.round(subtotal)}:${result.reasonCode}`
+    eligibilityHash: `${result.code}:${Math.round(subtotal)}:${result.reason_code || result.reasonCode}`
   };
 }
 

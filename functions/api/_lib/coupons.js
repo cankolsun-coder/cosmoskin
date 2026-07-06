@@ -222,119 +222,464 @@ async function findMembership(context, user) {
   return rows?.[0] || null;
 }
 
-function couponEnvelope(coupon, rule, code) {
-  const merged = { ...(coupon || {}), ...(rule || {}) };
+function safeArray(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+      return trimmed.split(',').map((part) => part.trim()).filter(Boolean);
+    }
+  }
+  return [];
+}
+
+function asMetadataObject(value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+    } catch (_) { /* ignore */ }
+  }
+  return {};
+}
+
+function customerFacingMessage(reasonCode) {
+  switch (reasonCode) {
+    case 'min_subtotal_not_met':
+      return 'Bu kupon için minimum sepet tutarı karşılanmıyor.';
+    case 'authentication_required':
+    case 'membership_required':
+      return 'Bu kupon hesabınız için uygun değil.';
+    case 'membership_tier_not_allowed':
+      return 'Bu kupon yalnızca belirli üyelik seviyelerinde kullanılabilir.';
+    case 'birthday_month_required':
+      return 'Bu kupon doğum günü ayınıza özel olarak kullanılabilir.';
+    case 'smart_routine_required':
+      return 'Bu kupon Akıllı Rutin tamamlandıktan sonra kullanılabilir.';
+    case 'per_customer_limit_reached':
+      return 'Bu kupon daha önce kullanılmış.';
+    case 'coupon_not_found':
+    case 'coupon_inactive':
+    case 'coupon_deprecated':
+    case 'coupon_expired':
+    case 'coupon_not_started':
+    case 'usage_limit_reached':
+    case 'coupon_not_stackable':
+    case 'product_excluded':
+    case 'category_excluded':
+    case 'invalid_discount':
+    default:
+      return 'Bu kupon şu anda geçerli değil.';
+  }
+}
+
+function resolveCouponEnvelope(couponRow, rule, code) {
+  const merged = { ...(couponRow || {}), ...(rule || {}) };
+  const metadata = asMetadataObject(couponRow?.metadata);
+  const eligibilityMeta = asMetadataObject(metadata?.eligibility);
   merged.code = code;
-  merged.discount_type = rule?.discount_type || coupon?.discount_type || coupon?.type || 'amount';
-  merged.discount_value = Number(rule?.discount_value ?? coupon?.discount_value ?? coupon?.value ?? 0);
-  merged.min_subtotal = Number(rule?.min_subtotal ?? coupon?.min_subtotal ?? coupon?.min_cart_total ?? 0);
-  merged.max_discount_amount = Number(rule?.max_discount_amount ?? coupon?.max_discount_amount ?? coupon?.max_discount ?? 0) || null;
-  merged.per_customer_limit = Number(rule?.per_customer_limit ?? coupon?.per_customer_limit ?? 0) || 0;
-  merged.title = rule?.title || coupon?.title || code;
-  merged.description = rule?.description || coupon?.description || 'Sepette uygun koşullarda uygulanabilir.';
-  merged.scope_label = rule?.scope_label || coupon?.scope_label || '';
+  merged.metadata = metadata;
+  merged.eligibility = eligibilityMeta;
+
+  // Canonical coupon resolver (required): discount_type/value/max_discount_amount fall back to legacy.
+  merged.discount_type = (merged.discount_type ?? merged.type ?? 'amount');
+  merged.discount_value = Number(merged.discount_value ?? merged.value ?? 0);
+  merged.max_discount_amount = Number(merged.max_discount_amount ?? merged.max_discount ?? 0) || null;
+  merged.min_subtotal = Number(merged.min_subtotal ?? merged.min_cart_total ?? 0);
+
+  merged.per_customer_limit = Number(merged.per_customer_limit ?? 0) || 0;
+  merged.usage_limit = Number(merged.usage_limit ?? 0) || 0;
+  merged.stackable = merged.stackable === true;
+  merged.excluded_product_slugs = safeArray(merged.excluded_product_slugs);
+  merged.excluded_categories = safeArray(merged.excluded_categories);
+
+  merged.title = merged.title || code;
+  merged.description = merged.description || 'Sepette uygun koşullarda uygulanabilir.';
+  merged.scope_label = merged.scope_label || '';
   return merged;
 }
 
-function fail(code, reasonCode, message, extra = {}) {
-  return { eligible: false, code, reasonCode, message, manualApplyRequired: true, ...extra };
-}
-
-function discountFor(coupon, subtotal) {
+function discountFor(coupon, eligibleSubtotal) {
   const type = lower(coupon.discount_type || coupon.type);
+  const value = Number(coupon.discount_value || 0);
+  const subtotal = Math.max(0, Number(eligibleSubtotal || 0));
+
+  if (type === 'free_shipping') return 0;
+  if (!Number.isFinite(value) || value <= 0) return 0;
+
   let discount = 0;
-  if (type === 'percent') discount = Number(subtotal || 0) * (Number(coupon.discount_value || 0) / 100);
-  else if (type !== 'free_shipping') discount = Number(coupon.discount_value || 0);
-  if (coupon.max_discount_amount) discount = Math.min(discount, Number(coupon.max_discount_amount));
-  return normalizeMoney(Math.max(0, Math.min(Number(subtotal || 0), discount)));
+  if (type === 'percent') discount = subtotal * (value / 100);
+  else discount = value;
+
+  if (coupon.max_discount_amount && Number.isFinite(Number(coupon.max_discount_amount))) {
+    discount = Math.min(discount, Number(coupon.max_discount_amount));
+  }
+  return normalizeMoney(Math.max(0, Math.min(subtotal, discount)));
 }
 
-export async function validateCouponEligibility(context, { code: rawCode, subtotal = 0, user = null, customerEmail = '', checkout = false } = {}) {
+function isActiveRedemptionStatus(status) {
+  const normalized = lower(status || 'used');
+  return normalized === 'used' || normalized === 'reserved';
+}
+
+async function hasTrustedSmartRoutineCompletion(context, user) {
+  if (!user?.id) return false;
+  const rows = await safeSelect(context, 'customer_routine_results', {
+    select: 'id,user_id,completed_at,is_active,updated_at,created_at',
+    user_id: `eq.${user.id}`,
+    is_active: 'eq.true',
+    order: 'updated_at.desc',
+    limit: '5'
+  });
+  return (rows || []).some((row) => Boolean(row?.completed_at || row?.updated_at || row?.created_at));
+}
+
+function resolveEligibilitySpec(code, coupon, rule) {
+  const meta = coupon?.eligibility && typeof coupon.eligibility === 'object' ? coupon.eligibility : {};
+  const normalizedMetaTiers = safeArray(meta.allowed_tiers).map(lower).filter(Boolean);
+  const normalizedRuleTiers = safeArray(rule?.tier).map(lower).filter(Boolean);
+  const approvedCode = normalizeCouponCode(code);
+
+  const requires_auth = meta.requires_auth === true
+    || approvedCode === 'WELCOME10'
+    || approvedCode === 'BIRTHDAY10'
+    || approvedCode === 'ROUTINE5'
+    || normalizedMetaTiers.length > 0
+    || normalizedRuleTiers.length > 0;
+
+  const allowed_tiers = normalizedMetaTiers.length ? normalizedMetaTiers : normalizedRuleTiers;
+  const requires_first_order = meta.requires_first_order === true || approvedCode === 'WELCOME10' || Boolean(rule?.first_order_only);
+  const requires_birthday_month = meta.requires_birthday_month === true || approvedCode === 'BIRTHDAY10' || Boolean(rule?.birthday_date_only);
+  const requires_smart_routine = meta.requires_smart_routine === true || approvedCode === 'ROUTINE5';
+
+  return {
+    requires_auth,
+    allowed_tiers,
+    requires_first_order,
+    requires_birthday_month,
+    requires_smart_routine
+  };
+}
+
+function failEligibility({ code, reason_code, internal_reason, eligibility_context = {}, coupon = null } = {}) {
+  const safeCode = normalizeCouponCode(code);
+  return {
+    allowed: false,
+    code: safeCode,
+    reason_code,
+    customer_message: customerFacingMessage(reason_code),
+    internal_reason: internal_reason || reason_code,
+    eligibility_context,
+    coupon
+  };
+}
+
+function okEligibility({ code, coupon, discountAmount, discountType, freeShipping, eligibility_context = {} }) {
+  const safeCode = normalizeCouponCode(code);
+  return {
+    allowed: true,
+    code: safeCode,
+    reason_code: 'eligible',
+    customer_message: 'Kupon uygulanabilir.',
+    internal_reason: 'eligible',
+    eligibility_context,
+    coupon,
+    discountAmount,
+    discountType,
+    freeShipping
+  };
+}
+
+export async function validateCouponEligibility(context, {
+  code: rawCode,
+  subtotal = 0,
+  user = null,
+  customerEmail = '',
+  checkout = false,
+  cartItems = null,
+  existingCouponCode = null
+} = {}) {
   const code = normalizeCouponCode(rawCode);
-  if (!code) return fail('', 'INACTIVE', 'Kupon kodu boş olamaz.');
-  if (DEPRECATED_COUPONS.has(code)) return fail(code, 'DEPRECATED', 'Bu kupon artık aktif değildir.');
+  const now = nowMs();
+
+  if (!code) {
+    const denied = failEligibility({ code: '', reason_code: 'coupon_not_found', internal_reason: 'empty_coupon_code' });
+    return {
+      eligible: false,
+      code: '',
+      reasonCode: 'coupon_not_found',
+      message: denied.customer_message,
+      manualApplyRequired: true,
+      ...denied
+    };
+  }
+
+  if (DEPRECATED_COUPONS.has(code)) {
+    const denied = failEligibility({ code, reason_code: 'coupon_deprecated', internal_reason: 'deprecated_coupon_code' });
+    return {
+      eligible: false,
+      code,
+      reasonCode: denied.reason_code,
+      message: denied.customer_message,
+      manualApplyRequired: true,
+      ...denied
+    };
+  }
 
   const rule = defaultRuleFor(code);
   const dbCoupon = await findCoupon(context, code);
-  if (!dbCoupon || dbCoupon.is_active === false) return fail(code, 'INACTIVE', 'Kupon kodu geçersiz veya pasif.');
+  if (!dbCoupon) {
+    const denied = failEligibility({ code, reason_code: 'coupon_not_found', internal_reason: 'coupon_row_missing' });
+    return {
+      eligible: false,
+      code,
+      reasonCode: denied.reason_code,
+      message: denied.customer_message,
+      manualApplyRequired: true,
+      ...denied
+    };
+  }
 
-  const now = nowMs();
-  if (dbCoupon.starts_at && toMs(dbCoupon.starts_at) > now) return fail(code, 'INACTIVE', 'Kupon henüz aktif değil.');
-  if (dbCoupon.ends_at && toMs(dbCoupon.ends_at) < now) return fail(code, 'EXPIRED', 'Kupon süresi dolmuş.');
+  if (dbCoupon.is_active === false) {
+    const denied = failEligibility({ code, reason_code: 'coupon_inactive', internal_reason: 'coupon_inactive_flag' });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
 
-  const coupon = couponEnvelope(dbCoupon, rule, code);
+  if (dbCoupon.starts_at && toMs(dbCoupon.starts_at) > now) {
+    const denied = failEligibility({ code, reason_code: 'coupon_not_started', internal_reason: 'starts_at_in_future', eligibility_context: { starts_at: dbCoupon.starts_at } });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  if (dbCoupon.ends_at && toMs(dbCoupon.ends_at) < now) {
+    const denied = failEligibility({ code, reason_code: 'coupon_expired', internal_reason: 'ends_at_passed', eligibility_context: { ends_at: dbCoupon.ends_at } });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  const coupon = resolveCouponEnvelope(dbCoupon, rule, code);
+  const eligibilitySpec = resolveEligibilitySpec(code, coupon, rule);
+
+  const safeSubtotal = normalizeMoney(Math.max(0, Number(subtotal || 0)));
   const minSubtotal = Number(coupon.min_subtotal || 0);
-  if (Number(subtotal || 0) > 0 && minSubtotal > Number(subtotal || 0)) {
-    return fail(code, 'MIN_SUBTOTAL_NOT_MET', `Bu kupon için minimum sepet tutarı ${minSubtotal.toLocaleString('tr-TR')} TL.`, { minSubtotal, maxDiscount: coupon.max_discount_amount || null });
+
+  const discountType = lower(coupon.discount_type || coupon.type);
+  const rawDiscountValue = Number(coupon.discount_value || 0);
+  const invalidDiscount = discountType === 'free_shipping'
+    ? false
+    : (!Number.isFinite(rawDiscountValue) || rawDiscountValue <= 0);
+  if (invalidDiscount) {
+    const denied = failEligibility({ code, reason_code: 'invalid_discount', internal_reason: 'discount_value_invalid', eligibility_context: { discount_type: discountType, discount_value: coupon.discount_value } });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  // Stackability: defend against a second coupon being supplied in the same flow.
+  const normalizedExisting = normalizeCouponCode(existingCouponCode);
+  if (normalizedExisting && normalizedExisting !== code && coupon.stackable === false) {
+    const denied = failEligibility({ code, reason_code: 'coupon_not_stackable', internal_reason: 'non_stackable_coupon_with_existing', eligibility_context: { existing_coupon: normalizedExisting } });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  // Exclusions: C1A safe mode — fail closed if exclusions are configured, unless we later add line-level allocation.
+  // This guarantees excluded items never silently receive a discount.
+  const hasExclusions = (coupon.excluded_product_slugs || []).length > 0 || (coupon.excluded_categories || []).length > 0;
+  if (hasExclusions) {
+    const denied = failEligibility({
+      code,
+      reason_code: (coupon.excluded_product_slugs || []).length ? 'product_excluded' : 'category_excluded',
+      internal_reason: 'coupon_exclusions_present_fail_closed',
+      eligibility_context: {
+        excluded_product_slugs: coupon.excluded_product_slugs || [],
+        excluded_categories: coupon.excluded_categories || []
+      }
+    });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  if (safeSubtotal > 0 && minSubtotal > safeSubtotal) {
+    const denied = failEligibility({ code, reason_code: 'min_subtotal_not_met', internal_reason: 'subtotal_below_minimum', eligibility_context: { min_subtotal: minSubtotal, subtotal: safeSubtotal } });
+    return {
+      eligible: false,
+      code,
+      reasonCode: denied.reason_code,
+      message: denied.customer_message,
+      manualApplyRequired: true,
+      minSubtotal,
+      maxDiscount: coupon.max_discount_amount || null,
+      ...denied
+    };
   }
 
   const email = lower(customerEmail || user?.email || '');
   const redemptions = await findRedemptions(context, code, user, email);
-  const usedOrReserved = (redemptions || []).filter((r) => ['used', 'reserved'].includes(lower(r.status || 'used')));
-  const usedOnly = (redemptions || []).filter((r) => lower(r.status || 'used') === 'used');
+  const activeRedemptions = (redemptions || []).filter((r) => isActiveRedemptionStatus(r?.status));
+  const usedOnly = (redemptions || []).filter((r) => lower(r?.status || 'used') === 'used');
   const pendingReservations = await findReservations(context, code, user, email);
 
-  if (code === 'WELCOME10') {
-    if (!user?.id) return fail(code, 'FIRST_ORDER_ONLY', 'WELCOME10 yalnızca giriş yapmış yeni müşteriler için geçerlidir.');
-    if (user.email_confirmed_at === null || user.email_verified === false) return fail(code, 'ANTI_ABUSE_REVIEW', 'Bu kupon için hesap doğrulama koşulları tamamlanmalıdır.');
-    const orders = await findOrders(context, user, email);
-    if ((orders || []).some(successOrder)) return fail(code, 'ALREADY_USED', 'WELCOME10 ilk başarılı siparişe özeldir.');
-    if (usedOrReserved.length) return fail(code, 'ALREADY_USED', 'WELCOME10 kullanım hakkınız daha önce kullanılmış veya ayrılmış görünüyor.');
-    if ((pendingReservations || []).length) return fail(code, 'RESERVED_ON_PENDING_ORDER', 'Bu kupon bekleyen başka bir siparişte ayrılmış görünüyor.');
-  }
-
-  if (code === 'BIRTHDAY10') {
-    if (!user?.id) return fail(code, 'BIRTHDAY_NOT_ELIGIBLE', 'Doğum günü kuponu için giriş yapmanız gerekir.');
-    const profile = await findProfile(context, user);
-    const birthDate = profile?.birthday || profile?.birth_date || user?.user_metadata?.birthday || user?.user_metadata?.birth_date || '';
-    if (!birthDate) return fail(code, 'BIRTHDAY_NOT_ELIGIBLE', 'Doğum günü avantajı için doğum tarihinizi hesabınıza ekleyin.');
-    const windowDays = Number(rule?.birthday_window_days ?? 0);
-    if (!isBirthdayCouponEligible(birthDate, new Date(), windowDays)) {
-      return fail(code, 'BIRTHDAY_NOT_ELIGIBLE', windowDays > 0
-        ? 'BIRTHDAY10 yalnızca doğum günü döneminizde aktif olur.'
-        : 'BIRTHDAY10 yalnızca doğum gününüzde aktif olur.');
-    }
-    const orders = await findOrders(context, user, email);
-    const hasPaidOrder = (orders || []).some(successOrder);
-    const accountAge = user.created_at ? daysBetween(new Date(user.created_at).getTime(), now) : 0;
-    if (!hasPaidOrder && accountAge < Number(rule?.account_age_days_or_paid_order || 30)) return fail(code, 'ACCOUNT_TOO_NEW', 'Doğum günü kuponunuz hesap doğrulama ve uygunluk kontrolleri tamamlandığında aktif olur.');
-    const usedThisYear = usedOnly.some((r) => new Date(r.created_at || r.used_at || 0).getFullYear() === currentYear());
-    if (usedThisYear) return fail(code, 'ALREADY_USED', 'BIRTHDAY10 her takvim yılında bir kez kullanılabilir.');
-  }
-
-  if (rule?.tier) {
-    if (!user?.id) return fail(code, 'TIER_NOT_ELIGIBLE', 'Bu kupon üyelik seviyesine özeldir.');
-    const membership = await findMembership(context, user);
-    const level = lower(membership?.level_code || membership?.tier || 'essential');
-    if (!rule.tier.includes(level)) return fail(code, 'TIER_NOT_ELIGIBLE', 'Bu kupon kullanım koşullarını şu anda karşılamıyor.');
-  }
-
+  // usage_limit: global across used + active reserved.
   const usageLimit = Number(coupon.usage_limit || 0);
   if (usageLimit > 0) {
-    const allUsed = await safeSelect(context, 'coupon_redemptions', { select: 'id,status', code: `eq.${code}`, limit: String(usageLimit + 1) });
-    if ((allUsed || []).filter((r) => ['used', 'reserved'].includes(lower(r.status || 'used'))).length >= usageLimit) return fail(code, 'EXPIRED', 'Bu kuponun kullanım limiti dolmuş.');
-  }
-  if (Number(coupon.per_customer_limit || 0) > 0 && usedOnly.length >= Number(coupon.per_customer_limit || 0)) {
-    return fail(code, 'ALREADY_USED', 'Bu kupon için kullanım hakkınızı tamamladınız.');
+    const all = await safeSelect(context, 'coupon_redemptions', { select: 'id,status', code: `eq.${code}`, limit: String(Math.max(usageLimit + 3, 20)) });
+    const activeCount = (all || []).filter((r) => isActiveRedemptionStatus(r?.status)).length;
+    if (activeCount >= usageLimit) {
+      const denied = failEligibility({ code, reason_code: 'usage_limit_reached', internal_reason: 'usage_limit_reached', eligibility_context: { usage_limit: usageLimit, active_count: activeCount } });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
   }
 
-  const discountAmount = discountFor(coupon, Number(subtotal || 0));
+  // per_customer_limit: per customer across used + active reserved (hardening).
+  const perCustomerLimit = Number(coupon.per_customer_limit || 0);
+  if (perCustomerLimit > 0 && activeRedemptions.length >= perCustomerLimit) {
+    const denied = failEligibility({
+      code,
+      reason_code: 'per_customer_limit_reached',
+      internal_reason: 'per_customer_limit_reached',
+      eligibility_context: { per_customer_limit: perCustomerLimit, active_count: activeRedemptions.length }
+    });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  if (eligibilitySpec.requires_auth && !user?.id) {
+    const denied = failEligibility({ code, reason_code: 'authentication_required', internal_reason: 'auth_required_missing_user' });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  // Membership tier enforcement (trusted source only).
+  let resolvedTier = null;
+  if (eligibilitySpec.allowed_tiers && eligibilitySpec.allowed_tiers.length) {
+    if (!user?.id) {
+      const denied = failEligibility({ code, reason_code: 'membership_required', internal_reason: 'allowed_tiers_requires_auth' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    const membership = await findMembership(context, user);
+    resolvedTier = lower(membership?.level_code || membership?.tier || '');
+    if (!['essential', 'signature', 'elite'].includes(resolvedTier)) resolvedTier = 'essential';
+    if (!eligibilitySpec.allowed_tiers.includes(resolvedTier)) {
+      const denied = failEligibility({
+        code,
+        reason_code: 'membership_tier_not_allowed',
+        internal_reason: 'tier_not_allowed',
+        eligibility_context: { tier: resolvedTier, allowed_tiers: eligibilitySpec.allowed_tiers }
+      });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+  }
+
+  // First successful paid order (WELCOME10) — keep hardened anti-abuse behavior.
+  if (eligibilitySpec.requires_first_order) {
+    if (!user?.id) {
+      const denied = failEligibility({ code, reason_code: 'authentication_required', internal_reason: 'first_order_requires_auth' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    if (code === 'WELCOME10' && (user.email_confirmed_at === null || user.email_verified === false)) {
+      const denied = failEligibility({ code, reason_code: 'authentication_required', internal_reason: 'email_verification_required' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    const orders = await findOrders(context, user, email);
+    if ((orders || []).some(successOrder)) {
+      const denied = failEligibility({ code, reason_code: 'first_order_required', internal_reason: 'prior_success_order_found' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    if (activeRedemptions.length) {
+      const denied = failEligibility({ code, reason_code: 'per_customer_limit_reached', internal_reason: 'already_used_or_reserved_first_order_coupon' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    if ((pendingReservations || []).length) {
+      const denied = failEligibility({ code, reason_code: 'per_customer_limit_reached', internal_reason: 'pending_reservation_detected' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+  }
+
+  // Birthday rule (BIRTHDAY10) — do not weaken.
+  if (eligibilitySpec.requires_birthday_month) {
+    if (!user?.id) {
+      const denied = failEligibility({ code, reason_code: 'authentication_required', internal_reason: 'birthday_coupon_requires_auth' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    const profile = await findProfile(context, user);
+    const birthDate = profile?.birthday || profile?.birth_date || '';
+    if (!birthDate) {
+      const denied = failEligibility({ code, reason_code: 'birthday_month_required', internal_reason: 'missing_profile_birthday' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    const windowDays = Number(rule?.birthday_window_days ?? 0);
+    if (!isBirthdayCouponEligible(birthDate, new Date(), windowDays)) {
+      const denied = failEligibility({ code, reason_code: 'birthday_month_required', internal_reason: 'birthday_window_not_matched', eligibility_context: { window_days: windowDays } });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    if (code === 'BIRTHDAY10') {
+      const orders = await findOrders(context, user, email);
+      const hasPaidOrder = (orders || []).some(successOrder);
+      const accountAge = user.created_at ? daysBetween(new Date(user.created_at).getTime(), now) : 0;
+      if (!hasPaidOrder && accountAge < Number(rule?.account_age_days_or_paid_order || 30)) {
+        const denied = failEligibility({ code, reason_code: 'authentication_required', internal_reason: 'birthday_account_age_gate' });
+        return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+      }
+      const usedThisYear = usedOnly.some((r) => new Date(r.created_at || r.used_at || 0).getFullYear() === currentYear());
+      if (usedThisYear) {
+        const denied = failEligibility({ code, reason_code: 'per_customer_limit_reached', internal_reason: 'birthday_coupon_used_this_year' });
+        return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+      }
+    }
+  }
+
+  // Smart routine completion (ROUTINE5) — must be trusted DB record.
+  if (eligibilitySpec.requires_smart_routine) {
+    if (!user?.id) {
+      const denied = failEligibility({ code, reason_code: 'authentication_required', internal_reason: 'routine_coupon_requires_auth' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+    const completed = await hasTrustedSmartRoutineCompletion(context, user);
+    if (!completed) {
+      const denied = failEligibility({ code, reason_code: 'smart_routine_required', internal_reason: 'no_trusted_routine_completion' });
+      return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+    }
+  }
+
+  const discountAmount = discountFor(coupon, safeSubtotal);
+  if (discountType !== 'free_shipping' && discountAmount <= 0) {
+    const denied = failEligibility({ code, reason_code: 'invalid_discount', internal_reason: 'computed_discount_zero', eligibility_context: { subtotal: safeSubtotal } });
+    return { eligible: false, code, reasonCode: denied.reason_code, message: denied.customer_message, manualApplyRequired: true, ...denied };
+  }
+
+  const freeShipping = discountType === 'free_shipping';
+  const ok = okEligibility({
+    code,
+    coupon,
+    discountAmount,
+    discountType,
+    freeShipping,
+    eligibility_context: {
+      subtotal: safeSubtotal,
+      min_subtotal: minSubtotal,
+      tier: resolvedTier,
+      checkout: Boolean(checkout),
+      cart_items_present: Array.isArray(cartItems) ? cartItems.length : 0
+    }
+  });
+
+  // Backward-compatible response shape + new required fields.
   return {
     eligible: true,
-    code,
-    reasonCode: 'ELIGIBLE',
-    message: 'Kupon uygulanabilir.',
+    code: ok.code,
+    reasonCode: ok.reason_code,
+    message: ok.customer_message,
     minSubtotal,
     maxDiscount: coupon.max_discount_amount || null,
-    discountAmount,
-    discountType: lower(coupon.discount_type || coupon.type),
-    freeShipping: lower(coupon.discount_type || coupon.type) === 'free_shipping',
+    discountAmount: ok.discountAmount,
+    discountType: ok.discountType,
+    freeShipping: ok.freeShipping,
     expiresAt: coupon.ends_at || coupon.expires_at || null,
     manualApplyRequired: true,
     title: coupon.title,
     description: coupon.description,
     scopeLabel: coupon.scope_label,
-    coupon
+    coupon,
+    ...ok
   };
 }
 

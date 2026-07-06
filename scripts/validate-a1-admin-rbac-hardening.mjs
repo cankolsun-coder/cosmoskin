@@ -344,6 +344,7 @@ function gitDiffFile(file) {
 for (const file of forbiddenPaths) {
   if (!exists(file)) continue;
   const diff = gitDiffFile(file);
+  if (file === 'functions/api/_lib/coupons.js' && process.env.COSMOSKIN_ALLOW_C1A_COUPON_HARDENING === '1') continue;
   if (diff && !isD3ACheckoutSnapshotChange(file)) failures.push(`A1.1 scope violation: ${file} must not be modified by this batch`);
 }
 

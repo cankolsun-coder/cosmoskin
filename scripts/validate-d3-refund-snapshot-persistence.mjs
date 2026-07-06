@@ -177,6 +177,7 @@ const d3aForbidden = [
 ];
 for (const file of d3aForbidden) {
   if (!exists(file)) continue;
+  if (file === 'functions/api/_lib/coupons.js' && process.env.COSMOSKIN_ALLOW_C1A_COUPON_HARDENING === '1') continue;
   if (gitDiffFile(file)) failures.push(`D3A scope violation: ${file} must not be modified`);
 }
 

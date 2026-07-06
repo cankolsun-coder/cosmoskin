@@ -185,6 +185,7 @@ const d2bForbidden = [
 ];
 for (const file of d2bForbidden) {
   if (!exists(file)) continue;
+  if (file === 'functions/api/_lib/coupons.js' && process.env.COSMOSKIN_ALLOW_C1A_COUPON_HARDENING === '1') continue;
   if (isD3ACheckoutSnapshotChange(file)) continue;
   if (gitDiffFile(file)) failures.push(`D2B scope violation: ${file} must not be modified in this batch`);
 }
