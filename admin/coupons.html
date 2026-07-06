@@ -65,12 +65,23 @@
 <button class="cs-primary-btn" id="couponCreate" type="button">Kupon Oluştur</button>
 </section>
 <section class="cs-table-card">
-<div class="cs-table-head"><div><p class="cs-admin-kicker">Kampanyalar</p><h2>Kupon listesi</h2></div></div>
-<table class="cs-admin-table"><thead><tr><th>Kod</th><th>Tip</th><th>Değer</th><th>Minimum</th><th>Durum</th><th>Aksiyon</th></tr></thead><tbody id="couponRows"><tr><td colspan="6">Kuponlar yüklenmedi.</td></tr></tbody></table>
+<div class="cs-table-head"><div><p class="cs-admin-kicker">Kampanyalar</p><h2>Kupon listesi</h2><p>Uygunluk kuralları ve hariç tutmalar checkout’ta sunucu tarafında yeniden doğrulanır.</p></div></div>
+<table class="cs-admin-table"><thead><tr><th>Kod</th><th>Kanonik tip</th><th>Kanonik değer</th><th>Minimum</th><th>Durum / kaynak</th><th>Uygunluk</th><th>Aksiyon</th></tr></thead><tbody id="couponRows"><tr><td colspan="7">Kuponlar yüklenmedi.</td></tr></tbody></table>
 </section>
+<style>
+.cs-coupon-detail-panel{padding:1rem 0;border-top:1px solid rgba(26,21,16,.08)}
+.cs-coupon-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem 1rem;margin:1rem 0}
+.cs-coupon-detail-row{display:flex;flex-direction:column;gap:.2rem}
+.cs-coupon-detail-label{font-size:.78rem;color:rgba(26,21,16,.62);text-transform:uppercase;letter-spacing:.04em}
+.cs-coupon-detail-value{font-size:.95rem}
+.cs-coupon-detail-kicker{font-size:.85rem;font-weight:600;margin:.5rem 0}
+.cs-coupon-detail-note{font-size:.85rem;color:rgba(26,21,16,.68);margin:.35rem 0}
+.cs-coupon-warning{padding:.65rem .8rem;border:1px solid #c9a227;background:#fff8e8;color:#5a430f;border-radius:8px;margin:.5rem 0}
+.cs-coupon-edit-form{margin-top:1rem;padding-top:1rem;border-top:1px dashed rgba(26,21,16,.12)}
+</style>
 </main>
 </div>
-<script defer="" src="/assets/admin-coupons.js?v=20260511-admin-unified"></script>
+<script defer="" src="/assets/admin-coupons.js?v=20260706-c1b2"></script>
 <script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
 <script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
 <script src="/api/public-config?v=20260627-auth-config"></script>

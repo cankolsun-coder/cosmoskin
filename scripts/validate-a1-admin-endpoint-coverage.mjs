@@ -269,7 +269,9 @@ const BYTE_DIFF_EXEMPT_FILES = new Set([
   // D1 (2026-07-06) owns return/refund business-logic changes in these files;
   // D2 (2026-07-06) extends admin/refunds.js with amount balance validation.
   'functions/api/admin/refunds.js',
-  'functions/api/admin/returns.js'
+  'functions/api/admin/returns.js',
+  // C1B2 (2026-07-06) owns admin coupon metadata visibility + safe eligibility editing.
+  'functions/api/admin/coupons/index.js'
 ]);
 const allTouchedFiles = new Set(ALL_GATED_ENDPOINTS.map((e) => e.file));
 for (const file of allTouchedFiles) {

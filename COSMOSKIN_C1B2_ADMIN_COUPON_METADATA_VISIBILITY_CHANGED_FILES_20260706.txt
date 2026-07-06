@@ -1,0 +1,18 @@
+Created:
+- functions/api/_lib/coupon-admin.js
+- scripts/validate-c1b2-admin-coupon-metadata-visibility.mjs
+- COSMOSKIN_C1B2_ADMIN_COUPON_METADATA_VISIBILITY_REPORT_20260706.md
+- COSMOSKIN_C1B2_ADMIN_COUPON_METADATA_VISIBILITY_CHANGED_FILES_20260706.txt
+- COSMOSKIN_C1B2_ADMIN_COUPON_METADATA_VISIBILITY_RUNBOOK_20260706.md
+- COSMOSKIN_C1B2_ADMIN_COUPON_METADATA_VISIBILITY_ROLLBACK_PLAN_20260706.md
+
+Modified:
+- functions/api/_lib/coupons.js
+- functions/api/admin/coupons/index.js
+- assets/admin-coupons.js
+- admin/coupons.html
+- tests/local-integration.test.mjs
+- scripts/validate-a1-admin-endpoint-coverage.mjs
+
+Deleted:
+- (none)

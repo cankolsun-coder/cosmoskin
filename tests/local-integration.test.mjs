@@ -31,6 +31,12 @@ import { onRequestGet as adminLotsGet, onRequestPost as adminLotsPost, onRequest
 import { onRequestGet as adminSuppliersGet, onRequestPost as adminSuppliersPost, onRequestPatch as adminSuppliersPatch } from '../functions/api/admin/suppliers.js';
 import { onRequestGet as adminComplianceGet, onRequestPatch as adminCompliancePatch } from '../functions/api/admin/compliance.js';
 import { onRequestGet as adminCouponsGet, onRequestPost as adminCouponsPost, onRequestPatch as adminCouponsPatch } from '../functions/api/admin/coupons/index.js';
+import {
+  normalizeExclusionList,
+  resolveCouponPresentation,
+  sanitizeEligibilityMetadataPatch
+} from '../functions/api/_lib/coupons.js';
+import { buildCouponPatchPayload } from '../functions/api/_lib/coupon-admin.js';
 import { onRequestGet as adminShipmentsGet } from '../functions/api/admin/shipments.js';
 import { onRequestGet as adminEmailLogsGet } from '../functions/api/admin/email-logs.js';
 import { onRequestGet as adminRefundsGet, onRequestPost as adminRefundsPost } from '../functions/api/admin/refunds.js';
@@ -395,6 +401,174 @@ test('C1A: coupon eligibility is enforced server-side (tier, routine, first-orde
     assert.equal(missing.res.status, 403);
     assert.equal(missing.data.reasonCode, 'birthday_month_required');
   }
+});
+
+test('C1B2: admin coupon metadata visibility, sanitization, and checkout protections', async () => {
+  const welcomeRow = {
+    id: 'c-welcome',
+    code: 'WELCOME10',
+    title: 'Hoş geldin',
+    is_active: true,
+    type: 'percent',
+    value: 9,
+    discount_type: 'percent',
+    discount_value: 10,
+    min_subtotal: 1000,
+    max_discount: 140,
+    max_discount_amount: 150,
+    per_customer_limit: 1,
+    metadata: {
+      scope: 'launch',
+      eligibility: { requires_auth: true, requires_first_order: true, allowed_tiers: ['essential'] }
+    },
+    excluded_product_slugs: [' Alpha ', 'alpha'],
+    excluded_categories: ['Cleanse', 'cleanse']
+  };
+
+  const presentation = resolveCouponPresentation(welcomeRow);
+  assert.equal(presentation.canonical.coupon_type, 'percent');
+  assert.equal(presentation.canonical.coupon_value, 10);
+  assert.equal(presentation.canonical.coupon_max_discount, 150);
+  assert.equal(presentation.field_conflicts.has_conflict, true);
+  assert.match(presentation.field_conflicts.warning, /Checkout kanonik alanı kullanır/);
+  assert.equal(presentation.rule_source, 'metadata');
+  assert.equal(presentation.rule_source_label, 'Kural kaynağı: metadata');
+  assert.equal(presentation.eligibility.requires_auth, true);
+  assert.equal(presentation.eligibility.requires_first_order, true);
+  assert.deepEqual(presentation.excluded_product_slugs, ['alpha']);
+  assert.deepEqual(presentation.excluded_categories, ['cleanse']);
+
+  const routinePresentation = resolveCouponPresentation({
+    code: 'ROUTINE5',
+    is_active: true,
+    discount_type: 'percent',
+    discount_value: 5,
+    metadata: {}
+  });
+  assert.equal(routinePresentation.rule_source, 'system_default');
+  assert.equal(routinePresentation.rule_source_label, 'Kural kaynağı: sistem varsayılanı');
+  assert.equal(routinePresentation.eligibility.requires_smart_routine, true);
+
+  const invalidTiers = sanitizeEligibilityMetadataPatch(
+    { scope: 'launch', extra: { keep: true }, eligibility: { allowed_tiers: ['signature'] } },
+    { allowed_tiers: ['vip'] }
+  );
+  assert.equal(invalidTiers.ok, false);
+
+  const merged = sanitizeEligibilityMetadataPatch(
+    { scope: 'launch', extra: { keep: true }, eligibility: { allowed_tiers: ['signature'] } },
+    { requires_auth: true, allowed_tiers: ['elite'], requires_birthday: true }
+  );
+  assert.equal(merged.ok, true);
+  assert.equal(merged.metadata.scope, 'launch');
+  assert.equal(merged.metadata.extra.keep, true);
+  assert.deepEqual(merged.metadata.eligibility.allowed_tiers, ['elite']);
+  assert.equal(merged.metadata.eligibility.requires_birthday_month, true);
+
+  assert.deepEqual(normalizeExclusionList([' A ', 'a', '', 'b']), ['a', 'b']);
+
+  const patchPayload = buildCouponPatchPayload({
+    eligibility: { allowed_tiers: ['signature'] },
+    excluded_product_slugs: ['Slug-A', 'slug-a'],
+    excluded_categories: ['Treat', 'treat']
+  }, welcomeRow);
+  assert.equal(patchPayload.errors.length, 0);
+  assert.deepEqual(patchPayload.payload.excluded_product_slugs, ['slug-a']);
+  assert.deepEqual(patchPayload.payload.excluded_categories, ['treat']);
+  assert.deepEqual(patchPayload.payload.metadata.eligibility.allowed_tiers, ['signature']);
+
+  const adminEnv = {
+    ADMIN_TOKEN: 'a'.repeat(64),
+    ADMIN_ALLOW_LEGACY_TOKEN: 'true',
+    SUPABASE_URL: env.SUPABASE_URL,
+    SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY
+  };
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    coupons: [welcomeRow],
+    coupon_redemptions: [
+      { id: 'r-1', code: 'WELCOME10', status: 'used', created_at: '2026-01-02T10:00:00.000Z', used_at: '2026-01-02T10:05:00.000Z' },
+      { id: 'r-2', code: 'WELCOME10', status: 'reserved', created_at: '2026-02-02T10:00:00.000Z' }
+    ]
+  });
+
+  try {
+    const adminHeaders = {
+      'x-admin-token': 'a'.repeat(64),
+      'CF-Connecting-IP': '192.0.2.55',
+      'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+    };
+    const getReq = new Request('https://local.test/api/admin/coupons', { headers: adminHeaders });
+    const getRes = await adminCouponsGet({ request: getReq, env: adminEnv });
+    const getData = await getRes.json();
+    assert.equal(getRes.status, 200);
+    assert.equal(getData.ok, true);
+    const adminCoupon = getData.coupons[0];
+    assert.equal(adminCoupon.admin.code, 'WELCOME10');
+    assert.equal(adminCoupon.admin.usage.total_used_count, 1);
+    assert.equal(adminCoupon.admin.usage.active_reserved_count, 1);
+    assert.ok(adminCoupon.admin.usage.last_used_at);
+
+    const badPatchReq = new Request('https://local.test/api/admin/coupons', {
+      method: 'PATCH',
+      headers: {
+        ...adminHeaders,
+        'content-type': 'application/json',
+        'CF-Connecting-IP': '192.0.2.56'
+      },
+      body: JSON.stringify({ id: 'c-welcome', eligibility: { allowed_tiers: ['platinum'] } })
+    });
+    const badPatchRes = await adminCouponsPatch({ request: badPatchReq, env: adminEnv });
+    const badPatchData = await badPatchRes.json();
+    assert.equal(badPatchRes.status, 400);
+    assert.equal(badPatchData.ok, false);
+
+    const goodPatchReq = new Request('https://local.test/api/admin/coupons', {
+      method: 'PATCH',
+      headers: {
+        ...adminHeaders,
+        'content-type': 'application/json',
+        'CF-Connecting-IP': '192.0.2.57'
+      },
+      body: JSON.stringify({
+        id: 'c-welcome',
+        eligibility: { allowed_tiers: ['signature', 'elite'], requires_smart_routine: false },
+        excluded_categories: ['masks']
+      })
+    });
+    const goodPatchRes = await adminCouponsPatch({ request: goodPatchReq, env: adminEnv });
+    const goodPatchData = await goodPatchRes.json();
+    assert.equal(goodPatchRes.status, 200);
+    assert.deepEqual(goodPatchData.coupon.metadata.eligibility.allowed_tiers, ['signature', 'elite']);
+    assert.equal(goodPatchData.coupon.metadata.scope, 'launch');
+    assert.deepEqual(goodPatchData.coupon.excluded_categories, ['masks']);
+
+    const updatedRow = fake.table('coupons').find((row) => row.id === 'c-welcome');
+    assert.equal(updatedRow.metadata.scope, 'launch');
+    assert.deepEqual(updatedRow.metadata.eligibility.allowed_tiers, ['signature', 'elite']);
+  } finally {
+    restore();
+  }
+
+  // Checkout still rejects unauthorized coupon use (ELITE100 essential tier).
+  const eliteBlocked = await (async () => {
+    const couponRows = {
+      ELITE100: { id: 'c-elite', code: 'ELITE100', is_active: true, discount_type: 'amount', discount_value: 100, min_subtotal: 2000, max_discount_amount: 100, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, allowed_tiers: ['elite'] } } }
+    };
+    const fake2 = createFakeSupabase({ coupons: [couponRows.ELITE100], customer_membership_status: [{ id: 'ms-1', user_id: 'user-1', level_code: 'essential' }] });
+    const restore2 = installFetch(async (url, options = {}) => {
+      const href = String(url instanceof Request ? url.url : url);
+      if (href.includes('/auth/v1/user')) return response({ id: 'user-1', email: 'buyer@example.com', created_at: new Date().toISOString(), email_confirmed_at: new Date().toISOString(), email_verified: true });
+      if (href.includes('/rest/v1/coupons')) return response([couponRows.ELITE100]);
+      return await fake2.fetchHandler(url, options);
+    });
+    try {
+      const req = requestJson('https://local.test/api/coupons/validate', { code: 'ELITE100', accessToken: 'customer-token', cart: [{ slug: 'beauty-of-joseon-relief-sun-spf50', quantity: 3 }] });
+      const res = await validateCoupon(contextFor(req));
+      return { res, data: await res.json() };
+    } finally { restore2(); }
+  })();
+  assert.equal(eliteBlocked.res.status, 403);
+  assert.equal(eliteBlocked.data.reasonCode, 'membership_tier_not_allowed');
 });
 
 test('checkout blocks missing EFT bank account before inventory reservation or order creation', async () => {

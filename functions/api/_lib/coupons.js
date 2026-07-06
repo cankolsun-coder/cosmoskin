@@ -751,3 +751,140 @@ export function publicCouponRow(result) {
     source: 'backend_eligibility'
   };
 }
+
+export const MEMBERSHIP_TIER_CODES = ['essential', 'signature', 'elite'];
+
+export function normalizeExclusionList(value) {
+  const seen = new Set();
+  const out = [];
+  for (const raw of safeArray(value)) {
+    const normalized = lower(String(raw || '').trim());
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    out.push(normalized);
+  }
+  return out;
+}
+
+export function detectDiscountFieldConflicts(couponRow) {
+  const row = couponRow || {};
+  const conflicts = [];
+  if (row.type != null && row.discount_type != null && lower(row.type) !== lower(row.discount_type)) {
+    conflicts.push('type');
+  }
+  const legacyValue = Number(row.value);
+  const canonicalValue = Number(row.discount_value);
+  if (row.value != null && row.discount_value != null && Number.isFinite(legacyValue) && Number.isFinite(canonicalValue) && legacyValue !== canonicalValue) {
+    conflicts.push('value');
+  }
+  const legacyMax = Number(row.max_discount);
+  const canonicalMax = Number(row.max_discount_amount);
+  if (row.max_discount != null && row.max_discount_amount != null && Number.isFinite(legacyMax) && Number.isFinite(canonicalMax) && legacyMax !== canonicalMax) {
+    conflicts.push('max_discount');
+  }
+  return {
+    has_conflict: conflicts.length > 0,
+    fields: conflicts,
+    warning: conflicts.length > 0 ? 'Bu kuponda eski ve yeni indirim alanları farklı. Checkout kanonik alanı kullanır.' : null
+  };
+}
+
+export function resolveCouponPresentation(dbCoupon) {
+  const code = normalizeCouponCode(dbCoupon?.code);
+  const rule = defaultRuleFor(code);
+  const coupon = resolveCouponEnvelope(dbCoupon, rule, code);
+  const eligibilitySpec = resolveEligibilitySpec(code, coupon, rule);
+  const metadata = asMetadataObject(dbCoupon?.metadata);
+  const nestedEligibility = asMetadataObject(metadata?.eligibility);
+  const hasNestedEligibility = Object.keys(nestedEligibility).length > 0;
+  const ruleSource = hasNestedEligibility ? 'metadata' : (rule ? 'system_default' : 'database_only');
+  const ruleSourceLabel = ruleSource === 'metadata'
+    ? 'Kural kaynağı: metadata'
+    : (ruleSource === 'system_default' ? 'Kural kaynağı: sistem varsayılanı' : 'Kural kaynağı: veritabanı');
+  const fieldConflicts = detectDiscountFieldConflicts(dbCoupon);
+  const requiresBirthday = nestedEligibility.requires_birthday === true
+    || nestedEligibility.requires_birthday_month === true
+    || eligibilitySpec.requires_birthday_month === true;
+  const birthdayMode = nestedEligibility.birthday_mode === 'day' || nestedEligibility.birthday_mode === 'month'
+    ? nestedEligibility.birthday_mode
+    : (rule?.birthday_date_only ? 'day' : null);
+
+  return {
+    code,
+    title: coupon.title || code,
+    is_active: dbCoupon?.is_active !== false,
+    canonical: {
+      coupon_type: lower(coupon.discount_type || coupon.type || 'amount'),
+      coupon_value: Number(coupon.discount_value || 0),
+      coupon_max_discount: coupon.max_discount_amount != null ? Number(coupon.max_discount_amount) : null
+    },
+    legacy: {
+      type: dbCoupon?.type ?? null,
+      value: dbCoupon?.value ?? null,
+      max_discount: dbCoupon?.max_discount ?? null
+    },
+    field_conflicts: fieldConflicts,
+    min_subtotal: Number(coupon.min_subtotal || 0),
+    max_discount_amount: coupon.max_discount_amount != null ? Number(coupon.max_discount_amount) : null,
+    usage_limit: Number(coupon.usage_limit || 0) || null,
+    per_customer_limit: Number(coupon.per_customer_limit || 0) || null,
+    stackable: coupon.stackable === true,
+    starts_at: dbCoupon?.starts_at || null,
+    ends_at: dbCoupon?.ends_at || null,
+    excluded_product_slugs: normalizeExclusionList(coupon.excluded_product_slugs),
+    excluded_categories: normalizeExclusionList(coupon.excluded_categories),
+    eligibility: {
+      requires_auth: eligibilitySpec.requires_auth === true,
+      allowed_tiers: [...(eligibilitySpec.allowed_tiers || [])],
+      requires_first_order: eligibilitySpec.requires_first_order === true,
+      requires_birthday: requiresBirthday,
+      birthday_mode: birthdayMode,
+      requires_smart_routine: eligibilitySpec.requires_smart_routine === true,
+      limit_period: typeof nestedEligibility.limit_period === 'string' && nestedEligibility.limit_period.trim()
+        ? nestedEligibility.limit_period.trim()
+        : 'lifetime'
+    },
+    rule_source: ruleSource,
+    rule_source_label: ruleSourceLabel,
+    partial_exclusion_notice: 'Bu kupon bazı ürünlerde geçerli değildir.',
+    checkout_revalidation_notice: 'Checkout kuralları sunucu tarafında yeniden doğrulanır.'
+  };
+}
+
+export function sanitizeEligibilityMetadataPatch(existingMetadata, partial = {}) {
+  const existing = asMetadataObject(existingMetadata);
+  const currentEligibility = asMetadataObject(existing.eligibility);
+  const patch = partial?.eligibility && typeof partial.eligibility === 'object' ? partial.eligibility : partial;
+  const nextMetadata = { ...existing };
+  const mergedEligibility = { ...currentEligibility };
+
+  for (const key of ['requires_auth', 'requires_first_order', 'requires_birthday', 'requires_birthday_month', 'requires_smart_routine']) {
+    if (key in patch) mergedEligibility[key] = patch[key] === true;
+  }
+
+  if ('birthday_mode' in patch) {
+    const mode = patch.birthday_mode;
+    mergedEligibility.birthday_mode = (mode === 'day' || mode === 'month') ? mode : null;
+  }
+
+  if (mergedEligibility.requires_birthday === true) {
+    mergedEligibility.requires_birthday_month = true;
+  }
+
+  if ('allowed_tiers' in patch) {
+    const requested = safeArray(patch.allowed_tiers).map(lower).filter(Boolean);
+    const invalid = requested.filter((tier) => !MEMBERSHIP_TIER_CODES.includes(tier));
+    if (invalid.length) {
+      return { ok: false, error: 'Geçersiz üyelik seviyesi. Yalnızca essential, signature veya elite kullanılabilir.', invalid_tiers: invalid };
+    }
+    mergedEligibility.allowed_tiers = [...new Set(requested)];
+  }
+
+  if ('limit_period' in patch) {
+    const period = String(patch.limit_period || '').trim();
+    mergedEligibility.limit_period = period || 'lifetime';
+  }
+
+  nextMetadata.eligibility = mergedEligibility;
+  return { ok: true, metadata: nextMetadata };
+}
