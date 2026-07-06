@@ -8,6 +8,7 @@ import { legalDocumentKeyFromConsent, legalDocumentSnapshot } from './_lib/legal
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from './_lib/order-email.js';
 import { recordEmailEvent } from './_lib/email-events.js';
 import { validateCouponEligibility } from './_lib/coupons.js';
+import { buildOrderItemPricingSnapshots } from './_lib/order-pricing-snapshot.js';
 
 const VAT_RATE = 0.20;
 const FREE_SHIPPING_LIMIT = 2500;
@@ -351,25 +352,14 @@ function serializeError(error) {
 }
 
 function buildIyzicoBasketItems(cart, shipping, discount = 0) {
-  const subtotal = normalizeMoney(cart.reduce((sum, item) => sum + item.line_total, 0));
-  let allocatedDiscount = 0;
-  const items = cart.map((item, index) => {
-    let itemDiscount = 0;
-    if (discount > 0 && subtotal > 0) {
-      itemDiscount = index === cart.length - 1
-        ? normalizeMoney(discount - allocatedDiscount)
-        : normalizeMoney(discount * (item.line_total / subtotal));
-      allocatedDiscount = normalizeMoney(allocatedDiscount + itemDiscount);
-    }
-    const price = normalizeMoney(Math.max(0.01, item.line_total - itemDiscount));
-    return {
-      id: item.product_id,
-      name: item.product_name,
-      category1: 'Skincare',
-      itemType: 'PHYSICAL',
-      price: price.toFixed(2)
-    };
-  });
+  const snapshots = buildOrderItemPricingSnapshots(cart, discount);
+  const items = snapshots.map((item) => ({
+    id: item.product_id,
+    name: item.product_name,
+    category1: 'Skincare',
+    itemType: 'PHYSICAL',
+    price: normalizeMoney(Math.max(0.01, item.paid_line_total)).toFixed(2)
+  }));
 
   if (shipping > 0) {
     items.push({
@@ -800,7 +790,8 @@ export async function onRequestPost(context) {
 
     try {
       persistedOrder = await insertRow(context, 'orders', orderPayload);
-      await insertRows(context, 'order_items', cart.map((item) => ({ ...item, order_id: orderId })));
+      const cartWithSnapshots = buildOrderItemPricingSnapshots(cart, totals.discount || 0);
+      await insertRows(context, 'order_items', cartWithSnapshots.map((item) => ({ ...item, order_id: orderId })));
       await insertRow(context, 'order_status_events', {
         order_id: orderId,
         status: orderStatus,

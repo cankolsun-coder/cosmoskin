@@ -668,7 +668,77 @@
     var ret = (order.return_requests || []).find(function (r) { return String(r.id) === String(select.value); });
     return Array.isArray(ret && ret.requested_items) ? ret.requested_items : [];
   }
+  function orderItemHasSnapshot(row) {
+    if (!row || !row.pricing_snapshot_version) return false;
+    var lineTotal = Number(row.line_total || 0);
+    var paidLine = Number(row.paid_line_total);
+    var alloc = Number(row.allocated_order_discount);
+    var paidUnit = Number(row.paid_unit_price);
+    var qty = Number(row.quantity || 0);
+    if (!Number.isFinite(paidLine) || !Number.isFinite(alloc) || !Number.isFinite(paidUnit)) return false;
+    if (alloc < 0 || paidLine > lineTotal + 0.001) return false;
+    if (qty <= 0 || paidUnit <= 0) return false;
+    return true;
+  }
+  function orderItemsHaveSnapshots(orderItems) {
+    var items = (orderItems || []).filter(function (row) { return Number(row.line_total || 0) > 0; });
+    if (!items.length) return false;
+    return items.every(orderItemHasSnapshot);
+  }
+  function resolveItemProrationFromSnapshots(order, returnItems) {
+    var items = itemsOf(order).filter(function (row) { return Number(row.line_total || 0) > 0; });
+    if (!returnItems || !returnItems.length || !items.length || !orderItemsHaveSnapshots(items)) return null;
+    var byId = {};
+    var bySlug = {};
+    items.forEach(function (item) {
+      if (!orderItemHasSnapshot(item)) return;
+      var qty = Math.max(1, Number(item.quantity || 1));
+      var alloc = {
+        orderItemId: String(item.id || ''),
+        lineSubtotal: Math.round(Number(item.line_total || 0) * 100) / 100,
+        allocatedDiscount: Math.round(Number(item.allocated_order_discount || 0) * 100) / 100,
+        linePaidTotal: Math.round(Number(item.paid_line_total || 0) * 100) / 100,
+        paidUnitPrice: Math.round(Number(item.paid_unit_price || 0) * 100) / 100,
+        quantity: qty,
+        pricingSnapshotVersion: String(item.pricing_snapshot_version || '')
+      };
+      byId[alloc.orderItemId] = alloc;
+      var slugKey = String(item.product_slug || item.product_id || '');
+      if (slugKey) bySlug[slugKey] = alloc;
+    });
+    var originalSubtotal = 0;
+    var allocatedDiscount = 0;
+    var itemCap = 0;
+    var pricingSnapshotVersion = null;
+    for (var i = 0; i < returnItems.length; i++) {
+      var ret = returnItems[i];
+      var alloc = (ret.order_item_id && byId[String(ret.order_item_id)]) || (ret.product_slug && bySlug[String(ret.product_slug)]) || (ret.product_id && bySlug[String(ret.product_id)]);
+      if (!alloc) return { active: false, itemCap: null, breakdown: null, fallback: false, unsafe: true };
+      var purchasedQty = Math.max(1, Number(alloc.quantity || 1));
+      var returnedQty = Number(ret.quantity || 0);
+      if (!returnedQty || returnedQty <= 0 || returnedQty > purchasedQty) {
+        return { active: false, itemCap: null, breakdown: null, fallback: false, unsafe: true };
+      }
+      var unitPaid = alloc.paidUnitPrice;
+      var unitSubtotal = Math.round((alloc.lineSubtotal / purchasedQty) * 100) / 100;
+      var unitDiscount = Math.round((alloc.allocatedDiscount / purchasedQty) * 100) / 100;
+      originalSubtotal = Math.round((originalSubtotal + unitSubtotal * returnedQty) * 100) / 100;
+      allocatedDiscount = Math.round((allocatedDiscount + unitDiscount * returnedQty) * 100) / 100;
+      itemCap = Math.round((itemCap + unitPaid * returnedQty) * 100) / 100;
+      pricingSnapshotVersion = alloc.pricingSnapshotVersion || pricingSnapshotVersion;
+    }
+    return {
+      active: true,
+      itemCap: itemCap,
+      fallback: false,
+      snapshotBacked: true,
+      pricingSnapshotVersion: pricingSnapshotVersion,
+      breakdown: { originalSubtotal: originalSubtotal, allocatedDiscount: allocatedDiscount, paidItemValue: itemCap }
+    };
+  }
   function resolveItemProration(order, returnItems) {
+    var snapshot = resolveItemProrationFromSnapshots(order, returnItems);
+    if (snapshot) return snapshot;
     var items = itemsOf(order).filter(function (row) { return Number(row.line_total || 0) > 0; });
     if (!returnItems || !returnItems.length || !items.length) {
       return { active: false, itemCap: null, breakdown: null, fallback: false };
@@ -767,7 +837,9 @@
       itemProrationActive: proration.active,
       itemProrationFallback: proration.fallback,
       itemProratedProductCap: proration.itemCap,
-      itemProrationBreakdown: proration.breakdown
+      itemProrationBreakdown: proration.breakdown,
+      snapshotBacked: Boolean(proration.snapshotBacked),
+      pricingSnapshotVersion: proration.pricingSnapshotVersion || null
     };
   }
   function renderRefundBalanceSummary(order, formState, form) {
@@ -777,7 +849,11 @@
     }
     var prorationHtml = '';
     if (balance.itemProrationActive && balance.itemProrationBreakdown) {
-      prorationHtml = infoCell('Orijinal ürün ara toplamı', formatMoney(balance.itemProrationBreakdown.originalSubtotal, order.currency)) +
+      var snapshotNote = balance.snapshotBacked && balance.pricingSnapshotVersion
+        ? infoCell('Fiyat anlık görüntüsü', balance.pricingSnapshotVersion + ' (kayıtlı ödeme tutarı)')
+        : infoCell('Hesaplama kaynağı', 'Sipariş oluşturma anı yeniden hesaplandı');
+      prorationHtml = snapshotNote +
+        infoCell('Orijinal ürün ara toplamı', formatMoney(balance.itemProrationBreakdown.originalSubtotal, order.currency)) +
         infoCell('Dağıtılan indirim', formatMoney(balance.itemProrationBreakdown.allocatedDiscount, order.currency)) +
         infoCell('Ödenen ürün tutarı', formatMoney(balance.itemProrationBreakdown.paidItemValue, order.currency)) +
         infoCell('Maksimum iade edilebilir ürün tutarı', formatMoney(balance.effectiveRemaining, order.currency));

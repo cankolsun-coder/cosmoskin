@@ -7,6 +7,19 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const exists = (file) => fs.existsSync(path.join(root, file));
 const failures = [];
+const D3A_MIGRATION_FILE = '20260706_d3a_order_item_pricing_snapshot.sql';
+function migrationChangesExcludingD3A(lines = []) {
+  return (lines || []).filter((line) => String(line).trim() && !String(line).includes(D3A_MIGRATION_FILE));
+}
+function isD3ACheckoutSnapshotChange(filePath) {
+  try {
+    return String(filePath).endsWith('functions/api/create-checkout.js')
+      && fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes('buildOrderItemPricingSnapshots');
+  } catch (_) {
+    return false;
+  }
+}
+
 
 const EMAIL_EVENTS_LIB = 'functions/api/_lib/email-events.js';
 const ORDER_EMAIL_LIB = 'functions/api/_lib/order-email.js';
@@ -126,7 +139,7 @@ const b2eMigrationNamed = migrationStatus.filter((line) => /b2e|email_events/i.t
 if (b2eMigrationNamed.length) {
   failures.push(`B2E scope violation: a new migration file was detected — B2E must not create migrations: ${b2eMigrationNamed.join(', ')}`);
 }
-if (migrationStatus.length && !b2eMigrationNamed.length) {
+if (migrationChangesExcludingD3A(migrationStatus).length && !b2eMigrationNamed.length) {
   failures.push(`B2E scope violation: supabase/migrations was modified — B2E must not create migrations or run SQL: ${migrationStatus.join(', ')}`);
 }
 

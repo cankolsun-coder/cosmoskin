@@ -5,6 +5,11 @@ import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
 import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
+import {
+  isValidPricingSnapshot,
+  orderItemsHaveCompleteSnapshots,
+  snapshotAllocationFromOrderItem
+} from '../_lib/order-pricing-snapshot.js';
 
 const STATUSES = new Set(['pending', 'completed', 'failed', 'cancelled']);
 export const REFUNDABLE_PAYMENT_STATUSES = new Set(['paid', 'refunded', 'partially_refunded']);
@@ -240,6 +245,79 @@ function normalizeReturnItemsForProration(rows = []) {
   })).filter((row) => row.quantity > 0);
 }
 
+function resolveItemProratedRefundableCapFromSnapshots(order = {}, orderItems = [], normalizedReturnItems = []) {
+  const items = (orderItems || []).filter((row) => Number(row?.line_total) > 0);
+  if (!items.length || !orderItemsHaveCompleteSnapshots(items)) {
+    return null;
+  }
+
+  const productPaidSubtotal = roundMoney(
+    items.reduce((sum, row) => sum + Math.max(0, Number(row?.paid_line_total) || 0), 0)
+  ) ?? 0;
+  const orderProductPaid = roundMoney(
+    Math.max(0, (roundMoney(order.subtotal_amount) ?? 0) - (roundMoney(order.discount_amount) ?? 0))
+  );
+  if (orderProductPaid != null && productPaidSubtotal > orderProductPaid + 0.01) {
+    return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+  }
+
+  const byId = new Map();
+  const bySlug = new Map();
+  for (const item of items) {
+    if (!isValidPricingSnapshot(item)) {
+      return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+    }
+    const alloc = snapshotAllocationFromOrderItem(item);
+    byId.set(String(item.id || ''), alloc);
+    const slugKey = String(item.product_slug || item.product_id || '');
+    if (slugKey) bySlug.set(slugKey, alloc);
+  }
+
+  let originalSubtotal = 0;
+  let allocatedDiscount = 0;
+  let itemCap = 0;
+  let pricingSnapshotVersion = null;
+
+  for (const ret of normalizedReturnItems) {
+    const alloc = (ret.order_item_id && byId.get(String(ret.order_item_id)))
+      || (ret.product_slug && bySlug.get(String(ret.product_slug)))
+      || (ret.product_id && bySlug.get(String(ret.product_id)));
+    if (!alloc) return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+
+    const purchasedQty = Math.max(1, Number(alloc.quantity) || 1);
+    const returnedQty = Number(ret.quantity);
+    if (!Number.isFinite(returnedQty) || returnedQty <= 0 || returnedQty > purchasedQty) {
+      return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+    }
+
+    const unitSubtotal = roundMoney(alloc.lineSubtotal / purchasedQty) ?? 0;
+    const unitDiscount = roundMoney(alloc.allocatedDiscount / purchasedQty) ?? 0;
+    const unitPaid = roundMoney(alloc.paidUnitPrice ?? (alloc.linePaidTotal / purchasedQty)) ?? 0;
+    const lineRefund = roundMoney(unitPaid * returnedQty) ?? 0;
+
+    originalSubtotal = roundMoney(originalSubtotal + unitSubtotal * returnedQty) ?? originalSubtotal;
+    allocatedDiscount = roundMoney(allocatedDiscount + unitDiscount * returnedQty) ?? allocatedDiscount;
+    itemCap = roundMoney(itemCap + lineRefund) ?? itemCap;
+    pricingSnapshotVersion = alloc.pricingSnapshotVersion || pricingSnapshotVersion;
+  }
+
+  itemCap = roundMoney(Math.max(0, itemCap)) ?? 0;
+  return {
+    ok: true,
+    active: true,
+    itemCap,
+    fallback: false,
+    snapshotBacked: true,
+    discountSource: 'order_items.pricing_snapshot',
+    pricingSnapshotVersion,
+    breakdown: {
+      originalSubtotal: roundMoney(originalSubtotal) ?? 0,
+      allocatedDiscount: roundMoney(allocatedDiscount) ?? 0,
+      paidItemValue: itemCap
+    }
+  };
+}
+
 export function resolveItemProratedRefundableCap(order = {}, orderItems = [], returnItems = [], couponRedemptions = []) {
   const normalizedReturnItems = normalizeReturnItemsForProration(returnItems);
   if (!normalizedReturnItems.length) {
@@ -249,6 +327,11 @@ export function resolveItemProratedRefundableCap(order = {}, orderItems = [], re
   const items = (orderItems || []).filter((row) => Number(row?.line_total) > 0);
   if (!items.length) {
     return { ok: false, active: false, error: ERR_PRORATION_UNSAFE };
+  }
+
+  const snapshotResult = resolveItemProratedRefundableCapFromSnapshots(order, items, normalizedReturnItems);
+  if (snapshotResult) {
+    return snapshotResult;
   }
 
   const linesSum = roundMoney(items.reduce((sum, row) => sum + Math.max(0, Number(row?.line_total) || 0), 0)) ?? 0;
@@ -376,7 +459,7 @@ async function loadOrder(context, id) {
 async function loadOrderItems(context, orderId) {
   if (!orderId) return [];
   return await selectRows(context, 'order_items', {
-    select: 'id,order_id,unit_price,quantity,line_total',
+    select: 'id,order_id,product_id,product_slug,unit_price,quantity,line_total,allocated_order_discount,paid_line_total,paid_unit_price,pricing_snapshot_version',
     order_id: `eq.${orderId}`,
     order: 'created_at.asc',
     limit: '100'
@@ -475,6 +558,8 @@ export async function loadRefundBalanceContext(context, order, options = {}) {
     itemProrationFallback: Boolean(proration.fallback),
     itemProratedProductCap: proration.itemCap,
     itemProrationBreakdown: proration.breakdown || null,
+    snapshotBacked: Boolean(proration.snapshotBacked),
+    pricingSnapshotVersion: proration.pricingSnapshotVersion || null,
     discountSource: proration.discountSource || resolveOrderDiscountAmount(order, couponRedemptions).source
   };
   ctx.effectiveRemaining = resolveEffectiveRemainingRefundable(ctx);
@@ -614,6 +699,8 @@ export async function onRequestPost(context) {
         item_prorated_product_cap: balanceCtx.itemProratedProductCap,
         item_proration_breakdown: balanceCtx.itemProrationBreakdown,
         discount_source: balanceCtx.discountSource,
+        snapshot_backed: balanceCtx.snapshotBacked,
+        pricing_snapshot_version: balanceCtx.pricingSnapshotVersion,
         effective_remaining_before: balanceCtx.effectiveRemaining
       }
     };
@@ -677,6 +764,10 @@ export async function onRequestPost(context) {
         refund_responsibility: balanceCtx.responsibility,
         item_prorated_product_cap: balanceCtx.itemProratedProductCap,
         item_proration_active: balanceCtx.itemProrationActive,
+        item_proration_fallback: balanceCtx.itemProrationFallback,
+        snapshot_backed: balanceCtx.snapshotBacked,
+        pricing_snapshot_version: balanceCtx.pricingSnapshotVersion,
+        discount_source: balanceCtx.discountSource,
         effective_remaining_before: balanceCtx.effectiveRemaining
       },
       message: 'Refund kaydı oluşturuldu. Gerçek ödeme sağlayıcı refund işlemi çalıştırılmadı.'

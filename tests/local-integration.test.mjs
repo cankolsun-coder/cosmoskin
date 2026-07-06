@@ -574,7 +574,7 @@ test('A1.2c: high-caution finance endpoints keep their business-logic markers al
   const refundsSrc = await fs.readFile(path.join(root, 'functions/api/admin/refunds.js'), 'utf8');
   const invoicesSrc = await fs.readFile(path.join(root, 'functions/api/admin/invoices.js'), 'utf8');
   const bankAccountsSrc = await fs.readFile(path.join(root, 'functions/api/admin/bank-accounts.js'), 'utf8');
-  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund', 'validateRefundAmount', 'resolveProductRefundableCap', 'resolveShippingRefundableCap', 'allocateOrderDiscount', 'resolveItemProratedRefundableCap']) {
+  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund', 'validateRefundAmount', 'resolveProductRefundableCap', 'resolveShippingRefundableCap', 'allocateOrderDiscount', 'resolveItemProratedRefundableCap', 'snapshotBacked', 'order_items.pricing_snapshot']) {
     assert.match(refundsSrc, new RegExp(marker), `admin/refunds.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
   }
   for (const marker of ['TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'order_status_events']) {
@@ -1240,6 +1240,23 @@ function seedMultiLineOrderItems(orderId = 'order-d2b-multi') {
   return [
     { id: 'oi-d2b-a', order_id: orderId, product_id: 'a', product_slug: 'prod-a', product_name: 'Product A', unit_price: 600, quantity: 1, line_total: 600 },
     { id: 'oi-d2b-b', order_id: orderId, product_id: 'b', product_slug: 'prod-b', product_name: 'Product B', unit_price: 400, quantity: 1, line_total: 400 }
+  ];
+}
+
+function seedMultiLineOrderItemsWithSnapshots(orderId = 'order-d3a-multi') {
+  return [
+    {
+      id: 'oi-d3a-a', order_id: orderId, product_id: 'a', product_slug: 'prod-a', product_name: 'Product A',
+      unit_price: 600, quantity: 1, line_total: 600,
+      allocated_order_discount: 60, paid_line_total: 540, paid_unit_price: 540,
+      pricing_snapshot_version: 'v1_proportional_last_line_remainder'
+    },
+    {
+      id: 'oi-d3a-b', order_id: orderId, product_id: 'b', product_slug: 'prod-b', product_name: 'Product B',
+      unit_price: 400, quantity: 1, line_total: 400,
+      allocated_order_discount: 40, paid_line_total: 360, paid_unit_price: 360,
+      pricing_snapshot_version: 'v1_proportional_last_line_remainder'
+    }
   ];
 }
 
@@ -2030,6 +2047,136 @@ test('D2B: unsafe return item match blocks refund calculation', async () => {
     assert.equal(res.status, 400);
     assert.match(data.error, /güvenli şekilde hesaplanamadı/i);
     assert.equal(fake.table('refund_records').length, 0);
+  } finally { restore(); }
+});
+
+test('D3A: buildOrderItemPricingSnapshots stores allocated discount and paid totals', async () => {
+  const { buildOrderItemPricingSnapshots } = await import('../functions/api/_lib/order-pricing-snapshot.js');
+  const cart = [
+    { product_id: 'a', line_total: 600, quantity: 1 },
+    { product_id: 'b', line_total: 400, quantity: 1 }
+  ];
+  const rows = buildOrderItemPricingSnapshots(cart, 100);
+  assert.equal(rows[0].allocated_order_discount, 60);
+  assert.equal(rows[1].allocated_order_discount, 40);
+  assert.equal(rows[0].paid_line_total, 540);
+  assert.equal(rows[1].paid_line_total, 360);
+  assert.equal(rows[0].pricing_snapshot_version, 'v1_proportional_last_line_remainder');
+});
+
+test('D3A: refund calculation prefers stored snapshot fields', async () => {
+  const orderId = 'order-d3a-snapshot';
+  const returnId = 'ret-d3a-snapshot';
+  const items = [{ order_item_id: 'oi-d3a-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }];
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId })],
+    order_items: seedMultiLineOrderItemsWithSnapshots(orderId),
+    payments: [{ id: 'pay-d3a-1', order_id: orderId, status: 'paid', amount: 900, currency: 'TRY' }],
+    ...seedReturnBundle(orderId, returnId, items)
+  });
+  try {
+    const blocked = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 600,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-D3A-PRE'
+    });
+    assert.equal(blocked.status, 400);
+
+    const ok = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 540,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-D3A-SNAP'
+    });
+    const data = await ok.json();
+    assert.equal(ok.status, 200);
+    assert.equal(data.balance.item_prorated_product_cap, 540);
+    assert.equal(data.balance.snapshot_backed, true);
+    assert.equal(data.balance.discount_source, 'order_items.pricing_snapshot');
+    assert.equal(fake.table('refund_records')[0].metadata.snapshot_backed, true);
+  } finally { restore(); }
+});
+
+test('D3A: legacy order without snapshot falls back to D2B reconstruction', async () => {
+  const orderId = 'order-d3a-legacy';
+  const returnId = 'ret-d3a-legacy';
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId })],
+    order_items: seedMultiLineOrderItems(orderId),
+    payments: [{ id: 'pay-d3a-legacy', order_id: orderId, status: 'paid', amount: 900, currency: 'TRY' }],
+    ...seedReturnBundle(orderId, returnId, [{ order_item_id: 'oi-d2b-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 540,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-D3A-LEGACY'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.notEqual(data.balance.snapshot_backed, true);
+    assert.equal(data.balance.item_prorated_product_cap, 540);
+  } finally { restore(); }
+});
+
+test('D3A: invalid snapshot data falls back to D2B reconstruction', async () => {
+  const orderId = 'order-d3a-invalid';
+  const returnId = 'ret-d3a-invalid';
+  const badSnapshots = seedMultiLineOrderItemsWithSnapshots(orderId).map((row, index) => (
+    index === 0
+      ? { ...row, paid_line_total: 700, paid_unit_price: 700 }
+      : row
+  ));
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId })],
+    order_items: badSnapshots,
+    payments: [{ id: 'pay-d3a-invalid', order_id: orderId, status: 'paid', amount: 900, currency: 'TRY' }],
+    ...seedReturnBundle(orderId, returnId, [{ order_item_id: 'oi-d3a-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 540,
+      refund_responsibility: 'customer_preference',
+      provider_reference: 'REF-D3A-INVALID'
+    });
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.notEqual(data.balance.snapshot_backed, true);
+    assert.equal(data.balance.item_prorated_product_cap, 540);
+  } finally { restore(); }
+});
+
+test('D3A: seller_fault shipping inclusion still works with snapshot-backed items', async () => {
+  const orderId = 'order-d3a-ship';
+  const returnId = 'ret-d3a-ship';
+  const { fake, restore } = await installFakeSupabaseWithAdmin({
+    orders: [seedDiscountedMultiLineOrder({ id: orderId, shipping_amount: 89, total_amount: 989 })],
+    order_items: seedMultiLineOrderItemsWithSnapshots(orderId),
+    payments: [{ id: 'pay-d3a-ship', order_id: orderId, status: 'paid', amount: 989, currency: 'TRY' }],
+    ...seedReturnBundle(orderId, returnId, [{ order_item_id: 'oi-d3a-a', product_slug: 'prod-a', quantity: 1, unit_price_snapshot: 600, refundable_amount: 600 }])
+  });
+  try {
+    const res = await d2RefundPost({
+      order_id: orderId,
+      return_request_id: returnId,
+      status: 'completed',
+      amount: 629,
+      refund_responsibility: 'seller_fault',
+      provider_reference: 'REF-D3A-SHIP'
+    });
+    assert.equal(res.status, 200);
+    assert.equal(fake.table('refund_records')[0].amount, 629);
   } finally { restore(); }
 });
 

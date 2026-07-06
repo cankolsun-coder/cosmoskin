@@ -15,6 +15,19 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const exists = (file) => fs.existsSync(path.join(root, file));
 const failures = [];
+const D3A_MIGRATION_FILE = '20260706_d3a_order_item_pricing_snapshot.sql';
+function migrationChangesExcludingD3A(lines = []) {
+  return (lines || []).filter((line) => String(line).trim() && !String(line).includes(D3A_MIGRATION_FILE));
+}
+function isD3ACheckoutSnapshotChange(filePath) {
+  try {
+    return String(filePath).endsWith('functions/api/create-checkout.js')
+      && fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes('buildOrderItemPricingSnapshots');
+  } catch (_) {
+    return false;
+  }
+}
+
 
 const RETURNS_API = 'functions/api/returns.js';
 const REFUNDS_API = 'functions/api/admin/refunds.js';
@@ -212,7 +225,7 @@ try {
 } catch (_) {
   migrationStatus = [];
 }
-if (migrationStatus.length) {
+if (migrationChangesExcludingD3A(migrationStatus).length) {
   failures.push(`D1 scope violation: supabase/migrations was modified — D1 must not create migrations: ${migrationStatus.join(', ')}`);
 }
 

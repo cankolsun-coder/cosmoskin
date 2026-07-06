@@ -1,0 +1,56 @@
+# COSMOSKIN D3A — Refund Snapshot Persistence for New Orders — Changed Files
+# Date: 2026-07-06
+# Migration created (not run). No SQL executed. No deploy. No commit.
+
+## Migration
+supabase/migrations/20260706_d3a_order_item_pricing_snapshot.sql
+
+## Core behavior (D3A scope)
+functions/api/_lib/order-pricing-snapshot.js
+functions/api/create-checkout.js
+functions/api/admin/refunds.js
+assets/admin-orders.js
+
+## Tests & validator
+scripts/validate-d3-refund-snapshot-persistence.mjs
+tests/local-integration.test.mjs
+
+## Prior-batch scope-guard updates (D3A migration/checkout exemptions)
+scripts/validate-d2b-refund-discount-proration.mjs
+scripts/validate-d2-refund-amount-correctness.mjs
+scripts/validate-d1-returns-refunds-correctness.mjs
+scripts/validate-b2e-email-events-integrity.mjs
+scripts/validate-b2-bank-transfer-rejection-finalization.mjs
+scripts/validate-a1f-admin-rbac-session-identity.mjs
+scripts/validate-a1-admin-rbac-hardening.mjs
+scripts/validate-a1-admin-endpoint-coverage.mjs
+scripts/validate-h2-return-attachment-preview.mjs
+scripts/validate-h1-return-attachment-storage-rls.mjs
+scripts/validate-h0-live-payment-rpc-hotfix.mjs
+scripts/validate-account-batch-3-order-cancellation.mjs
+scripts/validate-account-batch-4-loyalty-ledger.mjs
+
+## Deliverables (this batch)
+COSMOSKIN_D3A_REFUND_SNAPSHOT_PERSISTENCE_REPORT_20260706.md
+COSMOSKIN_D3A_REFUND_SNAPSHOT_PERSISTENCE_CHANGED_FILES_20260706.txt
+COSMOSKIN_D3A_REFUND_SNAPSHOT_PERSISTENCE_RUNBOOK_20260706.md
+COSMOSKIN_D3A_REFUND_SNAPSHOT_PERSISTENCE_ROLLBACK_PLAN_20260706.md
+
+## Plan (pre-existing)
+COSMOSKIN_D3_REFUND_SNAPSHOT_PERSISTENCE_PLAN_20260706.md
+
+## Explicitly NOT changed
+functions/api/_lib/admin.js
+functions/api/_lib/admin-audit.js
+functions/api/_lib/cloudflare-access-jwt.js
+functions/api/_lib/commerce-finalization.js
+functions/api/_lib/coupons.js
+functions/api/_lib/loyalty-ledger.js
+functions/api/iyzico-callback.js
+functions/api/returns.js
+assets/admin-runtime.js
+assets/admin-runtime.css
+
+## Deferred (D3B)
+- Historical order backfill
+- return_request_items paid snapshot alignment at return creation
