@@ -2007,10 +2007,14 @@
     var busyKey = 'image:' + review.id + ':' + image.id;
     var disabled = isBusy(busyKey) ? ' disabled' : '';
     var created = image.created_at ? formatDate(image.created_at) : 'Tarih yok';
+    var imageUrl = imagePreviewUrl(image);
+    var thumb = imageUrl
+      ? '<img src="' + esc(imageUrl) + '" alt="Review görseli" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false" /><span class="media-fallback" hidden>Görsel yüklenemedi</span>'
+      : '<span class="media-fallback">Görsel yüklenemedi</span>';
     return [
       '<article class="media-card">',
-        '<button class="media-thumb" type="button" data-image-action="open" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '">',
-          '<img src="' + esc(image.url) + '" alt="Review görseli" loading="lazy" />',
+        '<button class="media-thumb" type="button" data-image-action="open" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + (imageUrl ? '' : ' disabled aria-disabled="true"') + '>',
+          thumb,
         '</button>',
         '<div class="media-body">',
           '<div class="media-meta">',
@@ -2026,6 +2030,10 @@
         '</div>',
       '</article>'
     ].join('');
+  }
+
+  function imagePreviewUrl(image) {
+    return String((image && (image.signed_url || image.thumbnail_url || image.public_url || image.url)) || '').trim();
   }
 
   function metaBox(label, values) {
@@ -2316,7 +2324,9 @@
       if (!review || !image) return;
 
       if (actionName === 'open') {
-        openLightbox(image.url, (review.product.name || 'Kullanıcı görseli') + ' · ' + statusLabel(image.status));
+        var previewUrl = imagePreviewUrl(image);
+        if (!previewUrl) return;
+        openLightbox(previewUrl, (review.product.name || 'Kullanıcı görseli') + ' · ' + statusLabel(image.status));
       } else if (actionName === 'approve') {
         changeImageStatus(imgReviewId, imageId, 'approved');
       } else if (actionName === 'reject') {

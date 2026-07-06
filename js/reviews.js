@@ -2,7 +2,6 @@
   'use strict';
   const CFG=window.COSMOSKIN_CONFIG||{};
   const API=(CFG.apiBase||'/api').replace(/\/$/,'');
-  const BUCKET='review-images';
   const MAX_FILES=5;
   const MAX_MB=2;
   const LABELS={1:'Hayal kırıklığı',2:'Beklentinin altında',3:'İdare eder',4:'Oldukça memnunum',5:'Mükemmel, kesinlikle öneririm'};
@@ -154,8 +153,8 @@
   function setStatus(msg,type=''){const el=$('#rvFormStatus'); if(el){el.textContent=msg;el.className=`pdp5-form-status ${type}`;}}
   function handleFiles(fileList){
     Array.from(fileList||[]).slice(0,MAX_FILES-files.length).forEach(file=>{
-      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setStatus('Sadece JPG, PNG veya WEBP yükleyebilirsin.','error');return;}
-      if(file.size>MAX_MB*1024*1024){setStatus(`Görsel ${MAX_MB} MB sınırını aşıyor.`,'error');return;}
+      if(!['image/jpeg','image/png','image/webp'].includes(file.type)){setStatus('Desteklenmeyen görsel formatı.','error');return;}
+      if(file.size>MAX_MB*1024*1024){setStatus('Görsel boyutu çok büyük.','error');return;}
       files.push({file,url:URL.createObjectURL(file)});
     });
     renderPreviews();
@@ -164,25 +163,27 @@
     const row=$('#rvPreviewRow'); if(!row) return;
     row.innerHTML=files.map((item,i)=>`<div class="pdp5-preview-item"><img src="${item.url}" alt="Önizleme"/><button type="button" data-remove-file="${i}">×</button></div>`).join('');
   }
-  async function compress(file){
-    return await new Promise(resolve=>{
-      const img=new Image(); const url=URL.createObjectURL(file);
-      img.onload=()=>{URL.revokeObjectURL(url);let w=img.width,h=img.height;const max=1400;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);c.toBlob(blob=>resolve({blob,width:w,height:h}),'image/webp',.84);};
-      img.onerror=()=>resolve(null); img.src=url;
-    });
-  }
-  async function uploadImages(reviewId){
-    if(!sb||!session||!files.length) return [];
-    const uploaded=[];
-    for(let i=0;i<files.length;i++){
-      const packed=await compress(files[i].file); if(!packed?.blob) continue;
-      const path=`${session.user.id}/${reviewId||'new'}/${Date.now()}-${i}.webp`;
-      const {error}=await sb.storage.from(BUCKET).upload(path,packed.blob,{contentType:'image/webp',upsert:false});
-      if(error) continue;
-      const {data}=sb.storage.from(BUCKET).getPublicUrl(path);
-      uploaded.push({storagePath:path,publicUrl:data.publicUrl,width:packed.width,height:packed.height});
+  async function uploadReviewImage(reviewId,item){
+    if(!reviewId||!item?.file) throw new Error('Görsel yüklenemedi. Lütfen tekrar deneyin.');
+    const form=new FormData();
+    form.append('image',item.file,item.file.name||'review-image');
+    const res=await fetch(`${API}/reviews/${encodeURIComponent(reviewId)}/images`,{method:'POST',headers:authHeaders(),body:form});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||data.ok===false){
+      const code=String(data.code||'');
+      if(code==='image_too_large') throw new Error('Görsel boyutu çok büyük.');
+      if(code==='invalid_image_type'||code==='invalid_image_signature') throw new Error('Desteklenmeyen görsel formatı.');
+      throw new Error(data.error||'Görsel yüklenemedi. Lütfen tekrar deneyin.');
     }
-    return uploaded;
+    return data.image||null;
+  }
+  async function uploadSelectedImages(reviewId){
+    if(!files.length) return [];
+    const uploaded=[];
+    for(const item of files){
+      uploaded.push(await uploadReviewImage(reviewId,item));
+    }
+    return uploaded.filter(Boolean);
   }
   async function submit(e){
     e.preventDefault();
@@ -195,15 +196,18 @@
     const btn=$('#rvSubmitBtn'), label=$('#rvSubmitLabel'); if(btn) btn.disabled=true; if(label) label.textContent='Gönderiliyor…'; setStatus('');
     try{
       const isEdit=!!userReview;
-      let uploaded=[];
-      if(isEdit && files.length){ if(label) label.textContent='Görseller yükleniyor…'; uploaded=await uploadImages(userReview.id); }
-      const res=await fetch(`${API}/reviews${isEdit?`/${userReview.id}`:''}`,{method:isEdit?'PATCH':'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({product_slug:slug,title,body,rating,images:uploaded})});
+      const res=await fetch(`${API}/reviews${isEdit?`/${userReview.id}`:''}`,{method:isEdit?'PATCH':'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({product_slug:slug,title,body,rating})});
       const data=await res.json().catch(()=>({}));
       if(!res.ok) throw new Error(data.error||'Yorum gönderilemedi.');
-      if(!isEdit && files.length && data.review_id){
+      if(files.length){
         if(label) label.textContent='Görseller yükleniyor…';
-        const imgs=await uploadImages(data.review_id);
-        if(imgs.length){await fetch(`${API}/reviews/images`,{method:'POST',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({review_id:data.review_id,images:imgs})});}
+        try{
+          await uploadSelectedImages(data.review_id||userReview?.id);
+        }catch(error){
+          setStatus('Yorumunuz kaydedildi ancak görsel yüklenemedi.','error');
+          setTimeout(()=>{load();},900);
+          return;
+        }
       }
       setStatus('Yorumun incelemeye alındı. Onaylandıktan sonra yayınlanacak.','success');
       setTimeout(()=>{closeModal();load();},900);

@@ -46,6 +46,7 @@ import { confirmManualBankTransferPayment, rejectManualBankTransferPayment } fro
 import { EMAIL_TYPES, safeEmailType, recordEmailEvent } from '../functions/api/_lib/email-events.js';
 import { resendOrderEmail } from '../functions/api/admin/orders.js';
 import { onRequestPost as customerReturnsPost } from '../functions/api/returns.js';
+import { onRequest as reviewsApi } from '../functions/api/reviews/[[path]].js';
 import {
   resolveDeliveryTimestamp,
   isDeliveredForReturn,
@@ -208,6 +209,146 @@ test('I1: create-checkout rejects inactive product and quantity above available 
     assert.equal(data.items[0].reason, 'insufficient_stock');
     assert.equal(data.items[0].available_quantity, 1);
   } finally { restoreQty(); }
+});
+
+test('R1: PDP review image path uses multipart per-review upload and not retired endpoint', async () => {
+  const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
+  assert.doesNotMatch(src, /\/reviews\/images/);
+  assert.equal(src.includes('/reviews/${encodeURIComponent(reviewId)}/images'), true);
+  assert.match(src, /new FormData\(\)/);
+  assert.match(src, /Yorumunuz kaydedildi ancak görsel yüklenemedi\./);
+  assert.match(src, /Görsel boyutu çok büyük\./);
+  assert.match(src, /Desteklenmeyen görsel formatı\./);
+});
+
+test('R1: uploadReviewPhoto attaches image only to owner review and creates review_images row', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const calls = [];
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    calls.push({ href, method: options.method || 'GET', body: options.body || null });
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test', user_metadata: { first_name: 'R1' } });
+    if (href.includes('/rest/v1/reviews')) {
+      return response([{ id: 'review-r1', product_slug: slug, user_id: 'user-r1', user_display_name: 'R1', user_email: 'r1@example.test', title: 'Test', body: 'Review body valid', rating: 5, status: 'pending', approved: false, review_images: [] }]);
+    }
+    if (href.includes('/storage/v1/object/review-images/')) return response({ Key: 'review-images/user-r1/review-r1/photo.jpg' }, 200);
+    if (href.includes('/rest/v1/review_images')) {
+      return response([{ id: 'image-r1', review_id: 'review-r1', storage_path: 'user-r1/review-r1/photo.jpg', public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1/photo.jpg', status: 'pending', width: null, height: null, created_at: '2026-07-06T00:00:00Z' }]);
+    }
+    return response([]);
+  });
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([new Uint8Array([0xff, 0xd8, 0xff, 0x00])], 'photo.jpg', { type: 'image/jpeg' }));
+    const req = new Request('https://local.test/api/reviews/review-r1/images', { method: 'POST', headers: { authorization: 'Bearer customer-token' }, body: fd });
+    const res = await reviewsApi(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 201);
+    assert.equal(data.image.storage_path, 'user-r1/review-r1/photo.jpg');
+    assert.equal(data.image.signed_url, data.image.public_url);
+    assert.equal(calls.some((call) => call.href.includes('/storage/v1/object/review-images/user-r1/review-r1/')), true);
+    assert.equal(calls.some((call) => call.href.includes('/rest/v1/review_images') && call.method === 'POST'), true);
+  } finally { restore(); }
+});
+
+test('R1: uploadReviewPhoto blocks another customer and rejects invalid or oversized images', async () => {
+  const restoreOther = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test' });
+    if (href.includes('/rest/v1/reviews')) return response([{ id: 'review-r1', user_id: 'other-user', review_images: [] }]);
+    return response([]);
+  });
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([new Uint8Array([0xff, 0xd8, 0xff])], 'photo.jpg', { type: 'image/jpeg' }));
+    const req = new Request('https://local.test/api/reviews/review-r1/images', { method: 'POST', headers: { authorization: 'Bearer customer-token' }, body: fd });
+    const res = await reviewsApi(contextFor(req));
+    assert.equal(res.status, 404);
+  } finally { restoreOther(); }
+
+  const restoreInvalid = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test' });
+    if (href.includes('/rest/v1/reviews')) return response([{ id: 'review-r1', user_id: 'user-r1', review_images: [] }]);
+    return response([]);
+  });
+  try {
+    const badType = new FormData();
+    badType.append('image', new File(['x'], 'photo.gif', { type: 'image/gif' }));
+    const badTypeRes = await reviewsApi(contextFor(new Request('https://local.test/api/reviews/review-r1/images', { method: 'POST', headers: { authorization: 'Bearer customer-token' }, body: badType })));
+    const badTypeData = await badTypeRes.json();
+    assert.equal(badTypeRes.status, 400);
+    assert.equal(badTypeData.error, 'Desteklenmeyen görsel formatı.');
+
+    const oversized = new FormData();
+    oversized.append('image', new File([new Uint8Array((2 * 1024 * 1024) + 1)], 'large.jpg', { type: 'image/jpeg' }));
+    const oversizedRes = await reviewsApi(contextFor(new Request('https://local.test/api/reviews/review-r1/images', { method: 'POST', headers: { authorization: 'Bearer customer-token' }, body: oversized })));
+    const oversizedData = await oversizedRes.json();
+    assert.equal(oversizedRes.status, 400);
+    assert.equal(oversizedData.error, 'Görsel boyutu çok büyük.');
+  } finally { restoreInvalid(); }
+});
+
+test('R1: reviews API ignores raw client image paths on create and keeps retired endpoint disabled', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const calls = [];
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    calls.push({ href, method: options.method || 'GET', body: options.body ? String(options.body) : '' });
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test' });
+    if (href.includes('/rest/v1/orders')) return response([{ id: 'order-r1' }]);
+    if (href.includes('/rest/v1/order_items')) return response([{ product_slug: slug, product_name: 'Relief Sun' }]);
+    if (href.includes('/rest/v1/reviews') && (options.method || 'GET') === 'POST') return response([{ id: 'review-r1', product_slug: slug, user_id: 'user-r1', title: 'R1', body: 'Valid review body', rating: 5, status: 'pending', review_images: [] }]);
+    if (href.includes('/rest/v1/reviews')) return response([]);
+    if (href.includes('/rest/v1/review_images')) return response([{ id: 'bad' }]);
+    return response([]);
+  });
+  try {
+    const retiredReq = requestJson('https://local.test/api/reviews/images', { review_id: 'review-r1', images: [] }, { authorization: 'Bearer customer-token' });
+    const retiredRes = await reviewsApi(contextFor(retiredReq));
+    assert.equal(retiredRes.status, 410);
+
+    const createReq = requestJson('https://local.test/api/reviews', {
+      product_slug: slug,
+      title: 'R1 Review',
+      body: 'Valid review body',
+      rating: 5,
+      images: [{ storagePath: 'user-r1/review-r1/raw.jpg', publicUrl: 'https://example.test/raw.jpg' }]
+    }, { authorization: 'Bearer customer-token' });
+    const createRes = await reviewsApi(contextFor(createReq));
+    assert.equal(createRes.status, 200);
+    assert.equal(calls.some((call) => call.href.includes('/rest/v1/review_images') && call.method === 'POST'), false);
+  } finally { restore(); }
+});
+
+test('R1: admin reviews API returns normalized image objects and fallback-ready UI markers exist', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const restore = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/reviews')) {
+      return response([{ id: 'review-r1', product_slug: slug, user_id: 'user-r1', user_display_name: 'R1', user_email: 'r1@example.test', title: 'R1', body: 'Valid review body', rating: 5, status: 'pending', approved: false, review_images: [{ id: 'image-r1', storage_path: 'user-r1/review-r1/photo.jpg', public_url: '', status: 'pending', width: 1000, height: 1000, created_at: '2026-07-06T00:00:00Z' }] }]);
+    }
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/reviews/admin', { headers: { 'x-admin-token': 'admin-token' } });
+    const res = await reviewsApi(contextFor(req, { env: { ADMIN_TOKEN: 'admin-token', ADMIN_SESSION_SECRET: 'b'.repeat(64), ADMIN_ALLOW_LEGACY_TOKEN: 'true' } }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    const image = data.reviews[0].images[0];
+    assert.equal(image.storage_path, 'user-r1/review-r1/photo.jpg');
+    assert.match(image.public_url, /\/storage\/v1\/object\/public\/review-images\/user-r1\/review-r1\/photo\.jpg$/);
+    assert.equal(image.signed_url, image.public_url);
+    assert.equal(image.thumbnail_url, image.public_url);
+    assert.equal(image.filename, 'photo.jpg');
+    assert.equal(image.mime_type, null);
+    assert.equal(image.size_bytes, null);
+  } finally { restore(); }
+
+  const adminUi = await fs.readFile(path.join(root, 'admin/reviews/index.html'), 'utf8');
+  assert.match(adminUi, /Görsel yüklenemedi/);
+  assert.match(adminUi, /imagePreviewUrl/);
+  assert.match(adminUi, /signed_url \|\| image\.thumbnail_url \|\| image\.public_url \|\| image\.url/);
 });
 
 test('atomic inventory RPC success and idempotent release/conversion responses', async () => {

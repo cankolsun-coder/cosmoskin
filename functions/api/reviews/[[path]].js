@@ -11,7 +11,7 @@ import {
 const REVIEW_SELECT =
   'id,product_slug,user_id,user_display_name,user_email,title,body,rating,helpful_count,approved,status,verified_purchase,order_id,is_edited,created_at,updated_at';
 const REVIEW_SELECT_WITH_IMAGES =
-  `${REVIEW_SELECT},review_images(id,public_url,status,width,height,created_at)`;
+  `${REVIEW_SELECT},review_images(id,storage_path,public_url,status,width,height,created_at)`;
 
 function getSupabaseConfig(context) {
   const env = context?.env || {};
@@ -141,19 +141,58 @@ function resolveProduct(reference) {
   return resolveCatalogProduct(reference);
 }
 
-function mapImage(image) {
+function encodeStoragePath(path = '') {
+  return String(path || '').split('/').filter(Boolean).map(encodeURIComponent).join('/');
+}
+
+function reviewImagesPublicBase(context) {
+  try {
+    const { url } = getSupabaseConfig(context);
+    return `${url}/storage/v1/object/public/review-images`;
+  } catch {
+    return '';
+  }
+}
+
+function publicReviewImageUrl(image = {}, options = {}) {
+  const direct = String(image.public_url || image.signed_url || image.thumbnail_url || image.url || '').trim();
+  if (/^https?:\/\//i.test(direct)) return direct;
+  const storagePath = String(image.storage_path || '').trim();
+  const base = String(options.publicBase || '').replace(/\/$/, '');
+  if (storagePath && base) return `${base}/${encodeStoragePath(storagePath)}`;
+  return '';
+}
+
+function filenameFromPath(path = '') {
+  const clean = String(path || '').split('?')[0].split('/').filter(Boolean).pop() || '';
+  try {
+    return decodeURIComponent(clean);
+  } catch {
+    return clean;
+  }
+}
+
+function mapImage(image, options = {}) {
+  const storagePath = String(image?.storage_path || '').trim();
+  const usableUrl = publicReviewImageUrl(image, options);
   return {
-    id: image.id,
-    url: image.public_url,
-    public_url: image.public_url,
-    status: image.status || 'pending',
-    width: image.width || null,
-    height: image.height || null,
-    created_at: image.created_at || null,
-    storage_path: image.storage_path || null,
+    id: image?.id || null,
+    url: usableUrl,
+    public_url: usableUrl || String(image?.public_url || '').trim() || null,
+    signed_url: usableUrl || null,
+    thumbnail_url: usableUrl || null,
+    storage_path: storagePath || null,
+    path: storagePath || null,
+    filename: filenameFromPath(storagePath || image?.public_url || ''),
+    mime_type: image?.mime_type || null,
+    size_bytes: Number.isFinite(Number(image?.size_bytes)) ? Number(image.size_bytes) : null,
+    status: image?.status || 'pending',
+    width: image?.width || null,
+    height: image?.height || null,
+    created_at: image?.created_at || null,
     source: 'review_images',
     table: 'review_images',
-    field: 'public_url',
+    field: usableUrl ? 'public_url' : 'storage_path',
     index: 0
   };
 }
@@ -174,7 +213,7 @@ function mapReview(review, options = {}) {
   const rawImages = Array.isArray(review?.review_images) ? review.review_images : [];
   const images = rawImages
     .filter((image) => !options.publicOnly || (image.status || 'pending') === 'approved')
-    .map(mapImage);
+    .map((image) => mapImage(image, options));
 
   return {
     id: review.id,
@@ -374,6 +413,7 @@ async function handlePublicList(context) {
   assertRateLimit(context, 'reviews-list', 90, 10 * 60 * 1000);
   const { user } = await getUserFromRequest(context);
   const url = new URL(context.request.url);
+  const publicBase = reviewImagesPublicBase(context);
   const product =
     resolveProduct(url.searchParams.get('product_slug') || url.searchParams.get('product_id') || url.searchParams.get('product') || '') ||
     resolveProduct({ product_name: url.searchParams.get('product_name') || '' });
@@ -392,7 +432,8 @@ async function handlePublicList(context) {
   const approvedReviews = (rows || []).map((review) => mapReview(review, {
     product,
     publicOnly: true,
-    hideEmail: true
+    hideEmail: true,
+    publicBase
   }));
   let userReview = null;
   let helpfulIds = [];
@@ -406,7 +447,7 @@ async function handlePublicList(context) {
       limit: '1'
     });
     if (Array.isArray(ownRows) && ownRows[0]) {
-      userReview = mapReview(ownRows[0], { product });
+      userReview = mapReview(ownRows[0], { product, publicBase });
     }
 
     try {
@@ -490,7 +531,10 @@ async function handleCreateReview(context) {
   });
 
   const createdImages = await insertReviewImages(context, row.id, payload.images);
-  const mappedReview = mapReview({ ...row, review_images: createdImages }, { product: payload.product });
+  const mappedReview = mapReview({ ...row, review_images: createdImages }, {
+    product: payload.product,
+    publicBase: reviewImagesPublicBase(context)
+  });
 
   return json({
     ok: true,
@@ -541,7 +585,7 @@ async function handleUpdateReview(context, reviewId) {
           ? refreshed.review_images
           : [...(Array.isArray(existing.review_images) ? existing.review_images : []), ...newImages]
       },
-      { product: payload.product || resolveProduct(existing.product_slug) }
+      { product: payload.product || resolveProduct(existing.product_slug), publicBase: reviewImagesPublicBase(context) }
     )
   });
 }
@@ -569,7 +613,7 @@ async function handleCreateImages(context) {
   return json({
     ok: true,
     review_id: reviewId,
-    images: inserted.map(mapImage)
+    images: inserted.map((image) => mapImage(image, { publicBase: reviewImagesPublicBase(context) }))
   });
 }
 
@@ -594,8 +638,8 @@ async function uploadReviewPhoto(context, reviewId) {
   if (!(file instanceof File)) return validationError('Görsel dosyası gerekli.', 'missing_image');
   const allowed = new Map([['image/jpeg','jpg'],['image/png','png'],['image/webp','webp']]);
   const extension = allowed.get(String(file.type || '').toLowerCase());
-  if (!extension) return validationError('Yalnızca JPEG, PNG veya WebP görsel yükleyebilirsiniz.', 'invalid_image_type');
-  if (file.size <= 0 || file.size > 5 * 1024 * 1024) return validationError('Görsel boyutu en fazla 5 MB olabilir.', 'image_too_large');
+  if (!extension) return validationError('Desteklenmeyen görsel formatı.', 'invalid_image_type');
+  if (file.size <= 0 || file.size > 2 * 1024 * 1024) return validationError('Görsel boyutu çok büyük.', 'image_too_large');
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const signatures = {
@@ -603,7 +647,7 @@ async function uploadReviewPhoto(context, reviewId) {
     png: bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47,
     webp: String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP'
   };
-  if (!signatures[extension]) return validationError('Dosya içeriği bildirilen görsel türüyle eşleşmiyor.', 'invalid_image_signature');
+  if (!signatures[extension]) return validationError('Desteklenmeyen görsel formatı.', 'invalid_image_signature');
 
   const { url, serviceRoleKey } = getSupabaseConfig(context);
   const objectPath = `${required.user.id}/${reviewId}/${crypto.randomUUID()}.${extension}`;
@@ -619,7 +663,7 @@ async function uploadReviewPhoto(context, reviewId) {
   });
   if (!upload.ok) {
     console.error('review_image_upload_failed', { status: upload.status, reviewId });
-    return json({ ok: false, error: 'Görsel şu anda yüklenemedi.' }, { status: 503 });
+    return json({ ok: false, error: 'Görsel yüklenemedi. Lütfen tekrar deneyin.' }, { status: 503 });
   }
   const publicUrl = `${url}/storage/v1/object/public/review-images/${objectPath.split('/').map(encodeURIComponent).join('/')}`;
   const row = await insertRow(context, 'review_images', {
@@ -630,7 +674,7 @@ async function uploadReviewPhoto(context, reviewId) {
     width: null,
     height: null
   });
-  return json({ ok: true, review_id: reviewId, image: mapImage(row) }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
+  return json({ ok: true, review_id: reviewId, image: mapImage(row, { publicBase: reviewImagesPublicBase(context) }) }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
 }
 
 async function handleHelpful(context) {
@@ -672,6 +716,7 @@ async function handleHelpful(context) {
 
 async function handleAdminList(context) {
   await requireAdmin(context);
+  const publicBase = reviewImagesPublicBase(context);
 
   const rows = await selectRows(context, 'reviews', {
     select: REVIEW_SELECT_WITH_IMAGES,
@@ -680,7 +725,7 @@ async function handleAdminList(context) {
 
   return json({
     ok: true,
-    reviews: (rows || []).map((review) => mapReview(review))
+    reviews: (rows || []).map((review) => mapReview(review, { publicBase }))
   });
 }
 
@@ -715,7 +760,7 @@ async function handleAdminReviewUpdate(context, reviewId) {
   const refreshed = await getReviewById(context, reviewId);
   return json({
     ok: true,
-    review: mapReview(refreshed)
+    review: mapReview(refreshed, { publicBase: reviewImagesPublicBase(context) })
   });
 }
 
@@ -756,7 +801,7 @@ async function handleAdminImageUpdate(context, reviewId, imageId) {
 
   return json({
     ok: true,
-    image: rows?.[0] ? mapImage(rows[0]) : null
+    image: rows?.[0] ? mapImage(rows[0], { publicBase: reviewImagesPublicBase(context) }) : null
   });
 }
 
