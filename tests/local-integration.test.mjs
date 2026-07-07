@@ -917,6 +917,95 @@ test('R1F: admin UI image approve sends review id, image id, and status only', a
   assert.doesNotMatch(adminUi, /review_source_table: review\.source_table/);
 });
 
+test('R1G: review moderation updated_at migration is idempotent', async () => {
+  const migration = await fs.readFile(
+    path.join(root, 'supabase/migrations/20260707_r1g_review_moderation_updated_at_fix.sql'),
+    'utf8'
+  );
+  assert.match(migration, /ALTER TABLE public\.reviews[\s\S]*ADD COLUMN IF NOT EXISTS updated_at/i);
+  assert.match(migration, /ALTER TABLE public\.review_images[\s\S]*ADD COLUMN IF NOT EXISTS updated_at/i);
+  assert.match(migration, /sync_review_approved_from_status/);
+  assert.doesNotMatch(migration, /DROP TABLE/i);
+  assert.doesNotMatch(migration, /DROP POLICY/i);
+});
+
+test('R1G: review approval does not manually PATCH updated_at', async () => {
+  let reviewPatchBody = null;
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/rest/v1/reviews') && method === 'PATCH') {
+      reviewPatchBody = JSON.parse(String(options.body || '{}'));
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/review_images') && method === 'PATCH') {
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/reviews') && href.includes('id=eq.review-r1g')) {
+      return response([{
+        id: 'review-r1g',
+        product_slug: 'beauty-of-joseon-relief-sun-spf50',
+        user_id: 'user-r1',
+        title: 'R1G review',
+        body: 'Valid review body text',
+        rating: 5,
+        status: 'approved',
+        approved: true,
+        review_images: [{
+          id: 'img-r1g',
+          status: 'approved',
+          storage_path: 'user-r1/review-r1g/a.jpg',
+          public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1g/a.jpg',
+          created_at: '2026-07-07T00:00:00Z'
+        }]
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const res = await reviewsApi(contextFor(adminReviewRequest('/admin/review-r1g', 'PATCH', { status: 'approved' }), { env: adminReviewEnv }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(reviewPatchBody.status, 'approved');
+    assert.equal(Object.prototype.hasOwnProperty.call(reviewPatchBody, 'updated_at'), false);
+  } finally { restore(); }
+});
+
+test('R1G: image-level approve on approved review avoids updated_at payload', async () => {
+  let imagePatchBody = null;
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/rest/v1/review_images') && method === 'PATCH') {
+      imagePatchBody = JSON.parse(String(options.body || '{}'));
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/review_images') && href.includes('id=eq.img-r1g-live')) {
+      return response([{
+        id: 'img-r1g-live',
+        review_id: 'review-approved-r1g',
+        status: imagePatchBody?.status || 'pending',
+        storage_path: 'user-r1/review-approved-r1g/a.jpg',
+        public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-approved-r1g/a.jpg',
+        width: null,
+        height: null,
+        created_at: '2026-07-07T00:00:00Z'
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const res = await reviewsApi(contextFor(adminReviewRequest('/admin/review-approved-r1g/images/img-r1g-live', 'PATCH', { status: 'approved' }), { env: adminReviewEnv }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(imagePatchBody.status, 'approved');
+    assert.equal(Object.prototype.hasOwnProperty.call(imagePatchBody, 'updated_at'), false);
+    assert.equal(data.image.status, 'approved');
+  } finally { restore(); }
+});
+
 test('R1B: frontend markers support review id fallback and upload error detail', async () => {
   const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
   assert.match(src, /resolveReviewId/);

@@ -1,0 +1,11 @@
+# COSMOSKIN R1G — Review Moderation updated_at Schema — Changed Files
+# Date: 2026-07-07
+# Migration created; must be applied in Supabase before moderation works in production.
+
+supabase/migrations/20260707_r1g_review_moderation_updated_at_fix.sql
+scripts/validate-r1g-review-moderation-updated-at-schema.mjs
+tests/local-integration.test.mjs
+COSMOSKIN_R1G_REVIEW_MODERATION_UPDATED_AT_SCHEMA_CHANGED_FILES_20260707.txt
+COSMOSKIN_R1G_REVIEW_MODERATION_UPDATED_AT_SCHEMA_REPORT_20260707.md
+COSMOSKIN_R1G_REVIEW_MODERATION_UPDATED_AT_SCHEMA_RUNBOOK_20260707.md
+COSMOSKIN_R1G_REVIEW_MODERATION_UPDATED_AT_SCHEMA_ROLLBACK_PLAN_20260707.md
