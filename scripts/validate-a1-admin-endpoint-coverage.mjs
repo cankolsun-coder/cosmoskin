@@ -281,7 +281,9 @@ const BYTE_DIFF_EXEMPT_FILES = new Set([
   'functions/api/admin/refunds.js',
   'functions/api/admin/returns.js',
   // C1B2 (2026-07-06) owns admin coupon metadata visibility + safe eligibility editing.
-  'functions/api/admin/coupons/index.js'
+  'functions/api/admin/coupons/index.js',
+  // P1B (2026-07-07) owns read-only catalog price visibility in admin products list.
+  'functions/api/admin/products.js'
 ]);
 const allTouchedFiles = new Set(ALL_GATED_ENDPOINTS.map((e) => e.file));
 for (const file of allTouchedFiles) {

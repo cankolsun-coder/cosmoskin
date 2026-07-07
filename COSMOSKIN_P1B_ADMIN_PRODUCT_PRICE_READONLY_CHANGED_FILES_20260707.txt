@@ -1,0 +1,31 @@
+COSMOSKIN P1B — Admin Product Price Read-Only Visibility
+Changed files list (2026-07-07)
+
+Created:
+- scripts/validate-p1b-admin-product-price-readonly.mjs
+- COSMOSKIN_P1B_ADMIN_PRODUCT_PRICE_READONLY_REPORT_20260707.md
+- COSMOSKIN_P1B_ADMIN_PRODUCT_PRICE_READONLY_CHANGED_FILES_20260707.txt
+- COSMOSKIN_P1B_ADMIN_PRODUCT_PRICE_READONLY_RUNBOOK_20260707.md
+- COSMOSKIN_P1B_ADMIN_PRODUCT_PRICE_READONLY_ROLLBACK_PLAN_20260707.md
+
+Modified:
+- functions/api/admin/products.js
+- assets/admin-products.js
+- admin/products.html
+- tests/local-integration.test.mjs
+- scripts/validate-a1-admin-endpoint-coverage.mjs (P1B exempt for admin/products.js byte-diff guard)
+
+Not modified:
+- products.json
+- assets/products-data.js
+- functions/api/_lib/products-data.js
+- functions/api/create-checkout.js
+- functions/api/coupons/validate.js
+- functions/api/_lib/coupons.js
+- functions/api/_lib/inventory.js
+- functions/api/_lib/order-pricing-snapshot.js
+- admin auth/RBAC core files
+
+Not created:
+- supabase migrations
+- price editing UI or API (P1C deferred)

@@ -3978,6 +3978,81 @@ test('P1A: drift validator script passes on current catalog sources', async () =
   assert.match(result.stdout, /P1A product price source drift validation passed/);
 });
 
+test('P1B: admin product API includes read-only catalog price fields from trusted server catalog', async () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const restoreUsers = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([
+        { product_slug: slug, stock_on_hand: 4, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 5, sku: 'CS-ANUA_HEARTLEAF_77_SOOTHING_TONER' },
+        { product_slug: 'orphan-inventory-only-slug', stock_on_hand: 1, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 5, sku: 'ORPHAN' }
+      ]);
+    }
+    if (href.includes('/rest/v1/admin_users')) return response([{ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' }]);
+    return response([]);
+  });
+  try {
+    const res = await adminProductsGet({
+      request: adminReadRequest('https://local.test/api/admin/products', 'cankolsun@gmail.com'),
+      env: adminReadEnv(),
+      params: {}
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    const row = (data.products || []).find((p) => p.slug === slug);
+    assert.ok(row);
+    assert.equal(row.catalog_price_try, 849);
+    assert.equal(row.catalog_price_source, 'products.json');
+    assert.equal(row.catalog_currency, 'TRY');
+    assert.equal(row.catalog_price_valid, true);
+    assert.equal(row.catalog_price_warning, null);
+
+    const orphan = (data.products || []).find((p) => p.slug === 'orphan-inventory-only-slug');
+    assert.ok(orphan);
+    assert.equal(orphan.catalog_price_try, null);
+    assert.match(orphan.catalog_price_warning, /katalog fiyatı bulunamadı/i);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1B: admin product PATCH payload remains inventory-only without price fields', async () => {
+  const src = await fs.readFile(path.join(root, 'functions/api/admin/products.js'), 'utf8');
+  assert.match(src, /stock_on_hand|stock_qty/);
+  assert.doesNotMatch(src, /body\.(?:catalog_price|price|catalog_price_try)/);
+  const ui = await fs.readFile(path.join(root, 'assets/admin-products.js'), 'utf8');
+  assert.match(ui, /product_slug:slug,stock_qty:/);
+  assert.doesNotMatch(ui, /\bprice\s*:/);
+  assert.doesNotMatch(ui, /data-price|type=["']number["'][^>]*catalog/i);
+  assert.match(ui, /Katalog Fiyatı/);
+  assert.match(ui, /catalog_price_try/);
+  assert.match(ui, /Admin fiyat düzenleme P1C aşamasında eklenecek/);
+});
+
+test('P1B: checkout still ignores client price and D3A snapshots use paid totals', async () => {
+  const checkoutSrc = await fs.readFile(path.join(root, 'functions/api/create-checkout.js'), 'utf8');
+  const snapshotSrc = await fs.readFile(path.join(root, 'functions/api/_lib/order-pricing-snapshot.js'), 'utf8');
+  assert.match(checkoutSrc, /const unitPrice = normalizeMoney\(product\.price\)/);
+  assert.doesNotMatch(checkoutSrc, /rawItem\.(?:price|unit_price|unitPrice)/);
+  assert.match(checkoutSrc, /buildOrderItemPricingSnapshots/);
+  assert.match(snapshotSrc, /paid_unit_price/);
+  assert.match(snapshotSrc, /paid_line_total/);
+});
+
+test('P1B: drift and read-only validators pass', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  for (const script of [
+    'scripts/validate-p1b-admin-product-price-readonly.mjs',
+    'scripts/validate-p1a-product-price-source-drift.mjs'
+  ]) {
+    const result = spawnSync(process.execPath, [script], { cwd, encoding: 'utf8' });
+    assert.equal(result.status, 0, `${script}: ${result.stderr || result.stdout}`);
+  }
+});
+
 test('A1F2: missing team domain fails closed when only JWT header is present', async () => {
   const adminEnv = a1fAdminEnv();
   await assert.rejects(

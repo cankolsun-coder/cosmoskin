@@ -1,13 +1,82 @@
 import { selectRows, updateRows, insertRow } from '../_lib/supabase.js';
-import { catalog } from '../_lib/catalog.js';
+import { products as catalogProducts } from '../_lib/catalog.js';
+import productSource from '../_lib/products-data.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError } from '../_lib/admin.js';
 import { requireAdminPermission } from '../_lib/admin-audit.js';
+
+const CATALOG_PRICE_SOURCE = 'products.json';
+const CATALOG_CURRENCY = 'TRY';
+const CATALOG_PRICE_MISSING_WARNING = 'Bu ürün için katalog fiyatı bulunamadı.';
+const CATALOG_PRICE_INVALID_WARNING = 'Katalog fiyatı geçersiz görünüyor.';
 
 function normalizeStatus(status) {
   if (['active', 'inactive', 'discontinued'].includes(status)) return status;
   if (['draft', 'archived'].includes(status)) return 'inactive';
   return 'active';
+}
+
+function formatInventoryRow(inv) {
+  if (!inv) return null;
+  return {
+    ...inv,
+    stock_qty: inv.stock_on_hand,
+    reserved_qty: inv.stock_reserved,
+    status: inv.status
+  };
+}
+
+function readOnlyCatalogPriceFields(catalogProduct) {
+  const slug = String(catalogProduct?.slug || '').trim();
+  const title = String(catalogProduct?.name || '').trim();
+  const priceNumber = Number(catalogProduct?.price);
+  const priceValid = Boolean(slug)
+    && Number.isFinite(priceNumber)
+    && priceNumber >= 0
+    && Number.isInteger(priceNumber);
+
+  let catalog_price_warning = null;
+  if (!slug) {
+    catalog_price_warning = CATALOG_PRICE_MISSING_WARNING;
+  } else if (!priceValid) {
+    catalog_price_warning = CATALOG_PRICE_INVALID_WARNING;
+  }
+
+  return {
+    catalog_slug: slug || null,
+    catalog_title: title || null,
+    catalog_price: priceValid ? priceNumber : null,
+    catalog_price_try: priceValid ? priceNumber : null,
+    catalog_currency: CATALOG_CURRENCY,
+    catalog_price_source: CATALOG_PRICE_SOURCE,
+    catalog_updated_label: String(productSource?.updated || '').trim() || null,
+    catalog_price_valid: priceValid,
+    catalog_price_warning
+  };
+}
+
+function buildAdminCatalogProductRow(catalogProduct, inv) {
+  return {
+    ...catalogProduct,
+    ...readOnlyCatalogPriceFields(catalogProduct),
+    inventory: formatInventoryRow(inv)
+  };
+}
+
+function buildAdminOrphanInventoryRow(inv) {
+  const slug = String(inv?.product_slug || '').trim();
+  return {
+    id: slug,
+    slug,
+    name: slug,
+    brand: '',
+    price: null,
+    ...readOnlyCatalogPriceFields(null),
+    catalog_slug: slug || null,
+    catalog_title: null,
+    catalog_price_warning: CATALOG_PRICE_MISSING_WARNING,
+    inventory: formatInventoryRow(inv)
+  };
 }
 
 function applyInventoryStatusPayload(payload, status) {
@@ -32,19 +101,19 @@ export async function onRequestGet(context) {
     await assertAdmin(context);
     await requireAdminPermission(context, 'products:read');
     const inventory = await selectRows(context, 'product_inventory', { select: '*', order: 'product_slug.asc' }).catch(() => []);
-    const map = new Map((inventory || []).map((i) => [i.product_slug, i]));
-    const products = (Array.isArray(catalog) ? catalog : Object.values(catalog || {})).map((p) => {
-      const inv = map.get(p.slug) || null;
-      return {
-        ...p,
-        inventory: inv ? {
-          ...inv,
-          stock_qty: inv.stock_on_hand,
-          reserved_qty: inv.stock_reserved,
-          status: inv.status
-        } : null
-      };
-    });
+    const invMap = new Map((inventory || []).map((i) => [i.product_slug, i]));
+    const catalogList = Array.isArray(catalogProducts) ? catalogProducts : [];
+    const catalogSlugs = new Set(catalogList.map((p) => p.slug).filter(Boolean));
+
+    const products = catalogList.map((p) => buildAdminCatalogProductRow(p, invMap.get(p.slug) || null));
+    for (const inv of inventory || []) {
+      const slug = String(inv?.product_slug || '').trim();
+      if (slug && !catalogSlugs.has(slug)) {
+        products.push(buildAdminOrphanInventoryRow(inv));
+      }
+    }
+    products.sort((a, b) => String(a.slug || '').localeCompare(String(b.slug || ''), 'tr'));
+
     return json({ ok: true, products });
   } catch (error) {
     return adminError(error, 'Ürün listesi alınamadı.');
