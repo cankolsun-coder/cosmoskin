@@ -478,8 +478,10 @@ test('R1C: missing review_images.storage_path column retries insert without it',
       return response([{
         id: 'image-r1',
         review_id: 'review-r1',
+        user_id: 'user-r1',
         public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1/photo.jpg',
         status: 'pending',
+        sort_order: 0,
         width: null,
         height: null,
         created_at: '2026-07-06T00:00:00Z'
@@ -495,7 +497,6 @@ test('R1C: missing review_images.storage_path column retries insert without it',
     assert.equal(data.ok, true);
     assert.equal(sawInsertWithStoragePath, true);
     assert.equal(sawRetryWithoutStoragePath, true);
-    // When storage_path column is missing, API should not crash; image still usable via public_url.
     assert.match(String(data.image.public_url || ''), /review-images/);
   } finally { restore(); }
 });
@@ -524,6 +525,131 @@ test('R1C: DB insert failure returns image_record_failed and attempts storage cl
     assert.equal(data.code, 'image_record_failed');
     assert.equal(calls.some((c) => c.method === 'DELETE' && c.href.includes('/storage/v1/object/review-images/')), true);
   } finally { restore(); }
+});
+
+test('R1D: upload inserts live review_images schema fields', async () => {
+  let insertBody = null;
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test', user_metadata: { first_name: 'R1' } });
+    if (href.includes('/rest/v1/reviews')) {
+      return response([{
+        id: 'review-r1',
+        user_id: 'user-r1',
+        review_images: [{ id: 'image-existing', sort_order: 2, status: 'pending' }]
+      }]);
+    }
+    if (href.includes('/storage/v1/object/review-images/') && (options.method || 'GET') === 'POST') return response({ Key: 'ok' }, 200);
+    if (href.includes('/rest/v1/review_images') && (options.method || 'GET') === 'POST') {
+      const parsed = JSON.parse(String(options.body || '{}'));
+      insertBody = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
+      return response([{
+        id: 'image-r1d',
+        review_id: 'review-r1',
+        user_id: 'user-r1',
+        storage_path: insertBody.storage_path,
+        public_url: insertBody.public_url,
+        status: insertBody.status,
+        sort_order: insertBody.sort_order,
+        original_name: insertBody.original_name,
+        file_size_kb: insertBody.file_size_kb,
+        mime_type: insertBody.mime_type,
+        width: null,
+        height: null,
+        created_at: '2026-07-07T00:00:00Z'
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([JPEG_BYTES], 'customer-photo.jpg', { type: 'image/jpeg' }));
+    const { res, data } = await postReviewImage(fd);
+    assert.equal(res.status, 201);
+    assert.equal(data.ok, true);
+    assert.equal(insertBody.review_id, 'review-r1');
+    assert.equal(insertBody.user_id, 'user-r1');
+    assert.match(String(insertBody.storage_path || ''), /^user-r1\/review-r1\//);
+    assert.match(String(insertBody.public_url || ''), /review-images/);
+    assert.equal(insertBody.status, 'pending');
+    assert.equal(insertBody.sort_order, 3);
+    assert.equal(insertBody.original_name, 'customer-photo.jpg');
+    assert.equal(insertBody.file_size_kb, 1);
+    assert.equal(insertBody.mime_type, 'image/jpeg');
+    assert.equal(Object.prototype.hasOwnProperty.call(insertBody, 'filename'), false);
+    assert.equal(Object.prototype.hasOwnProperty.call(insertBody, 'size_bytes'), false);
+    assert.equal(Object.prototype.hasOwnProperty.call(insertBody, 'metadata'), false);
+    assert.equal(Object.prototype.hasOwnProperty.call(insertBody, 'customer_id'), false);
+    assert.equal(data.image.filename, 'customer-photo.jpg');
+  } finally { restore(); }
+});
+
+test('R1D: upload blocks another customer review ownership', async () => {
+  const restore = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test' });
+    if (href.includes('/rest/v1/reviews')) return response([{ id: 'review-r1', user_id: 'other-user', review_images: [] }]);
+    return response([]);
+  });
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([JPEG_BYTES], 'photo.jpg', { type: 'image/jpeg' }));
+    const { res, data } = await postReviewImage(fd);
+    assert.equal(res.status, 403);
+    assert.equal(data.code, 'review_ownership_mismatch');
+  } finally { restore(); }
+});
+
+test('R1D: admin API returns uploaded image in images array', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const restore = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/reviews')) {
+      return response([{
+        id: 'review-r1',
+        product_slug: slug,
+        user_id: 'user-r1',
+        user_display_name: 'R1',
+        user_email: 'r1@example.test',
+        title: 'R1',
+        body: 'Valid review body',
+        rating: 5,
+        status: 'pending',
+        approved: false,
+        review_images: [{
+          id: 'image-r1d',
+          storage_path: 'user-r1/review-r1/photo.jpg',
+          public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1/photo.jpg',
+          status: 'pending',
+          sort_order: 0,
+          original_name: 'photo.jpg',
+          file_size_kb: 1,
+          mime_type: 'image/jpeg',
+          width: null,
+          height: null,
+          created_at: '2026-07-07T00:00:00Z'
+        }]
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/reviews/admin', {
+      headers: { 'x-admin-token': 'admin-token' }
+    });
+    const res = await reviewsApi(contextFor(req, { env: { ADMIN_TOKEN: 'admin-token', ADMIN_SESSION_SECRET: 'b'.repeat(64), ADMIN_ALLOW_LEGACY_TOKEN: 'true' } }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.reviews[0].images.length, 1);
+    assert.equal(data.reviews[0].images[0].status, 'pending');
+    assert.match(String(data.reviews[0].images[0].public_url || ''), /review-images/);
+  } finally { restore(); }
+});
+
+test('R1D: retired /api/reviews/images remains 410 Gone', async () => {
+  const req = requestJson('https://local.test/api/reviews/images', { review_id: 'review-r1', images: [] }, { authorization: 'Bearer customer-token' });
+  const res = await reviewsApi(contextFor(req));
+  assert.equal(res.status, 410);
 });
 
 test('R1B: frontend markers support review id fallback and upload error detail', async () => {

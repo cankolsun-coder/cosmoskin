@@ -1,0 +1,11 @@
+# COSMOSKIN R1D — Review Image Live Schema Alignment — Changed Files
+# Date: 2026-07-07
+# No migration created. No SQL executed. No deploy.
+
+functions/api/reviews/[[path]].js
+scripts/validate-r1d-review-image-live-schema-alignment.mjs
+scripts/validate-r1c-review-image-record-failed.mjs
+tests/local-integration.test.mjs
+COSMOSKIN_R1D_REVIEW_IMAGE_LIVE_SCHEMA_ALIGNMENT_REPORT_20260707.md
+COSMOSKIN_R1D_REVIEW_IMAGE_LIVE_SCHEMA_ALIGNMENT_RUNBOOK_20260707.md
+COSMOSKIN_R1D_REVIEW_IMAGE_LIVE_SCHEMA_ALIGNMENT_ROLLBACK_PLAN_20260707.md

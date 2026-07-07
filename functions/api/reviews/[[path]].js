@@ -11,7 +11,7 @@ import {
 const REVIEW_SELECT =
   'id,product_slug,user_id,user_display_name,user_email,title,body,rating,helpful_count,approved,status,verified_purchase,order_id,is_edited,created_at,updated_at';
 const REVIEW_SELECT_WITH_IMAGES =
-  `${REVIEW_SELECT},review_images(id,storage_path,public_url,status,width,height,created_at)`;
+  `${REVIEW_SELECT},review_images(id,storage_path,public_url,status,sort_order,original_name,file_size_kb,mime_type,width,height,created_at)`;
 
 function getSupabaseConfig(context) {
   const env = context?.env || {};
@@ -183,20 +183,53 @@ function looksLikeMissingColumnError(message = '', column = '') {
   );
 }
 
-function buildReviewImageInsertPayload(reviewId, objectPath, publicUrl, detected, sizeBytes) {
+function resolveOriginalFileName(file, detected) {
+  const raw = String(file?.name || '').trim();
+  if (raw && raw.toLowerCase() !== 'blob' && raw.toLowerCase() !== 'undefined') {
+    return raw.slice(0, 255);
+  }
+  const ext = String(detected?.extension || 'jpg').replace(/^\./, '');
+  return `review-image.${ext}`;
+}
+
+function resolveNextReviewImageSortOrder(existingImages = []) {
+  let maxOrder = -1;
+  for (const image of existingImages || []) {
+    const order = Number(image?.sort_order);
+    if (Number.isFinite(order) && order >= 0) {
+      maxOrder = Math.max(maxOrder, order);
+    }
+  }
+  return maxOrder + 1;
+}
+
+function buildReviewImageInsertPayload({
+  reviewId,
+  userId,
+  objectPath,
+  publicUrl,
+  detected,
+  file,
+  sortOrder
+}) {
+  const sizeBytes = Number(file?.size);
   const payload = {
     review_id: reviewId,
+    user_id: userId,
     storage_path: objectPath,
     public_url: publicUrl,
     status: 'pending',
+    sort_order: Number.isFinite(Number(sortOrder)) ? Number(sortOrder) : 0,
+    original_name: resolveOriginalFileName(file, detected),
+    file_size_kb: Number.isFinite(sizeBytes) && sizeBytes > 0 ? Math.ceil(sizeBytes / 1024) : null,
+    mime_type: detected?.mime_type || null,
     width: null,
     height: null
   };
-  // These are NOT inserted unless the table supports them; they are used only
-  // for response normalization via mapImage().
   const responseHints = {
-    mime_type: detected?.mime_type || null,
-    size_bytes: Number.isFinite(Number(sizeBytes)) ? Number(sizeBytes) : null
+    mime_type: payload.mime_type,
+    size_bytes: Number.isFinite(sizeBytes) ? sizeBytes : null,
+    filename: payload.original_name
   };
   return { payload, responseHints };
 }
@@ -254,9 +287,11 @@ function mapImage(image, options = {}) {
     thumbnail_url: usableUrl || null,
     storage_path: storagePath || null,
     path: storagePath || null,
-    filename: filenameFromPath(storagePath || image?.public_url || ''),
+    filename: String(image?.original_name || '').trim() || filenameFromPath(storagePath || image?.public_url || ''),
     mime_type: image?.mime_type || null,
-    size_bytes: Number.isFinite(Number(image?.size_bytes)) ? Number(image.size_bytes) : null,
+    size_bytes: Number.isFinite(Number(image?.size_bytes))
+      ? Number(image.size_bytes)
+      : (Number.isFinite(Number(image?.file_size_kb)) ? Number(image.file_size_kb) * 1024 : null),
     status: image?.status || 'pending',
     width: image?.width || null,
     height: image?.height || null,
@@ -748,14 +783,25 @@ async function uploadReviewPhoto(context, reviewId) {
     return uploadError('Görsel yüklenemedi. Lütfen tekrar deneyin.', 'storage_upload_failed', 503);
   }
   const publicUrl = `${url}/storage/v1/object/public/review-images/${objectPath.split('/').map(encodeURIComponent).join('/')}`;
+  const sortOrder = resolveNextReviewImageSortOrder(existingImages);
+  const insertInput = {
+    reviewId,
+    userId: required.user.id,
+    objectPath,
+    publicUrl,
+    detected,
+    file,
+    sortOrder
+  };
   let row = null;
   try {
-    const insert = buildReviewImageInsertPayload(reviewId, objectPath, publicUrl, detected, file.size);
+    const insert = buildReviewImageInsertPayload(insertInput);
     row = await insertRow(context, 'review_images', insert.payload);
     row = { ...row, ...insert.responseHints };
   } catch (error) {
     const message = error?.message || 'unknown';
-    const insert = buildReviewImageInsertPayload(reviewId, objectPath, publicUrl, detected, file.size);
+    const errorCode = error?.code || error?.status || null;
+    const insert = buildReviewImageInsertPayload(insertInput);
 
     // If production schema is missing `storage_path` (older schema), retry without it.
     // This is not silent: we log the full safe details and only retry on a very specific
@@ -766,8 +812,11 @@ async function uploadReviewPhoto(context, reviewId) {
       try {
         console.warn('review_image_record_retry_without_storage_path', {
           reviewId,
+          userId: required.user.id,
           storagePath: objectPath,
-          insertKeys: Object.keys(fallbackPayload).sort()
+          insertKeys: Object.keys(fallbackPayload).sort(),
+          code: errorCode,
+          message
         });
         row = await insertRow(context, 'review_images', fallbackPayload);
         row = { ...row, ...insert.responseHints, storage_path: null };
@@ -779,8 +828,10 @@ async function uploadReviewPhoto(context, reviewId) {
       } catch (retryError) {
         console.error('review_image_record_failed_after_retry', {
           reviewId,
+          userId: required.user.id,
           storagePath: objectPath,
           insertKeys: Object.keys(fallbackPayload).sort(),
+          code: retryError?.code || retryError?.status || null,
           message: retryError?.message || 'unknown'
         });
         // Continue to cleanup below.
@@ -789,8 +840,10 @@ async function uploadReviewPhoto(context, reviewId) {
 
     console.error('review_image_record_failed', {
       reviewId,
+      userId: required.user.id,
       storagePath: objectPath,
       insertKeys: Object.keys(insert.payload).sort(),
+      code: errorCode,
       message
     });
     try {
