@@ -14,6 +14,8 @@ const CosmoSearch = (() => {
   let _loaded    = false;
   let _timer     = null;
   let _activeIdx = -1;
+  let _activeInput = null;
+  let _activeResultsEl = null;
 
   function esc(str) {
     return String(str ?? '')
@@ -23,44 +25,69 @@ const CosmoSearch = (() => {
       .replace(/"/g, '&quot;');
   }
 
-  async function _loadProducts() {
-    if (_loaded) return;
+  function _mapSearchProduct(p) {
+    return {
+      slug:     p.slug || p.id,
+      name:     p.name,
+      brand:    p.brand,
+      category: p.category,
+      image:    p.image,
+      url:      p.url || ('/products/' + (p.slug || p.id) + '.html'),
+      price:    p.price,
+      keywords: Array.isArray(p.keywords) ? p.keywords : String(p.keywords || '').split(' ').filter(Boolean),
+    };
+  }
+
+  async function _fetchEffectivePrices() {
+    try {
+      const res = await fetch('/api/catalog/effective-prices', { cache: 'no-store' });
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function _applyEffectiveOverlay(products, effectivePayload) {
+    if (!Array.isArray(products) || !effectivePayload || !effectivePayload.prices) return products || [];
+    return products.map(function (product) {
+      const slug = product.slug || product.id;
+      const overlay = effectivePayload.prices[slug];
+      if (!overlay || overlay.effective_price_try == null) return product;
+      return Object.assign({}, product, { price: overlay.effective_price_try });
+    });
+  }
+
+  async function _loadProducts(force) {
+    if (_loaded && !force) return;
     if (window.COSMOSKIN_PRODUCTS_READY && typeof window.COSMOSKIN_PRODUCTS_READY.then === 'function') {
       try {
         await window.COSMOSKIN_PRODUCTS_READY;
-        _products = (window.COSMOSKIN_PRODUCTS || []).map(p => ({
-          slug:     p.slug || p.id,
-          name:     p.name,
-          brand:    p.brand,
-          category: p.category,
-          image:    p.image,
-          url:      p.url,
-          price:    p.price,
-          keywords: Array.isArray(p.keywords) ? p.keywords : String(p.keywords || '').split(' '),
-        }));
+        _products = (window.COSMOSKIN_PRODUCTS || []).map(_mapSearchProduct);
         _loaded = true;
         return;
       } catch (_) {}
     }
     try {
-      const res  = await fetch('/products.json', { cache: 'default' });
+      const res = await fetch('/products.json', { cache: 'default' });
       if (!res.ok) throw new Error('products.json 404');
       const json = await res.json();
-      _products  = json.products || [];
-      _loaded    = true;
+      const effective = await _fetchEffectivePrices();
+      const merged = _applyEffectiveOverlay(json.products || [], effective);
+      _products = merged.map(_mapSearchProduct);
+      _loaded = true;
     } catch (_) {
-      _products = (window.COSMOSKIN_PRODUCTS || []).map(p => ({
-        slug:     p.id,
-        name:     p.name,
-        brand:    p.brand,
-        category: p.category,
-        image:    p.image,
-        url:      p.url,
-        price:    p.price,
-        keywords: (p.keywords || '').split(' '),
-      }));
+      _products = (window.COSMOSKIN_PRODUCTS || []).map(_mapSearchProduct);
       _loaded = true;
     }
+  }
+
+  async function _refreshVisibleResults() {
+    if (!_activeInput || !_activeResultsEl || _activeResultsEl.hidden) return;
+    const q = _activeInput.value.trim();
+    if (q.length < MIN_QUERY) return;
+    await _loadProducts(true);
+    _show(_activeResultsEl, _resultHtml(_search(q), q));
   }
 
   function _norm(str) {
@@ -203,6 +230,8 @@ const CosmoSearch = (() => {
     const resultsEl = form.querySelector('.site-search-results');
     const clearBtn  = form.querySelector('.site-search-clear');
     if (!input || !resultsEl) return;
+    _activeInput = input;
+    _activeResultsEl = resultsEl;
 
     input.addEventListener('input', async function() {
       clearTimeout(_timer);
@@ -249,6 +278,10 @@ const CosmoSearch = (() => {
     document.querySelectorAll('.site-search-form').forEach(_bindForm);
     window.__COSMOSKIN_SEARCH_BOUND = true;
     _loadProducts().catch(function(){});
+    document.addEventListener('cosmoskin:products-updated', function () {
+      _loaded = false;
+      _refreshVisibleResults().catch(function () {});
+    });
   }
 
   if (document.readyState === 'loading') {

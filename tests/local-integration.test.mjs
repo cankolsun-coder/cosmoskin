@@ -4284,10 +4284,104 @@ test('P1C2: admin price audit failure fails closed after override write attempt'
   }
 });
 
+test('P1C3: search fallback applies effective overlay for BOJ sunscreen', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const searchSrc = await fs.readFile(path.join(root, 'js/search.js'), 'utf8');
+  assert.match(searchSrc, /_applyEffectiveOverlay/);
+  assert.match(searchSrc, /\/api\/catalog\/effective-prices/);
+  assert.match(searchSrc, /cosmoskin:products-updated/);
+  const products = [{ slug: 'beauty-of-joseon-relief-sun-spf50', price: 899 }];
+  const effective = { prices: { 'beauty-of-joseon-relief-sun-spf50': { effective_price_try: 1099 } } };
+  const merged = products.map((product) => {
+    const overlay = effective.prices[product.slug];
+    return overlay && overlay.effective_price_try != null
+      ? Object.assign({}, product, { price: overlay.effective_price_try })
+      : product;
+  });
+  assert.equal(merged[0].price, 1099);
+});
+
+test('P1C3: bestsellers rerenders after products-updated', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const src = await fs.readFile(path.join(root, 'assets/bestsellers.js'), 'utf8');
+  assert.match(src, /cosmoskin:products-updated/);
+  assert.match(src, /currentTab/);
+  assert.match(src, /getProductBySlug/);
+});
+
+test('P1C3: smart routine uses effective catalog price for cards and cart', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const src = await fs.readFile(path.join(root, 'assets/js/smart-routine.js'), 'utf8');
+  assert.match(src, /resolveCatalogPrice/);
+  assert.match(src, /refreshRoutinePricesFromCatalog/);
+  assert.match(src, /resolveCatalogPrice\(product\.slug, product\.price\)/);
+  assert.match(src, /cosmoskin:products-updated/);
+});
+
+test('P1C3: PDP professional fallback prefers catalog price over static DOM', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const src = await fs.readFile(path.join(root, 'assets/pdp-professional.js'), 'utf8');
+  assert.match(src, /catalogPriceForSlug/);
+  assert.match(src, /COSMOSKIN_PRODUCT_HELPERS/);
+  assert.match(src, /cosmoskin:products-updated/);
+  const catalogIndex = src.indexOf('catalogPriceForSlug');
+  const domFallbackIndex = src.indexOf("getAttribute('data-price')");
+  assert.ok(catalogIndex > -1 && domFallbackIndex > catalogIndex, 'catalog lookup must precede DOM fallback');
+});
+
+test('P1C3: JSON-LD and visible PDP price use effective price helpers', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const appSrc = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  assert.match(appSrc, /node\.offers\.price = String\(product\.price\)/);
+  assert.match(appSrc, /\.pdp5-price/);
+});
+
+test('P1C3: products.json remains unchanged and checkout still uses server effective price', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const { spawnSync } = await import('node:child_process');
+  const diff = spawnSync('git', ['diff', '--', 'products.json'], { cwd: root, encoding: 'utf8' });
+  assert.equal((diff.stdout || '').trim(), '');
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const restoreFetch = installFetch(async (url) => {
+    if (String(url).includes('/rest/v1/product_price_overrides')) {
+      return response([{ product_slug: slug, regular_price_try: 1099, currency: 'TRY', is_active: true }]);
+    }
+    return response([]);
+  });
+  try {
+    const index = await buildPricedCatalogIndex({ env }, [slug]);
+    const product = index.get(slug);
+    assert.equal(product.price, 1099);
+  } finally {
+    restoreFetch();
+  }
+});
+
+test('P1C3: historical refund snapshot remains paid basis after override change', () => {
+  const oldPaidOrderItem = {
+    product_slug: 'beauty-of-joseon-relief-sun-spf50',
+    paid_unit_price: 899,
+    paid_line_total: 899,
+    unit_price: 899,
+    line_total: 899,
+    quantity: 1
+  };
+  const currentOverride = resolveEffectivePricing({ slug: oldPaidOrderItem.product_slug, price: 899 }, {
+    product_slug: oldPaidOrderItem.product_slug,
+    regular_price_try: 1099,
+    currency: 'TRY',
+    is_active: true
+  });
+  assert.equal(currentOverride.effective_price_try, 1099);
+  assert.equal(oldPaidOrderItem.paid_unit_price, 899);
+  assert.notEqual(oldPaidOrderItem.paid_unit_price, currentOverride.effective_price_try);
+});
+
 test('P1C: validators pass for pricing editing guard chain', async () => {
   const { spawnSync } = await import('node:child_process');
   const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
   for (const script of [
+    'scripts/validate-p1c3-effective-price-fallback-hardening.mjs',
     'scripts/validate-p1c-effective-price-commerce-integrity.mjs',
     'scripts/validate-p1c-effective-price-display-parity.mjs',
     'scripts/validate-p1c-admin-product-price-editing.mjs',

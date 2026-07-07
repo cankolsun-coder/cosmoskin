@@ -260,8 +260,11 @@
     }));
   }
 
+  let currentTab = 'tumu';
+
   function render(tabKey) {
-    const tab = bestsellerTabs[tabKey] || bestsellerTabs.tumu;
+    currentTab = tabKey || currentTab || 'tumu';
+    const tab = bestsellerTabs[currentTab] || bestsellerTabs.tumu;
     const featured = getProduct(tab.featuredProduct);
     if (!featured) return;
     const featuredNode = section.querySelector('[data-bestseller-featured]');
@@ -269,7 +272,7 @@
     const shell = section.querySelector('[data-bestseller-shell]');
     if (!featuredNode || !gridNode) return;
     section.querySelectorAll('[data-bestseller-tab]').forEach((button) => {
-      const active = button.dataset.bestsellerTab === tabKey;
+      const active = button.dataset.bestsellerTab === currentTab;
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-selected', active ? 'true' : 'false');
     });
@@ -302,11 +305,11 @@
           </div>
         </div>
       </div>`;
-      gridNode.innerHTML = tab.products.map((productSlug, index) => productCard(productSlug, tabKey, index)).join('');
+      gridNode.innerHTML = tab.products.map((productSlug, index) => productCard(productSlug, currentTab, index)).join('');
       if (typeof window.initCartButtons === 'function') window.initCartButtons(section);
       if (typeof window.initFavoriteButtons === 'function') window.initFavoriteButtons(section);
       hydrateReviewSummaries(section);
-      document.dispatchEvent(new CustomEvent('cosmoskin:bestsellers-rendered', { detail: { tab: tabKey } }));
+      document.dispatchEvent(new CustomEvent('cosmoskin:bestsellers-rendered', { detail: { tab: currentTab } }));
       window.setTimeout(() => shell && shell.classList.remove('is-switching'), 40);
     }, 120);
   }
@@ -316,6 +319,9 @@
       button.addEventListener('click', () => render(button.dataset.bestsellerTab || 'tumu'));
     });
     render('tumu');
+    document.addEventListener('cosmoskin:products-updated', () => {
+      render(currentTab);
+    });
   }
 
   const ready = window.COSMOSKIN_PRODUCTS_READY || Promise.resolve(window.COSMOSKIN_PRODUCTS || []);

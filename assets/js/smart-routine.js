@@ -145,6 +145,32 @@
     return Array.isArray(window.COSMOSKIN_PRODUCTS) ? window.COSMOSKIN_PRODUCTS : [];
   }
 
+  function resolveCatalogProduct(targetSlug) {
+    if (!targetSlug) return null;
+    var helpers = window.COSMOSKIN_PRODUCT_HELPERS;
+    if (helpers && typeof helpers.getProductBySlug === 'function') return helpers.getProductBySlug(targetSlug);
+    return getProductData().find(function (product) { return product.slug === targetSlug || product.id === targetSlug; }) || null;
+  }
+
+  function resolveCatalogPrice(targetSlug, fallbackPrice) {
+    var live = resolveCatalogProduct(targetSlug);
+    var price = readNumber(live && live.price != null ? live.price : fallbackPrice);
+    return price > 0 ? price : 0;
+  }
+
+  function refreshRoutinePricesFromCatalog() {
+    function patchList(list) {
+      return (list || []).map(function (product) {
+        if (!product || !product.slug) return product;
+        var price = resolveCatalogPrice(product.slug, product.price);
+        return price > 0 ? Object.assign({}, product, { price: price }) : product;
+      });
+    }
+    routineState.dayRoutine = patchList(routineState.dayRoutine);
+    routineState.nightRoutine = patchList(routineState.nightRoutine);
+    calculateRoutineTotal();
+  }
+
   function categoryToStep(product) {
     var category = String(product.category || '').toLowerCase();
     var name = String(product.name || '').toLowerCase();
@@ -588,7 +614,7 @@
         slug: product.slug,
         name: product.name,
         brand: product.brand,
-        price: Number(product.price || 0),
+        price: resolveCatalogPrice(product.slug, product.price),
         image: product.image,
         url: product.url,
         qty: 1,
@@ -1008,6 +1034,12 @@
         return refreshLiveInventory(true);
       }).then(function () { renderRecommendedRoutine(root); hydrateReviewSummaries(root); }).catch(function () {});
     }
+
+    document.addEventListener('cosmoskin:products-updated', function () {
+      refreshRoutinePricesFromCatalog();
+      renderRecommendedRoutine(root);
+      hydrateReviewSummaries(root);
+    });
   }
 
   window.initSmartRoutine = initSmartRoutine;
@@ -1029,7 +1061,9 @@
     removeRoutineProduct: removeRoutineProduct,
     formatPrice: formatPrice,
     showRoutineToast: showRoutineToast,
-    refreshLiveInventory: refreshLiveInventory
+    refreshLiveInventory: refreshLiveInventory,
+    resolveCatalogPrice: resolveCatalogPrice,
+    refreshRoutinePricesFromCatalog: refreshRoutinePricesFromCatalog
   };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSmartRoutine);

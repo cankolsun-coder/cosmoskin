@@ -45,8 +45,27 @@
     try { return new Intl.NumberFormat('tr-TR', { maximumFractionDigits:0 }).format(Math.max(0, Math.round(Number(value || 0)))); }
     catch(e){ return String(Math.round(Number(value || 0))); }
   }
+  function catalogPriceForSlug(targetSlug) {
+    var helpers = window.COSMOSKIN_PRODUCT_HELPERS;
+    if (helpers && typeof helpers.getProductBySlug === 'function') {
+      var live = helpers.getProductBySlug(targetSlug || slug());
+      if (live && Number(live.price) > 0) return Number(live.price);
+    }
+    var products = window.COSMOSKIN_PRODUCTS || [];
+    for (var i = 0; i < products.length; i += 1) {
+      var entry = products[i];
+      if (!entry) continue;
+      if (entry.slug === targetSlug || entry.id === targetSlug) {
+        var catalogPrice = Number(entry.price);
+        if (Number.isFinite(catalogPrice) && catalogPrice > 0) return catalogPrice;
+      }
+    }
+    return 0;
+  }
   function productPrice(product){
     var price = Number(product && product.price);
+    if (Number.isFinite(price) && price > 0) return price;
+    price = catalogPriceForSlug(product && product.slug);
     if (Number.isFinite(price) && price > 0) return price;
     var dataPrice = $('[data-price]');
     price = Number(dataPrice && dataPrice.getAttribute('data-price'));
@@ -637,8 +656,12 @@
     var products = await loadProducts();
     var product = productBySlug(products, currentSlug) || {};
     var guide = guideBySlug(guides, currentSlug, product);
+    function refreshPdpProfessionalPricing() {
+      var liveProduct = productBySlug(window.COSMOSKIN_PRODUCTS || products, currentSlug) || product;
+      renderClubPoints(liveProduct);
+    }
     enhanceGallery(guide);
-    renderClubPoints(product);
+    refreshPdpProfessionalPricing();
     renderTabs(product, guide);
     renderRoutineAside(product, guide);
     renderRecommendations(products, guides, currentSlug);
@@ -655,6 +678,10 @@
       renderFitPanel(fitPanel, product, guide);
       var related = $('.pdp5-related');
       if (related) { related.dataset.pdp8Recommendations = ''; var grid = $('.pdp5-related-grid', related); if (grid) renderRecommendations(products, guides, currentSlug); }
+    });
+    document.addEventListener('cosmoskin:products-updated', function () {
+      product = productBySlug(window.COSMOSKIN_PRODUCTS || products, currentSlug) || product;
+      refreshPdpProfessionalPricing();
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
