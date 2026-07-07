@@ -1,0 +1,21 @@
+COSMOSKIN R1C — Review Image Record Failed (image_record_failed) — Changed Files
+Date: 2026-07-07
+
+Implementation files:
+- functions/api/reviews/[[path]].js
+
+Validation and tests:
+- scripts/validate-r1c-review-image-record-failed.mjs
+- tests/local-integration.test.mjs
+
+Delivery docs:
+- COSMOSKIN_R1C_REVIEW_IMAGE_RECORD_FAILED_REPORT_20260707.md
+- COSMOSKIN_R1C_REVIEW_IMAGE_RECORD_FAILED_CHANGED_FILES_20260707.txt
+- COSMOSKIN_R1C_REVIEW_IMAGE_RECORD_FAILED_RUNBOOK_20260707.md
+- COSMOSKIN_R1C_REVIEW_IMAGE_RECORD_FAILED_ROLLBACK_PLAN_20260707.md
+
+Notes:
+- No migrations were created.
+- No SQL files were changed.
+- No storage bucket settings were changed.
+- No RLS/storage policy files were changed.

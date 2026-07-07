@@ -173,6 +173,34 @@ function detectImageType(bytes = new Uint8Array()) {
   return null;
 }
 
+function looksLikeMissingColumnError(message = '', column = '') {
+  const msg = String(message || '').toLowerCase();
+  const col = String(column || '').toLowerCase();
+  if (!col) return false;
+  return (
+    msg.includes('does not exist') &&
+    (msg.includes(`column ${col}`) || msg.includes(`review_images.${col}`) || msg.includes(`"${col}"`))
+  );
+}
+
+function buildReviewImageInsertPayload(reviewId, objectPath, publicUrl, detected, sizeBytes) {
+  const payload = {
+    review_id: reviewId,
+    storage_path: objectPath,
+    public_url: publicUrl,
+    status: 'pending',
+    width: null,
+    height: null
+  };
+  // These are NOT inserted unless the table supports them; they are used only
+  // for response normalization via mapImage().
+  const responseHints = {
+    mime_type: detected?.mime_type || null,
+    size_bytes: Number.isFinite(Number(sizeBytes)) ? Number(sizeBytes) : null
+  };
+  return { payload, responseHints };
+}
+
 function resolveProduct(reference) {
   if (!reference) return null;
   if (typeof reference === 'object') {
@@ -722,22 +750,67 @@ async function uploadReviewPhoto(context, reviewId) {
   const publicUrl = `${url}/storage/v1/object/public/review-images/${objectPath.split('/').map(encodeURIComponent).join('/')}`;
   let row = null;
   try {
-    row = await insertRow(context, 'review_images', {
-      review_id: reviewId,
-      storage_path: objectPath,
-      public_url: publicUrl,
-      status: 'pending',
-      width: null,
-      height: null
-    });
+    const insert = buildReviewImageInsertPayload(reviewId, objectPath, publicUrl, detected, file.size);
+    row = await insertRow(context, 'review_images', insert.payload);
+    row = { ...row, ...insert.responseHints };
   } catch (error) {
-    console.error('review_image_record_failed', { reviewId, message: error?.message || 'unknown' });
+    const message = error?.message || 'unknown';
+    const insert = buildReviewImageInsertPayload(reviewId, objectPath, publicUrl, detected, file.size);
+
+    // If production schema is missing `storage_path` (older schema), retry without it.
+    // This is not silent: we log the full safe details and only retry on a very specific
+    // “missing column” signature.
+    if (looksLikeMissingColumnError(message, 'storage_path')) {
+      const fallbackPayload = { ...insert.payload };
+      delete fallbackPayload.storage_path;
+      try {
+        console.warn('review_image_record_retry_without_storage_path', {
+          reviewId,
+          storagePath: objectPath,
+          insertKeys: Object.keys(fallbackPayload).sort()
+        });
+        row = await insertRow(context, 'review_images', fallbackPayload);
+        row = { ...row, ...insert.responseHints, storage_path: null };
+        return json({
+          ok: true,
+          review_id: reviewId,
+          image: mapImage(row, { publicBase: reviewImagesPublicBase(context) })
+        }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
+      } catch (retryError) {
+        console.error('review_image_record_failed_after_retry', {
+          reviewId,
+          storagePath: objectPath,
+          insertKeys: Object.keys(fallbackPayload).sort(),
+          message: retryError?.message || 'unknown'
+        });
+        // Continue to cleanup below.
+      }
+    }
+
+    console.error('review_image_record_failed', {
+      reviewId,
+      storagePath: objectPath,
+      insertKeys: Object.keys(insert.payload).sort(),
+      message
+    });
+    try {
+      const cleaned = await deleteStorageObject(context, 'review-images', objectPath);
+      if (!cleaned) {
+        console.warn('review_image_cleanup_skipped', { reviewId, storagePath: objectPath });
+      }
+    } catch (cleanupError) {
+      console.warn('review_image_cleanup_failed', {
+        reviewId,
+        storagePath: objectPath,
+        message: cleanupError?.message || 'unknown'
+      });
+    }
     return uploadError('Görsel yüklenemedi. Lütfen tekrar deneyin.', 'image_record_failed', 503);
   }
   return json({
     ok: true,
     review_id: reviewId,
-    image: mapImage({ ...row, mime_type: detected.mime_type, size_bytes: file.size }, { publicBase: reviewImagesPublicBase(context) })
+    image: mapImage(row, { publicBase: reviewImagesPublicBase(context) })
   }, { status: 201, headers: { 'Cache-Control': 'no-store' } });
 }
 

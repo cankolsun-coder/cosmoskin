@@ -459,6 +459,73 @@ test('R1B: upload rejects invalid bytes and unsupported declared types with stru
   } finally { restore(); }
 });
 
+test('R1C: missing review_images.storage_path column retries insert without it', async () => {
+  let sawInsertWithStoragePath = false;
+  let sawRetryWithoutStoragePath = false;
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test', user_metadata: { first_name: 'R1' } });
+    if (href.includes('/rest/v1/reviews')) return response([{ id: 'review-r1', user_id: 'user-r1', review_images: [] }]);
+    if (href.includes('/storage/v1/object/review-images/')) return response({ Key: 'ok' }, 200);
+    if (href.includes('/rest/v1/review_images') && (options.method || 'GET') === 'POST') {
+      const parsed = JSON.parse(String(options.body || '{}'));
+      const body = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
+      if (Object.prototype.hasOwnProperty.call(body, 'storage_path')) {
+        sawInsertWithStoragePath = true;
+        return response({ message: 'column review_images.storage_path does not exist' }, 400);
+      }
+      sawRetryWithoutStoragePath = true;
+      return response([{
+        id: 'image-r1',
+        review_id: 'review-r1',
+        public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1/photo.jpg',
+        status: 'pending',
+        width: null,
+        height: null,
+        created_at: '2026-07-06T00:00:00Z'
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([JPEG_BYTES], 'photo.jpg', { type: '' }));
+    const { res, data } = await postReviewImage(fd);
+    assert.equal(res.status, 201);
+    assert.equal(data.ok, true);
+    assert.equal(sawInsertWithStoragePath, true);
+    assert.equal(sawRetryWithoutStoragePath, true);
+    // When storage_path column is missing, API should not crash; image still usable via public_url.
+    assert.match(String(data.image.public_url || ''), /review-images/);
+  } finally { restore(); }
+});
+
+test('R1C: DB insert failure returns image_record_failed and attempts storage cleanup', async () => {
+  const calls = [];
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    calls.push({ href, method: options.method || 'GET', body: options.body ? String(options.body).slice(0, 200) : '' });
+    if (href.includes('/auth/v1/user')) return response({ id: 'user-r1', email: 'r1@example.test', user_metadata: { first_name: 'R1' } });
+    if (href.includes('/rest/v1/reviews')) return response([{ id: 'review-r1', user_id: 'user-r1', review_images: [] }]);
+    if (href.includes('/storage/v1/object/review-images/') && (options.method || 'GET') === 'POST') return response({ Key: 'ok' }, 200);
+    if (href.includes('/rest/v1/review_images') && (options.method || 'GET') === 'POST') {
+      return response({ message: 'null value in column \"public_url\" violates not-null constraint' }, 400);
+    }
+    if (href.includes('/storage/v1/object/review-images/') && (options.method || 'GET') === 'DELETE') {
+      return response({ ok: true }, 200);
+    }
+    return response([]);
+  });
+  try {
+    const fd = new FormData();
+    fd.append('image', new File([JPEG_BYTES], 'photo.jpg', { type: 'image/jpeg' }));
+    const { res, data } = await postReviewImage(fd);
+    assert.equal(res.status, 503);
+    assert.equal(data.code, 'image_record_failed');
+    assert.equal(calls.some((c) => c.method === 'DELETE' && c.href.includes('/storage/v1/object/review-images/')), true);
+  } finally { restore(); }
+});
+
 test('R1B: frontend markers support review id fallback and upload error detail', async () => {
   const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
   assert.match(src, /resolveReviewId/);
