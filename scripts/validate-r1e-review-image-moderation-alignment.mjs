@@ -78,8 +78,8 @@ if (!moderationPayloadFn) {
     errors.push('buildReviewImageModerationPayload must resolve moderated_by via resolveModeratorUuid');
   }
 }
-if (!/handleAdminImageUpdate[\s\S]*buildReviewImageModerationPayload/.test(apiSrc)) {
-  errors.push('handleAdminImageUpdate must use buildReviewImageModerationPayload');
+if (!/handleAdminImageUpdate[\s\S]*(buildReviewImageModerationPayload|patchReviewImageRows)/.test(apiSrc)) {
+  errors.push('handleAdminImageUpdate must use live-safe review image moderation patch helpers');
 }
 
 mustInclude(adminSrc, adminUi, 'Yorumu ve görselleri onayla');

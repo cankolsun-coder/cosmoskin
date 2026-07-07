@@ -52,7 +52,10 @@ async function supabaseRequest(context, path, options = {}) {
       data?.error ||
       data?.hint ||
       `Supabase hata kodu: ${response.status}`;
-    throw new Error(message);
+    const error = new Error(message);
+    error.code = data?.code || null;
+    error.status = response.status;
+    throw error;
   }
 
   return data;
@@ -137,20 +140,92 @@ function buildReviewImageModerationPayload(nextStatus, context, payload = {}) {
   return patch;
 }
 
+function buildReviewImageModerationPatchVariants(nextStatus, context, payload = {}) {
+  const full = buildReviewImageModerationPayload(nextStatus, context, payload);
+  const variants = [full];
+  const reduced = {
+    status: nextStatus,
+    moderated_at: full.moderated_at
+  };
+  if (full.moderated_by) reduced.moderated_by = full.moderated_by;
+  if (JSON.stringify(reduced) !== JSON.stringify(full)) variants.push(reduced);
+  variants.push({ status: nextStatus });
+  return variants;
+}
+
+function isOptionalReviewImageModerationColumnError(message = '') {
+  const msg = String(message || '');
+  return (
+    looksLikeMissingColumnError(msg, 'moderation_note') ||
+    looksLikeMissingColumnError(msg, 'moderated_at') ||
+    looksLikeMissingColumnError(msg, 'moderated_by')
+  );
+}
+
+function logReviewImageModerationFailure(logContext = {}, patch = {}, error = null) {
+  console.error('review_image_moderation_failed', {
+    reviewId: logContext.reviewId || null,
+    imageId: logContext.imageId || null,
+    action: logContext.action || null,
+    patchKeys: Object.keys(patch || {}),
+    code: error?.code || null,
+    message: error?.message || (error ? String(error) : null)
+  });
+}
+
+async function patchReviewImageRows(context, filters, nextStatus, payload = {}, logContext = {}) {
+  const variants = buildReviewImageModerationPatchVariants(nextStatus, context, payload);
+  let lastError = null;
+  for (const patch of variants) {
+    try {
+      return await updateRows(context, 'review_images', filters, patch, 'return=minimal');
+    } catch (error) {
+      lastError = error;
+      if (isOptionalReviewImageModerationColumnError(error?.message)) continue;
+      logReviewImageModerationFailure(logContext, patch, error);
+      throw error;
+    }
+  }
+  logReviewImageModerationFailure(logContext, variants[variants.length - 1], lastError);
+  throw lastError || new Error('Görsel güncellenemedi.');
+}
+
+async function patchReviewImagesByQuery(context, queryParams, nextStatus, payload = {}, logContext = {}) {
+  const variants = buildReviewImageModerationPatchVariants(nextStatus, context, payload);
+  const qs = new URLSearchParams(queryParams);
+  let lastError = null;
+  for (const patch of variants) {
+    try {
+      return await supabaseRequest(context, `/rest/v1/review_images?${qs.toString()}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Prefer: 'return=minimal'
+        },
+        body: JSON.stringify(patch)
+      });
+    } catch (error) {
+      lastError = error;
+      if (isOptionalReviewImageModerationColumnError(error?.message)) continue;
+      logReviewImageModerationFailure(logContext, patch, error);
+      throw error;
+    }
+  }
+  logReviewImageModerationFailure(logContext, variants[variants.length - 1], lastError);
+  throw lastError || new Error('Görsel güncellenemedi.');
+}
+
 async function approvePendingReviewImages(context, reviewId, payload = {}) {
-  const patch = buildReviewImageModerationPayload('approved', context, payload);
-  const qs = new URLSearchParams({
-    review_id: `eq.${reviewId}`,
-    status: 'eq.pending'
-  });
-  await supabaseRequest(context, `/rest/v1/review_images?${qs.toString()}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Prefer: 'return=minimal'
+  await patchReviewImagesByQuery(
+    context,
+    {
+      review_id: `eq.${reviewId}`,
+      status: 'eq.pending'
     },
-    body: JSON.stringify(patch)
-  });
+    'approved',
+    payload,
+    { reviewId, action: 'approve_pending' }
+  );
 }
 
 function normalizeText(value) {
@@ -1032,9 +1107,20 @@ async function handleAdminImageUpdate(context, reviewId, imageId) {
     return json({ ok: false, code: 'image_not_found', error: 'Görsel bulunamadı.' }, { status: 404 });
   }
 
-  await updateRows(context, 'review_images', { id: imageId, review_id: reviewId },
-    buildReviewImageModerationPayload(nextStatus, context, payload),
-    'return=minimal');
+  try {
+    await patchReviewImageRows(
+      context,
+      { id: imageId, review_id: reviewId },
+      nextStatus,
+      payload,
+      { reviewId, imageId, action: nextStatus }
+    );
+  } catch {
+    return json(
+      { ok: false, code: 'image_update_failed', error: 'Görsel güncellenemedi.' },
+      { status: 500 }
+    );
+  }
 
   const rows = await selectRows(context, 'review_images', {
     select: 'id,public_url,storage_path,status,width,height,created_at',

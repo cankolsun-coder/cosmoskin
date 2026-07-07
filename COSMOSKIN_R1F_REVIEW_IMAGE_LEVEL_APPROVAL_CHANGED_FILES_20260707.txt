@@ -1,0 +1,12 @@
+# COSMOSKIN R1F — Review Image-Level Approval — Changed Files
+# Date: 2026-07-07
+# No migration created. No SQL executed. No deploy.
+
+functions/api/reviews/[[path]].js
+admin/reviews/index.html
+scripts/validate-r1f-review-image-level-approval.mjs
+scripts/validate-r1e-review-image-moderation-alignment.mjs
+tests/local-integration.test.mjs
+COSMOSKIN_R1F_REVIEW_IMAGE_LEVEL_APPROVAL_REPORT_20260707.md
+COSMOSKIN_R1F_REVIEW_IMAGE_LEVEL_APPROVAL_RUNBOOK_20260707.md
+COSMOSKIN_R1F_REVIEW_IMAGE_LEVEL_APPROVAL_ROLLBACK_PLAN_20260707.md

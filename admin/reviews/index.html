@@ -2218,18 +2218,16 @@
     renderFeed();
 
     try {
-      await api('/admin/' + encodeURIComponent(reviewId) + '/images/' + encodeURIComponent(imageId), {
+      var data = await api('/admin/' + encodeURIComponent(reviewId) + '/images/' + encodeURIComponent(imageId), {
         method: 'PATCH',
         body: JSON.stringify({
-          status: nextStatus,
-          review_source_table: review.source_table,
-          table: image.table || '',
-          source: image.source || 'inline',
-          field: image.field || '',
-          index: Number.isFinite(Number(image.index)) ? Number(image.index) : 0
+          status: nextStatus
         })
       });
-      pushToast('Görsel ' + statusLabel(nextStatus).toLocaleLowerCase('tr-TR') + '.');
+      if (data && data.image) {
+        Object.assign(image, data.image);
+      }
+      pushToast('Görsel ' + imageStatusLabel(nextStatus).toLocaleLowerCase('tr-TR') + '.');
     } catch (error) {
       image.status = previous;
       pushToast(error.message || 'Görsel güncellenemedi.', true);
@@ -2254,15 +2252,7 @@
 
     try {
       await api('/admin/' + encodeURIComponent(reviewId) + '/images/' + encodeURIComponent(imageId), {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          review_source_table: review.source_table,
-          table: image.table || '',
-          source: image.source || 'inline',
-          field: image.field || '',
-          index: Number.isFinite(Number(image.index)) ? Number(image.index) : 0
-        })
+        method: 'DELETE'
       });
       pushToast('Görsel silindi.');
     } catch (error) {

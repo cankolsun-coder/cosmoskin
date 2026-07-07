@@ -795,6 +795,128 @@ test('R1E: admin UI labels distinguish review and image approval', async () => {
   assert.match(adminUi, /Görsel reddedildi/);
 });
 
+test('R1F: image-level approve retries with status-only patch on live schema', async () => {
+  let patchAttempts = [];
+  let imageStatus = 'pending';
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/rest/v1/review_images') && method === 'PATCH') {
+      const body = JSON.parse(String(options.body || '{}'));
+      patchAttempts.push(body);
+      if (Object.prototype.hasOwnProperty.call(body, 'moderation_note')) {
+        return response({ code: 'PGRST204', message: 'column moderation_note of review_images does not exist' }, 400);
+      }
+      imageStatus = body.status || imageStatus;
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/review_images') && href.includes('id=eq.img-r1f')) {
+      return response([{
+        id: 'img-r1f',
+        review_id: 'review-r1f',
+        status: imageStatus,
+        storage_path: 'user-r1/review-r1f/a.jpg',
+        public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1f/a.jpg',
+        width: null,
+        height: null,
+        created_at: '2026-07-07T00:00:00Z'
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const res = await reviewsApi(contextFor(adminReviewRequest('/admin/review-r1f/images/img-r1f', 'PATCH', { status: 'approved' }), { env: adminReviewEnv }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(data.code, 'image_updated');
+    assert.ok(patchAttempts.length >= 2);
+    assert.equal(patchAttempts[patchAttempts.length - 1].status, 'approved');
+    assert.equal(Object.prototype.hasOwnProperty.call(patchAttempts[patchAttempts.length - 1], 'moderation_note'), false);
+    assert.equal(data.image.status, 'approved');
+  } finally { restore(); }
+});
+
+test('R1F: image-level approve works when parent review is already approved', async () => {
+  let patchBody = null;
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/rest/v1/review_images') && method === 'PATCH') {
+      patchBody = JSON.parse(String(options.body || '{}'));
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/review_images') && href.includes('id=eq.img-approved-parent')) {
+      return response([{
+        id: 'img-approved-parent',
+        review_id: 'review-approved-parent',
+        status: patchBody?.status || 'pending',
+        storage_path: 'user-r1/review-approved-parent/a.jpg',
+        public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-approved-parent/a.jpg',
+        width: null,
+        height: null,
+        created_at: '2026-07-07T00:00:00Z'
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const res = await reviewsApi(contextFor(adminReviewRequest('/admin/review-approved-parent/images/img-approved-parent', 'PATCH', { status: 'approved' }), { env: adminReviewEnv }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(patchBody.status, 'approved');
+    assert.equal(Object.prototype.hasOwnProperty.call(patchBody, 'moderated_by'), false);
+    assert.equal(data.image.status, 'approved');
+  } finally { restore(); }
+});
+
+test('R1F: image-level reject updates only review_images row', async () => {
+  let patchBody = null;
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/rest/v1/review_images') && method === 'PATCH') {
+      patchBody = JSON.parse(String(options.body || '{}'));
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/reviews') && method === 'PATCH') {
+      throw new Error('image-level reject must not patch reviews');
+    }
+    if (href.includes('/rest/v1/review_images') && href.includes('id=eq.img-reject-r1f')) {
+      return response([{
+        id: 'img-reject-r1f',
+        review_id: 'review-r1f',
+        status: patchBody?.status || 'pending',
+        storage_path: 'user-r1/review-r1f/b.jpg',
+        public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1f/b.jpg',
+        width: null,
+        height: null,
+        created_at: '2026-07-07T00:00:00Z'
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const res = await reviewsApi(contextFor(adminReviewRequest('/admin/review-r1f/images/img-reject-r1f', 'PATCH', { status: 'rejected' }), { env: adminReviewEnv }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(data.code, 'image_updated');
+    assert.equal(patchBody.status, 'rejected');
+    assert.equal(data.image.status, 'rejected');
+  } finally { restore(); }
+});
+
+test('R1F: admin UI image approve sends review id, image id, and status only', async () => {
+  const adminUi = await fs.readFile(path.join(root, 'admin/reviews/index.html'), 'utf8');
+  assert.match(adminUi, /data-image-action="approve"[^>]*data-review-id="/);
+  assert.match(adminUi, /data-image-id="/);
+  assert.match(adminUi, /\/images\/' \+ encodeURIComponent\(imageId\)/);
+  assert.match(adminUi, /body: JSON\.stringify\(\{\s*status: nextStatus\s*\}\)/);
+  assert.doesNotMatch(adminUi, /review_source_table: review\.source_table/);
+});
+
 test('R1B: frontend markers support review id fallback and upload error detail', async () => {
   const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
   assert.match(src, /resolveReviewId/);
