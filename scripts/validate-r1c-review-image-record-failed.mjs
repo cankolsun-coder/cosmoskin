@@ -60,9 +60,10 @@ if (!createMatch) {
     if (m) cols.add(m[1]);
   });
   // Phase51 adds moderation columns and storage_path (if missing).
-  ['moderation_note', 'moderated_at', 'moderated_by', 'storage_path'].forEach((c) => cols.add(c));
+  // R1D live production schema also includes user_id, sort_order, original_name, file_size_kb, mime_type.
+  ['moderation_note', 'moderated_at', 'moderated_by', 'storage_path', 'user_id', 'sort_order', 'original_name', 'file_size_kb', 'mime_type'].forEach((c) => cols.add(c));
 
-  const builderMatch = apiSrc.match(/function buildReviewImageInsertPayload\([\s\S]*?\)\s*\{\s*const payload\s*=\s*\{([\s\S]*?)\}\s*;/);
+  const builderMatch = apiSrc.match(/function buildReviewImageInsertPayload\([\s\S]*?\)\s*\{[\s\S]*?const payload\s*=\s*\{([\s\S]*?)\}\s*;/);
   if (!builderMatch) {
     errors.push('Could not locate buildReviewImageInsertPayload() payload object.');
   } else {
