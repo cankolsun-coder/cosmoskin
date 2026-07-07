@@ -198,6 +198,36 @@
     return state.products;
   }
 
+  function mergeEffectivePrices(source, effectivePayload) {
+    if (!source || !Array.isArray(source.products) || !effectivePayload || !effectivePayload.prices) return source;
+    return {
+      version: source.version,
+      updated: source.updated,
+      products: source.products.map(function (product) {
+        var overlay = effectivePayload.prices[product.slug];
+        if (!overlay || overlay.effective_price_try == null) return product;
+        return Object.assign({}, product, {
+          price: overlay.effective_price_try,
+          effective_price_try: overlay.effective_price_try,
+          effective_price_source: overlay.effective_price_source,
+          base_catalog_price_try: overlay.base_catalog_price_try,
+          has_price_override: overlay.has_price_override
+        });
+      })
+    };
+  }
+
+  function loadEffectivePrices() {
+    return fetch('/api/catalog/effective-prices', { cache: 'no-store' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('effective prices load failed');
+        return response.json();
+      })
+      .catch(function () {
+        return null;
+      });
+  }
+
   applySource(FALLBACK_SOURCE, 'fallback-cache');
 
   window.COSMOSKIN_PRODUCTS_READY = fetch('/products.json', { cache: 'default' })
@@ -206,7 +236,9 @@
       return response.json();
     })
     .then(function (source) {
-      return applySource(source, '/products.json');
+      return loadEffectivePrices().then(function (effective) {
+        return applySource(mergeEffectivePrices(source, effective), effective ? '/products.json+effective-prices' : '/products.json');
+      });
     })
     .catch(function () {
       return window.COSMOSKIN_PRODUCTS || [];

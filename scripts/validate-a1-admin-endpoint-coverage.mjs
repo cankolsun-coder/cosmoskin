@@ -1,3 +1,4 @@
+import { migrationChangesExcludingBatchMigrations as migrationChangesExcludingD3A } from './lib/migration-batch-exemptions.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
@@ -6,10 +7,6 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const exists = (file) => fs.existsSync(path.join(root, file));
 const failures = [];
-const D3A_MIGRATION_FILE = '20260706_d3a_order_item_pricing_snapshot.sql';
-function migrationChangesExcludingD3A(lines = []) {
-  return (lines || []).filter((line) => String(line).trim() && !String(line).includes(D3A_MIGRATION_FILE));
-}
 function isD3ACheckoutSnapshotChange(filePath) {
   try {
     return String(filePath).endsWith('functions/api/create-checkout.js')
@@ -74,6 +71,7 @@ const GATED_MUTATION_ENDPOINTS = [
   { file: 'functions/api/admin/returns.js', handler: 'onRequestPatch', permission: 'returns:update' },
   { file: 'functions/api/admin/products.js', handler: 'onRequestPatch', permission: 'inventory:adjust' },
   { file: 'functions/api/admin/products.js', handler: 'onRequestPost', permission: 'inventory:adjust' },
+  { file: 'functions/api/admin/products/[slug]/price.js', handler: 'onRequestPatch', permission: 'products:pricing:update' },
   { file: 'functions/api/admin/inventory/adjust.js', handler: 'onRequestPost', permission: 'inventory:adjust' },
   { file: 'functions/api/admin/inventory/[slug].js', handler: 'onRequestPatch', permission: 'inventory:adjust' },
   { file: 'functions/api/admin/lots.js', handler: 'onRequestPost', permission: 'inventory:adjust' },
@@ -181,6 +179,7 @@ const ALL_HANDLERS_BY_FILE = new Map([
   ['functions/api/admin/returns.js', ['onRequestGet', 'onRequestPatch']],
   ['functions/api/admin/customers.js', ['onRequestGet']],
   ['functions/api/admin/products.js', ['onRequestGet', 'onRequestPatch', 'onRequestPost']],
+  ['functions/api/admin/products/[slug]/price.js', ['onRequestPatch']],
   ['functions/api/admin/inventory.js', ['onRequestGet']],
   ['functions/api/admin/inventory/adjust.js', ['onRequestPost']],
   ['functions/api/admin/inventory/[slug].js', ['onRequestPatch']],
@@ -283,7 +282,10 @@ const BYTE_DIFF_EXEMPT_FILES = new Set([
   // C1B2 (2026-07-06) owns admin coupon metadata visibility + safe eligibility editing.
   'functions/api/admin/coupons/index.js',
   // P1B (2026-07-07) owns read-only catalog price visibility in admin products list.
-  'functions/api/admin/products.js'
+  'functions/api/admin/products.js',
+  // P1C (2026-07-07) extends admin products list with effective pricing metadata.
+  'functions/api/admin/products.js',
+  'functions/api/admin/products/[slug]/price.js'
 ]);
 const allTouchedFiles = new Set(ALL_GATED_ENDPOINTS.map((e) => e.file));
 for (const file of allTouchedFiles) {

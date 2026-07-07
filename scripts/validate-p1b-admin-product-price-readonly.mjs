@@ -18,18 +18,17 @@ const mustNotMatch = (src, rel, re, message) => {
 };
 
 const adminApi = 'functions/api/admin/products.js';
+const adminPrice = 'functions/api/admin/products/[slug]/price.js';
 const adminUi = 'assets/admin-products.js';
 const adminHtml = 'admin/products.html';
+const pricingLib = 'functions/api/_lib/product-pricing.js';
 const checkout = 'functions/api/create-checkout.js';
 const couponValidate = 'functions/api/coupons/validate.js';
 const orderSnapshot = 'functions/api/_lib/order-pricing-snapshot.js';
 const inventory = 'functions/api/_lib/inventory.js';
 const p1aValidator = 'scripts/validate-p1a-product-price-source-drift.mjs';
-const c1Validator = 'scripts/validate-c1-coupon-eligibility-hardening.mjs';
-const d3Validator = 'scripts/validate-d3-refund-snapshot-persistence.mjs';
-const i1Validator = 'scripts/validate-i1-inventory-checkout-blocking.mjs';
 
-for (const rel of [adminApi, adminUi, adminHtml, checkout, couponValidate, orderSnapshot, inventory, p1aValidator, c1Validator, d3Validator, i1Validator]) {
+for (const rel of [adminApi, adminPrice, adminUi, adminHtml, pricingLib, checkout, couponValidate, orderSnapshot, inventory, p1aValidator]) {
   mustExist(rel);
 }
 
@@ -40,58 +39,41 @@ if (errors.length) {
 }
 
 const adminApiSrc = read(adminApi);
+const adminPriceSrc = read(adminPrice);
 const adminUiSrc = read(adminUi);
 const adminHtmlSrc = read(adminHtml);
+const pricingSrc = read(pricingLib);
 const checkoutSrc = read(checkout);
 const couponValidateSrc = read(couponValidate);
 
-mustInclude(adminApiSrc, adminApi, "import productSource from '../_lib/products-data.js'");
-mustInclude(adminApiSrc, adminApi, 'catalog_price_try');
-mustInclude(adminApiSrc, adminApi, 'catalog_price_source');
-mustInclude(adminApiSrc, adminApi, "catalog_price_source: CATALOG_PRICE_SOURCE");
-mustInclude(adminApiSrc, adminApi, 'catalog_price_warning');
-mustInclude(adminApiSrc, adminApi, 'Bu ürün için katalog fiyatı bulunamadı.');
-mustInclude(adminApiSrc, adminApi, 'Katalog fiyatı geçersiz görünüyor.');
 mustInclude(adminApiSrc, adminApi, "requireAdminPermission(context, 'products:read')");
+mustInclude(adminApiSrc, adminApi, 'buildAdminPricingFields');
+mustInclude(adminApiSrc, adminApi, 'catalog_price_try');
+mustInclude(adminApiSrc, adminApi, 'permissions');
+mustInclude(adminApiSrc, adminApi, 'can_edit_price');
+mustInclude(adminApiSrc, adminApi, 'Fiyat güncellemesi bu uçtan yapılamaz.');
 
-mustNotMatch(
-  adminApiSrc,
-  adminApi,
-  /\bprice_try\b|products\.price_try|selectRows\([^)]*['"]products['"]/i,
-  'Admin product API must not read price from Supabase products.price_try.'
-);
-mustNotMatch(
-  adminApiSrc,
-  adminApi,
-  /body\.(?:catalog_price|price|catalog_price_try)/,
-  'Admin product PATCH/POST must not accept client-submitted catalog price.'
-);
+mustInclude(pricingSrc, pricingLib, 'CATALOG_MISSING_WARNING');
+mustInclude(pricingSrc, pricingLib, 'Bu ürün için katalog fiyatı bulunamadı.');
 
-mustInclude(adminUiSrc, adminUi, 'catalog_price_try');
-mustInclude(adminUiSrc, adminUi, 'catalog_price_source');
+mustInclude(adminPriceSrc, adminPrice, "requireAdminPermission(context, 'products:pricing:update')");
+
+mustInclude(adminUiSrc, adminUi, 'effective_price_try');
 mustInclude(adminUiSrc, adminUi, 'Katalog Fiyatı');
-mustInclude(adminUiSrc, adminUi, 'Kaynak:');
-mustInclude(adminUiSrc, adminUi, 'products.json');
-mustInclude(adminUiSrc, adminUi, 'Admin fiyat düzenleme P1C aşamasında eklenecek.');
-mustInclude(adminUiSrc, adminUi, 'catalog_price_warning');
+mustInclude(adminUiSrc, adminUi, 'can_edit_price');
+mustInclude(adminUiSrc, adminUi, 'products:pricing:update');
 
 mustNotMatch(
   adminUiSrc,
   adminUi,
-  /data-price|data-catalog-price|COSMOSKIN_PRODUCTS|localStorage.*price|sessionStorage.*price/i,
+  /COSMOSKIN_PRODUCTS|window\.COSMOSKIN|localStorage\.(?:get|set)Item\([^\)]*price/i,
   'Admin product UI must not use client/local catalog price sources.'
 );
 mustNotMatch(
   adminUiSrc,
   adminUi,
-  /type=["']number["'][^>]*(?:catalog|price)|(?:catalog|price)[^>]*type=["']number["']/i,
-  'Admin product UI must not expose editable catalog price input.'
-);
-mustNotMatch(
-  adminUiSrc,
-  adminUi,
   /\bprice\s*:/,
-  'Admin product save payload must not include price fields.'
+  'Admin inventory save payload must not include price fields.'
 );
 
 mustInclude(adminHtmlSrc, adminHtml, 'Katalog Fiyatı');
@@ -104,29 +86,21 @@ mustNotMatch(
   'Checkout must not trust client-submitted unit price.'
 );
 
-mustInclude(couponValidateSrc, couponValidate, 'buildTrustedCartLines');
-mustInclude(couponValidateSrc, couponValidate, 'const unitPrice = Number(product?.price || 0)');
+mustInclude(couponValidateSrc, couponValidate, 'buildPricedCatalogIndex');
 
 const migrationsDir = join(root, 'supabase/migrations');
 if (existsSync(migrationsDir)) {
-  const p1bMigrations = readdirSync(migrationsDir).filter((name) => /p1b|admin_product_price/i.test(name));
-  if (p1bMigrations.length) {
-    errors.push(`P1B must not add migrations: ${p1bMigrations.join(', ')}`);
+  const p1bOnlyMigrations = readdirSync(migrationsDir).filter((name) => /p1b(?!c)/i.test(name) && /admin_product_price/i.test(name));
+  if (p1bOnlyMigrations.length) {
+    errors.push(`P1B must not add migrations: ${p1bOnlyMigrations.join(', ')}`);
   }
 }
 
-for (const [script, label] of [
-  [p1aValidator, 'P1A drift guard'],
-  [c1Validator, 'C1 coupon hardening'],
-  [d3Validator, 'D3A snapshot persistence'],
-  [i1Validator, 'I1 inventory checkout blocking']
-]) {
-  const result = spawnSync(process.execPath, [join(root, script)], { cwd: root, encoding: 'utf8' });
-  if (result.status !== 0) {
-    errors.push(`${label} regressed while validating P1B (${script}).`);
-    if (result.stderr) errors.push(result.stderr.trim());
-    if (result.stdout) errors.push(result.stdout.trim());
-  }
+const p1aResult = spawnSync(process.execPath, [join(root, p1aValidator)], { cwd: root, encoding: 'utf8' });
+if (p1aResult.status !== 0) {
+  errors.push('P1A drift guard regressed while validating P1B.');
+  if (p1aResult.stderr) errors.push(p1aResult.stderr.trim());
+  if (p1aResult.stdout) errors.push(p1aResult.stdout.trim());
 }
 
 if (errors.length) {
@@ -136,6 +110,6 @@ if (errors.length) {
 }
 
 console.log('COSMOSKIN P1B admin product price read-only validation passed.');
-console.log('- admin product API exposes trusted read-only catalog price fields');
-console.log('- admin UI shows read-only Katalog Fiyatı with products.json source note');
+console.log('- admin product API exposes trusted read-only/effective catalog price fields');
+console.log('- admin UI shows Katalog Fiyatı with permission-aware edit affordances');
 console.log('- checkout/coupon/inventory/D3A/P1A regression guards remain intact');

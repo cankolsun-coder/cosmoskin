@@ -1,6 +1,7 @@
 import { getUserFromAccessToken, insertRow, insertRows, updateRows, selectRows } from './_lib/supabase.js';
 import { iyzicoRequest } from './_lib/iyzico.js';
 import { catalog } from './_lib/catalog.js';
+import { buildPricedCatalogIndex } from './_lib/product-pricing.js';
 import { releaseInventoryReservations, reserveInventoryForOrder, stockValidationCode, validateCartStock } from './_lib/inventory.js';
 import { json } from './_lib/response.js';
 import { getPrimaryBankAccount, getValidatedBankAccounts } from './_lib/bank-accounts.js';
@@ -105,7 +106,8 @@ function validateCustomer(rawCustomer = {}) {
   return customer;
 }
 
-function buildCatalogIndex() {
+function buildCatalogIndex(pricedIndex = null) {
+  if (pricedIndex instanceof Map && pricedIndex.size) return pricedIndex;
   const products = Array.isArray(catalog) ? catalog : Object.values(catalog || {});
   const index = new Map();
   products.forEach((product) => {
@@ -134,11 +136,14 @@ function normalizeQuantity(value) {
   return Math.min(quantity, MAX_ITEM_QUANTITY);
 }
 
-function normalizeCart(rawCart) {
+async function normalizeCart(context, rawCart) {
   if (!Array.isArray(rawCart) || rawCart.length === 0) throw new CheckoutError('Sepet boş.', 400, 'EMPTY_CART');
   if (rawCart.length > MAX_CART_LINES) throw new CheckoutError('Sepette çok fazla ürün satırı var.', 400, 'CART_TOO_LARGE');
 
-  const catalogIndex = buildCatalogIndex();
+  const slugHints = Array.from(new Set(rawCart.map((rawItem) => String(
+    rawItem?.slug || rawItem?.product_slug || rawItem?.product_id || rawItem?.id || ''
+  ).trim()).filter(Boolean)));
+  const catalogIndex = buildCatalogIndex(await buildPricedCatalogIndex(context, slugHints));
   const merged = new Map();
   let totalQuantity = 0;
 
@@ -148,7 +153,9 @@ function normalizeCart(rawCart) {
 
     const productId = String(product.id || product.slug || rawItem.id || '').trim();
     const unitPrice = normalizeMoney(product.price);
-    if (!productId || unitPrice <= 0) throw new CheckoutError('Ürün fiyatı doğrulanamadı.', 400, 'INVALID_CART_ITEM');
+    if (!productId || unitPrice <= 0 || product.checkout_price_valid === false) {
+      throw new CheckoutError('Ürün fiyatı doğrulanamadı.', 400, 'INVALID_CART_ITEM');
+    }
 
     const quantity = normalizeQuantity(rawItem.qty ?? rawItem.quantity ?? 1);
     totalQuantity += quantity;
@@ -691,7 +698,7 @@ export async function onRequestPost(context) {
     const existing = await existingCheckoutResponse(context, idempotencyKey, customer.email, paymentMethod);
     if (existing) return json(existing, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
 
-    const cart = normalizeCart(payload.cart || []);
+    const cart = await normalizeCart(context, payload.cart || []);
     const user = accessToken ? await getUserFromAccessToken(context, accessToken) : null;
     if (accessToken && !user) throw new CheckoutError('Oturum süresi dolmuş. Lütfen tekrar giriş yap.', 401, 'INVALID_SESSION');
 

@@ -40,7 +40,7 @@ mustInclude(coupons, 'functions/api/_lib/coupons.js', 'isActiveRedemptionStatus'
 mustInclude(coupons, 'functions/api/_lib/coupons.js', 'per_customer_limit_reached');
 
 // Validate endpoint must not trust client subtotal.
-mustInclude(validate, 'functions/api/coupons/validate.js', "import { catalog }");
+mustInclude(validate, 'functions/api/coupons/validate.js', 'buildPricedCatalogIndex');
 mustNotMatch(
   validate,
   'functions/api/coupons/validate.js',

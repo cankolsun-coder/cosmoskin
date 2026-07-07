@@ -1,3 +1,4 @@
+import { migrationChangesExcludingBatchMigrations as migrationChangesExcludingD3A } from './lib/migration-batch-exemptions.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -8,10 +9,6 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const exists = (file) => fs.existsSync(path.join(root, file));
 const sha256 = (file) => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex');
 const failures = [];
-const D3A_MIGRATION_FILE = '20260706_d3a_order_item_pricing_snapshot.sql';
-function migrationChangesExcludingD3A(lines = []) {
-  return (lines || []).filter((line) => String(line).trim() && !String(line).includes(D3A_MIGRATION_FILE));
-}
 function isD3ACheckoutSnapshotChange(filePath) {
   try {
     return String(filePath).endsWith('functions/api/create-checkout.js')

@@ -1,7 +1,7 @@
 import { getUserFromAccessToken } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { validateCouponEligibility } from '../_lib/coupons.js';
-import { catalog } from '../_lib/catalog.js';
+import { buildPricedCatalogIndex } from '../_lib/product-pricing.js';
 
 
 const COUPON_PREVIEW_FREE_SHIPPING_LIMIT = 2500;
@@ -50,24 +50,21 @@ function normalizeCartItem(raw = {}) {
   return { price: Number.isFinite(price) ? price : 0, quantity: Number.isFinite(quantity) ? quantity : 1 };
 }
 
-function buildTrustedCartLines(cart = []) {
+async function buildTrustedCartLines(context, cart = []) {
   // Security: coupon eligibility must not trust client-supplied totals.
-  // For /api/coupons/validate we compute a best-effort cart from the server catalog
-  // (price + category) and pass it through the shared eligibility engine.
+  // For /api/coupons/validate we compute cart lines from trusted server catalog
+  // plus active admin price overrides.
   if (!Array.isArray(cart) || cart.length === 0) return [];
-  const products = Array.isArray(catalog) ? catalog : Object.values(catalog || {});
-  const index = new Map();
-  for (const p of products) {
-    if (!p) continue;
-    const keys = [p.id, p.slug, p.product_id, p.sku].filter(Boolean).map(String);
-    for (const key of keys) index.set(key, p);
-  }
+  const slugHints = Array.from(new Set(cart.map((raw) => String(
+    raw?.slug || raw?.product_slug || raw?.product_id || raw?.productId || raw?.id || ''
+  ).trim()).filter(Boolean)));
+  const index = await buildPricedCatalogIndex(context, slugHints);
   return cart.map((raw) => {
     const normalized = normalizeCartItem(raw);
     const slug = String(raw.slug || raw.product_slug || raw.product_id || raw.productId || raw.id || '').trim();
     const product = index.get(slug);
     const unitPrice = Number(product?.price || 0);
-    const trusted = Number.isFinite(unitPrice) && unitPrice > 0 ? unitPrice : 0;
+    const trusted = Number.isFinite(unitPrice) && unitPrice > 0 && product?.checkout_price_valid !== false ? unitPrice : 0;
     const lineTotal = normalizeMoney(trusted * normalized.quantity);
     return {
       product_id: String(product?.id || slug || '').trim() || null,
@@ -94,7 +91,7 @@ export async function onRequestPost(context) {
     const body = await context.request.json().catch(() => ({}));
     const code = String(body.code || body.coupon_code || '').trim().toUpperCase();
     const cart = Array.isArray(body.cart) ? body.cart : [];
-    const trustedCart = buildTrustedCartLines(cart);
+    const trustedCart = await buildTrustedCartLines(context, cart);
     const subtotal = normalizeMoney(trustedCart.reduce((sum, row) => sum + Number(row.line_total || 0), 0));
     const token = authToken(context, body);
     const user = token ? await getUserFromAccessToken(context, token).catch(() => null) : null;

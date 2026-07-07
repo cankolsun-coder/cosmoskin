@@ -1,0 +1,39 @@
+COSMOSKIN P1C — Admin Product Price Editing
+Changed files list (2026-07-07)
+
+Created:
+- supabase/migrations/20260707_p1c_admin_product_price_editing.sql
+- functions/api/_lib/product-pricing.js
+- functions/api/admin/products/[slug]/price.js
+- functions/api/catalog/effective-prices.js
+- scripts/validate-p1c-admin-product-price-editing.mjs
+- scripts/lib/migration-batch-exemptions.mjs
+- COSMOSKIN_P1C_ADMIN_PRODUCT_PRICE_EDITING_REPORT_20260707.md
+- COSMOSKIN_P1C_ADMIN_PRODUCT_PRICE_EDITING_CHANGED_FILES_20260707.txt
+- COSMOSKIN_P1C_ADMIN_PRODUCT_PRICE_EDITING_RUNBOOK_20260707.md
+- COSMOSKIN_P1C_ADMIN_PRODUCT_PRICE_EDITING_ROLLBACK_PLAN_20260707.md
+
+Modified:
+- functions/api/admin/products.js
+- assets/admin-products.js
+- admin/products.html
+- assets/products-data.js
+- functions/api/create-checkout.js
+- functions/api/coupons/validate.js
+- tests/local-integration.test.mjs
+- scripts/validate-p1a-product-price-source-drift.mjs
+- scripts/validate-p1b-admin-product-price-readonly.mjs
+- scripts/validate-c1-coupon-eligibility-hardening.mjs
+- scripts/validate-a1-admin-endpoint-coverage.mjs
+- scripts/lib/migration-batch-exemptions.mjs (via batch validator migration exemption updates)
+
+Not modified:
+- products.json
+- functions/api/_lib/products-data.js
+- functions/api/_lib/order-pricing-snapshot.js (refund snapshot logic unchanged)
+- functions/api/_lib/inventory.js
+- admin auth/RBAC core
+
+Not executed:
+- SQL migration apply from Cursor
+- deploy

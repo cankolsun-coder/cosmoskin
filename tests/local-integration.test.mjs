@@ -21,6 +21,13 @@ import { onRequestPost as adminOrderShipmentsPost } from '../functions/api/admin
 import { onRequestGet as adminReturnsGet, onRequestPatch as adminReturnsPatch } from '../functions/api/admin/returns.js';
 import { onRequestGet as adminCustomersGet } from '../functions/api/admin/customers.js';
 import { onRequestGet as adminProductsGet, onRequestPatch as adminProductsPatch, onRequestPost as adminProductsPost } from '../functions/api/admin/products.js';
+import { onRequestPatch as adminProductPricePatch } from '../functions/api/admin/products/[slug]/price.js';
+import {
+  ProductPriceValidationError,
+  buildPricedCatalogIndex,
+  resolveEffectivePricing,
+  validateRegularPriceInput
+} from '../functions/api/_lib/product-pricing.js';
 import { onRequestGet as adminInventoryGet } from '../functions/api/admin/inventory.js';
 import { onRequestGet as adminDashboardGet } from '../functions/api/admin/dashboard.js';
 import { onRequestPost as adminSessionPost } from '../functions/api/admin/session.js';
@@ -4020,15 +4027,13 @@ test('P1B: admin product API includes read-only catalog price fields from truste
 
 test('P1B: admin product PATCH payload remains inventory-only without price fields', async () => {
   const src = await fs.readFile(path.join(root, 'functions/api/admin/products.js'), 'utf8');
-  assert.match(src, /stock_on_hand|stock_qty/);
-  assert.doesNotMatch(src, /body\.(?:catalog_price|price|catalog_price_try)/);
+  assert.match(src, /Fiyat güncellemesi bu uçtan yapılamaz/);
+  assert.match(src, /inventory:adjust/);
   const ui = await fs.readFile(path.join(root, 'assets/admin-products.js'), 'utf8');
   assert.match(ui, /product_slug:slug,stock_qty:/);
   assert.doesNotMatch(ui, /\bprice\s*:/);
-  assert.doesNotMatch(ui, /data-price|type=["']number["'][^>]*catalog/i);
   assert.match(ui, /Katalog Fiyatı/);
-  assert.match(ui, /catalog_price_try/);
-  assert.match(ui, /Admin fiyat düzenleme P1C aşamasında eklenecek/);
+  assert.match(ui, /effective_price_try|catalog_price_try/);
 });
 
 test('P1B: checkout still ignores client price and D3A snapshots use paid totals', async () => {
@@ -4047,6 +4052,150 @@ test('P1B: drift and read-only validators pass', async () => {
   for (const script of [
     'scripts/validate-p1b-admin-product-price-readonly.mjs',
     'scripts/validate-p1a-product-price-source-drift.mjs'
+  ]) {
+    const result = spawnSync(process.execPath, [script], { cwd, encoding: 'utf8' });
+    assert.equal(result.status, 0, `${script}: ${result.stderr || result.stdout}`);
+  }
+});
+
+test('P1C: price validation rejects missing, zero, negative, and decimal TRY', () => {
+  assert.throws(() => validateRegularPriceInput(null), ProductPriceValidationError);
+  assert.throws(() => validateRegularPriceInput(0), /sıfırdan büyük/i);
+  assert.throws(() => validateRegularPriceInput(-10), /sıfırdan büyük/i);
+  assert.throws(() => validateRegularPriceInput(99.5), /tam TL/i);
+  assert.throws(() => validateRegularPriceInput(100, 'USD'), /Para birimi desteklenmiyor/i);
+  assert.deepEqual(validateRegularPriceInput(999), { regular_price_try: 999, currency: 'TRY' });
+});
+
+test('P1C: effective pricing prefers active admin override over static catalog', () => {
+  const catalogProduct = { slug: 'anua-heartleaf-77-soothing-toner', price: 849 };
+  const pricing = resolveEffectivePricing(catalogProduct, {
+    product_slug: 'anua-heartleaf-77-soothing-toner',
+    regular_price_try: 999,
+    currency: 'TRY',
+    is_active: true
+  });
+  assert.equal(pricing.effective_price_try, 999);
+  assert.equal(pricing.effective_price_source, 'admin_override');
+  assert.equal(pricing.base_catalog_price_try, 849);
+});
+
+test('P1C: products:pricing:update can save override with audit log', async () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const auditRows = [];
+  const overrideRows = new Map();
+  const restoreUsers = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url, init) => {
+    const href = String(url);
+    const method = String(init?.method || 'GET').toUpperCase();
+    if (href.includes('/rest/v1/admin_users')) return response([{ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' }]);
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'GET') {
+      const row = overrideRows.get(slug);
+      return response(row ? [row] : []);
+    }
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'POST') {
+      const body = JSON.parse(String(init?.body || '{}'));
+      const row = { ...body, id: 'override-1', updated_at: new Date().toISOString() };
+      overrideRows.set(slug, row);
+      return response([row]);
+    }
+    if (href.includes('/rest/v1/product_price_audit_logs') && method === 'POST') {
+      const body = JSON.parse(String(init?.body || '{}'));
+      auditRows.push(body);
+      return response([{ id: 'audit-1', ...body }]);
+    }
+    return response([]);
+  });
+  try {
+    const req = new Request(`https://local.test/api/admin/products/${slug}/price`, {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+        'x-admin-token': 'a'.repeat(64),
+        'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+      },
+      body: JSON.stringify({ regular_price_try: 999, reason: 'P1C test' })
+    });
+    const res = await adminProductPricePatch({ request: req, env: adminReadEnv(), params: { slug } });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.pricing.effective_price_try, 999);
+    assert.equal(data.pricing.effective_price_source, 'admin_override');
+    assert.equal(auditRows.length, 1);
+    assert.equal(auditRows[0].new_regular_price_try, 999);
+    assert.equal(auditRows[0].old_regular_price_try, 849);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1C: inventory adjust route rejects price fields and pricing permission is separate', async () => {
+  const restoreUsers = installAdminUsersFetch({ id: '2', email: 'warehouse@cosmoskin.com.tr', role: 'warehouse', role_code: 'warehouse', permissions: ['inventory:adjust'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url) => {
+    if (String(url).includes('/rest/v1/admin_users')) {
+      return response([{ id: '2', email: 'warehouse@cosmoskin.com.tr', role: 'warehouse', role_code: 'warehouse', permissions: ['inventory:adjust'], is_active: true, status: 'active' }]);
+    }
+    return response([]);
+  });
+  try {
+    const inventoryRes = await adminProductsPatch({
+      request: new Request('https://local.test/api/admin/products', {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+          'x-admin-token': 'a'.repeat(64),
+          'Cf-Access-Authenticated-User-Email': 'warehouse@cosmoskin.com.tr'
+        },
+        body: JSON.stringify({ product_slug: 'anua-heartleaf-77-soothing-toner', stock_qty: 3, regular_price_try: 500 })
+      }),
+      env: adminReadEnv(),
+      params: {}
+    });
+    assert.equal(inventoryRes.status, 400);
+    const priceRes = await adminProductPricePatch({
+      request: new Request('https://local.test/api/admin/products/anua-heartleaf-77-soothing-toner/price', {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+          'x-admin-token': 'a'.repeat(64),
+          'Cf-Access-Authenticated-User-Email': 'warehouse@cosmoskin.com.tr'
+        },
+        body: JSON.stringify({ regular_price_try: 500 })
+      }),
+      env: adminReadEnv(),
+      params: { slug: 'anua-heartleaf-77-soothing-toner' }
+    });
+    assert.equal(priceRes.status, 403);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1C: checkout priced catalog uses override map for trusted unit price', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const restoreFetch = installFetch(async (url) => {
+    if (String(url).includes('/rest/v1/product_price_overrides')) {
+      return response([{ product_slug: slug, regular_price_try: 1099, currency: 'TRY', is_active: true }]);
+    }
+    return response([]);
+  });
+  try {
+    const index = await buildPricedCatalogIndex({ env }, [slug]);
+    const product = index.get(slug);
+    assert.equal(product.price, 1099);
+    assert.equal(product.effective_price_source, 'admin_override');
+  } finally { restoreFetch(); }
+});
+
+test('P1C: validators pass for pricing editing guard chain', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  for (const script of [
+    'scripts/validate-p1c-admin-product-price-editing.mjs',
+    'scripts/validate-p1a-product-price-source-drift.mjs',
+    'scripts/validate-p1b-admin-product-price-readonly.mjs'
   ]) {
     const result = spawnSync(process.execPath, [script], { cwd, encoding: 'utf8' });
     assert.equal(result.status, 0, `${script}: ${result.stderr || result.stdout}`);

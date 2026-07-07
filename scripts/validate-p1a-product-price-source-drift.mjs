@@ -111,7 +111,7 @@ mustNotMatch(
   'create-checkout must not trust client-submitted order totals.'
 );
 
-mustInclude(couponValidate, 'functions/api/coupons/validate.js', "import { catalog } from '../_lib/catalog.js'");
+mustInclude(couponValidate, 'functions/api/coupons/validate.js', 'buildPricedCatalogIndex');
 mustInclude(couponValidate, 'functions/api/coupons/validate.js', 'buildTrustedCartLines');
 mustInclude(couponValidate, 'functions/api/coupons/validate.js', 'const unitPrice = Number(product?.price || 0)');
 mustNotMatch(
