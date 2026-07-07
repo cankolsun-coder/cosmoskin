@@ -93,6 +93,14 @@
       categorySlug: product.categorySlug || CATEGORY_SLUGS[product.category] || slugify(product.category),
       concernSlugs: toArray(product.concernSlugs),
       price: Number(product.price || 0),
+      price_try: Number(product.price_try || product.price || 0),
+      effective_price_try: product.effective_price_try == null ? Number(product.price || 0) : Number(product.effective_price_try || 0),
+      effective_currency: String(product.effective_currency || product.currency || 'TRY'),
+      effective_price_source: String(product.effective_price_source || 'static'),
+      base_catalog_price_try: product.base_catalog_price_try == null ? Number(product.price || 0) : Number(product.base_catalog_price_try || 0),
+      has_price_override: Boolean(product.has_price_override),
+      price_override_valid: product.price_override_valid !== false,
+      price_warning: String(product.price_warning || ''),
       volume: String(product.volume || '').trim(),
       image: String(product.image || product.imageUrl || '').trim(),
       url: String(product.url || ('/products/' + slug + '.html')).trim(),
@@ -208,10 +216,14 @@
         if (!overlay || overlay.effective_price_try == null) return product;
         return Object.assign({}, product, {
           price: overlay.effective_price_try,
+          price_try: overlay.effective_price_try,
           effective_price_try: overlay.effective_price_try,
+          effective_currency: overlay.effective_currency || 'TRY',
           effective_price_source: overlay.effective_price_source,
           base_catalog_price_try: overlay.base_catalog_price_try,
-          has_price_override: overlay.has_price_override
+          has_price_override: overlay.has_price_override,
+          price_override_valid: overlay.price_override_valid !== false,
+          price_warning: overlay.price_warning || ''
         });
       })
     };

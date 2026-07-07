@@ -58,6 +58,9 @@ export async function onRequestPatch(context) {
     if (error?.status === 403) {
       return json({ ok: false, error: PRICING_PERMISSION_DENIED }, { status: 403 });
     }
+    if (error?.code === 'PRICE_AUDIT_FAILED') {
+      return json({ ok: false, error: error.message || 'Fiyat denetim kaydı oluşturulamadı.', code: error.code }, { status: error.status || 500 });
+    }
     return adminError(error, 'Ürün fiyatı güncellenemedi.');
   }
 }

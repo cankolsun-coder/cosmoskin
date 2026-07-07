@@ -373,7 +373,7 @@
     var product = findProduct(raw) || {};
     var slug = slugFrom(raw.slug || raw.id || raw.product_id || raw.productId || product.slug || product.id);
     var qty = Math.max(1, parseInt(raw.qty || raw.quantity || raw.count || raw.adet || 1, 10) || 1);
-    var price = num(raw.price || raw.unit_price || raw.unitPrice || raw.sale_price || raw.salePrice || product.price);
+    var price = num(product.price != null ? product.price : (raw.price || raw.unit_price || raw.unitPrice || raw.sale_price || raw.salePrice));
     var name = raw.name || raw.title || raw.product_name || raw.productName || product.name || product.title || 'COSMOSKIN ürünü';
     var brand = raw.brand || raw.vendor || product.brand || product.vendor || 'COSMOSKIN';
     var image = raw.image || raw.img || raw.image_url || raw.imageUrl || raw.thumbnail || product.image || product.img || '';
@@ -1413,6 +1413,9 @@
     });
     window.addEventListener('storage', function () { render(); });
     document.addEventListener('cosmoskin:cart:updated', function () {
+      refreshStockGate().then(function () { render(); revalidateCouponAfterCartChange(); });
+    });
+    document.addEventListener('cosmoskin:products-updated', function () {
       refreshStockGate().then(function () { render(); revalidateCouponAfterCartChange(); });
     });
   }

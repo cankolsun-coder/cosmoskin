@@ -4189,10 +4189,107 @@ test('P1C: checkout priced catalog uses override map for trusted unit price', as
   } finally { restoreFetch(); }
 });
 
+test('P1C2: effective 1099 TRY price drives checkout, KDV, order_items, and inventory by slug quantity', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const fake = createFakeSupabase({
+    product_price_overrides: [{ id: 'ppo-1', product_slug: slug, regular_price_try: 1099, currency: 'TRY', is_active: true }],
+    product_inventory: [{ product_slug: slug, stock_on_hand: 3, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 1 }],
+    payment_bank_accounts: [{ id: 'bank-1', ...validBank }]
+  });
+  const restore = installFetch(async (url, init) => fake.fetchHandler(url, init));
+  try {
+    const req = requestJson('https://local.test/api/create-checkout', {
+      payment_method: 'bank_transfer',
+      idempotency_key: 'local-p1c2-override-0001',
+      cart: [{ slug, quantity: 1, price: 899, unit_price: 899, line_total: 899 }],
+      customer: validCustomer
+    });
+    const res = await createCheckout(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200, JSON.stringify(data));
+    assert.equal(data.items[0].unit_price, 1099);
+    assert.equal(data.items[0].line_total, 1099);
+    assert.equal(data.totals.subtotal, 1099);
+    assert.equal(data.totals.vat, Math.round((1099 * 20 / 120) * 100) / 100);
+    assert.equal(fake.table('order_items')[0].unit_price, 1099);
+    assert.equal(fake.table('order_items')[0].line_total, 1099);
+    assert.equal(fake.table('order_items')[0].paid_unit_price, 1099);
+    assert.equal(fake.table('order_items')[0].paid_line_total, 1099);
+    assert.ok(fake.rpcCalls.some((call) => call.name === 'reserve_order_inventory' && call.body.p_items[0].product_slug === slug && call.body.p_items[0].quantity === 1));
+  } finally { restore(); }
+});
+
+test('P1C2: coupon allocation and historical refund basis use paid snapshots, not current override', () => {
+  const oldPaidOrderItem = {
+    product_slug: 'beauty-of-joseon-relief-sun-spf50',
+    quantity: 1,
+    unit_price: 899,
+    line_total: 899,
+    allocated_order_discount: 100,
+    paid_line_total: 799,
+    paid_unit_price: 799,
+    pricing_snapshot_version: PRICING_SNAPSHOT_VERSION_V2
+  };
+  const currentOverride = resolveEffectivePricing({ slug: oldPaidOrderItem.product_slug, price: 899 }, {
+    product_slug: oldPaidOrderItem.product_slug,
+    regular_price_try: 1099,
+    currency: 'TRY',
+    is_active: true
+  });
+  assert.equal(currentOverride.effective_price_try, 1099);
+  assert.equal(oldPaidOrderItem.paid_unit_price, 799);
+  assert.equal(oldPaidOrderItem.paid_line_total, 799);
+
+  const snapshots = buildOrderItemPricingSnapshots([
+    { product_slug: oldPaidOrderItem.product_slug, quantity: 1, unit_price: 1099, line_total: 1099, is_coupon_eligible: true },
+    { product_slug: 'excluded-product', quantity: 1, unit_price: 500, line_total: 500, is_coupon_eligible: false }
+  ], 99, { version: PRICING_SNAPSHOT_VERSION_V2, eligibility: (row) => row.is_coupon_eligible === true });
+  assert.equal(snapshots[0].paid_line_total, 1000);
+  assert.equal(snapshots[0].paid_unit_price, 1000);
+  assert.equal(snapshots[1].paid_line_total, 500);
+});
+
+test('P1C2: admin price audit failure fails closed after override write attempt', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const restoreUsers = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url, init) => {
+    const href = String(url);
+    const method = String(init?.method || 'GET').toUpperCase();
+    if (href.includes('/rest/v1/admin_users')) return response([{ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' }]);
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'GET') return response([]);
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'POST') return response([{ id: 'override-1', product_slug: slug, regular_price_try: 1099, currency: 'TRY', is_active: true }]);
+    if (href.includes('/rest/v1/product_price_audit_logs') && method === 'POST') return response({ message: 'audit insert failed' }, 500);
+    return response([]);
+  });
+  try {
+    const res = await adminProductPricePatch({
+      request: new Request(`https://local.test/api/admin/products/${slug}/price`, {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+          'x-admin-token': 'a'.repeat(64),
+          'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+        },
+        body: JSON.stringify({ regular_price_try: 1099, stock_qty: 0 })
+      }),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    const data = await res.json();
+    assert.equal(res.status, 500);
+    assert.equal(data.code, 'PRICE_AUDIT_FAILED');
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
 test('P1C: validators pass for pricing editing guard chain', async () => {
   const { spawnSync } = await import('node:child_process');
   const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
   for (const script of [
+    'scripts/validate-p1c-effective-price-commerce-integrity.mjs',
+    'scripts/validate-p1c-effective-price-display-parity.mjs',
     'scripts/validate-p1c-admin-product-price-editing.mjs',
     'scripts/validate-p1a-product-price-source-drift.mjs',
     'scripts/validate-p1b-admin-product-price-readonly.mjs'

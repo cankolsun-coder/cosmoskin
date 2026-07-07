@@ -278,7 +278,7 @@
     var slug = extractSlug(raw.slug || raw.id || raw.url || raw.product_slug || '');
     var p = getProductBySlug(slug);
     var qty = Math.max(1, Number(raw.qty || raw.quantity || 1));
-    var price = Number(raw.price || (p && p.price) || 0);
+    var price = Number((p && p.price != null ? p.price : raw.price) || 0);
     return {
       id: slug || (p && p.slug), slug: slug || (p && p.slug), name: raw.name || (p && p.name) || 'Ürün', brand: raw.brand || (p && p.brand) || 'COSMOSKIN',
       price: Number.isFinite(price) ? price : 0, image: raw.image || (p && p.image) || FALLBACK_IMG, url: raw.url || (p && p.url) || ('/products/' + slug + '.html'), qty: qty, volume: raw.volume || (p && p.volume) || ''

@@ -155,6 +155,14 @@
       name: lookup?.name || input.name || 'Ürün',
       brand: lookup?.brand || input.brand || 'COSMOSKIN',
       price: Number.isFinite(price) ? price : 0,
+      price_try: Number(lookup?.price_try ?? lookup?.price ?? price),
+      effective_price_try: Number(lookup?.effective_price_try ?? lookup?.price ?? price),
+      effective_currency: lookup?.effective_currency || 'TRY',
+      effective_price_source: lookup?.effective_price_source || 'static',
+      base_catalog_price_try: Number(lookup?.base_catalog_price_try ?? lookup?.price ?? price),
+      has_price_override: Boolean(lookup?.has_price_override),
+      price_override_valid: lookup?.price_override_valid !== false,
+      price_warning: lookup?.price_warning || '',
       image: lookup?.image || input.image || '',
       url: lookup?.url || input.url || (extractedSlug ? `/products/${extractedSlug}.html` : ''),
       volume: lookup?.volume || input.volume || ''
@@ -176,6 +184,14 @@
     button.dataset.name = product.name;
     button.dataset.brand = product.brand;
     button.dataset.price = String(product.price);
+    button.dataset.priceTry = String(product.price_try || product.price);
+    button.dataset.effectivePriceTry = String(product.effective_price_try || product.price);
+    button.dataset.effectiveCurrency = product.effective_currency || 'TRY';
+    button.dataset.effectivePriceSource = product.effective_price_source || 'static';
+    button.dataset.baseCatalogPriceTry = String(product.base_catalog_price_try || product.price);
+    button.dataset.hasPriceOverride = product.has_price_override ? 'true' : 'false';
+    button.dataset.priceOverrideValid = product.price_override_valid === false ? 'false' : 'true';
+    button.dataset.priceWarning = product.price_warning || '';
     button.dataset.image = product.image;
     if (product.url) button.dataset.url = product.url;
   }
@@ -186,6 +202,7 @@
     button.dataset.name = product.name;
     button.dataset.brand = product.brand;
     button.dataset.price = String(product.price);
+    button.dataset.effectivePriceTry = String(product.effective_price_try || product.price);
     button.dataset.image = product.image;
     button.dataset.url = product.url;
   }
@@ -285,14 +302,17 @@
     });
     if (!product.id) return;
 
-    root.querySelectorAll('.pdp-actions [data-add-cart], #mobileStickyAddBtn[data-add-cart]').forEach((button) => {
+    root.querySelectorAll('.pdp-actions [data-add-cart], .pdp5-actions [data-add-cart], [data-buy-now], #mobileStickyAddBtn[data-add-cart]').forEach((button) => {
       setCartButtonData(button, product);
     });
-    root.querySelectorAll('.pdp-fav-btn').forEach((button) => {
+    root.querySelectorAll('.pdp-fav-btn, .pdp5-favorite').forEach((button) => {
       setFavoriteButtonData(button, product);
     });
-    root.querySelectorAll('.pdp-price, .pdp-detail-card__price').forEach((priceEl) => {
+    root.querySelectorAll('.pdp-price, .pdp-detail-card__price, .pdp5-price').forEach((priceEl) => {
       priceEl.textContent = fmt(product.price);
+    });
+    root.querySelectorAll('.pdp5-vat').forEach((vatEl) => {
+      vatEl.textContent = 'KDV dahil' + (product.volume ? ' · ' + product.volume : '');
     });
     const stickyPrice = root.querySelector('.mobile-sticky-pdp__copy strong');
     if (stickyPrice) stickyPrice.textContent = fmt(product.price);
@@ -302,6 +322,21 @@
     if (brandEl) brandEl.textContent = product.brand;
     const volumeEl = root.querySelector('.pdp-volume-note');
     if (volumeEl && product.volume) volumeEl.textContent = product.volume;
+    Array.from(root.querySelectorAll('script[type="application/ld+json"]')).some((script) => {
+      try {
+        const data = JSON.parse(script.textContent || '{}');
+        const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+        const node = graph.find((entry) => entry && entry['@type'] === 'Product');
+        if (!node) return false;
+        node.offers = node.offers || { '@type': 'Offer' };
+        node.offers.price = String(product.price);
+        node.offers.priceCurrency = product.effective_currency || 'TRY';
+        script.textContent = JSON.stringify(data);
+        return true;
+      } catch (_error) {
+        return false;
+      }
+    });
   }
 
   function syncProductBindings(root = document) {

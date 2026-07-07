@@ -4,14 +4,25 @@
   const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
 
   function productFromButton(btn){
+    const helpers=window.COSMOSKIN_PRODUCT_HELPERS||{};
+    const handle=btn.dataset.slug || btn.dataset.id || btn.dataset.url || window.location.pathname;
+    const effective=typeof helpers.getProductByHandle==='function' ? helpers.getProductByHandle(handle) : null;
     return {
-      id: btn.dataset.id || btn.dataset.slug,
-      slug: btn.dataset.slug || btn.dataset.id,
-      name: btn.dataset.name,
-      brand: btn.dataset.brand,
-      price: Number(btn.dataset.price || 0),
-      image: btn.dataset.image,
-      url: btn.dataset.url || window.location.pathname,
+      id: effective?.id || btn.dataset.id || btn.dataset.slug,
+      slug: effective?.slug || btn.dataset.slug || btn.dataset.id,
+      name: effective?.name || btn.dataset.name,
+      brand: effective?.brand || btn.dataset.brand,
+      price: Number(effective?.price ?? btn.dataset.price ?? 0),
+      price_try: Number(effective?.price_try ?? effective?.price ?? btn.dataset.price ?? 0),
+      effective_price_try: Number(effective?.effective_price_try ?? effective?.price ?? btn.dataset.price ?? 0),
+      effective_currency: effective?.effective_currency || 'TRY',
+      effective_price_source: effective?.effective_price_source || 'static',
+      base_catalog_price_try: Number(effective?.base_catalog_price_try ?? btn.dataset.price ?? 0),
+      has_price_override: Boolean(effective?.has_price_override),
+      price_override_valid: effective?.price_override_valid !== false,
+      price_warning: effective?.price_warning || '',
+      image: effective?.image || btn.dataset.image,
+      url: effective?.url || btn.dataset.url || window.location.pathname,
       qty: 1
     };
   }

@@ -127,6 +127,11 @@ function normalizeItems(input = [], orderItems = []) {
     const maxQty = Number(source?.quantity || 0);
     const quantity = Math.max(0, Math.min(maxQty || 0, Number(raw.quantity || 1)));
     const reason = clean(raw.reason || raw.return_reason || '', 120);
+    const paidUnitPrice = Number(source?.paid_unit_price || source?.unit_price || raw.unit_price || raw.price || 0);
+    const paidLineTotal = Number(source?.paid_line_total || source?.line_total || (paidUnitPrice * quantity) || 0);
+    const refundableAmount = quantity >= maxQty && maxQty > 0
+      ? paidLineTotal
+      : (paidUnitPrice * quantity);
     return {
       order_item_id: orderItemId || source?.id || null,
       product_id: clean(source?.product_id || raw.product_id || slug, 180),
@@ -136,8 +141,10 @@ function normalizeItems(input = [], orderItems = []) {
       quantity,
       reason,
       note: clean(raw.note || raw.customer_note || '', 420),
-      unit_price_snapshot: Number(source?.unit_price || raw.unit_price || raw.price || 0),
-      refundable_amount: Math.max(0, Number(source?.unit_price || raw.unit_price || raw.price || 0) * quantity),
+      unit_price_snapshot: paidUnitPrice,
+      paid_unit_price_snapshot: paidUnitPrice,
+      paid_line_total_snapshot: paidLineTotal,
+      refundable_amount: Math.max(0, refundableAmount),
       condition_status: clean(raw.condition_status || 'customer_declared', 80),
       purchased_quantity: maxQty
     };
@@ -250,7 +257,7 @@ export async function onRequestGet(context){
       const orders = await selectRows(context,'orders',{select:'id,order_number,status,payment_status,fulfillment_status,total_amount,currency,customer_email,delivered_at,created_at,updated_at',or:`(user_id.eq.${user.id},customer_email.eq.${lower(user.email)})`,order:'created_at.desc',limit:'30'}).catch(()=>[]);
       const ids = (orders || []).map((o)=>o.id).filter(Boolean);
       let items = [];
-      if (ids.length) items = await selectRows(context,'order_items',{select:'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total',order_id:inFilter(ids),order:'created_at.asc'}).catch(()=>[]);
+      if (ids.length) items = await selectRows(context,'order_items',{select:'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total,paid_unit_price,paid_line_total,allocated_order_discount,pricing_snapshot_version',order_id:inFilter(ids),order:'created_at.asc'}).catch(()=>[]);
       const grouped = new Map();
       (items || []).forEach((item)=>{ const list = grouped.get(item.order_id) || []; list.push(item); grouped.set(item.order_id, list); });
       const enriched = await Promise.all((orders || []).map(async (order) => {
@@ -307,7 +314,7 @@ export async function onRequestPost(context){
     if(!isDeliveredForReturn(order, deliveryAt)) return json({ok:false,error:ERR_NOT_DELIVERED},{status:400});
     if(!withinReturnWindow(deliveryAt)) return json({ok:false,error:ERR_WINDOW_EXPIRED},{status:400});
 
-    const orderItems = await selectRows(context,'order_items',{select:'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total',order_id:`eq.${order.id}`,order:'created_at.asc'}).catch(()=>[]);
+    const orderItems = await selectRows(context,'order_items',{select:'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total,paid_unit_price,paid_line_total,allocated_order_discount,pricing_snapshot_version',order_id:`eq.${order.id}`,order:'created_at.asc'}).catch(()=>[]);
     let items = aggregateItemsByLine(normalizeItems(body.items, orderItems));
     if(!items.length) return json({ok:false,error:'İade etmek istediğiniz ürünleri ve iade sebebini seçin.'},{status:400});
 

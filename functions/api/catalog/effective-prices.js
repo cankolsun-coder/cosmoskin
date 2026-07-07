@@ -19,7 +19,9 @@ export async function onRequestGet(context) {
         effective_currency: priced.effective_currency,
         effective_price_source: priced.effective_price_source,
         base_catalog_price_try: priced.base_catalog_price_try,
-        has_price_override: priced.has_price_override
+        has_price_override: priced.has_price_override,
+        price_override_valid: priced.price_override_valid !== false,
+        price_warning: priced.price_warning || null
       };
     }
     return json({

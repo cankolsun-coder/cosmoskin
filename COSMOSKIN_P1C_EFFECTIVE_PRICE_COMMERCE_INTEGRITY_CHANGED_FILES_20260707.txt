@@ -1,0 +1,32 @@
+Changed files for P1C2 Effective Price Commerce Integrity:
+
+Modified:
+- assets/app.js
+- assets/checkout-flow.js
+- assets/mobile-redesign.js
+- assets/product-page.js
+- assets/products-data.js
+- functions/api/admin/products/[slug]/price.js
+- functions/api/catalog/effective-prices.js
+- functions/api/returns.js
+- scripts/validate-b1-bank-transfer-finalization.mjs
+- tests/local-integration.test.mjs
+
+Created:
+- scripts/validate-p1c-effective-price-commerce-integrity.mjs
+- scripts/validate-p1c-effective-price-display-parity.mjs
+- COSMOSKIN_P1C_EFFECTIVE_PRICE_COMMERCE_INTEGRITY_REPORT_20260707.md
+- COSMOSKIN_P1C_EFFECTIVE_PRICE_COMMERCE_INTEGRITY_CHANGED_FILES_20260707.txt
+- COSMOSKIN_P1C_EFFECTIVE_PRICE_COMMERCE_INTEGRITY_RUNBOOK_20260707.md
+- COSMOSKIN_P1C_EFFECTIVE_PRICE_COMMERCE_INTEGRITY_ROLLBACK_PLAN_20260707.md
+
+Deleted:
+- None
+
+Not included:
+- .wrangler/ remains untracked and was not modified for P1C2.
+
+No SQL was run.
+No deployment was run.
+No P1C2 migration was created.
+products.json was not modified.
