@@ -1,0 +1,29 @@
+COSMOSKIN P1A — Product Price Source Drift Guard
+Changed files list (2026-07-07)
+
+Created:
+- scripts/lib/product-price-catalog.mjs
+- scripts/validate-p1a-product-price-source-drift.mjs
+- COSMOSKIN_P1A_PRODUCT_PRICE_SOURCE_DRIFT_GUARD_REPORT_20260707.md
+- COSMOSKIN_P1A_PRODUCT_PRICE_SOURCE_DRIFT_GUARD_CHANGED_FILES_20260707.txt
+- COSMOSKIN_P1A_PRODUCT_PRICE_SOURCE_DRIFT_GUARD_RUNBOOK_20260707.md
+- COSMOSKIN_P1A_PRODUCT_PRICE_SOURCE_DRIFT_GUARD_ROLLBACK_PLAN_20260707.md
+
+Modified:
+- tests/local-integration.test.mjs
+
+Not modified (verified read-only):
+- products.json
+- assets/products-data.js
+- functions/api/_lib/products-data.js
+- functions/api/_lib/catalog.js
+- functions/api/create-checkout.js
+- functions/api/coupons/validate.js
+- functions/api/_lib/coupons.js
+- functions/api/_lib/inventory.js
+- functions/api/_lib/order-pricing-snapshot.js
+
+Not created:
+- supabase migrations
+- admin price editing
+- P1B work

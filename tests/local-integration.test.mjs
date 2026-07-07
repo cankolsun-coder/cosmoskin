@@ -3947,6 +3947,37 @@ test('A1F2: JWT-only identity resolves through resolveCloudflareAccessEmail()', 
   }
 });
 
+test('P1A: canonical catalog prices align across products.json, browser fallback, and server catalog', async () => {
+  const {
+    loadCanonicalCatalog,
+    extractBrowserFallbackCatalog,
+    loadServerCatalog,
+    compareCatalogDocuments
+  } = await import('../scripts/lib/product-price-catalog.mjs');
+
+  const canonical = loadCanonicalCatalog();
+  const browser = extractBrowserFallbackCatalog();
+  const server = await loadServerCatalog();
+
+  assert.equal(canonical.slugs.size, 35);
+  assert.deepEqual([...compareCatalogDocuments(canonical, browser, 'assets/products-data.js')], []);
+  assert.deepEqual([...compareCatalogDocuments(canonical, server, 'functions/api/_lib/products-data.js')], []);
+
+  const catalogModule = await import('../functions/api/_lib/catalog.js');
+  const runtime = catalogModule.catalog['anua-heartleaf-77-soothing-toner'];
+  assert.equal(runtime.price, canonical.bySlug.get('anua-heartleaf-77-soothing-toner').price);
+});
+
+test('P1A: drift validator script passes on current catalog sources', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const result = spawnSync(process.execPath, ['scripts/validate-p1a-product-price-source-drift.mjs'], {
+    cwd: path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
+    encoding: 'utf8'
+  });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /P1A product price source drift validation passed/);
+});
+
 test('A1F2: missing team domain fails closed when only JWT header is present', async () => {
   const adminEnv = a1fAdminEnv();
   await assert.rejects(
