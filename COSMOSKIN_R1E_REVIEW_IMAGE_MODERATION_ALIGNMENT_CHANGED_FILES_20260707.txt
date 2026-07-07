@@ -1,0 +1,11 @@
+# COSMOSKIN R1E — Review Image Moderation Alignment — Changed Files
+# Date: 2026-07-07
+# No migration created. No SQL executed. No deploy.
+
+functions/api/reviews/[[path]].js
+admin/reviews/index.html
+scripts/validate-r1e-review-image-moderation-alignment.mjs
+tests/local-integration.test.mjs
+COSMOSKIN_R1E_REVIEW_IMAGE_MODERATION_ALIGNMENT_REPORT_20260707.md
+COSMOSKIN_R1E_REVIEW_IMAGE_MODERATION_ALIGNMENT_RUNBOOK_20260707.md
+COSMOSKIN_R1E_REVIEW_IMAGE_MODERATION_ALIGNMENT_ROLLBACK_PLAN_20260707.md

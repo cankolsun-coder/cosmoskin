@@ -1555,6 +1555,14 @@
     });
   }
 
+  function imageStatusLabel(status) {
+    return {
+      pending: 'Görsel beklemede',
+      approved: 'Görsel onaylandı',
+      rejected: 'Görsel reddedildi'
+    }[status] || 'Görsel beklemede';
+  }
+
   function statusLabel(status) {
     return {
       pending: 'Bekliyor',
@@ -1700,7 +1708,7 @@
       return Object.assign({
         id: '',
         url: '',
-        status: review.status || 'pending',
+        status: 'pending',
         source: 'inline',
         field: '',
         index: 0,
@@ -1994,7 +2002,7 @@
         '</section>',
 
         '<aside class="review-actions">',
-          '<button class="action-btn" type="button" data-review-action="approve" data-tone="approve" data-review-id="' + esc(review.id) + '"' + (reviewBusy ? ' disabled' : '') + '>Onayla</button>',
+          '<button class="action-btn" type="button" data-review-action="approve" data-tone="approve" data-review-id="' + esc(review.id) + '"' + (reviewBusy ? ' disabled' : '') + '>Yorumu ve görselleri onayla</button>',
           '<button class="action-btn" type="button" data-review-action="reject" data-tone="reject" data-review-id="' + esc(review.id) + '"' + (reviewBusy ? ' disabled' : '') + '>Reddet</button>',
           '<button class="action-btn" type="button" data-review-action="delete" data-tone="delete" data-review-id="' + esc(review.id) + '"' + (reviewBusy ? ' disabled' : '') + '>Sil</button>',
           '<p class="review-actions-note">' + esc(getReviewActionHint(review.status)) + '</p>',
@@ -2018,13 +2026,13 @@
         '</button>',
         '<div class="media-body">',
           '<div class="media-meta">',
-            '<span class="image-pill image-pill--' + esc(statusTone(image.status)) + '">' + esc(statusLabel(image.status)) + '</span>',
+            '<span class="image-pill image-pill--' + esc(statusTone(image.status)) + '">' + esc(imageStatusLabel(image.status)) + '</span>',
             '<span class="mini-label">' + esc(created) + '</span>',
           '</div>',
           '<div class="media-actions">',
             '<button class="tiny-btn" type="button" data-image-action="open" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '">Görseli Aç</button>',
-            '<button class="tiny-btn" data-tone="approve" type="button" data-image-action="approve" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Onayla</button>',
-            '<button class="tiny-btn" data-tone="reject" type="button" data-image-action="reject" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Reddet</button>',
+            '<button class="tiny-btn" data-tone="approve" type="button" data-image-action="approve" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Görseli onayla</button>',
+            '<button class="tiny-btn" data-tone="reject" type="button" data-image-action="reject" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Görseli reddet</button>',
             '<button class="tiny-btn" data-tone="delete" type="button" data-image-action="delete" data-review-id="' + esc(review.id) + '" data-image-id="' + esc(image.id) + '"' + disabled + '>Sil</button>',
           '</div>',
         '</div>',

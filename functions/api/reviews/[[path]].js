@@ -110,6 +110,49 @@ async function deleteRows(context, table, filters) {
   });
 }
 
+const MODERATOR_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function isModeratorUuid(value) {
+  return MODERATOR_UUID_RE.test(String(value || '').trim());
+}
+
+function resolveModeratorUuid(context) {
+  const candidates = [
+    context.request.headers.get('x-admin-user-id'),
+    context.request.headers.get('cf-access-authenticated-user-id')
+  ].map((value) => String(value || '').trim()).filter(Boolean);
+  return candidates.find(isModeratorUuid) || null;
+}
+
+function buildReviewImageModerationPayload(nextStatus, context, payload = {}) {
+  const patch = {
+    status: nextStatus,
+    moderation_note: payload.note || payload.moderation_note || null,
+    moderated_at: new Date().toISOString()
+  };
+  const moderatorUuid = resolveModeratorUuid(context);
+  if (moderatorUuid) {
+    patch.moderated_by = moderatorUuid;
+  }
+  return patch;
+}
+
+async function approvePendingReviewImages(context, reviewId, payload = {}) {
+  const patch = buildReviewImageModerationPayload('approved', context, payload);
+  const qs = new URLSearchParams({
+    review_id: `eq.${reviewId}`,
+    status: 'eq.pending'
+  });
+  await supabaseRequest(context, `/rest/v1/review_images?${qs.toString()}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Prefer: 'return=minimal'
+    },
+    body: JSON.stringify(patch)
+  });
+}
+
 function normalizeText(value) {
   return String(value || '').trim().toLocaleLowerCase('tr-TR');
 }
@@ -947,6 +990,10 @@ async function handleAdminReviewUpdate(context, reviewId) {
     moderated_by: context.request.headers.get('x-admin-email') || 'admin'
   }, 'return=minimal');
 
+  if (nextStatus === 'approved') {
+    await approvePendingReviewImages(context, reviewId, payload);
+  }
+
   const refreshed = await getReviewById(context, reviewId);
   return json({
     ok: true,
@@ -975,12 +1022,19 @@ async function handleAdminImageUpdate(context, reviewId, imageId) {
     return validationError('Gecersiz gorsel durumu.', 'invalid_status');
   }
 
-  await updateRows(context, 'review_images', { id: imageId, review_id: reviewId }, {
-    status: nextStatus,
-    moderation_note: payload.note || payload.moderation_note || null,
-    moderated_at: new Date().toISOString(),
-    moderated_by: context.request.headers.get('x-admin-email') || 'admin'
-  }, 'return=minimal');
+  const existingRows = await selectRows(context, 'review_images', {
+    select: 'id,status',
+    id: `eq.${imageId}`,
+    review_id: `eq.${reviewId}`,
+    limit: '1'
+  });
+  if (!existingRows?.[0]) {
+    return json({ ok: false, code: 'image_not_found', error: 'Görsel bulunamadı.' }, { status: 404 });
+  }
+
+  await updateRows(context, 'review_images', { id: imageId, review_id: reviewId },
+    buildReviewImageModerationPayload(nextStatus, context, payload),
+    'return=minimal');
 
   const rows = await selectRows(context, 'review_images', {
     select: 'id,public_url,storage_path,status,width,height,created_at',
@@ -991,6 +1045,7 @@ async function handleAdminImageUpdate(context, reviewId, imageId) {
 
   return json({
     ok: true,
+    code: 'image_updated',
     image: rows?.[0] ? mapImage(rows[0], { publicBase: reviewImagesPublicBase(context) }) : null
   });
 }

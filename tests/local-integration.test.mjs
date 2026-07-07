@@ -652,6 +652,149 @@ test('R1D: retired /api/reviews/images remains 410 Gone', async () => {
   assert.equal(res.status, 410);
 });
 
+const adminReviewEnv = {
+  ADMIN_TOKEN: 'admin-token',
+  ADMIN_SESSION_SECRET: 'b'.repeat(64),
+  ADMIN_ALLOW_LEGACY_TOKEN: 'true'
+};
+
+function adminReviewRequest(path, method = 'GET', body = null) {
+  const init = {
+    method,
+    headers: { 'x-admin-token': 'admin-token' }
+  };
+  if (body != null) {
+    init.headers['content-type'] = 'application/json';
+    init.body = JSON.stringify(body);
+  }
+  return new Request(`https://local.test/api/reviews${path}`, init);
+}
+
+test('R1E: main review approval also approves attached pending images', async () => {
+  const imagePatches = [];
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/rest/v1/reviews') && method === 'PATCH' && !href.includes('review_images')) {
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/review_images') && method === 'PATCH' && href.includes('status=eq.pending')) {
+      imagePatches.push({ href, body: JSON.parse(String(options.body || '{}')) });
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/reviews') && href.includes('id=eq.review-r1e')) {
+      return response([{
+        id: 'review-r1e',
+        product_slug: 'beauty-of-joseon-relief-sun-spf50',
+        user_id: 'user-r1',
+        title: 'R1E',
+        body: 'Valid review body text',
+        rating: 5,
+        status: 'approved',
+        approved: true,
+        review_images: [
+          { id: 'img-pending', storage_path: 'user-r1/review-r1e/a.jpg', public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1e/a.jpg', status: 'approved', sort_order: 0, created_at: '2026-07-07T00:00:00Z' },
+          { id: 'img-rejected', storage_path: 'user-r1/review-r1e/b.jpg', public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1e/b.jpg', status: 'rejected', sort_order: 1, created_at: '2026-07-07T00:00:00Z' }
+        ]
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const res = await reviewsApi(contextFor(adminReviewRequest('/admin/review-r1e', 'PATCH', { status: 'approved' }), { env: adminReviewEnv }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(imagePatches.length, 1);
+    assert.equal(imagePatches[0].body.status, 'approved');
+    assert.equal(Object.prototype.hasOwnProperty.call(imagePatches[0].body, 'moderated_by'), false);
+    assert.equal(data.review.images.find((img) => img.id === 'img-pending').status, 'approved');
+    assert.equal(data.review.images.find((img) => img.id === 'img-rejected').status, 'rejected');
+  } finally { restore(); }
+});
+
+test('R1E: image-level approve updates status without invalid moderated_by', async () => {
+  let patchBody = null;
+  let imageStatus = 'pending';
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/rest/v1/review_images') && method === 'PATCH') {
+      patchBody = JSON.parse(String(options.body || '{}'));
+      imageStatus = patchBody.status || imageStatus;
+      return response({ ok: true }, 200);
+    }
+    if (href.includes('/rest/v1/review_images') && href.includes('id=eq.img-r1e')) {
+      return response([{
+        id: 'img-r1e',
+        review_id: 'review-r1e',
+        status: imageStatus,
+        storage_path: 'user-r1/review-r1e/a.jpg',
+        public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1e/a.jpg',
+        width: null,
+        height: null,
+        created_at: '2026-07-07T00:00:00Z'
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const res = await reviewsApi(contextFor(adminReviewRequest('/admin/review-r1e/images/img-r1e', 'PATCH', { status: 'approved' }), { env: adminReviewEnv }));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.ok, true);
+    assert.equal(data.code, 'image_updated');
+    assert.equal(patchBody.status, 'approved');
+    assert.equal(Object.prototype.hasOwnProperty.call(patchBody, 'moderated_by'), false);
+    assert.equal(data.image.status, 'approved');
+  } finally { restore(); }
+});
+
+test('R1E: public API shows approved images and hides pending/rejected', async () => {
+  const slug = 'beauty-of-joseon-relief-sun-spf50';
+  const restore = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/reviews')) {
+      return response([{
+        id: 'review-r1e',
+        product_slug: slug,
+        user_id: 'user-r1',
+        title: 'R1E',
+        body: 'Valid review body text',
+        rating: 5,
+        status: 'approved',
+        approved: true,
+        review_images: [
+          { id: 'img-approved', storage_path: 'user-r1/review-r1e/a.jpg', public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1e/a.jpg', status: 'approved', created_at: '2026-07-07T00:00:00Z' },
+          { id: 'img-pending', storage_path: 'user-r1/review-r1e/b.jpg', public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1e/b.jpg', status: 'pending', created_at: '2026-07-07T00:00:00Z' },
+          { id: 'img-rejected', storage_path: 'user-r1/review-r1e/c.jpg', public_url: 'https://local.supabase.test/storage/v1/object/public/review-images/user-r1/review-r1e/c.jpg', status: 'rejected', created_at: '2026-07-07T00:00:00Z' }
+        ]
+      }]);
+    }
+    return response([]);
+  });
+  try {
+    const req = new Request(`https://local.test/api/reviews?product_slug=${encodeURIComponent(slug)}`);
+    const res = await reviewsApi(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.reviews.length, 1);
+    assert.equal(data.reviews[0].images.length, 1);
+    assert.equal(data.reviews[0].images[0].id, 'img-approved');
+    assert.match(String(data.reviews[0].images[0].public_url || ''), /review-images/);
+  } finally { restore(); }
+});
+
+test('R1E: admin UI labels distinguish review and image approval', async () => {
+  const adminUi = await fs.readFile(path.join(root, 'admin/reviews/index.html'), 'utf8');
+  assert.match(adminUi, /Yorumu ve görselleri onayla/);
+  assert.match(adminUi, /Görseli onayla/);
+  assert.match(adminUi, /Görseli reddet/);
+  assert.match(adminUi, /Görsel beklemede/);
+  assert.match(adminUi, /Görsel onaylandı/);
+  assert.match(adminUi, /Görsel reddedildi/);
+});
+
 test('R1B: frontend markers support review id fallback and upload error detail', async () => {
   const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
   assert.match(src, /resolveReviewId/);
