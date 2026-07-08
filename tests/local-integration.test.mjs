@@ -22,6 +22,7 @@ import { onRequestGet as adminReturnsGet, onRequestPatch as adminReturnsPatch } 
 import { onRequestGet as adminCustomersGet } from '../functions/api/admin/customers.js';
 import { onRequestGet as adminProductsGet, onRequestPatch as adminProductsPatch, onRequestPost as adminProductsPost } from '../functions/api/admin/products.js';
 import { onRequestPatch as adminProductPricePatch } from '../functions/api/admin/products/[slug]/price.js';
+import { onRequestGet as adminProductPriceHistoryGet } from '../functions/api/admin/products/[slug]/price-history.js';
 import {
   ProductPriceValidationError,
   buildPricedCatalogIndex,
@@ -4130,6 +4131,102 @@ test('P1C: products:pricing:update can save override with audit log', async () =
   }
 });
 
+test('P1D: price history endpoint returns latest logs and requires products:read', async () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const restoreUsers = installAdminUsersFetch({ id: '8', email: 'reader@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: ['products:read'], is_active: true, status: 'active' });
+  const audit = [
+    { product_slug: slug, old_regular_price_try: 849, new_regular_price_try: 899, old_currency: 'TRY', new_currency: 'TRY', changed_by_admin: 'a@cosmoskin.com.tr', changed_at: '2026-07-07T10:00:00.000Z', reason: 'test-1', source: 'admin' },
+    { product_slug: slug, old_regular_price_try: 899, new_regular_price_try: 999, old_currency: 'TRY', new_currency: 'TRY', changed_by_admin: 'b@cosmoskin.com.tr', changed_at: '2026-07-07T12:00:00.000Z', reason: 'test-2', source: 'admin' }
+  ];
+  const restoreFetch = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/admin_users')) return response([{ id: '8', email: 'reader@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: ['products:read'], is_active: true, status: 'active' }]);
+    if (href.includes('/rest/v1/product_price_audit_logs')) return response(audit);
+    return response([]);
+  });
+  try {
+    const res = await adminProductPriceHistoryGet({
+      request: adminReadRequest(`https://local.test/api/admin/products/${slug}/price-history?limit=20`, 'reader@cosmoskin.com.tr'),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.ok, true);
+    assert.equal(data.product_slug, slug);
+    assert.equal(Array.isArray(data.items), true);
+    assert.equal(data.items[0].new_regular_price_try, 999);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1D: price history endpoint rejects unauthenticated and non-products:read admins', async () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const restoreUsers = installAdminUsersFetch({ id: '9', email: 'warehouse@cosmoskin.com.tr', role: 'warehouse', role_code: 'warehouse', permissions: ['inventory:adjust'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url) => {
+    if (String(url).includes('/rest/v1/admin_users')) {
+      return response([{ id: '9', email: 'warehouse@cosmoskin.com.tr', role: 'warehouse', role_code: 'warehouse', permissions: ['inventory:adjust'], is_active: true, status: 'active' }]);
+    }
+    return response([]);
+  });
+  try {
+    const unauth = await adminProductPriceHistoryGet({
+      request: new Request(`https://local.test/api/admin/products/${slug}/price-history`),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    assert.ok([401, 403].includes(unauth.status));
+
+    const forbidden = await adminProductPriceHistoryGet({
+      request: adminReadRequest(`https://local.test/api/admin/products/${slug}/price-history`, 'warehouse@cosmoskin.com.tr'),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    assert.equal(forbidden.status, 403);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1D: unknown product slug returns safe empty history response', async () => {
+  const slug = 'unknown-product-slug';
+  const restoreUsers = installAdminUsersFetch({ id: '10', email: 'reader@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: ['products:read'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url) => {
+    if (String(url).includes('/rest/v1/admin_users')) {
+      return response([{ id: '10', email: 'reader@cosmoskin.com.tr', role: 'custom', role_code: 'custom', permissions: ['products:read'], is_active: true, status: 'active' }]);
+    }
+    if (String(url).includes('/rest/v1/product_price_audit_logs')) return response([]);
+    return response([]);
+  });
+  try {
+    const res = await adminProductPriceHistoryGet({
+      request: adminReadRequest(`https://local.test/api/admin/products/${slug}/price-history?limit=20`, 'reader@cosmoskin.com.tr'),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.ok, true);
+    assert.equal(data.product_slug, slug);
+    assert.equal((data.items || []).length, 0);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1D: admin UI renders read-only price history section and empty state', async () => {
+  const src = await fs.readFile(path.join(root, 'assets/admin-products.js'), 'utf8');
+  assert.match(src, /Fiyat Geçmişi/);
+  assert.match(src, /\/api\/admin\/products\//);
+  assert.match(src, /\/price-history/);
+  assert.match(src, /Bu ürün için henüz fiyat değişikliği yok\./);
+  assert.doesNotMatch(src, /price-history[^\n]*(?:PATCH|DELETE)/i);
+});
+
 test('P1C: inventory adjust route rejects price fields and pricing permission is separate', async () => {
   const restoreUsers = installAdminUsersFetch({ id: '2', email: 'warehouse@cosmoskin.com.tr', role: 'warehouse', role_code: 'warehouse', permissions: ['inventory:adjust'], is_active: true, status: 'active' });
   const restoreFetch = installFetch(async (url) => {
@@ -4401,6 +4498,7 @@ test('P1C: validators pass for pricing editing guard chain', async () => {
   const { spawnSync } = await import('node:child_process');
   const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
   for (const script of [
+    'scripts/validate-p1d-admin-price-audit-history.mjs',
     'scripts/validate-p1c4-live-pdp-effective-price-runtime.mjs',
     'scripts/validate-p1c3-effective-price-fallback-hardening.mjs',
     'scripts/validate-p1c-effective-price-commerce-integrity.mjs',

@@ -1,0 +1,9 @@
+functions/api/admin/products/[slug]/price-history.js
+assets/admin-products.js
+scripts/validate-p1d-admin-price-audit-history.mjs
+tests/local-integration.test.mjs
+COSMOSKIN_P1D_ADMIN_PRICE_AUDIT_HISTORY_REPORT_20260707.md
+COSMOSKIN_P1D_ADMIN_PRICE_AUDIT_HISTORY_CHANGED_FILES_20260707.txt
+COSMOSKIN_P1D_ADMIN_PRICE_AUDIT_HISTORY_RUNBOOK_20260707.md
+COSMOSKIN_P1D_ADMIN_PRICE_AUDIT_HISTORY_ROLLBACK_PLAN_20260707.md
+

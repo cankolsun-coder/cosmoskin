@@ -8,6 +8,12 @@
   function token(){return ($('#adminToken')?.value||sessionStorage.getItem(TOKEN_KEY)||'').trim()}
   function fmt(n){return new Intl.NumberFormat('tr-TR',{maximumFractionDigits:0}).format(Number(n||0))}
   function fmtTry(n){return new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',maximumFractionDigits:0}).format(Number(n||0))}
+  function fmtDateTime(iso){
+    if(!iso) return '';
+    try{
+      return new Intl.DateTimeFormat('tr-TR',{dateStyle:'short',timeStyle:'short'}).format(new Date(iso));
+    }catch(_){return String(iso)}
+  }
   function labelStatus(v){return {active:'Aktif',out_of_stock:'Stokta yok',draft:'Hazırlık',preorder:'Ön sipariş',inactive:'Pasif',discontinued:'Satıştan kaldırıldı'}[v]||v}
   function statusOptions(current){return ['active','out_of_stock','draft','preorder','inactive','discontinued'].map(function(v){return '<option value="'+v+'" '+(current===v?'selected':'')+'>'+labelStatus(v)+'</option>'}).join('')}
   function sourceBadge(product){
@@ -35,6 +41,7 @@
     } else if(!canEditPrice){
       html+='<small class="cs-price-note">Fiyat salt okunur. Düzenleme için products:pricing:update yetkisi gerekir.</small>';
     }
+    html+='<details class="cs-price-history" data-price-history="'+esc(product.slug)+'"><summary>Fiyat Geçmişi</summary><div class="cs-price-history-body" data-price-history-body="'+esc(product.slug)+'"><small class="cs-price-note">Yükleniyor…</small></div></details>';
     html+='</div>';
     return html;
   }
@@ -42,5 +49,27 @@
   function render(){var q=($('#adminProductSearch')?.value||'').toLowerCase();var list=products.filter(function(p){return [p.name,p.brand,p.slug,p.catalog_title].join(' ').toLowerCase().includes(q)});$('#adminStockCount').textContent=fmt(list.reduce(function(s,p){return s+Number(p.inventory?.stock_qty||p.inventory?.stock_on_hand||0)},0));$('#adminLowStockCount').textContent=fmt(list.filter(function(p){return Number(p.inventory?.stock_qty||p.inventory?.stock_on_hand||0)<=Number(p.inventory?.low_stock_threshold||5)}).length);$('#adminInactiveCount').textContent=fmt(list.filter(function(p){return !['active','preorder'].includes(String(p.inventory?.status||'active'))}).length);$('#adminProductsBody').innerHTML=list.map(function(p){var inv=p.inventory||{};var stock=inv.stock_qty??inv.stock_on_hand??0;var sku=inv.sku||p.slug.toUpperCase().replace(/-/g,'_');return '<tr><td><strong>'+esc(p.catalog_title||p.name)+'</strong><br><small>'+esc(p.catalog_slug||p.slug)+'</small></td><td>'+esc(p.brand)+'</td><td>'+renderCatalogPrice(p)+'</td><td><input class="cs-row-input" data-stock="'+esc(p.slug)+'" value="'+esc(stock)+'" type="number" min="0"></td><td><select class="cs-row-select" data-status="'+esc(p.slug)+'">'+statusOptions(inv.status||'active')+'</select></td><td><input class="cs-row-input" style="width:150px" data-sku="'+esc(p.slug)+'" value="'+esc(sku)+'"></td><td><button class="cs-btn cs-btn-ghost" data-save="'+esc(p.slug)+'" type="button">Kaydet</button></td></tr>'}).join('')||'<tr><td colspan="7">Sonuç yok.</td></tr>'}
   async function save(slug){var body={product_slug:slug,stock_qty:Number(document.querySelector('[data-stock="'+CSS.escape(slug)+'"]').value||0),status:document.querySelector('[data-status="'+CSS.escape(slug)+'"]').value,sku:document.querySelector('[data-sku="'+CSS.escape(slug)+'"]').value};var res=await fetch('/api/admin/products',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-token':token()},body:JSON.stringify(body)});var data=await res.json().catch(function(){return{}});if(!res.ok||data.ok===false)notice(data.error||'Kaydedilemedi',true);else load()}
   async function savePrice(slug){var priceInput=document.querySelector('[data-price-input="'+CSS.escape(slug)+'"]');var reasonInput=document.querySelector('[data-price-reason="'+CSS.escape(slug)+'"]');var body={regular_price_try:Number(priceInput?.value||0),reason:String(reasonInput?.value||'').trim()};var res=await fetch('/api/admin/products/'+encodeURIComponent(slug)+'/price',{method:'PATCH',headers:{'Content-Type':'application/json','x-admin-token':token()},body:JSON.stringify(body)});var data=await res.json().catch(function(){return{}});if(!res.ok||data.ok===false){notice(data.error||'Fiyat güncellenemedi',true);return}notice('Fiyat güncellendi');load()}
+  async function loadPriceHistory(slug){
+    var host=document.querySelector('[data-price-history-body="'+CSS.escape(slug)+'"]');
+    if(!host) return;
+    if(host.dataset.loaded==='true') return;
+    host.innerHTML='<small class="cs-price-note">Yükleniyor…</small>';
+    var res=await fetch('/api/admin/products/'+encodeURIComponent(slug)+'/price-history?limit=20',{headers:{'x-admin-token':token()}});
+    var data=await res.json().catch(function(){return{}});
+    if(!res.ok||data.ok===false){host.innerHTML='<small class="cs-price-note">Fiyat geçmişi yüklenemedi.</small>';return;}
+    var items=Array.isArray(data.items)?data.items:[];
+    if(!items.length){host.innerHTML='<small class="cs-price-note">Bu ürün için henüz fiyat değişikliği yok.</small>';host.dataset.loaded='true';return;}
+    host.innerHTML=items.map(function(row){
+      var oldP=row.old_regular_price_try!=null?fmtTry(row.old_regular_price_try):'—';
+      var next=fmtTry(row.new_regular_price_try);
+      var who=esc(row.changed_by_admin||'—');
+      var when=esc(fmtDateTime(row.changed_at));
+      var reason=esc(row.reason||'');
+      var src=esc(row.source||'admin');
+      return '<div class="cs-price-history-row"><div><strong>'+oldP+' → '+next+'</strong><small>'+when+(who&&who!=='—'?' · '+who:'')+'</small></div>'+(reason?'<small class="cs-price-history-reason">'+reason+'</small>':'')+'<small class="cs-price-history-meta">Kaynak: '+src+'</small></div>';
+    }).join('');
+    host.dataset.loaded='true';
+  }
   document.addEventListener('click',function(e){if(e.target.id==='adminProductLoad')load().catch(function(err){notice(err.message,true)});var saveBtn=e.target.closest('[data-save]');if(saveBtn)save(saveBtn.dataset.save);var priceBtn=e.target.closest('[data-price-save]');if(priceBtn)savePrice(priceBtn.dataset.priceSave).catch(function(err){notice(err.message,true)})});$('#adminProductSearch')?.addEventListener('input',render);if($('#adminToken'))$('#adminToken').value=sessionStorage.getItem(TOKEN_KEY)||'';
+  document.addEventListener('toggle',function(e){var box=e.target&&e.target.closest&&e.target.closest('[data-price-history]');if(!box||box.tagName!=='DETAILS') return; if(box.open) loadPriceHistory(box.getAttribute('data-price-history')).catch(function(err){notice(err.message,true)})},true);
 }());
