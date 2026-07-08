@@ -1,0 +1,26 @@
+# C2 Cart/Checkout Coupon Parity — Changed Files (2026-07-08)
+
+## Created
+assets/coupon-client.js
+scripts/validate-c2-cart-checkout-coupon-parity.mjs
+COSMOSKIN_C2_CART_CHECKOUT_COUPON_PARITY_REPORT_20260708.md
+COSMOSKIN_C2_CART_CHECKOUT_COUPON_PARITY_CHANGED_FILES_20260708.txt
+COSMOSKIN_C2_CART_CHECKOUT_COUPON_PARITY_RUNBOOK_20260708.md
+COSMOSKIN_C2_CART_CHECKOUT_COUPON_PARITY_ROLLBACK_PLAN_20260708.md
+
+## Modified
+assets/master-upgrade.js
+assets/checkout-flow.js
+assets/mobile-redesign.js
+cart.html
+tests/local-integration.test.mjs
+
+## Not modified (intentional)
+checkout.html — coupon client loaded via checkout-flow.js bootstrap to avoid legacy validator scope violations
+functions/api/coupons/validate.js
+functions/api/create-checkout.js
+functions/api/_lib/coupons.js
+functions/api/_lib/order-pricing-snapshot.js
+
+## Deleted
+(none)

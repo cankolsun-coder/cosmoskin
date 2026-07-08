@@ -129,28 +129,35 @@
   }
 
   function readCoupon() {
+    if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.readState === 'function') {
+      return window.COSMOSKIN_COUPON.readState();
+    }
     try {
       var stored = JSON.parse(localStorage.getItem(COUPON_KEY) || 'null');
       if (stored && stored.ok) return stored;
     } catch (_) {}
-    var legacy = String(localStorage.getItem(LEGACY_COUPON_KEY) || '').trim().toUpperCase();
-    if (legacy === 'WELCOME10') return { ok: true, code: 'WELCOME10', type: 'percent', value: 10, minSubtotal: 1000, maxDiscount: 300, source: 'welcome' };
     return null;
   }
   function saveCoupon(coupon) {
-    if (!coupon) { localStorage.removeItem(COUPON_KEY); localStorage.removeItem(LEGACY_COUPON_KEY); return; }
+    if (!coupon) {
+      if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.clearState === 'function') window.COSMOSKIN_COUPON.clearState();
+      else { localStorage.removeItem(COUPON_KEY); localStorage.removeItem(LEGACY_COUPON_KEY); }
+      return;
+    }
+    if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.persistState === 'function') {
+      window.COSMOSKIN_COUPON.persistState(coupon, coupon.code);
+      return;
+    }
     localStorage.setItem(COUPON_KEY, JSON.stringify(coupon));
     localStorage.setItem(LEGACY_COUPON_KEY, coupon.code || '');
   }
   function couponDiscount(subtotal) {
+    if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.previewDiscount === 'function') {
+      return window.COSMOSKIN_COUPON.previewDiscount(readCoupon(), subtotal);
+    }
     var coupon = readCoupon();
-    if (!coupon || Number(subtotal || 0) < Number(coupon.minSubtotal || 0)) return 0;
-    var discount = 0;
-    if (coupon.discountAmount) discount = Number(coupon.discountAmount || 0);
-    else if (coupon.type === 'percent' || coupon.discountType === 'percent') discount = subtotal * Number(coupon.value || coupon.discountValue || 0) / 100;
-    else discount = Number(coupon.value || coupon.discountValue || 0);
-    if (coupon.maxDiscount) discount = Math.min(discount, Number(coupon.maxDiscount));
-    return Math.max(0, Math.min(subtotal, Math.round(discount)));
+    if (!coupon || Number(subtotal || 0) < Number(coupon.minSubtotal || coupon.min_subtotal || 0)) return 0;
+    return Math.max(0, Math.min(Number(subtotal || 0), Math.round(Number(coupon.discountAmount || coupon.discount_amount || 0))));
   }
   function totals() {
     var items = cartItems();
@@ -162,14 +169,15 @@
   async function validateCoupon(code, subtotal) {
     code = String(code || '').trim().toUpperCase();
     if (!code) { saveCoupon(null); return { ok: false, empty: true, message: 'Kupon kaldırıldı.' }; }
-    if (code === 'WELCOME10') {
-      var local = { ok: true, code: code, type: 'percent', value: 10, minSubtotal: 1000, maxDiscount: 300, label: '%10 hoş geldin indirimi' };
-      saveCoupon(local); return local;
+    if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.validate === 'function') {
+      var result = await window.COSMOSKIN_COUPON.validate({ code: code, cartItems: cartItems() });
+      if (!result.ok) { saveCoupon(null); return result; }
+      return result;
     }
     try {
-      var res = await fetch('/api/coupons/validate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code: code, cart: cartItems(), subtotal: subtotal || totals().subtotal }) });
+      var res = await fetch('/api/coupons/validate', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code: code, cart: cartItems() }) });
       var data = await res.json().catch(function () { return {}; });
-      if (res.ok && data && data.ok) { saveCoupon(Object.assign({ code: code }, data)); return Object.assign({ code: code }, data); }
+      if (res.ok && data && data.ok) { saveCoupon(Object.assign({ code: code }, data)); return Object.assign({ code: code, ok: true }, data); }
       saveCoupon(null); return { ok: false, message: (data && (data.error || data.message)) || 'Kupon doğrulanamadı.' };
     } catch (_) {
       saveCoupon(null); return { ok: false, message: 'Kupon doğrulanamadı.' };

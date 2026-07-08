@@ -307,6 +307,157 @@ test('I2: effective price overlay must not remove stock availability fields from
   assert.match(inventoryClient, /available_stock:/);
 });
 
+test('C2: WELCOME10 validates with identical cart fixture for cart and checkout payloads', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const cartLine = [{ slug, product_slug: slug, quantity: 2, qty: 2 }];
+  const now = new Date().toISOString();
+  const welcomeCoupon = {
+    id: 'c-welcome',
+    code: 'WELCOME10',
+    is_active: true,
+    discount_type: 'percent',
+    discount_value: 10,
+    min_subtotal: 1000,
+    max_discount_amount: 300,
+    per_customer_limit: 1,
+    metadata: { eligibility: { requires_auth: true, requires_first_order: true } }
+  };
+  const pricedProduct = {
+    slug,
+    id: slug,
+    name: 'Advanced Snail 96 Mucin Power Essence',
+    price: 1219,
+    brand: 'COSRX',
+    category: 'Tonik & Essence'
+  };
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url instanceof Request ? url.url : url);
+    if (href.includes('/auth/v1/user')) {
+      return response({ id: 'user-c2', email: 'c2@example.test', created_at: now, email_confirmed_at: now, email_verified: true, user_metadata: {} });
+    }
+    if (href.includes('/rest/v1/coupons')) return response([welcomeCoupon]);
+    if (href.includes('/rest/v1/product_price_overrides')) {
+      return response([{ product_slug: slug, regular_price_try: 1219, currency: 'TRY', is_active: true }]);
+    }
+    if (href.includes('/rest/v1/orders')) return response([]);
+    if (href.includes('/rest/v1/coupon_redemptions')) return response([]);
+    return response([]);
+  });
+  try {
+    const cartReq = requestJson('https://local.test/api/coupons/validate', {
+      code: 'WELCOME10',
+      accessToken: 'customer-token',
+      cart: cartLine
+    });
+    const checkoutReq = requestJson('https://local.test/api/coupons/validate', {
+      code: 'WELCOME10',
+      accessToken: 'customer-token',
+      shipping_method: 'standard',
+      cart: cartLine
+    });
+    const cartRes = await validateCoupon(contextFor(cartReq));
+    const checkoutRes = await validateCoupon(contextFor(checkoutReq));
+    const cartData = await cartRes.json();
+    const checkoutData = await checkoutRes.json();
+    assert.equal(cartRes.status, 200);
+    assert.equal(checkoutRes.status, 200);
+    assert.equal(cartData.ok, true);
+    assert.equal(checkoutData.ok, true);
+    assert.equal(cartData.discount_amount, 150);
+    assert.equal(checkoutData.discount_amount, 150);
+    assert.equal(cartData.discount_amount, checkoutData.discount_amount);
+    assert.equal(2438 - 150 + 89, 2377);
+  } finally { restore(); }
+});
+
+test('C2: guest WELCOME10 rejected consistently for cart-style validation', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const restore = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/coupons')) {
+      return response([{ id: 'c-welcome', code: 'WELCOME10', is_active: true, discount_type: 'percent', discount_value: 10, min_subtotal: 1000, max_discount_amount: 300, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, requires_first_order: true } } }]);
+    }
+    if (href.includes('/rest/v1/product_price_overrides')) {
+      return response([{ product_slug: slug, regular_price_try: 1219, currency: 'TRY', is_active: true }]);
+    }
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/coupons/validate', {
+      code: 'WELCOME10',
+      cart: [{ slug, quantity: 2 }]
+    });
+    const res = await validateCoupon(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 403);
+    assert.equal(data.reasonCode, 'authentication_required');
+  } finally { restore(); }
+});
+
+test('C2: create-checkout receives coupon code and recalculates discount server-side', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const calls = [];
+  const now = new Date().toISOString();
+  const restore = installFetch(async (url, options = {}) => {
+    calls.push(String(url));
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) {
+      return response({ id: 'user-c2', email: 'c2@example.test', created_at: now, email_confirmed_at: now, email_verified: true, user_metadata: {} });
+    }
+    if (href.includes('/rest/v1/coupons')) {
+      return response([{ id: 'c-welcome', code: 'WELCOME10', is_active: true, discount_type: 'percent', discount_value: 10, min_subtotal: 1000, max_discount_amount: 300, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, requires_first_order: true } } }]);
+    }
+    if (href.includes('/rest/v1/product_price_overrides')) {
+      return response([{ product_slug: slug, regular_price_try: 1219, currency: 'TRY', is_active: true }]);
+    }
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([{ product_slug: slug, stock_on_hand: 5, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+    }
+    if (href.includes('/rest/v1/payment_bank_accounts')) {
+      return response([{ bank_name: 'Test Bankası', account_holder: 'COSMOSKIN TEST', iban: 'TR330006100519786457841326', currency: 'TRY', is_active: true }]);
+    }
+    if (href.includes('/rest/v1/orders')) return response([]);
+    if (href.includes('/rest/v1/coupon_redemptions')) return response([]);
+    if (href.includes('/rest/v1/checkout_idempotency')) return response([]);
+    if (href.includes('/rpc/release_expired_inventory_reservations')) return response({ ok: true, released: 0 });
+    if (href.includes('/rpc/reserve_order_inventory')) return response({ ok: true, reservations: [{ id: 'r-c2' }] });
+    if (href.includes('/rest/v1/order_items')) return response([]);
+    if (href.includes('/rest/v1/order_status_events')) return response([]);
+    if (href.includes('/rest/v1/payments')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/create-checkout', {
+      payment_method: 'bank_transfer',
+      idempotency_key: 'local-c2-welcome10-0001',
+      coupon_code: 'WELCOME10',
+      accessToken: 'customer-token',
+      cart: [{ slug, quantity: 2, price: 9999 }],
+      customer: validCustomer
+    });
+    const res = await createCheckout(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200, JSON.stringify(data));
+    assert.equal(data.ok, true);
+    assert.equal(data.totals.discount, 150);
+    assert.equal(data.totals.total, 2377);
+    assert.equal(calls.some((href) => href.includes('/rest/v1/coupons')), true);
+    assert.equal(calls.some((href) => href.includes('/rpc/reserve_order_inventory')), true);
+  } finally { restore(); }
+});
+
+test('C2: cart and checkout coupon client share storage and server discount preview', async () => {
+  const couponClient = await fs.readFile(path.join(root, 'assets/coupon-client.js'), 'utf8');
+  const checkoutFlow = await fs.readFile(path.join(root, 'assets/checkout-flow.js'), 'utf8');
+  const cartJs = await fs.readFile(path.join(root, 'assets/master-upgrade.js'), 'utf8');
+  assert.match(couponClient, /cosmoskin_coupon_state_v1/);
+  assert.match(checkoutFlow, /hydrateCouponFromCartStorage/);
+  assert.match(checkoutFlow, /COSMOSKIN_COUPON\.validate/);
+  assert.match(cartJs, /COSMOSKIN_COUPON\.validate/);
+  assert.doesNotMatch(cartJs, /if \(code === 'WELCOME10'\)/);
+  assert.match(couponClient, /previewDiscount/);
+});
+
 test('R1: PDP review image path uses multipart per-review upload and not retired endpoint', async () => {
   const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
   assert.doesNotMatch(src, /\/reviews\/images/);

@@ -294,18 +294,21 @@
   }
 
   function couponState() {
+    if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.readState === 'function') {
+      return window.COSMOSKIN_COUPON.readState();
+    }
     try { return JSON.parse(localStorage.getItem('cosmoskin_coupon_state_v1') || 'null') || null; } catch (e) { return null; }
   }
 
   function couponDiscount(subtotal) {
+    if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.previewDiscount === 'function') {
+      return window.COSMOSKIN_COUPON.previewDiscount(couponState(), subtotal);
+    }
     var c = couponState();
     if (!c || !c.code || !c.ok) return 0;
     var min = Number(c.minSubtotal || c.min_subtotal || 0);
     if (subtotal < min) return 0;
-    var amount = Number(c.discountAmount || c.discount || 0);
-    if (!amount && c.type === 'percent') amount = subtotal * Number(c.value || 0) / 100;
-    if (c.maxDiscount || c.max_discount) amount = Math.min(amount, Number(c.maxDiscount || c.max_discount));
-    return Math.max(0, Math.min(subtotal, Math.round(amount)));
+    return Math.max(0, Math.min(subtotal, Math.round(Number(c.discountAmount || c.discount_amount || 0))));
   }
 
   function cartTotals() {
@@ -1413,7 +1416,34 @@
     document.addEventListener('submit', function (event) {
       var target = event.target;
       if (target.matches('[data-cm-mobile-auth-form]')) { event.preventDefault(); submitMobileAuth(target); return; }
-      if (target.matches('[data-cm-coupon-form]')) { event.preventDefault(); var status = target.querySelector('[data-cm-coupon-status]'); var input = target.querySelector('input[name="coupon"]'); var code = (input && input.value || '').trim().toUpperCase(); if (!code) { localStorage.removeItem('cosmoskin_coupon_state_v1'); if (status) status.textContent = 'Kupon kaldırıldı.'; if (pageType() === 'cart' || pageType() === 'checkout') mount(); return; } if (status) status.textContent = 'Kupon doğrulanıyor...'; fetch('/api/coupons/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code,cart:cartItems(),subtotal:cartTotals().subtotal})}).then(function(res){return res.json().then(function(json){ if(!res.ok || json.ok === false) throw new Error(json.error || 'Kupon geçersiz.'); return json;});}).then(function(json){ localStorage.setItem('cosmoskin_coupon_state_v1', JSON.stringify(Object.assign({}, json, { ok:true, code:json.code || code }))); toast('Kupon uygulandı.'); if (pageType() === 'cart' || pageType() === 'checkout') mount(); }).catch(function(err){ localStorage.removeItem('cosmoskin_coupon_state_v1'); if(status) status.textContent = err.message || 'Kupon geçersiz.'; toast(err.message || 'Kupon geçersiz.'); }); return; }
+      if (target.matches('[data-cm-coupon-form]')) {
+        event.preventDefault();
+        var status = target.querySelector('[data-cm-coupon-status]');
+        var input = target.querySelector('input[name="coupon"]');
+        var code = (input && input.value || '').trim().toUpperCase();
+        if (!code) {
+          if (window.COSMOSKIN_COUPON && window.COSMOSKIN_COUPON.clearState) window.COSMOSKIN_COUPON.clearState();
+          else localStorage.removeItem('cosmoskin_coupon_state_v1');
+          if (status) status.textContent = 'Kupon kaldırıldı.';
+          if (pageType() === 'cart' || pageType() === 'checkout') mount();
+          return;
+        }
+        if (status) status.textContent = 'Kupon doğrulanıyor...';
+        var validatePromise = window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.validate === 'function'
+          ? window.COSMOSKIN_COUPON.validate({ code: code, cartItems: cartItems() })
+          : fetch('/api/coupons/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: code, cart: cartItems() }) }).then(function (res) { return res.json().then(function (json) { if (!res.ok || json.ok === false) throw new Error(json.error || 'Kupon geçersiz.'); return json; }); });
+        validatePromise.then(function (json) {
+          if (!json.ok) throw new Error(json.message || 'Kupon geçersiz.');
+          toast('Kupon uygulandı.');
+          if (pageType() === 'cart' || pageType() === 'checkout') mount();
+        }).catch(function (err) {
+          if (window.COSMOSKIN_COUPON && window.COSMOSKIN_COUPON.clearState) window.COSMOSKIN_COUPON.clearState();
+          else localStorage.removeItem('cosmoskin_coupon_state_v1');
+          if (status) status.textContent = err.message || 'Kupon geçersiz.';
+          toast(err.message || 'Kupon geçersiz.');
+        });
+        return;
+      }
     });
 
     document.addEventListener('change', function (event) {
