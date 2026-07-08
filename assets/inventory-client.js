@@ -239,11 +239,7 @@
     }
     serviceState = 'available';
     serviceError = '';
-    (data.items || []).forEach(function (item) {
-      var slug = slugFrom(item.product_slug);
-      var existing = inventoryMap.get(slug) || {};
-      inventoryMap.set(slug, Object.assign({}, existing, { product_slug: slug, available_stock: item.available_stock, in_stock: item.can_purchase, low_stock: existing.low_stock, status: existing.status || 'active' }));
-    });
+    (data.items || []).forEach(mergeCheckItemIntoMap);
     applyState(document);
     return data;
   }
@@ -276,12 +272,47 @@
     var available = Number(inv.available_stock || 0);
     return Number.isFinite(available) ? Math.max(0, available) : Infinity;
   }
+  function cartItemSlug(item) {
+    return slugFrom(item.slug || item.id || item.product_slug || item.product_id);
+  }
+  function formatItemStockMessage(row, cartItem) {
+    var name = row.name || (cartItem && (cartItem.name || cartItem.product_name)) || row.product_slug || 'Ürün';
+    var requested = row.requested_quantity != null ? row.requested_quantity : (row.quantity != null ? row.quantity : (cartItem && (cartItem.qty || cartItem.quantity)) || 1);
+    var available = row.available_quantity != null ? row.available_quantity : row.available_stock;
+    if (row.reason === 'insufficient_stock' && Number.isFinite(Number(available))) {
+      return name + ' için stok yetersiz. Sepette: ' + requested + ', mevcut: ' + Number(available) + '.';
+    }
+    if (row.reason === 'out_of_stock') return name + ' şu anda stokta yok.';
+    if (row.reason === 'product_inactive') return name + ' şu anda satışta değil.';
+    if (row.reason === 'product_not_found') return name + ' için stok kaydı bulunamadı.';
+    if (row.message && row.message !== 'Stokta') return name + ': ' + row.message;
+    return name + ' için stok doğrulanamadı.';
+  }
+  function formatCartStockMessage(blockedRows, cartItems) {
+    var rows = (blockedRows || []).filter(Boolean);
+    if (!rows.length) return 'Sepetinizde stokta olmayan ürünler var.';
+    var bySlug = {};
+    (cartItems || []).forEach(function (item) { bySlug[cartItemSlug(item)] = item; });
+    return rows.map(function (row) { return formatItemStockMessage(row, bySlug[slugFrom(row.product_slug || row.slug)]); }).join(' ');
+  }
+  function mergeCheckItemIntoMap(item) {
+    var slug = slugFrom(item.product_slug || item.slug);
+    var existing = inventoryMap.get(slug) || {};
+    inventoryMap.set(slug, Object.assign({}, existing, {
+      product_slug: slug,
+      available_stock: item.available_stock != null ? item.available_stock : (item.available_quantity != null ? item.available_quantity : existing.available_stock),
+      in_stock: item.can_purchase,
+      low_stock: existing.low_stock,
+      status: item.inventory_status || existing.status || 'active',
+      allow_backorder: item.allow_backorder != null ? item.allow_backorder : existing.allow_backorder
+    }));
+  }
   function getCartBlockingItems(items) {
     return (items || []).filter(function (item) {
-      var slug = slugFrom(item.slug || item.id || item.product_slug || item.product_id);
+      var slug = cartItemSlug(item);
       var qty = Number(item.qty || item.quantity || 1);
       var buy = canBuy(slug, qty);
-      return !buy.ok;
+      return buy.ok === false && !buy.unknown;
     });
   }
   function getCartStockState(items) {
@@ -295,21 +326,24 @@
   }
   async function validateCartPurchasable(items) {
     var cartItems = (items || []).map(function (item) {
-      return { product_slug: slugFrom(item.slug || item.id || item.product_slug), quantity: Number(item.qty || item.quantity || 1) };
+      return {
+        product_slug: cartItemSlug(item),
+        quantity: Number(item.qty || item.quantity || 1),
+        name: item.name || item.product_name || ''
+      };
     }).filter(function (item) { return item.product_slug; });
     if (!cartItems.length) {
       return { ok: false, blocked: true, message: 'Sepetiniz boş.' };
     }
-    var localState = getCartStockState(items);
-    if (localState.blocked) return Object.assign({ ok: false }, localState);
     try {
+      await loadInventory(cartItems.map(function (item) { return item.product_slug; }), { force: true });
       var data = await checkItems(cartItems);
       var blockedRows = (data.items || []).filter(function (row) { return row && row.can_purchase === false; });
       if (blockedRows.length || data.can_purchase === false) {
         return {
           ok: false,
           blocked: true,
-          message: 'Sepetinizde stokta olmayan ürünler var.',
+          message: formatCartStockMessage(blockedRows, items),
           actionMessage: 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.',
           items: blockedRows
         };
@@ -319,8 +353,8 @@
       return {
         ok: false,
         blocked: true,
-        message: 'Stok bilgisi doğrulanamadı. Lütfen sepetinizi kontrol edip tekrar deneyin.',
-        actionMessage: 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.'
+        message: 'Stok bilgisi doğrulanamadı. Lütfen sepeti yenileyin.',
+        actionMessage: 'Ödemeye geçmeden önce stok durumunu doğrulayıp tekrar deneyin.'
       };
     }
   }
@@ -407,6 +441,8 @@
     stockQuantityLimit: stockQuantityLimit,
     canBuy: canBuy,
     getInventory: getInventory,
+    formatItemStockMessage: formatItemStockMessage,
+    formatCartStockMessage: formatCartStockMessage,
     getServiceState: function () { return { state: serviceState, error: serviceError }; },
     copy: COPY
   };

@@ -1,0 +1,21 @@
+Modified:
+- assets/inventory-client.js
+- assets/checkout-flow.js
+- assets/mobile-redesign.js
+- functions/api/_lib/inventory.js
+- functions/api/inventory/check.js
+- tests/local-integration.test.mjs
+
+Created:
+- scripts/validate-i2-checkout-stock-false-negative.mjs
+- COSMOSKIN_I2_CHECKOUT_STOCK_FALSE_NEGATIVE_REPORT_20260708.md
+- COSMOSKIN_I2_CHECKOUT_STOCK_FALSE_NEGATIVE_CHANGED_FILES_20260708.txt
+- COSMOSKIN_I2_CHECKOUT_STOCK_FALSE_NEGATIVE_RUNBOOK_20260708.md
+- COSMOSKIN_I2_CHECKOUT_STOCK_FALSE_NEGATIVE_ROLLBACK_PLAN_20260708.md
+
+Deleted:
+- (none)
+
+Deferred:
+- Live Supabase confirmation for cosrx slug inventory row (requires SQL Editor; not run from Cursor)
+- Scheduled cron wiring for `/api/cron/release-expired-inventory` (pre-existing; out of I2 scope)

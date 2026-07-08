@@ -134,6 +134,8 @@ export function buildCheckItem(raw = {}, invMap = new Map()) {
     requested_quantity: quantity,
     available_stock: available,
     available_quantity: available,
+    inventory_status: inv?.status || null,
+    allow_backorder: backorder,
     can_purchase,
     reason: reason || null,
     message
@@ -150,7 +152,14 @@ export function stockValidationCode(reason) {
   return 'INSUFFICIENT_STOCK';
 }
 
+export async function releaseExpiredReservationsBestEffort(context, limit = 50) {
+  try {
+    await rpc(context, 'release_expired_inventory_reservations', { p_limit: Math.max(1, Math.min(Number(limit) || 50, 200)) });
+  } catch (_) {}
+}
+
 export async function validateCartStock(context, cartLines = []) {
+  await releaseExpiredReservationsBestEffort(context);
   if (!Array.isArray(cartLines) || !cartLines.length) {
     return {
       ok: false,

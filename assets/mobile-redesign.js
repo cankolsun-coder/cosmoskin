@@ -365,8 +365,12 @@
 
   function cartBlockingItems() {
     return cartItems().filter(function (item) {
-      var info = stockInfo(item.slug);
-      var limit = stockQuantityLimit(item.slug);
+      var slug = extractSlug(item.slug || item.id || item.url);
+      var api = window.COSMOSKIN_STOCK;
+      var inv = api && typeof api.getInventory === 'function' ? api.getInventory(slug) : null;
+      if (!inv) return false;
+      var info = stockInfo(slug);
+      var limit = stockQuantityLimit(slug);
       return !info.canBuy || Number(item.qty || 1) > limit;
     });
   }
@@ -374,6 +378,18 @@
   function validateCartBeforeContinue(statusEl, done) {
     var totals = cartTotals();
     if (!totals.items.length) { if (statusEl) statusEl.textContent = 'Ödeme için sepetine ürün eklemelisin.'; toast('Sepetin boş.'); return; }
+    if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.validateCartPurchasable === 'function') {
+      if (statusEl) statusEl.textContent = 'Stok durumu kontrol ediliyor...';
+      window.COSMOSKIN_STOCK.validateCartPurchasable(totals.items).then(function (result) {
+        if (!result || !result.ok) {
+          if (statusEl) statusEl.textContent = (result && result.message) || 'Sepetinde stokta olmayan veya stok adedini aşan ürün var.';
+          toast((result && result.message) || 'Stok durumunu kontrol etmelisin.');
+          return;
+        }
+        done();
+      }).catch(function () { if (statusEl) statusEl.textContent = 'Stok bilgisi doğrulanamadı. Lütfen sepeti yenileyin.'; });
+      return;
+    }
     var localBlocked = cartBlockingItems();
     if (localBlocked.length) {
       if (statusEl) statusEl.textContent = 'Sepetinde stokta olmayan veya stok adedini aşan ürün var.';

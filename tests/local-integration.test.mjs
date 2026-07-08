@@ -9,6 +9,7 @@ import { calculateCouponPreview, onRequestPost as validateCoupon } from '../func
 import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout } from '../functions/api/create-checkout.js';
 import { PRICING_SNAPSHOT_VERSION_V2, allocateOrderDiscountSnapshots, buildOrderItemPricingSnapshots } from '../functions/api/_lib/order-pricing-snapshot.js';
 import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations, validateCartStock } from '../functions/api/_lib/inventory.js';
+import { onRequestPost as inventoryCheck } from '../functions/api/inventory/check.js';
 import { issueAdminSession, assertAdmin, getVerifiedSessionEmail, resolveCloudflareAccessEmail } from '../functions/api/_lib/admin.js';
 import { clearAccessCertsCacheForTests } from '../functions/api/_lib/cloudflare-access-jwt.js';
 import { onRequestPatch as adminStatusPatch } from '../functions/api/admin/orders/[id]/status.js';
@@ -217,6 +218,93 @@ test('I1: create-checkout rejects inactive product and quantity above available 
     assert.equal(data.items[0].reason, 'insufficient_stock');
     assert.equal(data.items[0].available_quantity, 1);
   } finally { restoreQty(); }
+});
+
+test('I2: validateCartStock passes when available stock meets requested quantity', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const scenarios = [
+    { stock_on_hand: 5, stock_reserved: 0, quantity: 1 },
+    { stock_on_hand: 5, stock_reserved: 4, quantity: 1 }
+  ];
+  for (const scenario of scenarios) {
+    const restore = installFetch(async (url) => {
+      const href = String(url);
+      if (href.includes('/rpc/release_expired_inventory_reservations')) return response({ ok: true, released: 0 });
+      if (href.includes('/rest/v1/product_inventory')) {
+        return response([{ product_slug: slug, stock_on_hand: scenario.stock_on_hand, stock_reserved: scenario.stock_reserved, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+      }
+      return response([]);
+    });
+    try {
+      const result = await validateCartStock({ env }, [{ product_slug: slug, quantity: scenario.quantity, product_name: 'Advanced Snail 96 Mucin Power Essence' }]);
+      assert.equal(result.ok, true, `expected pass for on_hand=${scenario.stock_on_hand} reserved=${scenario.stock_reserved} qty=${scenario.quantity}`);
+      assert.equal(result.can_purchase, true);
+    } finally { restore(); }
+  }
+});
+
+test('I2: validateCartStock blocks fully reserved or insufficient quantity with item details', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const blockedScenarios = [
+    { stock_on_hand: 5, stock_reserved: 5, quantity: 1, reason: 'out_of_stock' },
+    { stock_on_hand: 5, stock_reserved: 4, quantity: 2, reason: 'insufficient_stock', available: 1 }
+  ];
+  for (const scenario of blockedScenarios) {
+    const restore = installFetch(async (url) => {
+      const href = String(url);
+      if (href.includes('/rpc/release_expired_inventory_reservations')) return response({ ok: true, released: 0 });
+      if (href.includes('/rest/v1/product_inventory')) {
+        return response([{ product_slug: slug, stock_on_hand: scenario.stock_on_hand, stock_reserved: scenario.stock_reserved, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+      }
+      return response([]);
+    });
+    try {
+      const result = await validateCartStock({ env }, [{ product_slug: slug, quantity: scenario.quantity, product_name: 'Advanced Snail 96 Mucin Power Essence' }]);
+      assert.equal(result.ok, false);
+      assert.equal(result.error, 'stock_unavailable');
+      assert.equal(result.items[0].reason, scenario.reason);
+      if (scenario.available != null) assert.equal(result.items[0].available_quantity, scenario.available);
+    } finally { restore(); }
+  }
+});
+
+test('I2: inventory check endpoint releases expired reservations before validating stock', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const calls = [];
+  const restore = installFetch(async (url, options = {}) => {
+    const href = String(url);
+    calls.push(href);
+    if (href.includes('/rpc/release_expired_inventory_reservations')) return response({ ok: true, released: 2 });
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([{ product_slug: slug, stock_on_hand: 3, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+    }
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/inventory/check', { items: [{ product_slug: slug, quantity: 1 }] });
+    const res = await inventoryCheck(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.can_purchase, true);
+    assert.equal(calls.some((href) => href.includes('/rpc/release_expired_inventory_reservations')), true);
+  } finally { restore(); }
+});
+
+test('I2: checkout stock client defers to API when local inventory map is empty', async () => {
+  const src = await fs.readFile(path.join(root, 'assets/inventory-client.js'), 'utf8');
+  assert.match(src, /buy\.ok === false && !buy\.unknown/);
+  assert.match(src, /await loadInventory\(cartItems\.map/);
+  assert.doesNotMatch(src, /var localState = getCartStockState\(items\)/);
+  assert.match(src, /formatCartStockMessage/);
+  assert.match(src, /Stok bilgisi doğrulanamadı\. Lütfen sepeti yenileyin\./);
+});
+
+test('I2: effective price overlay must not remove stock availability fields from inventory merge', async () => {
+  const productsData = await fs.readFile(path.join(root, 'assets/products-data.js'), 'utf8');
+  assert.doesNotMatch(productsData, /available_stock\s*=\s*undefined/);
+  const inventoryClient = await fs.readFile(path.join(root, 'assets/inventory-client.js'), 'utf8');
+  assert.match(inventoryClient, /mergeCheckItemIntoMap/);
+  assert.match(inventoryClient, /available_stock:/);
 });
 
 test('R1: PDP review image path uses multipart per-review upload and not retired endpoint', async () => {

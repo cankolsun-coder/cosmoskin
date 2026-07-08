@@ -1,5 +1,5 @@
 import { json } from '../_lib/response.js';
-import { buildCheckItem, getInventoryMap, normalizeSlug } from '../_lib/inventory.js';
+import { buildCheckItem, getInventoryMap, normalizeSlug, releaseExpiredReservationsBestEffort } from '../_lib/inventory.js';
 import { assertRateLimit } from '../_lib/security.js';
 
 const NO_STORE = { 'Cache-Control': 'no-store, max-age=0', Pragma: 'no-cache' };
@@ -25,6 +25,7 @@ export async function onRequestPost(context) {
     }
 
     const slugs = Array.from(new Set(normalized.map((item) => item.product_slug)));
+    await releaseExpiredReservationsBestEffort(context);
     const invMap = await getInventoryMap(context, slugs);
     const checked = normalized.map((item) => buildCheckItem(item, invMap));
     return json({
