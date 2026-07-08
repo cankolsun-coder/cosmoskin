@@ -3,6 +3,110 @@
   const $=(s,p=document)=>p.querySelector(s);
   const $$=(s,p=document)=>Array.from(p.querySelectorAll(s));
 
+  function pdpSlug(){
+    const el = document.querySelector('main[data-product-slug]');
+    const slug = (el && el.getAttribute('data-product-slug')) || window.location.pathname;
+    return String(slug || '')
+      .trim()
+      .replace(/^.*\/products\//, '')
+      .replace(/\.html.*$/, '')
+      .toLowerCase();
+  }
+
+  function fmtTry(amount){
+    const n = Number(amount || 0);
+    if (!Number.isFinite(n) || n <= 0) return '';
+    try {
+      return new Intl.NumberFormat('tr-TR', { style:'currency', currency:'TRY', maximumFractionDigits:0 }).format(n);
+    } catch (_error) {
+      return '₺' + String(Math.round(n));
+    }
+  }
+
+  function patchJsonLdOfferPrice(price, currency){
+    const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
+    for (const script of scripts) {
+      let data;
+      try { data = JSON.parse(script.textContent || '{}'); } catch (_error) { continue; }
+      const graph = Array.isArray(data['@graph']) ? data['@graph'] : [data];
+      const node = graph.find((entry) => entry && entry['@type'] === 'Product');
+      if (!node) continue;
+      node.offers = node.offers || { '@type': 'Offer' };
+      node.offers.price = String(price);
+      node.offers.priceCurrency = String(currency || 'TRY');
+      script.textContent = JSON.stringify(data);
+      return true;
+    }
+    return false;
+  }
+
+  function patchPdpPriceSurfaces(product){
+    const price = Number(product && (product.price ?? product.effective_price_try ?? product.price_try));
+    if (!Number.isFinite(price) || price <= 0) return false;
+    const currency = product && (product.effective_currency || product.currency || 'TRY');
+
+    const formatted = fmtTry(price);
+    const selectors = [
+      '.pdp5-price',
+      '.pdp-price',
+      '[data-product-price]'
+    ];
+    selectors.forEach((sel) => {
+      $$(sel).forEach((node) => {
+        if (node.tagName === 'META') return;
+        node.textContent = formatted || node.textContent;
+        node.dataset.effectivePriceApplied = 'true';
+      });
+    });
+
+    const stickyPrice = document.querySelector('.mobile-sticky-pdp__copy strong');
+    if (stickyPrice) {
+      stickyPrice.textContent = formatted || stickyPrice.textContent;
+      stickyPrice.dataset.effectivePriceApplied = 'true';
+    }
+
+    $$('[data-add-cart], [data-buy-now], .pdp5-favorite, [data-favorite-id]').forEach((btn) => {
+      if (!(btn instanceof HTMLElement)) return;
+      if (btn.dataset) {
+        btn.dataset.price = String(price);
+        btn.dataset.effectivePriceApplied = 'true';
+      }
+    });
+
+    const reviewsShell = document.getElementById('reviewsSection');
+    if (reviewsShell) {
+      reviewsShell.setAttribute('data-product-price', String(price));
+      reviewsShell.dataset.effectivePriceApplied = 'true';
+    }
+
+    patchJsonLdOfferPrice(price, currency);
+    return true;
+  }
+
+  async function loadEffectivePriceForSlug(slug){
+    if (!slug) return null;
+    try {
+      const res = await fetch('/api/catalog/effective-prices', { cache: 'no-store' });
+      if (!res.ok) return null;
+      const data = await res.json().catch(() => null);
+      const row = data && data.prices ? data.prices[slug] : null;
+      if (!row || row.effective_price_try == null) return null;
+      return {
+        slug,
+        price: Number(row.effective_price_try),
+        effective_price_try: Number(row.effective_price_try),
+        effective_currency: row.effective_currency || 'TRY',
+        effective_price_source: row.effective_price_source || 'static',
+        base_catalog_price_try: row.base_catalog_price_try,
+        has_price_override: Boolean(row.has_price_override),
+        price_override_valid: row.price_override_valid !== false,
+        price_warning: row.price_warning || ''
+      };
+    } catch (_error) {
+      return null;
+    }
+  }
+
   function productFromButton(btn){
     const helpers=window.COSMOSKIN_PRODUCT_HELPERS||{};
     const handle=btn.dataset.slug || btn.dataset.id || btn.dataset.url || window.location.pathname;
@@ -201,6 +305,28 @@
     bindTabs();bindThumbs();bindBuyNow();bindScrollLinks();bindTopRating();syncRatingMicro();
     if(window.initFavoriteButtons) window.initFavoriteButtons(document);
     if(window.initCartButtons) window.initCartButtons(document);
+
+    const slug = pdpSlug();
+    const helpers = window.COSMOSKIN_PRODUCT_HELPERS || {};
+    const fromCatalog = typeof helpers.getProductBySlug === 'function' ? helpers.getProductBySlug(slug) : null;
+    if (fromCatalog) patchPdpPriceSurfaces(fromCatalog);
+
+    let lastEffective = null;
+    loadEffectivePriceForSlug(slug).then((effective) => {
+      lastEffective = effective;
+      if (effective) patchPdpPriceSurfaces(effective);
+      window.setTimeout(() => { if (lastEffective) patchPdpPriceSurfaces(lastEffective); }, 450);
+      window.setTimeout(() => { if (lastEffective) patchPdpPriceSurfaces(lastEffective); }, 1600);
+    });
+
+    document.addEventListener('cosmoskin:products-updated', function () {
+      const live = typeof helpers.getProductBySlug === 'function' ? helpers.getProductBySlug(slug) : null;
+      if (live) patchPdpPriceSurfaces(live);
+      loadEffectivePriceForSlug(slug).then((effective) => {
+        lastEffective = effective || lastEffective;
+        if (lastEffective) patchPdpPriceSurfaces(lastEffective);
+      });
+    });
   }
 
   window.PDP={init};

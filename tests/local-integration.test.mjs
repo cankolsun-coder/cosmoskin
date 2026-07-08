@@ -4377,10 +4377,31 @@ test('P1C3: historical refund snapshot remains paid basis after override change'
   assert.notEqual(oldPaidOrderItem.paid_unit_price, currentOverride.effective_price_try);
 });
 
+test('P1C4: BOJ static PDP starts with 899 and runtime path can patch to effective 1099', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const html = await fs.readFile(path.join(root, 'products/beauty-of-joseon-relief-sun-spf50.html'), 'utf8');
+  assert.match(html, /data-product-slug="beauty-of-joseon-relief-sun-spf50"/);
+  assert.match(html, /<span class="pdp5-price">[^<]*899[^<]*<\/span>/);
+  assert.match(html, /data-add-cart[^>]*data-price="899"/);
+  assert.match(html, /"offers":\{[^}]*"price":"899"/);
+  assert.match(html, /id="mobileStickyPdp"[\s\S]*<strong>[^<]*899[^<]*<\/strong>/);
+
+  const src = await fs.readFile(path.join(root, 'assets/product-page.js'), 'utf8');
+  assert.match(src, /\/api\/catalog\/effective-prices/);
+  assert.match(src, /cache:\s*'no-store'/);
+  assert.match(src, /patchPdpPriceSurfaces/);
+  assert.match(src, /\.pdp5-price/);
+  assert.match(src, /\.mobile-sticky-pdp__copy strong/);
+  assert.match(src, /dataset\.price\s*=\s*String\(price\)/);
+  assert.match(src, /node\.offers\.price\s*=\s*String\(price\)/);
+  assert.match(src, /cosmoskin:products-updated/);
+});
+
 test('P1C: validators pass for pricing editing guard chain', async () => {
   const { spawnSync } = await import('node:child_process');
   const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
   for (const script of [
+    'scripts/validate-p1c4-live-pdp-effective-price-runtime.mjs',
     'scripts/validate-p1c3-effective-price-fallback-hardening.mjs',
     'scripts/validate-p1c-effective-price-commerce-integrity.mjs',
     'scripts/validate-p1c-effective-price-display-parity.mjs',
