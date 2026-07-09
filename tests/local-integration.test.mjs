@@ -672,6 +672,23 @@ test('C4: checkout-flow maps structured stock error instead of generic only', as
   assert.doesNotMatch(checkoutFlow, /new Error\(data\.error \|\| 'İşlem başlatılamadı\.'\)/);
 });
 
+test('UX1: mini cart premium thumbnail frame is neutral (not beige block)', async () => {
+  const css = await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8');
+  assert.match(css, /cart-drawer-premium__thumb img/);
+  assert.match(css, /object-fit:contain/);
+  assert.match(css, /background:transparent !important/);
+  assert.match(css, /Ensure legacy compact cart rules don't beige-block premium thumbnails/);
+});
+
+test('UX1: account overview cards clamp and have min-width protection', async () => {
+  const css = await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8');
+  assert.match(css, /UX1 — Account overview premium polish/);
+  assert.match(css, /\.account-page \.cs-stat>div\{min-width:0/);
+  assert.match(css, /\.account-page \.cs-quick-grid--compact \.cs-quick-card strong\{/);
+  assert.match(css, /-webkit-line-clamp:2/);
+  assert.match(css, /\.account-page \.cs-tab-title--overview>div\{min-width:0/);
+});
+
 test('R1: PDP review image path uses multipart per-review upload and not retired endpoint', async () => {
   const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
   assert.doesNotMatch(src, /\/reviews\/images/);
