@@ -176,7 +176,10 @@ export function resolveEffectivePricing(catalogProduct, overrideRow = null) {
 }
 
 function isMissingOverrideTableError(error) {
-  return /relation|does not exist|404|product_price_overrides/i.test(String(error?.message || ''));
+  const msg = String(error?.message || '');
+  // Avoid false positives on "column ... does not exist" (schema drift during rollout).
+  if (/column .* does not exist/i.test(msg)) return false;
+  return /relation .*product_price_overrides|product_price_overrides.*relation|product_price_overrides.*does not exist|404/i.test(msg);
 }
 
 export async function loadPriceOverrideRows(context, { slugs = null, activeOnly = true } = {}) {
@@ -195,7 +198,14 @@ export async function loadPriceOverrideRows(context, { slugs = null, activeOnly 
   } catch (error) {
     if (isMissingOverrideTableError(error)) return [];
     // Backward-compat: if sale columns are not migrated yet, retry with legacy select.
-    if (/sale_price_try|compare_at_price_try|sale_starts_at|sale_ends_at|column .* does not exist/i.test(String(error?.message || ''))) {
+    const msg = String(error?.message || '');
+    const status = Number(error?.status || error?.statusCode || 0);
+    if (
+      /sale_price_try|compare_at_price_try|sale_starts_at|sale_ends_at/i.test(msg)
+      || /column .* does not exist/i.test(msg)
+      || /schema cache/i.test(msg)
+      || status === 400
+    ) {
       return await selectRows(context, 'product_price_overrides', { ...params, select: legacySelect });
     }
     throw error;
