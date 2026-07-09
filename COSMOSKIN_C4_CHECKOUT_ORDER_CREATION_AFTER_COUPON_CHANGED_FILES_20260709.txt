@@ -1,0 +1,16 @@
+# C4 changed files — 2026-07-09
+
+## Modified
+functions/api/create-checkout.js
+assets/checkout-flow.js
+tests/local-integration.test.mjs
+
+## Created
+scripts/validate-c4-checkout-order-creation-after-coupon.mjs
+COSMOSKIN_C4_CHECKOUT_ORDER_CREATION_AFTER_COUPON_REPORT_20260709.md
+COSMOSKIN_C4_CHECKOUT_ORDER_CREATION_AFTER_COUPON_CHANGED_FILES_20260709.txt
+COSMOSKIN_C4_CHECKOUT_ORDER_CREATION_AFTER_COUPON_RUNBOOK_20260709.md
+COSMOSKIN_C4_CHECKOUT_ORDER_CREATION_AFTER_COUPON_ROLLBACK_PLAN_20260709.md
+
+## Deleted
+(none)

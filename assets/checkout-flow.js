@@ -602,6 +602,33 @@
     }
     return fallback || 'Sepetinizde stokta olmayan ürünler var.';
   }
+  function formatCheckoutApiError(data) {
+    data = data || {};
+    var code = String(data.code || '');
+    var message = data.message || data.error || '';
+    if (data.error === 'stock_unavailable' || code === 'stock_unavailable' || code === 'INSUFFICIENT_STOCK') {
+      if (Array.isArray(data.items) && data.items.length) {
+        return formatStockGateMessage({ items: data.items, message: message }, message || 'Stok yetersiz. Lütfen sepetinizi kontrol edin.');
+      }
+      return message || 'Stok yetersiz. Lütfen sepetinizi kontrol edin.';
+    }
+    if (code === 'authentication_required' || code === 'first_order_required' || code === 'INVALID_COUPON' || code === 'coupon_inactive' || code === 'coupon_limit_reached') {
+      return message || 'Kupon artık geçerli değil.';
+    }
+    if (code === 'BANK_ACCOUNT_NOT_CONFIGURED' || code === 'BANK_ACCOUNT_UNAVAILABLE' || code === 'PAYMENT_NOT_CONFIGURED') {
+      return message || 'Ödeme yöntemi doğrulanamadı.';
+    }
+    if (code === 'CONSENT_REQUIRED' || code === 'INVALID_CUSTOMER' || code === 'INVALID_INVOICE' || code === 'IDENTITY_NUMBER_REQUIRED') {
+      return message || 'Sipariş oluşturulamadı. Lütfen bilgileri kontrol edin.';
+    }
+    if (code === 'ORDER_ITEMS_PERSISTENCE_FAILED' || code === 'CHECKOUT_SCHEMA_MISMATCH') {
+      return message || 'Sipariş oluşturulamadı. Lütfen bilgileri kontrol edin.';
+    }
+    if (code === 'CHECKOUT_INTERNAL_ERROR') {
+      return message || 'Checkout başlatılamadı. Lütfen kısa süre sonra tekrar deneyin.';
+    }
+    return message || 'İşlem başlatılamadı.';
+  }
   function stockBlockListHtml() {
     if (!stockBlockDetails.length) return '';
     return '<ul class="cs-checkout-stock-block-list">' + stockBlockDetails.map(function (row) {
@@ -832,8 +859,9 @@
       });
       var data = await res.json().catch(function () { return {}; });
       if (!res.ok || data.ok === false) {
-        var requestError = new Error(data.error || 'İşlem başlatılamadı.');
+        var requestError = new Error(formatCheckoutApiError(data));
         requestError.code = data.code || '';
+        requestError.items = data.items || null;
         throw requestError;
       }
       if (state.paymentMethod === 'bank_transfer') {
@@ -873,6 +901,10 @@
       if (['CHECKOUT_ATTEMPT_CLOSED', 'PAYMENT_INITIALIZE_FAILED', 'IDEMPOTENCY_CONFLICT'].indexOf(error.code) !== -1) {
         state.idempotencyKey = newIdempotencyKey();
         saveState();
+      }
+      if (error.items && error.items.length) {
+        stockBlockDetails = error.items;
+        stockBlocked = true;
       }
       setStatus(state.paymentMethod === 'bank_transfer'
         ? (error.message || 'Havale/EFT siparişiniz oluşturulamadı. Lütfen tekrar deneyin.')

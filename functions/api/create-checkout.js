@@ -373,6 +373,71 @@ function serializeError(error) {
   };
 }
 
+function serializeOrderItemInsertRow(orderId, item, options = {}) {
+  const quantity = Math.max(1, Number(item.quantity || 1));
+  const row = {
+    order_id: orderId,
+    product_id: String(item.product_id || item.product_slug || '').trim(),
+    product_slug: item.product_slug || item.product_id || null,
+    product_name: clampText(item.product_name || 'COSMOSKIN Ürünü', 120),
+    brand: item.brand || null,
+    sku: item.sku || null,
+    image: item.image || null,
+    unit_price: normalizeMoney(item.unit_price),
+    quantity,
+    line_total: normalizeMoney(item.line_total || (Number(item.unit_price || 0) * quantity))
+  };
+  if (options.includeSnapshots !== false) {
+    if (item.allocated_order_discount != null) row.allocated_order_discount = normalizeMoney(item.allocated_order_discount);
+    if (item.paid_line_total != null) row.paid_line_total = normalizeMoney(item.paid_line_total);
+    if (item.paid_unit_price != null) row.paid_unit_price = normalizeMoney(item.paid_unit_price);
+    if (item.pricing_snapshot_version) row.pricing_snapshot_version = String(item.pricing_snapshot_version);
+  }
+  if (options.metadataSnapshot) {
+    row.metadata = {
+      pricing_snapshot: {
+        allocated_order_discount: normalizeMoney(item.allocated_order_discount),
+        paid_line_total: normalizeMoney(item.paid_line_total),
+        paid_unit_price: normalizeMoney(item.paid_unit_price),
+        pricing_snapshot_version: item.pricing_snapshot_version || null
+      }
+    };
+  }
+  return row;
+}
+
+function isMissingOrderItemsSnapshotColumnError(error) {
+  const msg = String(error?.message || '');
+  return /allocated_order_discount|paid_line_total|paid_unit_price|pricing_snapshot_version/i.test(msg)
+    && /(schema cache|does not exist|could not find)/i.test(msg);
+}
+
+async function persistOrderItems(context, orderId, cartWithSnapshots) {
+  const rowsWithSnapshots = cartWithSnapshots.map((item) => serializeOrderItemInsertRow(orderId, item, { includeSnapshots: true }));
+  try {
+    await insertRows(context, 'order_items', rowsWithSnapshots);
+    return;
+  } catch (error) {
+    if (!isMissingOrderItemsSnapshotColumnError(error)) throw error;
+    const legacyRows = cartWithSnapshots.map((item) => serializeOrderItemInsertRow(orderId, item, {
+      includeSnapshots: false,
+      metadataSnapshot: true
+    }));
+    await insertRows(context, 'order_items', legacyRows);
+  }
+}
+
+function mapPersistenceError(error) {
+  const msg = String(error?.message || '');
+  if (/checkout_idempotency_key/i.test(msg) && /(schema cache|does not exist|could not find)/i.test(msg)) {
+    return new CheckoutError('Sipariş kaydı yapılandırması eksik. Lütfen destek ile iletişime geçin.', 503, 'CHECKOUT_SCHEMA_MISMATCH');
+  }
+  if (/order_items/i.test(msg) || /category/i.test(msg) || isMissingOrderItemsSnapshotColumnError(error)) {
+    return new CheckoutError('Sipariş kalemleri kaydedilemedi. Lütfen tekrar deneyin.', 500, 'ORDER_ITEMS_PERSISTENCE_FAILED');
+  }
+  return null;
+}
+
 function buildIyzicoBasketItems(cart, shipping, discount = 0, coupon = null) {
   const config = coupon?.eligibleSlugs
     ? { version: coupon.allocationVersion || PRICING_SNAPSHOT_VERSION_V2, eligibility: coupon.eligibleSlugs }
@@ -824,7 +889,7 @@ export async function onRequestPost(context) {
         ? { version: coupon.allocationVersion || PRICING_SNAPSHOT_VERSION_V2, eligibility: coupon.eligibleSlugs }
         : undefined;
       const cartWithSnapshots = buildOrderItemPricingSnapshots(cart, totals.discount || 0, snapshotConfig);
-      await insertRows(context, 'order_items', cartWithSnapshots.map((item) => ({ ...item, order_id: orderId })));
+      await persistOrderItems(context, orderId, cartWithSnapshots);
       await insertRow(context, 'order_status_events', {
         order_id: orderId,
         status: orderStatus,
@@ -861,6 +926,8 @@ export async function onRequestPost(context) {
         const raced = await existingCheckoutResponse(context, idempotencyKey, customer.email, paymentMethod).catch(() => null);
         if (raced) return json(raced, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
       }
+      const mappedPersistence = mapPersistenceError(persistenceError);
+      if (mappedPersistence instanceof CheckoutError) throw mappedPersistence;
       throw persistenceError;
     }
 
@@ -1080,6 +1147,15 @@ export async function onRequestPost(context) {
       }
       return json(payload, { status: error.status, headers: { 'Cache-Control': 'no-store, max-age=0' } });
     }
+    const mappedPersistence = mapPersistenceError(error);
+    if (mappedPersistence instanceof CheckoutError) {
+      return json({
+        ok: false,
+        code: mappedPersistence.code,
+        message: mappedPersistence.message,
+        error: mappedPersistence.message
+      }, { status: mappedPersistence.status, headers: { 'Cache-Control': 'no-store, max-age=0' } });
+    }
     console.error('Checkout create error:', { message: String(error?.message || 'unknown').slice(0, 220), code: error?.code || null });
     return json({ ok: false, code: 'CHECKOUT_INTERNAL_ERROR', error: 'Checkout başlatılamadı. Lütfen kısa süre sonra tekrar deneyin.' }, { status: 500, headers: { 'Cache-Control': 'no-store, max-age=0' } });
   }
@@ -1087,4 +1163,4 @@ export async function onRequestPost(context) {
 
 
 // Exported for deterministic local verification. Production requests continue to use onRequestPost.
-export { calculateTotalsWithCoupon, getEftReservationMinutes };
+export { calculateTotalsWithCoupon, getEftReservationMinutes, serializeOrderItemInsertRow, persistOrderItems };

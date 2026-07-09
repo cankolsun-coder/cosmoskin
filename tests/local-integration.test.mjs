@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import { normalizeIban, isValidTurkishIban, validateBankAccount } from '../functions/api/_lib/bank-accounts.js';
 import { calculateCouponPreview, onRequestPost as validateCoupon } from '../functions/api/coupons/validate.js';
-import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout } from '../functions/api/create-checkout.js';
+import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout, serializeOrderItemInsertRow } from '../functions/api/create-checkout.js';
 import { PRICING_SNAPSHOT_VERSION_V2, allocateOrderDiscountSnapshots, buildOrderItemPricingSnapshots } from '../functions/api/_lib/order-pricing-snapshot.js';
 import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations, validateCartStock } from '../functions/api/_lib/inventory.js';
 import { onRequestPost as inventoryCheck } from '../functions/api/inventory/check.js';
@@ -557,6 +557,119 @@ test('C3: recommendation candidates exclude in-cart and out-of-stock products', 
   assert.equal(recs.some((p) => p.slug === 'in-cart'), false);
   assert.equal(recs.some((p) => p.slug === 'oos'), false);
   assert.equal(recs.some((p) => p.slug === 'rec'), true);
+});
+
+test('C4: serializeOrderItemInsertRow excludes non-column cart fields', () => {
+  const row = serializeOrderItemInsertRow('order-c4', {
+    product_id: 'cosrx-advanced-snail-96-mucin-essence',
+    product_slug: 'cosrx-advanced-snail-96-mucin-essence',
+    product_name: 'Advanced Snail 96 Mucin Power Essence',
+    brand: 'COSRX',
+    category: 'Tonik & Essence',
+    categorySlug: 'tonik-essence',
+    unit_price: 1219,
+    quantity: 2,
+    line_total: 2438,
+    allocated_order_discount: 150,
+    paid_line_total: 2288,
+    paid_unit_price: 1144,
+    pricing_snapshot_version: 'v2_eligible_lines_proportional_last_line_remainder'
+  });
+  assert.equal(row.order_id, 'order-c4');
+  assert.equal(row.allocated_order_discount, 150);
+  assert.equal(row.paid_line_total, 2288);
+  assert.equal(!('category' in row), true);
+  assert.equal(!('categorySlug' in row), true);
+});
+
+test('C4: WELCOME10 bank transfer checkout creates order with total 2377 and whitelisted order_items', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const calls = [];
+  let orderItemsPayload = null;
+  let ordersPayload = null;
+  let paymentsPayload = null;
+  const now = new Date().toISOString();
+  const restore = installFetch(async (url, options = {}) => {
+    calls.push(String(url));
+    const href = String(url);
+    const method = options.method || 'GET';
+    if (href.includes('/auth/v1/user')) {
+      return response({ id: 'user-c4', email: 'c4@example.test', created_at: now, email_confirmed_at: now, email_verified: true, user_metadata: {} });
+    }
+    if (href.includes('/rest/v1/coupons')) {
+      return response([{ id: 'c-welcome', code: 'WELCOME10', is_active: true, discount_type: 'percent', discount_value: 10, min_subtotal: 1000, max_discount_amount: 300, per_customer_limit: 1, metadata: { eligibility: { requires_auth: true, requires_first_order: true } } }]);
+    }
+    if (href.includes('/rest/v1/product_price_overrides')) {
+      return response([{ product_slug: slug, regular_price_try: 1219, currency: 'TRY', is_active: true }]);
+    }
+    if (href.includes('/rest/v1/product_inventory')) {
+      return response([{ product_slug: slug, stock_on_hand: 5, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 5 }]);
+    }
+    if (href.includes('/rest/v1/payment_bank_accounts')) {
+      return response([{ id: 'bank-c4', bank_name: 'Test Bankası', account_holder: 'COSMOSKIN TEST', iban: 'TR330006100519786457841326', currency: 'TRY', is_active: true }]);
+    }
+    if (href.includes('/rest/v1/orders') && method === 'POST') {
+      ordersPayload = JSON.parse(options.body || '{}');
+      return response([ordersPayload]);
+    }
+    if (href.includes('/rest/v1/coupon_redemptions')) return response([]);
+    if (href.includes('/rest/v1/checkout_idempotency')) return response([]);
+    if (href.includes('/rpc/release_expired_inventory_reservations')) return response({ ok: true, released: 0 });
+    if (href.includes('/rpc/reserve_order_inventory')) return response({ ok: true, reservations: [{ id: 'r-c4' }] });
+    if (href.includes('/rest/v1/order_items') && method === 'POST') {
+      orderItemsPayload = JSON.parse(options.body || '[]');
+      return response([]);
+    }
+    if (href.includes('/rest/v1/payments') && method === 'POST') {
+      paymentsPayload = JSON.parse(options.body || '{}');
+      return response([paymentsPayload]);
+    }
+    if (href.includes('/rest/v1/order_status_events')) return response([]);
+    if (href.includes('/rest/v1/consent_records')) return response([]);
+    if (href.includes('/rest/v1/order_legal_consents')) return response([]);
+    if (href.includes('/rest/v1/order_legal_snapshots')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/create-checkout', {
+      payment_method: 'bank_transfer',
+      idempotency_key: 'local-c4-welcome10-0001',
+      coupon_code: 'WELCOME10',
+      accessToken: 'customer-token',
+      cart: [{ slug, quantity: 2, price: 9999 }],
+      totals: { subtotal: 1, discount: 999, total: 1 },
+      customer: validCustomer
+    });
+    const res = await createCheckout(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200, JSON.stringify(data));
+    assert.equal(data.ok, true);
+    assert.equal(data.totals.discount, 150);
+    assert.equal(data.totals.total, 2377);
+    assert.equal(data.paymentMethod, 'bank_transfer');
+    assert.equal(data.paymentStatus, 'awaiting_transfer');
+    assert.ok(orderItemsPayload);
+    assert.equal(orderItemsPayload.length, 1);
+    assert.equal(!('category' in orderItemsPayload[0]), true);
+    assert.equal(!('categorySlug' in orderItemsPayload[0]), true);
+    assert.equal(orderItemsPayload[0].allocated_order_discount, 150);
+    assert.equal(orderItemsPayload[0].paid_line_total, 2288);
+    assert.ok(ordersPayload);
+    assert.equal(Number(ordersPayload.discount_amount), 150);
+    assert.equal(Number(ordersPayload.total_amount), 2377);
+    assert.ok(paymentsPayload);
+    assert.equal(paymentsPayload.provider, 'bank_transfer');
+    assert.equal(paymentsPayload.status, 'awaiting_transfer');
+    assert.equal(Number(paymentsPayload.amount), 2377);
+  } finally { restore(); }
+});
+
+test('C4: checkout-flow maps structured stock error instead of generic only', async () => {
+  const checkoutFlow = await fs.readFile(path.join(root, 'assets/checkout-flow.js'), 'utf8');
+  assert.match(checkoutFlow, /formatCheckoutApiError/);
+  assert.match(checkoutFlow, /stock_unavailable/);
+  assert.match(checkoutFlow, /Kupon artık geçerli değil/);
+  assert.doesNotMatch(checkoutFlow, /new Error\(data\.error \|\| 'İşlem başlatılamadı\.'\)/);
 });
 
 test('R1: PDP review image path uses multipart per-review upload and not retired endpoint', async () => {
