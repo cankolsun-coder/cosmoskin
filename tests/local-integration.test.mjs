@@ -4551,6 +4551,104 @@ test('P1C: effective pricing prefers active admin override over static catalog',
   assert.equal(pricing.base_catalog_price_try, 849);
 });
 
+test('P1E1: resolveEffectivePricing sale model (active/future/expired/compare-at safe)', () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const catalogProduct = { slug, price: 849 };
+
+  // No override: regular == effective == catalog
+  const base = resolveEffectivePricing(catalogProduct, null);
+  assert.equal(base.regular_price_try, 849);
+  assert.equal(base.effective_price_try, 849);
+  assert.equal(base.effective_price_source, 'static_catalog');
+  assert.equal(base.sale_active, false);
+  assert.equal(base.price_display_mode, 'regular');
+
+  // Regular override only
+  const regular = resolveEffectivePricing(catalogProduct, { product_slug: slug, regular_price_try: 999, is_active: true });
+  assert.equal(regular.regular_price_try, 999);
+  assert.equal(regular.effective_price_try, 999);
+  assert.equal(regular.effective_price_source, 'admin_override');
+  assert.equal(regular.sale_active, false);
+  assert.equal(regular.price_display_mode, 'regular');
+
+  // Active sale: effective is sale, compare-at never payable
+  const activeSale = resolveEffectivePricing(catalogProduct, {
+    product_slug: slug,
+    regular_price_try: 1000,
+    sale_price_try: 800,
+    compare_at_price_try: 1200,
+    sale_starts_at: new Date(Date.now() - 60_000).toISOString(),
+    sale_ends_at: new Date(Date.now() + 60_000).toISOString(),
+    is_active: true
+  });
+  assert.equal(activeSale.sale_active, true);
+  assert.equal(activeSale.effective_price_try, 800);
+  assert.equal(activeSale.effective_price_source, 'admin_sale');
+  assert.equal(activeSale.price_display_mode, 'sale');
+  assert.notEqual(activeSale.compare_at_price_try, activeSale.effective_price_try);
+
+  // Future sale: not active yet
+  const future = resolveEffectivePricing(catalogProduct, {
+    product_slug: slug,
+    regular_price_try: 1000,
+    sale_price_try: 800,
+    compare_at_price_try: 1200,
+    sale_starts_at: new Date(Date.now() + 3_600_000).toISOString(),
+    is_active: true
+  });
+  assert.equal(future.sale_active, false);
+  assert.equal(future.effective_price_try, 1000);
+  assert.equal(future.price_display_mode, 'scheduled_sale');
+
+  // Expired sale: no longer active
+  const expired = resolveEffectivePricing(catalogProduct, {
+    product_slug: slug,
+    regular_price_try: 1000,
+    sale_price_try: 800,
+    compare_at_price_try: 1200,
+    sale_ends_at: new Date(Date.now() - 3_600_000).toISOString(),
+    is_active: true
+  });
+  assert.equal(expired.sale_active, false);
+  assert.equal(expired.effective_price_try, 1000);
+  assert.equal(expired.price_display_mode, 'expired_sale');
+
+  // Invalid sale: sale >= regular must fail-closed
+  const invalid = resolveEffectivePricing(catalogProduct, {
+    product_slug: slug,
+    regular_price_try: 1000,
+    sale_price_try: 1200,
+    compare_at_price_try: 2000,
+    is_active: true
+  });
+  assert.equal(invalid.sale_active, false);
+  assert.equal(invalid.effective_price_try, 1000);
+  assert.equal(invalid.effective_price_source, 'admin_override');
+});
+
+test('P1E1: loadPriceOverrideRows falls back when sale columns missing', async () => {
+  const { loadPriceOverrideRows } = await import(path.join(root, 'functions/api/_lib/product-pricing.js'));
+  const restoreFetch = installFetch(async (url, init) => {
+    const href = String(url);
+    if (href.includes('/rest/v1/product_price_overrides')) {
+      const select = href.match(/select=([^&]+)/)?.[1] || '';
+      if (decodeURIComponent(select).includes('sale_price_try')) {
+        return response({ message: 'column product_price_overrides.sale_price_try does not exist' }, 400);
+      }
+      return response([{ id: '1', product_slug: 'x', regular_price_try: 999, currency: 'TRY', is_active: true }]);
+    }
+    return response([]);
+  });
+  try {
+    const rows = await loadPriceOverrideRows({ env }, { slugs: ['x'], activeOnly: true });
+    assert.equal(Array.isArray(rows), true);
+    assert.equal(rows.length, 1);
+    assert.equal(rows[0].regular_price_try, 999);
+  } finally {
+    restoreFetch();
+  }
+});
+
 test('P1C: products:pricing:update can save override with audit log', async () => {
   const slug = 'anua-heartleaf-77-soothing-toner';
   const auditRows = [];

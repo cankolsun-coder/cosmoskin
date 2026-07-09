@@ -1,0 +1,8 @@
+supabase/migrations/20260709_p1e_sale_compare_at_price.sql
+functions/api/_lib/product-pricing.js
+functions/api/catalog/effective-prices.js
+scripts/validate-p1e1-sale-price-resolver-model.mjs
+tests/local-integration.test.mjs
+COSMOSKIN_P1E1_SALE_PRICE_RESOLVER_MODEL_REPORT_20260709.md
+COSMOSKIN_P1E1_SALE_PRICE_RESOLVER_MODEL_RUNBOOK_20260709.md
+COSMOSKIN_P1E1_SALE_PRICE_RESOLVER_MODEL_ROLLBACK_PLAN_20260709.md

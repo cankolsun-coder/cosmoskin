@@ -3,6 +3,7 @@ import { getCatalogProductByHandle, products as catalogProducts } from './catalo
 
 export const EFFECTIVE_PRICE_SOURCE_STATIC = 'static_catalog';
 export const EFFECTIVE_PRICE_SOURCE_OVERRIDE = 'admin_override';
+export const EFFECTIVE_PRICE_SOURCE_SALE = 'admin_sale';
 export const SUPPORTED_CURRENCY = 'TRY';
 export const MAX_REGULAR_PRICE_TRY = 500000;
 export const CATALOG_MISSING_WARNING = 'Bu ürün için katalog fiyatı bulunamadı.';
@@ -81,14 +82,29 @@ export function resolveEffectivePricing(catalogProduct, overrideRow = null) {
     overridePrice = overrideValid ? candidate : null;
   }
 
+  let regular_price_try = null;
   let effective_price_try = null;
   let effective_price_source = EFFECTIVE_PRICE_SOURCE_STATIC;
   let price_warning = null;
+  let price_display_mode = 'regular';
+
+  // Sale / compare-at (nullable, may not exist in DB yet)
+  const saleCandidateRaw = overrideActive ? overrideRow?.sale_price_try : null;
+  const compareAtCandidateRaw = overrideActive ? overrideRow?.compare_at_price_try : null;
+  const sale_starts_at = overrideActive ? (overrideRow?.sale_starts_at || null) : null;
+  const sale_ends_at = overrideActive ? (overrideRow?.sale_ends_at || null) : null;
+  const sale_price_try = Number.isFinite(Number(saleCandidateRaw)) ? Number(saleCandidateRaw) : null;
+  const compare_at_price_try = Number.isFinite(Number(compareAtCandidateRaw)) ? Number(compareAtCandidateRaw) : null;
+  const saleNow = Date.now();
+  const saleStartsMs = sale_starts_at ? Date.parse(String(sale_starts_at)) : null;
+  const saleEndsMs = sale_ends_at ? Date.parse(String(sale_ends_at)) : null;
 
   if (overrideActive && overrideValid) {
+    regular_price_try = overridePrice;
     effective_price_try = overridePrice;
     effective_price_source = EFFECTIVE_PRICE_SOURCE_OVERRIDE;
   } else if (baseCatalogPriceTry != null && baseCatalogPriceTry > 0) {
+    regular_price_try = baseCatalogPriceTry;
     effective_price_try = baseCatalogPriceTry;
     effective_price_source = EFFECTIVE_PRICE_SOURCE_STATIC;
   } else if (!hasCatalog) {
@@ -99,6 +115,41 @@ export function resolveEffectivePricing(catalogProduct, overrideRow = null) {
     price_warning = CATALOG_INVALID_WARNING;
   }
 
+  // Determine sale state (fail-closed: never charge invalid sale)
+  let sale_active = false;
+  let sale_valid = false;
+  let sale_window_state = 'none'; // none|scheduled|expired|active|invalid
+  if (regular_price_try != null && Number.isFinite(sale_price_try) && Number.isInteger(sale_price_try)) {
+    sale_valid = sale_price_try > 0 && sale_price_try < regular_price_try;
+    if (saleStartsMs != null && !Number.isFinite(saleStartsMs)) sale_valid = false;
+    if (saleEndsMs != null && !Number.isFinite(saleEndsMs)) sale_valid = false;
+    if (saleStartsMs != null && saleEndsMs != null && saleEndsMs <= saleStartsMs) sale_valid = false;
+
+    if (!sale_valid) {
+      sale_window_state = 'invalid';
+    } else if (saleStartsMs != null && saleNow < saleStartsMs) {
+      sale_window_state = 'scheduled';
+    } else if (saleEndsMs != null && saleNow > saleEndsMs) {
+      sale_window_state = 'expired';
+    } else {
+      sale_window_state = 'active';
+      sale_active = true;
+    }
+  }
+
+  if (sale_active) {
+    effective_price_try = sale_price_try;
+    effective_price_source = EFFECTIVE_PRICE_SOURCE_SALE;
+    price_display_mode = 'sale';
+  } else if (sale_window_state === 'scheduled') {
+    price_display_mode = 'scheduled_sale';
+  } else if (sale_window_state === 'expired') {
+    price_display_mode = 'expired_sale';
+  } else if (sale_window_state === 'invalid') {
+    // Storefront stays regular; admin surfaces can show this diagnostic if desired later.
+    price_display_mode = 'regular';
+  }
+
   const has_price_override = overrideActive && overrideValid;
   const price_override_valid = !overrideActive || overrideValid;
   const checkout_price_valid = Number.isFinite(effective_price_try) && effective_price_try > 0;
@@ -106,9 +157,16 @@ export function resolveEffectivePricing(catalogProduct, overrideRow = null) {
   return {
     catalog_slug: slug || null,
     base_catalog_price_try: baseCatalogPriceTry,
+    regular_price_try,
+    sale_price_try: sale_valid ? sale_price_try : null,
+    compare_at_price_try: Number.isFinite(compare_at_price_try) && Number.isInteger(compare_at_price_try) && compare_at_price_try > 0 ? compare_at_price_try : null,
+    sale_starts_at,
+    sale_ends_at,
+    sale_active,
     effective_price_try,
     effective_currency: SUPPORTED_CURRENCY,
     effective_price_source,
+    price_display_mode,
     has_price_override,
     price_override_valid,
     checkout_price_valid,
@@ -122,9 +180,9 @@ function isMissingOverrideTableError(error) {
 }
 
 export async function loadPriceOverrideRows(context, { slugs = null, activeOnly = true } = {}) {
-  const params = {
-    select: 'id,product_slug,regular_price_try,currency,is_active,source,reason,created_by,updated_by,created_at,updated_at'
-  };
+  const legacySelect = 'id,product_slug,regular_price_try,currency,is_active,source,reason,created_by,updated_by,created_at,updated_at';
+  const extendedSelect = legacySelect + ',sale_price_try,compare_at_price_try,sale_starts_at,sale_ends_at';
+  const params = { select: extendedSelect };
   if (activeOnly) params.is_active = 'eq.true';
   const normalized = Array.isArray(slugs)
     ? [...new Set(slugs.map(normalizeProductSlug).filter(Boolean))]
@@ -136,6 +194,10 @@ export async function loadPriceOverrideRows(context, { slugs = null, activeOnly 
     return await selectRows(context, 'product_price_overrides', params);
   } catch (error) {
     if (isMissingOverrideTableError(error)) return [];
+    // Backward-compat: if sale columns are not migrated yet, retry with legacy select.
+    if (/sale_price_try|compare_at_price_try|sale_starts_at|sale_ends_at|column .* does not exist/i.test(String(error?.message || ''))) {
+      return await selectRows(context, 'product_price_overrides', { ...params, select: legacySelect });
+    }
     throw error;
   }
 }

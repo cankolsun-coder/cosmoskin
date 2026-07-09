@@ -15,9 +15,16 @@ export async function onRequestGet(context) {
       const pricing = resolveEffectivePricing(product, overrideMap.get(product.slug) || null);
       const priced = applyEffectivePricingToCatalogProduct(product, pricing);
       prices[product.slug] = {
+        regular_price_try: priced.regular_price_try ?? null,
+        sale_price_try: priced.sale_price_try ?? null,
+        compare_at_price_try: priced.compare_at_price_try ?? null,
+        sale_active: Boolean(priced.sale_active),
+        sale_starts_at: priced.sale_starts_at || null,
+        sale_ends_at: priced.sale_ends_at || null,
         effective_price_try: priced.effective_price_try,
         effective_currency: priced.effective_currency,
         effective_price_source: priced.effective_price_source,
+        price_display_mode: priced.price_display_mode || 'regular',
         base_catalog_price_try: priced.base_catalog_price_try,
         has_price_override: priced.has_price_override,
         price_override_valid: priced.price_override_valid !== false,
