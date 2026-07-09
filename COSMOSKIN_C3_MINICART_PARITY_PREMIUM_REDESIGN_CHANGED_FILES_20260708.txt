@@ -1,0 +1,20 @@
+# C3 changed files — 2026-07-08
+
+## Created
+assets/cart-commerce.js
+scripts/validate-c3-minicart-parity-premium-redesign.mjs
+COSMOSKIN_C3_MINICART_PARITY_PREMIUM_REDESIGN_REPORT_20260708.md
+COSMOSKIN_C3_MINICART_PARITY_PREMIUM_REDESIGN_CHANGED_FILES_20260708.txt
+COSMOSKIN_C3_MINICART_PARITY_PREMIUM_REDESIGN_RUNBOOK_20260708.md
+COSMOSKIN_C3_MINICART_PARITY_PREMIUM_REDESIGN_ROLLBACK_PLAN_20260708.md
+
+## Modified
+assets/app.js
+assets/master-upgrade.js
+assets/phase6-commerce.js
+assets/phase6-commerce.css
+cart.html
+tests/local-integration.test.mjs
+
+## Deleted
+(none)

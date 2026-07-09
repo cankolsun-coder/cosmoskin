@@ -161,10 +161,24 @@
   }
   function totals() {
     var items = cartItems();
+    if (window.COSMOSKIN_CART_COMMERCE && typeof window.COSMOSKIN_CART_COMMERCE.computeTotals === 'function') {
+      var computed = window.COSMOSKIN_CART_COMMERCE.computeTotals({ items: items });
+      return {
+        items: computed.items.length ? computed.items : items,
+        subtotal: computed.subtotal,
+        discount: computed.couponDiscount,
+        couponDiscount: computed.couponDiscount,
+        shipping: computed.shipping,
+        vat: Math.round(computed.vat),
+        total: computed.total,
+        freeShippingRemaining: computed.freeShippingRemaining,
+        coupon: computed.coupon
+      };
+    }
     var subtotal = items.reduce(function (sum, item) { return sum + Number(item.price || 0) * Number(item.qty || item.quantity || 1); }, 0);
     var discount = couponDiscount(subtotal);
     var shipping = subtotal - discount >= 2500 || !subtotal ? 0 : 89;
-    return { items: items, subtotal: subtotal, discount: discount, shipping: shipping, total: Math.max(0, subtotal - discount + shipping), coupon: readCoupon() };
+    return { items: items, subtotal: subtotal, discount: discount, couponDiscount: discount, shipping: shipping, vat: Math.round((subtotal - discount) * 0.20 / 1.20), total: Math.max(0, subtotal - discount + shipping), freeShippingRemaining: Math.max(0, 2500 - (subtotal - discount)), coupon: readCoupon() };
   }
   async function validateCoupon(code, subtotal) {
     code = String(code || '').trim().toUpperCase();
@@ -275,6 +289,9 @@
   }
 
   function recommendations(items) {
+    if (window.COSMOSKIN_CART_COMMERCE && typeof window.COSMOSKIN_CART_COMMERCE.recommendationCandidates === 'function') {
+      return window.COSMOSKIN_CART_COMMERCE.recommendationCandidates(items, { excludeOutOfStock: true, limit: 4 });
+    }
     var used = new Set(items.map(function (item) { return item.slug || item.id; }));
     var base = items.map(function (item) { return bySlug(item.slug || item.id); }).filter(Boolean);
     var cats = base.map(function (p) { return p.category; });
@@ -296,10 +313,14 @@
     var checkoutCta = blocked.length
       ? '<p class="cs-cart-stock-warning" role="alert">Sepetinizde stokta olmayan ürünler var.</p><p class="cs-cart-stock-warning">Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.</p><button class="cs-btn cs-btn--dark" style="width:100%;margin-top:18px" type="button" data-cs-checkout-blocked disabled aria-disabled="true">Güvenli Ödemeye Geç</button>'
       : '<a class="cs-btn cs-btn--dark" style="width:100%;margin-top:18px" href="/checkout.html" data-cs-proceed-checkout>Güvenli Ödemeye Geç</a>';
+    var recProducts = empty ? [] : recommendations(items);
+    var recsSection = recProducts.length
+      ? '<section class="cs-card cs-cart-recs" style="margin-top:24px" data-cs-cart-recs><div class="cs-brand-head"><div><p class="cs-kicker">ÖNERİLER</p><h2>Sepete uygun öneriler</h2></div></div><div class="cs-recs-grid">' + recProducts.map(function (p) { return productCard(p, { shortButton: true }); }).join('') + '</div></section>'
+      : '';
     host.innerHTML = '<div class="cs-page__inner"><div class="cs-page__hero"><div><p class="cs-kicker">SEPET</p><h2>Sepetin</h2><p>Ürünlerini, kuponunu ve teslimat özetini tek ekranda kontrol et.</p></div><a class="cs-btn cs-btn--light" href="/allproducts.html">Alışverişe Devam Et</a></div>' + (empty ? '<div class="cs-empty"><strong>Sepetin şu anda boş.</strong><p>Nem, bariyer veya ışıltı hedeflerine göre seçilmiş ürünleri keşfederek sepetini oluşturabilirsin.</p><a class="cs-btn cs-btn--dark" href="/allproducts.html">Alışverişe Başla</a></div>' : '<div class="cs-cart-layout"><section class="cs-card cs-cart-items" aria-label="Sepet ürünleri">' + items.map(function (item) {
       var slug = item.slug || item.id, p = bySlug(slug) || item, qty = Number(item.qty || item.quantity || 1), out = isOutOfStock(slug);
       return '<article class="cs-cart-row' + (out ? ' is-out-of-stock' : '') + '" data-cs-cart-row="' + esc(slug) + '"><a href="' + esc(p.url || item.url || '#') + '"><img src="' + esc(p.image || item.image) + '" alt="' + esc((p.brand || item.brand || '') + ' ' + (p.name || item.name || '')) + '"></a><div><a class="cs-cart-name" href="' + esc(p.url || item.url || '#') + '">' + esc(p.name || item.name) + '</a><span class="cs-cart-brand">' + esc(p.brand || item.brand || '') + '</span><div class="cs-cart-meta">' + stockBadge(slug) + '<div class="cs-stepper" aria-label="Adet"><button type="button" data-cs-qty="-1" data-slug="' + esc(slug) + '">−</button><span>' + qty + '</span><button type="button" data-cs-qty="1" data-slug="' + esc(slug) + '">+</button></div><button class="cs-link-button" type="button" data-cs-remove="' + esc(slug) + '">Kaldır</button></div></div><div class="cs-cart-row__total"><span class="cs-price">' + esc(fmt(Number(p.price || item.price || 0) * qty)) + '</span>' + (out ? '<span class="cs-stock-badge is-out">Stokta Yok</span>' : '') + '</div></article>';
-    }).join('') + '</section><aside class="cs-card cs-cart-summary"><h2>Sipariş Özeti</h2><div class="cs-coupon"><label for="csCouponInput">Kupon Kodu</label><div class="cs-coupon__row"><input id="csCouponInput" value="' + esc(t.coupon ? t.coupon.code : '') + '" placeholder="WELCOME10"><button class="cs-btn cs-btn--dark" type="button" data-cs-apply-coupon>Uygula</button></div><div class="cs-coupon-status" id="csCouponStatus">' + (t.coupon ? 'Kupon aktif: ' + esc(t.coupon.code) + (t.discount ? ' · -' + esc(fmt(t.discount)) : ' · minimum tutar bekleniyor') + ' <button class="cs-link-button" type="button" data-cs-remove-coupon>Kuponu kaldır</button>' : 'Geçerli kuponlarda indirim toplamdan düşülür.') + '</div></div><div class="cs-summary-line"><span>Ara toplam</span><strong>' + esc(fmt(t.subtotal)) + '</strong></div>' + (t.discount ? '<div class="cs-summary-line"><span>Kupon indirimi</span><strong>-' + esc(fmt(t.discount)) + '</strong></div>' : '') + '<div class="cs-summary-line"><span>Kargo</span><strong>' + (t.shipping ? esc(fmt(t.shipping)) : 'Ücretsiz') + '</strong></div><div class="cs-summary-total"><span>Toplam</span><strong>' + esc(fmt(t.total)) + '</strong></div>' + checkoutCta + '<p class="cs-coupon-status">Visa, Mastercard ve iyzico ile güvenli ödeme.</p></aside></div><section class="cs-card cs-cart-recs" style="margin-top:24px"><div class="cs-brand-head"><div><p class="cs-kicker">ÖNERİLER</p><h2>Sepete uygun öneriler</h2></div></div><div class="cs-recs-grid">' + recommendations(items).map(function (p) { return productCard(p, { shortButton: true }); }).join('') + '</div></section>') + '</div>';
+    }).join('') + '</section><aside class="cs-card cs-cart-summary"><h2>Sipariş Özeti</h2><div class="cs-coupon"><label for="csCouponInput">Kupon Kodu</label><div class="cs-coupon__row"><input id="csCouponInput" value="' + esc(t.coupon ? t.coupon.code : '') + '" placeholder="WELCOME10"><button class="cs-btn cs-btn--dark" type="button" data-cs-apply-coupon>Uygula</button></div><div class="cs-coupon-status" id="csCouponStatus">' + (t.coupon ? 'Kupon aktif: ' + esc(t.coupon.code) + (t.discount ? ' · -' + esc(fmt(t.discount)) : ' · minimum tutar bekleniyor') + ' <button class="cs-link-button" type="button" data-cs-remove-coupon>Kuponu kaldır</button>' : 'Geçerli kuponlarda indirim toplamdan düşülür.') + '</div></div><div class="cs-summary-line"><span>Ara toplam</span><strong>' + esc(fmt(t.subtotal)) + '</strong></div>' + (t.discount ? '<div class="cs-summary-line"><span>Kupon indirimi</span><strong>-' + esc(fmt(t.discount)) + '</strong></div>' : '') + '<div class="cs-summary-line"><span>Kargo</span><strong>' + (t.shipping ? esc(fmt(t.shipping)) : 'Ücretsiz') + '</strong></div><div class="cs-summary-total"><span>Toplam</span><strong>' + esc(fmt(t.total)) + '</strong></div>' + checkoutCta + '<p class="cs-coupon-status">Visa, Mastercard ve iyzico ile güvenli ödeme.</p></aside></div>' + recsSection) + '</div>';
   }
 
 

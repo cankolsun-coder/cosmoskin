@@ -1,3 +1,12 @@
+(function ensureCartCommerceScripts() {
+  if (!window.COSMOSKIN_COUPON) {
+    document.write('<script src="/assets/coupon-client.js?v=20260708-c2"><\/script>');
+  }
+  if (!window.COSMOSKIN_CART_COMMERCE) {
+    document.write('<script src="/assets/cart-commerce.js?v=20260709-c3"><\/script>');
+  }
+}());
+
 (function () {
   const $ = (s, p = document) => p.querySelector(s);
   const $$ = (s, p = document) => Array.from(p.querySelectorAll(s));
@@ -126,12 +135,34 @@
   }
 
   function totals() {
+    const routineDiscount = Math.min(
+      state.cart.reduce((s, i) => s + i.price * i.qty, 0),
+      getRoutineBundleDiscount()
+    );
+    if (window.COSMOSKIN_CART_COMMERCE && typeof window.COSMOSKIN_CART_COMMERCE.computeTotals === 'function') {
+      const computed = window.COSMOSKIN_CART_COMMERCE.computeTotals({
+        items: state.cart,
+        routineDiscount
+      });
+      return {
+        subtotal: computed.subtotal,
+        discount: computed.discount,
+        routineDiscount: computed.routineDiscount,
+        couponDiscount: computed.couponDiscount,
+        discountedSubtotal: computed.discountedSubtotal,
+        vat: Math.round(computed.vat),
+        shipping: computed.shipping,
+        total: computed.total,
+        freeShippingRemaining: computed.freeShippingRemaining,
+        coupon: computed.coupon
+      };
+    }
     const subtotal = state.cart.reduce((s, i) => s + i.price * i.qty, 0);
-    const discount = Math.min(subtotal, getRoutineBundleDiscount());
+    const discount = Math.min(subtotal, routineDiscount);
     const discountedSubtotal = Math.max(0, subtotal - discount);
     const vat = Math.round(discountedSubtotal * VAT / (1 + VAT));
     const shipping = discountedSubtotal >= FREE_SHIPPING || discountedSubtotal === 0 ? 0 : SHIPPING_FEE;
-    return { subtotal, discount, discountedSubtotal, vat, shipping, total: discountedSubtotal + shipping };
+    return { subtotal, discount, routineDiscount: discount, couponDiscount: 0, discountedSubtotal, vat, shipping, total: discountedSubtotal + shipping, freeShippingRemaining: Math.max(0, FREE_SHIPPING - discountedSubtotal), coupon: null };
   }
 
   function getProductHelpers() {
@@ -349,6 +380,10 @@
     if (!drawer) return;
     drawer.classList.add('open');
     backdrop?.classList.add('show');
+    if (drawer.id === 'cartDrawer') {
+      refreshCommerceUi();
+      document.dispatchEvent(new CustomEvent('cosmoskin:cart-drawer-opened'));
+    }
   }
 
   function closeDrawers() {
@@ -1027,38 +1062,57 @@ function broadcastFavoritesChange() {
     const t = totals();
     if (subtotalEl) subtotalEl.textContent = fmt(t.subtotal);
     let discountRow = $('#cartRoutineDiscount');
-    if (t.discount > 0 && subtotalEl) {
+    let couponRow = $('#cartCouponDiscount');
+    const shippingRow = shippingEl?.closest('.sum-row');
+    if (t.routineDiscount > 0 && subtotalEl) {
       if (!discountRow) {
         discountRow = document.createElement('div');
         discountRow.className = 'sum-row routine-discount-row';
         discountRow.id = 'cartRoutineDiscount';
         discountRow.innerHTML = '<span>Rutin set avantajı</span><strong></strong>';
-        const shippingRow = shippingEl?.closest('.sum-row');
         if (shippingRow) shippingRow.insertAdjacentElement('beforebegin', discountRow);
       }
-      discountRow.querySelector('strong').textContent = '-' + fmt(t.discount);
+      discountRow.querySelector('strong').textContent = '-' + fmt(t.routineDiscount);
       discountRow.hidden = false;
     } else if (discountRow) {
       discountRow.hidden = true;
+    }
+    if (t.couponDiscount > 0 && subtotalEl) {
+      if (!couponRow) {
+        couponRow = document.createElement('div');
+        couponRow.className = 'sum-row coupon-discount-row';
+        couponRow.id = 'cartCouponDiscount';
+        couponRow.innerHTML = '<span>Kupon İndirimi</span><strong></strong>';
+        if (discountRow && discountRow.parentNode) {
+          discountRow.insertAdjacentElement('afterend', couponRow);
+        } else if (shippingRow) {
+          shippingRow.insertAdjacentElement('beforebegin', couponRow);
+        }
+      }
+      couponRow.querySelector('strong').textContent = '-' + fmt(t.couponDiscount);
+      couponRow.hidden = false;
+    } else if (couponRow) {
+      couponRow.hidden = true;
     }
     if (vatEl) vatEl.textContent = fmt(t.vat);
     if (shippingEl) shippingEl.textContent = state.cart.length ? (t.shipping ? fmt(t.shipping) : 'Ücretsiz') : 'Ürün eklenince hesaplanır';
     if (totalEl) totalEl.textContent = state.cart.length ? fmt(t.total) : '—';
     if (shippingProgressFill && shippingProgressText) {
-      const ratio = Math.max(0, Math.min(100, Math.round((t.subtotal / FREE_SHIPPING) * 100)));
+      const progressBase = t.discountedSubtotal != null ? t.discountedSubtotal : t.subtotal;
+      const ratio = Math.max(0, Math.min(100, Math.round((progressBase / FREE_SHIPPING) * 100)));
       shippingProgressFill.style.width = `${ratio}%`;
-      if (t.subtotal === 0) {
+      if (progressBase === 0) {
         shippingProgressText.textContent = `${fmt(FREE_SHIPPING)} üzeri siparişlerde ücretsiz kargo avantajı uygulanır.`;
-      } else if (t.subtotal >= FREE_SHIPPING) {
+      } else if (progressBase >= FREE_SHIPPING) {
         shippingProgressText.textContent = 'Siparişiniz ücretsiz kargo avantajına ulaştı.';
       } else {
-        shippingProgressText.textContent = `${fmt(FREE_SHIPPING - t.subtotal)} daha ekleyerek ücretsiz kargo avantajına ulaşabilirsiniz.`;
+        shippingProgressText.textContent = `${fmt(FREE_SHIPPING - progressBase)} daha ekleyerek ücretsiz kargo avantajına ulaşabilirsiniz.`;
       }
     }
 
     if (!target) return;
     if (!state.cart.length) {
-      target.innerHTML = '<div class="account-state cart-empty-state"><strong>Sepetiniz şu an boş.</strong><div class="account-mini">Cilt bakım rutininize uygun ürünleri keşfederek alışverişe başlayabilirsiniz.</div><div class="cart-empty-actions"><a class="btn btn-primary" href="/allproducts.html">Ürünleri Keşfet</a><a class="btn btn-secondary" href="/account/profile.html?tab=favorites">Favorilerime Git</a></div></div>';
+      target.innerHTML = '<div class="account-state cart-empty-state cart-drawer-premium__empty"><strong>Sepetin şu anda boş.</strong><div class="account-mini">Cilt bakım rutinini tamamlayacak ürünleri keşfet.</div><div class="cart-empty-actions"><a class="btn btn-primary" href="/allproducts.html">Alışverişe Başla</a><a class="btn btn-secondary" href="/account/profile.html?tab=favorites">Favorilerime Git</a></div></div>';
       return;
     }
 
@@ -1067,20 +1121,20 @@ function broadcastFavoritesChange() {
       const problem = !stock.ok;
       const limitReached = stock.available_stock !== undefined && Number(stock.available_stock) > 0 && Number(item.qty || 1) >= Number(stock.available_stock);
       return `
-      <article class="cart-item ${problem ? 'is-stock-problem' : ''}">
-        <img src="${item.image}" alt="${item.name}">
-        <div>
-          <strong>${item.name}</strong>
-          <div class="account-mini">${item.brand}</div>
+      <article class="cart-item cart-drawer-premium__item ${problem ? 'is-stock-problem' : ''}">
+        <a class="cart-drawer-premium__thumb" href="${item.url || '#'}"><img src="${item.image}" alt="${item.name}"></a>
+        <div class="cart-drawer-premium__copy">
+          <div class="account-mini cart-drawer-premium__brand">${item.brand}</div>
+          <a class="cart-drawer-premium__name" href="${item.url || '#'}">${item.name}</a>
           ${problem ? `<div class="cart-stock-warning">${stock.message || 'Sepetindeki bazı ürünlerin stoğu değişti. Lütfen sepetini kontrol et.'}</div>` : (limitReached ? `<div class="cart-stock-warning">Bu ürün için şu anda yalnızca ${stock.available_stock} adet satın alınabilir.</div>` : '')}
-          <div class="qty">
-            <button type="button" data-dec="${item.id}">−</button>
+          <div class="qty cart-drawer-premium__qty">
+            <button type="button" data-dec="${item.id}" aria-label="Adedi azalt">−</button>
             <span>${item.qty}</span>
-            <button type="button" data-inc="${item.id}" ${problem || limitReached ? 'disabled aria-disabled="true"' : ''}>+</button>
-            <button type="button" data-remove="${item.id}">Sil</button>
+            <button type="button" data-inc="${item.id}" ${problem || limitReached ? 'disabled aria-disabled="true"' : ''} aria-label="Adedi artır">+</button>
+            <button type="button" data-remove="${item.id}" aria-label="Ürünü kaldır">Kaldır</button>
           </div>
         </div>
-        <strong>${fmt(item.price * item.qty)}</strong>
+        <strong class="cart-drawer-premium__price">${fmt(item.price * item.qty)}</strong>
       </article>`;
     }).join('');
 
@@ -1185,6 +1239,8 @@ function broadcastFavoritesChange() {
     renderCart();
     renderCheckout();
   });
+
+  window.renderCart = renderCart;
 
   window.COSMOSKIN_CART_API = {
     addItems: addCartItems,

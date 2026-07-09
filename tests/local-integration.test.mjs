@@ -458,6 +458,107 @@ test('C2: cart and checkout coupon client share storage and server discount prev
   assert.match(couponClient, /previewDiscount/);
 });
 
+test('C3: mini cart uses shared COSMOSKIN_CART_COMMERCE coupon validation path', async () => {
+  const phase6 = await fs.readFile(path.join(root, 'assets/phase6-commerce.js'), 'utf8');
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  const cartCommerce = await fs.readFile(path.join(root, 'assets/cart-commerce.js'), 'utf8');
+  assert.match(phase6, /cc\.validateCoupon/);
+  assert.doesNotMatch(phase6, /fetch\('\/api\/coupons\/validate'/);
+  assert.match(appJs, /COSMOSKIN_CART_COMMERCE\.computeTotals/);
+  assert.match(appJs, /cosmoskin:cart-drawer-opened/);
+  assert.match(cartCommerce, /COSMOSKIN_COUPON\.validate/);
+  assert.match(phase6, /cosmoskin:auth-state/);
+  assert.match(phase6, /revalidateStoredCoupon/);
+});
+
+test('C3: shared cart commerce totals match drawer/cart/checkout fixture', async () => {
+  const cartCommerce = await fs.readFile(path.join(root, 'assets/cart-commerce.js'), 'utf8');
+  const master = await fs.readFile(path.join(root, 'assets/master-upgrade.js'), 'utf8');
+  const cartHtml = await fs.readFile(path.join(root, 'cart.html'), 'utf8');
+  assert.match(master, /COSMOSKIN_CART_COMMERCE\.computeTotals/);
+  assert.match(cartHtml, /cart-commerce\.js/);
+  const sandbox = {
+    window: {},
+    localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
+    fetch: async () => ({ ok: false, json: async () => ({}) }),
+    Intl: globalThis.Intl,
+    document: { write: () => {} }
+  };
+  sandbox.window = sandbox;
+  sandbox.window.COSMOSKIN_CONFIG = { vatRate: 0.20, freeShippingThreshold: 2500, shippingFee: 89 };
+  sandbox.window.COSMOSKIN_COUPON = {
+    readState: () => ({ ok: true, code: 'WELCOME10', discountAmount: 150, minSubtotal: 1000 }),
+    previewDiscount: (state, subtotal) => (state && subtotal >= 1000 ? 150 : 0)
+  };
+  sandbox.window.COSMOSKIN_PRODUCTS = [];
+  const boot = new Function('window', 'localStorage', 'fetch', 'Intl', 'document', cartCommerce);
+  boot(sandbox.window, sandbox.localStorage, sandbox.fetch, sandbox.Intl, sandbox.document);
+  const items = [{ slug: 'cosrx-advanced-snail-96-mucin-essence', id: 'cosrx-advanced-snail-96-mucin-essence', price: 1219, qty: 2 }];
+  const couponState = { ok: true, code: 'WELCOME10', discountAmount: 150, minSubtotal: 1000 };
+  const drawerTotals = sandbox.window.COSMOSKIN_CART_COMMERCE.computeTotals({ items, couponState });
+  const cartTotals = sandbox.window.COSMOSKIN_CART_COMMERCE.computeTotals({ items, couponState });
+  assert.equal(drawerTotals.subtotal, 2438);
+  assert.equal(drawerTotals.couponDiscount, 150);
+  assert.equal(drawerTotals.shipping, 89);
+  assert.equal(drawerTotals.total, 2377);
+  assert.equal(drawerTotals.subtotal, cartTotals.subtotal);
+  assert.equal(drawerTotals.couponDiscount, cartTotals.couponDiscount);
+  assert.equal(drawerTotals.shipping, cartTotals.shipping);
+  assert.equal(drawerTotals.total, cartTotals.total);
+  assert.equal(drawerTotals.freeShippingRemaining, cartTotals.freeShippingRemaining);
+  assert.equal(Math.round(drawerTotals.vat), Math.round(cartTotals.vat));
+});
+
+test('C3: cart.html hides empty Sepete uygun öneriler block', async () => {
+  const master = await fs.readFile(path.join(root, 'assets/master-upgrade.js'), 'utf8');
+  const checkoutHtml = await fs.readFile(path.join(root, 'checkout.html'), 'utf8');
+  assert.match(master, /recsSection/);
+  assert.match(master, /data-cs-cart-recs/);
+  assert.doesNotMatch(master, /cs-recs-grid">' \+ recommendations\(items\)\.map/);
+  assert.doesNotMatch(checkoutHtml, /Sepete uygun öneriler/);
+});
+
+test('C3: mini cart premium drawer clamps product titles and hides empty recommendations', async () => {
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  const phase6 = await fs.readFile(path.join(root, 'assets/phase6-commerce.js'), 'utf8');
+  const css = await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8');
+  assert.match(appJs, /cart-drawer-premium__name/);
+  assert.match(css, /-webkit-line-clamp:2/);
+  assert.match(css, /minmax\(0,1fr\)/);
+  assert.match(phase6, /section\.hidden = true/);
+  assert.doesNotMatch(phase6, /Tamamlayıcı ürün hazırlanıyor/);
+});
+
+test('C3: recommendation candidates exclude in-cart and out-of-stock products', async () => {
+  const cartCommerce = await fs.readFile(path.join(root, 'assets/cart-commerce.js'), 'utf8');
+  const couponClient = await fs.readFile(path.join(root, 'assets/coupon-client.js'), 'utf8');
+  const sandbox = {
+    window: {},
+    localStorage: { getItem: () => null, setItem: () => {}, removeItem: () => {} },
+    fetch: async () => ({ ok: false, json: async () => ({}) }),
+    Intl: globalThis.Intl,
+    document: { write: () => {} }
+  };
+  sandbox.window = sandbox;
+  sandbox.window.COSMOSKIN_CONFIG = { vatRate: 0.20, freeShippingThreshold: 2500, shippingFee: 89 };
+  sandbox.window.COSMOSKIN_COUPON = { readState: () => null, previewDiscount: () => 0 };
+  sandbox.window.COSMOSKIN_PRODUCTS = [
+    { slug: 'in-cart', name: 'In Cart', brand: 'A', category: 'Serum & Ampul', price: 100, url: '/products/in-cart.html', image: '/x.jpg' },
+    { slug: 'oos', name: 'OOS', brand: 'B', category: 'Nemlendiriciler', price: 200, url: '/products/oos.html', image: '/y.jpg' },
+    { slug: 'rec', name: 'Rec', brand: 'C', category: 'Nemlendiriciler', price: 300, url: '/products/rec.html', image: '/z.jpg', keywords: ['nem'] }
+  ];
+  sandbox.window.COSMOSKIN_STOCK = {
+    getInventory: (slug) => (slug === 'oos' ? { status: 'active', available_stock: 0, allow_backorder: false } : { status: 'active', available_stock: 5 })
+  };
+  const boot = new Function('window', 'localStorage', 'fetch', 'Intl', 'document', couponClient + '\n' + cartCommerce);
+  boot(sandbox.window, sandbox.localStorage, sandbox.fetch, sandbox.Intl, sandbox.document);
+  const cartItems = [{ slug: 'in-cart', id: 'in-cart', qty: 1, price: 100, category: 'Serum & Ampul', keywords: ['serum'] }];
+  const recs = sandbox.window.COSMOSKIN_CART_COMMERCE.recommendationCandidates(cartItems, { limit: 4 });
+  assert.equal(recs.some((p) => p.slug === 'in-cart'), false);
+  assert.equal(recs.some((p) => p.slug === 'oos'), false);
+  assert.equal(recs.some((p) => p.slug === 'rec'), true);
+});
+
 test('R1: PDP review image path uses multipart per-review upload and not retired endpoint', async () => {
   const src = await fs.readFile(path.join(root, 'js/reviews.js'), 'utf8');
   assert.doesNotMatch(src, /\/reviews\/images/);
