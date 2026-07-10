@@ -98,6 +98,13 @@
       effective_currency: String(product.effective_currency || product.currency || 'TRY'),
       effective_price_source: String(product.effective_price_source || 'static'),
       base_catalog_price_try: product.base_catalog_price_try == null ? Number(product.price || 0) : Number(product.base_catalog_price_try || 0),
+      regular_price_try: product.regular_price_try == null ? Number(product.price || 0) : Number(product.regular_price_try || 0),
+      sale_price_try: product.sale_price_try == null ? null : Number(product.sale_price_try),
+      compare_at_price_try: product.compare_at_price_try == null ? null : Number(product.compare_at_price_try),
+      sale_active: Boolean(product.sale_active),
+      sale_starts_at: product.sale_starts_at || null,
+      sale_ends_at: product.sale_ends_at || null,
+      price_display_mode: String(product.price_display_mode || 'regular'),
       has_price_override: Boolean(product.has_price_override),
       price_override_valid: product.price_override_valid !== false,
       price_warning: String(product.price_warning || ''),
@@ -141,6 +148,12 @@
         brand: product.brand,
         category: product.category,
         price: product.price,
+        regular_price_try: product.regular_price_try,
+        sale_price_try: product.sale_price_try,
+        compare_at_price_try: product.compare_at_price_try,
+        sale_active: product.sale_active,
+        price_display_mode: product.price_display_mode,
+        effective_price_try: product.effective_price_try,
         image: product.image,
         url: product.url,
         meta: product.brand + ' · ' + product.category + (product.volume ? ' · ' + product.volume : ''),
@@ -221,6 +234,13 @@
           effective_currency: overlay.effective_currency || 'TRY',
           effective_price_source: overlay.effective_price_source,
           base_catalog_price_try: overlay.base_catalog_price_try,
+          regular_price_try: overlay.regular_price_try,
+          sale_price_try: overlay.sale_price_try,
+          compare_at_price_try: overlay.compare_at_price_try,
+          sale_active: Boolean(overlay.sale_active),
+          sale_starts_at: overlay.sale_starts_at || null,
+          sale_ends_at: overlay.sale_ends_at || null,
+          price_display_mode: overlay.price_display_mode || 'regular',
           has_price_override: overlay.has_price_override,
           price_override_valid: overlay.price_override_valid !== false,
           price_warning: overlay.price_warning || ''
@@ -255,4 +275,22 @@
     .catch(function () {
       return window.COSMOSKIN_PRODUCTS || [];
     });
+
+  (function bootstrapPriceDisplayAssets() {
+    if (typeof document === 'undefined') return;
+    if (!document.querySelector('link[data-cosmoskin="price-display-css"]')) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/assets/price-display.css?v=20260709-p1e3';
+      link.dataset.cosmoskin = 'price-display-css';
+      document.head.appendChild(link);
+    }
+    if (!document.querySelector('script[data-cosmoskin="price-display-js"]')) {
+      var script = document.createElement('script');
+      script.src = '/assets/price-display.js?v=20260709-p1e3';
+      script.defer = true;
+      script.dataset.cosmoskin = 'price-display-js';
+      document.head.appendChild(script);
+    }
+  })();
 })();

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -5279,6 +5281,105 @@ test('P1C4: BOJ static PDP starts with 899 and runtime path can patch to effecti
   assert.match(src, /dataset\.price\s*=\s*String\(price\)/);
   assert.match(src, /node\.offers\.price\s*=\s*String\(price\)/);
   assert.match(src, /cosmoskin:products-updated/);
+});
+
+function loadPriceDisplayApi() {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const src = readFileSync(path.join(root, 'assets/price-display.js'), 'utf8').replace(
+    /\}\)\(typeof window !== 'undefined' \? window : globalThis\);?\s*$/,
+    '})(globalThis);'
+  );
+  const sandbox = {};
+  sandbox.globalThis = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext(src, sandbox);
+  return sandbox.COSMOSKIN_PRICE_DISPLAY;
+}
+
+test('P1E3: price display helper sale model and compare-at safety', () => {
+  const PD = loadPriceDisplayApi();
+  assert.ok(PD);
+
+  const regular = PD.normalizePriceDisplay({ price: 1000, effective_price_try: 1000, price_display_mode: 'regular' });
+  assert.equal(regular.showSale, false);
+  assert.equal(regular.compare, null);
+  assert.equal(regular.payable, 1000);
+
+  const activeCompare = PD.normalizePriceDisplay({
+    price: 800,
+    effective_price_try: 800,
+    sale_price_try: 800,
+    regular_price_try: 1000,
+    compare_at_price_try: 1200,
+    sale_active: true,
+    price_display_mode: 'sale'
+  });
+  assert.equal(activeCompare.showSale, true);
+  assert.equal(activeCompare.payable, 800);
+  assert.equal(activeCompare.compare, 1200);
+  assert.notEqual(PD.getPayablePrice(activeCompare), 1200);
+
+  const activeNoCompare = PD.normalizePriceDisplay({
+    price: 850,
+    effective_price_try: 850,
+    sale_price_try: 850,
+    regular_price_try: 1000,
+    sale_active: true,
+    price_display_mode: 'sale'
+  });
+  assert.equal(activeNoCompare.showSale, true);
+  assert.equal(activeNoCompare.compare, 1000);
+
+  const future = PD.normalizePriceDisplay({
+    price: 1000,
+    effective_price_try: 1000,
+    sale_price_try: 800,
+    sale_active: false,
+    price_display_mode: 'scheduled_sale'
+  });
+  assert.equal(future.showSale, false);
+
+  const expired = PD.normalizePriceDisplay({
+    price: 1000,
+    effective_price_try: 1000,
+    sale_price_try: 800,
+    sale_active: false,
+    price_display_mode: 'expired_sale'
+  });
+  assert.equal(expired.showSale, false);
+
+  const invalid = PD.normalizePriceDisplay({
+    price: 1000,
+    effective_price_try: 1000,
+    sale_price_try: 1200,
+    sale_active: false,
+    price_display_mode: 'invalid_sale'
+  });
+  assert.equal(invalid.showSale, false);
+
+  const html = PD.renderPriceHtml({
+    price: 800,
+    effective_price_try: 800,
+    sale_price_try: 800,
+    compare_at_price_try: 1200,
+    sale_active: true,
+    price_display_mode: 'sale'
+  });
+  assert.match(html, /cs-price--sale/);
+  assert.match(html, /cs-price__compare/);
+  assert.match(html, /aria-label=/);
+});
+
+test('P1E3: PDP and storefront sources wire sale display helper', async () => {
+  const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+  const pdp = await fs.readFile(path.join(root, 'assets/product-page.js'), 'utf8');
+  const app = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  const search = await fs.readFile(path.join(root, 'js/search.js'), 'utf8');
+  assert.match(pdp, /COSMOSKIN_PRICE_DISPLAY/);
+  assert.match(pdp, /renderPriceHtml/);
+  assert.match(pdp, /btn\.dataset\.price = String\(price\)/);
+  assert.match(app, /priceDisplayHtml/);
+  assert.match(search, /_searchPriceHtml/);
 });
 
 test('P1C: validators pass for pricing editing guard chain', async () => {

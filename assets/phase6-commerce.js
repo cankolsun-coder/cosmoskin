@@ -17,6 +17,11 @@
   var fmt = window.COSMOSKIN_FORMAT_PRICE || function (n) {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(n || 0));
   };
+  function priceDisplayHtml(p, options) {
+    var PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && typeof PD.renderPriceHtml === 'function') return PD.renderPriceHtml(p, options);
+    return '<span class="cs-price cs-price--compact"><span class="cs-price__current">' + escapeHtml(fmt(p.price)) + '</span></span>';
+  }
 
   function commerce() { return window.COSMOSKIN_CART_COMMERCE || null; }
   function products() { return window.COSMOSKIN_PRODUCTS || []; }
@@ -202,7 +207,7 @@
       return '<article class="phase6-rec-card">' +
         '<img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '" loading="lazy">' +
         '<div class="phase6-rec-card__copy"><strong>' + escapeHtml(p.name) + '</strong>' +
-        '<span>' + escapeHtml(p.brand) + ' · ' + fmt(p.price) + '</span></div>' +
+        '<span>' + escapeHtml(p.brand) + ' · ' + priceDisplayHtml(p, { compact: true, showBadge: false }) + '</span></div>' +
         '<button type="button" data-phase6-rec-cart="' + escapeHtml(p.slug) + '">Ekle</button></article>';
     }).join('') + '</div>';
   }
@@ -338,7 +343,7 @@
 
   function miniCard(p) {
     if (!p) return '';
-    return '<a class="phase6-mini-product" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '"><span><strong>' + escapeHtml(p.name) + '</strong><span>' + escapeHtml(p.brand) + ' · ' + fmt(p.price) + '</span></span></a>';
+    return '<a class="phase6-mini-product" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '"><span><strong>' + escapeHtml(p.name) + '</strong><span>' + escapeHtml(p.brand) + ' · ' + priceDisplayHtml(p, { compact: true, showBadge: false }) + '</span></span></a>';
   }
 
   function compareList() { return read(COMPARE_KEY).map(bySlug).filter(Boolean).slice(0, 4); }
@@ -459,7 +464,7 @@
     }).map(function (x) { return x.p; }).slice(0, 4);
     if (!list.length) return;
     grid.innerHTML = list.map(function (p) {
-      return '<article class="product-card pdp-related-card" data-product-id="' + escapeHtml(p.slug) + '"><a class="product-media" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '" loading="lazy"></a><div class="product-body"><span class="badge">' + escapeHtml(p.brand) + '</span><h3><a href="' + escapeHtml(p.url) + '">' + escapeHtml(p.name) + '</a></h3><p>' + escapeHtml(p.category || 'Rutini tamamlayan bakım adımı') + '</p><div class="price-row"><span class="price">' + fmt(p.price) + '</span><button class="btn btn-primary" data-add-cart data-id="' + escapeHtml(p.slug) + '" data-slug="' + escapeHtml(p.slug) + '" data-name="' + escapeHtml(p.name) + '" data-brand="' + escapeHtml(p.brand) + '" data-price="' + escapeHtml(p.price) + '" data-image="' + escapeHtml(p.image) + '" data-url="' + escapeHtml(p.url) + '">Sepete Ekle</button></div></div></article>';
+      return '<article class="product-card pdp-related-card" data-product-id="' + escapeHtml(p.slug) + '"><a class="product-media" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '" loading="lazy"></a><div class="product-body"><span class="badge">' + escapeHtml(p.brand) + '</span><h3><a href="' + escapeHtml(p.url) + '">' + escapeHtml(p.name) + '</a></h3><p>' + escapeHtml(p.category || 'Rutini tamamlayan bakım adımı') + '</p><div class="price-row"><span class="price">' + priceDisplayHtml(p, { compact: true }) + '</span><button class="btn btn-primary" data-add-cart data-id="' + escapeHtml(p.slug) + '" data-slug="' + escapeHtml(p.slug) + '" data-name="' + escapeHtml(p.name) + '" data-brand="' + escapeHtml(p.brand) + '" data-price="' + escapeHtml(p.price) + '" data-image="' + escapeHtml(p.image) + '" data-url="' + escapeHtml(p.url) + '">Sepete Ekle</button></div></div></article>';
     }).join('');
     if (window.initCartButtons) window.initCartButtons(grid);
     if (window.initFavoriteButtons) window.initFavoriteButtons(grid);

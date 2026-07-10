@@ -131,6 +131,12 @@
     return new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(amount) + ' TL';
   }
 
+  function priceDisplayHtml(product, options) {
+    var PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && typeof PD.renderPriceHtml === 'function') return PD.renderPriceHtml(product, options);
+    return '<span class="cs-price cs-price--compact"><span class="cs-price__current">' + esc(formatPrice(product.price)) + '</span></span>';
+  }
+
   function readNumber(value) {
     var n = Number(value);
     return Number.isFinite(n) ? n : 0;
@@ -501,7 +507,7 @@
           '<strong class="smart-routine__product-name">' + esc(product.name) + '</strong>' +
           renderRating(product) +
           '<p class="smart-routine__product-reason"><strong>Neden önerildi?</strong> ' + esc(recommendationReason(product)) + '</p>' +
-          '<div class="smart-routine__product-price">' + esc(formatPrice(product.price)) + '</div>' +
+          '<div class="smart-routine__product-price">' + priceDisplayHtml(product, { compact: true }) + '</div>' +
           '<span class="cs-stock-badge" data-cm-stock-badge data-product-slug="' + esc(product.slug) + '">Stokta</span>' +
         '</div>' +
       '</a>' +
@@ -829,7 +835,7 @@
           return '<button class="smart-routine__alt-card' + (selected ? ' is-selected' : '') + '" type="button" data-sr-replace="' + esc(key) + '" data-sr-product="' + esc(product.slug) + '"' + (disabled ? ' disabled aria-disabled="true"' : '') + '>' +
             '<img src="' + esc(product.image) + '" alt="' + esc(product.brand + ' ' + product.name) + '" loading="lazy">' +
             '<strong>' + esc(product.name) + '</strong>' +
-            '<span>' + esc(product.brand + ' · ' + formatPrice(product.price) + (product.rating > 0 && product.reviewCount > 0 ? ' · ★ ' + product.rating.toFixed(1) : '')) + '</span>' +
+            '<span><span>' + esc(product.brand) + '</span> · ' + priceDisplayHtml(product, { compact: true, showBadge: false }) + (product.rating > 0 && product.reviewCount > 0 ? ' · ★ ' + product.rating.toFixed(1) : '') + '</span>' +
             (disabled ? '<em>Rutinde zaten var</em>' : selected ? '<em>Seçili ürün</em>' : '<em>Alternatif olarak seç</em>') +
           '</button>';
         }).join('') + '</div>' +

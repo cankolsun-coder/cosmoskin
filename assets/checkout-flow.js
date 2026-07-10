@@ -71,6 +71,18 @@
       maximumFractionDigits: amount % 1 ? 2 : 0
     }).format(amount);
   }
+  function checkoutItemPriceHtml(item) {
+    var helpers = window.COSMOSKIN_PRODUCT_HELPERS;
+    var catalog = helpers && typeof helpers.getProductBySlug === 'function'
+      ? helpers.getProductBySlug(item.slug || item.id)
+      : null;
+    var lineTotal = item.line_total || (item.price * item.qty);
+    var PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && catalog && typeof PD.shouldShowSalePrice === 'function' && PD.shouldShowSalePrice(catalog)) {
+      return '<div class="cs-checkout-price cs-price cs-price--compact cs-price--sale"><span class="cs-price__current">' + money(lineTotal) + '</span><span class="cs-price__note">İndirimli fiyat</span></div>';
+    }
+    return '<b>' + money(lineTotal) + '</b>';
+  }
   function num(value) {
     if (typeof value === 'number') return value;
     return Number(String(value || '').replace(/[^0-9,.-]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
@@ -1304,7 +1316,7 @@
     }
     host.innerHTML = '<div class="cs-checkout-summary-head"><div><span class="cs-checkout-summary-kicker">Sepet Detayı</span><h2>Sipariş Özeti</h2></div><a class="cs-checkout-summary-edit" href="/cart.html">Sepeti Düzenle</a></div>' +
       '<div class="cs-checkout-summary-items">' + (summaryItems.length ? summaryItems.map(function (item) {
-        return '<article class="cs-checkout-item"><a href="' + esc(item.url) + '"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div><strong>' + esc(item.brand) + '<br>' + esc(item.name) + '</strong><span>' + esc(item.size || 'KDV dahil') + '</span><span>Adet: ' + item.qty + '</span></div><b>' + money(item.line_total || (item.price * item.qty)) + '</b></article>';
+        return '<article class="cs-checkout-item"><a href="' + esc(item.url) + '"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div><strong>' + esc(item.brand) + '<br>' + esc(item.name) + '</strong><span>' + esc(item.size || 'KDV dahil') + '</span><span>Adet: ' + item.qty + '</span></div>' + checkoutItemPriceHtml(item) + '</article>';
       }).join('') : '<p class="cs-checkout-note">Sipariş ürünleri kaydedildi.</p>') + '</div>' +
       (state.step === 'success' ? '' : shippingProgressHtml(t)) +
       '<div class="cs-checkout-totals">' +

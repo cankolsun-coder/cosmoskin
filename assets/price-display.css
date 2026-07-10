@@ -1,0 +1,18 @@
+/* P1E3 — premium sale price display */
+.cs-price{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:6px 8px;min-width:0;max-width:100%}
+.cs-price--sale .cs-price__current{font-weight:600;color:#1a1510;letter-spacing:-.02em}
+.cs-price__current{font-weight:600;color:#1a1510;letter-spacing:-.02em}
+.cs-price__compare{font-size:.82em;color:rgba(26,21,16,.48);text-decoration:line-through;text-decoration-thickness:1px;font-weight:500}
+.cs-price__badge{display:inline-flex;align-items:center;justify-content:center;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:600;line-height:1.2;letter-spacing:.02em;color:#1a1510;background:rgba(181,138,74,.14);border:1px solid rgba(181,138,74,.22)}
+.cs-price__note{display:block;width:100%;font-size:11px;color:rgba(26,21,16,.55);line-height:1.35}
+.cs-price--compact{gap:4px 6px}
+.cs-price--compact .cs-price__compare{font-size:.78em}
+.cs-price--compact .cs-price__badge{font-size:10px;padding:1px 6px}
+.cs-price--stack{flex-direction:column;align-items:flex-start;gap:2px}
+.cs-product-card__price,.price-row .cs-price,.cart-drawer-premium__price .cs-price,.cs-cart-row__total .cs-price,.cs-checkout-price .cs-price{min-width:0}
+.product-card .price-row,.cs-product-card__footer,.bestseller-card__price{min-width:0}
+.price-row .cs-price,.product-card .price{min-width:0;max-width:100%}
+.srch-item-price,.cs-search-row__price,.cart-drawer-premium__price,.cm-card-price,.cm-horizontal-product__price,.cm-cart-row__price{display:block;min-width:0;max-width:100%}
+.srch-item-body{display:flex;flex-direction:column;gap:2px;min-width:0}
+.srch-item-price .cs-price,.cs-search-row__price .cs-price{justify-content:flex-end}
+.cart-drawer-premium__price{align-self:flex-start;text-align:right}

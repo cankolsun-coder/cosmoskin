@@ -83,6 +83,11 @@
 
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   const formatPrice = (value) => window.COSMOSKIN_FORMAT_PRICE ? window.COSMOSKIN_FORMAT_PRICE(value) : new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(value || 0));
+  const priceDisplayHtml = (product, options) => {
+    const PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && typeof PD.renderPriceHtml === 'function') return PD.renderPriceHtml(product, options);
+    return `<span class="cs-price cs-price--compact"><span class="cs-price__current">${esc(formatPrice(product.price))}</span></span>`;
+  };
   const getProduct = (slug) => {
     const helpers = window.COSMOSKIN_PRODUCT_HELPERS;
     if (helpers && typeof helpers.getProductBySlug === 'function') return helpers.getProductBySlug(slug);
@@ -222,7 +227,7 @@
         <div class="bestseller-card__tags">${tagHtml(tags)}</div>
         <div class="bestseller-card__price-row">
           <div class="bestseller-card__price-block">
-            <div class="price">${esc(formatPrice(product.price))}</div>
+            <div class="price">${priceDisplayHtml(product, { compact: true })}</div>
             <div class="bestseller-tax price-note">KDV dahil</div>
           </div>
         </div>
@@ -297,7 +302,7 @@
           ${ratingHtml(featured)}
           <div class="bestseller-tags">${tagHtml(tab.featuredTags)}</div>
           <div class="bestseller-meta-row price-row">
-            <div><div class="bestseller-price price">${esc(formatPrice(featured.price))}</div><div class="bestseller-tax price-note">KDV dahil</div></div>
+            <div><div class="bestseller-price price">${priceDisplayHtml(featured, { compact: true })}</div><div class="bestseller-tax price-note">KDV dahil</div></div>
           </div>
           <div class="bestseller-actions">
             <button class="bestseller-btn" type="button" data-add-cart="" data-id="${esc(featured.id || featured.slug)}" data-slug="${esc(featured.slug)}" data-name="${esc(featured.name)}" data-brand="${esc(featured.brand)}" data-price="${esc(featured.price)}" data-image="${esc(featured.image)}" data-url="${esc(featured.url)}">${bagIcon}<span>Sepete Ekle</span></button>

@@ -34,6 +34,12 @@ const CosmoSearch = (() => {
       image:    p.image,
       url:      p.url || ('/products/' + (p.slug || p.id) + '.html'),
       price:    p.price,
+      effective_price_try: p.effective_price_try,
+      regular_price_try: p.regular_price_try,
+      sale_price_try: p.sale_price_try,
+      compare_at_price_try: p.compare_at_price_try,
+      sale_active: p.sale_active,
+      price_display_mode: p.price_display_mode,
       keywords: Array.isArray(p.keywords) ? p.keywords : String(p.keywords || '').split(' ').filter(Boolean),
     };
   }
@@ -54,8 +60,29 @@ const CosmoSearch = (() => {
       const slug = product.slug || product.id;
       const overlay = effectivePayload.prices[slug];
       if (!overlay || overlay.effective_price_try == null) return product;
-      return Object.assign({}, product, { price: overlay.effective_price_try });
+      return Object.assign({}, product, {
+        price: overlay.effective_price_try,
+        effective_price_try: overlay.effective_price_try,
+        regular_price_try: overlay.regular_price_try,
+        sale_price_try: overlay.sale_price_try,
+        compare_at_price_try: overlay.compare_at_price_try,
+        sale_active: Boolean(overlay.sale_active),
+        sale_starts_at: overlay.sale_starts_at || null,
+        sale_ends_at: overlay.sale_ends_at || null,
+        price_display_mode: overlay.price_display_mode || 'regular'
+      });
     });
+  }
+
+  function _searchPriceHtml(p) {
+    const PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && typeof PD.renderPriceHtml === 'function') {
+      return PD.renderPriceHtml(p, { compact: true, showBadge: false });
+    }
+    const formatted = p.price
+      ? (typeof window.COSMOSKIN_FORMAT_PRICE === 'function' ? window.COSMOSKIN_FORMAT_PRICE(p.price) : '\u20ba' + p.price)
+      : '';
+    return formatted ? '<span class="cs-price cs-price--compact"><span class="cs-price__current">' + esc(formatted) + '</span></span>' : '';
   }
 
   async function _loadProducts(force) {
@@ -165,15 +192,13 @@ const CosmoSearch = (() => {
     }
     return results.map(function(p, i) {
       const hiName  = _highlight(p.name, q);
-      const formattedPrice = p.price
-        ? (typeof window.COSMOSKIN_FORMAT_PRICE === 'function' ? window.COSMOSKIN_FORMAT_PRICE(p.price) : '\u20ba' + p.price)
-        : '';
-      const priceStr = formattedPrice ? ' \u00b7 ' + formattedPrice : '';
+      const priceBlock = _searchPriceHtml(p);
       return '<a class="srch-item" href="' + esc(p.url) + '" role="option" data-idx="' + i + '" aria-selected="false">' +
         '<img class="srch-item-img" src="' + esc(p.image) + '" alt="' + esc(p.brand + ' ' + p.name) + '" loading="lazy" width="44" height="44" onerror="this.style.opacity=\'.15\'">' +
         '<div class="srch-item-body">' +
           '<span class="srch-item-name">' + hiName + '</span>' +
-          '<span class="srch-item-meta">' + esc(p.brand) + ' \u00b7 ' + esc(p.category) + priceStr + '</span>' +
+          '<span class="srch-item-meta">' + esc(p.brand) + ' \u00b7 ' + esc(p.category) + '</span>' +
+          (priceBlock ? '<span class="srch-item-price">' + priceBlock + '</span>' : '') +
         '</div>' +
       '</a>';
     }).join('');

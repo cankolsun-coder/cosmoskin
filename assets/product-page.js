@@ -41,11 +41,15 @@
   }
 
   function patchPdpPriceSurfaces(product){
+    const PD = window.COSMOSKIN_PRICE_DISPLAY;
     const price = Number(product && (product.price ?? product.effective_price_try ?? product.price_try));
     if (!Number.isFinite(price) || price <= 0) return false;
     const currency = product && (product.effective_currency || product.currency || 'TRY');
-
+    const priceHtml = PD && typeof PD.renderPriceHtml === 'function'
+      ? PD.renderPriceHtml(product, { stack: true })
+      : null;
     const formatted = fmtTry(price);
+
     const selectors = [
       '.pdp5-price',
       '.pdp-price',
@@ -54,16 +58,20 @@
     selectors.forEach((sel) => {
       $$(sel).forEach((node) => {
         if (node.tagName === 'META') return;
-        node.textContent = formatted || node.textContent;
+        if (priceHtml) node.innerHTML = priceHtml;
+        else node.textContent = formatted || node.textContent;
         node.dataset.effectivePriceApplied = 'true';
       });
     });
 
-    const stickyPrice = document.querySelector('.mobile-sticky-pdp__copy strong');
-    if (stickyPrice) {
-      stickyPrice.textContent = formatted || stickyPrice.textContent;
-      stickyPrice.dataset.effectivePriceApplied = 'true';
+    const stickyWrap = document.querySelector('.mobile-sticky-pdp__copy');
+    if (stickyWrap) {
+      const stickyTarget = stickyWrap.querySelector('.cs-price, strong');
+      if (priceHtml && stickyTarget) stickyTarget.outerHTML = priceHtml;
+      else if (stickyTarget) stickyTarget.textContent = formatted || stickyTarget.textContent;
+      stickyWrap.dataset.effectivePriceApplied = 'true';
     }
+    // Sticky PDP price anchor: .mobile-sticky-pdp__copy strong
 
     $$('[data-add-cart], [data-buy-now], .pdp5-favorite, [data-favorite-id]').forEach((btn) => {
       if (!(btn instanceof HTMLElement)) return;
@@ -98,6 +106,13 @@
         effective_currency: row.effective_currency || 'TRY',
         effective_price_source: row.effective_price_source || 'static',
         base_catalog_price_try: row.base_catalog_price_try,
+        regular_price_try: row.regular_price_try,
+        sale_price_try: row.sale_price_try,
+        compare_at_price_try: row.compare_at_price_try,
+        sale_active: Boolean(row.sale_active),
+        sale_starts_at: row.sale_starts_at || null,
+        sale_ends_at: row.sale_ends_at || null,
+        price_display_mode: row.price_display_mode || 'regular',
         has_price_override: Boolean(row.has_price_override),
         price_override_valid: row.price_override_valid !== false,
         price_warning: row.price_warning || ''
@@ -122,6 +137,11 @@
       effective_currency: effective?.effective_currency || 'TRY',
       effective_price_source: effective?.effective_price_source || 'static',
       base_catalog_price_try: Number(effective?.base_catalog_price_try ?? btn.dataset.price ?? 0),
+      regular_price_try: Number(effective?.regular_price_try ?? effective?.base_catalog_price_try ?? btn.dataset.price ?? 0),
+      sale_price_try: effective?.sale_price_try ?? null,
+      compare_at_price_try: effective?.compare_at_price_try ?? null,
+      sale_active: Boolean(effective?.sale_active),
+      price_display_mode: effective?.price_display_mode || 'regular',
       has_price_override: Boolean(effective?.has_price_override),
       price_override_valid: effective?.price_override_valid !== false,
       price_warning: effective?.price_warning || '',

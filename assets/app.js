@@ -116,6 +116,16 @@
     }).format(n);
   }
 
+  function priceDisplayHtml(product, options) {
+    const PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && typeof PD.renderPriceHtml === 'function') {
+      return PD.renderPriceHtml(product, options);
+    }
+    const price = Number(product && (product.effective_price_try ?? product.price ?? 0));
+    const mult = Math.max(1, Number(options?.multiplier || 1));
+    return `<span class="cs-price cs-price--compact"><span class="cs-price__current">${fmt(price * mult)}</span></span>`;
+  }
+
   function getRoutineBundleDiscount() {
     let offer = null;
     try { offer = JSON.parse(localStorage.getItem('cosmoskin_routine_bundle_offer') || 'null'); } catch (error) { offer = null; }
@@ -191,6 +201,13 @@
       effective_currency: lookup?.effective_currency || 'TRY',
       effective_price_source: lookup?.effective_price_source || 'static',
       base_catalog_price_try: Number(lookup?.base_catalog_price_try ?? lookup?.price ?? price),
+      regular_price_try: Number(lookup?.regular_price_try ?? lookup?.base_catalog_price_try ?? lookup?.price ?? price),
+      sale_price_try: lookup?.sale_price_try == null ? null : Number(lookup.sale_price_try),
+      compare_at_price_try: lookup?.compare_at_price_try == null ? null : Number(lookup.compare_at_price_try),
+      sale_active: Boolean(lookup?.sale_active),
+      sale_starts_at: lookup?.sale_starts_at || null,
+      sale_ends_at: lookup?.sale_ends_at || null,
+      price_display_mode: lookup?.price_display_mode || 'regular',
       has_price_override: Boolean(lookup?.has_price_override),
       price_override_valid: lookup?.price_override_valid !== false,
       price_warning: lookup?.price_warning || '',
@@ -277,7 +294,9 @@
     if (brandline) brandline.textContent = product.brand;
     if (badge) badge.textContent = product.brand;
     priceEls.forEach((priceEl) => {
-      priceEl.textContent = fmt(product.price);
+      const html = priceDisplayHtml(product, { compact: true });
+      if (html) priceEl.innerHTML = html;
+      else priceEl.textContent = fmt(product.price);
     });
     setCartButtonData(cartBtn, product);
     setFavoriteButtonData(favoriteBtn, product);
@@ -340,13 +359,20 @@
       setFavoriteButtonData(button, product);
     });
     root.querySelectorAll('.pdp-price, .pdp-detail-card__price, .pdp5-price').forEach((priceEl) => {
-      priceEl.textContent = fmt(product.price);
+      const html = priceDisplayHtml(product, { stack: true });
+      if (html) priceEl.innerHTML = html;
+      else priceEl.textContent = fmt(product.price);
     });
     root.querySelectorAll('.pdp5-vat').forEach((vatEl) => {
       vatEl.textContent = 'KDV dahil' + (product.volume ? ' · ' + product.volume : '');
     });
-    const stickyPrice = root.querySelector('.mobile-sticky-pdp__copy strong');
-    if (stickyPrice) stickyPrice.textContent = fmt(product.price);
+    const stickyWrap = root.querySelector('.mobile-sticky-pdp__copy');
+    if (stickyWrap) {
+      const stickyHtml = priceDisplayHtml(product, { compact: true });
+      const stickyPrice = stickyWrap.querySelector('.cs-price, strong');
+      if (stickyHtml && stickyPrice) stickyPrice.outerHTML = stickyHtml;
+      else if (stickyPrice) stickyPrice.textContent = fmt(product.price);
+    }
     const stickyBrand = root.querySelector('.mobile-sticky-pdp__copy span');
     if (stickyBrand) stickyBrand.textContent = product.brand;
     const brandEl = root.querySelector('.pdp-brand');
@@ -1120,6 +1146,8 @@ function broadcastFavoritesChange() {
       const stock = cartStockCheck(item, item.qty);
       const problem = !stock.ok;
       const limitReached = stock.available_stock !== undefined && Number(stock.available_stock) > 0 && Number(item.qty || 1) >= Number(stock.available_stock);
+      const displayProduct = normalizeProductReference(item);
+      const priceHtml = priceDisplayHtml(displayProduct, { compact: true, multiplier: item.qty });
       return `
       <article class="cart-item cart-drawer-premium__item ${problem ? 'is-stock-problem' : ''}">
         <a class="cart-drawer-premium__thumb" href="${item.url || '#'}"><img src="${item.image}" alt="${item.name}"></a>
@@ -1134,7 +1162,7 @@ function broadcastFavoritesChange() {
             <button type="button" data-remove="${item.id}" aria-label="Ürünü kaldır">Kaldır</button>
           </div>
         </div>
-        <strong class="cart-drawer-premium__price">${fmt(item.price * item.qty)}</strong>
+        <div class="cart-drawer-premium__price cs-mini-cart-price">${priceHtml}</div>
       </article>`;
     }).join('');
 

@@ -35,6 +35,12 @@
     return '₺' + String(value || 0);
   }
 
+  function priceDisplayHtml(p, options) {
+    var PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && typeof PD.renderPriceHtml === 'function') return PD.renderPriceHtml(p, options);
+    return '<span class="cs-price cs-price--compact"><span class="cs-price__current">' + esc(formatPrice(p.price)) + '</span></span>';
+  }
+
   function fold(value) {
     return String(value || '')
       .toLocaleLowerCase('tr-TR')
@@ -181,7 +187,7 @@
           (p.description ? '<p>' + esc(p.description) + '</p>' : ''),
           '<div class="price-row">',
             '<div>',
-              '<div class="price">' + esc(formatPrice(p.price)) + '</div>',
+              '<div class="price">' + priceDisplayHtml(p, { compact: true }) + '</div>',
               '<div class="price-note">KDV dahil</div>',
             '</div>',
             '<button class="btn btn-primary"',

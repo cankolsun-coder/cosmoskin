@@ -157,6 +157,12 @@
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(Number(value || 0));
   }
 
+  function priceDisplayHtml(product, options) {
+    var PD = window.COSMOSKIN_PRICE_DISPLAY;
+    if (PD && typeof PD.renderPriceHtml === 'function') return PD.renderPriceHtml(product, options);
+    return '<span class="cs-price cs-price--compact"><span class="cs-price__current">' + esc(formatPrice(product.price)) + '</span></span>';
+  }
+
   function readNumber(value) {
     var number = Number(value);
     return Number.isFinite(number) ? number : 0;
@@ -510,7 +516,7 @@
         ratingHtml +
         '<div class="pills">' + chips.slice(0, 3).map(function (chip) { return '<span class="pill">' + esc(chip) + '</span>'; }).join('') + '</div>' +
         '<div class="meta-note">' + esc(product.volume || product.category) + ' · ' + esc(product.category) + '</div>' +
-        '<div class="price-row"><div><div class="price">' + esc(formatPrice(product.price)) + '</div><div class="price-note">KDV dahil</div></div>' +
+        '<div class="price-row"><div><div class="price">' + priceDisplayHtml(product, { compact: true }) + '</div><div class="price-note">KDV dahil</div></div>' +
         '<button class="btn btn-primary" type="button" data-add-cart="" data-id="' + esc(product.id) + '" data-slug="' + esc(product.slug) + '" data-name="' + esc(product.name) + '" data-brand="' + esc(product.brand) + '" data-price="' + esc(product.price) + '" data-image="' + esc(product.image) + '" data-url="' + esc(product.url) + '">SEPETE EKLE</button></div>' +
       '</div>' +
     '</article>';
