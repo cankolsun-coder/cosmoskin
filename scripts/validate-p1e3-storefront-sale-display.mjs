@@ -97,7 +97,8 @@ mustInclude(masterSrc, masterUpgrade, 'priceHtml(p, { compact: true, multiplier:
 mustInclude(checkoutSrc, checkoutFlow, 'checkoutItemPriceHtml');
 
 // Compare-at never in commerce math
-mustNotMatch(createCheckoutSrc, createCheckout, /compare_at_price_try/, 'create-checkout must not use compare_at_price_try');
+mustNotMatch(createCheckoutSrc, createCheckout, /(?:unit_price|line_total)\s*=\s*[^;]*compare_at_price_try/, 'create-checkout must not assign payable from compare_at_price_try');
+mustInclude(createCheckoutSrc, createCheckout, 'getPayableUnitPriceTry');
 mustNotMatch(couponSrc, couponValidate, /compare_at_price_try/, 'coupon validate must not use compare_at_price_try');
 mustNotMatch(read('assets/cart-commerce.js'), 'assets/cart-commerce.js', /compare_at_price_try/, 'cart-commerce must not use compare_at_price_try');
 

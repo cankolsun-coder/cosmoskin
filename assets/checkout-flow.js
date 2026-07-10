@@ -895,9 +895,16 @@
         saveState();
         writeSession(ORDER_KEY, state.order);
         clearCartAfterSuccessfulOrder();
-        setStatus('Siparişiniz oluşturuldu. Havale/EFT ödeme bilgileri aşağıda yer alıyor.', 'success');
+        if (data.price_changed || data.repriced) {
+          setStatus(data.message || 'Sepetindeki fiyatlar güncellendi. Lütfen toplamı kontrol edip tekrar dene.', 'success');
+        } else {
+          setStatus('Siparişiniz oluşturuldu. Havale/EFT ödeme bilgileri aşağıda yer alıyor.', 'success');
+        }
         setStep('success');
         return;
+      }
+      if (data.price_changed || data.repriced) {
+        setStatus(data.message || 'Sepetindeki fiyatlar güncellendi. Lütfen toplamı kontrol edip tekrar dene.', '');
       }
       if (data.paymentPageUrl) {
         window.location.href = data.paymentPageUrl;

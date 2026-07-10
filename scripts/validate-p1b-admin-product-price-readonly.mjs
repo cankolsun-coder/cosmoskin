@@ -78,7 +78,7 @@ mustNotMatch(
 
 mustInclude(adminHtmlSrc, adminHtml, 'Katalog Fiyatı');
 
-mustInclude(checkoutSrc, checkout, 'const unitPrice = normalizeMoney(product.price)');
+mustInclude(checkoutSrc, checkout, 'getPayableUnitPriceTry(product)');
 mustNotMatch(
   checkoutSrc,
   checkout,

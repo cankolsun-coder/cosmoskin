@@ -1,6 +1,15 @@
 export const PRICING_SNAPSHOT_VERSION = 'v1_proportional_last_line_remainder';
 export const PRICING_SNAPSHOT_VERSION_V2 = 'v2_eligible_lines_proportional_last_line_remainder';
 
+/** Payable unit_price must never equal compare-at display price. */
+export function isPayableSnapshotUnitPrice(unitPrice, item = {}) {
+  const payable = Number(unitPrice);
+  const compareAt = Number(item.compare_at_price_try);
+  if (!Number.isFinite(payable) || payable <= 0) return false;
+  if (Number.isFinite(compareAt) && compareAt > 0 && compareAt === payable) return false;
+  return true;
+}
+
 export function roundSnapshotMoney(value) {
   const n = Number(value);
   if (!Number.isFinite(n)) return null;

@@ -1,7 +1,7 @@
 import { getUserFromAccessToken } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { validateCouponEligibility } from '../_lib/coupons.js';
-import { buildPricedCatalogIndex } from '../_lib/product-pricing.js';
+import { buildPricedCatalogIndex, getPayableUnitPriceTry } from '../_lib/product-pricing.js';
 
 
 const COUPON_PREVIEW_FREE_SHIPPING_LIMIT = 2500;
@@ -63,8 +63,8 @@ async function buildTrustedCartLines(context, cart = []) {
     const normalized = normalizeCartItem(raw);
     const slug = String(raw.slug || raw.product_slug || raw.product_id || raw.productId || raw.id || '').trim();
     const product = index.get(slug);
-    const unitPrice = Number(product?.price || 0);
-    const trusted = Number.isFinite(unitPrice) && unitPrice > 0 && product?.checkout_price_valid !== false ? unitPrice : 0;
+    const unitPrice = getPayableUnitPriceTry(product);
+    const trusted = Number.isFinite(unitPrice) && unitPrice > 0 ? unitPrice : 0;
     const lineTotal = normalizeMoney(trusted * normalized.quantity);
     return {
       product_id: String(product?.id || slug || '').trim() || null,
@@ -140,6 +140,7 @@ export async function onRequestPost(context) {
       expires_at: result.expiresAt,
       manual_apply_required: true,
       eligibility_hash: `${result.code}:${Math.round(subtotal)}:${result.reason_code || result.reasonCode}`,
+      trusted_subtotal: subtotal,
       message: result.message,
       coupon: {
         id: result.coupon?.id || null,

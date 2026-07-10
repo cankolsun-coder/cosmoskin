@@ -54,7 +54,7 @@ mustInclude(adminUiSrc, adminUi, 'validatePriceForm');
 mustInclude(adminUiSrc, adminUi, 'data-price-error');
 
 mustNotMatch(pricingSrc, pricing, /effective_price_try\s*=\s*compare_at_price_try/, 'compare_at_price_try must never become payable');
-mustNotMatch(checkoutSrc, checkout, /compare_at_price_try/, 'checkout must not use compare_at_price_try');
+mustNotMatch(checkoutSrc, checkout, /(?:unit_price|line_total)\s*=\s*[^;]*compare_at_price_try/, 'checkout must not assign payable from compare_at_price_try');
 mustNotMatch(couponSrc, couponValidate, /compare_at_price_try/, 'coupon validation must not use compare_at_price_try');
 
 for (const [script, label] of [

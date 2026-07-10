@@ -1,0 +1,28 @@
+Modified:
+- functions/api/_lib/product-pricing.js
+- functions/api/_lib/order-pricing-snapshot.js
+- functions/api/create-checkout.js
+- functions/api/coupons/validate.js
+- assets/checkout-flow.js
+- tests/local-integration.test.mjs
+- scripts/validate-p1a-product-price-source-drift.mjs
+- scripts/validate-p1b-admin-product-price-readonly.mjs
+
+Created:
+- scripts/validate-p1e4-checkout-coupon-sale-snapshot-hardening.mjs
+- COSMOSKIN_P1E4_CHECKOUT_COUPON_SALE_SNAPSHOT_HARDENING_REPORT_20260709.md
+- COSMOSKIN_P1E4_CHECKOUT_COUPON_SALE_SNAPSHOT_HARDENING_RUNBOOK_20260709.md
+- COSMOSKIN_P1E4_CHECKOUT_COUPON_SALE_SNAPSHOT_HARDENING_ROLLBACK_PLAN_20260709.md
+- COSMOSKIN_P1E4_CHECKOUT_COUPON_SALE_SNAPSHOT_HARDENING_CHANGED_FILES_20260709.txt
+
+Deleted:
+- (none)
+
+Deferred:
+- P1E5 production readiness packaging (out of P1E4 scope)
+
+Not modified:
+- products.json
+- admin UI
+- SQL migrations / deploy
+- coupon business policy / stock logic

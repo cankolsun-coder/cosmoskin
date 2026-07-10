@@ -1,7 +1,7 @@
 import { getUserFromAccessToken, insertRow, insertRows, updateRows, selectRows } from './_lib/supabase.js';
 import { iyzicoRequest } from './_lib/iyzico.js';
 import { catalog } from './_lib/catalog.js';
-import { buildPricedCatalogIndex } from './_lib/product-pricing.js';
+import { buildPricedCatalogIndex, getPayableUnitPriceTry } from './_lib/product-pricing.js';
 import { releaseInventoryReservations, reserveInventoryForOrder, stockValidationCode, validateCartStock } from './_lib/inventory.js';
 import { json } from './_lib/response.js';
 import { getPrimaryBankAccount, getValidatedBankAccounts } from './_lib/bank-accounts.js';
@@ -152,7 +152,7 @@ async function normalizeCart(context, rawCart) {
     if (!product) throw new CheckoutError('Sepette geçersiz veya satışta olmayan ürün var.', 400, 'INVALID_CART_ITEM');
 
     const productId = String(product.id || product.slug || rawItem.id || '').trim();
-    const unitPrice = normalizeMoney(product.price);
+    const unitPrice = normalizeMoney(getPayableUnitPriceTry(product));
     if (!productId || unitPrice <= 0 || product.checkout_price_valid === false) {
       throw new CheckoutError('Ürün fiyatı doğrulanamadı.', 400, 'INVALID_CART_ITEM');
     }
@@ -178,7 +178,14 @@ async function normalizeCart(context, rawCart) {
       unit_price: unitPrice,
       quantity,
       image: product.image || rawItem.image || null,
-      line_total: normalizeMoney(unitPrice * quantity)
+      line_total: normalizeMoney(unitPrice * quantity),
+      effective_price_try: unitPrice,
+      base_catalog_price_try: product.base_catalog_price_try ?? null,
+      regular_price_try: product.regular_price_try ?? null,
+      sale_price_try: product.sale_price_try ?? null,
+      price_display_mode: product.price_display_mode || null,
+      effective_price_source: product.effective_price_source || null,
+      sale_active: Boolean(product.sale_active)
     });
   });
 
@@ -373,6 +380,26 @@ function serializeError(error) {
   };
 }
 
+function buildPricingSnapshotMetadata(item = {}) {
+  const snapshot = {
+    allocated_order_discount: normalizeMoney(item.allocated_order_discount),
+    paid_line_total: normalizeMoney(item.paid_line_total),
+    paid_unit_price: normalizeMoney(item.paid_unit_price),
+    pricing_snapshot_version: item.pricing_snapshot_version || null,
+    unit_price: normalizeMoney(item.unit_price),
+    line_total: normalizeMoney(item.line_total),
+    quantity: Math.max(1, Number(item.quantity || 1))
+  };
+  if (item.effective_price_try != null) snapshot.effective_price_try = normalizeMoney(item.effective_price_try);
+  if (item.base_catalog_price_try != null) snapshot.base_catalog_price_try = Number(item.base_catalog_price_try);
+  if (item.regular_price_try != null) snapshot.regular_price_try = Number(item.regular_price_try);
+  if (item.sale_price_try != null) snapshot.sale_price_try = Number(item.sale_price_try);
+  if (item.price_display_mode) snapshot.price_display_mode = String(item.price_display_mode);
+  if (item.effective_price_source) snapshot.effective_price_source = String(item.effective_price_source);
+  if (item.sale_active != null) snapshot.sale_active = Boolean(item.sale_active);
+  return snapshot;
+}
+
 function serializeOrderItemInsertRow(orderId, item, options = {}) {
   const quantity = Math.max(1, Number(item.quantity || 1));
   const row = {
@@ -395,12 +422,7 @@ function serializeOrderItemInsertRow(orderId, item, options = {}) {
   }
   if (options.metadataSnapshot) {
     row.metadata = {
-      pricing_snapshot: {
-        allocated_order_discount: normalizeMoney(item.allocated_order_discount),
-        paid_line_total: normalizeMoney(item.paid_line_total),
-        paid_unit_price: normalizeMoney(item.paid_unit_price),
-        pricing_snapshot_version: item.pricing_snapshot_version || null
-      }
+      pricing_snapshot: buildPricingSnapshotMetadata(item)
     };
   }
   return row;
@@ -649,6 +671,35 @@ function orderTotalsFromRow(order = {}) {
     shipping: normalizeMoney(order.shipping_amount),
     vat: normalizeMoney(order.vat_amount),
     total: normalizeMoney(order.total_amount)
+  };
+}
+
+function extractClientSubtotalHint(payload = {}) {
+  const totals = payload.totals && typeof payload.totals === 'object' ? payload.totals : null;
+  const candidates = [
+    totals?.subtotal,
+    payload.client_subtotal,
+    payload.clientSubtotal,
+    payload.expected_subtotal,
+    payload.expectedSubtotal
+  ];
+  for (const candidate of candidates) {
+    const value = normalizeMoney(candidate);
+    if (value > 0) return value;
+  }
+  return null;
+}
+
+function buildPriceChangedNotice(payload = {}, serverSubtotal = 0) {
+  const clientSubtotal = extractClientSubtotalHint(payload);
+  const server = normalizeMoney(serverSubtotal);
+  if (clientSubtotal == null || clientSubtotal <= 0 || Math.abs(clientSubtotal - server) < 0.01) return null;
+  return {
+    price_changed: true,
+    repriced: true,
+    client_subtotal: clientSubtotal,
+    server_subtotal: server,
+    message: 'Sepetindeki fiyatlar güncellendi. Lütfen toplamı kontrol edip tekrar dene.'
   };
 }
 
@@ -998,6 +1049,7 @@ export async function onRequestPost(context) {
         customerEmail: customer.email,
         items: responseItemsFromCart(cart),
         totals,
+        ...(buildPriceChangedNotice(payload, totals.subtotal) || {}),
         message: 'Siparişiniz oluşturuldu. Havale/EFT ödemeniz bekleniyor.'
       }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
     }
@@ -1127,7 +1179,8 @@ export async function onRequestPost(context) {
       orderNumber,
       token: iyzicoRes.token,
       paymentPageUrl: iyzicoRes.paymentPageUrl || null,
-      checkoutFormContent: iyzicoRes.checkoutFormContent || null
+      checkoutFormContent: iyzicoRes.checkoutFormContent || null,
+      ...(buildPriceChangedNotice(payload, totals.subtotal) || {})
     }, { headers: { 'Cache-Control': 'no-store, max-age=0' } });
   } catch (error) {
     if (reservedOrderId && !persistedOrder) {
@@ -1163,4 +1216,12 @@ export async function onRequestPost(context) {
 
 
 // Exported for deterministic local verification. Production requests continue to use onRequestPost.
-export { calculateTotalsWithCoupon, getEftReservationMinutes, serializeOrderItemInsertRow, persistOrderItems };
+export {
+  calculateTotalsWithCoupon,
+  getEftReservationMinutes,
+  serializeOrderItemInsertRow,
+  persistOrderItems,
+  buildPriceChangedNotice,
+  extractClientSubtotalHint,
+  normalizeCart
+};

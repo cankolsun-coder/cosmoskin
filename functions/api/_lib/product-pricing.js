@@ -366,12 +366,35 @@ export async function loadActivePriceOverrideMap(context, slugs = null) {
   return buildPriceOverrideMap(rows);
 }
 
+export function getPayableUnitPriceTry(pricedProduct) {
+  if (!pricedProduct || pricedProduct.checkout_price_valid === false) return null;
+  const effective = Number(pricedProduct.effective_price_try ?? pricedProduct.price);
+  if (!Number.isFinite(effective) || effective <= 0 || !Number.isInteger(effective)) return null;
+  const compareAt = Number(pricedProduct.compare_at_price_try);
+  if (Number.isFinite(compareAt) && compareAt > 0 && compareAt === effective) return null;
+  return effective;
+}
+
+export function compareAtIsDisplayOnly(pricingOrProduct = {}) {
+  const compareAt = Number(pricingOrProduct.compare_at_price_try);
+  const payable = Number(pricingOrProduct.effective_price_try ?? pricingOrProduct.price);
+  if (!Number.isFinite(compareAt) || compareAt <= 0) return true;
+  if (!Number.isFinite(payable) || payable <= 0) return true;
+  return compareAt !== payable;
+}
+
 export function applyEffectivePricingToCatalogProduct(catalogProduct, pricing) {
   if (!catalogProduct || !pricing) return catalogProduct;
+  const payable = pricing.checkout_price_valid ? pricing.effective_price_try : catalogProduct.price;
   return {
     ...catalogProduct,
-    price: pricing.checkout_price_valid ? pricing.effective_price_try : catalogProduct.price,
+    price: payable,
     effective_price_try: pricing.effective_price_try,
+    regular_price_try: pricing.regular_price_try,
+    sale_price_try: pricing.sale_price_try,
+    compare_at_price_try: pricing.compare_at_price_try,
+    sale_active: pricing.sale_active,
+    price_display_mode: pricing.price_display_mode,
     effective_currency: pricing.effective_currency,
     effective_price_source: pricing.effective_price_source,
     base_catalog_price_try: pricing.base_catalog_price_try,

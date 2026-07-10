@@ -8,8 +8,8 @@ import { fileURLToPath } from 'node:url';
 
 import { normalizeIban, isValidTurkishIban, validateBankAccount } from '../functions/api/_lib/bank-accounts.js';
 import { calculateCouponPreview, onRequestPost as validateCoupon } from '../functions/api/coupons/validate.js';
-import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout, serializeOrderItemInsertRow } from '../functions/api/create-checkout.js';
-import { PRICING_SNAPSHOT_VERSION_V2, allocateOrderDiscountSnapshots, buildOrderItemPricingSnapshots } from '../functions/api/_lib/order-pricing-snapshot.js';
+import { calculateTotalsWithCoupon, getEftReservationMinutes, onRequestPost as createCheckout, serializeOrderItemInsertRow, buildPriceChangedNotice, normalizeCart } from '../functions/api/create-checkout.js';
+import { PRICING_SNAPSHOT_VERSION_V2, allocateOrderDiscountSnapshots, buildOrderItemPricingSnapshots, isPayableSnapshotUnitPrice, snapshotAllocationFromOrderItem } from '../functions/api/_lib/order-pricing-snapshot.js';
 import { buildCheckItem, reserveInventoryForOrder, releaseInventoryReservations, convertInventoryReservations, validateCartStock } from '../functions/api/_lib/inventory.js';
 import { onRequestPost as inventoryCheck } from '../functions/api/inventory/check.js';
 import { issueAdminSession, assertAdmin, getVerifiedSessionEmail, resolveCloudflareAccessEmail } from '../functions/api/_lib/admin.js';
@@ -32,6 +32,8 @@ import {
   buildPricedCatalogIndex,
   normalizePriceHistoryItem,
   resolveEffectivePricing,
+  compareAtIsDisplayOnly,
+  getPayableUnitPriceTry,
   validateAdminPriceUpdateInput,
   validateRegularPriceInput
 } from '../functions/api/_lib/product-pricing.js';
@@ -4515,7 +4517,7 @@ test('P1B: admin product PATCH payload remains inventory-only without price fiel
 test('P1B: checkout still ignores client price and D3A snapshots use paid totals', async () => {
   const checkoutSrc = await fs.readFile(path.join(root, 'functions/api/create-checkout.js'), 'utf8');
   const snapshotSrc = await fs.readFile(path.join(root, 'functions/api/_lib/order-pricing-snapshot.js'), 'utf8');
-  assert.match(checkoutSrc, /const unitPrice = normalizeMoney\(product\.price\)/);
+  assert.match(checkoutSrc, /getPayableUnitPriceTry\(product\)/);
   assert.doesNotMatch(checkoutSrc, /rawItem\.(?:price|unit_price|unitPrice)/);
   assert.match(checkoutSrc, /buildOrderItemPricingSnapshots/);
   assert.match(snapshotSrc, /paid_unit_price/);
@@ -5380,6 +5382,196 @@ test('P1E3: PDP and storefront sources wire sale display helper', async () => {
   assert.match(pdp, /btn\.dataset\.price = String\(price\)/);
   assert.match(app, /priceDisplayHtml/);
   assert.match(search, /_searchPriceHtml/);
+});
+
+const P1E4_SALE_FIXTURE_SLUG = 'cosrx-advanced-snail-96-mucin-essence';
+const P1E4_ACTIVE_SALE_OVERRIDE = {
+  product_slug: P1E4_SALE_FIXTURE_SLUG,
+  regular_price_try: 1219,
+  sale_price_try: 999,
+  compare_at_price_try: 1299,
+  sale_starts_at: new Date(Date.now() - 60_000).toISOString(),
+  sale_ends_at: new Date(Date.now() + 3_600_000).toISOString(),
+  currency: 'TRY',
+  is_active: true
+};
+
+test('P1E4: getPayableUnitPriceTry never returns compare-at display price', () => {
+  const priced = {
+    effective_price_try: 999,
+    price: 999,
+    compare_at_price_try: 1299,
+    checkout_price_valid: true,
+    sale_active: true
+  };
+  assert.equal(getPayableUnitPriceTry(priced), 999);
+  assert.equal(getPayableUnitPriceTry({ ...priced, effective_price_try: 1299, price: 1299 }), null);
+  assert.equal(compareAtIsDisplayOnly(priced), true);
+  assert.ok(isPayableSnapshotUnitPrice(999, priced));
+  assert.equal(isPayableSnapshotUnitPrice(1299, priced), false);
+});
+
+test('P1E4: active sale coupon subtotal uses sale effective price (WELCOME10 cap 150)', async () => {
+  const cartLine = [{ slug: P1E4_SALE_FIXTURE_SLUG, quantity: 2 }];
+  const now = new Date().toISOString();
+  const restore = installFetch(async (url) => {
+    const href = String(url);
+    if (href.includes('/auth/v1/user')) {
+      return response({ id: 'user-p1e4', email: 'p1e4@example.test', created_at: now, email_confirmed_at: now, email_verified: true, user_metadata: {} });
+    }
+    if (href.includes('/rest/v1/coupons')) {
+      return response([{
+        id: 'c-welcome',
+        code: 'WELCOME10',
+        is_active: true,
+        discount_type: 'percent',
+        discount_value: 10,
+        min_subtotal: 1000,
+        max_discount_amount: 150,
+        per_customer_limit: 1,
+        metadata: { eligibility: { requires_auth: true, requires_first_order: true } }
+      }]);
+    }
+    if (href.includes('/rest/v1/product_price_overrides')) return response([P1E4_ACTIVE_SALE_OVERRIDE]);
+    if (href.includes('/rest/v1/orders')) return response([]);
+    if (href.includes('/rest/v1/coupon_redemptions')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = requestJson('https://local.test/api/coupons/validate', {
+      code: 'WELCOME10',
+      accessToken: 'customer-token',
+      cart: cartLine
+    });
+    const res = await validateCoupon(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(data.trusted_subtotal, 1998);
+    assert.equal(data.discount_amount, 150);
+    assert.notEqual(data.trusted_subtotal, 2598);
+  } finally { restore(); }
+});
+
+test('P1E4: active sale checkout charges sale price, KDV, snapshots, and ignores stale client totals', async () => {
+  const fake = createFakeSupabase({
+    product_price_overrides: [{ id: 'ppo-p1e4', ...P1E4_ACTIVE_SALE_OVERRIDE }],
+    product_inventory: [{ product_slug: P1E4_SALE_FIXTURE_SLUG, stock_on_hand: 5, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 1 }],
+    payment_bank_accounts: [{ id: 'bank-p1e4', ...validBank }]
+  });
+  const restore = installFetch(async (url, init) => fake.fetchHandler(url, init));
+  try {
+    const req = requestJson('https://local.test/api/create-checkout', {
+      payment_method: 'bank_transfer',
+      idempotency_key: 'local-p1e4-sale-checkout-01',
+      cart: [{ slug: P1E4_SALE_FIXTURE_SLUG, quantity: 2, price: 1299, unit_price: 1299, line_total: 2598 }],
+      totals: { subtotal: 2598, total: 2687 },
+      customer: validCustomer
+    });
+    const res = await createCheckout(contextFor(req));
+    const data = await res.json();
+    assert.equal(res.status, 200, JSON.stringify(data));
+    assert.equal(data.items[0].unit_price, 999);
+    assert.equal(data.items[0].line_total, 1998);
+    assert.equal(data.totals.subtotal, 1998);
+    assert.equal(data.totals.vat, Math.round((1998 * 20 / 120) * 100) / 100);
+    assert.equal(data.totals.total, 1998 + 89);
+    assert.equal(data.price_changed, true);
+    assert.equal(data.repriced, true);
+    assert.equal(data.server_subtotal, 1998);
+    assert.equal(fake.table('order_items')[0].unit_price, 999);
+    assert.equal(fake.table('order_items')[0].line_total, 1998);
+    assert.equal(fake.table('order_items')[0].paid_unit_price, 999);
+    assert.equal(fake.table('order_items')[0].paid_line_total, 1998);
+  } finally { restore(); }
+});
+
+test('P1E4: future and expired sales fail-closed to regular price at checkout', async () => {
+  const futureOverride = {
+    ...P1E4_ACTIVE_SALE_OVERRIDE,
+    sale_starts_at: new Date(Date.now() + 3_600_000).toISOString(),
+    sale_ends_at: new Date(Date.now() + 7_200_000).toISOString()
+  };
+  const expiredOverride = {
+    ...P1E4_ACTIVE_SALE_OVERRIDE,
+    sale_starts_at: new Date(Date.now() - 7_200_000).toISOString(),
+    sale_ends_at: new Date(Date.now() - 3_600_000).toISOString()
+  };
+  for (const [label, overrideRow, expectedUnit] of [
+    ['future', futureOverride, 1219],
+    ['expired', expiredOverride, 1219]
+  ]) {
+    const fake = createFakeSupabase({
+      product_price_overrides: [{ id: `ppo-${label}`, ...overrideRow }],
+      product_inventory: [{ product_slug: P1E4_SALE_FIXTURE_SLUG, stock_on_hand: 5, stock_reserved: 0, allow_backorder: false, status: 'active', low_stock_threshold: 1 }],
+      payment_bank_accounts: [{ id: `bank-${label}`, ...validBank }]
+    });
+    const restore = installFetch(async (url, init) => fake.fetchHandler(url, init));
+    try {
+      const req = requestJson('https://local.test/api/create-checkout', {
+        payment_method: 'bank_transfer',
+        idempotency_key: `local-p1e4-${label}-checkout-01`,
+        cart: [{ slug: P1E4_SALE_FIXTURE_SLUG, quantity: 1, price: 999 }],
+        customer: validCustomer
+      });
+      const res = await createCheckout(contextFor(req));
+      const data = await res.json();
+      assert.equal(res.status, 200, `${label}: ${JSON.stringify(data)}`);
+      assert.equal(data.items[0].unit_price, expectedUnit, label);
+      assert.equal(data.totals.subtotal, expectedUnit, label);
+    } finally { restore(); }
+  }
+});
+
+test('P1E4: sale-priced cart with WELCOME10 coupon drives paid snapshots and iyzico basket totals', async () => {
+  const cart = [
+    { product_slug: P1E4_SALE_FIXTURE_SLUG, product_id: P1E4_SALE_FIXTURE_SLUG, product_name: 'Snail Essence', quantity: 2, unit_price: 999, line_total: 1998 }
+  ];
+  const snapshots = buildOrderItemPricingSnapshots(cart, 150);
+  assert.equal(snapshots[0].paid_line_total, 1848);
+  assert.equal(snapshots[0].paid_unit_price, 924);
+  const basketPaidSum = snapshots.reduce((sum, row) => sum + Number(row.paid_line_total || 0), 0);
+  const discountedSubtotal = 1998 - 150;
+  const shipping = discountedSubtotal >= 2500 ? 0 : 89;
+  assert.equal(basketPaidSum + shipping, discountedSubtotal + shipping);
+  assert.equal(buildPriceChangedNotice({ totals: { subtotal: 2598 } }, 1998)?.client_subtotal, 2598);
+  assert.equal(buildPriceChangedNotice({ totals: { subtotal: 1998 } }, 1998), null);
+});
+
+test('P1E4: checkout and coupon sources harden payable price path', async () => {
+  const checkoutSrc = await fs.readFile(path.join(root, 'functions/api/create-checkout.js'), 'utf8');
+  const couponSrc = await fs.readFile(path.join(root, 'functions/api/coupons/validate.js'), 'utf8');
+  const pricingSrc = await fs.readFile(path.join(root, 'functions/api/_lib/product-pricing.js'), 'utf8');
+  const checkoutFlow = await fs.readFile(path.join(root, 'assets/checkout-flow.js'), 'utf8');
+  assert.match(checkoutSrc, /getPayableUnitPriceTry/);
+  assert.match(checkoutSrc, /buildPriceChangedNotice/);
+  assert.match(couponSrc, /getPayableUnitPriceTry/);
+  assert.match(couponSrc, /trusted_subtotal/);
+  assert.match(pricingSrc, /compareAtIsDisplayOnly/);
+  assert.doesNotMatch(checkoutSrc, /(?:unit_price|line_total)\s*=\s*[^;]*compare_at_price_try/);
+  assert.doesNotMatch(couponSrc, /compare_at_price_try/);
+  assert.match(checkoutSrc, /buildPricingSnapshotMetadata/);
+  assert.match(checkoutFlow, /data\.price_changed|data\.repriced/);
+});
+
+test('P1E4: refund allocation uses paid sale snapshot, not compare-at or current catalog', () => {
+  const paidRow = {
+    id: 'oi-p1e4',
+    quantity: 2,
+    line_total: 1998,
+    unit_price: 999,
+    paid_line_total: 1848,
+    paid_unit_price: 924,
+    allocated_order_discount: 150,
+    pricing_snapshot_version: PRICING_SNAPSHOT_VERSION_V2,
+    compare_at_price_try: 1299,
+    sale_price_try: 999,
+    effective_price_try: 999
+  };
+  const alloc = snapshotAllocationFromOrderItem(paidRow);
+  assert.equal(alloc.paidUnitPrice, 924);
+  assert.equal(alloc.linePaidTotal, 1848);
+  assert.notEqual(alloc.paidUnitPrice, 1299);
+  assert.notEqual(alloc.paidUnitPrice, 1219);
 });
 
 test('P1C: validators pass for pricing editing guard chain', async () => {

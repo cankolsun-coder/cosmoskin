@@ -95,7 +95,7 @@ const orderSnapshot = read('functions/api/_lib/order-pricing-snapshot.js');
 const browserSrc = read(BROWSER_CATALOG_PATH);
 
 mustInclude(checkout, 'functions/api/create-checkout.js', "import { catalog } from './_lib/catalog.js'");
-mustInclude(checkout, 'functions/api/create-checkout.js', 'const unitPrice = normalizeMoney(product.price)');
+mustInclude(checkout, 'functions/api/create-checkout.js', 'getPayableUnitPriceTry(product)');
 mustInclude(checkout, 'functions/api/create-checkout.js', 'buildOrderItemPricingSnapshots');
 mustInclude(checkout, 'functions/api/create-checkout.js', 'buildIyzicoBasketItems');
 mustNotMatch(
@@ -113,7 +113,7 @@ mustNotMatch(
 
 mustInclude(couponValidate, 'functions/api/coupons/validate.js', 'buildPricedCatalogIndex');
 mustInclude(couponValidate, 'functions/api/coupons/validate.js', 'buildTrustedCartLines');
-mustInclude(couponValidate, 'functions/api/coupons/validate.js', 'const unitPrice = Number(product?.price || 0)');
+mustInclude(couponValidate, 'functions/api/coupons/validate.js', 'getPayableUnitPriceTry(product)');
 mustNotMatch(
   couponValidate,
   'functions/api/coupons/validate.js',
