@@ -10,6 +10,8 @@ export const CATALOG_MISSING_WARNING = 'Bu ürün için katalog fiyatı bulunama
 export const CATALOG_INVALID_WARNING = 'Katalog fiyatı geçersiz görünüyor.';
 export const CATALOG_MISSING_EDIT_WARNING = 'Bu ürün katalogda bulunmadığı için fiyat düzenlenemez.';
 export const PRICING_PERMISSION_DENIED = 'Bu işlem için fiyat düzenleme yetkisi gerekir.';
+export const P1E_MIGRATION_REQUIRED_CODE = 'P1E_MIGRATION_REQUIRED';
+export const P1E_MIGRATION_REQUIRED_MESSAGE = 'İndirim alanları için P1E veritabanı geçişi uygulanmalıdır.';
 
 export class ProductPriceValidationError extends Error {
   constructor(message, status = 400, code = 'INVALID_PRICE') {
@@ -61,6 +63,149 @@ export function validateRegularPriceInput(rawPrice, rawCurrency = SUPPORTED_CURR
     throw new ProductPriceValidationError('Para birimi desteklenmiyor.');
   }
   return { regular_price_try: price, currency };
+}
+
+export function normalizeNullableAdminField(raw) {
+  if (raw === undefined) return undefined;
+  if (raw === null || raw === '') return null;
+  return raw;
+}
+
+export function normalizeNullableAdminIntegerPrice(raw, invalidMessage = 'Geçerli bir fiyat girin.') {
+  const normalized = normalizeNullableAdminField(raw);
+  if (normalized === undefined) return undefined;
+  if (normalized === null) return null;
+  const price = Number(normalized);
+  if (!Number.isFinite(price) || Number.isNaN(price)) {
+    throw new ProductPriceValidationError(invalidMessage);
+  }
+  if (price <= 0) {
+    throw new ProductPriceValidationError(invalidMessage);
+  }
+  if (!Number.isInteger(price)) {
+    throw new ProductPriceValidationError('Fiyat tam TL olarak kaydedilmelidir.');
+  }
+  if (price > MAX_REGULAR_PRICE_TRY) {
+    throw new ProductPriceValidationError(invalidMessage);
+  }
+  return price;
+}
+
+export function normalizeNullableAdminTimestamp(raw) {
+  const normalized = normalizeNullableAdminField(raw);
+  if (normalized === undefined) return undefined;
+  if (normalized === null) return null;
+  const ms = Date.parse(String(normalized));
+  if (!Number.isFinite(ms)) {
+    throw new ProductPriceValidationError('İndirim tarihi aralığı geçerli değil.', 400, 'INVALID_SALE_WINDOW');
+  }
+  return new Date(ms).toISOString();
+}
+
+export function isMissingSaleColumnError(error) {
+  const msg = String(error?.message || '');
+  return /sale_price_try|compare_at_price_try|sale_starts_at|sale_ends_at|column .* does not exist|schema cache/i.test(msg);
+}
+
+export function isMissingSaleAuditColumnError(error) {
+  const msg = String(error?.message || '');
+  return /old_sale_price_try|new_sale_price_try|old_compare_at_price_try|new_compare_at_price_try|old_sale_starts_at|new_sale_starts_at|old_sale_ends_at|new_sale_ends_at|column .* does not exist|schema cache/i.test(msg);
+}
+
+export function validateAdminPriceUpdateInput(body = {}) {
+  const validated = validateRegularPriceInput(
+    body.regular_price_try ?? body.catalog_price_try ?? body.price,
+    body.currency
+  );
+
+  const sale_price_try = normalizeNullableAdminIntegerPrice(
+    body.sale_price_try,
+    'Geçerli bir indirimli fiyat girin.'
+  );
+  const compare_at_price_try = normalizeNullableAdminIntegerPrice(
+    body.compare_at_price_try,
+    'Geçerli bir karşılaştırma fiyatı girin.'
+  );
+  const sale_starts_at = normalizeNullableAdminTimestamp(body.sale_starts_at);
+  const sale_ends_at = normalizeNullableAdminTimestamp(body.sale_ends_at);
+
+  const has_sale_field_submission = ['sale_price_try', 'compare_at_price_try', 'sale_starts_at', 'sale_ends_at']
+    .some((key) => body[key] !== undefined);
+
+  if (sale_price_try != null && sale_price_try >= validated.regular_price_try) {
+    throw new ProductPriceValidationError('İndirimli fiyat normal fiyattan düşük olmalıdır.', 400, 'INVALID_SALE_PRICE');
+  }
+
+  const payableReference = sale_price_try != null ? sale_price_try : validated.regular_price_try;
+  if (compare_at_price_try != null) {
+    if (sale_price_try != null && compare_at_price_try <= sale_price_try) {
+      throw new ProductPriceValidationError('Karşılaştırma fiyatı indirimli fiyattan yüksek olmalıdır.', 400, 'INVALID_COMPARE_AT_PRICE');
+    }
+    if (compare_at_price_try <= payableReference) {
+      throw new ProductPriceValidationError('Karşılaştırma fiyatı indirimli fiyattan yüksek olmalıdır.', 400, 'INVALID_COMPARE_AT_PRICE');
+    }
+  }
+
+  const startsMs = sale_starts_at != null ? Date.parse(String(sale_starts_at)) : null;
+  const endsMs = sale_ends_at != null ? Date.parse(String(sale_ends_at)) : null;
+  if (startsMs != null && endsMs != null && endsMs <= startsMs) {
+    throw new ProductPriceValidationError('İndirim tarihi aralığı geçerli değil.', 400, 'INVALID_SALE_WINDOW');
+  }
+
+  return {
+    ...validated,
+    sale_price_try,
+    compare_at_price_try,
+    sale_starts_at,
+    sale_ends_at,
+    has_sale_field_submission
+  };
+}
+
+export function buildAdminPriceStatusLabel(pricing) {
+  if (!pricing) return 'Katalog';
+  if (pricing.price_display_mode === 'sale' || pricing.sale_active) return 'İndirim aktif';
+  if (pricing.price_display_mode === 'scheduled_sale') return 'İndirim planlandı';
+  if (pricing.price_display_mode === 'expired_sale') return 'İndirim süresi doldu';
+  if (pricing.effective_price_source === EFFECTIVE_PRICE_SOURCE_OVERRIDE || pricing.has_price_override) return 'Admin fiyat';
+  return 'Katalog';
+}
+
+export function buildPriceHistoryEventMeta(row = {}) {
+  const changed_fields = [];
+  const labels = [];
+  const addChange = (field, label, removedLabel = null) => {
+    const oldVal = row[`old_${field}`] ?? null;
+    const newVal = row[`new_${field}`] ?? null;
+    if (oldVal === newVal) return;
+    changed_fields.push(field);
+    if (removedLabel && newVal == null && oldVal != null) labels.push(removedLabel);
+    else labels.push(label);
+  };
+
+  addChange('regular_price_try', 'Normal fiyat güncellendi');
+  addChange('sale_price_try', 'İndirimli fiyat güncellendi', 'İndirim kaldırıldı');
+  addChange('compare_at_price_try', 'Karşılaştırma fiyatı güncellendi');
+  if (
+    row.old_sale_starts_at !== row.new_sale_starts_at
+    || row.old_sale_ends_at !== row.new_sale_ends_at
+  ) {
+    changed_fields.push('sale_window');
+    labels.push('İndirim dönemi güncellendi');
+  }
+
+  return {
+    changed_fields,
+    event_label: labels.length ? labels.join(' · ') : 'Fiyat güncellendi'
+  };
+}
+
+export function normalizePriceHistoryItem(row = {}) {
+  const meta = buildPriceHistoryEventMeta(row);
+  return {
+    ...row,
+    ...meta
+  };
 }
 
 export function resolveEffectivePricing(catalogProduct, overrideRow = null) {
@@ -272,6 +417,14 @@ export function buildAdminPricingFields(catalogProduct, pricing, overrideRow = n
     catalog_price_source: 'products.json',
     catalog_price_valid: pricing.catalog_price_valid,
     catalog_price_warning: !catalogProduct ? CATALOG_MISSING_WARNING : pricing.price_warning,
+    regular_price_try: pricing.regular_price_try ?? pricing.base_catalog_price_try,
+    sale_price_try: pricing.sale_price_try ?? null,
+    compare_at_price_try: pricing.compare_at_price_try ?? null,
+    sale_active: Boolean(pricing.sale_active),
+    sale_starts_at: pricing.sale_starts_at || null,
+    sale_ends_at: pricing.sale_ends_at || null,
+    price_display_mode: pricing.price_display_mode || 'regular',
+    price_status_label: buildAdminPriceStatusLabel(pricing),
     effective_price_try: pricing.effective_price_try,
     effective_currency: pricing.effective_currency,
     effective_price_source: pricing.effective_price_source,
@@ -291,7 +444,11 @@ export async function upsertAdminProductPriceOverride(context, {
   regular_price_try,
   currency = SUPPORTED_CURRENCY,
   reason = null,
-  updated_by = null
+  updated_by = null,
+  sale_price_try = undefined,
+  compare_at_price_try = undefined,
+  sale_starts_at = undefined,
+  sale_ends_at = undefined
 }) {
   const normalized = normalizeProductSlug(slug);
   const catalogProduct = getStaticCatalogProduct(normalized);
@@ -303,10 +460,21 @@ export async function upsertAdminProductPriceOverride(context, {
   const existing = existingRows[0] || null;
   const old_regular_price_try = existing?.regular_price_try ?? getBaseCatalogPriceTry(catalogProduct);
   const old_currency = existing?.currency || SUPPORTED_CURRENCY;
+  const old_sale_price_try = existing?.sale_price_try ?? null;
+  const old_compare_at_price_try = existing?.compare_at_price_try ?? null;
+  const old_sale_starts_at = existing?.sale_starts_at ?? null;
+  const old_sale_ends_at = existing?.sale_ends_at ?? null;
   const requestId = crypto.randomUUID();
   const now = new Date().toISOString();
 
-  const saved = await upsertRow(context, 'product_price_overrides', {
+  const next_sale_price_try = sale_price_try !== undefined ? sale_price_try : (existing?.sale_price_try ?? null);
+  const next_compare_at_price_try = compare_at_price_try !== undefined ? compare_at_price_try : (existing?.compare_at_price_try ?? null);
+  const next_sale_starts_at = sale_starts_at !== undefined ? sale_starts_at : (existing?.sale_starts_at ?? null);
+  const next_sale_ends_at = sale_ends_at !== undefined ? sale_ends_at : (existing?.sale_ends_at ?? null);
+  const has_sale_field_submission = [sale_price_try, compare_at_price_try, sale_starts_at, sale_ends_at]
+    .some((value) => value !== undefined);
+
+  const basePayload = {
     product_slug: normalized,
     regular_price_try,
     currency,
@@ -316,27 +484,85 @@ export async function upsertAdminProductPriceOverride(context, {
     created_by: existing?.created_by || updated_by || null,
     updated_by: updated_by || null,
     updated_at: now
-  }, 'product_slug');
+  };
+
+  const payloadWithSale = {
+    ...basePayload,
+    sale_price_try: next_sale_price_try,
+    compare_at_price_try: next_compare_at_price_try,
+    sale_starts_at: next_sale_starts_at,
+    sale_ends_at: next_sale_ends_at
+  };
+
+  let saved;
+  try {
+    saved = await upsertRow(
+      context,
+      'product_price_overrides',
+      has_sale_field_submission ? payloadWithSale : basePayload,
+      'product_slug'
+    );
+  } catch (error) {
+    if (has_sale_field_submission && isMissingSaleColumnError(error)) {
+      throw new ProductPriceValidationError(P1E_MIGRATION_REQUIRED_MESSAGE, 409, P1E_MIGRATION_REQUIRED_CODE);
+    }
+    if (!has_sale_field_submission && isMissingSaleColumnError(error)) {
+      saved = await upsertRow(context, 'product_price_overrides', basePayload, 'product_slug');
+    } else {
+      throw error;
+    }
+  }
+
+  const saleAuditChanged = (
+    old_sale_price_try !== next_sale_price_try
+    || old_compare_at_price_try !== next_compare_at_price_try
+    || old_sale_starts_at !== next_sale_starts_at
+    || old_sale_ends_at !== next_sale_ends_at
+  );
+
+  const auditBase = {
+    product_slug: normalized,
+    old_regular_price_try: old_regular_price_try ?? null,
+    new_regular_price_try: regular_price_try,
+    old_currency,
+    new_currency: currency,
+    changed_by_admin: updated_by || null,
+    changed_at: now,
+    reason: reason || null,
+    source: 'admin',
+    request_id: requestId
+  };
+
+  const auditExtended = {
+    ...auditBase,
+    old_sale_price_try,
+    new_sale_price_try: next_sale_price_try,
+    old_compare_at_price_try,
+    new_compare_at_price_try: next_compare_at_price_try,
+    old_sale_starts_at,
+    new_sale_starts_at: next_sale_starts_at,
+    old_sale_ends_at,
+    new_sale_ends_at: next_sale_ends_at
+  };
 
   try {
-    await insertRow(context, 'product_price_audit_logs', {
-      product_slug: normalized,
-      old_regular_price_try: old_regular_price_try ?? null,
-      new_regular_price_try: regular_price_try,
-      old_currency,
-      new_currency: currency,
-      changed_by_admin: updated_by || null,
-      changed_at: now,
-      reason: reason || null,
-      source: 'admin',
-      request_id: requestId
-    });
+    await insertRow(context, 'product_price_audit_logs', auditExtended);
   } catch (error) {
-    const auditError = new Error('Fiyat güncellendi ancak denetim kaydı oluşturulamadı.');
-    auditError.status = 500;
-    auditError.code = 'PRICE_AUDIT_FAILED';
-    auditError.cause = error;
-    throw auditError;
+    if ((has_sale_field_submission || saleAuditChanged) && isMissingSaleAuditColumnError(error)) {
+      throw new ProductPriceValidationError(P1E_MIGRATION_REQUIRED_MESSAGE, 409, P1E_MIGRATION_REQUIRED_CODE);
+    }
+    try {
+      await insertRow(context, 'product_price_audit_logs', auditBase);
+    } catch (legacyError) {
+      const auditError = new Error('Fiyat güncellendi ancak denetim kaydı oluşturulamadı.');
+      auditError.status = 500;
+      auditError.code = 'PRICE_AUDIT_FAILED';
+      auditError.cause = legacyError;
+      throw auditError;
+    }
+    if (saleAuditChanged) {
+      throw new ProductPriceValidationError(P1E_MIGRATION_REQUIRED_MESSAGE, 409, P1E_MIGRATION_REQUIRED_CODE);
+    }
   }
 
   return {
@@ -346,6 +572,14 @@ export async function upsertAdminProductPriceOverride(context, {
       product_slug: normalized,
       old_regular_price_try: old_regular_price_try ?? null,
       new_regular_price_try: regular_price_try,
+      old_sale_price_try,
+      new_sale_price_try: next_sale_price_try,
+      old_compare_at_price_try,
+      new_compare_at_price_try: next_compare_at_price_try,
+      old_sale_starts_at,
+      new_sale_starts_at: next_sale_starts_at,
+      old_sale_ends_at,
+      new_sale_ends_at: next_sale_ends_at,
       request_id: requestId
     }
   };

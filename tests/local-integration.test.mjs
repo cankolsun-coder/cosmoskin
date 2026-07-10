@@ -26,8 +26,11 @@ import { onRequestPatch as adminProductPricePatch } from '../functions/api/admin
 import { onRequestGet as adminProductPriceHistoryGet } from '../functions/api/admin/products/[slug]/price-history.js';
 import {
   ProductPriceValidationError,
+  P1E_MIGRATION_REQUIRED_CODE,
   buildPricedCatalogIndex,
+  normalizePriceHistoryItem,
   resolveEffectivePricing,
+  validateAdminPriceUpdateInput,
   validateRegularPriceInput
 } from '../functions/api/_lib/product-pricing.js';
 import { onRequestGet as adminInventoryGet } from '../functions/api/admin/inventory.js';
@@ -4647,6 +4650,222 @@ test('P1E1: loadPriceOverrideRows falls back when sale columns missing', async (
   } finally {
     restoreFetch();
   }
+});
+
+test('P1E2: validateAdminPriceUpdateInput accepts valid sale and rejects invalid combinations', () => {
+  const valid = validateAdminPriceUpdateInput({
+    regular_price_try: 1000,
+    sale_price_try: 800,
+    compare_at_price_try: 1200,
+    sale_starts_at: new Date(Date.now() - 60_000).toISOString(),
+    sale_ends_at: new Date(Date.now() + 60_000).toISOString()
+  });
+  assert.equal(valid.regular_price_try, 1000);
+  assert.equal(valid.sale_price_try, 800);
+  assert.equal(valid.compare_at_price_try, 1200);
+
+  assert.throws(
+    () => validateAdminPriceUpdateInput({ regular_price_try: 1000, sale_price_try: 1000 }),
+    (err) => err instanceof ProductPriceValidationError && /düşük olmalıdır/.test(err.message)
+  );
+  assert.throws(
+    () => validateAdminPriceUpdateInput({ regular_price_try: 1000, sale_price_try: 800, compare_at_price_try: 700 }),
+    (err) => err instanceof ProductPriceValidationError && /yüksek olmalıdır/.test(err.message)
+  );
+  assert.throws(
+    () => validateAdminPriceUpdateInput({
+      regular_price_try: 1000,
+      sale_price_try: 800,
+      sale_starts_at: new Date(Date.now() + 3_600_000).toISOString(),
+      sale_ends_at: new Date(Date.now() - 3_600_000).toISOString()
+    }),
+    (err) => err instanceof ProductPriceValidationError && /tarihi aralığı/.test(err.message)
+  );
+
+  const cleared = validateAdminPriceUpdateInput({
+    regular_price_try: 1000,
+    sale_price_try: '',
+    compare_at_price_try: '',
+    sale_starts_at: '',
+    sale_ends_at: ''
+  });
+  assert.equal(cleared.sale_price_try, null);
+  assert.equal(cleared.compare_at_price_try, null);
+});
+
+test('P1E2: admin price API saves sale fields with audit', async () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const auditRows = [];
+  const overrideRows = new Map();
+  const restoreUsers = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url, init) => {
+    const href = String(url);
+    const method = String(init?.method || 'GET').toUpperCase();
+    if (href.includes('/rest/v1/admin_users')) return response([{ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' }]);
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'GET') {
+      const row = overrideRows.get(slug);
+      return response(row ? [row] : []);
+    }
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'POST') {
+      const body = JSON.parse(String(init?.body || '{}'));
+      const row = { ...body, id: 'override-1', updated_at: new Date().toISOString() };
+      overrideRows.set(slug, row);
+      return response([row]);
+    }
+    if (href.includes('/rest/v1/product_price_audit_logs') && method === 'POST') {
+      const body = JSON.parse(String(init?.body || '{}'));
+      auditRows.push(body);
+      return response([{ id: 'audit-1', ...body }]);
+    }
+    return response([]);
+  });
+  try {
+    const saleRes = await adminProductPricePatch({
+      request: new Request(`https://local.test/api/admin/products/${slug}/price`, {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+          'x-admin-token': 'a'.repeat(64),
+          'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+        },
+        body: JSON.stringify({
+          regular_price_try: 1000,
+          sale_price_try: 800,
+          compare_at_price_try: 1200,
+          reason: 'P1E2 sale test'
+        })
+      }),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    assert.equal(saleRes.status, 200);
+    const saleData = await saleRes.json();
+    assert.equal(saleData.pricing.effective_price_try, 800);
+    assert.equal(saleData.pricing.effective_price_source, 'admin_sale');
+    assert.equal(auditRows.length, 1);
+    assert.equal(auditRows[0].new_sale_price_try, 800);
+    assert.equal(auditRows[0].new_compare_at_price_try, 1200);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1E2: sale update returns P1E_MIGRATION_REQUIRED when sale columns missing; regular-only still works', async () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const overrideRows = new Map();
+  const restoreUsers = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url, init) => {
+    const href = String(url);
+    const method = String(init?.method || 'GET').toUpperCase();
+    if (href.includes('/rest/v1/admin_users')) return response([{ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['*'], is_active: true, status: 'active' }]);
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'GET') {
+      const row = overrideRows.get(slug);
+      return response(row ? [row] : []);
+    }
+    if (href.includes('/rest/v1/product_price_overrides') && method === 'POST') {
+      const body = JSON.parse(String(init?.body || '{}'));
+      if (body.sale_price_try !== undefined && body.sale_price_try !== null) {
+        return response({ message: 'column product_price_overrides.sale_price_try does not exist' }, 400);
+      }
+      const row = { ...body, id: 'override-1', updated_at: new Date().toISOString() };
+      overrideRows.set(slug, row);
+      return response([row]);
+    }
+    if (href.includes('/rest/v1/product_price_audit_logs') && method === 'POST') {
+      const body = JSON.parse(String(init?.body || '{}'));
+      return response([{ id: 'audit-1', ...body }]);
+    }
+    return response([]);
+  });
+  try {
+    const migrationRes = await adminProductPricePatch({
+      request: new Request(`https://local.test/api/admin/products/${slug}/price`, {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+          'x-admin-token': 'a'.repeat(64),
+          'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+        },
+        body: JSON.stringify({ regular_price_try: 1000, sale_price_try: 700, reason: 'migration missing' })
+      }),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    assert.equal(migrationRes.status, 409);
+    const migrationData = await migrationRes.json();
+    assert.equal(migrationData.code, P1E_MIGRATION_REQUIRED_CODE);
+
+    const regularRes = await adminProductPricePatch({
+      request: new Request(`https://local.test/api/admin/products/${slug}/price`, {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+          'x-admin-token': 'a'.repeat(64),
+          'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+        },
+        body: JSON.stringify({ regular_price_try: 999, reason: 'regular only' })
+      }),
+      env: adminReadEnv(),
+      params: { slug }
+    });
+    assert.equal(regularRes.status, 200);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1E2: price history includes sale event labels and inventory route blocks sale fields', async () => {
+  const slug = 'anua-heartleaf-77-soothing-toner';
+  const row = normalizePriceHistoryItem({
+    product_slug: slug,
+    old_regular_price_try: 1000,
+    new_regular_price_try: 1000,
+    old_sale_price_try: 900,
+    new_sale_price_try: 800,
+    old_compare_at_price_try: 1200,
+    new_compare_at_price_try: 1200,
+    changed_at: '2026-07-09T10:00:00.000Z',
+    source: 'admin'
+  });
+  assert.match(row.event_label, /İndirimli fiyat güncellendi/);
+  assert.ok(row.changed_fields.includes('sale_price_try'));
+
+  const restoreUsers = installAdminUsersFetch({ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['inventory:adjust'], is_active: true, status: 'active' });
+  const restoreFetch = installFetch(async (url) => {
+    if (String(url).includes('/rest/v1/admin_users')) {
+      return response([{ id: '1', email: 'cankolsun@gmail.com', role: 'owner', role_code: 'owner', permissions: ['inventory:adjust'], is_active: true, status: 'active' }]);
+    }
+    return response([]);
+  });
+  try {
+    const blocked = await adminProductsPatch({
+      request: new Request('https://local.test/api/admin/products', {
+        method: 'PATCH',
+        headers: {
+          'content-type': 'application/json',
+          'x-admin-token': 'a'.repeat(64),
+          'Cf-Access-Authenticated-User-Email': 'cankolsun@gmail.com'
+        },
+        body: JSON.stringify({ product_slug: slug, stock_qty: 2, sale_price_try: 500 })
+      }),
+      env: adminReadEnv()
+    });
+    assert.equal(blocked.status, 400);
+  } finally {
+    restoreFetch();
+    restoreUsers();
+  }
+});
+
+test('P1E2: admin UI renders sale fields and display-only compare-at copy', async () => {
+  const src = await fs.readFile(path.join(root, 'assets/admin-products.js'), 'utf8');
+  assert.match(src, /data-price-sale/);
+  assert.match(src, /data-price-compare/);
+  assert.match(src, /Sadece görsel karşılaştırma için kullanılır, tahsil edilmez/);
+  assert.match(src, /validatePriceForm/);
+  assert.match(src, /data-price-error/);
 });
 
 test('P1C: products:pricing:update can save override with audit log', async () => {

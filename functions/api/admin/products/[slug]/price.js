@@ -3,14 +3,14 @@ import { getAdminRecord, requireAdminPermission } from '../../../_lib/admin-audi
 import { json } from '../../../_lib/response.js';
 import {
   PRICING_PERMISSION_DENIED,
+  P1E_MIGRATION_REQUIRED_CODE,
   ProductPriceValidationError,
   applyEffectivePricingToCatalogProduct,
   buildAdminPricingFields,
   getStaticCatalogProduct,
-  loadPriceOverrideRows,
   normalizeProductSlug,
   upsertAdminProductPriceOverride,
-  validateRegularPriceInput
+  validateAdminPriceUpdateInput
 } from '../../../_lib/product-pricing.js';
 
 export async function onRequestPatch(context) {
@@ -26,10 +26,7 @@ export async function onRequestPatch(context) {
     }
 
     const body = await readJsonBody(context);
-    const validated = validateRegularPriceInput(
-      body.regular_price_try ?? body.catalog_price_try ?? body.price,
-      body.currency
-    );
+    const validated = validateAdminPriceUpdateInput(body);
     const reason = String(body.reason || body.note || '').trim() || null;
     const admin = await getAdminRecord(context);
 
@@ -38,7 +35,11 @@ export async function onRequestPatch(context) {
       regular_price_try: validated.regular_price_try,
       currency: validated.currency,
       reason,
-      updated_by: admin?.email || null
+      updated_by: admin?.email || null,
+      sale_price_try: validated.sale_price_try,
+      compare_at_price_try: validated.compare_at_price_try,
+      sale_starts_at: validated.sale_starts_at,
+      sale_ends_at: validated.sale_ends_at
     });
 
     const pricedProduct = applyEffectivePricingToCatalogProduct(catalogProduct, result.pricing);
@@ -57,6 +58,9 @@ export async function onRequestPatch(context) {
     }
     if (error?.status === 403) {
       return json({ ok: false, error: PRICING_PERMISSION_DENIED }, { status: 403 });
+    }
+    if (error?.code === P1E_MIGRATION_REQUIRED_CODE) {
+      return json({ ok: false, error: error.message, code: error.code }, { status: error.status || 409 });
     }
     if (error?.code === 'PRICE_AUDIT_FAILED') {
       return json({ ok: false, error: error.message || 'Fiyat denetim kaydı oluşturulamadı.', code: error.code }, { status: error.status || 500 });

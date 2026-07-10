@@ -1,0 +1,11 @@
+functions/api/_lib/product-pricing.js
+functions/api/admin/products.js
+functions/api/admin/products/[slug]/price.js
+functions/api/admin/products/[slug]/price-history.js
+assets/admin-products.js
+admin/products.html
+scripts/validate-p1e2-admin-sale-price-editing.mjs
+tests/local-integration.test.mjs
+COSMOSKIN_P1E2_ADMIN_SALE_PRICE_EDITING_REPORT_20260709.md
+COSMOSKIN_P1E2_ADMIN_SALE_PRICE_EDITING_RUNBOOK_20260709.md
+COSMOSKIN_P1E2_ADMIN_SALE_PRICE_EDITING_ROLLBACK_PLAN_20260709.md

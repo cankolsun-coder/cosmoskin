@@ -124,6 +124,10 @@ export async function onRequestPatch(context) {
       || body.catalog_price !== undefined
       || body.catalog_price_try !== undefined
       || body.regular_price_try !== undefined
+      || body.sale_price_try !== undefined
+      || body.compare_at_price_try !== undefined
+      || body.sale_starts_at !== undefined
+      || body.sale_ends_at !== undefined
     ) {
       return json({ ok: false, error: 'Fiyat güncellemesi bu uçtan yapılamaz.' }, { status: 400 });
     }
@@ -152,6 +156,10 @@ export async function onRequestPost(context) {
       || body.catalog_price !== undefined
       || body.catalog_price_try !== undefined
       || body.regular_price_try !== undefined
+      || body.sale_price_try !== undefined
+      || body.compare_at_price_try !== undefined
+      || body.sale_starts_at !== undefined
+      || body.sale_ends_at !== undefined
     ) {
       return json({ ok: false, error: 'Fiyat güncellemesi bu uçtan yapılamaz.' }, { status: 400 });
     }
