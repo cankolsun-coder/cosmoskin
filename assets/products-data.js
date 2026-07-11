@@ -285,6 +285,13 @@
       link.dataset.cosmoskin = 'price-display-css';
       document.head.appendChild(link);
     }
+    if (!document.querySelector('link[data-cosmoskin="product-card-frame-css"]')) {
+      var frameLink = document.createElement('link');
+      frameLink.rel = 'stylesheet';
+      frameLink.href = '/assets/product-card-frame.css?v=20260711-ux2';
+      frameLink.dataset.cosmoskin = 'product-card-frame-css';
+      document.head.appendChild(frameLink);
+    }
     if (!document.querySelector('script[data-cosmoskin="price-display-js"]')) {
       var script = document.createElement('script');
       script.src = '/assets/price-display.js?v=20260709-p1e3';

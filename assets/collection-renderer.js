@@ -161,7 +161,7 @@
 
   function buildCard(p) {
     return [
-      '<article class="product-card" data-filter-item="' + esc(filterTerms(p)) + '">',
+      '<article class="product-card cs-product-card" data-filter-item="' + esc(filterTerms(p)) + '">',
         '<div class="product-media-wrap">',
           '<a class="product-media" href="' + esc(p.url) + '">',
             '<img alt="' + esc(p.name) + '" src="' + esc(p.image) + '" loading="lazy" width="400" height="400"/>',

@@ -213,7 +213,7 @@
     if (!product) return '';
     const tagSet = tabProductTags[tabKey] || tabProductTags.tumu;
     const tags = [tagSet[index % tagSet.length], tagSet[(index + 1) % tagSet.length]].filter(Boolean);
-    return `<article class="product-card bestseller-card" data-product-id="${esc(product.id || product.slug)}">
+    return `<article class="product-card cs-product-card bestseller-card" data-product-id="${esc(product.id || product.slug)}">
       <div class="product-media-wrap">
         <a class="product-media" href="${esc(product.url)}" aria-label="${esc(product.name)} ürününü incele">
           <img src="${esc(product.image)}" alt="${esc(product.brand + ' ' + product.name)}" loading="lazy">

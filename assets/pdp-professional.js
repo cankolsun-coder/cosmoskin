@@ -531,7 +531,7 @@
   }
   function buildRecommendationCard(candidate, guide, reason, label){
     var img = candidate.image || (guide && guide.images && guide.images.product) || '/assets/img/editorial.jpg';
-    return '<article class="product-card pdp-related-card pdp8-related-card" data-product-id="' + esc(candidate.slug) + '">' +
+    return '<article class="product-card cs-product-card pdp-related-card pdp8-related-card" data-product-id="' + esc(candidate.slug) + '">' +
       '<span class="pdp8-rec-label">' + esc(label) + '</span>' +
       '<div class="product-media-wrap"><a class="product-media" href="' + esc(candidate.url || ('/products/' + candidate.slug + '.html')) + '"><img alt="' + esc(candidate.name) + '" loading="lazy" src="' + esc(img) + '"/></a></div>' +
       '<div class="product-body"><div class="product-meta">' + esc(candidate.brand || '') + '</div><h3><a href="' + esc(candidate.url || ('/products/' + candidate.slug + '.html')) + '">' + esc(candidate.name || '') + '</a></h3><p class="pdp8-rec-reason">' + esc(reason) + '</p><div class="product-price">' + money(candidate.price) + '</div>' +

@@ -441,12 +441,15 @@ body {
 .product-media { display:block !important; border-radius:0 !important; }
 .product-media img {
   width: 100% !important;
-  aspect-ratio: 1 / 1 !important;
-  object-fit: cover !important;
-  height: auto !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  aspect-ratio: unset !important;
+  object-fit: contain !important;
+  object-position: center center !important;
   display: block !important;
   padding: 0 !important;
-  background: var(--tinted) !important;
+  background: transparent !important;
 }
 
 .badge { display:none !important; }

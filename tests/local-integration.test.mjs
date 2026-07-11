@@ -5574,6 +5574,42 @@ test('P1E4: refund allocation uses paid sale snapshot, not compare-at or current
   assert.notEqual(alloc.paidUnitPrice, 1219);
 });
 
+test('UX2: product card frame CSS standardizes media aspect ratio and object-fit', async () => {
+  const cssPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'product-card-frame.css');
+  const css = readFileSync(cssPath, 'utf8');
+  assert.match(css, /aspect-ratio/);
+  assert.match(css, /object-fit:\s*contain/);
+  assert.match(css, /\.cs-product-card__media/);
+  assert.match(css, /-webkit-line-clamp:\s*2/);
+  assert.match(css, /\.product-card \.product-media img/);
+  assert.doesNotMatch(css, /object-fit:\s*cover/);
+});
+
+test('UX2: storefront renderers bootstrap frame CSS and cs-product-card class', async () => {
+  const pdata = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'products-data.js'), 'utf8');
+  const collection = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'collection-renderer.js'), 'utf8');
+  const bestsellersJs = readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'bestsellers.js'), 'utf8');
+  assert.match(pdata, /product-card-frame\.css/);
+  assert.match(collection, /product-card cs-product-card/);
+  assert.match(bestsellersJs, /product-card cs-product-card bestseller-card/);
+});
+
+test('UX2: sale price row can render inside standardized product card price area', () => {
+  const PD = loadPriceDisplayApi();
+  assert.ok(PD && typeof PD.renderPriceHtml === 'function');
+  const html = PD.renderPriceHtml({
+    price: 999,
+    effective_price_try: 999,
+    compare_at_price_try: 1299,
+    sale_active: true,
+    price_display_mode: 'sale'
+  }, { compact: true });
+  assert.match(html, /cs-price--sale/);
+  assert.match(html, /cs-price__compare/);
+  assert.match(html, /999/);
+  assert.doesNotMatch(html, />1299</);
+});
+
 test('P1C: validators pass for pricing editing guard chain', async () => {
   const { spawnSync } = await import('node:child_process');
   const cwd = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');

@@ -502,7 +502,7 @@
     var ratingHtml = hasReviewStats(product)
       ? '<div class="cs-ap-rating" aria-label="' + esc(product.rating.toFixed(1) + ' puan, ' + product.reviewCount + ' yorum') + '"><span class="star">★</span><strong>' + esc(product.rating.toFixed(1)) + '</strong><span>· ' + esc(product.reviewCount.toLocaleString('tr-TR')) + ' yorum</span></div>'
       : '';
-    return '<article class="product-card cs-catalog-card" data-product-id="' + esc(product.id) + '" data-brand="' + esc(product.brand) + '">' +
+    return '<article class="product-card cs-product-card cs-catalog-card" data-product-id="' + esc(product.id) + '" data-brand="' + esc(product.brand) + '">' +
       '<div class="product-media-wrap">' +
         '<a class="product-media" href="' + esc(product.url) + '" aria-label="' + esc(product.name) + '">' +
           '<img src="' + esc(product.image) + '" alt="' + esc(product.name) + '" loading="lazy" width="420" height="420">' + badge +
