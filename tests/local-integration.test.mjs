@@ -478,6 +478,51 @@ test('C3: mini cart uses shared COSMOSKIN_CART_COMMERCE coupon validation path',
   assert.match(phase6, /revalidateStoredCoupon/);
 });
 
+test('HF1: phase6-commerce defines cartHasItems for every call site (no C3 ReferenceError)', async () => {
+  const phase6 = await fs.readFile(path.join(root, 'assets/phase6-commerce.js'), 'utf8');
+  const definitions = (phase6.match(/function cartHasItems\s*\(/g) || []).length;
+  const usages = (phase6.match(/cartHasItems\(/g) || []).length;
+  assert.equal(definitions, 1, 'cartHasItems must be defined exactly once');
+  assert.ok(usages > definitions, 'cartHasItems must still gate drawer commerce hooks');
+  assert.match(phase6, /function setCartDrawerCommerceState[\s\S]{0,200}cartHasItems\(/);
+});
+
+test('HF1: cartHasItems is non-throwing and gates on quantity > 0', async () => {
+  const phase6 = await fs.readFile(path.join(root, 'assets/phase6-commerce.js'), 'utf8');
+  const fnSource = phase6.match(/function cartHasItems\s*\([\s\S]*?\n  \}/);
+  assert.ok(fnSource, 'cartHasItems body must be extractable');
+  const build = (items, stored) => {
+    const sandbox = {
+      cartItems: () => items,
+      localStorage: { getItem: () => stored }
+    };
+    vm.createContext(sandbox);
+    vm.runInContext(fnSource[0], sandbox);
+    return (arg) => vm.runInContext(`cartHasItems(${arg === undefined ? '' : JSON.stringify(arg)})`, sandbox);
+  };
+  assert.equal(build([], null)(), false, 'empty cart is false');
+  assert.equal(build([{ id: 'a', qty: 1 }], null)(), true, 'one item is true');
+  assert.equal(build([{ id: 'a', qty: 2 }, { id: 'b', quantity: 3 }], null)(), true, 'multiple items are true');
+  assert.equal(build([{ id: 'a', qty: 0 }], null)(), false, 'zero-quantity cart is false');
+  assert.equal(build([], JSON.stringify([{ id: 'guest', qty: 1 }]))(), true, 'guest localStorage cart is honored');
+  assert.equal(build([], '{corrupt')(), false, 'corrupt storage must not throw');
+  assert.equal(build([], null)([{ id: 'x', qty: 1 }]), true, 'explicit items argument is honored');
+});
+
+test('HF1: every PDP that ships the cart drawer loads inventory-client.js (Isntree regression)', async () => {
+  const pdpDir = path.join(root, 'products');
+  const files = (await fs.readdir(pdpDir)).filter((file) => file.endsWith('.html'));
+  assert.ok(files.length > 0, 'expected pre-rendered PDPs');
+  const missing = [];
+  for (const file of files) {
+    const src = await fs.readFile(path.join(pdpDir, file), 'utf8');
+    if (src.includes('id="cartDrawer"') && !src.includes('/assets/inventory-client.js')) missing.push(file);
+  }
+  assert.deepEqual(missing, [], `PDPs missing inventory-client.js: ${missing.join(', ')}`);
+  const isntree = await fs.readFile(path.join(pdpDir, 'isntree-hyaluronic-acid-watery-sun-gel.html'), 'utf8');
+  assert.match(isntree, /inventory-client\.js\?v=20260616-stockfix/);
+});
+
 test('C3: shared cart commerce totals match drawer/cart/checkout fixture', async () => {
   const cartCommerce = await fs.readFile(path.join(root, 'assets/cart-commerce.js'), 'utf8');
   const master = await fs.readFile(path.join(root, 'assets/master-upgrade.js'), 'utf8');

@@ -45,6 +45,28 @@
   function cartItems() {
     return (window.COSMOSKIN_CART_API && window.COSMOSKIN_CART_API.getItems && window.COSMOSKIN_CART_API.getItems()) || [];
   }
+  // HF1: C3 (23f7c95) removed this helper but kept six call sites, so every
+  // drawer commerce hook threw ReferenceError. Restored with the original
+  // gating semantics (drawer has purchasable content) plus a localStorage
+  // fallback so early calls before COSMOSKIN_CART_API mounts still see the
+  // guest cart. Must never throw.
+  function cartHasItems(items) {
+    var list = Array.isArray(items) ? items : cartItems();
+    if (!Array.isArray(list) || !list.length) {
+      try {
+        var stored = JSON.parse(localStorage.getItem('cosmoskin_cart') || '[]');
+        if (Array.isArray(stored)) list = stored;
+      } catch (e) { /* ignore unreadable storage, keep current list */ }
+    }
+    if (!Array.isArray(list)) return false;
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      if (!item) continue;
+      var qty = Number(item.qty != null ? item.qty : (item.quantity != null ? item.quantity : 1));
+      if (!isFinite(qty) || qty > 0) return true;
+    }
+    return false;
+  }
   function readCouponSnapshot() {
     if (window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.readState === 'function') {
       return window.COSMOSKIN_COUPON.readState();

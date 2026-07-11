@@ -1,0 +1,33 @@
+COSMOSKIN HF1 — Runtime Commerce Hotfix — changed files (2026-07-11)
+
+MODIFIED
+  assets/phase6-commerce.js
+    - restored cartHasItems() helper (non-throwing, qty>0 gating, guest
+      localStorage fallback); no other logic touched
+  products/isntree-hyaluronic-acid-watery-sun-gel.html
+    - added <script defer src="/assets/inventory-client.js?v=20260616-stockfix">
+      after mobile-redesign.js (canonical PDP order); no content/price changes
+  tests/local-integration.test.mjs
+    - +3 HF1 tests (helper definition, behavior incl. guest/corrupt storage,
+      repo-wide PDP inventory-script scan)
+
+CREATED
+  scripts/validate-hf1-runtime-commerce-hotfix.mjs
+  COSMOSKIN_HF1_RUNTIME_COMMERCE_HOTFIX_REPORT_20260711.md
+  COSMOSKIN_HF1_RUNTIME_COMMERCE_HOTFIX_CHANGED_FILES_20260711.txt
+  COSMOSKIN_HF1_RUNTIME_COMMERCE_HOTFIX_RUNBOOK_20260711.md
+  COSMOSKIN_HF1_RUNTIME_COMMERCE_HOTFIX_ROLLBACK_PLAN_20260711.md
+
+DELETED
+  (none)
+
+UNTOUCHED (verified)
+  products.json (git diff empty)
+  all checkout/pricing/coupon/stock-rule/refund/admin files
+  .wrangler/ (not staged)
+
+DEFERRED (out of HF1 scope, tracked in audit batches)
+  UX3 drawer row-collision CSS consolidation (audit UX3-02)
+  UX3 drawer head/recommendation redesign
+  cosmoskin-phase3.js also absent from the isntree PDP (CRM page-view events
+  only, non-blocking) — fold into UX3/E3 page-drift pass
