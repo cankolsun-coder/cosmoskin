@@ -70,6 +70,8 @@ import {
   validateCumulativeReturnQuantities,
   buildClaimedQuantityMap
 } from '../functions/api/returns.js';
+import { onRequestPatch as accountProfilePatch } from '../functions/api/account/profile.js';
+import { onRequestPatch as accountNotificationsPatch } from '../functions/api/account/notifications.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const env = { SUPABASE_URL:'https://local.supabase.test', SUPABASE_SERVICE_ROLE_KEY:'service-test', SUPABASE_TIMEOUT_MS:'3000' };
@@ -584,6 +586,252 @@ test('UX3: non-recursive validators stay green and products.json is untouched', 
   }
   const diff = spawnSync('git', ['diff', '--name-only', 'HEAD', '--', 'products.json'], { cwd: root, encoding: 'utf8' });
   assert.equal((diff.stdout || '').trim(), '', 'products.json must not be modified by UX3');
+});
+
+test('UX3B: mini cart close button is delegated, premium and accessible', async () => {
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  const phase6 = await fs.readFile(path.join(root, 'assets/phase6-commerce.js'), 'utf8');
+  const css = await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8');
+  // delegated handler so the runtime-injected drawer head button always works
+  assert.match(appJs, /document\.addEventListener\('click',[\s\S]{0,200}closest\('\.close-any'\)/);
+  assert.doesNotMatch(appJs, /\$\$\('\.close-any'\)\.forEach\(\(btn\) => btn\.addEventListener/);
+  // selector, semantics, premium icon
+  assert.match(phase6, /cart-drawer-premium__close icon-close close-any/);
+  assert.match(phase6, /aria-label="Sepeti kapat"/);
+  assert.match(phase6, /cart-drawer-premium__close[^>]*>\s*<svg/);
+  assert.match(css, /cart-drawer-premium__close:focus-visible\{[^}]*box-shadow/);
+  assert.match(css, /cart-drawer-premium__close svg\{/);
+});
+
+test('UX3B: PDP price hydration prevents stale price flash with safe fallback', async () => {
+  const pdpJs = await fs.readFile(path.join(root, 'assets/product-page.js'), 'utf8');
+  const pdpCss = await fs.readFile(path.join(root, 'assets/product-page.css'), 'utf8');
+  // hydration state + ready marking after the effective patch
+  assert.match(pdpJs, /data-cs-price-hydrating/);
+  assert.match(pdpJs, /patchJsonLdOfferPrice\(price, currency\);\s*markPdpPriceReady\('patched'\)/);
+  assert.match(pdpJs, /markPdpPriceReady\('static-fallback'\)/, 'API failure reveals the static catalog price');
+  assert.match(pdpJs, /PRICE_READY_TIMEOUT_MS/);
+  // add-to-cart protection until hydration (or bounded fallback)
+  assert.match(pdpJs, /holdPdpPurchaseButtons/);
+  assert.match(pdpJs, /await priceReadyPromise;[\s\S]{0,80}productFromButton/);
+  // skeleton CSS + pure-CSS reveal failsafe (price can never stay hidden)
+  assert.match(pdpCss, /\.pdp5-price:not\(\[data-price-ready="true"\]\)/);
+  assert.match(pdpCss, /\.mobile-sticky-pdp__copy:not\(\[data-price-ready="true"\]\)/);
+  assert.match(pdpCss, /csPdpPriceReveal 0s linear 2\.[0-9]s forwards/);
+  // P1C4 runtime patch intact
+  assert.match(pdpJs, /fetch\('\/api\/catalog\/effective-prices'/);
+  assert.match(pdpJs, /cosmoskin:products-updated/);
+});
+
+test('UX3B: reviews shell never receives injected price markup (duplicate price fix)', async () => {
+  const pdpJs = await fs.readFile(path.join(root, 'assets/product-page.js'), 'utf8');
+  assert.match(pdpJs, /node\.id === 'reviewsSection' \|\| node\.closest\('#reviewsSection'\)/);
+  // the data attribute for the reviews widget is still written
+  assert.match(pdpJs, /reviewsShell\.setAttribute\('data-product-price', String\(price\)\)/);
+});
+
+test('UX3B: account header sizing matches the homepage header', async () => {
+  const accountCss = await fs.readFile(path.join(root, 'assets/account-premium.css'), 'utf8');
+  const styleCss = await fs.readFile(path.join(root, 'assets/style.css'), 'utf8');
+  assert.match(styleCss, /\.header\{\s*height:74px/, 'Phase-8 homepage header is the 74px reference');
+  assert.match(accountCss, /\.account-page \.header\.account-header\{[\s\S]{0,400}height:74px/);
+  assert.match(accountCss, /account-header \.brand\{[^}]*gap:22px/);
+  assert.match(accountCss, /account-header \.brand \.brand-logo\{[^}]*width:46px/);
+  assert.doesNotMatch(accountCss, /brand-logo\{display:block!important;width:3[0-9]px/);
+});
+
+test('UX3B: P1E sale display markers intact and compare-at stays display-only', async () => {
+  const pdpJs = await fs.readFile(path.join(root, 'assets/product-page.js'), 'utf8');
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  assert.match(pdpJs, /renderPriceHtml/, 'PDP prices render through the shared P1E display helper');
+  assert.doesNotMatch(pdpJs, /price:\s*[^,\n]*compare_at_price_try(?!\s*\?\?)/);
+  assert.doesNotMatch(appJs, /price:\s*[^,\n]*compare_at/);
+  const { spawnSync } = await import('node:child_process');
+  const diff = spawnSync('git', ['diff', '--name-only', 'HEAD', '--', 'products.json'], { cwd: root, encoding: 'utf8' });
+  assert.equal((diff.stdout || '').trim(), '', 'products.json must not be modified by UX3B');
+});
+
+test('UX4: profile PATCH with only name preserves marketing/newsletter/stock/routine opt-ins', async () => {
+  let upsertPayload = null;
+  const restore = installFetch(async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) {
+      return response({ id: 'user-ux4', email: 'ux4@cosmoskin.invalid' });
+    }
+    if (u.includes('/rest/v1/profiles') && (!init.method || init.method === 'GET')) {
+      return response([{
+        id: 'user-ux4',
+        email: 'ux4@cosmoskin.invalid',
+        first_name: 'Ayşe',
+        last_name: 'Yılmaz',
+        phone: '05551112233',
+        birthday: '1992-05-10',
+        marketing_email_opt_in: true,
+        newsletter_opt_in: true,
+        stock_alert_opt_in: true,
+        routine_reminder_opt_in: true,
+        metadata: { source: 'register', tier_hint: 'signature' },
+        birth_date_locked: true,
+        birthday_change_count: 1
+      }]);
+    }
+    if (u.includes('/rest/v1/profiles') && init.method === 'POST') {
+      upsertPayload = JSON.parse(init.body || '{}');
+      return response([upsertPayload]);
+    }
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/account/profile', {
+      method: 'PATCH',
+      headers: { authorization: 'Bearer test-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ first_name: 'Ayşe', last_name: 'Demir' })
+    });
+    const res = await accountProfilePatch(contextFor(req));
+    assert.equal(res.status, 200);
+    assert.ok(upsertPayload);
+    assert.equal(upsertPayload.first_name, 'Ayşe');
+    assert.equal(upsertPayload.last_name, 'Demir');
+    assert.equal(upsertPayload.marketing_email_opt_in, true);
+    assert.equal(upsertPayload.newsletter_opt_in, true);
+    assert.equal(upsertPayload.stock_alert_opt_in, true);
+    assert.equal(upsertPayload.routine_reminder_opt_in, true);
+    assert.deepEqual(upsertPayload.metadata, { source: 'register', tier_hint: 'signature' });
+  } finally {
+    restore();
+  }
+});
+
+test('UX4: profile PATCH with only birthday preserves opt-ins and rejects future dates', async () => {
+  let upsertPayload = null;
+  const restore = installFetch(async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) return response({ id: 'user-ux4b', email: 'ux4b@cosmoskin.invalid' });
+    if (u.includes('/rest/v1/profiles') && (!init.method || init.method === 'GET')) {
+      return response([{
+        id: 'user-ux4b',
+        email: 'ux4b@cosmoskin.invalid',
+        marketing_email_opt_in: true,
+        newsletter_opt_in: false,
+        stock_alert_opt_in: true,
+        routine_reminder_opt_in: false,
+        metadata: { crm_tag: 'vip' }
+      }]);
+    }
+    if (u.includes('/rest/v1/profiles') && init.method === 'POST') {
+      upsertPayload = JSON.parse(init.body || '{}');
+      return response([upsertPayload]);
+    }
+    return response([]);
+  });
+  try {
+    const future = new Date();
+    future.setFullYear(future.getFullYear() + 1);
+    const futureIso = future.toISOString().slice(0, 10);
+    const badReq = new Request('https://local.test/api/account/profile', {
+      method: 'PATCH',
+      headers: { authorization: 'Bearer test-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ birthday: futureIso })
+    });
+    const badRes = await accountProfilePatch(contextFor(badReq));
+    assert.equal(badRes.status, 400);
+    assert.equal(upsertPayload, null);
+
+    const goodReq = new Request('https://local.test/api/account/profile', {
+      method: 'PATCH',
+      headers: { authorization: 'Bearer test-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ birthday: '1990-03-15' })
+    });
+    const goodRes = await accountProfilePatch(contextFor(goodReq));
+    assert.equal(goodRes.status, 200);
+    assert.equal(upsertPayload.birthday, '1990-03-15');
+    assert.equal(upsertPayload.marketing_email_opt_in, true);
+    assert.equal(upsertPayload.newsletter_opt_in, false);
+    assert.equal(upsertPayload.stock_alert_opt_in, true);
+    assert.equal(upsertPayload.routine_reminder_opt_in, false);
+    assert.deepEqual(upsertPayload.metadata, { crm_tag: 'vip' });
+  } finally {
+    restore();
+  }
+});
+
+test('UX4: preference update merges only targeted preference fields', async () => {
+  let savedPrefs = null;
+  const restore = installFetch(async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) return response({ id: 'user-ux4c', email: 'ux4c@cosmoskin.invalid' });
+    if (u.includes('/rest/v1/notification_preferences')) {
+      if (!init.method || init.method === 'GET') {
+        return response([{
+          user_id: 'user-ux4c',
+          order_updates: true,
+          cargo_updates: true,
+          campaign_emails: false,
+          stock_notifications: true,
+          routine_reminders: false,
+          newsletter: true,
+          sms_notifications: false
+        }]);
+      }
+      if (init.method === 'POST') {
+        savedPrefs = JSON.parse(init.body || '{}');
+        return response([savedPrefs]);
+      }
+    }
+    if (u.includes('/rest/v1/profiles')) return response([{ marketing_email_opt_in: false, newsletter_opt_in: true, stock_alert_opt_in: true, routine_reminder_opt_in: false }]);
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/account/notifications', {
+      method: 'PATCH',
+      headers: { authorization: 'Bearer test-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ preferences: { campaign_emails: true } })
+    });
+    const res = await accountNotificationsPatch(contextFor(req));
+    assert.equal(res.status, 200);
+    assert.equal(savedPrefs.campaign_emails, true);
+    assert.equal(savedPrefs.stock_notifications, true);
+    assert.equal(savedPrefs.newsletter, true);
+    assert.equal(savedPrefs.order_updates, true);
+    assert.equal(savedPrefs.cargo_updates, true);
+    assert.equal(savedPrefs.routine_reminders, false);
+  } finally {
+    restore();
+  }
+});
+
+test('UX4: premium switch classes and account overview responsive guards exist', async () => {
+  const dashboard = await fs.readFile(path.join(root, 'assets/account-dashboard.js'), 'utf8');
+  const accountCss = await fs.readFile(path.join(root, 'assets/account-premium.css'), 'utf8');
+  assert.match(dashboard, /function premiumToggleHtml/);
+  assert.match(dashboard, /cs-premium-toggle__track/);
+  assert.match(dashboard, /cs-overview-grid--ux4/);
+  assert.match(accountCss, /\.cs-premium-toggle\.is-on \.cs-premium-toggle__thumb/);
+  assert.match(accountCss, /cs-overview-grid--ux4/);
+  assert.doesNotMatch(dashboard, /\bSelect\b/);
+  assert.doesNotMatch(dashboard, /\bSilver\b/);
+  assert.match(dashboard, /name:'Essential'/);
+  assert.match(dashboard, /name:'Signature'/);
+  assert.match(dashboard, /name:'Elite'/);
+});
+
+test('UX4: account header still uses homepage-compatible dimensions', async () => {
+  const accountCss = await fs.readFile(path.join(root, 'assets/account-premium.css'), 'utf8');
+  assert.match(accountCss, /\.account-page \.header\.account-header\{[\s\S]{0,400}height:74px/);
+  assert.match(accountCss, /account-header \.brand \.brand-logo\{[^}]*width:46px[^}]*height:46px/);
+});
+
+test('UX4: regression validators remain green', async () => {
+  const { spawnSync } = await import('node:child_process');
+  for (const script of [
+    'scripts/validate-ux3b-storefront-polish-hotfix.mjs',
+    'scripts/validate-ux3-minicart-premium-layout-hardening.mjs',
+    'scripts/validate-hf1-runtime-commerce-hotfix.mjs',
+    'scripts/validate-p1e3-storefront-sale-display.mjs'
+  ]) {
+    const result = spawnSync(process.execPath, [path.join(root, script)], { cwd: root, encoding: 'utf8', timeout: 60000 });
+    assert.equal(result.status, 0, `${script}: ${result.stderr || result.stdout}`);
+  }
 });
 
 test('HF1: every PDP that ships the cart drawer loads inventory-client.js (Isntree regression)', async () => {

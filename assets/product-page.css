@@ -10,3 +10,48 @@
 .pdp5-review-modal[hidden],.pdp5-lightbox[hidden]{display:none}.pdp5-review-modal{position:fixed;inset:0;z-index:900;display:grid;place-items:center;padding:20px}.pdp5-review-modal__backdrop{position:absolute;inset:0;background:rgba(10,8,6,.55);backdrop-filter:blur(12px)}.pdp5-review-modal__box{position:relative;width:min(100%,620px);max-height:92vh;overflow:auto;background:#fff;border-radius:28px;border:1px solid rgba(255,255,255,.35);padding:28px;box-shadow:0 32px 120px rgba(0,0,0,.35)}.pdp5-modal-close{position:absolute;right:18px;top:18px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(22,18,14,.1);background:#f8f3ec;font-size:24px}.pdp5-star-picker{display:flex;gap:4px;margin:10px 0}.pdp5-star-picker button{border:0;background:transparent;color:rgba(22,18,14,.18);font-size:32px;line-height:1;padding:2px;cursor:pointer}.pdp5-star-picker button.is-active{color:#b08a5e}.pdp5-rating-label{min-height:22px;color:#7b5f3e;font-weight:700;font-size:13px}.pdp5-review-modal label{display:block;margin-top:14px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#5e534a}.pdp5-review-modal label span{float:right;font-weight:600;text-transform:none;letter-spacing:0;color:#91857b}.pdp5-review-modal input,.pdp5-review-modal textarea{width:100%;margin-top:8px;border:1px solid rgba(22,18,14,.14);border-radius:16px;background:#faf7f3;padding:13px 14px;color:#15110d;outline:none;text-transform:none;letter-spacing:0;font-weight:500}.pdp5-review-modal textarea{min-height:128px;resize:vertical}.pdp5-upload{display:flex;align-items:center;gap:12px;margin-top:16px;padding:14px;border-radius:18px;border:1px dashed rgba(22,18,14,.2);background:#faf7f3}.pdp5-upload span{color:#756a61;font-size:12px}.pdp5-upload.is-drag{border-color:#b08a5e;background:#f5eadc}.pdp5-preview-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.pdp5-preview-item{position:relative}.pdp5-preview-item img{width:76px;height:76px;object-fit:cover;border-radius:14px}.pdp5-preview-item button{position:absolute;right:-6px;top:-6px;width:24px;height:24px;border-radius:50%;border:0;background:#15110d;color:#fff}.pdp5-form-status{min-height:22px;margin:12px 0;color:#756a61;font-size:13px}.pdp5-form-status.error{color:#8a3022}.pdp5-form-status.success{color:#1f7a4f}.pdp5-review-modal__box>.btn{width:100%;min-height:52px;margin-top:4px}.pdp5-lightbox{position:fixed;inset:0;z-index:920;background:rgba(8,6,5,.88);display:grid;place-items:center}.pdp5-lightbox img{max-width:82vw;max-height:82vh;border-radius:18px}.pdp5-lightbox button{position:absolute;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:#fff;border-radius:50%;width:44px;height:44px;font-size:28px}.pdp5-lightbox [data-lightbox-close]{right:24px;top:24px}.pdp5-lightbox [data-lightbox-prev]{left:24px}.pdp5-lightbox [data-lightbox-next]{right:24px}
 @media(max-width:1180px){.pdp5-hero,.pdp5-detail-grid{grid-template-columns:1fr}.pdp5-gallery,.pdp5-routine-card{position:relative;top:auto}.pdp5-related-grid{grid-template-columns:repeat(2,1fr)}.pdp5-review-summary{grid-template-columns:1fr}}
 @media(max-width:720px){.pdp5-hero{gap:22px}.pdp5-media-card{min-height:420px;padding:28px}.pdp5-actions{grid-template-columns:1fr}.pdp5-favorite{width:100%}.pdp5-delivery-grid{grid-template-columns:1fr}.pdp5-detail-grid,.pdp5-related,.pdp5-reviews-shell,.pdp5-faq{margin-top:22px}.pdp5-tabs,.pdp5-routine-card,.pdp5-related,.pdp5-reviews-shell,.pdp5-faq{padding:20px}.pdp5-related-grid{grid-template-columns:1fr}.pdp5-section-head,.pdp5-review-card__top{flex-direction:column;align-items:flex-start}.pdp5-review-modal__box{padding:22px}.pdp5-upload{align-items:flex-start;flex-direction:column}}
+
+/* ============================================================
+   UX3B — PDP price hydration (2026-07-11)
+   Static HTML prices are skeletoned until product-page.js applies the
+   authoritative effective price (data-price-ready="true"). The reveal
+   animation is a pure-CSS failsafe: even with JS broken, prices become
+   visible after ~2.8s, so a price can never stay hidden.
+   ============================================================ */
+.pdp5-price:not([data-price-ready="true"]),
+.pdp-price:not([data-price-ready="true"]),
+.mobile-sticky-pdp__copy:not([data-price-ready="true"]) .cs-price,
+.mobile-sticky-pdp__copy:not([data-price-ready="true"]) strong{
+  position:relative;
+  color:transparent !important;
+  text-shadow:none !important;
+  border-radius:12px;
+  background:linear-gradient(100deg,rgba(26,21,16,.06) 32%,rgba(26,21,16,.11) 48%,rgba(26,21,16,.06) 64%);
+  background-size:220% 100%;
+  animation:csPdpPriceShimmer 1.15s linear infinite, csPdpPriceReveal 0s linear 2.8s forwards;
+  user-select:none;
+  min-width:96px;
+}
+.pdp5-price:not([data-price-ready="true"]) *,
+.pdp-price:not([data-price-ready="true"]) *,
+.mobile-sticky-pdp__copy:not([data-price-ready="true"]) .cs-price *,
+.mobile-sticky-pdp__copy:not([data-price-ready="true"]) strong *{
+  color:transparent !important;
+}
+@keyframes csPdpPriceShimmer{
+  from{background-position:200% 0;}
+  to{background-position:-20% 0;}
+}
+@keyframes csPdpPriceReveal{
+  to{color:inherit !important;background:none;animation:none;user-select:auto;}
+}
+@media (prefers-reduced-motion: reduce){
+  .pdp5-price:not([data-price-ready="true"]),
+  .pdp-price:not([data-price-ready="true"]),
+  .mobile-sticky-pdp__copy:not([data-price-ready="true"]) .cs-price,
+  .mobile-sticky-pdp__copy:not([data-price-ready="true"]) strong{
+    animation:csPdpPriceReveal 0s linear 2.8s forwards;
+  }
+}
+/* Purchase buttons held during hydration stay visibly calm, not broken */
+[data-price-waiting="true"]{opacity:.72;cursor:progress;}

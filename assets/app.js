@@ -438,12 +438,17 @@
     document.body.classList.remove('modal-open');
   });
 
-  $$('.close-any').forEach((btn) => btn.addEventListener('click', () => {
+  // UX3B: delegated so close buttons injected after startup (e.g. the premium
+  // drawer head replaces its markup at runtime) still close reliably. The old
+  // per-node forEach binding missed dynamically injected .close-any buttons.
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.close-any');
+    if (!btn) return;
     closeDrawers();
     closeModals();
     mobileNav?.classList.remove('open');
     document.body.classList.remove('modal-open');
-  }));
+  });
 
   $('#cartBtn')?.addEventListener('click', () => openDrawer(cartDrawer));
   $('#accountBtn')?.addEventListener('click', async () => {

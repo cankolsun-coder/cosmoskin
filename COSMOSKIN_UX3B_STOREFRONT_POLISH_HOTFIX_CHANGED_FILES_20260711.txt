@@ -1,0 +1,47 @@
+COSMOSKIN UX3B — Storefront polish hotfix — changed files (2026-07-11)
+
+MODIFIED
+  assets/app.js
+    - .close-any click binding replaced with a delegated document handler so
+      runtime-injected drawer close buttons work (root cause of dead X)
+  assets/phase6-commerce.js
+    - drawer close button: bare text × -> thin-stroke SVG icon (classes,
+      type=button, aria-label kept)
+  assets/phase6-commerce.css
+    - close button: svg sizing/optical centering, soft shadow, hover/active,
+      focus ring
+  assets/product-page.js
+    - UX3B PDP price hydration lifecycle (data-cs-price-hydrating,
+      markPdpPriceReady on patched/static-fallback/2.5s timeout)
+    - purchase buttons held (data-price-waiting) until price ready;
+      buy-now awaits the hydration promise
+    - [data-product-price] patch loop now skips #reviewsSection (duplicate
+      "₺…" label under recommendations fixed); widget data attribute kept
+    - early catalog patch gated on effective overlay presence
+  assets/product-page.css
+    - price skeleton for .pdp5-price/.pdp-price/sticky until
+      data-price-ready="true"; shimmer + pure-CSS reveal failsafe (2.8s);
+      reduced-motion variant; data-price-waiting button state
+  assets/account-premium.css
+    - desktop account header normalized to homepage: height 80->74px,
+      logo 32/40->46px (+flex-basis), brand gap 12->22px
+      (mobile blocks intentionally unchanged — homepage uses cm-mobile header)
+  tests/local-integration.test.mjs
+    - +5 UX3B tests (close delegation/premium/a11y; hydration + fallback +
+      add-to-cart guard; reviews-shell exclusion; header parity; P1E display
+      safety + products.json guard)
+
+CREATED
+  scripts/validate-ux3b-storefront-polish-hotfix.mjs
+  COSMOSKIN_UX3B_STOREFRONT_POLISH_HOTFIX_REPORT_20260711.md
+  COSMOSKIN_UX3B_STOREFRONT_POLISH_HOTFIX_CHANGED_FILES_20260711.txt
+  COSMOSKIN_UX3B_STOREFRONT_POLISH_HOTFIX_RUNBOOK_20260711.md
+  COSMOSKIN_UX3B_STOREFRONT_POLISH_HOTFIX_ROLLBACK_PLAN_20260711.md
+
+DELETED
+  (none)
+
+UNTOUCHED (verified)
+  products.json (git diff empty)
+  functions/ (entire backend), pricing resolver, admin price logic,
+  checkout/coupon/stock/refund logic, .wrangler/

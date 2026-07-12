@@ -587,6 +587,28 @@
     if (l.label) document.documentElement.style.setProperty('--cs-account-tier-progress', l.progress + '%');
   }
   function setText(selector, value) { var el = $(selector); if (el) el.textContent = value; }
+  function todayIsoDate() {
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function premiumToggleHtml(name, isOn, label, description, opts) {
+    opts = opts || {};
+    var id = 'pref-' + String(name).replace(/[^a-z0-9_-]/gi, '-');
+    var disabled = opts.disabled ? ' disabled aria-disabled="true"' : '';
+    var locked = opts.locked ? ' cs-premium-toggle--locked' : '';
+    var stateClass = isOn ? ' is-on' : '';
+    return '<label class="cs-premium-toggle' + stateClass + locked + '" for="' + escapeHtml(id) + '">' +
+      '<input class="cs-premium-toggle__input" type="checkbox" name="' + escapeHtml(name) + '" id="' + escapeHtml(id) + '" ' + (isOn ? 'checked ' : '') + disabled + '>' +
+      '<span class="cs-premium-toggle__track" aria-hidden="true"><span class="cs-premium-toggle__thumb"></span></span>' +
+      '<span class="cs-premium-toggle__copy"><span class="cs-premium-toggle__label">' + escapeHtml(label) + '</span>' +
+      (description ? '<small class="cs-premium-toggle__desc">' + escapeHtml(description) + '</small>' : '') + '</span></label>';
+  }
+  function profileCompletionPercent(user) {
+    user = user || {};
+    var fields = [user.first_name, user.last_name, user.phone, user.birthday, user.email];
+    var filled = fields.filter(function (v) { return String(v || '').trim(); }).length;
+    return Math.round((filled / fields.length) * 100);
+  }
   function renderFooterJournal(user) {
     var newsletter = $('.footer-newsletter'); if (!newsletter) return;
     var prefs = Object.assign({}, safeObject(user.communication), safeObject(state.summary?.notification_preferences));
@@ -599,13 +621,23 @@
   function renderOverview() {
     var el = $('#overviewPanel'); if (!el) return;
     var user = state.summary.user || {}; var sp = skinProfile(); var latest = state.summary.orders[0];
+    var l = loyalty(); var comm = Object.assign({}, safeObject(user.communication), safeObject(state.summary.notification_preferences));
+    var completion = profileCompletionPercent(user);
     var greeting = firstName(user) ? 'Merhaba ' + escapeHtml(firstName(user)) : 'Merhaba';
+    var prefSummary = [
+      comm.campaign_emails || comm.marketing_email_opt_in ? 'Kampanya' : null,
+      comm.stock_notifications || comm.stock_alert_opt_in ? 'Stok' : null,
+      comm.routine_reminders || comm.routine_reminder_opt_in ? 'Rutin' : null,
+      comm.newsletter || comm.newsletter_opt_in ? 'Journal' : null
+    ].filter(Boolean);
     el.innerHTML = '<section class="cs-overview-page cs-overview-main-card--minimal">' +
       '<header class="cs-tab-title cs-tab-title--overview"><div><span class="cs-overline">HESABIM</span><h1>' + greeting + '</h1><p>Siparişlerinizi, puanlarınızı, favorilerinizi ve bakım tercihlerinizi sade bir panelden takip edin.</p></div><div class="cs-panel-actions"><a class="cs-pill-btn" data-tab-link="orders" href="/account/profile.html?tab=orders">Siparişlerim</a><a class="cs-pill-btn" data-tab-link="support" href="/account/profile.html?tab=support">Destek Talebi</a></div></header>' +
       '<div class="cs-stat-grid cs-stat-grid--six">' + statCards() + '</div>' +
-      '<div class="cs-overview-modules cs-overview-grid--final-minimal">' +
+      '<div class="cs-overview-hero-grid cs-overview-hero-grid--ux4">' + welcomeCard(user, state.summary.stats, l) + clubMiniCard(l) + skinMiniCard(sp) + '</div>' +
+      '<div class="cs-overview-modules cs-overview-grid--final-minimal cs-overview-grid--ux4">' +
       '<article class="cs-card cs-card-large cs-overview-module cs-overview-module--order"><div class="cs-card-head"><span>SON SİPARİŞ</span><a data-tab-link="orders" href="/account/profile.html?tab=orders">Tümünü Gör</a></div>' + (latest ? orderCard(latest, true) : emptyState('Henüz siparişiniz yok.', 'Sipariş verdiğinizde kargo ve ödeme durumunu buradan takip edebilirsiniz.', 'Alışverişe Başla', '/allproducts.html')) + '</article>' +
-      '<article class="cs-card cs-overview-module"><div class="cs-card-head"><span>CİLT RUTİNİ</span><a data-tab-link="skin-profile" href="/account/profile.html?tab=skin-profile">Güncelle</a></div>' + routineSummary(sp) + '</article>' +
+      '<article class="cs-card cs-overview-module cs-profile-completion-card"><div class="cs-card-head"><span>PROFİL TAMAMLAMA</span><a data-tab-link="profile" href="/account/profile.html?tab=profile">Düzenle</a></div><div class="cs-profile-completion"><div class="cs-profile-completion__ring" style="--cs-completion:' + completion + '%"><strong>' + completion + '%</strong><span>tamamlandı</span></div><div class="cs-profile-completion__copy"><p>' + (user.birthday ? 'Doğum tarihiniz kayıtlı.' : 'Doğum tarihinizi ekleyerek doğum günü avantajlarını açabilirsiniz.') + '</p><small>' + escapeHtml([user.first_name, user.last_name].filter(Boolean).join(' ') || 'Ad soyad bekleniyor') + (user.phone ? ' · ' + escapeHtml(user.phone) : '') + '</small></div></div></article>' +
+      '<article class="cs-card cs-overview-module cs-preferences-preview-card"><div class="cs-card-head"><span>İLETİŞİM TERCİHLERİ</span><a data-tab-link="notifications" href="/account/profile.html?tab=notifications">Yönet</a></div><div class="cs-preferences-preview"><p>' + (prefSummary.length ? 'Aktif: ' + escapeHtml(prefSummary.join(' · ')) : 'Henüz pazarlama veya Journal tercihi seçilmedi.') + '</p><small>Sipariş ve kargo bildirimleri varsayılan olarak açıktır.</small><a class="cs-mini-btn dark" data-tab-link="notifications" href="/account/profile.html?tab=notifications">Tercihleri Düzenle</a></div></article>' +
       '<article class="cs-card cs-overview-module"><div class="cs-card-head"><span>HIZLI ERİŞİM</span></div><div class="cs-quick-grid cs-quick-grid--compact">' + quickCards().join('') + '</div></article>' +
       '<article class="cs-card cs-overview-module"><div class="cs-card-head"><span>HESAP GÜVENLİĞİ</span><a data-tab-link="security" href="/account/profile.html?tab=security">Ayarlar</a></div><ul class="cs-security-list cs-security-list--compact">' + securityChecklist().slice(0, 3).map(securityRow).join('') + '</ul></article>' +
       '</div></section>';
@@ -1037,12 +1069,16 @@
   function renderProfile() {
     var el = $('#profilePanel'); if (!el) return; var user = state.summary.user || {}; var locked = Boolean(user.birth_date_locked && user.birthday);
     var birthdayHelp = locked
-      ? 'Doğum tarihi bir kez düzeltilebilir. Sonraki değişiklikler için destek ekibiyle iletişime geçebilirsiniz.'
+      ? 'Doğum tarihiniz kilitlidir. Doğum tarihi bir kez düzeltilebilir; güvenlik nedeniyle sonraki değişiklikler destek ekibiyle yapılır.'
       : (user.birthday
-        ? 'Doğum tarihinizi bir kez daha düzeltebilirsiniz. Sonraki değişiklikler destek ekibi üzerinden yapılır. Doğum günü kuponları otomatik uygulanmaz; doğum gününüzde ödeme ekranında manuel kullanılır.'
-        : 'Doğum tarihinizi profilinize ekleyebilirsiniz. İlk kayıt düzeltme hakkınızı tüketmez; sonrasında bir kez daha düzeltebilirsiniz.');
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Hesap Bilgilerim</h1><p>Ad, soyad, telefon ve doğum günü bilgileriniz gerçek hesap profilinize kaydedilir.</p></div><button class="cs-pill-btn cs-pill-btn--dark" type="button" data-save-profile>Bilgileri Kaydet</button></div>' +
-      '<section class="cs-card cs-profile-edit-card"><div class="cs-card-head"><span>PROFİL BİLGİLERİ</span></div><form class="cs-form cs-form-compact" id="profileForm"><label><span>Ad</span><input class="cs-input" name="first_name" value="' + escapeHtml(user.first_name || '') + '" autocomplete="given-name"></label><label><span>Soyad</span><input class="cs-input" name="last_name" value="' + escapeHtml(user.last_name || '') + '" autocomplete="family-name"></label><label><span>E-posta</span><input class="cs-input" name="email" type="email" readonly value="' + escapeHtml(user.email || '') + '"></label><label><span>Telefon</span><input class="cs-input" name="phone" value="' + escapeHtml(user.phone || '') + '" autocomplete="tel" placeholder="İsteğe bağlı"></label><label><span>Doğum Tarihi</span><input class="cs-input" name="birthday" type="date" value="' + escapeHtml(user.birthday || '') + '" ' + (locked ? 'readonly aria-readonly="true"' : '') + '></label><p class="cs-field-help full">' + escapeHtml(birthdayHelp) + '</p><div class="cs-form-status full" id="profileSaveStatus" role="status"></div></form></section>';
+        ? 'Doğum tarihinizi bir kez daha düzeltebilirsiniz. Doğum tarihi bir kez düzeltilebilir; güvenlik nedeniyle sonraki değişiklikler destek ekibiyle yapılır.'
+        : 'Doğum tarihin, doğum günü avantajları ve kişiselleştirme için kullanılır. İlk kayıt sonrası bir kez düzeltme hakkınız bulunur.');
+    var birthdayFieldClass = locked ? ' cs-input--locked' : '';
+    var birthdayAttrs = locked
+      ? 'readonly aria-readonly="true" disabled aria-disabled="true"'
+      : 'max="' + escapeHtml(todayIsoDate()) + '"';
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Hesap Bilgilerim</h1><p>Ad, soyad, telefon ve doğum günü bilgileriniz gerçek hesap profilinize kaydedilir. İletişim tercihleri ayrı sekmede yönetilir.</p></div><button class="cs-pill-btn cs-pill-btn--dark" type="button" data-save-profile id="saveProfileBtn">Bilgileri Kaydet</button></div>' +
+      '<section class="cs-card cs-profile-edit-card cs-profile-edit-card--premium"><div class="cs-card-head"><span>PROFİL BİLGİLERİ</span></div><form class="cs-form cs-form-compact cs-form-profile" id="profileForm"><div class="cs-form-grid cs-form-grid--profile"><label class="cs-field"><span>Ad</span><input class="cs-input" name="first_name" value="' + escapeHtml(user.first_name || '') + '" autocomplete="given-name" required></label><label class="cs-field"><span>Soyad</span><input class="cs-input" name="last_name" value="' + escapeHtml(user.last_name || '') + '" autocomplete="family-name" required></label><label class="cs-field cs-field--readonly"><span>E-posta</span><input class="cs-input cs-input--readonly" name="email" type="email" readonly value="' + escapeHtml(user.email || '') + '" aria-readonly="true"></label><label class="cs-field"><span>Telefon</span><input class="cs-input" name="phone" value="' + escapeHtml(user.phone || '') + '" autocomplete="tel" inputmode="tel" placeholder="İsteğe bağlı"></label><label class="cs-field cs-field--birthday' + (locked ? ' is-locked' : '') + '"><span>Doğum Tarihi</span><input class="cs-input cs-input--date' + birthdayFieldClass + '" name="birthday" type="date" value="' + escapeHtml(user.birthday || '') + '" ' + birthdayAttrs + ' aria-describedby="profileBirthdayHelp">' + (locked ? '<em class="cs-field-lock">Kilitli</em>' : '') + '</label></div><p class="cs-field-help full" id="profileBirthdayHelp">' + escapeHtml(birthdayHelp) + '</p><div class="cs-form-status full" id="profileSaveStatus" role="status" aria-live="polite"></div></form></section>';
   }
   function renderAddresses() {
     var el = $('#addressesPanel'); if (!el) return; var addresses = state.summary.addresses;
@@ -1068,17 +1104,17 @@
   function renderNotifications() {
     var el = $('#notificationsPanel'); if (!el) return; var user = state.summary.user || {}; var comm = Object.assign({}, safeObject(user.communication), safeObject(state.summary.notification_preferences));
     var journalActive = Boolean(comm.newsletter ?? comm.newsletter_opt_in ?? comm.newsletterOptIn);
-    function checked(name, fallback) { return (comm[name] === undefined ? fallback : Boolean(comm[name])) ? 'checked' : ''; }
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Bildirim Tercihlerim</h1><p>Sipariş, kargo, kampanya, stok, SMS ve rutin bildirim tercihlerinizi yönetin.</p></div><div class="cs-panel-actions"><button class="cs-pill-btn" id="markAllNotificationsBtn" type="button">Bildirimleri Okundu Yap</button><button class="cs-pill-btn cs-pill-btn--dark" id="saveNotificationsBtn" type="button" data-save-notifications>Tercihleri Kaydet</button></div></div>' +
-      '<form class="cs-toggle-grid" id="notificationPrefsForm">' +
-      '<label><input name="order_updates" type="checkbox" ' + checked('order_updates', true) + '> <span>Sipariş güncellemeleri</span><small>Ödeme ve sipariş durumları</small></label>' +
-      '<label><input name="cargo_updates" type="checkbox" ' + checked('cargo_updates', true) + '> <span>Kargo güncellemeleri</span><small>Takip ve teslimat bilgileri</small></label>' +
-      '<label><input name="campaign_emails" type="checkbox" ' + checked('campaign_emails', Boolean(comm.marketing_email_opt_in)) + '> <span>Kampanya e-postaları</span><small>İndirim ve ürün duyuruları</small></label>' +
-      '<label><input name="sms_notifications" type="checkbox" ' + checked('sms_notifications', Boolean(comm.sms_notifications)) + '> <span>SMS bildirimleri</span><small>Sipariş veya izin verilen pazarlama SMS tercihleri</small></label>' +
-      '<label><input name="stock_notifications" type="checkbox" ' + checked('stock_notifications', Boolean(comm.stock_alert_opt_in)) + '> <span>Stok bildirimleri</span><small>Favori ürün stok uyarıları</small></label>' +
-      '<label><input name="routine_reminders" type="checkbox" ' + checked('routine_reminders', Boolean(comm.routine_reminder_opt_in)) + '> <span>Rutin hatırlatmaları</span><small>Bakım rutinine dair e-posta notları</small></label>' +
-      '<label><input name="newsletter" type="checkbox" ' + checked('newsletter', Boolean(comm.newsletter_opt_in)) + '> <span>COSMOSKIN Journal</span><small>Bakım notları ve seçki e-postaları</small></label>' +
-      '</form><div class="cs-form-status" id="notificationSaveStatus" role="status"></div><section class="cs-content-help-card cs-journal-state"><div><span class="cs-overline">JOURNAL</span><h3>' + (journalActive ? 'Journal aboneliğiniz aktif.' : 'Journal aboneliğiniz aktif değil.') + '</h3><p>Abonelik tercihiniz güvenli şekilde kaydedilir. Kaydetme sonrası seçimleriniz bu ekranda korunur.</p></div>' + (journalActive ? '<button class="cs-pill-btn" data-newsletter-unsubscribe type="button">Abonelikten Çık</button>' : '<button class="cs-pill-btn" data-save-notifications type="button">Tercihleri Kaydet</button>') + '</section>' + notificationListHtml();
+    function prefOn(name, fallback) { return (comm[name] === undefined ? fallback : Boolean(comm[name])); }
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Bildirim Tercihlerim</h1><p>Sipariş, kargo, kampanya, stok, SMS ve rutin bildirim tercihlerinizi yönetin. Değişiklikler yalnızca seçtiğiniz alanları günceller.</p></div><div class="cs-panel-actions"><button class="cs-pill-btn" id="markAllNotificationsBtn" type="button">Bildirimleri Okundu Yap</button><button class="cs-pill-btn cs-pill-btn--dark" id="saveNotificationsBtn" type="button" data-save-notifications>Tercihleri Kaydet</button></div></div>' +
+      '<form class="cs-toggle-grid cs-toggle-grid--premium" id="notificationPrefsForm">' +
+      premiumToggleHtml('order_updates', prefOn('order_updates', true), 'Sipariş güncellemeleri', 'Ödeme ve sipariş durumları', { locked: true }) +
+      premiumToggleHtml('cargo_updates', prefOn('cargo_updates', true), 'Kargo güncellemeleri', 'Takip ve teslimat bilgileri', { locked: true }) +
+      premiumToggleHtml('campaign_emails', prefOn('campaign_emails', Boolean(comm.marketing_email_opt_in)), 'E-posta kampanyaları', 'İndirim ve ürün duyuruları') +
+      premiumToggleHtml('sms_notifications', prefOn('sms_notifications', false), 'SMS bildirimleri', 'Sipariş veya izin verilen pazarlama SMS tercihleri') +
+      premiumToggleHtml('stock_notifications', prefOn('stock_notifications', Boolean(comm.stock_alert_opt_in)), 'Stok bildirimleri', 'Favori ürün stok uyarıları') +
+      premiumToggleHtml('routine_reminders', prefOn('routine_reminders', Boolean(comm.routine_reminder_opt_in)), 'Rutin önerileri', 'Bakım rutinine dair e-posta notları') +
+      premiumToggleHtml('newsletter', prefOn('newsletter', Boolean(comm.newsletter_opt_in)), 'COSMOSKIN Journal', 'Bakım notları ve seçki e-postaları') +
+      '</form><div class="cs-form-status" id="notificationSaveStatus" role="status" aria-live="polite"></div><section class="cs-content-help-card cs-journal-state"><div><span class="cs-overline">JOURNAL</span><h3>' + (journalActive ? 'Journal aboneliğiniz aktif.' : 'Journal aboneliğiniz aktif değil.') + '</h3><p>Abonelik tercihiniz güvenli şekilde kaydedilir. Kaydetme sonrası seçimleriniz bu ekranda korunur.</p></div>' + (journalActive ? '<button class="cs-pill-btn" data-newsletter-unsubscribe type="button">Abonelikten Çık</button>' : '<button class="cs-pill-btn" data-save-notifications type="button">Tercihleri Kaydet</button>') + '</section>' + notificationListHtml();
   }
   function renderSecurity() {
     var el = $('#securityPanel'); if (!el) return; var checklist = securityChecklist().map(securityRow).join('');
@@ -1133,7 +1169,7 @@
       var delAddress = e.target.closest('[data-delete-address]'); if (delAddress) { e.preventDefault(); deleteAddress(delAddress.dataset.deleteAddress).catch(handleError); }
       var defAddress = e.target.closest('[data-default-address]'); if (defAddress) { e.preventDefault(); setDefaultAddress(defAddress.dataset.defaultAddress).catch(handleError); }
       if (e.target.closest('#addressCancelBtn') || e.target.closest('#addressCancelBtn2') || e.target.closest('#cancelAddressBtn') || e.target.closest('#closeAddressModal')) { e.preventDefault(); closeAddressModal(); }
-      if (e.target.matches('#saveProfileBtn')) saveProfile().catch(handleError);
+      if (e.target.matches('#saveProfileBtn') || e.target.closest('[data-save-profile]')) saveProfile().catch(handleError);
       if (e.target.matches('#saveSkinBtn')) saveSkin().catch(handleError);
       if (e.target.matches('#saveNotificationsBtn') || e.target.closest('[data-save-notifications]')) saveNotifications().catch(handleError);
       if (e.target.matches('#markAllNotificationsBtn')) markAllNotificationsRead().catch(handleError);
@@ -1209,8 +1245,15 @@
     var f = $('#profileForm'); if (!f) return;
     var status = $('#profileSaveStatus'); var btn = $('[data-save-profile]');
     var payload = { first_name:(f.elements.first_name?.value || '').trim(), last_name:(f.elements.last_name?.value || '').trim(), phone:(f.elements.phone?.value || '').trim() };
-    var birthdayValue = f.elements.birthday?.value || '';
-    if (birthdayValue) payload.birthday = birthdayValue;
+    var birthdayInput = f.elements.birthday;
+    var birthdayValue = birthdayInput?.value || '';
+    if (birthdayInput && !birthdayInput.disabled && birthdayValue) {
+      if (birthdayValue > todayIsoDate()) {
+        if (status) status.textContent = 'Doğum tarihi gelecekte olamaz.';
+        return showToast('Doğum tarihi gelecekte olamaz.', 'warning');
+      }
+      payload.birthday = birthdayValue;
+    }
     if (status) status.textContent = 'Bilgileriniz kaydediliyor...';
     if (btn) btn.disabled = true;
     try {

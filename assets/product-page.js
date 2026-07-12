@@ -23,6 +23,39 @@
     }
   }
 
+  // UX3B — PDP price hydration state. Static HTML prices are skeletoned by CSS
+  // (product-page.css) until the authoritative effective price is applied, so
+  // customers never see a stale pre-override price flash. If the effective
+  // price API fails or returns no row, we reveal the static catalog price as a
+  // documented safe fallback (checkout stays server-authoritative regardless);
+  // a hard timeout plus a pure-CSS reveal animation guarantee the price can
+  // never stay hidden.
+  const PRICE_READY_TIMEOUT_MS = 2500;
+  let resolvePriceReady;
+  const priceReadyPromise = new Promise((resolve) => { resolvePriceReady = resolve; });
+
+  function markPdpPriceReady(reason){
+    if (document.documentElement.getAttribute('data-cs-pdp-price-ready') === 'true') return;
+    document.documentElement.setAttribute('data-cs-pdp-price-ready', 'true');
+    document.documentElement.setAttribute('data-cs-pdp-price-source', String(reason || 'patched'));
+    $$('.pdp5-price, .pdp-price, .mobile-sticky-pdp__copy').forEach((node) => {
+      node.dataset.priceReady = 'true';
+    });
+    $$('[data-price-waiting]').forEach((btn) => {
+      btn.removeAttribute('data-price-waiting');
+      if (!btn.classList.contains('is-stock-disabled')) btn.disabled = false;
+    });
+    if (typeof resolvePriceReady === 'function') resolvePriceReady(reason || 'patched');
+  }
+
+  function holdPdpPurchaseButtons(){
+    $$('.pdp-actions [data-add-cart], .pdp5-actions [data-add-cart], #mobileStickyAddBtn, [data-buy-now]').forEach((btn) => {
+      if (!(btn instanceof HTMLElement)) return;
+      btn.setAttribute('data-price-waiting', 'true');
+      btn.disabled = true;
+    });
+  }
+
   function patchJsonLdOfferPrice(price, currency){
     const scripts = Array.from(document.querySelectorAll('script[type="application/ld+json"]'));
     for (const script of scripts) {
@@ -58,9 +91,15 @@
     selectors.forEach((sel) => {
       $$(sel).forEach((node) => {
         if (node.tagName === 'META') return;
+        // UX3B: #reviewsSection carries data-product-price as widget DATA (set
+        // below). Injecting price markup into it rendered a stray duplicate
+        // "₺…" label right under the recommendations section. Never treat the
+        // reviews shell (or anything inside it) as a price display slot.
+        if (node.id === 'reviewsSection' || node.closest('#reviewsSection')) return;
         if (priceHtml) node.innerHTML = priceHtml;
         else node.textContent = formatted || node.textContent;
         node.dataset.effectivePriceApplied = 'true';
+        node.dataset.priceReady = 'true';
       });
     });
 
@@ -70,6 +109,7 @@
       if (priceHtml && stickyTarget) stickyTarget.outerHTML = priceHtml;
       else if (stickyTarget) stickyTarget.textContent = formatted || stickyTarget.textContent;
       stickyWrap.dataset.effectivePriceApplied = 'true';
+      stickyWrap.dataset.priceReady = 'true';
     }
     // Sticky PDP price anchor: .mobile-sticky-pdp__copy strong
 
@@ -88,6 +128,7 @@
     }
 
     patchJsonLdOfferPrice(price, currency);
+    markPdpPriceReady('patched');
     return true;
   }
 
@@ -182,6 +223,9 @@
       if(btn.dataset.buyBound) return;
       btn.dataset.buyBound='true';
       btn.addEventListener('click',async ()=>{
+        // UX3B: never build a checkout redirect from a stale pre-hydration
+        // price; the promise resolves on patch, fallback or hard timeout.
+        await priceReadyPromise;
         const item=productFromButton(btn);
         if(window.COSMOSKIN_STOCK?.validateAdd){
           const allowed=await window.COSMOSKIN_STOCK.validateAdd(item);
@@ -328,13 +372,28 @@
 
     const slug = pdpSlug();
     const helpers = window.COSMOSKIN_PRODUCT_HELPERS || {};
+
+    // UX3B hydration lifecycle: hold purchase buttons, then reveal via the
+    // first authoritative patch, the documented static fallback, or the hard
+    // timeout — whichever comes first. The skeleton CSS keys off
+    // data-price-ready, and a pure-CSS animation reveals prices even if this
+    // script never runs.
+    document.documentElement.setAttribute('data-cs-price-hydrating', 'true');
+    holdPdpPurchaseButtons();
+    window.setTimeout(() => markPdpPriceReady('timeout-fallback'), PRICE_READY_TIMEOUT_MS);
+
     const fromCatalog = typeof helpers.getProductBySlug === 'function' ? helpers.getProductBySlug(slug) : null;
-    if (fromCatalog) patchPdpPriceSurfaces(fromCatalog);
+    if (fromCatalog && (fromCatalog.effective_price_source || 'static') !== 'static') {
+      // Catalog already carries the effective overlay — safe to show now.
+      patchPdpPriceSurfaces(fromCatalog);
+    }
 
     let lastEffective = null;
     loadEffectivePriceForSlug(slug).then((effective) => {
       lastEffective = effective;
       if (effective) patchPdpPriceSurfaces(effective);
+      else if (fromCatalog) { patchPdpPriceSurfaces(fromCatalog); markPdpPriceReady('static-fallback'); }
+      else markPdpPriceReady('static-fallback');
       window.setTimeout(() => { if (lastEffective) patchPdpPriceSurfaces(lastEffective); }, 450);
       window.setTimeout(() => { if (lastEffective) patchPdpPriceSurfaces(lastEffective); }, 1600);
     });

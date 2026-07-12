@@ -479,8 +479,8 @@
 }
 
 /* 2026-07-01 v3 account runtime correction — header parity without redesign, journal/action cleanup */
-.account-page .header.account-header .brand{display:inline-flex!important;align-items:center!important;gap:12px!important;min-width:0!important;}
-.account-page .header.account-header .brand .brand-logo{display:block!important;width:32px!important;height:32px!important;object-fit:contain!important;flex:0 0 32px!important;}
+.account-page .header.account-header .brand{display:inline-flex!important;align-items:center!important;gap:22px!important;min-width:0!important;}
+.account-page .header.account-header .brand .brand-logo{display:block!important;width:46px!important;height:46px!important;object-fit:contain!important;flex:0 0 46px!important;}
 .account-page .header.account-header .account-return-btn{width:auto!important;min-width:136px!important;height:42px!important;padding:0 18px!important;border-radius:999px!important;white-space:nowrap!important;line-height:1!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;font-size:11px!important;letter-spacing:.10em!important;font-weight:800!important;}
 .account-page .header.account-header .header-tools{flex-wrap:nowrap!important;min-width:max-content!important;}
 .account-page .cs-account-journal-footer{min-height:0!important;}
@@ -877,7 +877,10 @@
 /* BATCH2_ACCOUNT_HEADER_PARITY — match homepage header rhythm */
 .account-page .header.account-header{
   top:40px;
-  height:80px;
+  /* UX3B 2026-07-11: 74px matches the Phase 8 homepage header (style.css
+     .header{height:74px}); the old 80px made the account header visibly
+     taller than every other page. */
+  height:74px;
   max-width:calc(var(--container,1360px) + 56px);
   margin:0 auto;
   padding:0 28px;
@@ -892,7 +895,7 @@
   box-shadow:none;
 }
 .account-page .header.account-header .brand{gap:12px;align-items:center;min-width:0;display:inline-flex;}
-.account-page .header.account-header .brand .brand-logo{width:40px;height:40px;flex:0 0 40px;object-fit:contain;}
+.account-page .header.account-header .brand .brand-logo{width:46px;height:46px;flex:0 0 46px;object-fit:contain;}
 .account-page .header.account-header .brand .brand-word{font-family:var(--serif,'Cormorant Garamond',serif);font-size:24px;font-weight:400;letter-spacing:.42em;line-height:1;color:#18130f;white-space:nowrap;}
 .account-page .header.account-header .site-nav{justify-self:center;min-width:0;}
 .account-page .header.account-header .nav-shell{display:flex;align-items:center;justify-content:center;min-width:0;}
@@ -991,7 +994,6 @@
 @media(max-width:1220px){
   .account-page .cs-overview-modules.cs-overview-grid--final-minimal{grid-template-columns:1fr;}
   .account-page .cs-stat-grid--six{grid-template-columns:repeat(3,minmax(0,1fr));}
-  .account-page .cs-security-grid{grid-template-columns:1fr;}
   .account-page .cs-order-body{grid-template-columns:1fr;}
   .account-page .cs-order-side{border-left:0;border-top:1px solid rgba(42,32,24,.10);padding-left:0;padding-top:14px;}
 }
@@ -1015,3 +1017,57 @@
 .account-page .cs-order-cancel-reason select{width:100%;max-width:320px;padding:8px 10px;border:1px solid rgba(26,21,16,.14);border-radius:8px;background:#fffdf9;font:inherit;}
 .account-page .cs-mini-btn--danger{border-color:rgba(160,48,48,.35);color:#8a2e2e;}
 .account-page .cs-mini-btn--danger:hover{background:rgba(160,48,48,.06);}
+
+/* UX4 — Account profile/preferences premium redesign + consent-safe UI */
+.account-page .cs-overview-hero-grid--ux4{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.78fr) minmax(280px,.78fr);gap:18px;margin:0 0 18px;padding:0 18px;align-items:stretch;}
+.account-page .cs-overview-grid--ux4{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(280px,.82fr));gap:18px;padding:0 18px 18px;align-items:stretch;}
+.account-page .cs-overview-module,.account-page .cs-profile-completion-card,.account-page .cs-preferences-preview-card{min-width:0;}
+.account-page .cs-profile-completion{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center;padding:18px;min-width:0;}
+.account-page .cs-profile-completion__ring{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#b58a4a calc(var(--cs-completion,0) * 1%),rgba(42,32,24,.08) 0);position:relative;}
+.account-page .cs-profile-completion__ring:before{content:"";position:absolute;inset:8px;border-radius:50%;background:#fffdf9;}
+.account-page .cs-profile-completion__ring strong,.account-page .cs-profile-completion__ring span{position:relative;z-index:1;display:block;text-align:center;}
+.account-page .cs-profile-completion__ring strong{font-family:var(--cs-serif,'Cormorant Garamond',serif);font-size:24px;color:#17130f;line-height:1;}
+.account-page .cs-profile-completion__ring span{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#8d663c;}
+.account-page .cs-profile-completion__copy p{margin:0 0 8px;color:#5a5047;font-size:13px;line-height:1.55;}
+.account-page .cs-profile-completion__copy small{display:block;color:#8d7f72;font-size:12px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.account-page .cs-preferences-preview{padding:18px;display:grid;gap:10px;min-width:0;}
+.account-page .cs-preferences-preview p{margin:0;color:#4f453d;font-size:13px;line-height:1.55;}
+.account-page .cs-preferences-preview small{color:#8d7f72;font-size:12px;line-height:1.45;}
+.account-page .cs-profile-edit-card--premium .cs-form-grid--profile{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px;padding:18px;}
+.account-page .cs-field{display:grid;gap:8px;min-width:0;position:relative;}
+.account-page .cs-field span{font-size:11px;font-weight:850;letter-spacing:.1em;text-transform:uppercase;color:#8d663c;}
+.account-page .cs-field--birthday.is-locked .cs-input--locked{background:#f7f0e6;color:#6f6258;}
+.account-page .cs-field-lock{position:absolute;right:12px;bottom:14px;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#a17344;font-style:normal;}
+.account-page .cs-input--readonly{background:#f8f2ea;color:#6f6258;}
+.account-page .cs-input--date{min-height:46px;}
+.account-page .cs-form-status{min-height:20px;color:#8d663c;font-size:12px;font-weight:750;}
+.account-page .cs-form-status:empty{display:none;}
+.account-page .cs-toggle-grid--premium{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:0 18px 18px;}
+.account-page .cs-premium-toggle{position:relative;display:grid;grid-template-columns:auto 44px minmax(0,1fr);gap:0 14px;align-items:start;padding:16px 18px;border:1px solid rgba(42,32,24,.10);border-radius:20px;background:linear-gradient(145deg,#fffdf9,#fbf4ea);min-width:0;cursor:pointer;transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;}
+.account-page .cs-premium-toggle:hover{border-color:rgba(181,138,74,.28);box-shadow:0 12px 28px rgba(38,29,22,.05);}
+.account-page .cs-premium-toggle.is-on{border-color:rgba(181,138,74,.34);background:linear-gradient(145deg,#fffaf3,#f7ecdd);}
+.account-page .cs-premium-toggle--locked{opacity:.92;cursor:default;}
+.account-page .cs-premium-toggle__input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none;}
+.account-page .cs-premium-toggle__track{grid-column:2;grid-row:1/span 2;width:44px;height:26px;border-radius:999px;background:#e8ddd0;border:1px solid rgba(42,32,24,.08);position:relative;transition:background .24s ease,border-color .24s ease;margin-top:2px;}
+.account-page .cs-premium-toggle__thumb{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fffdf9;box-shadow:0 2px 8px rgba(38,29,22,.16);transition:transform .24s cubic-bezier(.4,0,.2,1),background .24s ease;}
+.account-page .cs-premium-toggle.is-on .cs-premium-toggle__track{background:linear-gradient(135deg,#c9a06a,#9a6d35);border-color:rgba(154,109,53,.45);}
+.account-page .cs-premium-toggle.is-on .cs-premium-toggle__thumb{transform:translateX(18px);background:#fffaf3;}
+.account-page .cs-premium-toggle__copy{grid-column:3;min-width:0;display:grid;gap:4px;}
+.account-page .cs-premium-toggle__label{font-weight:850;color:#17130f;font-size:13px;line-height:1.35;}
+.account-page .cs-premium-toggle__desc{color:#766b62;font-size:12px;line-height:1.45;}
+.account-page .cs-premium-toggle__input:focus-visible + .cs-premium-toggle__track{box-shadow:0 0 0 3px rgba(178,132,76,.24),0 0 0 1px rgba(96,64,39,.22);}
+.account-page .cs-premium-toggle--locked .cs-premium-toggle__track{opacity:.88;}
+@media (prefers-reduced-motion:reduce){
+  .account-page .cs-premium-toggle,.account-page .cs-premium-toggle__track,.account-page .cs-premium-toggle__thumb{transition:none;}
+}
+@media(max-width:1220px){
+  .account-page .cs-overview-hero-grid--ux4,.account-page .cs-overview-grid--ux4{grid-template-columns:1fr;}
+  .account-page .cs-toggle-grid--premium{grid-template-columns:1fr;}
+}
+@media(max-width:760px){
+  .account-page .cs-profile-edit-card--premium .cs-form-grid--profile{grid-template-columns:1fr;}
+  .account-page .cs-profile-completion{grid-template-columns:1fr;justify-items:start;}
+  .account-page .cs-profile-completion__copy small{white-space:normal;}
+  .account-page .cs-premium-toggle{grid-template-columns:44px minmax(0,1fr);gap:12px;}
+  .account-page .cs-premium-toggle__copy{grid-column:2;}
+}

@@ -12,22 +12,44 @@ const DEFAULT_PREFERENCES = {
   sms_notifications: false
 };
 
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj || {}, key);
+}
+
 function bool(value, fallback = false) {
   if (value === undefined || value === null) return fallback;
   return Boolean(value);
 }
 
-function normalizePreferences(input = {}, profile = {}) {
+function normalizePreferences(input = {}, profile = {}, existing = {}) {
   const p = input.preferences && typeof input.preferences === 'object' ? input.preferences : input;
-  return {
-    order_updates: bool(p.order_updates, true),
-    cargo_updates: bool(p.cargo_updates, true),
-    campaign_emails: bool(p.campaign_emails ?? p.marketing_email_opt_in, Boolean(profile.marketing_email_opt_in)),
-    stock_notifications: bool(p.stock_notifications ?? p.stock_alert_opt_in, Boolean(profile.stock_alert_opt_in)),
-    routine_reminders: bool(p.routine_reminders ?? p.routine_reminder_opt_in, Boolean(profile.routine_reminder_opt_in)),
-    newsletter: bool(p.newsletter ?? p.newsletter_opt_in, Boolean(profile.newsletter_opt_in)),
-    sms_notifications: bool(p.sms_notifications, Boolean(profile.sms_notifications))
+  const base = {
+    order_updates: existing.order_updates !== false,
+    cargo_updates: existing.cargo_updates !== false,
+    campaign_emails: Boolean(existing.campaign_emails ?? profile.marketing_email_opt_in),
+    stock_notifications: Boolean(existing.stock_notifications ?? profile.stock_alert_opt_in),
+    routine_reminders: Boolean(existing.routine_reminders ?? profile.routine_reminder_opt_in),
+    newsletter: Boolean(existing.newsletter ?? profile.newsletter_opt_in),
+    sms_notifications: Boolean(existing.sms_notifications ?? profile.sms_notifications)
   };
+
+  if (hasOwn(p, 'order_updates')) base.order_updates = p.order_updates !== false;
+  if (hasOwn(p, 'cargo_updates')) base.cargo_updates = p.cargo_updates !== false;
+  if (hasOwn(p, 'campaign_emails') || hasOwn(p, 'marketing_email_opt_in')) {
+    base.campaign_emails = bool(p.campaign_emails ?? p.marketing_email_opt_in, base.campaign_emails);
+  }
+  if (hasOwn(p, 'stock_notifications') || hasOwn(p, 'stock_alert_opt_in')) {
+    base.stock_notifications = bool(p.stock_notifications ?? p.stock_alert_opt_in, base.stock_notifications);
+  }
+  if (hasOwn(p, 'routine_reminders') || hasOwn(p, 'routine_reminder_opt_in')) {
+    base.routine_reminders = bool(p.routine_reminders ?? p.routine_reminder_opt_in, base.routine_reminders);
+  }
+  if (hasOwn(p, 'newsletter') || hasOwn(p, 'newsletter_opt_in')) {
+    base.newsletter = bool(p.newsletter ?? p.newsletter_opt_in, base.newsletter);
+  }
+  if (hasOwn(p, 'sms_notifications')) base.sms_notifications = bool(p.sms_notifications, base.sms_notifications);
+
+  return base;
 }
 
 async function readPreferences(context, user) {
@@ -86,7 +108,15 @@ export async function onRequestPatch(context) {
     const body = await context.request.json().catch(() => ({}));
 
     if (body.preferences || body.order_updates !== undefined || body.campaign_emails !== undefined || body.newsletter !== undefined) {
-      const preferences = normalizePreferences(body);
+      const [existingPrefs, profileRows] = await Promise.all([
+        readPreferences(context, auth.user),
+        selectRows(context, 'profiles', {
+          select: 'marketing_email_opt_in,newsletter_opt_in,stock_alert_opt_in,routine_reminder_opt_in,sms_notifications',
+          id: `eq.${auth.user.id}`,
+          limit: '1'
+        }).catch(() => [])
+      ]);
+      const preferences = normalizePreferences(body, profileRows?.[0] || {}, existingPrefs);
       const now = new Date().toISOString();
       let saved = null;
       try {
