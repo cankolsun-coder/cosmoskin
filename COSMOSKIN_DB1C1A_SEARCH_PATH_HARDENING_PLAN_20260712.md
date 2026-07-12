@@ -1,93 +1,77 @@
 # COSMOSKIN DB1C-1A Search-Path Hardening Plan
 
 Date: 2026-07-12  
-Status: design only; no function was changed.
+Status: live evidence incorporated; design only. No function or path was changed.
 
-## Objective
+## Live result
 
-Prevent a `SECURITY DEFINER` function from resolving attacker-shadowed or unintended objects while preserving its current production behavior. A safe path is a consequence of fully understood source resolution, not a mechanical setting applied to every function.
+The 33 live public-schema `SECURITY DEFINER` functions divide into:
 
-## Evidence required per exact signature
+- 10 with no explicit `search_path`;
+- 22 with `search_path=public`;
+- one with `search_path=pg_catalog`.
 
-Capture, in one evidence bundle:
+These counts define the DB1C-1B3 review population. They do not authorize a mechanical path change.
 
-- exact identity arguments and return type;
-- `pg_get_functiondef`, definition checksum, language, volatility, parallel safety, and leakproof flag;
+## Priority source risks
+
+`public.check_purchase(uuid, text)` and `public.get_review_summary(text)` have no explicit path and use unqualified relations. They are the first source-review candidates because caller-controlled resolution or object shadowing can change which objects privileged code accesses.
+
+The 22 functions using `public` have an explicit but broad path. A `public` path is only trusted if object creation is tightly governed and every unqualified dependency resolves as intended. The single `pg_catalog` path should be preserved unless its exact source review proves a different minimal path is required.
+
+## Sequencing boundary
+
+- DB1C-1B1 is ACL-only. It must not replace source or change path configuration.
+- DB1C-1B2 is trigger/internal ACL hardening. It must not replace trigger-function source or change path configuration.
+- DB1C-1B3 is the first lane allowed to consider source replacement and path narrowing.
+
+This separation gives ACL changes and function-definition changes independent staging and rollback boundaries.
+
+## Required evidence per exact signature
+
+Before DB1C-1B3, capture and approve:
+
+- exact signature, return type, language, volatility, parallel/leakproof attributes;
+- exact live definition and checksum;
 - owner and owner-role attributes;
-- `proconfig` and the explicit path, if any;
-- every table, view, sequence, function, operator, cast, type, and extension reference;
-- trigger, function, cron, RPC, and external consumer dependencies;
-- dynamic SQL and identifier interpolation;
-- the live ACL and effective privileges for PUBLIC, anon, authenticated, and service role.
-
-## Repository assessment
-
-### Missing explicit path and confirmed unqualified relations
-
-- `public.check_purchase(uuid, text)`: unqualified `orders`, `order_items`, and `product_id_to_slug`.
-- `public.get_review_summary(text)`: unqualified `reviews`.
-
-These functions must not be changed to an empty path until all relation/function references are schema-qualified and the production source is proven equivalent to the reviewed source.
-
-### Explicit `public` path
-
-Sixteen repository privileged identities set the path to `public`. Their bodies are generally more schema-qualified, but source-by-source review is still required for helper functions, operators, casts, sequence calls, JSON helpers, and extension functions. `public` is only a trusted path if object creation there is tightly governed; the live role/grant review must prove that condition.
-
-### Live-only functions
-
-The seven additional privileged identities have unknown configuration and source. They remain blocked until the live pack resolves both. `cleanup_old_notifications` is also a live-only exposure candidate whose exact source/path must be captured.
+- `proconfig` and current path;
+- all table, view, sequence, type, operator, cast, extension, and helper-function resolution;
+- dynamic SQL and caller-controlled identifier handling;
+- normal trigger, event-trigger, nested-function, RPC, webhook, cron, and external scheduler dependencies;
+- current ACL and the exact prior definition/configuration required for rollback.
 
 ## Preferred final patterns
 
-1. Fully qualify every repository-managed relation, sequence, view, type, and helper function.
-2. Use an empty path when the reviewed body has no legitimate unqualified dependency.
-3. Use the smallest ordered list of trusted schemas only when an unavoidable dependency cannot be safely qualified.
-4. Never include caller-writable or insufficiently governed schemas.
+1. Schema-qualify repository-managed relations, sequences, types, and helper functions.
+2. Use an empty path only when every legitimate dependency is explicitly qualified and staging proves identical behavior.
+3. Otherwise use the smallest ordered list of trusted schemas.
+4. Do not include user-writable or weakly governed schemas.
 5. Never rely on the caller's path.
-6. Treat temporary-object resolution and dynamic SQL as separate blockers; path hardening alone does not make unsafe dynamic SQL safe.
-
-## Decision sequence
-
-For each exact signature:
-
-1. Compare the production definition checksum with repository candidates.
-2. Build a resolution inventory from the live definition.
-3. Prove every unqualified token's current target in an isolated production-like database.
-4. Produce a behavior-preserving, fully qualified candidate definition only if source replacement is necessary.
-5. Test with the current path, then the proposed empty/minimal path.
-6. Exercise direct RPC, trigger, scheduler, and nested-function paths.
-7. Separate path/source changes from ACL-only changes so each has an independent rollback boundary.
+6. Treat dynamic SQL and temporary-object resolution as independent security reviews.
 
 ## Risk classes
 
-| Class | Condition | DB1C-1B treatment |
+| Class | Live condition | Treatment |
 |---|---|---|
-| SP0 | No explicit path plus unqualified objects | Source review/replacement lane; never ACL-only assumption |
-| SP1 | Explicit `public` path with fully qualified relations | Candidate for minimal/empty path after regression proof |
-| SP2 | Extension/operator/type resolution dependency | Minimal trusted path or explicit qualification after compatibility test |
-| SP3 | Dynamic SQL or caller-influenced identifier | Stop; redesign/validation required before path change |
-| SP4 | Live source/configuration unknown | Stop; collect read-only evidence |
+| SP0 | No explicit path plus unqualified objects | Highest-priority DB1C-1B3 source review |
+| SP1 | No explicit path; source not yet fully resolved | Stop until exact resolution inventory exists |
+| SP2 | `search_path=public` | Qualify source, prove behavior, then evaluate empty/minimal path |
+| SP3 | Minimal trusted path such as `pg_catalog` | Preserve unless exact source evidence requires change |
+| SP4 | Dynamic SQL or caller-influenced identifiers | Stop; redesign/validation required |
 
 ## Function decisions
 
-- `check_purchase` and `get_review_summary`: SP0; highest path priority, but no first-pass body change without live usage proof.
-- Twelve active service RPCs: SP1 unless live source reveals drift; retain service behavior and test payment, inventory, membership, and loyalty invariants.
-- Auth profile handlers: SP1; include auth-trigger tests and ensure `auth.users`/profile objects remain explicitly qualified.
-- `cosmoskin_order_points_basis`: SP1; verify nested calls resolve under the proposed path.
-- `reserve_product_inventory`: SP1/legacy uncertainty; usage and supersession proof precede path work.
-- Seven live-only privileged identities and `cleanup_old_notifications`: SP4 until definitions are captured.
+- `check_purchase(uuid, text)` and `get_review_summary(text)`: SP0; defer to DB1C-1B3.
+- Active payment, inventory, loyalty, and membership RPCs: SP1/SP2 according to the exact Q2 row; preserve runtime semantics.
+- Eight confirmed normal trigger functions: SP1/SP2 according to Q2; include trigger smoke tests.
+- Three unattached trigger-returning candidates and `rls_auto_enable()`: no source/path change until provenance and external dependency review; do not drop them.
+- All live-only functions: the exact Q2 result, not a repository assumption, controls classification.
 
-## Search-path change stop conditions
+## Regression requirements
 
-- A production definition differs from every reviewed repository candidate.
-- Any overload is unresolved.
-- A relation, function, type, operator, cast, extension, or sequence target cannot be proven.
-- Dynamic SQL consumes caller-controlled identifiers or fragments.
-- A trigger/nested call behaves differently in staging.
-- The exact prior definition/configuration cannot be restored.
-- The function owner or retained role requirement is unknown.
+Test direct backend calls, nested calls, normal triggers, auth-user provisioning, payment finalization, inventory reservation/release/conversion, membership/loyalty recalculation, routine completion/streaks, review helpful counts, and notification cleanup as applicable. Verify result equivalence and no privilege escalation.
 
-## Rollback requirement
+## Stop conditions
 
-Before any future change, archive the exact live definition, owner, path configuration, ACL, and checksum. The rollback must restore that exact per-signature state, not regenerate it from a repository file that may not match production.
+Stop if any resolution target, overload, owner, definition checksum, nested/external caller, dynamic SQL input, trigger behavior, or exact rollback definition is unresolved. A path change that cannot be restored exactly is not deployable.
 

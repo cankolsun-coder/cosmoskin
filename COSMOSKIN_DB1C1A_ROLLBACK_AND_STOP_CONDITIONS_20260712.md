@@ -1,74 +1,71 @@
 # COSMOSKIN DB1C-1A Rollback and Stop Conditions
 
 Date: 2026-07-12  
-Scope: safety requirements for the future DB1C-1B work. No rollback or mutation script is included.
+Scope: safety requirements for future DB1C-1B1/1B2/1B3 work. No rollback or mutation script is included.
+
+## Live conditions that shape rollback
+
+- 20 functions inherit API exposure through PUBLIC.
+- one additional function, `cleanup_old_notifications(integer, integer, integer, integer)`, has direct anon/authenticated execution while PUBLIC is closed.
+- 12 functions are already postgres/service-role restricted.
+- eight functions have confirmed normal-trigger dependencies.
+- no public function has a confirmed event-trigger dependency.
+- `rls_auto_enable()` is an unattached legacy/orphan candidate and must not be dropped.
+- no pg_cron catalog is available; external scheduling remains unresolved.
 
 ## Non-negotiable stop conditions
 
-Stop before migration authoring or deployment when any target has:
+Stop before authoring or deploying a future migration when any target has:
 
-- unknown exact identity argument types or unresolved overloads;
-- a production definition that differs from the reviewed repository definition;
-- an unknown or unsuitable owner;
-- unresolved direct RPC, external integration, trigger, nested-function, webhook, or scheduled call path;
-- unsafe dynamic SQL or caller-influenced identifiers/fragments;
-- an arbitrary `user_id`, `account_id`, or `order_id` without proven authorization controls;
-- an uncertain retained role privilege;
-- path resolution that may change when narrowed;
-- incomplete storage of the prior definition, configuration, ACL, owner, and checksum;
-- a rollback that cannot restore the exact prior state;
-- incomplete live result sets or ambiguous project identity;
-- failed staging smoke or negative tests;
-- missing production backup/snapshot or manual approval.
+- an unknown exact signature or unresolved live identity;
+- an unexpected overload;
+- unknown owner, live definition, checksum, path, or direct/effective ACL;
+- unresolved backend, browser, normal trigger, event trigger, nested, webhook, scheduler, operator, or external call path;
+- unsafe dynamic SQL or caller-influenced identifiers;
+- arbitrary user/account/order input without authorization proof;
+- an uncertain retained role;
+- a path change that may alter object resolution;
+- incomplete exact rollback state;
+- failed allowed-role, denied-role, trigger, or workflow staging tests;
+- missing backup/snapshot or production approval.
 
-## Rollback evidence per exact signature
+## Evidence required per exact signature
 
-Capture before any future change:
-
-- schema, name, identity arguments, return type, language, volatility, leakproof and parallel attributes;
-- exact `pg_get_functiondef` output and checksum;
-- owner and owner-role evidence;
-- `proconfig`, including current path;
-- raw and expanded ACL plus effective API-role privileges;
-- trigger definitions and enabled states;
-- function-to-function and scheduler dependencies;
-- production behavior snapshots for the applicable domain.
+Capture identity arguments, result/language/volatility attributes, exact definition and checksum, owner, `proconfig`, raw/default/effective ACL, normal/event-trigger definitions and enabled states, nested dependencies, scheduler/external evidence, and domain behavior snapshots.
 
 ## Rollback boundaries
 
-### ACL-only lane
+### DB1C-1B1 ACL-only
 
-Restore the exact prior per-signature privilege state. Function definition, owner, path, and trigger bindings must remain unchanged. If any of those changed unexpectedly, stop and use the broader incident procedure.
+Restore the exact prior ACL, including independent PUBLIC, anon, authenticated, service-role, and owner entries. Do not assume restoring PUBLIC restores direct role entries.
 
-### Trigger/internal exposure lane
+### DB1C-1B2 trigger/internal ACL
 
-Restore only prior direct-execution privileges when rollback is necessary; never recreate or alter a trigger as part of an ACL rollback. Verify trigger behavior before and after.
+Restore only the exact prior ACL. Never recreate, disable, or replace a trigger as part of an ACL rollback. Confirm all eight normal triggers remain attached and enabled.
 
-### Search-path/source lane
+### DB1C-1B3 source/path
 
-Restore the exact captured prior definition and configuration for the exact signature, then verify its checksum, owner, ACL, trigger bindings, and domain behavior. A repository approximation is not a valid rollback source.
+Restore the exact captured prior function definition and configuration, then verify its checksum, owner, ACL, trigger dependencies, and domain behavior. A repository approximation is not a rollback source.
 
 ## Rollback triggers
 
-- required backend or scheduler RPC receives a permission error;
-- trigger stops firing or fires recursively;
-- PostgREST reports missing/ambiguous function identity;
-- payment finalization, inventory reservation/conversion/release, membership, loyalty, routine streak, or auth-profile creation changes behavior;
-- allowed role fails or disallowed role succeeds;
-- function definition/owner changes outside the approved lane;
-- unexpected cross-user mutation or privilege escalation is observed.
+- an allowed backend/service call fails;
+- anon or authenticated execution remains possible unexpectedly;
+- a normal trigger stops, recurses, or mutates the wrong account/user/order;
+- PostgREST reports a missing or ambiguous signature;
+- payment, inventory, loyalty, membership, routine, review, profile, activity, or notification behavior changes;
+- an owner, definition, trigger, policy, or path changes outside the approved lane.
 
-## Production safety sequence
+## Incident sequence
 
-1. Stop the rollout and prevent further migration execution.
-2. Preserve logs and current catalog evidence.
-3. Determine the affected migration lane and exact signatures.
-4. Apply only the pre-reviewed exact-state rollback under manual authorization.
-5. Re-run read-only identity, owner/config, ACL, definition, trigger, and exposure verification.
-6. Run domain smoke tests and review error telemetry.
-7. Document the incident and do not retry until the root cause is resolved in staging.
+1. Stop further rollout.
+2. Preserve logs and current read-only catalog evidence.
+3. Identify the exact signatures and migration lane.
+4. Apply only the pre-reviewed exact-state rollback with human approval.
+5. Re-run identity, ACL, definition, owner/configuration, normal-trigger, and event-trigger verification.
+6. Run domain smoke and denial tests.
+7. Document the incident and do not retry until resolved in staging.
 
 ## Explicit exclusions
 
-Rollback must not modify migration-history rows, bulk-mark legacy migrations, run the canonical baseline on production, move schemas broadly, or combine unrelated owner/policy/table changes.
-
+Rollback must not edit migration-history rows, run a bootstrap baseline on production, move schemas broadly, delete orphan candidates, or combine unrelated function, policy, table, owner, or path changes.

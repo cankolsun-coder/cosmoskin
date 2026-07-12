@@ -1,42 +1,58 @@
 # COSMOSKIN DB1C-1A Privileged Function Security Audit
 
 Date: 2026-07-12  
-Scope: repository evidence and a production read-only verification package; no live SQL was executed.
+Status: repository audit finalized with manually collected live Supabase read-only evidence. No SQL was executed during this finalization.
 
 ## Executive decision
 
-DB1C-1B must not be implemented until the live query pack resolves exact signatures, owners, definitions, trigger dependencies, and effective role privileges. Repository evidence supports least-privilege hardening, but it does not support a single blanket privilege rule for every function.
+The live catalog contains 92 functions in `public`, including 33 `SECURITY DEFINER` functions. The focused DB1C-1A audit began with 25 privileged identities—18 exact repository identities and seven live-only identities—and the live inventory exposed eight additional privileged identities. The final call-path and grant matrices therefore cover all 33 live definers by exact signature.
 
-The inventory contains 24 distinct repository function identities. Eighteen are explicitly `SECURITY DEFINER`. Seven additional privileged identities appear only in DB1/DB1B live evidence, so the privileged-function scope is 25 identities. Only `recalculate_loyalty_account(uuid)` has an expected live-only signature; the other six live-only identities require `pg_get_function_identity_arguments` evidence before any exact-signature migration can be authored. `cleanup_old_notifications` is treated as an additional live-only exposure candidate from the DB1 preflight evidence.
+The principal risk is direct API execution of privileged code:
 
-The repository application has 12 distinct direct RPC names. All identified runtime RPCs go through `functions/api/_lib/supabase.js`, which authenticates to PostgREST with the service-role key. No browser-side authenticated RPC call was found. This evidence strongly supports service-role-only grants for the active mutation and administrative RPC set.
+- 20 of 33 definers have PUBLIC EXECUTE.
+- 21 of 33 are effectively executable by `anon`.
+- 21 of 33 are effectively executable by `authenticated`.
+- all 33 are executable by `service_role`.
+- 12 are already restricted to `postgres`/`service_role`.
 
-## Pre-check and evidence boundary
+`cleanup_old_notifications(integer, integer, integer, integer)` is the decisive special case: PUBLIC execution is closed, but `anon` and `authenticated` have explicit execution. A future hardening migration cannot rely only on removing PUBLIC; it must evaluate and remove privileges from each exact API role for each exact signature.
 
-- HEAD at audit start: `929c64e DB1C0 define migration baseline and apply-state strategy`.
-- DB1B commit `4f40988` and DB1 commit `2b6ed8d` are present.
-- Working tree was clean at audit start.
-- `products.json`, `supabase/migrations`, and application files had no diff.
-- Production evidence is limited to the manually supplied DB1B result set and prior DB1 reports. This audit did not connect to Supabase.
-- Repository migration provenance is known to be incomplete. A repository definition is not proof that the same source or privilege state is live.
+DB1C-1B1 must remain an ACL-only, exact-signature migration design. Trigger/internal exposure belongs in DB1C-1B2. Function-source and search-path replacement remains deferred to DB1C-1B3. No DB1C-1B migration was created in this batch.
 
-## Inventory summary
+## Evidence boundary
 
-| Measure | Count | Interpretation |
+- Repository-audit commit: `9953658 DB1C1A audit privileged function security`.
+- Live Q1–Q12 were executed manually in the Supabase SQL Editor as read-only queries.
+- The compact exact ACL summary was executed manually.
+- A supplemental `pg_event_trigger` query completed successfully with no rows.
+- Q12 proved the `cron.job` catalog unavailable; optional Q13 was not run.
+- No write SQL, deployment, migration-history operation, function replacement, privilege change, policy change, owner change, or path change occurred.
+- Repository migration provenance remains incomplete; live catalog evidence controls the production assessment.
+
+## Live inventory summary
+
+| Measure | Live result | Decision impact |
 |---|---:|---|
-| Distinct repository function identities | 24 | 18 definer; 6 invoker/default |
-| Exact repository `SECURITY DEFINER` identities | 18 | Exact identity arguments available |
-| Additional live-only privileged identities | 7 | Six signatures unresolved; one expected `(uuid)` |
-| Privileged identities in DB1C-1A scope | 25 | 18 repository + 7 additional live-only |
-| Distinct direct RPC names in application/tests | 12 | Runtime path uses service role |
-| Confirmed privileged trigger/internal functions | 3 | Two auth triggers and one internal helper |
-| Additional privileged trigger candidates | 4 | Live trigger catalog evidence required |
-| Repository overloads | 0 | Live overloads still must be queried |
-| Identities with multiple repository definitions | 11 | Replacement-order and source-drift risk |
+| Public-schema functions | 92 | Broader than the original focused repository inventory |
+| Public-schema `SECURITY DEFINER` functions | 33 | Final privileged inventory population |
+| Focused DB1C-1A identities | 25 | 18 repository + seven live-only |
+| Additional live definers | 8 | Added to final matrices |
+| Direct runtime RPC names | 12 | All use backend/service-role calls |
+| Browser/client RPC names | 0 | No direct user-token contract found |
+| PUBLIC-executable definers | 20 | Exact-signature removal candidate population |
+| Effective anon-executable definers | 21 | Includes explicit grants independent of PUBLIC |
+| Effective authenticated-executable definers | 21 | Includes explicit grants independent of PUBLIC |
+| Service-role-executable definers | 33 | Retention must still be justified per signature |
+| Already restricted to postgres/service role | 12 | No exposure remediation presently indicated |
+| Missing explicit search path | 10 | DB1C-1B3 source-review population |
+| `search_path=public` | 22 | DB1C-1B3 hardening-review population |
+| `search_path=pg_catalog` | 1 | Preserve unless exact source review requires change |
+| Confirmed normal trigger dependencies | 8 | Direct API execution is not required for trigger firing |
+| Confirmed event-trigger dependencies | 0 | Supplemental query returned no rows |
 
-## Repository `SECURITY DEFINER` inventory
+## Exact repository identities
 
-The exact repository identities are:
+The 18 repository `SECURITY DEFINER` identities remain:
 
 1. `public.check_purchase(uuid, text)`
 2. `public.convert_order_inventory(uuid)`
@@ -57,179 +73,151 @@ The exact repository identities are:
 17. `public.reserve_order_inventory(uuid, jsonb, timestamptz, text)`
 18. `public.reserve_product_inventory(text, integer)`
 
-The seven additional live-only privileged identities are `recalculate_loyalty_account`, `recalculate_routine_streak`, `cosmoskin_activity_order_insert`, `cosmoskin_activity_order_update`, `loyalty_ledger_recalculate_trigger`, `routine_completion_recalculate_trigger`, and `cleanup_old_notifications`. Their production definitions are mandatory evidence, not assumptions.
+The seven previously live-only focused identities are now resolved as:
 
-## Application call-path findings
+- `public.recalculate_loyalty_account(uuid)`
+- `public.recalculate_routine_streak(uuid, date)`
+- `public.cosmoskin_activity_order_insert()`
+- `public.cosmoskin_activity_order_update()`
+- `public.loyalty_ledger_recalculate_trigger()`
+- `public.routine_completion_recalculate_trigger()`
+- `public.cleanup_old_notifications(integer, integer, integer, integer)`
 
-`functions/api/_lib/supabase.js` constructs `/rest/v1/rpc/{functionName}` requests and sends the service-role key as both API key and bearer credential. The 12 direct RPC names found are:
+The additional live identities covered by the final matrices are:
+
+- `public.create_account_activity(uuid, text, text, text, text, text, jsonb)`
+- `public.refresh_inventory_estimate(uuid)`
+- `public.cosmoskin_activity_routine_complete()`
+- `public.sync_review_helpful_count()`
+- `public.cosmoskin_activity_offer_insert()`
+- `public.cosmoskin_activity_points_insert()`
+- `public.handle_new_user()`
+- `public.rls_auto_enable()`
+
+## Application call paths
+
+Twelve distinct direct RPC names are present in runtime code:
 
 - Inventory: `reserve_order_inventory`, `release_order_inventory`, `convert_order_inventory`, `release_expired_inventory_reservations`.
 - Loyalty/membership: `cosmoskin_award_loyalty_for_order`, `cosmoskin_promote_loyalty_for_order`, `cosmoskin_promote_due_loyalty_points`, `cosmoskin_reverse_loyalty_for_order`, `cosmoskin_loyalty_balance_for_user`, `recalculate_customer_membership`.
 - Payments: `process_iyzico_payment_success`, `process_iyzico_payment_failure`.
 
-No static browser `supabase.rpc`, `client.rpc`, or authenticated-user-token RPC path was found. `cosmoskin_promote_due_loyalty_points` has a service helper but no active endpoint or scheduler reference in the inspected code. The absence of a static call does not prove a function is unused: database triggers, pg_cron, PostgREST consumers outside this repository, and operator procedures remain possible.
+All direct runtime RPC calls pass through the backend helper and use service-role credentials. No browser/client `.rpc()` or direct user-JWT RPC call was found. Static absence does not rule out an external scheduler, webhook, operator procedure, or consumer outside this repository.
 
-## Trigger dependency findings
+## ACL findings
 
-Two privileged repository trigger targets are proven:
+### Already restricted
 
-- `public.handle_new_auth_user_profile()` is connected to `on_auth_user_created_profile`, an `AFTER INSERT` trigger on `auth.users`.
-- `public.handle_new_user_profile()` is connected to `on_auth_user_created_cosmoskin_profile`, an `AFTER INSERT` trigger on `auth.users`.
+Twelve exact signatures are live with execution restricted to `postgres`/`service_role`:
 
-Direct API-role EXECUTE is not required for PostgreSQL to invoke an already-bound trigger function. The four live function names containing activity/ledger/routine trigger semantics remain candidates, not proven trigger-only functions, until `pg_trigger` evidence supplies the exact target table, trigger definition, enabled state, and function identity.
+- inventory lifecycle: `reserve_order_inventory`, `release_order_inventory`, `convert_order_inventory`, `release_expired_inventory_reservations`;
+- loyalty helpers: `cosmoskin_award_loyalty_for_order`, `cosmoskin_promote_loyalty_for_order`, `cosmoskin_promote_due_loyalty_points`, `cosmoskin_reverse_loyalty_for_order`, `cosmoskin_loyalty_balance_for_user`, `cosmoskin_order_points_basis`;
+- payment finalization: `process_iyzico_payment_success`, `process_iyzico_payment_failure`.
 
-The privileged internal helper `public.cosmoskin_order_points_basis(uuid)` is called by other database functions and has no application RPC reference. It should have no API-role exposure unless live evidence proves a separate contract.
+These functions require regression verification but no broad-exposure remediation based on the live ACL result.
 
-## Privilege findings
+### Exposed population
 
-Twelve repository privileged RPCs explicitly remove broad API-role access and retain service-role execution in their defining SQL. Six repository privileged identities contain no explicit repository privilege normalization:
+Twenty definers receive execution through PUBLIC. Because API roles inherit PUBLIC privileges, this produces effective anon/authenticated execution. One additional function, `cleanup_old_notifications(integer, integer, integer, integer)`, has PUBLIC closed but direct anon/authenticated privileges. Thus 21 functions require exact-role review.
 
-- `check_purchase(uuid, text)`
-- `get_review_summary(text)`
-- `handle_new_auth_user_profile()`
-- `handle_new_user_profile()`
-- `recalculate_customer_membership(uuid)`
-- `reserve_product_inventory(text, integer)`
+The highest-risk exposed identities are:
 
-Because PostgreSQL function EXECUTE defaults can expose functions to PUBLIC, these six are candidates for broad live exposure until Q3/Q4 proves otherwise. DB1B separately confirmed anon and authenticated execution for seven functions: the three recalculation functions and four activity/ledger/routine trigger-named functions. DB1 evidence also flagged `reserve_product_inventory` and `cleanup_old_notifications` as callable by anon and/or authenticated, but the exact role matrix remains pending.
+- `public.reserve_product_inventory(text, integer)`
+- `public.cleanup_old_notifications(integer, integer, integer, integer)`
+- `public.recalculate_customer_membership(uuid)`
+- `public.recalculate_loyalty_account(uuid)`
+- `public.recalculate_routine_streak(uuid, date)`
+- `public.create_account_activity(uuid, text, text, text, text, text, jsonb)`
+- `public.refresh_inventory_estimate(uuid)`
+- `public.check_purchase(uuid, text)`
 
-The audit therefore records 13 PUBLIC/default-exposure candidates: the six repository identities without an explicit privilege block, six additional DB1B live-only names beyond `recalculate_customer_membership`, and `cleanup_old_notifications`. This is a verification population, not a claim that all 13 currently have an explicit PUBLIC ACL.
+No repository evidence establishes a legitimate anonymous or direct authenticated-client contract for any privileged function. Active direct RPCs use service role. Retained API-role execution would therefore require separate, affirmative evidence and identity/ownership tests.
+
+## Normal trigger dependencies
+
+Live Q8 confirms eight `SECURITY DEFINER` functions attached to normal table triggers:
+
+1. `public.cosmoskin_activity_order_insert()`
+2. `public.cosmoskin_activity_order_update()`
+3. `public.cosmoskin_activity_routine_complete()`
+4. `public.handle_new_auth_user_profile()`
+5. `public.handle_new_user_profile()`
+6. `public.loyalty_ledger_recalculate_trigger()`
+7. `public.routine_completion_recalculate_trigger()`
+8. `public.sync_review_helpful_count()`
+
+Direct execution by PUBLIC, anon, or authenticated is not required for an already-bound PostgreSQL trigger to fire. DB1C-1B2 must preserve the trigger definitions and enabled states while removing unnecessary API exposure.
+
+Three trigger-returning functions have no confirmed live table-trigger attachment:
+
+- `public.cosmoskin_activity_offer_insert()`
+- `public.cosmoskin_activity_points_insert()`
+- `public.handle_new_user()`
+
+They are orphan/legacy candidates, not deletion candidates. External or dynamically managed dependencies remain possible until separately reviewed.
+
+## Event-trigger result
+
+The supplemental `pg_event_trigger` query completed successfully and returned no rows. No `public`-schema function is attached to a live PostgreSQL event trigger. In particular, `public.rls_auto_enable()` has no confirmed event-trigger attachment. It must not be dropped in DB1C-1B; mark it as a legacy/orphan candidate pending separate provenance, external-dependency, and intent review.
 
 ## Search-path findings
 
-Two repository privileged functions have no explicit search path and use unqualified relations:
+Live Q2 produced:
 
-- `check_purchase(uuid, text)` references `orders`, `order_items`, and `product_id_to_slug` without schema qualification.
-- `get_review_summary(text)` references `reviews` without schema qualification.
+- 10 definers without an explicit path;
+- 22 with `search_path=public`;
+- one with `search_path=pg_catalog`.
 
-The other 16 repository privileged identities specify `search_path = public`. That is better than caller-controlled resolution, but it is not the preferred final state when `public` can contain objects created by non-governed roles. They are candidates for fully qualified references plus an empty or minimal trusted path. A path change must not precede source review because operators, casts, extension functions, and helper calls may resolve differently.
+`public.check_purchase(uuid, text)` and `public.get_review_summary(text)` are confirmed missing an explicit path and use unqualified relations. They remain the clearest object-shadowing candidates. No search-path or source change belongs in ACL-only DB1C-1B1 or trigger ACL DB1C-1B2. All definition replacement and path narrowing remains deferred to DB1C-1B3 after exact source, owner, dependency, and staging behavior review.
 
-The seven live-only privileged identities have unknown configuration. Accordingly, nine functions require explicit-path resolution in the live pack: two confirmed missing in repository SQL and seven live-only unknowns. Two functions have confirmed unsafe/unqualified relation references; the 16 `public`-path functions require hardening review rather than being labelled immediately exploitable.
+## Overloads
 
-## Replacement and overload risk
+No COSMOSKIN privileged-function overload was found live. The global overload query returned extension functions such as `citext`, not COSMOSKIN application functions. Every future privilege/configuration statement must nevertheless use schema plus exact identity argument types; a later overload must not silently broaden scope.
 
-No repository function name has multiple argument-type signatures. Live overloads are still a hard stop until Q6/Q7 is executed. Eleven identities have multiple repository definitions, often in root/manual SQL and migrations: `check_purchase`, `convert_order_inventory`, `get_review_summary`, both auth-profile handlers, both Iyzico handlers, `recalculate_customer_membership`, and the three inventory lifecycle RPCs. The final live definition can therefore differ from the apparent repository final definition.
+## Cron and external scheduling
 
-All future privilege and configuration changes must target `schema.name(identity_argument_types)`, never a name alone. DB1C-1B must archive the exact pre-change definition, owner, `proconfig`, and ACL obtained from production.
-
-## Mandatory function-specific review
-
-### `public.recalculate_customer_membership(uuid)`
-
-- Direct callers: service-role backend membership, loyalty-ledger, cron, and user-recalculation paths.
-- Repository behavior: reads orders, loyalty and membership basis; writes membership status/history; accepts a caller-supplied user UUID; does not use `auth.uid()` as an authorization boundary.
-- Live exposure: DB1B reports anon and authenticated execution.
-- Decision: probably requires definer semantics for cross-RLS server maintenance, but only service role should execute it directly. Retain trigger/scheduler dependencies if live evidence reveals any.
-- Search path: repository uses `public`; fully qualify before narrowing.
-- Smoke test: membership endpoint, one-user recalculation, cron sample, tier/lifetime-spend/points result, and no duplicate history event.
-
-### `public.recalculate_loyalty_account(uuid)`
-
-- Expected signature: `(uuid)` from prior verification notes; production must confirm.
-- Repository caller/source: none found.
-- Live exposure: DB1B reports anon and authenticated execution.
-- Decision: no public or user-token execution is justified by repository evidence. Determine whether it is trigger, scheduler, legacy, or external-service driven; grant service role only if a trusted call path is proven.
-- Search path and definer necessity: unknown until source is captured.
-- Smoke test: exact before/after balance and ledger invariants if retained.
-
-### `public.recalculate_routine_streak(<live identity arguments required>)`
-
-- Signature, source, callers, and target tables are unresolved.
-- Live exposure: DB1B reports anon and authenticated execution.
-- Decision: hard stop. Do not write a migration until identity arguments, ownership checks, trigger/cron paths, and user-identifier handling are proven.
-- Smoke test: routine completion and streak idempotency for the authenticated owner.
-
-### `public.cosmoskin_activity_order_insert(<live identity arguments required>)`
-
-- Name suggests a trigger target, but repository SQL does not prove this.
-- Live exposure: DB1B reports anon and authenticated execution.
-- Decision: query `pg_trigger`; if trigger-only, remove all API-role execution and retain owner/trigger behavior. Inspect whether the body trusts `NEW.user_id` or derives identity from the linked order.
-- Smoke test: order insertion produces exactly one expected activity mutation and no cross-user write.
-
-### `public.cosmoskin_activity_order_update(<live identity arguments required>)`
-
-- Name suggests a trigger target; signature and dependency remain unresolved.
-- Live exposure: DB1B reports anon and authenticated execution.
-- Decision: same proof requirements as the insert function, plus update recursion and status-transition review.
-- Smoke test: permitted order status transition, idempotent repeated update, no recursive activity loop.
-
-### `public.loyalty_ledger_recalculate_trigger(<live identity arguments required>)`
-
-- Name suggests a trigger target that may mutate loyalty account aggregates.
-- Live exposure: DB1B reports anon and authenticated execution.
-- Decision: verify trigger table/events and recursion; direct API execution should not survive if trigger-only.
-- Smoke test: ledger insert/update/delete paths produce the expected account balance exactly once.
-
-### `public.routine_completion_recalculate_trigger(<live identity arguments required>)`
-
-- Name suggests a trigger target that may call the routine-streak function.
-- Live exposure: DB1B reports anon and authenticated execution.
-- Decision: verify trigger and function-to-function dependencies. Remove API exposure only after the chain is proven.
-- Smoke test: completion mutation updates the correct user's streak without recursion or cross-user effects.
+Q12 showed that `cron.job` is unavailable, so optional Q13 was not run. No pg_cron execution was proven. This does not prove that an external scheduler, Cloudflare cron endpoint, operator process, or another integration does not invoke a function. External execution remains a stop condition for identities without a closed call path.
 
 ## SECURITY DEFINER necessity
 
-- Probably required: inventory lifecycle, payment finalization, loyalty/membership mutation RPCs, and auth-user trigger handlers because they perform trusted server or cross-RLS work.
-- Unnecessary or reducible pending tests: `cosmoskin_order_points_basis(uuid)` may be invoker-safe when called only by a definer; the two read-oriented review helpers may not need definer semantics.
-- Unknown: `reserve_product_inventory`, all six DB1B live-only identities other than the source-known membership function, and `cleanup_old_notifications`.
-- Any function accepting `user_id`, `account_id`, or `order_id` must either be service-role-only or prove internal ownership checks. Definer status plus caller-controlled identity is not acceptable as an authenticated-client boundary by itself.
+- Probably required: payment finalization, inventory lifecycle, loyalty/membership maintenance, and confirmed trigger functions that cross RLS or write protected aggregates.
+- Possibly reducible later: pure/internal helpers such as `cosmoskin_order_points_basis` after nested-call tests.
+- Unknown: legacy/unattached trigger-returning functions, `reserve_product_inventory`, `refresh_inventory_estimate`, `cleanup_old_notifications`, `check_purchase`, `get_review_summary`, and `rls_auto_enable`.
+- Any privileged function accepting a user/account/order identifier must be service-only or enforce authenticated identity and row ownership internally. Definer status is not an authorization boundary.
 
-## Owner and schema governance
+## Recommended final grant model
 
-Production owner evidence is required. A suitable owner is a controlled, non-API database/deployment role; API roles and transient personal roles are unsuitable. Owner changes should not be bundled into the first privilege migration unless the current owner itself is a demonstrated security defect and staging proves the replacement.
+- PUBLIC: no privileged function has a proven requirement.
+- anon: no privileged function has a proven requirement.
+- authenticated: no direct privileged client RPC contract was found.
+- service_role: retain for the 12 active backend RPC names and any additional trusted operational path proven before migration authoring.
+- trigger/internal: retain owner-trigger execution; remove direct API-role exposure only after dependency review.
+- orphan/legacy candidates: close exposure only after external-consumer review; do not drop in DB1C-1B.
 
-Keep existing public-schema identities during DB1C-1B. Moving functions to a private schema could break PostgREST routes, triggers, cron commands, or external callers. Private/internal schema placement is a later governance improvement after dependency closure.
+The future migration must evaluate PUBLIC, anon, and authenticated independently. `cleanup_old_notifications` proves that PUBLIC removal cannot substitute for exact direct-role removal.
 
-## Recommended grant model
+## DB1C-1B sequencing decision
 
-- PUBLIC: no privileged function requires PUBLIC execution based on repository evidence.
-- anon: no privileged function has a proven anonymous contract.
-- authenticated: no privileged function has a proven direct user-token RPC contract in this repository.
-- service_role: retain for the 12 active service RPC names and for any live-only operational function whose trusted server/scheduler path is proven.
-- trigger/internal: remove API-role exposure while preserving trigger bindings and owner execution.
-- legacy/unused: remove API-role exposure only after external consumer, cron, webhook, and trigger checks are complete; defer removal or definer conversion.
+1. **DB1C-1B1 — exact ACL hardening:** ACL-only changes for confirmed service/internal-only exposed functions. No source, owner, policy, trigger, or path changes.
+2. **DB1C-1B2 — trigger/internal ACL hardening:** the eight confirmed trigger functions plus separately proven internal-only identities, preserving trigger behavior.
+3. **DB1C-1B3 — search-path/source hardening:** reviewed source replacement and path narrowing for the 10 missing-path and 22 public-path functions. Prioritize `check_purchase` and `get_review_summary`.
 
-Each retained grant must be justified per exact signature in the grant decision matrix. The live ACL, not repository intent, is the source for the pre-change state and rollback.
-
-## Highest-risk findings
-
-1. `recalculate_customer_membership(uuid)` combines arbitrary user input, definer authority, active server use, and confirmed anon/authenticated exposure.
-2. `recalculate_loyalty_account` and `recalculate_routine_streak` have confirmed API exposure but no canonical repository source.
-3. Four trigger-named functions appear API-executable despite having no proven direct-RPC need.
-4. `reserve_product_inventory` and `cleanup_old_notifications` have exposure evidence and unclear current provenance/call paths.
-5. `check_purchase` and `get_review_summary` combine default-grant risk, missing explicit path, unqualified relations, and manual/root SQL provenance.
-6. Multiple function replacements make repository source an unreliable proxy for production source.
-
-## DB1C-1B decision
-
-Use Option 2: separate forward migrations by risk and evidence boundary.
-
-1. Exact-signature privilege normalization for confirmed service-role RPCs; no body replacement.
-2. Exact-signature API-role removal for proven trigger/internal functions; no trigger replacement.
-3. Search-path/source hardening only after exact definition review and staging regression; preserve behavior with fully qualified references.
-4. Any intentionally retained authenticated RPC must be isolated and documented with `auth.uid()`/ownership proof. None is currently evidenced.
-
-This split keeps ACL rollback independent from source replacement and limits the blast radius of trigger or resolution changes.
+No lane may begin until its exact signature list, pre-change ACL, owner, definition checksum, dependency evidence, smoke tests, and exact rollback state are approved.
 
 ## Stop conditions
 
-DB1C-1B remains blocked if any target has unresolved identity arguments or overloads; unresolved direct, trigger, scheduler, webhook, or external call paths; unknown owner; dynamic SQL influenced by caller input; arbitrary identity input without authorization proof; source drift from repository; uncertain role requirement; behavior-sensitive path resolution; incomplete rollback capture; or incomplete live evidence.
+Stop if an exact signature, live source, owner, explicit/direct ACL, normal/event trigger dependency, nested call, external caller, or rollback state is unresolved; if dynamic SQL is caller-influenced; if identity inputs lack authorization proof; if source/path resolution could change behavior; or if staging cannot prove allowed-role success, disallowed-role failure, and preserved trigger/backend behavior.
 
-## Deliverable cross-reference
+## Deliverables
 
-- Call classifications and file evidence: `COSMOSKIN_DB1C1A_FUNCTION_CALL_PATH_MATRIX_20260712.csv`.
-- Proposed exact-signature privileges: `COSMOSKIN_DB1C1A_FUNCTION_GRANT_DECISION_MATRIX_20260712.csv`.
-- Trigger relationships: `COSMOSKIN_DB1C1A_TRIGGER_DEPENDENCY_MATRIX_20260712.csv`.
-- Live read-only evidence pack: `COSMOSKIN_DB1C1A_PRIVILEGED_FUNCTION_LIVE_VERIFICATION_QUERIES_20260712.sql`.
-- Resolution strategy: `COSMOSKIN_DB1C1A_SEARCH_PATH_HARDENING_PLAN_20260712.md`.
-- Migration structure only: `COSMOSKIN_DB1C1A_DB1C1B_MIGRATION_DESIGN_20260712.md`.
-- Manual execution and evidence handling: `COSMOSKIN_DB1C1A_RUNBOOK_20260712.md`.
-- Recovery boundaries: `COSMOSKIN_DB1C1A_ROLLBACK_AND_STOP_CONDITIONS_20260712.md`.
+- `COSMOSKIN_DB1C1A_FUNCTION_CALL_PATH_MATRIX_20260712.csv`: all 33 live definers, call classes, exposure, and dependency decisions.
+- `COSMOSKIN_DB1C1A_FUNCTION_GRANT_DECISION_MATRIX_20260712.csv`: exact-signature current and proposed role treatment.
+- `COSMOSKIN_DB1C1A_TRIGGER_DEPENDENCY_MATRIX_20260712.csv`: eight confirmed normal triggers, three unattached trigger-returning candidates, and event-trigger evidence.
+- `COSMOSKIN_DB1C1A_PRIVILEGED_FUNCTION_LIVE_VERIFICATION_QUERIES_20260712.sql`: corrected SELECT-only Q1–Q12 plus supplemental exact ACL and event-trigger queries; Q13 remains optional/commented.
 
 ## Deferred
 
-- All live SQL execution and interpretation of returned result sets.
-- Function, grant, owner, policy, trigger, or schema changes.
-- DB1C-1B migration authoring.
-- Private-schema moves and broader owner governance.
-- Migration-history reconciliation, deployment, and production remediation.
+- DB1C-1B1, DB1C-1B2, and DB1C-1B3 migration implementation.
+- Any function, privilege, policy, owner, trigger, schema, or path mutation.
+- Deletion of `rls_auto_enable` or any unattached trigger-returning function.
+- Migration-history repair, deployment, and production remediation.

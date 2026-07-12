@@ -1,105 +1,96 @@
 # COSMOSKIN DB1C-1A Design for DB1C-1B
 
 Date: 2026-07-12  
-Status: migration design only. No migration SQL exists in this batch.
+Status: design only. DB1C-1B1 has not started and no migration SQL was created.
 
-## Recommendation
+## Live evidence controlling the design
 
-Choose Option 2: multiple forward migrations separated by risk and behavior. An all-functions migration would combine ACL correction, trigger risk, source replacement, and resolution changes into one rollback boundary.
+- 33 public-schema `SECURITY DEFINER` functions.
+- 20 with PUBLIC execution.
+- 21 effectively executable by anon and authenticated.
+- all 33 executable by service role.
+- 12 already restricted to postgres/service role.
+- eight confirmed normal trigger functions.
+- three trigger-returning functions without a confirmed normal-trigger attachment.
+- no live public-function event-trigger attachment.
+- 10 functions without an explicit path, 22 using `public`, and one using `pg_catalog`.
 
-## Proposed migration lanes
+The special ACL on `cleanup_old_notifications(integer, integer, integer, integer)` proves that PUBLIC-only hardening is incomplete: direct anon and authenticated privileges can survive even when PUBLIC is closed.
 
-### Lane 1 — confirmed service RPC privilege normalization
+## Recommended three-lane sequence
 
-Targets are exact live signatures for the 12 repository service RPC names. The migration should remove implicit/broad execution first, then retain execution only for service role. It must not replace function bodies or change owners.
+### DB1C-1B1 — exact ACL hardening
 
-Preconditions:
+Purpose: remove unnecessary direct API execution from confirmed service-only or non-client privileged functions without changing function definitions, owners, triggers, policies, or paths.
 
-- exact signatures and overload counts captured;
-- live source and owner captured for rollback;
-- repository service call evidence confirmed;
-- no authenticated-user or external consumer discovered;
-- staging call succeeds with service role and fails for disallowed API roles.
+Requirements:
 
-### Lane 2 — proven trigger/internal API exposure removal
+- one collision-free 14-digit UTC migration version;
+- exact schema/name/identity arguments for every target;
+- per-role current-state preflight for PUBLIC, anon, authenticated, and service role;
+- explicit handling of direct role ACLs, not only PUBLIC inheritance;
+- no name-only operation;
+- no source replacement;
+- retained service-role execution only where a trusted backend/operational call is proven;
+- exact pre-change ACL rollback record;
+- manual approval and staging rehearsal.
 
-Targets include the two auth profile trigger handlers, `cosmoskin_order_points_basis(uuid)`, and any live-only function proven trigger/internal by catalog evidence. Remove API-role execution per exact signature without replacing triggers or function bodies.
+The first ACL batch should prioritize the eight high-risk exposed identities documented in the audit. Exact target membership remains subject to external-consumer and owner review.
 
-Preconditions:
+### DB1C-1B2 — trigger/internal ACL hardening
 
-- trigger name, target table, timing/event, enabled state, and exact function identity captured;
-- nested function calls captured;
-- direct API RPC is proven unnecessary;
-- auth-user, order activity, loyalty ledger, and routine completion smoke tests are available as applicable.
+Purpose: remove direct API exposure from the eight confirmed normal-trigger functions and other proven internal-only helpers while preserving trigger definitions and execution.
 
-### Lane 3 — search-path and source hardening
+Confirmed normal-trigger functions:
 
-Use a separate migration because safe path changes may require a reviewed body replacement with schema-qualified references. Group by domain when payment, inventory, auth, loyalty, or routine rollback impacts differ.
+- `cosmoskin_activity_order_insert()`
+- `cosmoskin_activity_order_update()`
+- `cosmoskin_activity_routine_complete()`
+- `handle_new_auth_user_profile()`
+- `handle_new_user_profile()`
+- `loyalty_ledger_recalculate_trigger()`
+- `routine_completion_recalculate_trigger()`
+- `sync_review_helpful_count()`
 
-Preconditions:
+The three unattached trigger-returning candidates and `rls_auto_enable()` require a separate orphan/provenance review. No function is dropped in DB1C-1B2.
 
-- exact live definition matches a reviewed candidate or has been independently reviewed;
-- all resolution targets are known;
-- dynamic SQL is safe or absent;
-- staging proves direct, trigger, scheduled, and nested behavior;
-- exact prior definition and configuration are archived.
+### DB1C-1B3 — search-path/source hardening
 
-### Lane 4 — intentionally exposed authenticated RPCs
+Purpose: replace reviewed definitions only where necessary to fully qualify objects and use an empty or minimal trusted path.
 
-No function currently qualifies. If live/external evidence proves a user-token contract, isolate it in its own migration. Retained authenticated execution requires internal authentication, ownership validation, bounded identifiers, input validation, and negative cross-user tests. Anonymous execution requires an even stronger explicit product contract and abuse controls.
+Population: 10 missing-path functions and 22 `public`-path functions, with `check_purchase(uuid, text)` and `get_review_summary(text)` first. The single `pg_catalog`-path function is preservation-first.
 
-## Migration mechanics
+This lane must archive the exact definition/configuration checksum and prove behavior in staging. It must not be combined with ACL hardening.
 
-- Use a collision-free 14-digit UTC version for each lane.
-- Keep the baseline/bootstrap lane separate; these are production-forward migrations.
-- Never touch `supabase_migrations.schema_migrations`.
-- Target every function using schema, name, and identity argument types.
-- Treat an unexpectedly absent signature as a preflight failure, not a no-op.
-- Resolve overloads before authoring; no name-only operation is allowed.
-- Preserve trigger bindings and service RPC routes.
-- Do not combine owner/schema moves with the first hardening migration.
-- Record an explicit reason for every retained anon or authenticated privilege; current evidence justifies none.
-- Require manual production approval after a staging rehearsal and reviewed diff.
+## Exact-signature safety
 
-## Preflight evidence pack
+No COSMOSKIN privileged overload exists live; global overloads are extension functions such as `citext`. Exact signatures remain mandatory to prevent future overloads or extension objects from being affected accidentally.
 
-The DB1C-1A live query pack must be saved with timestamp/project identity and reviewed for:
+## Preflight evidence
 
-- exact identities and overloads;
-- definition checksums and sources;
-- owners and role attributes;
-- explicit paths and unsafe reference flags;
-- raw/default/effective ACLs;
-- trigger and function dependencies;
-- optional scheduler references;
-- differences from repository definitions.
+For every lane, save:
+
+- exact identity and overload count;
+- owner, definition checksum, source, and configuration;
+- raw/default/effective role ACLs;
+- normal/event-trigger and nested-function dependencies;
+- scheduler/webhook/external caller evidence;
+- expected success and denial tests;
+- exact rollback state.
+
+Q12 showed no `cron.job` catalog. This does not close external scheduling risk.
 
 ## Post-deploy verification design
 
-Re-run the identity, owner/config, ACL, definition-checksum, trigger, and API-exposure queries. Verify:
-
-- expected roles succeed and disallowed roles fail;
-- function definitions are unchanged in ACL-only lanes;
-- owners are unchanged;
-- trigger definitions/enabled states are unchanged;
-- service endpoints and scheduled operations work;
-- no cross-user mutation is possible;
-- logs show no PostgREST permission or missing-function regression.
+Re-run the read-only identity, owner/configuration, ACL, trigger, event-trigger, and exposure summaries. Confirm expected roles succeed, disallowed roles fail, definitions remain unchanged in ACL-only lanes, triggers remain enabled, and backend workflows preserve behavior.
 
 ## Rollback design
 
-Use a separate, manually approved rollback artifact per migration lane. It must restore the exact captured pre-change ACL and, for lane 3 only, the exact prior definition/configuration. Rollback must target exact signatures and must not touch migration history. If production source cannot be restored exactly, the lane is not deployable.
+- DB1C-1B1/1B2: restore the exact prior per-signature ACL only.
+- DB1C-1B3: restore the exact prior definition and configuration, then verify checksum, ACL, owner, and dependencies.
+- Never change migration-history rows during rollback.
 
-## Manual approval gates
+## Hard stops
 
-1. Security review of function source and identity controls.
-2. Application-owner confirmation of all direct/external call paths.
-3. Database-owner confirmation of triggers, scheduler, and ownership.
-4. Staging evidence and rollback rehearsal.
-5. Production backup/snapshot confirmation.
-6. Explicit production execution approval.
-
-## Hard stop list
-
-Unknown signature/overload, owner, source, external caller, trigger or scheduler dependency, retained role, dynamic SQL safety, path resolution, behavior-preserving rollback, or production/repository definition equivalence.
+Unknown exact signature, source, owner, direct ACL, normal/event trigger, external caller, scheduler, nested dependency, identity authorization, path resolution, staging behavior, or exact rollback state.
 
