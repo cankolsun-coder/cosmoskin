@@ -72,6 +72,7 @@ import {
 } from '../functions/api/returns.js';
 import { onRequestPatch as accountProfilePatch } from '../functions/api/account/profile.js';
 import { onRequestPatch as accountNotificationsPatch } from '../functions/api/account/notifications.js';
+import { onRequestGet as accountFavoritesGet, onRequestPost as accountFavoritesPost, onRequestDelete as accountFavoritesDelete } from '../functions/api/account/favorites.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const env = { SUPABASE_URL:'https://local.supabase.test', SUPABASE_SERVICE_ROLE_KEY:'service-test', SUPABASE_TIMEOUT_MS:'3000' };
@@ -828,6 +829,136 @@ test('UX4: regression validators remain green', async () => {
     'scripts/validate-ux3-minicart-premium-layout-hardening.mjs',
     'scripts/validate-hf1-runtime-commerce-hotfix.mjs',
     'scripts/validate-p1e3-storefront-sale-display.mjs'
+  ]) {
+    const result = spawnSync(process.execPath, [path.join(root, script)], { cwd: root, encoding: 'utf8', timeout: 60000 });
+    assert.equal(result.status, 0, `${script}: ${result.stderr || result.stdout}`);
+  }
+});
+
+test('E1: favorites GET returns canonical DB slugs for logged-in user', async () => {
+  const restore = installFetch(async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) return response({ id: 'user-e1', email: 'e1@cosmoskin.invalid' });
+    if (u.includes('/rest/v1/user_favorites') && (!init.method || init.method === 'GET')) {
+      return response([
+        { id: 'fav-1', user_id: 'user-e1', product_slug: 'round-lab-birch-juice-sunscreen', product_name: 'Round Lab Sunscreen', brand: 'Round Lab', price: 899, created_at: '2026-01-01T00:00:00.000Z' }
+      ]);
+    }
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/account/favorites', {
+      method: 'GET',
+      headers: { authorization: 'Bearer test-token' }
+    });
+    const res = await accountFavoritesGet(contextFor(req));
+    const body = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(body.ok, true);
+    assert.deepEqual(body.favorite_slugs, ['round-lab-birch-juice-sunscreen']);
+  } finally {
+    restore();
+  }
+});
+
+test('E1: favorites POST is idempotent for duplicate product_slug', async () => {
+  const slug = 'cosrx-advanced-snail-96-mucin-essence';
+  const rows = [{ id: 'fav-dup', user_id: 'user-e1b', product_slug: slug, product_name: 'COSRX Snail Essence', brand: 'COSRX', price: 799 }];
+  const restore = installFetch(async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) return response({ id: 'user-e1b', email: 'e1b@cosmoskin.invalid' });
+    if (u.includes('/rest/v1/user_favorites') && (!init.method || init.method === 'GET')) return response(rows);
+    if (u.includes('/rest/v1/user_favorites') && init.method === 'POST') {
+      const payload = JSON.parse(init.body || '{}');
+      if (payload.product_slug === rows[0].product_slug) return response([rows[0]]);
+      const created = { id: 'fav-new', user_id: 'user-e1b', ...payload, created_at: new Date().toISOString() };
+      rows.push(created);
+      return response([created]);
+    }
+    if (u.includes('/rest/v1/user_favorites') && init.method === 'PATCH') return response([]);
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/account/favorites', {
+      method: 'POST',
+      headers: { authorization: 'Bearer test-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ product_slug: slug })
+    });
+    const res = await accountFavoritesPost(contextFor(req));
+    const body = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(body.ok, true);
+    assert.match(body.action, /^(updated|exists|added)$/);
+    assert.equal(body.changed_slug, slug);
+  } finally {
+    restore();
+  }
+});
+
+test('E1: favorites DELETE is idempotent when slug missing', async () => {
+  const restore = installFetch(async (url, init = {}) => {
+    const u = String(url);
+    if (u.includes('/auth/v1/user')) return response({ id: 'user-e1c', email: 'e1c@cosmoskin.invalid' });
+    if (u.includes('/rest/v1/user_favorites')) return response([]);
+    return response([]);
+  });
+  try {
+    const req = new Request('https://local.test/api/account/favorites', {
+      method: 'DELETE',
+      headers: { authorization: 'Bearer test-token', 'content-type': 'application/json' },
+      body: JSON.stringify({ product_slug: 'missing-product-slug' })
+    });
+    const res = await accountFavoritesDelete(contextFor(req));
+    const body = await res.json();
+    assert.equal(res.status, 200);
+    assert.equal(body.ok, true);
+    assert.equal(body.action, 'missing');
+    assert.equal(body.removed, false);
+  } finally {
+    restore();
+  }
+});
+
+test('E1: favorites store uses DB hydration without unsafe local ∪ metadata merge', async () => {
+  const storeJs = await fs.readFile(path.join(root, 'assets/favorites-store.js'), 'utf8');
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  assert.match(storeJs, /fetchDbFavorites/);
+  assert.doesNotMatch(storeJs, /\.concat\(remote/);
+  assert.doesNotMatch(appJs, /saveFavoritesToAccount/);
+  assert.doesNotMatch(appJs, /localFavorites\.concat\(remoteFavorites\)/);
+  assert.match(storeJs, /scrubMetadataFavorites/);
+});
+
+test('E1: favorite buttons expose aria-pressed and Turkish accessible labels', async () => {
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  const styleCss = await fs.readFile(path.join(root, 'assets/style.css'), 'utf8');
+  assert.match(appJs, /aria-pressed/);
+  assert.match(appJs, /Favorilerden kaldır/);
+  assert.match(appJs, /Favorilere ekle/);
+  assert.match(styleCss, /\.favorite-btn-icon[\s\S]{0,120}place-items:\s*center/);
+  assert.match(styleCss, /\.favorite-btn:focus-visible/);
+});
+
+test('E1: favorites page has premium empty state and skips unknown catalog slugs safely', async () => {
+  const favoritesHtml = await fs.readFile(path.join(root, 'favorites.html'), 'utf8');
+  assert.match(favoritesHtml, /Favorilerin henüz boş/);
+  assert.match(favoritesHtml, /Cilt bakım rutinine eklemek istediğin ürünleri kalp ikonuyla kaydedebilirsin/);
+  assert.match(favoritesHtml, /return product\|\|null/);
+  assert.match(favoritesHtml, /favorites-store\.js/);
+});
+
+test('E1: heart click uses stopPropagation to avoid card navigation', async () => {
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  assert.match(appJs, /event\.stopPropagation\(\)/);
+  assert.match(appJs, /favorite-btn/);
+});
+
+test('E1: regression validators remain green', async () => {
+  const { spawnSync } = await import('node:child_process');
+  for (const script of [
+    'scripts/validate-p1e3-storefront-sale-display.mjs',
+    'scripts/validate-ux3-minicart-premium-layout-hardening.mjs',
+    'scripts/validate-ux3b-storefront-polish-hotfix.mjs'
   ]) {
     const result = spawnSync(process.execPath, [path.join(root, script)], { cwd: root, encoding: 'utf8', timeout: 60000 });
     assert.equal(result.status, 0, `${script}: ${result.stderr || result.stdout}`);

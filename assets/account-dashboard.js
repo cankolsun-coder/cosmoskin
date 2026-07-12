@@ -690,9 +690,9 @@
     opts = opts || {};
     var svg = '<svg class="cs-heart-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12.1 20.3 4.9 13.4a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8l-7.2 6.9a.6.6 0 0 1-.8 0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/></svg>';
     if (opts.favoriteId) {
-      return '<button class="cs-heart-btn is-active" type="button" aria-label="Favoriden çıkar" data-remove-favorite="' + escapeHtml(opts.favoriteId || '') + '" data-remove-favorite-slug="' + escapeHtml(opts.favoriteSlug || slug) + '">' + svg + '</button>';
+      return '<button class="cs-heart-btn is-active" type="button" aria-label="Favorilerden kaldır" aria-pressed="true" data-remove-favorite="' + escapeHtml(opts.favoriteId || '') + '" data-remove-favorite-slug="' + escapeHtml(opts.favoriteSlug || slug) + '">' + svg + '</button>';
     }
-    return '<button class="cs-heart-btn" type="button" aria-label="Favoriye ekle" data-add-favorite="' + escapeHtml(slug) + '">' + svg + '</button>';
+    return '<button class="cs-heart-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-add-favorite="' + escapeHtml(slug) + '">' + svg + '</button>';
   }
   function productCard(product, opts) {
     product = normalizeProduct(product) || {}; opts = opts || {};
@@ -909,25 +909,27 @@
     el.innerHTML = '<div class="cs-tab-title"><div><h1>İade Taleplerim</h1><p>İade Taleplerim, teslim edilmiş ve iade süresi devam eden siparişleriniz için oluşturduğunuz resmi iade taleplerini gösterir. Genel destek konuları için Destek Taleplerim alanını kullanabilirsiniz.</p></div><button class="cs-pill-btn cs-pill-btn--dark" data-open-return-form type="button">İade Talebi Oluştur</button></div>' + success + (createOpen ? returnRequestFormHtml() : '') + cards;
   }
   function uniqueFavoriteList() {
-    var local = readLocalFavorites();
-    var combined = asArray(state.summary.favorites).concat(local.map(function(item){ return {
-      product_slug:item.product_slug || item.slug || item.id,
-      product_id:item.product_id || item.slug || item.id,
-      product_name:item.product_name || item.name,
-      name:item.name,
-      brand:item.brand,
-      price:item.price,
-      image:item.image,
-      url:item.url,
-      favorite_id:isUuid(item.favorite_id || item.id) ? (item.favorite_id || item.id) : ''
-    }; }));
+    if (state.authenticated) {
+      var dbFavorites = asArray(state.summary.favorites);
+      var seenAuth = {};
+      return dbFavorites.map(function (f) {
+        var key = f.product_slug || f.product_id || f.slug || f.id;
+        if (!key || seenAuth[key]) return null;
+        seenAuth[key] = true;
+        var p = getProductByHandle(key) || normalizeProduct(f);
+        return p ? Object.assign({ favorite_id: isUuid(f.id || f.favorite_id) ? (f.id || f.favorite_id) : '', product_slug: p.product_slug || key }, p) : null;
+      }).filter(Boolean);
+    }
+    var local = window.COSMOSKINFavorites && typeof window.COSMOSKINFavorites.get === 'function'
+      ? window.COSMOSKINFavorites.get()
+      : readLocalFavorites();
     var seen = {};
-    return combined.map(function (f) {
-      var key = f.product_slug || f.product_id || f.slug || f.id;
+    return local.map(function (item) {
+      var key = item.product_slug || item.slug || item.id;
       if (!key || seen[key]) return null;
       seen[key] = true;
-      var p = getProductByHandle(f.product_slug || f.product_id || f.slug || f.id) || normalizeProduct(f);
-      return p ? Object.assign({ favorite_id: isUuid(f.id || f.favorite_id) ? (f.id || f.favorite_id) : '', product_slug: p.product_slug || f.product_slug || f.product_id || key }, p) : null;
+      var p = getProductByHandle(key) || normalizeProduct(item);
+      return p ? Object.assign({ favorite_id: '', product_slug: p.product_slug || key }, p) : null;
     }).filter(Boolean);
   }
   function refreshFavoritesStock() {
@@ -964,7 +966,7 @@
   function renderFavorites() {
     var el = $('#favoritesPanel'); if (!el) return;
     var favs = uniqueFavoriteList();
-    el.innerHTML = '<div class="cs-tab-title"><div><h1>Favorilerim</h1><p>Favorilediğiniz ürünleri tek yerden yönetin. Anasayfa, Favoriler ve Hesabım aynı favori kaynağıyla senkronize edilir.</p></div><a class="cs-pill-btn" href="/allproducts.html">Ürünleri Keşfet</a></div>' + (favs.length ? '<div class="cs-product-mini-row cs-favorites-grid" data-favorites-count="' + favs.length + '">' + favs.map(function (p) { return productCard(p, { favoriteId: p.favorite_id, favoriteSlug: p.product_slug, isFavorite: true, useLiveStock: true }); }).join('') + '</div>' : emptyState('Favori ürününüz bulunmuyor.', 'Beğendiğiniz ürünleri favorilere ekleyerek daha sonra kolayca ulaşabilirsiniz.', 'Ürünleri Keşfet', '/allproducts.html'));
+    el.innerHTML = '<div class="cs-tab-title"><div><h1>Favorilerim</h1><p>Favorilediğiniz ürünleri tek yerden yönetin. Anasayfa, Favoriler ve Hesabım aynı favori kaynağıyla senkronize edilir.</p></div><a class="cs-pill-btn" href="/allproducts.html">Ürünleri Keşfet</a></div>' + (favs.length ? '<div class="cs-product-mini-row cs-favorites-grid" data-favorites-count="' + favs.length + '">' + favs.map(function (p) { return productCard(p, { favoriteId: p.favorite_id, favoriteSlug: p.product_slug, isFavorite: true, useLiveStock: true }); }).join('') + '</div>' : emptyState('Favorilerin henüz boş.', 'Cilt bakım rutinine eklemek istediğin ürünleri kalp ikonuyla kaydedebilirsin.', 'Ürünleri Keşfet', '/allproducts.html'));
     refreshFavoritesStock();
   }
   function renderInvoices() {
@@ -1209,15 +1211,31 @@
     window.dispatchEvent(new CustomEvent('cosmoskin:cart-updated', { detail: { cart: cart } }));
     showToast('Ürün sepetinize eklendi.');
   }
-  async function addFavorite(slug) { if (!slug) return; await apiFetch('/account/favorites', { method:'POST', body:{ product_slug: slug } }); await loadSummary(); switchTab(state.activeTab, false); showToast('Ürün favorilerinize eklendi.'); }
+  async function addFavorite(slug) {
+    if (!slug) return;
+    if (window.COSMOSKINFavorites && typeof window.COSMOSKINFavorites.add === 'function') {
+      await window.COSMOSKINFavorites.add({ product_slug: slug, slug: slug });
+    } else {
+      await apiFetch('/account/favorites', { method:'POST', body:{ product_slug: slug } });
+    }
+    await loadSummary();
+    switchTab(state.activeTab, false);
+    showToast('Ürün favorilerinize eklendi.');
+  }
   async function removeFavorite(id, slug) {
     if (!id && !slug) return;
-    await apiFetch('/account/favorites', { method:'DELETE', body:{ id: id, product_slug: slug } });
-    if (slug) {
-      var local = readLocalFavorites().filter(function(item){ return String(item.id || item.slug || item.product_slug || '') !== String(slug); });
-      try { localStorage.setItem('cosmoskin_favorites', JSON.stringify(local)); } catch (_) {}
+    if (window.COSMOSKINFavorites && typeof window.COSMOSKINFavorites.remove === 'function') {
+      await window.COSMOSKINFavorites.remove(slug || id);
+    } else {
+      await apiFetch('/account/favorites', { method:'DELETE', body:{ id: id, product_slug: slug } });
+      if (slug) {
+        var local = readLocalFavorites().filter(function(item){ return String(item.id || item.slug || item.product_slug || '') !== String(slug); });
+        try { localStorage.setItem('cosmoskin_favorites', JSON.stringify(local)); } catch (_) {}
+      }
     }
-    await loadSummary(); switchTab(state.activeTab, false); showToast('Ürün favorilerinizden çıkarıldı.');
+    await loadSummary();
+    switchTab(state.activeTab, false);
+    showToast('Ürün favorilerinizden çıkarıldı.');
   }
   function repeatOrder(orderId) { var order = state.summary.orders.find(function (o) { return String(o.id) === String(orderId); }); if (!order) return showToast('Sipariş bilgisi bulunamadı.', 'warning'); orderItems(order).forEach(function (item) { var p = getProductByHandle(item.product_slug || item.product_id) || normalizeProduct(item); if (p) addToCart(p); }); }
   async function cancelOrder(orderId, mode) {
