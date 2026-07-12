@@ -509,6 +509,83 @@ test('HF1: cartHasItems is non-throwing and gates on quantity > 0', async () => 
   assert.equal(build([], null)([{ id: 'x', qty: 1 }]), true, 'explicit items argument is honored');
 });
 
+test('UX3: drawer rows can never be height-locked (78px/31dvh collision patterns dead)', async () => {
+  const rawCss = await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8');
+  const css = rawCss.replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.doesNotMatch(css, /min-height\s*:\s*78px/, 'the 78px row lock must never return');
+  assert.doesNotMatch(css, /max-height\s*:\s*3[0-9]dvh/, 'dvh item-list traps cause collided/clipped rows');
+  const itemRules = css.match(/#cartDrawer[^{}]*\.cart-item(?!s)(?:\.[\w-]+|:[\w()-]+)*\s*\{[^}]*\}/g) || [];
+  assert.ok(itemRules.length > 0, 'premium drawer item rules must exist');
+  for (const rule of itemRules) {
+    assert.doesNotMatch(rule, /min-height\s*:\s*(?!0[;\s!}])[0-9]/, `row min-height lock: ${rule.slice(0, 80)}`);
+    assert.doesNotMatch(rule, /[^-\w]height\s*:\s*\d+px/, `fixed row height: ${rule.slice(0, 80)}`);
+    assert.doesNotMatch(rule, /align-items\s*:\s*center/, `collision-prone centering: ${rule.slice(0, 80)}`);
+  }
+  // exactly one drawer shell layer remains (the UX3 premium layer)
+  assert.doesNotMatch(css, /#cartDrawer\.drawer\s*\{/, 'legacy #cartDrawer.drawer shell layers removed');
+});
+
+test('UX3: drawer item list is a scroll-safe flex column with non-overlapping footer', async () => {
+  const css = (await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.match(css, /#cartDrawer\.cart-drawer-premium \.cart-items\{[^}]*flex-direction:column !important/);
+  assert.match(css, /#cartDrawer\.cart-drawer-premium \.cart-items\{[^}]*min-height:0 !important/);
+  assert.match(css, /#cartDrawer\.cart-drawer-premium \.cart-items\{[^}]*overflow-y:auto !important/);
+  assert.match(css, /#cartDrawer\.cart-drawer-premium \.cart-items\{[^}]*max-height:none !important/);
+  assert.match(css, /#cartDrawer\.cart-drawer-premium \.cart-summary\{[^}]*flex:0 0 auto !important/);
+  assert.match(css, /#cartDrawer\.cart-drawer-premium \.cart-summary\{[^}]*position:relative !important/, 'CTA footer must not float over rows');
+  // later-loading layers stay scoped away from the premium drawer
+  const master = await fs.readFile(path.join(root, 'assets/master-upgrade.css'), 'utf8');
+  const uat = await fs.readFile(path.join(root, 'assets/cosmoskin-final-uat-fix.css'), 'utf8');
+  assert.doesNotMatch(master, /(^|\n)\.cart-item\{/, 'master-upgrade drawer rules must be scoped');
+  assert.match(uat, /#cartDrawer:not\(\.cart-drawer-premium\)/);
+});
+
+test('UX3: premium header, title clamp and sale/compare-at display safety', async () => {
+  const css = (await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+  const phase6 = await fs.readFile(path.join(root, 'assets/phase6-commerce.js'), 'utf8');
+  // header: modern non-italic Sepetin + count + compact mobile subtitle variant
+  assert.match(phase6, /cart-drawer-premium__title">Sepetin</);
+  assert.match(phase6, /data-cart-drawer-count/);
+  assert.match(phase6, /cart-drawer-premium__subtitle-short/);
+  assert.doesNotMatch(phase6, /cart-drawer-premium__kicker/);
+  assert.match(css, /cart-drawer-premium__title\{[^}]*font-style:normal/);
+  assert.match(css, /cart-drawer-premium__subtitle-short\{display:none;\}/);
+  // rows: 2-line clamp + shrink-safe text column
+  assert.match(css, /cart-drawer-premium__name\{[^}]*-webkit-line-clamp:2/);
+  assert.match(css, /minmax\(0,1fr\)/);
+  // sale price + compare-at can wrap inside the price column without overflow
+  assert.match(css, /cart-drawer-premium__price\{[^}]*white-space:normal/);
+  assert.match(css, /cart-drawer-premium__price \.cs-price\{[^}]*flex-wrap:wrap/);
+  const appJs = await fs.readFile(path.join(root, 'assets/app.js'), 'utf8');
+  assert.match(appJs, /priceDisplayHtml\(displayProduct/, 'drawer rows render through the shared P1E price display helper');
+});
+
+test('UX3: coupon gating intact and recommendations render populated-only without plugin arrows', async () => {
+  const phase6 = await fs.readFile(path.join(root, 'assets/phase6-commerce.js'), 'utf8');
+  assert.equal((phase6.match(/function cartHasItems\s*\(/g) || []).length, 1, 'HF1 cartHasItems stays defined');
+  assert.match(phase6, /coupon\.hidden = !has/, 'coupon block un-hides when cart has items');
+  assert.match(phase6, /section\.hidden = true/, 'recommendations hide when empty');
+  assert.doesNotMatch(phase6, /data-phase6-rec-(prev|next)/, 'arrow carousel removed');
+  assert.doesNotMatch(phase6, /Tamamlayıcı ürün hazırlanıyor/);
+  const css = await fs.readFile(path.join(root, 'assets/phase6-commerce.css'), 'utf8');
+  assert.doesNotMatch(css, /phase6-rec-arrow/);
+});
+
+test('UX3: non-recursive validators stay green and products.json is untouched', async () => {
+  const { spawnSync } = await import('node:child_process');
+  // c3/c4/i2/p1e4 spawn this very test suite, so they run in the release
+  // checklist instead — here we run the validators that terminate quickly.
+  for (const script of [
+    'scripts/validate-ux3-minicart-premium-layout-hardening.mjs',
+    'scripts/validate-p1e3-storefront-sale-display.mjs'
+  ]) {
+    const result = spawnSync(process.execPath, [path.join(root, script)], { cwd: root, encoding: 'utf8' });
+    assert.equal(result.status, 0, `${script} failed:\n${(result.stdout || '') + (result.stderr || '')}`);
+  }
+  const diff = spawnSync('git', ['diff', '--name-only', 'HEAD', '--', 'products.json'], { cwd: root, encoding: 'utf8' });
+  assert.equal((diff.stdout || '').trim(), '', 'products.json must not be modified by UX3');
+});
+
 test('HF1: every PDP that ships the cart drawer loads inventory-client.js (Isntree regression)', async () => {
   const pdpDir = path.join(root, 'products');
   const files = (await fs.readdir(pdpDir)).filter((file) => file.endsWith('.html'));

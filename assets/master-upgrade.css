@@ -239,14 +239,17 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .home-routine__option span{font-size:13px!important;line-height:1.2!important;}
 .home-routine__option small{font-size:11px!important;line-height:1.45!important;}
 .home-routine__mood{box-shadow:none!important;}
-.cart-item{grid-template-columns:72px minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important;padding:12px!important;}
-.cart-item img{width:72px!important;height:72px!important;object-fit:contain!important;border-radius:16px!important;background:#f7efe7!important;}
-.cart-item strong{font-size:13px!important;line-height:1.3!important;}
-.cart-item>strong:last-child{font-size:14px!important;white-space:nowrap!important;}
-.cart-item .account-mini{font-size:11px!important;line-height:1.4!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-.cart-item .qty{gap:6px!important;flex-wrap:nowrap!important;margin-top:8px!important;}
-.cart-item .qty button{min-width:28px!important;height:28px!important;font-size:11px!important;padding:0 8px!important;}
-@media(max-width:520px){.cart-item{grid-template-columns:58px minmax(0,1fr)!important}.cart-item>strong:last-child{grid-column:2;font-size:13px!important}.cart-item img{width:58px!important;height:58px!important}.cart-item .qty{flex-wrap:wrap!important}}
+/* UX3 2026-07-11: scoped to the non-premium drawer only — the UX3 layer in
+   phase6-commerce.css owns .cart-drawer-premium rows (align-items:center here
+   caused row-collision when combined with legacy fixed heights). */
+#cartDrawer:not(.cart-drawer-premium) .cart-item{grid-template-columns:72px minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important;padding:12px!important;}
+#cartDrawer:not(.cart-drawer-premium) .cart-item img{width:72px!important;height:72px!important;object-fit:contain!important;border-radius:16px!important;background:#f7efe7!important;}
+#cartDrawer:not(.cart-drawer-premium) .cart-item strong{font-size:13px!important;line-height:1.3!important;}
+#cartDrawer:not(.cart-drawer-premium) .cart-item>strong:last-child{font-size:14px!important;white-space:nowrap!important;}
+#cartDrawer:not(.cart-drawer-premium) .cart-item .account-mini{font-size:11px!important;line-height:1.4!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+#cartDrawer:not(.cart-drawer-premium) .cart-item .qty{gap:6px!important;flex-wrap:nowrap!important;margin-top:8px!important;}
+#cartDrawer:not(.cart-drawer-premium) .cart-item .qty button{min-width:28px!important;height:28px!important;font-size:11px!important;padding:0 8px!important;}
+@media(max-width:520px){#cartDrawer:not(.cart-drawer-premium) .cart-item{grid-template-columns:58px minmax(0,1fr)!important}#cartDrawer:not(.cart-drawer-premium) .cart-item>strong:last-child{grid-column:2;font-size:13px!important}#cartDrawer:not(.cart-drawer-premium) .cart-item img{width:58px!important;height:58px!important}#cartDrawer:not(.cart-drawer-premium) .cart-item .qty{flex-wrap:wrap!important}}
 
 /* COSMOSKIN targeted polish 20260516b — mobile cart row refinements */
 .cm-cart-row--ref{

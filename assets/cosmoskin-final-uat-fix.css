@@ -138,21 +138,22 @@
 }
 
 /* Cart drawer: cart items first, recommendations below, no clipped first product */
-#cartDrawer {
+/* UX3 2026-07-11: scoped to the non-premium drawer — the UX3 layer in phase6-commerce.css owns .cart-drawer-premium layout (the 42vh/22vh caps here caused clipped rows). */
+#cartDrawer:not(.cart-drawer-premium) {
   height: 100dvh !important;
   max-height: 100dvh !important;
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
 }
-#cartDrawer .drawer-head {
+#cartDrawer:not(.cart-drawer-premium) .drawer-head {
   flex: 0 0 auto !important;
   position: relative !important;
   z-index: 3 !important;
   background: #fffdf8 !important;
 }
-#cartDrawer #cartItems,
-#cartDrawer .cart-items {
+#cartDrawer:not(.cart-drawer-premium) #cartItems,
+#cartDrawer:not(.cart-drawer-premium) .cart-items {
   order: 1 !important;
   flex: 0 1 auto !important;
   min-height: 96px !important;
@@ -163,25 +164,25 @@
   padding-bottom: 12px !important;
   scroll-padding-top: 0 !important;
 }
-#cartDrawer #cartItems > *:first-child,
-#cartDrawer .cart-items > *:first-child {
+#cartDrawer:not(.cart-drawer-premium) #cartItems > *:first-child,
+#cartDrawer:not(.cart-drawer-premium) .cart-items > *:first-child {
   margin-top: 0 !important;
 }
-#cartDrawer #phase6CartRecommendations {
+#cartDrawer:not(.cart-drawer-premium) #phase6CartRecommendations {
   order: 2 !important;
   flex: 0 0 auto !important;
   margin-top: 10px !important;
   max-height: min(22vh, 220px) !important;
   overflow: hidden !important;
 }
-#cartDrawer .cart-summary {
+#cartDrawer:not(.cart-drawer-premium) .cart-summary {
   order: 3 !important;
   flex: 0 0 auto !important;
   position: relative !important;
   bottom: auto !important;
   margin-top: 10px !important;
 }
-#cartDrawer.cart-drawer--filled .cart-items:empty::before {
+#cartDrawer:not(.cart-drawer-premium).cart-drawer--filled .cart-items:empty::before {
   content: 'Sepet ürünleri yükleniyor…';
   display: block;
   padding: 18px;

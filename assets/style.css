@@ -1815,7 +1815,9 @@ button[disabled] { opacity: 0.72; cursor: wait; }
   position: fixed;
   left: 20px; right: 20px;
   bottom: 20px;
-  z-index: 330;
+  /* UX3 2026-07-11: below .backdrop (310) and .drawer/.modal (320) so the
+     consent banner never covers an open cart drawer or its CTA. */
+  z-index: 305;
   display: none;
   justify-content: center;
 }

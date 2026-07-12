@@ -106,7 +106,8 @@
     if (!head) return;
     drawer.dataset.c3Premium = '1';
     drawer.classList.add('cart-drawer-premium');
-    head.innerHTML = '<div class="cart-drawer-premium__head"><div><p class="cart-drawer-premium__kicker">Sepetin</p><h2 class="cart-drawer-premium__title">Seçtiğin ürünleri kontrol et</h2><p class="cart-drawer-premium__subtitle">Kuponunu uygula ve güvenle ödeme adımına geç.</p></div><button class="cart-drawer-premium__close icon-close close-any" type="button" aria-label="Sepeti kapat">×</button></div>';
+    if (!drawer.getAttribute('aria-label')) drawer.setAttribute('aria-label', 'Sepet');
+    head.innerHTML = '<div class="cart-drawer-premium__head"><div class="cart-drawer-premium__heading"><div class="cart-drawer-premium__title-row"><h2 class="cart-drawer-premium__title">Sepetin</h2><span class="cart-drawer-premium__count" data-cart-drawer-count hidden>0 ürün</span></div><p class="cart-drawer-premium__subtitle"><span class="cart-drawer-premium__subtitle-full">Ürünlerini kontrol et, kuponunu uygula ve güvenle ödeme adımına geç.</span><span class="cart-drawer-premium__subtitle-short">Ürünlerini kontrol et ve güvenle devam et.</span></p></div><button class="cart-drawer-premium__close icon-close close-any" type="button" aria-label="Sepeti kapat">×</button></div>';
     var summary = drawer.querySelector('.cart-summary');
     if (summary && !summary.querySelector('.cart-drawer-premium__trust')) {
       var trust = document.createElement('p');
@@ -132,6 +133,12 @@
     var has = cartHasItems();
     drawer.classList.toggle('cart-drawer--empty', !has);
     drawer.classList.toggle('cart-drawer--filled', has);
+    var countBadge = drawer.querySelector('[data-cart-drawer-count]');
+    if (countBadge) {
+      var totalQty = cartItems().reduce(function (sum, item) { return sum + Math.max(0, Number(item && item.qty != null ? item.qty : 1) || 0); }, 0);
+      countBadge.hidden = !has || !totalQty;
+      countBadge.textContent = totalQty + ' ürün';
+    }
     var coupon = document.querySelector('#phase6CartCoupon');
     if (coupon) coupon.hidden = !has;
     var rec = document.querySelector('#phase6CartRecommendations');
@@ -166,9 +173,7 @@
     if (items && !document.querySelector('#phase6CartRecommendations')) {
       items.insertAdjacentHTML('afterend',
         '<div id="phase6CartRecommendations" class="phase6-coupon-box cart-drawer-premium__recs" hidden>' +
-        '<div class="phase6-rec-head"><span class="phase6-rec-title">Rutini tamamlayan öneriler</span>' +
-        '<div class="phase6-rec-arrows"><button class="phase6-rec-arrow" type="button" data-phase6-rec-prev aria-label="Önceki öneri">‹</button>' +
-        '<button class="phase6-rec-arrow" type="button" data-phase6-rec-next aria-label="Sonraki öneri">›</button></div></div>' +
+        '<div class="phase6-rec-head"><span class="phase6-rec-title">Rutini tamamlayan öneriler</span></div>' +
         '<div class="phase6-cart-recs"></div></div>');
     }
     renderCartRecommendations();
@@ -294,15 +299,6 @@
         var input = document.querySelector('#phase6CouponInput');
         if (input) input.value = '';
         validateCoupon('');
-      }
-      if (e.target.closest('[data-phase6-rec-next]')) {
-        cartRecommendationIndex++;
-        renderCartRecommendations();
-      }
-      if (e.target.closest('[data-phase6-rec-prev]')) {
-        var len = recommendationCandidates().length || 1;
-        cartRecommendationIndex = (cartRecommendationIndex - 1 + len) % len;
-        renderCartRecommendations();
       }
       var rec = e.target.closest('[data-phase6-rec-cart]');
       if (rec) {

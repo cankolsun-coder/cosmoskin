@@ -1,0 +1,48 @@
+COSMOSKIN UX3 — Mini cart premium layout hardening — changed files (2026-07-11)
+
+MODIFIED
+  assets/phase6-commerce.css
+    - removed 5 legacy drawer layers (floating-card era, 544px era,
+      compact 78px/31dvh era, 20260629 stabilization, mobile 82dvh rule)
+    - installed the single consolidated UX3 premium drawer layer
+      (shell/head/rows/list/coupon/summary/CTA/recs/states/mobile/a11y)
+  assets/phase6-commerce.js
+    - premium header markup: Sepetin title + item-count chip +
+      desktop/mobile subtitle variants (kicker removed)
+    - count badge updated in setCartDrawerCommerceState (display-only)
+    - recommendations: arrow carousel removed, 1 compact card
+    - aria-label on drawer
+  assets/master-upgrade.css
+    - .cart-item drawer block scoped to #cartDrawer:not(.cart-drawer-premium)
+      (align-items:center !important could no longer hit the premium drawer)
+  assets/cosmoskin-final-uat-fix.css
+    - drawer-layout block (42vh/22vh caps, order/sticky rules) scoped to
+      #cartDrawer:not(.cart-drawer-premium)
+  assets/style.css
+    - .cookie z-index 330 -> 305 (below backdrop 310 / drawer 320)
+  tests/local-integration.test.mjs
+    - +5 UX3 tests (height-lock patterns dead; scroll-safe flex list +
+      non-overlapping footer; premium header/clamp/sale-display safety;
+      coupon gating + populated-only recs; non-recursive validators green +
+      products.json untouched)
+
+CREATED
+  scripts/validate-ux3-minicart-premium-layout-hardening.mjs
+  COSMOSKIN_UX3_MINICART_PREMIUM_LAYOUT_HARDENING_REPORT_20260711.md
+  COSMOSKIN_UX3_MINICART_PREMIUM_LAYOUT_HARDENING_CHANGED_FILES_20260711.txt
+  COSMOSKIN_UX3_MINICART_PREMIUM_LAYOUT_HARDENING_RUNBOOK_20260711.md
+  COSMOSKIN_UX3_MINICART_PREMIUM_LAYOUT_HARDENING_ROLLBACK_PLAN_20260711.md
+
+DELETED
+  (none)
+
+UNTOUCHED (verified)
+  products.json (git diff empty)
+  pricing resolver / coupon validation / checkout / stock / admin / refund
+  files (validator-enforced protected list)
+  .wrangler/
+
+DEFERRED (documented, out of UX3 scope)
+  document.write bootstrap fallback + 1.8s mountCartExtras interval in
+  phase6-commerce.js (harmless post-HF1; event-driven mounting is a
+  future cleanup)
