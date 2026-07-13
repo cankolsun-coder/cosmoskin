@@ -1815,7 +1815,9 @@ button[disabled] { opacity: 0.72; cursor: wait; }
   position: fixed;
   left: 20px; right: 20px;
   bottom: 20px;
-  z-index: 330;
+  /* UX3 2026-07-11: below .backdrop (310) and .drawer/.modal (320) so the
+     consent banner never covers an open cart drawer or its CTA. */
+  z-index: 305;
   display: none;
   justify-content: center;
 }
@@ -2287,9 +2289,29 @@ button[disabled] { opacity: 0.72; cursor: wait; }
 }
 
 .favorite-btn-icon {
-  font-size: 20px;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
   line-height: 1;
   pointer-events: none;
+}
+
+.favorite-btn-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: currentColor;
+  fill: transparent;
+  transition: fill .18s ease, stroke .18s ease, transform .18s ease;
+}
+
+.favorite-btn.active .favorite-btn-icon svg,
+.favorite-btn.is-active .favorite-btn-icon svg,
+.favorite-btn[aria-pressed="true"] .favorite-btn-icon svg {
+  fill: currentColor;
+  stroke: currentColor;
+  transform: scale(1.02);
 }
 
 
@@ -2337,89 +2359,24 @@ button[disabled] { opacity: 0.72; cursor: wait; }
   padding-top: 16px;
 }
 
-.favorite-btn {
-  top: 16px;
-  right: 16px;
-  width: 46px;
-  height: 46px;
-  border-color: rgba(26, 21, 16, .12);
-  box-shadow: 0 18px 36px rgba(26, 21, 16, .12);
-  z-index: 10;
-}
-
-.favorite-btn.active {
-  background: #fff1f1;
-  border-color: rgba(181, 58, 58, .18);
-  color: #c53b3b;
-}
-
-.favorite-btn-icon {
-  display: inline-flex;
-  width: 22px;
-  height: 22px;
-}
-
-.favorite-btn-icon svg {
-  width: 100%;
-  height: 100%;
-  stroke: currentColor;
-  fill: transparent;
-  transition: fill .18s ease, stroke .18s ease, transform .18s ease;
-}
-
-.favorite-btn.active .favorite-btn-icon svg {
-  fill: currentColor;
-  stroke: currentColor;
-  transform: scale(1.03);
-}
-
-
 .product-media-wrap {
   position: relative;
   overflow: hidden;
   border-radius: 24px;
 }
 
-.favorite-btn {
+.product-media-wrap > .favorite-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  margin: 0;
-  border-radius: 999px;
-  border: 1px solid rgba(26, 21, 16, .12);
-  background: rgba(255, 253, 249, .96);
-  color: #1a1510;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 16px 36px rgba(26, 21, 16, .12);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  overflow: hidden;
-  line-height: 1;
+  top: 14px;
+  right: 14px;
   z-index: 12;
 }
 
-.favorite-btn svg {
-  width: 20px;
-  height: 20px;
-  display: block;
-  stroke: currentColor;
-  fill: transparent;
-  stroke-width: 1.9;
-  vector-effect: non-scaling-stroke;
-}
-
+.favorite-btn svg,
 .favorite-btn path {
   stroke: currentColor;
   fill: transparent;
-  stroke-width: 1.9;
+  stroke-width: 1.75;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -2429,7 +2386,7 @@ button[disabled] { opacity: 0.72; cursor: wait; }
 .favorite-btn[aria-pressed="true"] {
   background: #fff1f1;
   border-color: rgba(181, 58, 58, .18);
-  color: #c53b3b;
+  color: #b58a4a;
 }
 
 .favorite-btn.active svg,
@@ -2519,11 +2476,13 @@ button[disabled] { opacity: 0.72; cursor: wait; }
   .favorite-btn {
     top: 12px;
     right: 12px;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
   }
 
-  .favorite-btn svg {
+  .favorite-btn-icon {
     width: 18px;
     height: 18px;
   }
@@ -3759,6 +3718,30 @@ button[disabled] { opacity: 0.72; cursor: wait; }
     bottom: 30px;
     max-width: 148px;
   }
+}
+
+.favorites-empty-state {
+  padding: 42px 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(26, 21, 16, .08);
+  background: linear-gradient(180deg, rgba(255, 253, 249, .98), rgba(248, 240, 231, .72));
+  text-align: center;
+}
+
+.favorites-empty-state strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 500;
+  color: #1a1510;
+  margin-bottom: 10px;
+}
+
+.favorites-empty-state p {
+  margin: 0 auto 18px;
+  max-width: 46ch;
+  color: #665d55;
+  line-height: 1.7;
 }
 
 .brands-wrap { position: relative; }

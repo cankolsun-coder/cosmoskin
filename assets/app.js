@@ -5,6 +5,9 @@
   if (!window.COSMOSKIN_CART_COMMERCE) {
     document.write('<script src="/assets/cart-commerce.js?v=20260709-c3"><\/script>');
   }
+  if (!window.COSMOSKINFavorites) {
+    document.write('<script src="/assets/favorites-store.js?v=20260712-e1"><\/script>');
+  }
 }());
 
 (function () {
@@ -20,31 +23,18 @@
     consent: JSON.parse(localStorage.getItem('cosmoskin_consent') || 'null')
   };
   const FAVORITES_KEY = 'cosmoskin_favorites';
-  const LEGACY_FAVORITES_KEY = 'cosmoskin_favorites_v1';
-  let favoriteAccountSyncReady = false;
 
-  function readFavoriteStorage() {
-    try {
-      const currentRaw = localStorage.getItem(FAVORITES_KEY);
-      const legacyRaw = localStorage.getItem(LEGACY_FAVORITES_KEY);
-      let current = [];
-      if (currentRaw) {
-        const parsed = JSON.parse(currentRaw);
-        if (Array.isArray(parsed)) current = parsed;
-        else if (parsed && typeof parsed === 'object') current = Object.values(parsed);
-      }
-      if ((!current || !current.length) && legacyRaw) {
-        const legacyParsed = JSON.parse(legacyRaw);
-        if (Array.isArray(legacyParsed)) current = legacyParsed;
-        else if (legacyParsed && typeof legacyParsed === 'object') current = Object.values(legacyParsed);
-      }
-      return Array.isArray(current) ? current : [];
-    } catch (error) {
-      return [];
-    }
+  function favoritesStore() {
+    return window.COSMOSKINFavorites || null;
   }
 
-  state.favorites = readFavoriteStorage();
+  function syncFavoritesState() {
+    const store = favoritesStore();
+    state.favorites = store ? store.get() : [];
+    return state.favorites;
+  }
+
+  syncFavoritesState();
 
   function showFavoriteToast(message) {
     if (!message) return;
@@ -438,12 +428,17 @@
     document.body.classList.remove('modal-open');
   });
 
-  $$('.close-any').forEach((btn) => btn.addEventListener('click', () => {
+  // UX3B: delegated so close buttons injected after startup (e.g. the premium
+  // drawer head replaces its markup at runtime) still close reliably. The old
+  // per-node forEach binding missed dynamically injected .close-any buttons.
+  document.addEventListener('click', (event) => {
+    const btn = event.target.closest('.close-any');
+    if (!btn) return;
     closeDrawers();
     closeModals();
     mobileNav?.classList.remove('open');
     document.body.classList.remove('modal-open');
-  }));
+  });
 
   $('#cartBtn')?.addEventListener('click', () => openDrawer(cartDrawer));
   $('#accountBtn')?.addEventListener('click', async () => {
@@ -729,6 +724,8 @@
   }
 
   function normalizeFavoriteItem(item) {
+    const store = favoritesStore();
+    if (store?.normalizeItem) return store.normalizeItem(item);
     const product = normalizeProductReference(item);
     if (!product?.id) return null;
     return {
@@ -742,121 +739,91 @@
   }
 
   function uniqueFavorites(items = []) {
+    const store = favoritesStore();
+    if (store?.uniqueItems) return store.uniqueItems(items);
     const map = new Map();
     items.forEach((item) => {
       const normalized = normalizeFavoriteItem(item);
-      if (normalized && !map.has(normalized.id)) {
-        map.set(normalized.id, normalized);
-      }
+      if (normalized && !map.has(normalized.id)) map.set(normalized.id, normalized);
     });
     return Array.from(map.values());
   }
 
-  
   function favoriteHeartIcon(active = false) {
-    return `<span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.1 20.3 4.9 13.4a4.8 4.8 0 0 1 6.8-6.8l.3.3.3-.3a4.8 4.8 0 1 1 6.8 6.8l-7.2 6.9a.6.6 0 0 1-.8 0Z" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+    const store = favoritesStore();
+    if (store?.heartIconHtml) return store.heartIconHtml(active);
+    return `<span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="${active ? 'currentColor' : 'none'}"/></svg></span>`;
   }
-function broadcastFavoritesChange() {
+
+  function broadcastFavoritesChange() {
+    syncFavoritesState();
     window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: state.favorites } }));
   }
 
-  async function favoriteAccountRequest(method, body) {
-    const client = window.cosmoskinSupabase;
-    if (!client?.auth?.getSession) return null;
-    const { data: { session } } = await client.auth.getSession();
-    if (!session?.access_token) return null;
-    const res = await fetch('/api/account/favorites', {
-      method,
-      headers: { 'content-type': 'application/json', authorization: 'Bearer ' + session.access_token },
-      body: body ? JSON.stringify(body) : undefined
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data.ok === false) throw new Error(data.error || 'Favori senkronizasyonu tamamlanamadı.');
-    return data;
-  }
-
-  function favoriteApiPayload(item) {
-    const normalized = normalizeFavoriteItem(item);
-    if (!normalized?.id) return null;
-    return {
-      product_slug: normalized.id,
-      product_id: normalized.id,
-      product_name: normalized.name,
-      brand: normalized.brand,
-      price: normalized.price,
-      image: normalized.image,
-      url: normalized.url
-    };
-  }
-
-  async function saveFavoritesToAccount() {
-    const client = window.cosmoskinSupabase;
-    if (!client || !favoriteAccountSyncReady) return;
-    try {
-      const { data: { user } } = await client.auth.getUser();
-      if (!user) return;
-      const metadata = user.user_metadata || {};
-      const { error } = await client.auth.updateUser({ data: { ...metadata, favorites: state.favorites } });
-      if (error) throw error;
-      for (const item of state.favorites) {
-        const payload = favoriteApiPayload(item);
-        if (payload) await favoriteAccountRequest('POST', payload).catch((err) => console.warn('Favorites DB sync warning:', err));
-      }
-    } catch (error) {
-      console.warn('Favorites account sync warning:', error);
-    }
-  }
-
-  async function removeFavoriteFromAccount(item) {
-    const payload = favoriteApiPayload(item);
-    if (!payload) return;
-    await favoriteAccountRequest('DELETE', { product_slug: payload.product_slug }).catch((err) => console.warn('Favorites DB remove warning:', err));
-  }
-
-  function persistFavorites(options = {}) {
-    state.favorites = uniqueFavorites(state.favorites);
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
-    localStorage.removeItem(LEGACY_FAVORITES_KEY);
+  function persistFavorites() {
+    syncFavoritesState();
     renderFavoriteButtons();
     broadcastFavoritesChange();
-    if (!options.skipRemote) {
-      saveFavoritesToAccount();
-    }
   }
 
-  // External-sync listener: when anything else writes to the favorites store
-  // (account/profile.html removing a favorite, or another tab), pull the
-  // canonical list back from localStorage, refresh in-memory state, and
-  // repaint heart icons. localStorage is the single source of truth; this
-  // listener keeps every page in sync without a reload.
   let _externalSyncRunning = false;
-  function syncFavoritesFromStorage(reason) {
+  function syncFavoritesFromStorage() {
     if (_externalSyncRunning) return;
-    const fresh = uniqueFavorites(readFavoriteStorage());
+    const store = favoritesStore();
+    if (store?.isLoggedIn?.()) return;
+    const fresh = store?.readStorage ? store.readStorage() : [];
     const sameLength = fresh.length === state.favorites.length;
-    const sameIds = sameLength &&
-      fresh.every((item, idx) => item.id === state.favorites[idx]?.id);
-    if (sameIds) return; // already in sync, no need to repaint
+    const sameIds = sameLength && fresh.every((item, idx) => item.id === state.favorites[idx]?.id);
+    if (sameIds) return;
     _externalSyncRunning = true;
     try {
-      state.favorites = fresh;
+      syncFavoritesState();
       renderFavoriteButtons();
     } finally {
       _externalSyncRunning = false;
     }
   }
   window.addEventListener('storage', (event) => {
-    if (event.key === FAVORITES_KEY) syncFavoritesFromStorage('storage-event');
+    if (event.key === FAVORITES_KEY) syncFavoritesFromStorage();
   });
   window.addEventListener('cosmoskin:favorites-updated', () => {
-    // Defer one tick so persistFavorites' own dispatch settles first; the
-    // _externalSyncRunning guard above prevents recursion.
-    setTimeout(() => syncFavoritesFromStorage('custom-event'), 0);
+    setTimeout(() => {
+      syncFavoritesState();
+      renderFavoriteButtons();
+    }, 0);
   });
 
+  function isFavorite(id) {
+    const store = favoritesStore();
+    if (store?.isFavorite) return store.isFavorite(id);
+    return state.favorites.some((item) => item.id === id);
+  }
+
+  async function toggleFavorite(item) {
+    const normalized = normalizeFavoriteItem(item);
+    if (!normalized?.id) return;
+    const store = favoritesStore();
+    const alreadyFavorite = isFavorite(normalized.id);
+    try {
+      if (store?.toggle) {
+        const active = await store.toggle(normalized);
+        showFavoriteToast(active ? 'Favorilere eklendi' : 'Favorilerden çıkarıldı');
+      } else if (alreadyFavorite) {
+        state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
+        showFavoriteToast('Favorilerden çıkarıldı');
+      } else {
+        state.favorites.unshift(normalized);
+        showFavoriteToast('Favorilere eklendi');
+      }
+      persistFavorites();
+    } catch (error) {
+      console.warn('Favorite toggle warning:', error);
+      showFavoriteToast('Favori güncellenemedi. Lütfen tekrar deneyin.');
+    }
+  }
   // External-sync listener for cart: account/profile.html's "add to cart from
   // favorites" flow writes localStorage directly, so we re-read here and
-  // re-render the cart drawer. Same pattern as the favorites sync above.
+  // re-render the cart drawer.
   let _cartSyncRunning = false;
   function syncCartFromStorage() {
     if (_cartSyncRunning) return;
@@ -884,53 +851,6 @@ function broadcastFavoritesChange() {
     setTimeout(syncCartFromStorage, 0);
   });
 
-  async function hydrateFavoritesFromAccount() {
-    const client = window.cosmoskinSupabase;
-    if (!client) return;
-    try {
-      const { data: { user } } = await client.auth.getUser();
-      favoriteAccountSyncReady = Boolean(user);
-      if (!user) return;
-      let remoteFavorites = Array.isArray(user.user_metadata?.favorites) ? user.user_metadata.favorites : [];
-      try {
-        const api = await favoriteAccountRequest('GET');
-        if (Array.isArray(api?.favorites)) {
-          remoteFavorites = api.favorites.map((fav) => ({ id: fav.product_slug || fav.product_id || fav.id, slug: fav.product_slug || fav.product_id, name: fav.product_name || fav.name, brand: fav.brand, price: fav.price, image: fav.image, url: fav.url }));
-        }
-      } catch (error) { console.warn('Favorites API hydrate warning:', error); }
-      const localFavorites = uniqueFavorites(state.favorites);
-      const resolvedFavorites = uniqueFavorites(localFavorites.concat(remoteFavorites));
-      const remoteIds = JSON.stringify(uniqueFavorites(remoteFavorites).map((item) => item.id).sort());
-      const resolvedIds = JSON.stringify(resolvedFavorites.map((item) => item.id).sort());
-      state.favorites = resolvedFavorites;
-      persistFavorites({ skipRemote: true });
-      if (remoteIds !== resolvedIds) {
-        await saveFavoritesToAccount();
-      }
-    } catch (error) {
-      console.warn('Favorites hydrate warning:', error);
-    }
-  }
-
-  function watchFavoriteAuthState() {
-    const client = window.cosmoskinSupabase;
-    if (!client?.auth?.onAuthStateChange) return;
-    client.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        favoriteAccountSyncReady = Boolean(session?.user);
-        await hydrateFavoritesFromAccount();
-      }
-      if (event === 'SIGNED_OUT') {
-        favoriteAccountSyncReady = false;
-      }
-    });
-  }
-
-  function isFavorite(id) {
-    return state.favorites.some((item) => item.id === id);
-  }
-
-
   async function ensureFavoriteAuth(message = 'Favoriye ürün eklemek için önce giriş yapmalısınız.') {
     const client = window.cosmoskinSupabase;
     if (!client?.auth?.getUser) return true;
@@ -943,22 +863,6 @@ function broadcastFavoritesChange() {
     showFavoriteToast(message);
     document.dispatchEvent(new CustomEvent('cosmoskin:open-auth-modal', { detail: { tab: 'loginPanel' } }));
     return false;
-  }
-
-  async function toggleFavorite(item) {
-    const normalized = normalizeFavoriteItem(item);
-    if (!normalized?.id) return;
-    const alreadyFavorite = isFavorite(normalized.id);
-    if (alreadyFavorite) {
-      state.favorites = state.favorites.filter((entry) => entry.id !== normalized.id);
-      showFavoriteToast('Favorilerden çıkarıldı');
-      persistFavorites({ skipRemote: true });
-      removeFavoriteFromAccount(normalized).catch((error) => console.warn('Favorite remote remove warning:', error));
-    } else {
-      state.favorites.unshift(normalized);
-      showFavoriteToast('Favorilere eklendi');
-      persistFavorites();
-    }
   }
 
   function getProductDataFromButton(btn) {
@@ -1021,8 +925,8 @@ function broadcastFavoritesChange() {
       button.classList.toggle('active', active);
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
-      button.setAttribute('aria-label', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
-      button.setAttribute('title', active ? 'Favorilerden çıkar' : 'Favorilere ekle');
+      button.setAttribute('aria-label', active ? 'Favorilerden kaldır' : 'Favorilere ekle');
+      button.setAttribute('title', active ? 'Favorilerden kaldır' : 'Favorilere ekle');
       const icon = button.querySelector('.favorite-btn-icon');
       if (icon) icon.innerHTML = favoriteHeartIcon(active).replace('<span class="favorite-btn-icon" aria-hidden="true">','').replace('</span>','');
     });
@@ -1204,11 +1108,13 @@ function broadcastFavoritesChange() {
       localStorage.setItem('cosmoskin_cart', JSON.stringify(state.cart));
     }
 
+    const store = favoritesStore();
+    syncFavoritesState();
     const nextFavorites = uniqueFavorites(state.favorites);
     if (JSON.stringify(nextFavorites) !== JSON.stringify(state.favorites)) {
       state.favorites = nextFavorites;
-      localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
-      localStorage.removeItem(LEGACY_FAVORITES_KEY);
+      if (store?.persistLocal) store.persistLocal();
+      else localStorage.setItem(FAVORITES_KEY, JSON.stringify(state.favorites));
     }
   }
 
@@ -1326,8 +1232,7 @@ function broadcastFavoritesChange() {
   }
 
   refreshCommerceUi();
-  hydrateFavoritesFromAccount();
-  watchFavoriteAuthState();
+  favoritesStore()?.load?.().catch(() => {});
 
   document.addEventListener('cosmoskin:products-updated', () => {
     refreshCommerceUi();
@@ -1752,7 +1657,7 @@ function broadcastFavoritesChange() {
               </div>
               <div class="collection-detail-actions">
                 <button class="btn btn-primary" type="button" data-detail-add-cart>Sepete Ekle</button>
-                <button class="collection-detail-favorite ${favoriteActive ? 'active' : ''} favorite-btn" type="button" aria-label="${favoriteActive ? 'Favorilerden çıkar' : 'Favorilere ekle'}" aria-pressed="${favoriteActive ? 'true' : 'false'}" data-favorite-id="${escapeHtml(product.id)}" data-name="${escapeHtml(product.name)}" data-brand="${escapeHtml(product.brand)}" data-price="${escapeHtml(product.price)}" data-image="${escapeHtml(product.image)}" data-url="${escapeHtml(product.url)}">${favoriteHeartIcon(favoriteActive)}</button>
+                <button class="collection-detail-favorite ${favoriteActive ? 'active' : ''} favorite-btn" type="button" aria-label="${favoriteActive ? 'Favorilerden kaldır' : 'Favorilere ekle'}" aria-pressed="${favoriteActive ? 'true' : 'false'}" data-favorite-id="${escapeHtml(product.id)}" data-name="${escapeHtml(product.name)}" data-brand="${escapeHtml(product.brand)}" data-price="${escapeHtml(product.price)}" data-image="${escapeHtml(product.image)}" data-url="${escapeHtml(product.url)}">${favoriteHeartIcon(favoriteActive)}</button>
               </div>
             </div>
             <div class="collection-detail-trust">

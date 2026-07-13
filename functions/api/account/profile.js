@@ -6,7 +6,11 @@ function cleanText(value = '', max = 180) {
   return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
 }
 
-function normalizeBool(value) {
+function hasOwn(obj, key) {
+  return Object.prototype.hasOwnProperty.call(obj || {}, key);
+}
+
+function normalizeBoolExplicit(value) {
   return value === true || value === 'true' || value === '1' || value === 'on';
 }
 
@@ -16,6 +20,39 @@ function normalizeBirthday(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
   return raw;
 }
+
+function isValidBirthdayDate(raw) {
+  if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(raw)) return false;
+  const [year, month, day] = raw.split('-').map(Number);
+  const birthday = new Date(year, month - 1, day);
+  if (
+    birthday.getFullYear() !== year
+    || birthday.getMonth() !== month - 1
+    || birthday.getDate() !== day
+  ) {
+    return false;
+  }
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (birthday > today) return false;
+  if (year < today.getFullYear() - 120) return false;
+  return true;
+}
+
+function mergeMetadata(existing = {}, incoming) {
+  const base = existing && typeof existing === 'object' && !Array.isArray(existing) ? existing : {};
+  if (incoming === undefined) return base;
+  if (incoming === null) return {};
+  if (typeof incoming !== 'object' || Array.isArray(incoming)) return base;
+  return { ...base, ...incoming };
+}
+
+const OPT_IN_FIELDS = [
+  'marketing_email_opt_in',
+  'newsletter_opt_in',
+  'stock_alert_opt_in',
+  'routine_reminder_opt_in'
+];
 
 async function getProfile(context, user) {
   const rows = await selectRows(context, 'profiles', {
@@ -44,13 +81,26 @@ export async function onRequestPatch(context) {
     const existingBirthday = existing?.birthday ? String(existing.birthday).slice(0, 10) : null;
     const birthdayLocked = Boolean(existing?.birth_date_locked);
     const changeCount = Number(existing?.birthday_change_count || 0);
-    const hasBirthdayField = body.birthday !== undefined || body.birth_date !== undefined;
+    const hasBirthdayField = hasOwn(body, 'birthday') || hasOwn(body, 'birth_date');
     const requestedBirthday = hasBirthdayField
       ? normalizeBirthday(body.birthday ?? body.birth_date)
       : undefined;
 
-    if (hasBirthdayField && body.birthday !== '' && body.birth_date !== '' && requestedBirthday === null && (body.birthday || body.birth_date)) {
+    if (
+      hasBirthdayField
+      && body.birthday !== ''
+      && body.birth_date !== ''
+      && requestedBirthday === null
+      && (body.birthday || body.birth_date)
+    ) {
       return json({ ok: false, error: 'Geçerli bir doğum tarihi girin (YYYY-AA-GG).' }, { status: 400 });
+    }
+
+    if (hasBirthdayField && requestedBirthday && !isValidBirthdayDate(requestedBirthday)) {
+      return json({
+        ok: false,
+        error: 'Geçerli bir doğum tarihi girin. Gelecek tarih veya geçersiz tarih kabul edilmez.'
+      }, { status: 400 });
     }
 
     let nextBirthday = existingBirthday;
@@ -88,21 +138,56 @@ export async function onRequestPatch(context) {
 
     const payload = {
       id: auth.user.id,
-      email: String(auth.user.email || body.email || '').toLowerCase(),
-      first_name: cleanText(body.first_name, 80),
-      last_name: cleanText(body.last_name, 80),
-      phone: cleanText(body.phone, 40),
-      birthday: nextBirthday,
-      birthday_change_count: nextChangeCount,
-      birthday_last_changed_at: nextLastChanged,
-      birth_date_locked: nextLocked,
-      marketing_email_opt_in: normalizeBool(body.marketing_email_opt_in),
-      newsletter_opt_in: normalizeBool(body.newsletter_opt_in),
-      stock_alert_opt_in: normalizeBool(body.stock_alert_opt_in),
-      routine_reminder_opt_in: normalizeBool(body.routine_reminder_opt_in),
-      metadata: body.metadata && typeof body.metadata === 'object' ? body.metadata : {},
+      email: String(auth.user.email || existing?.email || body.email || '').toLowerCase(),
       updated_at: now
     };
+
+    if (hasOwn(body, 'first_name')) {
+      payload.first_name = cleanText(body.first_name, 80);
+    } else if (existing) {
+      payload.first_name = cleanText(existing.first_name, 80);
+    } else {
+      payload.first_name = '';
+    }
+
+    if (hasOwn(body, 'last_name')) {
+      payload.last_name = cleanText(body.last_name, 80);
+    } else if (existing) {
+      payload.last_name = cleanText(existing.last_name, 80);
+    } else {
+      payload.last_name = '';
+    }
+
+    if (hasOwn(body, 'phone')) {
+      payload.phone = cleanText(body.phone, 40);
+    } else if (existing) {
+      payload.phone = cleanText(existing.phone, 40);
+    } else {
+      payload.phone = '';
+    }
+
+    payload.birthday = nextBirthday;
+    payload.birthday_change_count = nextChangeCount;
+    payload.birthday_last_changed_at = nextLastChanged;
+    payload.birth_date_locked = nextLocked;
+
+    for (const field of OPT_IN_FIELDS) {
+      if (hasOwn(body, field)) {
+        payload[field] = normalizeBoolExplicit(body[field]);
+      } else if (existing) {
+        payload[field] = Boolean(existing[field]);
+      } else {
+        payload[field] = false;
+      }
+    }
+
+    if (hasOwn(body, 'metadata')) {
+      payload.metadata = mergeMetadata(existing?.metadata, body.metadata);
+    } else if (existing?.metadata && typeof existing.metadata === 'object') {
+      payload.metadata = existing.metadata;
+    } else {
+      payload.metadata = {};
+    }
 
     const profile = await upsertRow(context, 'profiles', payload, 'id');
     return json({ ok: true, profile });
