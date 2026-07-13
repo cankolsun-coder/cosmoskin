@@ -54,7 +54,7 @@ WITH function_baselines(exact_signature, expected_owner, expected_definition_md5
     ('public.loyalty_ledger_recalculate_trigger()', 'postgres', 'd8858107c597e12bf23b06896bb0ef63'),
     ('public.routine_completion_recalculate_trigger()', 'postgres', '3dc774d7b50d09bc129f3ea46e4e49dd'),
     ('public.sync_review_helpful_count()', 'postgres', 'b8458c14c4328b493e6f28d863eef12e')
-), trigger_baselines(trigger_name, table_schema, table_name, exact_signature, enabled_state, trigger_definition) AS (
+), trigger_baselines(trigger_name, table_schema, table_name, exact_signature, expected_enabled_state, trigger_definition) AS (
   VALUES
     ('cosmoskin_orders_activity_insert', 'public', 'orders', 'public.cosmoskin_activity_order_insert()', 'O', 'CREATE TRIGGER cosmoskin_orders_activity_insert AFTER INSERT ON orders FOR EACH ROW EXECUTE FUNCTION cosmoskin_activity_order_insert()'),
     ('cosmoskin_orders_activity_update', 'public', 'orders', 'public.cosmoskin_activity_order_update()', 'O', 'CREATE TRIGGER cosmoskin_orders_activity_update AFTER UPDATE ON orders FOR EACH ROW EXECUTE FUNCTION cosmoskin_activity_order_update()'),
@@ -76,10 +76,10 @@ WITH function_baselines(exact_signature, expected_owner, expected_definition_md5
   SELECT
     trigger_baselines.*,
     t.oid IS NOT NULL AS trigger_exists,
-    t.tgenabled AS current_enabled_state,
+    t.tgenabled::text AS current_enabled_state,
     pg_get_triggerdef(t.oid, true) AS current_trigger_definition,
     t.tgfoid = to_regprocedure(trigger_baselines.exact_signature) AS function_attachment_matches,
-    t.tgenabled = trigger_baselines.enabled_state AS enabled_state_matches,
+    t.tgenabled::text = trigger_baselines.expected_enabled_state::text AS enabled_state_matches,
     pg_get_triggerdef(t.oid, true) = trigger_baselines.trigger_definition AS trigger_definition_matches
   FROM trigger_baselines
   LEFT JOIN pg_namespace AS n ON n.nspname = trigger_baselines.table_schema
@@ -98,8 +98,8 @@ SELECT
   'trigger' AS invariant_type,
   trigger_name AS object_identity,
   trigger_exists AND function_attachment_matches AND enabled_state_matches AND trigger_definition_matches AS invariant_matches,
-  table_schema || '.' || table_name || '/' || enabled_state || '/' || trigger_definition AS expected_state,
-  table_schema || '.' || table_name || '/' || COALESCE(current_enabled_state, '<missing>') || '/' || COALESCE(current_trigger_definition, '<missing>') AS current_state
+  table_schema || '.' || table_name || '/' || COALESCE(expected_enabled_state::text, '<missing>') || '/' || trigger_definition AS expected_state,
+  table_schema || '.' || table_name || '/' || COALESCE(current_enabled_state::text, '<missing>') || '/' || COALESCE(current_trigger_definition, '<missing>') AS current_state
 FROM trigger_check
 ORDER BY invariant_type, object_identity;
 
@@ -122,7 +122,7 @@ SELECT
   n.nspname AS table_schema,
   c.relname AS table_name,
   t.tgname AS trigger_name,
-  t.tgenabled AS enabled_state,
+  t.tgenabled::text AS enabled_state,
   pg_get_triggerdef(t.oid, true) AS trigger_definition
 FROM confirmed
 LEFT JOIN pg_proc AS p ON p.oid = to_regprocedure(confirmed.exact_signature)
