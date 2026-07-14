@@ -965,6 +965,388 @@ test('E1: regression validators remain green', async () => {
   }
 });
 
+test('E4: resolveEmailProductImage returns absolute canonical HTTPS with branded fallback', async () => {
+  const brand = await import('../functions/api/_lib/email-brand.js');
+  const env = {};
+  // relative -> canonical absolute
+  assert.equal(brand.resolveEmailProductImage({ image: '/assets/img/products/a/x.webp' }, env), 'https://www.cosmoskin.com.tr/assets/img/products/a/x.webp');
+  // absolute https unchanged
+  assert.equal(brand.resolveEmailProductImage({ image: 'https://cdn.example.com/x.png' }, env), 'https://cdn.example.com/x.png');
+  // http upgraded to https
+  assert.equal(brand.resolveEmailProductImage({ image: 'http://cdn.example.com/x.png' }, env), 'https://cdn.example.com/x.png');
+  // localhost / file / data / pages.dev rejected -> branded fallback
+  for (const bad of ['http://localhost:7710/x.png', 'file:///tmp/x.png', 'data:image/png;base64,AAAA', 'https://preview.pages.dev/x.png', '']) {
+    assert.equal(brand.resolveEmailProductImage({ image: bad }, env), 'https://www.cosmoskin.com.tr/assets/logo-mark.png', `fallback expected for ${bad || '(empty)'}`);
+  }
+  // field variants
+  assert.match(brand.resolveEmailProductImage({ image_url: '/a.png' }, env), /^https:\/\/www\.cosmoskin\.com\.tr\/a\.png$/);
+  assert.match(brand.resolveEmailProductImage({ metadata: { image: '/m.png' } }, env), /m\.png$/);
+  // env misconfiguration can never leak a preview origin into emails
+  assert.equal(brand.getEmailOrigin({ PUBLIC_SITE_URL: 'https://foo.pages.dev' }), 'https://www.cosmoskin.com.tr');
+  assert.equal(brand.getEmailOrigin({ PUBLIC_SITE_URL: 'http://localhost:8788' }), 'https://www.cosmoskin.com.tr');
+});
+
+test('E4: refund_completed email renders snapshot amount, full/partial type and safe branding', async () => {
+  const { buildCommerceEmailHtml } = await import('../functions/api/_lib/order-email.js');
+  const order = { order_number: 'CS-1', customer_first_name: 'Şükran', total_amount: 1000, currency: 'TRY', order_items: [{ product_name: 'Ürün', brand: 'Anua', quantity: 1, unit_price: 1000, line_total: 1000, image: '/assets/img/p.webp' }] };
+  const partial = buildCommerceEmailHtml({ order, type: 'refund_completed', refund: { amount: 400, currency: 'TRY', provider: 'iyzico', provider_reference: 'R-1' }, env: {} });
+  assert.match(partial, /İade Bilgisi/);
+  assert.match(partial, /Kısmi iade/);
+  assert.match(partial, /R-1/);
+  assert.match(partial, /bankanızın işlem sürelerine/);
+  const full = buildCommerceEmailHtml({ order, type: 'refund_completed', refund: { amount: 1000, currency: 'TRY', provider: 'bank_transfer' }, env: {} });
+  assert.match(full, /Tam iade/);
+  assert.match(full, /Havale\/EFT/);
+  // canonical branding: hosted wordmark, no Didot/custom-font logo, no relative or undefined srcs
+  for (const html of [partial, full]) {
+    assert.match(html, /cosmoskin-wordmark-email-v1\.png/);
+    assert.match(html, /alt="COSMOSKIN"/);
+    assert.doesNotMatch(html, /Didot|Bodoni/);
+    assert.doesNotMatch(html, /src="\//);
+    assert.doesNotMatch(html, /src="(undefined|null|)"/);
+  }
+});
+
+test('E4: refund email dispatch is idempotency-keyed and cannot roll back the refund', async () => {
+  const lifecycle = await import('../functions/api/_lib/lifecycle-emails.js');
+  const keyByRefund = lifecycle.refundEmailIdempotencyKey({ refundId: 'rf-1', customerEmail: 'A@B.com' });
+  assert.equal(keyByRefund, 'refund_completed:refund:rf-1:a@b.com');
+  const keyByReturn = lifecycle.refundEmailIdempotencyKey({ returnRequestId: 'rr-9', customerEmail: 'a@b.com' });
+  assert.equal(keyByReturn, 'refund_completed:return:rr-9:a@b.com');
+  // convergence: a return-linked refund derives the SAME key from both admin
+  // paths — refunds.js (has the refund row) and returns.js (has only the
+  // return id) — so their durable claims collide instead of double-sending.
+  const keyFromRefundsPath = lifecycle.refundEmailIdempotencyKey({ refundId: 'rf-1', returnRequestId: 'rr-9', customerEmail: 'a@b.com' });
+  assert.equal(keyFromRefundsPath, keyByReturn);
+  // wiring: both admin trigger paths go through the once-dispatcher, and the
+  // refunds endpoint fires it AFTER the refund insert with a catch guard.
+  const refundsSrc = await fs.readFile(path.join(root, 'functions/api/admin/refunds.js'), 'utf8');
+  const returnsSrc = await fs.readFile(path.join(root, 'functions/api/admin/returns.js'), 'utf8');
+  assert.match(refundsSrc, /const refund = await insertRow\(context, 'refund_records', payload\);[\s\S]+sendRefundCompletedEmailOnce\(/);
+  assert.match(refundsSrc, /sendRefundCompletedEmailOnce\(context, \{[\s\S]{0,200}\}\)\.catch\(/, 'email failure must not throw into the refund transaction');
+  assert.match(returnsSrc, /status==='refunded'\).+sendRefundCompletedEmailOnce/);
+  assert.doesNotMatch(returnsSrc, /sendReturnEmail\(context,order,'refund_completed'/);
+});
+
+test('E4: invoice_ready email requires a ready invoice with HTTPS PDF and dedupes per version', async () => {
+  const lifecycle = await import('../functions/api/_lib/lifecycle-emails.js');
+  const ready = { id: 'inv-1', invoice_status: 'issued', pdf_url: 'https://x.example/i.pdf', invoice_number: 'F-1' };
+  assert.equal(lifecycle.isInvoiceEmailEligible(ready).ok, true);
+  assert.equal(lifecycle.isInvoiceEmailEligible({ id: 'inv-2', invoice_status: 'issued', pdf_url: '' }).reason, 'invoice_pdf_missing');
+  assert.equal(lifecycle.isInvoiceEmailEligible({ id: 'inv-3', invoice_status: 'pending', pdf_url: 'https://x.example/i.pdf' }).reason, 'invoice_not_ready');
+  assert.equal(lifecycle.isInvoiceEmailEligible({ id: 'inv-4', invoice_status: 'issued', pdf_url: 'http://localhost/i.pdf' }).reason, 'invoice_pdf_missing');
+  // naming-drift adapter
+  const adapted = lifecycle.normalizeInvoiceForEmail({ id: 'x', status: 'issued', file_url: 'https://x.example/f.pdf', number: 'N-1' });
+  assert.equal(adapted.invoice_status, 'issued');
+  assert.equal(adapted.pdf_url, 'https://x.example/f.pdf');
+  assert.equal(adapted.invoice_number, 'N-1');
+  // version key changes when the PDF is re-issued
+  const v1 = lifecycle.invoiceEmailVersionKey(ready);
+  const v2 = lifecycle.invoiceEmailVersionKey({ ...ready, pdf_url: 'https://x.example/i-v2.pdf' });
+  assert.notEqual(v1, v2);
+  // duplicate same-version send short-circuits on the invoice metadata stamp
+  // without any network/database access:
+  const stamped = { ...ready, metadata: { email: { to: 'a@b.com', version_key: v1, sent_at: '2026-07-14T00:00:00Z' } } };
+  const result = await lifecycle.maybeSendInvoiceReadyEmail({ env: {} }, { order: { id: 'o', customer_email: 'a@b.com' }, invoice: stamped });
+  assert.equal(result.skipped, true);
+  assert.equal(result.reason, 'skipped_duplicate');
+  // admin endpoints dispatch through the guarded helper
+  const invoicesSrc = await fs.readFile(path.join(root, 'functions/api/admin/invoices.js'), 'utf8');
+  assert.match(invoicesSrc, /maybeSendInvoiceReadyEmail/);
+  assert.match(invoicesSrc, /dispatchInvoiceReadyEmail\(context,invoice\.id,'admin_invoices_create'\)/);
+  assert.match(invoicesSrc, /dispatchInvoiceReadyEmail\(context,id,'admin_invoices_update'\)/);
+  // event-type plumbing + additive migration present
+  const eventsSrc = await fs.readFile(path.join(root, 'functions/api/_lib/email-events.js'), 'utf8');
+  assert.match(eventsSrc, /'invoice_ready'/);
+  const migration = await fs.readFile(path.join(root, 'supabase/migrations/20260714161845_e4_email_event_types.sql'), 'utf8');
+  assert.match(migration, /'invoice_ready','order_cancelled'/);
+});
+
+test('E4: back-in-stock email always shows a product image and effective price display', async () => {
+  const { renderRestockEmail } = await import('../functions/api/_lib/restock-email.js');
+  const withImage = renderRestockEmail({ productName: 'Toner', productSlug: 'anua-heartleaf-77-soothing-toner', productImage: '/assets/img/products/anua/x.webp', pricing: { effective_price_try: 679, compare_at_price_try: 849, sale_active: true }, env: {} });
+  assert.match(withImage.htmlContent, /src="https:\/\/www\.cosmoskin\.com\.tr\/assets\/img\/products\/anua\/x\.webp"/);
+  assert.match(withImage.htmlContent, /₺679/);
+  assert.match(withImage.htmlContent, /line-through/);
+  assert.match(withImage.htmlContent, /₺849/);
+  assert.match(withImage.htmlContent, /tab=notifications/, 'notification preferences link');
+  const noImage = renderRestockEmail({ productName: 'Görselsiz Ürün', productSlug: 'does-not-exist', productImage: '', pricing: null, env: {} });
+  assert.match(noImage.htmlContent, /logo-mark\.png/, 'branded fallback image');
+  // image safety attributes on every img in both variants
+  for (const { htmlContent } of [withImage, noImage]) {
+    const imgs = htmlContent.match(/<img [^>]+>/g) || [];
+    assert.ok(imgs.length >= 2);
+    for (const img of imgs) {
+      assert.match(img, /src="https:\/\//);
+      assert.match(img, /width="\d+"/);
+      assert.match(img, /alt="/);
+      assert.match(img, /display:block/);
+      assert.doesNotMatch(img, /loading=/);
+    }
+    assert.match(htmlContent, /cosmoskin-wordmark-email-v1\.png/);
+    assert.doesNotMatch(htmlContent, /Didot|Bodoni/);
+  }
+});
+
+test('E4: all transactional templates use the canonical shared shell and regression emails stay wired', async () => {
+  const orderEmail = await fs.readFile(path.join(root, 'functions/api/_lib/order-email.js'), 'utf8');
+  const restockEmail = await fs.readFile(path.join(root, 'functions/api/_lib/restock-email.js'), 'utf8');
+  for (const src of [orderEmail, restockEmail]) {
+    assert.match(src, /renderEmailShell/);
+    assert.match(src, /email-brand\.js/);
+    assert.doesNotMatch(src, /Didot|Bodoni/);
+  }
+  // order/payment/shipping emails still send through the same public API
+  assert.match(orderEmail, /export async function sendOrderStatusEmail/);
+  assert.match(orderEmail, /export async function sendShipmentEmail/);
+  assert.match(orderEmail, /export async function sendCommerceTransactionalEmail/);
+  // cancelled orders now get cancellation copy, not return-review copy
+  assert.match(orderEmail, /cancelled: 'order_cancelled'/);
+  // preview tool exists, renders without sends by default and never touches
+  // the fiscal provider
+  const preview = await fs.readFile(path.join(root, 'scripts/email-preview.mjs'), 'utf8');
+  assert.match(preview, /E4_TEST_EMAIL_ALLOWLIST/);
+  assert.doesNotMatch(preview, /qnb-create|invoices\/qnb|from ['"][^'"]*qnb/i, 'preview tool must never import the fiscal provider');
+  const { spawnSync } = await import('node:child_process');
+  const diff = spawnSync('git', ['diff', '--name-only', 'HEAD', '--', 'products.json'], { cwd: root, encoding: 'utf8' });
+  assert.equal((diff.stdout || '').trim(), '', 'products.json must not be modified by E4');
+});
+
+// --- E4 durable refund-email claim: in-memory PostgREST/Brevo double --------
+// Emulates exactly the statements the dispatcher issues. Every handler yields
+// first (so concurrent dispatchers interleave between statements) and then
+// applies its state change synchronously — atomic per request, like one SQL
+// statement — including the unique idempotency-claim index semantics from
+// migration 20260714161845_e4_email_event_types.sql. No request ever leaves
+// the process: api.brevo.com is intercepted, so no real email can be sent.
+function refundEmailTestHarness({ brevoResponses = [200], failEmailEvents = false, failRefundPatch = false } = {}) {
+  const state = { refunds: new Map(), events: [], brevoCalls: 0, nextEventId: 1 };
+  const brevoQueue = [...brevoResponses];
+  const jsonResp = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+  const stampState = (row) => row?.metadata?.email?.state ?? null;
+
+  function matchRefund(row, params) {
+    for (const [key, value] of params.entries()) {
+      if (key === 'select' || key === 'order' || key === 'limit') continue;
+      if (key === 'id') { if (String(row.id) !== value.replace(/^eq\./, '')) return false; }
+      else if (key === 'return_request_id') { if (String(row.return_request_id) !== value.replace(/^eq\./, '')) return false; }
+      else if (key === 'status') { if (row.status !== value.replace(/^eq\./, '')) return false; }
+      else if (key === 'or') {
+        // only the Layer A claim shape is issued:
+        // (metadata->email->>state.is.null,metadata->email->>state.eq.failed)
+        const s = stampState(row);
+        if (!(s === null || s === 'failed')) return false;
+      } else if (key === 'metadata->email->>state') { if (stampState(row) !== value.replace(/^eq\./, '')) return false; }
+      else if (key === 'metadata->email->>claimed_at') {
+        const cutoff = value.replace(/^lt\./, '');
+        const claimedAt = row?.metadata?.email?.claimed_at || '';
+        if (!(claimedAt && claimedAt < cutoff)) return false;
+      } else if (key === 'metadata->email->>claim_token') { if ((row?.metadata?.email?.claim_token || '') !== value.replace(/^eq\./, '')) return false; }
+      else throw new Error(`unexpected refund_records filter: ${key}=${value}`);
+    }
+    return true;
+  }
+
+  function matchEvent(row, params) {
+    for (const [key, value] of params.entries()) {
+      if (key === 'select' || key === 'order' || key === 'limit') continue;
+      if (key === 'id') { if (String(row.id) !== value.replace(/^eq\./, '')) return false; }
+      else if (key === 'email_type') { if (row.email_type !== value.replace(/^eq\./, '')) return false; }
+      else if (key === 'status') {
+        if (value.startsWith('in.')) { if (!value.slice(4, -1).split(',').includes(row.status)) return false; }
+        else if (row.status !== value.replace(/^eq\./, '')) return false;
+      } else if (key === 'metadata->>idempotency_key') { if ((row.metadata?.idempotency_key || '') !== value.replace(/^eq\./, '')) return false; }
+      else if (key === 'created_at') { if (!(row.created_at < value.replace(/^lt\./, ''))) return false; }
+      else throw new Error(`unexpected email_events filter: ${key}=${value}`);
+    }
+    return true;
+  }
+
+  const handler = async (input, init = {}) => {
+    const url = new URL(typeof input === 'string' ? input : input.url);
+    const method = (init.method || 'GET').toUpperCase();
+    await new Promise((resolve) => setTimeout(resolve, Math.floor(Math.random() * 3)));
+    if (url.hostname === 'api.brevo.com') {
+      state.brevoCalls += 1;
+      const status = brevoQueue.length > 1 ? brevoQueue.shift() : (brevoQueue[0] ?? 200);
+      if (status !== 200) return jsonResp({ message: 'brevo-down' }, status);
+      return jsonResp({ messageId: `msg-${state.brevoCalls}` });
+    }
+    if (url.pathname.startsWith('/rest/v1/refund_records')) {
+      if (failRefundPatch && method !== 'GET') return jsonResp({ message: 'refund_records unavailable' }, 500);
+      if (method === 'GET') return jsonResp([...state.refunds.values()].filter((row) => matchRefund(row, url.searchParams)).map((row) => structuredClone(row)));
+      if (method === 'PATCH') {
+        const payload = JSON.parse(init.body);
+        const updated = [];
+        for (const row of state.refunds.values()) {
+          if (matchRefund(row, url.searchParams)) { Object.assign(row, structuredClone(payload)); updated.push(structuredClone(row)); }
+        }
+        return jsonResp(updated);
+      }
+    }
+    if (url.pathname.startsWith('/rest/v1/email_events')) {
+      if (failEmailEvents) return jsonResp({ message: 'email_events unavailable' }, 500);
+      if (method === 'POST') {
+        const payload = JSON.parse(init.body);
+        const key = payload.metadata?.idempotency_key || null;
+        if (key && ['pending', 'sent'].includes(payload.status)) {
+          const clash = state.events.some((row) => ['pending', 'sent'].includes(row.status) && row.metadata?.idempotency_key === key);
+          if (clash) return jsonResp({ code: '23505', message: 'duplicate key value violates unique constraint "email_events_idempotency_claim_uniq"' }, 409);
+        }
+        const row = { id: `ev-${state.nextEventId++}`, created_at: new Date().toISOString(), sent_at: null, ...structuredClone(payload) };
+        state.events.push(row);
+        return jsonResp([structuredClone(row)]);
+      }
+      if (method === 'GET') {
+        const rows = state.events.filter((row) => matchEvent(row, url.searchParams)).map((row) => structuredClone(row));
+        rows.sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+        return jsonResp(rows);
+      }
+      if (method === 'PATCH') {
+        const payload = JSON.parse(init.body);
+        const updated = [];
+        for (const row of state.events) {
+          if (matchEvent(row, url.searchParams)) { Object.assign(row, structuredClone(payload)); updated.push(structuredClone(row)); }
+        }
+        return jsonResp(updated);
+      }
+    }
+    throw new Error(`unexpected request in refund email harness: ${method} ${url.href}`);
+  };
+  return { state, handler };
+}
+
+const refundEmailEnv = { ...env, BREVO_API_KEY: 'test-key-never-sent' };
+const refundEmailOrder = {
+  id: 'ord-e4', order_number: 'CS-E4-1', customer_email: 'Musteri@Example.com', customer_first_name: 'Test',
+  total_amount: 500, currency: 'TRY',
+  order_items: [{ product_name: 'Ürün', brand: 'Anua', quantity: 1, unit_price: 500, line_total: 500, image: '' }]
+};
+const refundEmailRow = () => ({
+  id: 'rf-e4', order_id: 'ord-e4', return_request_id: 'rr-e4', status: 'completed',
+  amount: 250, currency: 'TRY', provider: 'manual', provider_reference: 'REF-E4',
+  created_at: '2026-07-14T10:00:00.000Z', metadata: { manual: true }
+});
+const sentRefundEvents = (state) => state.events.filter((row) => row.email_type === 'refund_completed' && row.status === 'sent');
+
+test('E4: two concurrent refund completion dispatches produce exactly one send', async () => {
+  const lifecycle = await import('../functions/api/_lib/lifecycle-emails.js');
+  const { state, handler } = refundEmailTestHarness();
+  state.refunds.set('rf-e4', refundEmailRow());
+  const restore = installFetch(handler);
+  try {
+    const context = { env: refundEmailEnv };
+    // the real race: admin refunds.js (has the refund row) and admin
+    // returns.js (has only the return id) both firing for the same refund
+    const [fromRefunds, fromReturns] = await Promise.all([
+      lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, refund: refundEmailRow(), returnRequestId: 'rr-e4', source: 'admin_refunds' }),
+      lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, returnRequestId: 'rr-e4', source: 'admin_returns' })
+    ]);
+    assert.equal(state.brevoCalls, 1, 'exactly one Brevo send');
+    const results = [fromRefunds, fromReturns];
+    assert.equal(results.filter((r) => r.sent).length, 1, 'one winner');
+    assert.equal(results.filter((r) => r.skipped && r.reason === 'skipped_duplicate').length, 1, 'one skipped_duplicate loser');
+    // both paths converged on the same durable claim key
+    assert.equal(fromRefunds.idempotency_key, fromReturns.idempotency_key);
+    assert.equal(fromRefunds.idempotency_key, 'refund_completed:return:rr-e4:musteri@example.com');
+    assert.equal(sentRefundEvents(state).length, 1, 'exactly one sent event row');
+    assert.equal(state.refunds.get('rf-e4').metadata.email.state, 'sent', 'refund record stamped sent');
+    // record-less concurrent race (refund row not yet visible to either):
+    // arbitrated by the unique email_events claim index alone
+    const bare = refundEmailTestHarness();
+    installFetch(bare.handler);
+    const [a, b] = await Promise.all([
+      lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, returnRequestId: 'rr-bare', source: 'admin_returns' }),
+      lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, returnRequestId: 'rr-bare', source: 'admin_returns' })
+    ]);
+    assert.equal(bare.state.brevoCalls, 1, 'record-less race: one send');
+    assert.equal([a, b].filter((r) => r.sent).length, 1);
+    assert.equal([a, b].filter((r) => r.skipped && r.reason === 'skipped_duplicate').length, 1);
+  } finally {
+    restore();
+  }
+});
+
+test('E4: email event lookup/claim failure can never create a duplicate refund email', async () => {
+  const lifecycle = await import('../functions/api/_lib/lifecycle-emails.js');
+  const context = { env: refundEmailEnv };
+  // events ledger down, refund record available: Layer A alone serializes —
+  // one send, then a durable skip on repeat (no fail-open double send)
+  const degraded = refundEmailTestHarness({ failEmailEvents: true });
+  degraded.state.refunds.set('rf-e4', refundEmailRow());
+  let restore = installFetch(degraded.handler);
+  try {
+    const first = await lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, refund: refundEmailRow(), returnRequestId: 'rr-e4', source: 'admin_refunds' });
+    assert.equal(first.sent, true);
+    const repeat = await lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, returnRequestId: 'rr-e4', source: 'admin_returns' });
+    assert.equal(repeat.skipped, true);
+    assert.equal(repeat.reason, 'skipped_duplicate');
+    assert.equal(degraded.state.brevoCalls, 1, 'events outage must not fail open into a second send');
+    // events ledger down AND no refund record: no durable claim possible —
+    // refuse to send, stay retryable
+    const bare = refundEmailTestHarness({ failEmailEvents: true });
+    installFetch(bare.handler);
+    const refused = await lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, returnRequestId: 'rr-none', source: 'admin_returns' });
+    assert.equal(refused.sent, false);
+    assert.equal(refused.pending_retry, true);
+    assert.equal(bare.state.brevoCalls, 0, 'no claim, no send');
+    // refund-record claim store down: refuse to send, stay retryable
+    const claimDown = refundEmailTestHarness({ failRefundPatch: true });
+    claimDown.state.refunds.set('rf-e4', refundEmailRow());
+    installFetch(claimDown.handler);
+    const refused2 = await lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, refund: refundEmailRow(), returnRequestId: 'rr-e4', source: 'admin_refunds' });
+    assert.equal(refused2.sent, false);
+    assert.equal(refused2.pending_retry, true);
+    assert.equal(claimDown.state.brevoCalls, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('E4: failed refund send stays retryable, a successful retry sends once, repeats skip', async () => {
+  const lifecycle = await import('../functions/api/_lib/lifecycle-emails.js');
+  const context = { env: refundEmailEnv };
+  const { state, handler } = refundEmailTestHarness({ brevoResponses: [500, 200] });
+  state.refunds.set('rf-e4', refundEmailRow());
+  const restore = installFetch(handler);
+  try {
+    const failed = await lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, refund: refundEmailRow(), returnRequestId: 'rr-e4', source: 'admin_refunds' });
+    assert.equal(failed.sent, false);
+    assert.equal(failed.pending_retry, true, 'failed send must stay retryable');
+    assert.equal(state.refunds.get('rf-e4').metadata.email.state, 'failed');
+    assert.equal(state.events.filter((row) => row.status === 'failed').length, 1, 'claim settled to failed');
+    // retry (repeated completion callback, e.g. admin POSTs completed again):
+    // the failed state is claimable again → exactly one more send
+    const retried = await lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, refund: structuredClone(state.refunds.get('rf-e4')), returnRequestId: 'rr-e4', source: 'admin_refunds_repeat' });
+    assert.equal(retried.sent, true, 'successful retry sends');
+    assert.equal(state.brevoCalls, 2, 'exactly one failed attempt + one successful retry');
+    assert.equal(state.refunds.get('rf-e4').metadata.email.state, 'sent');
+    assert.equal(sentRefundEvents(state).length, 1);
+    // third completion callback: durable skipped_duplicate, no third attempt
+    const repeat = await lifecycle.sendRefundCompletedEmailOnce(context, { order: refundEmailOrder, returnRequestId: 'rr-e4', source: 'admin_returns' });
+    assert.equal(repeat.skipped, true);
+    assert.equal(repeat.reason, 'skipped_duplicate');
+    assert.equal(state.brevoCalls, 2, 'repeat completion must not send again');
+  } finally {
+    restore();
+  }
+});
+
+test('E4: migration governance — unique 14-digit UTC version and durable-claim index', async () => {
+  const migrationsDir = path.join(root, 'supabase/migrations');
+  const migrations = (await fs.readdir(migrationsDir)).filter((file) => file.endsWith('.sql'));
+  const e4 = migrations.filter((file) => file.includes('e4_email_event_types'));
+  assert.equal(e4.length, 1, `exactly one E4 migration expected, found: ${e4.join(', ')}`);
+  assert.match(e4[0], /^\d{14}_e4_email_event_types\.sql$/, '14-digit UTC version prefix required');
+  const prefix = e4[0].slice(0, 14);
+  assert.equal(migrations.filter((file) => file.startsWith(prefix)).length, 1, 'version prefix must be unique');
+  const sql = await fs.readFile(path.join(migrationsDir, e4[0]), 'utf8');
+  assert.match(sql, /CREATE UNIQUE INDEX IF NOT EXISTS email_events_idempotency_claim_uniq/);
+  assert.match(sql, /status IN \('pending','sent'\)/, 'failed/skipped rows must stay outside the claim index (retryable)');
+  assert.match(sql, /'invoice_ready','order_cancelled'/);
+  assert.doesNotMatch(sql, /\b(DELETE|TRUNCATE|DROP TABLE|UPDATE)\b/i, 'migration must not mutate data');
+});
+
 test('HF1: every PDP that ships the cart drawer loads inventory-client.js (Isntree regression)', async () => {
   const pdpDir = path.join(root, 'products');
   const files = (await fs.readdir(pdpDir)).filter((file) => file.endsWith('.html'));
@@ -2869,7 +3251,11 @@ test('A1.2c: high-caution finance endpoints keep their business-logic markers al
   const refundsSrc = await fs.readFile(path.join(root, 'functions/api/admin/refunds.js'), 'utf8');
   const invoicesSrc = await fs.readFile(path.join(root, 'functions/api/admin/invoices.js'), 'utf8');
   const bankAccountsSrc = await fs.readFile(path.join(root, 'functions/api/admin/bank-accounts.js'), 'utf8');
-  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendCommerceTransactionalEmail', 'findCompletedRefund', 'validateRefundAmount', 'resolveProductRefundableCap', 'resolveShippingRefundableCap', 'allocateOrderDiscount', 'resolveItemProratedRefundableCap', 'snapshotBacked', 'order_items.pricing_snapshot']) {
+  // E4: the refund email side-effect moved behind the idempotent dispatcher
+  // sendRefundCompletedEmailOnce (which wraps sendCommerceTransactionalEmail);
+  // the marker tracks the dispatcher so the permission gate still cannot strip
+  // the customer email.
+  for (const marker of ['STATUSES', 'provider_reference', 'reverseOrderPoints', 'return_requests', 'sendRefundCompletedEmailOnce', 'findCompletedRefund', 'validateRefundAmount', 'resolveProductRefundableCap', 'resolveShippingRefundableCap', 'allocateOrderDiscount', 'resolveItemProratedRefundableCap', 'snapshotBacked', 'order_items.pricing_snapshot']) {
     assert.match(refundsSrc, new RegExp(marker), `admin/refunds.js: business-logic marker '${marker}' must remain present alongside the A1.2c permission gate`);
   }
   for (const marker of ['TYPES', 'STATUSES', 'provider_reference', 'invoice_number', 'pdf_url', 'order_status_events']) {

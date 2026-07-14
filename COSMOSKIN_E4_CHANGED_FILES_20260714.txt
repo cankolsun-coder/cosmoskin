@@ -1,0 +1,106 @@
+COSMOSKIN E4 — Transactional email/invoice/refund/brand integrity — changed files (2026-07-14)
+
+CREATED
+  functions/api/_lib/email-brand.js
+    - canonical email shell (header/wordmark/footer), resolveEmailProductImage,
+      emailImageTag/emailProductThumb, fail-closed getEmailOrigin
+  functions/api/_lib/lifecycle-emails.js
+    - sendRefundCompletedEmailOnce: DURABLE two-layer exactly-once claim
+      acquired before send — CAS on refund_records.metadata.email
+      ((none|failed) → pending_claimed → sent|failed, exactly-one-row
+      verified) + unique-indexed email_events pending claim; converged
+      return-scoped claim key across refunds.js/returns.js; claim-store
+      outage refuses to send (retryable, never fails open); 15-min stale
+      pending-claim takeover policy (REFUND_CLAIM_STALE_MS); pending_retry
+      settle on failure. maybeSendInvoiceReadyEmail (ready+HTTPS-PDF guards,
+      per-version dedup via invoice metadata stamp + event key),
+      normalizeInvoiceForEmail naming-drift adapter
+  assets/img/email/cosmoskin-wordmark-email-v1.png
+    - hosted retina wordmark (788x128 @2x, Cormorant Garamond, cream on
+      transparent) replacing the Didot text-logo
+  scripts/email-preview.mjs
+    - fixture-based preview renderer; allowlist-gated optional test send
+  scripts/make-test-invoice-pdf.mjs
+    - non-fiscal watermarked TEST invoice PDF generator
+  scripts/validate-e4-transactional-email-invoice-refund-brand-integrity.mjs
+  supabase/migrations/20260714161845_e4_email_event_types.sql
+    - unique 14-digit UTC version per DB1C-0 governance; additive email_events
+      CHECK swap adding invoice_ready + order_cancelled, plus the partial
+      unique index email_events_idempotency_claim_uniq (one pending/sent row
+      per metadata idempotency_key — atomic cross-path email claims)
+      (idempotent; NOT executed — manual production apply)
+
+MODIFIED
+  functions/api/_lib/order-email.js
+    - renders through the canonical shell; hosted wordmark (Didot stack gone);
+      canonical image resolver + framed thumbs; refund detail block
+      (amount/type/reference/method from refund_records — no recalculation);
+      invoice_ready copy/block/CTA; order_cancelled copy (cancelled orders no
+      longer get return-review wording); refund/invoice lines in text version
+  functions/api/_lib/restock-email.js
+    - rebuilt on the shell: guaranteed product image, brand line, effective
+      display price w/ sale compare-at (P1E resolver, display-only),
+      preferences link, v4 image override alignment
+  functions/api/_lib/email-events.js
+    - EMAIL_TYPES + invoice_ready/order_cancelled; durable claim helpers
+      claimEmailEvent / findEmailEventClaim / settleEmailEventClaim /
+      reclaimStaleEmailEventClaim (+ isUniqueViolationError);
+      hasSentEmailEvent() demoted to best-effort secondary lookup
+  functions/api/_lib/supabase.js
+    - additive updateRowsWhere helper: conditional PATCH with raw PostgREST
+      filters + return=representation so claim CAS can verify exactly one
+      row was updated (no existing helper changed)
+  functions/api/admin/refunds.js
+    - refund_completed email now via sendRefundCompletedEmailOnce with the
+      persisted refund payload; repeated completion callback (existing
+      completed refund) also routed through the dispatcher → returns
+      skipped_duplicate / retries a previously failed send; local
+      logRefundEmail removed
+      (NO refund amount/validation/proration logic touched)
+  functions/api/admin/returns.js
+    - status=refunded path routed through the idempotent dispatcher
+      (cross-path duplicate emails eliminated)
+  functions/api/admin/invoices.js
+    - POST/PATCH dispatch invoice_ready via guarded helper; response includes
+      email result; never blocks the admin operation
+  tests/local-integration.test.mjs
+    - +10 E4 tests (incl. in-memory PostgREST/Brevo harness proving: two
+      concurrent completion dispatches → one send; claim/ledger outage can
+      never duplicate and refuses record-less sends; failed send stays
+      retryable and a retry sends exactly once; converged claim keys;
+      migration governance — unique 14-digit UTC prefix + claim index);
+      A1.2c refunds marker updated
+      sendCommerceTransactionalEmail -> sendRefundCompletedEmailOnce
+      (same intent: permission gate cannot strip the email side-effect)
+  scripts/validate-a1-admin-endpoint-coverage.mjs
+    - A1.2c high-caution marker list tracks the E4-approved refactor:
+      sendCommerceTransactionalEmail + logRefundEmail (removed from
+      refunds.js) -> sendRefundCompletedEmailOnce; identical intent — the
+      refund completion email side-effect must remain present (mirrors the
+      A1.2c marker update already made in tests/local-integration.test.mjs)
+  .gitignore
+    - email-previews/ (new preview artifacts stay untracked; the 8 previews
+      below were ALREADY tracked by an earlier batch and remain tracked)
+  email-previews/{order_created,order_preparing,payment_confirmed_manual,
+  bank_transfer_pending,bank_transfer_reminder,
+  bank_transfer_not_received_cancelled,shipment_created,shipment_delivered}.html
+    - tracked reference fixtures regenerated on the canonical E4 shell
+      (stale Didot-branded references removed from the repo)
+
+DELETED
+  (none)
+
+UNTOUCHED (verified / validator-enforced)
+  products.json (git diff empty)
+  functions/api/create-checkout.js, coupons, product-pricing,
+  order-pricing-snapshot, inventory (stock accounting),
+  functions/api/invoices/qnb-create.js (fiscal provider)
+  No SQL executed; no deploy; no real-customer email; no secrets exposed
+
+TEST/VALIDATOR STATE (pre-commit)
+  - 10/10 E4 tests pass (252/256 suite pre-commit); A1.2c 8/8 pass; E4 validator PASS
+  - D-chain / UX3 / UX4 / E1 regression-green tests and validators fail
+    PRE-COMMIT only on dirty-tree scope guards (order-email.js,
+    email-events.js, refunds.js, untracked migration) — proven guard-only via
+    clean-tree stash run (HF1 + UX3B validators pass with E4 stashed);
+    all clear after the E4 commit, then re-run the full battery.

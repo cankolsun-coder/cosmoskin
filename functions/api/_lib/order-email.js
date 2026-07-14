@@ -1,13 +1,15 @@
 import { getCatalogProductByHandle, getCatalogProductByName } from './catalog.js';
+import {
+  escapeEmailHtml,
+  getEmailOrigin,
+  getEmailSupportAddress,
+  toAbsoluteEmailUrl,
+  resolveEmailProductImage,
+  emailProductThumb,
+  renderEmailShell
+} from './email-brand.js';
 
-function escapeHtml(value = '') {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
+const escapeHtml = escapeEmailHtml;
 
 function formatMoney(value = 0, currency = 'TRY') {
   try {
@@ -21,14 +23,8 @@ function formatMoney(value = 0, currency = 'TRY') {
   }
 }
 
-function getSiteUrl(env = {}) {
-  const raw = String(env.PUBLIC_SITE_URL || env.SITE_URL || 'https://www.cosmoskin.com.tr').trim();
-  return raw.replace(/\/$/, '');
-}
-
-function getSupportEmail(env = {}) {
-  return String(env.CONTACT_TO_EMAIL || env.CONTACT_FROM_EMAIL || 'destek@cosmoskin.com.tr').trim() || 'destek@cosmoskin.com.tr';
-}
+const getSiteUrl = getEmailOrigin;
+const getSupportEmail = getEmailSupportAddress;
 
 function getSender(env = {}) {
   return {
@@ -37,13 +33,7 @@ function getSender(env = {}) {
   };
 }
 
-function absoluteUrl(url = '', env = {}) {
-  const siteUrl = getSiteUrl(env);
-  const value = String(url || '').trim();
-  if (!value) return '';
-  if (/^https?:\/\//i.test(value)) return value;
-  return `${siteUrl}${value.startsWith('/') ? '' : '/'}${value}`;
-}
+const absoluteUrl = toAbsoluteEmailUrl;
 
 function customerName(order = {}) {
   return `${order.customer_first_name || ''} ${order.customer_last_name || ''}`.trim() || 'COSMOSKIN üyesi';
@@ -125,11 +115,19 @@ const COPY = {
   refund_completed: {
     subject: 'İade ödemeniz tamamlandı', eyebrow: 'İade Ödemesi', title: 'İade ödemeniz tamamlandı.',
     body: 'İade süreciniz tamamlandı. Tutarın ödeme aracınıza yansıması bankanızın işlem sürelerine bağlıdır.', icon: '✓', tone: 'success', cta: 'Sipariş Detayını Gör'
+  },
+  invoice_ready: {
+    subject: 'Faturanız hazır', eyebrow: 'Fatura Bilgisi', title: 'Faturanız hazır.',
+    body: 'Siparişinize ait faturanız oluşturuldu. Faturanızı aşağıdaki bağlantıdan görüntüleyebilir, dilediğiniz zaman hesabınızdan tekrar ulaşabilirsiniz.', icon: '▤', tone: 'neutral', cta: 'Faturanı Görüntüle'
+  },
+  order_cancelled: {
+    subject: 'Siparişiniz iptal edildi', eyebrow: 'Sipariş İptali', title: 'Siparişiniz iptal edildi.',
+    body: 'Siparişiniz iptal edildi. Ödemeniz alındıysa iade süreci ayrıca bilgilendirilecektir. Dilerseniz ürünleri yeniden sepete ekleyerek yeni sipariş oluşturabilirsiniz.', icon: '×', tone: 'warning', cta: 'Alışverişe Devam Et'
   }
 };
 
 const STATUS_TO_TYPE = {
-  confirmed: 'payment_success', paid: 'payment_success', pending: 'order_created', preparing: 'order_preparing', packed: 'order_packed', shipped: 'shipment_created', delivered: 'shipment_delivered', cancelled: 'return_rejected', refunded: 'refund_completed', partially_refunded: 'refund_completed', payment_failed: 'payment_failed'
+  confirmed: 'payment_success', paid: 'payment_success', pending: 'order_created', preparing: 'order_preparing', packed: 'order_packed', shipped: 'shipment_created', delivered: 'shipment_delivered', cancelled: 'order_cancelled', refunded: 'refund_completed', partially_refunded: 'refund_completed', payment_failed: 'payment_failed'
 };
 
 function copyFor(type = '') {
@@ -173,7 +171,9 @@ function emailImageForItem(item = {}, product = {}, slug = '', env = {}) {
   if (/beauty-of-joseon.*relief-sun-spf50|beauty-of-joseon-relief-sun-spf50/i.test(rawImage)) {
     return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES['beauty-of-joseon-relief-sun-spf50'], env);
   }
-  return absoluteUrl(rawImage, env);
+  // E4: canonical resolver — absolute HTTPS or the branded fallback, never a
+  // relative/localhost URL and never an empty src.
+  return resolveEmailProductImage({ ...item, image: rawImage, product }, env);
 }
 
 function emailHeaders(type = '', order = {}) {
@@ -213,9 +213,7 @@ function orderItems(order = {}, payloadItems = []) {
 function productsBlock(items = [], env = {}, currency = 'TRY') {
   const rows = items.slice(0, 10).map((raw) => {
     const item = resolveItem(raw, env);
-    const imageHtml = item.image
-      ? `<table role="presentation" width="76" height="76" cellspacing="0" cellpadding="0" border="0" style="width:76px;height:76px;border-collapse:separate;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:16px;border:1px solid #eee5dc;background:#fbf7ef;text-align:center;vertical-align:middle;"><img src="${escapeHtml(item.image)}" width="64" height="64" alt="${escapeHtml(item.name)}" style="display:block;width:64px;height:64px;max-width:64px;max-height:64px;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;margin:0 auto;"></td></tr></table>`
-      : `<table role="presentation" width="76" height="76" cellspacing="0" cellpadding="0" border="0" style="width:76px;height:76px;border-collapse:separate;"><tr><td align="center" valign="middle" width="76" height="76" style="width:76px;height:76px;border-radius:16px;border:1px solid #eee5dc;background:#fbf7ef;text-align:center;vertical-align:middle;"><span style="display:inline-block;font-family:Georgia,serif;font-size:18px;line-height:1;color:#8a6a4a;">CS</span></td></tr></table>`;
+    const imageHtml = emailProductThumb({ image: item.image, name: item.name, size: 76, inner: 64, env });
     return `<tr>
       <td width="92" style="padding:14px 0;border-bottom:1px solid #eee5dc;vertical-align:top;">${item.url ? `<a href="${escapeHtml(item.url)}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block;">${imageHtml}</a>` : imageHtml}</td>
       <td style="padding:14px 12px;border-bottom:1px solid #eee5dc;vertical-align:top;">
@@ -271,17 +269,66 @@ function bankAccountsBlock(accounts = [], order = {}) {
   </table>`;
 }
 
+// E4 — Refund details block. Displays values already computed and persisted by
+// the D2/D2B/D3 refund pipeline (refund_records + paid snapshots); this module
+// never recalculates a refund amount.
+function refundKind(refund = {}, order = {}) {
+  const amount = Number(refund.amount || 0);
+  const paid = Number(order.total_amount || 0);
+  if (amount > 0 && paid > 0 && amount >= paid - 0.005) return 'Tam iade';
+  return 'Kısmi iade';
+}
+
+function paymentMethodLabel(order = {}, refund = {}) {
+  const provider = String(refund.provider || order.payment_provider || order.payment_method || '').toLowerCase();
+  if (/iyzico|card|kart/.test(provider)) return 'Kredi/Banka Kartı (iyzico)';
+  if (/bank|havale|eft|transfer|manual/.test(provider)) return 'Havale/EFT';
+  return '';
+}
+
+function refundBlock(refund = {}, order = {}, currency = 'TRY') {
+  if (!refund || !(Number(refund.amount) > 0)) return '';
+  return infoBox('İade Bilgisi', [
+    ['Sipariş No', orderNumber(order)],
+    ['İade Referansı', refund.provider_reference || ''],
+    ['İade Tutarı', formatMoney(refund.amount, refund.currency || currency)],
+    ['İade Türü', refundKind(refund, order)],
+    ['Ödeme Yöntemi', paymentMethodLabel(order, refund)]
+  ]);
+}
+
+// E4 — Invoice details block for invoice_ready.
+function invoiceBlock(invoice = {}, order = {}, currency = 'TRY') {
+  if (!invoice) return '';
+  const issued = invoice.issued_at ? new Date(invoice.issued_at) : null;
+  const issuedText = issued && !Number.isNaN(issued.getTime())
+    ? issued.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })
+    : '';
+  return infoBox('Fatura Bilgisi', [
+    ['Sipariş No', orderNumber(order)],
+    ['Fatura No', invoice.invoice_number || ''],
+    ['Düzenlenme Tarihi', issuedText],
+    ['Toplam Tutar', order.total_amount != null ? formatMoney(order.total_amount, currency) : '']
+  ]);
+}
+
 function noticeBlock(text, tone = '') {
   if (!text) return '';
   const border = tone === 'warning' ? '#d6a08d' : '#c5a16f';
   return `<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;margin-top:22px;"><tr><td style="background:#fdf9f5;border:1px solid #eee5dc;border-left:4px solid ${border};padding:15px 16px;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#6b5e50;line-height:1.7;">${escapeHtml(text)}</td></tr></table>`;
 }
 
-function ctaRows(copy, type, order, shipment, env) {
+function ctaRows(copy, type, order, shipment, env, invoice = null) {
   const siteUrl = getSiteUrl(env);
   const trackingUrl = shipment?.tracking_url || '';
   const orderUrl = `${siteUrl}/account/profile.html?tab=orders`;
   const firstItem = resolveItem(orderItems(order)[0] || {}, env);
+  if (type === 'invoice_ready') {
+    const pdfUrl = absoluteUrl(invoice?.pdf_url || '', env);
+    const invoicesUrl = `${siteUrl}/account/profile.html?tab=invoices`;
+    const primary = pdfUrl || invoicesUrl;
+    return `<tr><td style="padding:0 40px 32px;text-align:center;"><a href="${escapeHtml(primary)}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 30px;background:#171717;color:#eadcc8;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2.4px;text-transform:uppercase;font-weight:bold;margin:0 4px 10px;">Faturanı Görüntüle</a><a href="${escapeHtml(invoicesUrl)}" target="_blank" rel="noopener" style="display:inline-block;padding:13px 22px;border:1px solid #d8cbbb;color:#171717;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:bold;margin:0 4px 10px;">Hesabımdaki Faturalar</a></td></tr>`;
+  }
   if (type === 'shipment_created' || type === 'shipment_updated') {
     const href = trackingUrl || `${siteUrl}/order-tracking.html`;
     return `<tr><td style="padding:0 40px 32px;text-align:center;"><a href="${escapeHtml(href)}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 30px;background:#171717;color:#eadcc8;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2.4px;text-transform:uppercase;font-weight:bold;">Kargomu Takip Et</a></td></tr>`;
@@ -294,10 +341,8 @@ function ctaRows(copy, type, order, shipment, env) {
   return `<tr><td style="padding:0 40px 32px;text-align:center;"><a href="${escapeHtml(href)}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 30px;background:#171717;color:#eadcc8;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2.4px;text-transform:uppercase;font-weight:bold;">${escapeHtml(copy.cta || 'Siparişimi Gör')}</a></td></tr>`;
 }
 
-export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env = {}, note = '', shipment = {}, items = [], bankAccounts = [] }) {
+export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env = {}, note = '', shipment = {}, items = [], bankAccounts = [], refund = null, invoice = null }) {
   const copy = copyFor(type);
-  const siteUrl = getSiteUrl(env);
-  const support = getSupportEmail(env);
   const currency = order.currency || 'TRY';
   const resolvedItems = orderItems(order, items);
   const safeNote = sanitizeCustomerNote(note, type);
@@ -311,17 +356,10 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
   const deliveredNotice = type === 'shipment_delivered'
     ? 'Hasarlı, eksik veya yanlış ürün bildiriminizi teslimattan itibaren 48 saat içinde fotoğraf/video ile destek@cosmoskin.com.tr üzerinden bize iletebilirsiniz.'
     : '';
-  return `<!DOCTYPE html>
-<html lang="tr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${escapeHtml(copy.subject)} | COSMOSKIN</title></head>
-<body style="margin:0;padding:0;background-color:#f4f1ec;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;color:#171717;">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;font-size:1px;line-height:1px;">${escapeHtml(copy.body)}</div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#f4f1ec;margin:0;padding:0;border-collapse:collapse;"><tr><td align="center" style="padding:36px 16px;">
-    <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background-color:#ffffff;border-collapse:collapse;border:1px solid #e8dfd4;">
-      <tr><td align="center" style="background-color:#171717;padding:32px 32px 30px;text-align:center;">
-        <a href="${escapeHtml(siteUrl)}" target="_blank" style="display:block;text-align:center;color:#eadcc8;text-decoration:none;font-family:Didot,'Bodoni 72','Bodoni 72 Smallcaps',Baskerville,'Times New Roman',serif;font-size:34px;line-height:1;letter-spacing:14px;font-weight:400;text-transform:uppercase;padding-left:14px;">COSMOSKIN</a>
-        <div style="font-family:Arial,Helvetica,sans-serif;color:#9c8f7f;font-size:10px;line-height:1.4;letter-spacing:2.4px;text-transform:uppercase;margin-top:13px;text-align:center;">K-BEAUTY · CİLT BAKIMI</div>
-      </td></tr>
-      <tr><td style="padding:42px 40px 34px;background-color:#ffffff;">
+  const refundNotice = type === 'refund_completed'
+    ? 'İade tutarının hesabınıza veya kartınıza yansıma süresi bankanızın işlem sürelerine göre değişebilir.'
+    : '';
+  const bodyHtml = `
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;"><tr><td align="center" style="padding-bottom:22px;">
           <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td align="center" valign="middle" style="width:62px;height:62px;border-radius:62px;border:1px solid #d9cdbc;${iconStyle(copy.tone)}text-align:center;vertical-align:middle;line-height:1;">${statusIconHtml(type, copy, env)}</td></tr></table>
         </td></tr></table>
@@ -330,28 +368,41 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
         <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#55504a;line-height:1.75;margin:0 0 10px;text-align:center;">Merhaba ${escapeHtml(customerName(order))},</p>
         <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#55504a;line-height:1.75;margin:0 auto 12px;text-align:center;max-width:460px;">${escapeHtml(copy.body)}</p>
         ${emailAntiTrimLine(type, order, copy)}
+        ${type === 'refund_completed' ? refundBlock(refund, order, currency) : ''}
+        ${type === 'invoice_ready' ? invoiceBlock(invoice, order, currency) : ''}
         ${infoBox('Sipariş Bilgisi', totalRows)}
         ${type === 'bank_transfer_pending' ? bankAccountsBlock(bankAccounts, order) : ''}
         ${(type === 'shipment_created' || type === 'shipment_updated') ? trackingBlock(shipment) : ''}
         ${productsBlock(resolvedItems, env, currency)}
         ${deliveredNotice ? noticeBlock(deliveredNotice) : ''}
-        ${safeNote ? noticeBlock(`COSMOSKIN notu: ${safeNote}`) : ''}
-      </td></tr>
-      ${ctaRows(copy, type, order, shipment, env)}
-      <tr><td align="center" style="background-color:#f9f6f2;border-top:1px solid #eee5dc;padding:24px 36px;text-align:center;">
-        <p style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9a8e82;margin:0 0 7px;line-height:1.6;text-align:center;">Bu e-posta COSMOSKIN sipariş süreciyle ilgili gönderilmiştir.</p>
-        <p style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9a8e82;margin:0 0 7px;line-height:1.6;text-align:center;">Yardıma ihtiyacınız varsa <a href="mailto:${escapeHtml(support)}" style="color:#8a6a4a;text-decoration:none;">${escapeHtml(support)}</a> üzerinden bize ulaşabilirsiniz.</p>
-        <p style="font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#9a8e82;margin:0;line-height:1.6;text-align:center;">© 2026 COSMOSKIN · <a href="${escapeHtml(siteUrl)}" target="_blank" style="color:#8a6a4a;text-decoration:none;">www.cosmoskin.com.tr</a></p>
-      </td></tr>
-    </table>
-  </td></tr></table>
-</body></html>`;
+        ${refundNotice ? noticeBlock(refundNotice) : ''}
+        ${safeNote ? noticeBlock(`COSMOSKIN notu: ${safeNote}`) : ''}`;
+  return renderEmailShell({
+    env,
+    title: copy.subject,
+    preheader: copy.body,
+    bodyHtml,
+    ctaHtml: ctaRows(copy, type, order, shipment, env, invoice),
+    footerNote: 'Bu e-posta COSMOSKIN sipariş süreciyle ilgili gönderilmiştir.'
+  });
 }
 
-export function buildCommerceText({ order = {}, type = 'order_created', shipment = {}, note = '', env = {}, items = [], bankAccounts = [] }) {
+export function buildCommerceText({ order = {}, type = 'order_created', shipment = {}, note = '', env = {}, items = [], bankAccounts = [], refund = null, invoice = null }) {
   const copy = copyFor(type);
   const lines = ['COSMOSKIN', copy.subject, copy.body, `Sipariş No: ${orderNumber(order)}`];
   if (order.total_amount != null) lines.push(`Toplam: ${formatMoney(order.total_amount, order.currency || 'TRY')}`);
+  if (type === 'refund_completed' && refund && Number(refund.amount) > 0) {
+    lines.push(`İade Tutarı: ${formatMoney(refund.amount, refund.currency || order.currency || 'TRY')} (${refundKind(refund, order)})`);
+    if (refund.provider_reference) lines.push(`İade Referansı: ${refund.provider_reference}`);
+    const method = paymentMethodLabel(order, refund);
+    if (method) lines.push(`Ödeme Yöntemi: ${method}`);
+    lines.push('İade tutarının yansıma süresi bankanızın işlem sürelerine göre değişebilir.');
+  }
+  if (type === 'invoice_ready' && invoice) {
+    if (invoice.invoice_number) lines.push(`Fatura No: ${invoice.invoice_number}`);
+    const pdf = absoluteUrl(invoice.pdf_url || '', env);
+    if (pdf) lines.push(`Faturanı Görüntüle: ${pdf}`);
+  }
   if (type === 'bank_transfer_pending') {
     const accounts = Array.isArray(bankAccounts) ? bankAccounts.filter((account) => account && account.iban && (account.bankName || account.bank_name)) : [];
     if (accounts.length) {

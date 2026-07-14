@@ -1,0 +1,22 @@
+event,exists,trigger_source,event_fires,email_sends,idempotent,event_log_written,recipient_source,product_images_render,canonical_branding,manual_resend,state,notes
+order_created,yes,create-checkout (bank transfer path),yes,yes,per-order status flow,yes (email_events),orders.customer_email,yes (canonical resolver),yes (shared shell),admin orders email action,fully_wired,
+bank_transfer_pending,yes,create-checkout,yes,yes,per-order status flow,yes,orders.customer_email,yes,yes,admin orders email action,fully_wired,bank account block + order-number instruction
+bank_transfer_reminder,yes (copy+type),none (no scheduler),no,no,n/a,n/a,n/a,n/a,yes (template ready),no,template_only,needs a cron/scheduler to fire — pre-existing gap documented
+bank_transfer_not_received_cancelled,yes,admin bank-transfer cancel flow,yes,yes,per transition,yes,orders.customer_email,yes,yes,admin,fully_wired,
+payment_confirmed (iyzico),yes (payment_success),iyzico-callback paid,yes,yes,callback-guarded,yes,orders.customer_email,yes,yes,admin,fully_wired,
+payment_confirmed_manual,yes,admin manual Havale/EFT confirm,yes,yes,per transition,yes,orders.customer_email,yes,yes,admin,fully_wired,
+payment_failed,yes,iyzico-callback failure,yes,yes,per callback,yes,orders.customer_email,yes,yes,admin,fully_wired,
+order_processing (order_preparing/order_packed),yes,admin order status change,yes,yes,per transition,yes,orders.customer_email,yes,yes,admin,fully_wired,
+order_shipped (shipment_created/updated),yes,admin shipments endpoint,yes,yes,per shipment event,yes,orders.customer_email,yes,yes,admin,fully_wired,tracking block
+order_delivered (shipment_delivered),yes,admin shipments endpoint,yes,yes,per transition,yes,orders.customer_email,yes,yes,admin,fully_wired,48h damage-notice copy
+order_cancelled,E4-added copy+type,admin order status change (status=cancelled),yes,yes,per transition,after E4 migration,orders.customer_email,yes,yes,admin,fixed_in_E4,previously mis-mapped to return_rejected copy
+refund_completed,yes,admin refunds POST (completed) AND admin returns PATCH (refunded),yes,yes,E4: idempotency key across both paths,yes (+idempotency_key),orders.customer_email,yes,yes (E4: refund detail block),admin (idempotent),hardened_in_E4,failure logged pending_retry; never rolls back refund
+return_request_received,yes,customer returns endpoint,yes,yes,per request,yes,orders.customer_email,yes,yes,admin,fully_wired,
+return_approved,yes,admin returns PATCH,yes,yes,per transition,yes,orders.customer_email,yes,yes,admin,fully_wired,also reused for return_code_shared note
+return_rejected,yes,admin returns PATCH,yes,yes,per transition,yes,orders.customer_email,yes,yes,admin,fully_wired,
+invoice_ready,E4-added,admin invoices POST/PATCH when issued+HTTPS PDF,yes,yes,E4: per invoice version (metadata stamp + event key),after E4 migration (stamp works regardless),orders.customer_email via invoice.order_id,n/a (no product rows),yes,re-issue PDF = new version re-sends deliberately,built_in_E4,never sends for empty/pending invoice rows
+back_in_stock (restock_alert),yes,inventory restock -> notifyRestockAlerts,yes,yes,restock_alerts waiting->notified per cycle,yes,restock_alerts subscriptions (not favorites),E4: guaranteed (canonical resolver + fallback),E4: shared shell + price display,admin restock re-trigger,hardened_in_E4,
+account_verification,external,Supabase Auth hosted template,yes,yes,provider-side,provider-side,auth user email,n/a,partial (supabase-email-template.html reference),Supabase dashboard,external_provider,brand alignment is a Supabase dashboard task
+password_reset,external,Supabase Auth hosted template,yes,yes,provider-side,provider-side,auth user email,n/a,partial,Supabase dashboard,external_provider,
+support_request_ack,partial,contact.js (support inbox notification),yes,to support inbox,per submission,partial,form email,n/a,own simple template,no,partial,customer ack template not on shared shell — documented follow-up
+review_request,type reserved,none,no,no,n/a,n/a,n/a,n/a,n/a,no,event_only,reserved in EMAIL_TYPES; no trigger

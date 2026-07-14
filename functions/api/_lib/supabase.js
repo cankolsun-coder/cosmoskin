@@ -98,6 +98,29 @@ export async function updateRows(context, table, filters, payload) {
   return true;
 }
 
+// E4: conditional (compare-and-set) update. Takes raw PostgREST filter params
+// like selectRows (so callers can express conditions beyond eq, e.g.
+// `or=(...)` or JSON-path filters) and returns the updated rows so the caller
+// can verify exactly how many rows matched — claim acquisition must see
+// exactly one.
+export async function updateRowsWhere(context, table, params, payload) {
+  const { url } = getEnv(context);
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params || {})) {
+    if (value !== undefined && value !== null && value !== '') qs.set(key, value);
+  }
+  const response = await fetchWithTimeout(`${url}/rest/v1/${table}?${qs.toString()}`, {
+    method: 'PATCH',
+    headers: adminHeaders(context, {
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation'
+    }),
+    body: JSON.stringify(payload)
+  }, timeoutMs(context), 'Veritabanı servisi zaman aşımına uğradı.');
+  const data = await parseSupabaseResponse(response);
+  return Array.isArray(data) ? data : (data ? [data] : []);
+}
+
 export async function selectRows(context, table, params = {}) {
   const { url } = getEnv(context);
   const qs = new URLSearchParams();
