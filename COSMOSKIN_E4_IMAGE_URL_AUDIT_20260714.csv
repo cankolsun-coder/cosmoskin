@@ -1,0 +1,10 @@
+location,field_or_pattern,before_e4,after_e4,risk_removed
+order-email.js product rows,item.email_image|image|product_image|image_url + catalog product.image,absoluteUrl() passthrough; empty image -> textual CS cell; http passthrough; env-dependent origin,resolveEmailProductImage -> absolute HTTPS canonical origin + branded fallback; http->https; unsafe hosts rejected,broken/relative/preview-origin product images in inboxes
+order-email.js status icons,statusIconAsset /assets/img/email/status-*-v4.png,relative -> absoluteUrl (env-trusting),toAbsoluteEmailUrl with fail-closed canonical origin,pages.dev/localhost leakage via misconfigured PUBLIC_SITE_URL
+order-email.js wordmark,text logo Didot/Bodoni stack,client-dependent font rendering (Times fallback on Windows/Gmail),hosted retina PNG 300x49 alt=COSMOSKIN explicit dims,inconsistent brand rendering; no-image-dimension reflow
+restock-email.js product image,productImage param + catalog product.image,v3 override drift; empty -> CS text cell; env-trusting absoluteUrl,canonical resolver + emailProductThumb framed 120px + branded fallback; v4 override aligned,missing product image in back-in-stock emails
+restock-email.js wordmark,text logo Didot stack,same drift as order-email,shared shell hosted PNG,brand drift between templates
+email-brand.js (new),all templates,n/a,UNSAFE_IMAGE_PATTERN rejects localhost/127/0.0.0.0/pages.dev/file:/data:/blob:/ftp:/other protocols; // -> https,unsafe protocol/host emission
+email-brand.js emailImageTag,all template imgs,varied inline styles,explicit width+height border=0 display:block alt fallback-bg no-lazyload,Outlook/Gmail rendering failures
+getEmailOrigin,PUBLIC_SITE_URL/SITE_URL,trusted verbatim,fail-closed to https://www.cosmoskin.com.tr when non-https/localhost/pages.dev,entire-email origin poisoning
+fixtures/preview,email-previews/*.html,n/a,QA-scanned: 0 broken imgs / 0 unsafe srcs / 0 empty srcs at 360+600,regression detection for all of the above

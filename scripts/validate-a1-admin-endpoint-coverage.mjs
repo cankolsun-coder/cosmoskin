@@ -320,7 +320,11 @@ const HIGH_CAUTION_MARKERS = {
   ],
   'functions/api/admin/refunds.js': [
     'STATUSES', 'provider_reference', 'reverseOrderPoints', "completed_at: status === 'completed'",
-    'return_requests', 'sendCommerceTransactionalEmail', 'logRefundEmail', 'findCompletedRefund',
+    // E4 (2026-07-14) owns the refund-completed email side-effect: the direct
+    // sendCommerceTransactionalEmail call + local logRefundEmail were replaced
+    // by the durable idempotent dispatcher. Same intent as before: the
+    // completion email side-effect must remain present and un-strippable.
+    'return_requests', 'sendRefundCompletedEmailOnce', 'findCompletedRefund',
     'validateRefundAmount', 'computeRemainingRefundable',
     'resolveProductRefundableCap', 'resolveShippingRefundableCap', 'buildRefundCaps',
     'allocateOrderDiscount', 'resolveItemProratedRefundableCap', 'resolveOrderDiscountAmount',

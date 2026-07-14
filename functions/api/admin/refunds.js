@@ -2,8 +2,7 @@ import { selectRows, insertRow, updateRows } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { requireAdminPermission } from '../_lib/admin-audit.js';
-import { recordEmailEvent } from '../_lib/email-events.js';
-import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
+import { sendRefundCompletedEmailOnce } from '../_lib/lifecycle-emails.js';
 import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
 import {
   isValidPricingSnapshot,
@@ -566,20 +565,6 @@ export async function loadRefundBalanceContext(context, order, options = {}) {
   return ctx;
 }
 
-async function logRefundEmail(context, order, result) {
-  await recordEmailEvent(context, {
-    order_id: order.id,
-    customer_email: order.customer_email,
-    email_type: 'refund_completed',
-    provider: result.provider || (context.env.BREVO_API_KEY ? 'brevo' : null),
-    status: result.sent ? 'sent' : (result.skipped ? 'skipped' : 'failed'),
-    subject: getCommerceEmailSubject('refund_completed'),
-    provider_message_id: result.provider_message_id || null,
-    error_message: result.reason || result.error || null,
-    metadata: { source: 'admin_refunds' }
-  });
-}
-
 async function findCompletedRefund(context, { returnRequestId, orderId }) {
   if (returnRequestId) {
     const rows = await selectRows(context, 'refund_records', {
@@ -643,11 +628,20 @@ export async function onRequestPost(context) {
       }
       const existingCompleted = await findCompletedRefund(context, { returnRequestId, orderId });
       if (existingCompleted) {
+        // E4: repeated completion callback — the dispatcher's durable claim
+        // dedups (returns skipped_duplicate when the email already went out)
+        // and retries a previously failed send; it can never send twice.
+        const repeatEmail = await sendRefundCompletedEmailOnce(context, {
+          order,
+          refund: existingCompleted,
+          returnRequestId: existingCompleted.return_request_id || returnRequestId || '',
+          source: 'admin_refunds_repeat'
+        }).catch((error) => ({ sent: false, error: error?.message || 'email_failed' }));
         return json({
           ok: true,
           idempotent: true,
           refund: existingCompleted,
-          email: null,
+          email: repeatEmail,
           message: 'Bu iade kaydı zaten tamamlanmış.'
         });
       }
@@ -738,13 +732,15 @@ export async function onRequestPost(context) {
         source: 'admin_refund',
         refundAmount: payload.amount
       });
-      try {
-        email = await sendCommerceTransactionalEmail(context.env, { order, type: 'refund_completed' });
-        await logRefundEmail(context, order, email);
-      } catch (error) {
-        email = { sent: false, error: 'email_failed' };
-        await logRefundEmail(context, order, email);
-      }
+      // E4: idempotent dispatch — exactly one customer email per refund even
+      // when the returns endpoint also fires for the same refund; a send
+      // failure is logged for retry and never rolls back the refund above.
+      email = await sendRefundCompletedEmailOnce(context, {
+        order,
+        refund,
+        returnRequestId: payload.return_request_id || '',
+        source: 'admin_refunds'
+      }).catch((error) => ({ sent: false, error: error?.message || 'email_failed' }));
     }
 
     return json({

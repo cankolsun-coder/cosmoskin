@@ -4,6 +4,7 @@ import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { recordEmailEvent } from '../_lib/email-events.js';
 import { sendCommerceTransactionalEmail, getCommerceEmailSubject } from '../_lib/order-email.js';
+import { sendRefundCompletedEmailOnce } from '../_lib/lifecycle-emails.js';
 import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
 
 const VALID_STATUS = new Set(['requested','under_review','approved','return_code_shared','waiting_customer_ship','in_transit','received','inspection','refund_pending','refunded','rejected','cancelled','closed']);
@@ -124,7 +125,10 @@ export async function onRequestPatch(context){
       if(status==='approved') email=await sendReturnEmail(context,order,'return_approved',payload.admin_note||'');
       if(status==='return_code_shared') email=await sendReturnEmail(context,order,'return_approved','İade gönderim kodunuz hesabınızda görüntülenebilir.');
       if(status==='rejected') email=await sendReturnEmail(context,order,'return_rejected',payload.rejection_reason||payload.admin_note||'');
-      if(status==='refunded') email=await sendReturnEmail(context,order,'refund_completed',payload.admin_note||'');
+      // E4: refund_completed goes through the idempotent dispatcher — if the
+      // refunds endpoint already emailed for this return's refund, this logs
+      // a skipped_duplicate instead of sending a second customer email.
+      if(status==='refunded') email=await sendRefundCompletedEmailOnce(context,{order,returnRequestId:id,source:'admin_returns'}).catch(()=>({sent:false,error:'email_failed'}));
     }
     // Loyalty reversal hook: a return is one of the three "actually cancelled/
     // refunded/returned" trigger events. This endpoint has no reliable
