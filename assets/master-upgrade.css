@@ -468,3 +468,33 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .header .brand .brand-word,
   .cm-header-brandlock .cm-wordmark{font-size:20px!important;letter-spacing:.22em!important;}
 }
+
+/* Collection / category landing heroes — match Kategoriler premium type */
+@media (max-width: 768px) {
+  .page-hero h1,
+  .collection-landing-hero h1 {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-weight: 600 !important;
+    font-size: clamp(2rem, 8.4vw, 2.65rem) !important;
+    line-height: 1 !important;
+    letter-spacing: -.02em !important;
+    color: #17110c !important;
+    margin: 2px 0 8px !important;
+  }
+  .page-hero .kicker,
+  .collection-landing-hero .kicker {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: .24em !important;
+    text-transform: uppercase;
+    color: #a07f52 !important;
+    margin-bottom: 8px !important;
+  }
+  .page-hero p:not(.kicker):not(.collection-result-count),
+  .collection-landing-hero p:not(.kicker):not(.collection-result-count) {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    color: #6f645a !important;
+  }
+}

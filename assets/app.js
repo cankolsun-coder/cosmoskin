@@ -755,6 +755,20 @@
     return `<span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="${active ? 'currentColor' : 'none'}"/></svg></span>`;
   }
 
+  function favoriteHeartSvgInner(active = false) {
+    return favoriteHeartIcon(active).replace('<span class="favorite-btn-icon" aria-hidden="true">', '').replace('</span>', '');
+  }
+
+  function paintFavoriteButton(button, active = false) {
+    if (!button) return;
+    let icon = button.querySelector('.favorite-btn-icon');
+    if (!icon) {
+      button.innerHTML = favoriteHeartIcon(active);
+      return;
+    }
+    icon.innerHTML = favoriteHeartSvgInner(active);
+  }
+
   function broadcastFavoritesChange() {
     syncFavoritesState();
     window.dispatchEvent(new CustomEvent('cosmoskin:favorites-updated', { detail: { favorites: state.favorites } }));
@@ -880,10 +894,17 @@
 
   function ensureFavoriteButtons(root = document) {
     root.querySelectorAll('.product-card').forEach((card) => {
+      const existingFav = card.querySelector('.favorite-btn');
+      if (existingFav) {
+        if (!existingFav.querySelector('.favorite-btn-icon svg')) {
+          paintFavoriteButton(existingFav, isFavorite(existingFav.dataset.favoriteId));
+        }
+        return;
+      }
       const media = card.querySelector('.product-media');
       const mediaWrap = card.querySelector('.product-media-wrap');
       const cartBtn = card.querySelector('[data-add-cart]');
-      if (!media || !cartBtn || card.querySelector('.favorite-btn')) return;
+      if (!media || !cartBtn) return;
       const product = getProductDataFromButton(cartBtn);
       if (!product?.id) return;
       const button = document.createElement('button');
@@ -892,7 +913,7 @@
       button.setAttribute('aria-label', 'Favorilere ekle');
       button.setAttribute('title', 'Favorilere ekle');
       setFavoriteButtonData(button, product);
-      button.innerHTML = favoriteHeartIcon(false);
+      paintFavoriteButton(button, isFavorite(product.id));
       button.addEventListener('click', async (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -927,8 +948,7 @@
       button.setAttribute('aria-pressed', active ? 'true' : 'false');
       button.setAttribute('aria-label', active ? 'Favorilerden kaldır' : 'Favorilere ekle');
       button.setAttribute('title', active ? 'Favorilerden kaldır' : 'Favorilere ekle');
-      const icon = button.querySelector('.favorite-btn-icon');
-      if (icon) icon.innerHTML = favoriteHeartIcon(active).replace('<span class="favorite-btn-icon" aria-hidden="true">','').replace('</span>','');
+      paintFavoriteButton(button, active);
     });
   }
 

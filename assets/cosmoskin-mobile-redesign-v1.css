@@ -63,15 +63,15 @@
   .cs-mobile-v1-logo {
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(calc(-50% - 14px));
     display: inline-flex; justify-content: center; align-items: center; min-width: 0;
-    max-width: calc(100% - 120px);
+    max-width: calc(100% - 136px);
     color: var(--cs-mobile-ink); text-decoration: none;
     font-family: "Cormorant Garamond", Didot, "Bodoni 72", Georgia, serif;
-    font-size: clamp(24px, 6.8vw, 34px);
+    font-size: clamp(21px, 5.9vw, 29px);
     font-weight: 400;
     line-height: .92;
-    letter-spacing: clamp(.30em, 1.1vw, .46em);
+    letter-spacing: clamp(.24em, .9vw, .36em);
     text-transform: uppercase;
     font-variant-ligatures: none;
     -webkit-font-smoothing: antialiased;
@@ -88,13 +88,18 @@
     display: block;
     overflow: visible;
     white-space: nowrap;
-    padding-left: .18em;
+    padding-left: 0;
+    margin-right: -.24em;
     transform: translateY(-.02em);
   }
   .cs-mobile-v1-iconbtn {
     width: 44px; min-width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
-    border-radius: var(--cs-mobile-radius-pill); border: 1px solid var(--cs-mobile-line); background: rgba(255,255,255,.72); color: var(--cs-mobile-ink);
-    box-shadow: none; padding: 0; position: relative;
+    border-radius: 0; border: 0; background: transparent; color: var(--cs-mobile-ink);
+    box-shadow: none; padding: 0; position: relative; appearance: none; -webkit-appearance: none;
+  }
+  .cs-mobile-v1-iconbtn:focus-visible {
+    outline: 2px solid rgba(181, 138, 74, .45);
+    outline-offset: 2px;
   }
   .cs-mobile-v1-iconbtn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .cs-mobile-v1-tools { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
@@ -119,21 +124,45 @@
     color: var(--cs-mobile-muted); text-decoration: none; border-radius: 18px; font: 700 10px/1.15 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: -.01em; position: relative;
   }
   .cs-mobile-v1-bottom-nav a.is-active { color: var(--cs-mobile-ink); background: rgba(31, 23, 16, .055); }
-  .cs-mobile-v1-bottom-nav svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
+  .cs-mobile-v1-bottom-nav svg { display: block; flex: 0 0 auto; width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
 
   .cs-mobile-v1-backdrop { position: fixed; inset: 0; z-index: 7000; background: rgba(25, 18, 12, .38); opacity: 0; pointer-events: none; transition: opacity .22s ease; }
   .cs-mobile-v1-backdrop.is-open { opacity: 1; pointer-events: auto; }
   .cs-mobile-v1-sheet { position: fixed; z-index: 7010; background: var(--cs-mobile-surface); color: var(--cs-mobile-ink); box-shadow: var(--cs-mobile-shadow-soft); transform: translate3d(0, 110%, 0); transition: transform .28s cubic-bezier(.22, .8, .24, 1); pointer-events: none; }
   .cs-mobile-v1-sheet.is-open { transform: translate3d(0,0,0); pointer-events: auto; }
   .cs-mobile-v1-sheet--bottom { left: 0; right: 0; bottom: 0; max-height: min(84dvh, 720px); border-radius: 30px 30px 0 0; padding-bottom: var(--cs-mobile-safe-bottom); overflow: hidden; }
-  .cs-mobile-v1-sheet--side { top: 0; left: 0; bottom: 0; width: min(88vw, 390px); max-width: 390px; transform: translate3d(-110%,0,0); border-radius: 0 30px 30px 0; overflow: hidden; }
+  .cs-mobile-v1-sheet--side { top: 0; left: 0; bottom: 0; width: min(90vw, 392px); max-width: 392px; transform: translate3d(-110%,0,0); border-radius: 0 26px 26px 0; overflow: hidden; display: flex; flex-direction: column; background: linear-gradient(180deg, #fffdf9 0%, #fbf5ec 58%, #f7efe3 100%); box-shadow: 0 30px 80px rgba(40, 29, 18, .28); }
   .cs-mobile-v1-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 16px 18px; border-bottom: 1px solid var(--cs-mobile-line); }
   .cs-mobile-v1-sheet-head strong { font: 800 14px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; }
   .cs-mobile-v1-close { width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: #fff; color: var(--cs-mobile-ink); font-size: 24px; line-height: 1; }
   .cs-mobile-v1-sheet-body { max-height: calc(84dvh - 64px - var(--cs-mobile-safe-bottom)); overflow: auto; -webkit-overflow-scrolling: touch; padding: 18px; }
-  .cs-mobile-v1-menu-list { display: grid; gap: 8px; }
-  .cs-mobile-v1-menu-list a { min-height: 50px; padding: 14px 16px; border-radius: 18px; border: 1px solid var(--cs-mobile-line); background: #fffaf6; color: var(--cs-mobile-ink); text-decoration: none; display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
-  .cs-mobile-v1-menu-note { margin: 18px 0 0; padding: 16px; border-radius: 20px; background: #f3eadf; color: var(--cs-mobile-muted); font-size: 13px; line-height: 1.6; }
+
+  /* ===== Premium side menu ===== */
+  .cs-mobile-v1-menu-head { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: calc(env(safe-area-inset-top, 0px) + 26px) 22px 22px; }
+  .cs-mobile-v1-menu-head::after { content: ""; position: absolute; left: 22px; right: 22px; bottom: 0; height: 1px; background: linear-gradient(90deg, rgba(181, 138, 74, .38), rgba(42, 32, 22, .10) 55%, transparent); }
+  .cs-mobile-v1-menu-brand { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+  .cs-mobile-v1-menu-kicker { font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .42em; text-transform: uppercase; color: #b58a4a; padding-left: 2px; }
+  .cs-mobile-v1-menu-title { font: 600 34px/1 "Cormorant Garamond", "Cormorant", Georgia, serif; letter-spacing: .005em; color: #1a1510; }
+  .cs-mobile-v1-menu-close { flex: 0 0 auto; width: 42px; height: 42px; margin: -6px -6px 0 0; display: inline-flex; align-items: center; justify-content: center; border: none; background: transparent; color: #2a2016; border-radius: 999px; -webkit-tap-highlight-color: transparent; transition: color .18s ease, transform .18s ease; }
+  .cs-mobile-v1-menu-close svg { width: 22px; height: 22px; display: block; }
+  .cs-mobile-v1-menu-close:active { transform: scale(.92); color: #b58a4a; }
+  .cs-mobile-v1-menu-close:focus-visible { outline: 2px solid rgba(181, 138, 74, .5); outline-offset: 3px; }
+
+  .cs-mobile-v1-sheet-body--menu { flex: 1 1 auto; max-height: none; padding: 8px 22px calc(28px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; }
+  .cs-mobile-v1-menu { display: flex; flex-direction: column; }
+  .cs-mobile-v1-menu-group { padding: 10px 0; }
+  .cs-mobile-v1-menu-group + .cs-mobile-v1-menu-group { border-top: 1px solid rgba(42, 32, 22, .09); }
+  .cs-mobile-v1-menu-label { margin: 8px 2px 4px; font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .28em; text-transform: uppercase; color: var(--cs-mobile-soft); }
+  .cs-mobile-v1-menu a { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 52px; padding: 6px 2px; color: #211a12; text-decoration: none; border: none; background: transparent; }
+  .cs-mobile-v1-menu a span { font: 500 17px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: -.01em; }
+  .cs-mobile-v1-menu-chevron { width: 18px; height: 18px; flex: 0 0 auto; color: var(--cs-mobile-soft); transition: transform .2s ease, color .2s ease; }
+  .cs-mobile-v1-menu a:active { color: #b58a4a; }
+  .cs-mobile-v1-menu a:active .cs-mobile-v1-menu-chevron { transform: translateX(3px); color: #b58a4a; }
+
+  .cs-mobile-v1-menu-foot { margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 4px; }
+  .cs-mobile-v1-menu-foot::before { content: ""; display: block; width: 34px; height: 1px; margin-bottom: 14px; background: rgba(181, 138, 74, .55); }
+  .cs-mobile-v1-menu-foot-line { font: 500 12px/1.5 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .01em; color: var(--cs-mobile-muted); }
+  .cs-mobile-v1-menu-foot-line--accent { color: #8a6a34; font-weight: 600; }
 
   .cs-mobile-v1-search-form { display: grid; gap: 12px; }
   .cs-mobile-v1-search-form input { width: 100%; min-height: 52px; padding: 0 16px; border-radius: 18px; border: 1px solid var(--cs-mobile-line); background: #fff; font: 600 15px/1 "Plus Jakarta Sans", system-ui, sans-serif; color: var(--cs-mobile-ink); }
@@ -169,7 +198,34 @@
   body.cs-mobile-v1-active .price { font-size: 15px !important; }
   body.cs-mobile-v1-active .price-row .btn,
   body.cs-mobile-v1-active .product-card [data-add-cart] { width: 100%; min-height: 42px; padding: 0 8px !important; font-size: 10px !important; border-radius: 999px !important; }
-  body.cs-mobile-v1-active .favorite-btn { width: 38px !important; height: 38px !important; top: 8px !important; right: 8px !important; }
+  body.cs-mobile-v1-active .favorite-btn { width: 38px !important; height: 38px !important; top: 8px !important; right: 8px !important; background: rgba(255, 253, 249, 0.96) !important; border: 1px solid rgba(26, 21, 16, 0.12) !important; color: #15110d !important; box-shadow: 0 10px 22px rgba(18, 13, 8, 0.10) !important; }
+  body.cs-mobile-v1-active .favorite-btn .favorite-btn-icon svg,
+  body.cs-mobile-v1-active .favorite-btn svg { display: block !important; width: 18px !important; height: 18px !important; }
+  body.cs-mobile-v1-active .favorite-btn .favorite-btn-icon svg path,
+  body.cs-mobile-v1-active .favorite-btn svg path { stroke: #15110d !important; fill: none !important; stroke-width: 1.75 !important; stroke-linecap: round !important; stroke-linejoin: round !important; }
+  body.cs-mobile-v1-active .favorite-btn.active .favorite-btn-icon svg path,
+  body.cs-mobile-v1-active .favorite-btn.is-active .favorite-btn-icon svg path,
+  body.cs-mobile-v1-active .favorite-btn[aria-pressed="true"] .favorite-btn-icon svg path { stroke: #b58a4a !important; fill: #b58a4a !important; }
+  body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn,
+  body.cs-mobile-v1-active #bestsellers .bestseller-card__favorite {
+    width: 22px !important;
+    height: 22px !important;
+    top: 5px !important;
+    right: 5px !important;
+    box-shadow: 0 4px 10px rgba(18, 13, 8, 0.08) !important;
+  }
+  body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn .favorite-btn-icon,
+  body.cs-mobile-v1-active #bestsellers .bestseller-card__favorite .favorite-btn-icon {
+    width: 12px !important;
+    height: 12px !important;
+    flex: 0 0 12px !important;
+  }
+  body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn .favorite-btn-icon svg,
+  body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn svg,
+  body.cs-mobile-v1-active #bestsellers .bestseller-card__favorite .favorite-btn-icon svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
   body.cs-mobile-v1-active .badge { max-width: calc(100% - 54px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .cs-mobile-v1-filter-group { margin-bottom: 18px; }
@@ -281,15 +337,30 @@
   body.cs-mobile-v1-active .footer .brand-word {
     font-family: "Cormorant Garamond", Didot, "Bodoni 72", Georgia, serif !important;
     font-weight: 400 !important;
-    letter-spacing: clamp(.30em, 1.1vw, .46em) !important;
     text-transform: uppercase !important;
     font-variant-ligatures: none !important;
     -webkit-font-smoothing: antialiased !important;
     text-rendering: geometricPrecision !important;
   }
+  body.cs-mobile-v1-active .cs-mobile-v1-logo,
+  body.cs-mobile-v1-active .cs-mobile-v1-logo span {
+    letter-spacing: clamp(.24em, .9vw, .36em) !important;
+  }
+  body.cs-mobile-v1-active .cm-wordmark,
+  body.cs-mobile-v1-active .cm-footer-logo,
+  body.cs-mobile-v1-active .m-header__wordmark,
+  body.cs-mobile-v1-active .brand .brand-word,
+  body.cs-mobile-v1-active .footer .brand-word {
+    letter-spacing: clamp(.30em, 1.1vw, .46em) !important;
+  }
 }
 
 @media (max-width: 374px) {
-  .cs-mobile-v1-logo { font-size: 22px; letter-spacing: .28em; max-width: calc(100% - 108px); }
-  .cs-mobile-v1-logo span { padding-left: .14em; }
+  .cs-mobile-v1-logo {
+    font-size: 20px;
+    letter-spacing: .24em;
+    max-width: calc(100% - 124px);
+    transform: translateX(calc(-50% - 12px));
+  }
+  .cs-mobile-v1-logo span { margin-right: -.24em; }
 }

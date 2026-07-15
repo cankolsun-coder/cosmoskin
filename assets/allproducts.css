@@ -549,11 +549,67 @@
   color: #8a5b34;
 }
 
+.cs-allproducts .cs-catalog-card .product-media-wrap {
+  position: relative;
+}
+
 .cs-allproducts .cs-catalog-card .favorite-btn {
   top: 14px;
   right: 14px;
   width: 38px;
   height: 38px;
+  z-index: 4;
+  background: rgba(255, 253, 249, 0.96) !important;
+  border: 1px solid rgba(26, 21, 16, 0.12) !important;
+  color: #15110d !important;
+  box-shadow: 0 10px 22px rgba(18, 13, 8, 0.10) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.cs-allproducts .cs-catalog-card .favorite-btn-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.cs-allproducts .cs-catalog-card .favorite-btn-icon svg,
+.cs-allproducts .cs-catalog-card .favorite-btn svg {
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  stroke: currentColor !important;
+  fill: none !important;
+}
+
+.cs-allproducts .cs-catalog-card .favorite-btn-icon svg path,
+.cs-allproducts .cs-catalog-card .favorite-btn svg path {
+  stroke: #15110d !important;
+  fill: none !important;
+  stroke-width: 1.75 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.cs-allproducts .cs-catalog-card .favorite-btn.active,
+.cs-allproducts .cs-catalog-card .favorite-btn.is-active,
+.cs-allproducts .cs-catalog-card .favorite-btn[aria-pressed="true"] {
+  background: #fff1f0 !important;
+  border-color: rgba(181, 138, 74, 0.24) !important;
+  color: #b58a4a !important;
+}
+
+.cs-allproducts .cs-catalog-card .favorite-btn.active .favorite-btn-icon svg path,
+.cs-allproducts .cs-catalog-card .favorite-btn.is-active .favorite-btn-icon svg path,
+.cs-allproducts .cs-catalog-card .favorite-btn[aria-pressed="true"] .favorite-btn-icon svg path,
+.cs-allproducts .cs-catalog-card .favorite-btn.active svg path,
+.cs-allproducts .cs-catalog-card .favorite-btn.is-active svg path,
+.cs-allproducts .cs-catalog-card .favorite-btn[aria-pressed="true"] svg path {
+  stroke: #b58a4a !important;
+  fill: #b58a4a !important;
 }
 
 .cs-allproducts .cs-catalog-card .product-body {
@@ -631,7 +687,38 @@
   letter-spacing: .08em;
   text-transform: uppercase;
   white-space: nowrap;
+  background: #15110d !important;
+  color: #fff !important;
+  border-color: #15110d !important;
   box-shadow: 0 12px 24px rgba(18,13,8,.12);
+}
+
+@media (max-width: 768px) {
+  .cs-allproducts .cs-catalog-card .price-row {
+    display: grid !important;
+    gap: 9px !important;
+    align-items: stretch !important;
+  }
+
+  .cs-allproducts .cs-catalog-card .price-row .btn.btn-primary,
+  .cs-allproducts .cs-catalog-card .price-row [data-add-cart] {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 42px !important;
+    padding: 0 14px !important;
+    font-size: 10px !important;
+    letter-spacing: .08em !important;
+    line-height: 1 !important;
+    background: #15110d !important;
+    color: #fff !important;
+    border: 1px solid #15110d !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 12px 24px rgba(18,13,8,.14) !important;
+  }
 }
 
 .cs-ap-empty {
@@ -761,7 +848,7 @@ body.cs-ap-filter-open { overflow: hidden; }
   .cs-ap-search-wrap { min-width: 0; max-width: none; }
   .cs-ap-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .cs-allproducts .cs-catalog-card .product-body { padding: 15px; }
-  .cs-allproducts .cs-catalog-card .btn.btn-primary { min-width: 96px; padding: 0 12px; }
+  .cs-allproducts .cs-catalog-card .btn.btn-primary { min-width: 0; width: 100%; padding: 0 12px; }
   .cs-ap-pagination { flex-direction: column; }
   .cs-ap-load { width: 100%; min-width: 0; }
 }

@@ -531,9 +531,11 @@
   }
   function buildRecommendationCard(candidate, guide, reason, label){
     var img = candidate.image || (guide && guide.images && guide.images.product) || '/assets/img/editorial.jpg';
+    var url = candidate.url || ('/products/' + candidate.slug + '.html');
+    var heart = '<button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="' + esc(candidate.slug) + '" data-name="' + esc(candidate.name || '') + '" data-brand="' + esc(candidate.brand || '') + '" data-price="' + esc(candidate.price || 0) + '" data-image="' + esc(img) + '" data-url="' + esc(url) + '"><span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></button>';
     return '<article class="product-card cs-product-card pdp-related-card pdp8-related-card" data-product-id="' + esc(candidate.slug) + '">' +
       '<span class="pdp8-rec-label">' + esc(label) + '</span>' +
-      '<div class="product-media-wrap"><a class="product-media" href="' + esc(candidate.url || ('/products/' + candidate.slug + '.html')) + '"><img alt="' + esc(candidate.name) + '" loading="lazy" src="' + esc(img) + '"/></a></div>' +
+      '<div class="product-media-wrap"><a class="product-media" href="' + esc(url) + '"><img alt="' + esc(candidate.name) + '" loading="lazy" src="' + esc(img) + '"/></a>' + heart + '</div>' +
       '<div class="product-body"><div class="product-meta">' + esc(candidate.brand || '') + '</div><h3><a href="' + esc(candidate.url || ('/products/' + candidate.slug + '.html')) + '">' + esc(candidate.name || '') + '</a></h3><p class="pdp8-rec-reason">' + esc(reason) + '</p><div class="product-price">' + money(candidate.price) + '</div>' +
       '<button class="btn btn-secondary" data-add-cart data-id="' + esc(candidate.slug) + '" data-slug="' + esc(candidate.slug) + '" data-name="' + esc(candidate.name || '') + '" data-brand="' + esc(candidate.brand || '') + '" data-price="' + esc(candidate.price || 0) + '" data-image="' + esc(img) + '" data-url="' + esc(candidate.url || ('/products/' + candidate.slug + '.html')) + '" type="button">Sepete Ekle</button></div></article>';
   }

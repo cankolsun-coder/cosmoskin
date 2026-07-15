@@ -1,0 +1,167 @@
+/* COSMOSKIN — Categories directory mobile premium layout */
+
+/* Card titles — premium serif (all breakpoints) */
+.category-directory-card strong {
+  font-family: "Cormorant Garamond", Georgia, serif !important;
+  font-weight: 600 !important;
+  letter-spacing: -.02em !important;
+  color: #17110c !important;
+}
+
+@media (min-width: 769px) {
+  .category-directory-card__media,
+  .category-directory-card__chevron { display: none !important; }
+  .category-directory-card__body { display: contents; }
+  .category-directory-card strong {
+    font-size: 17px !important;
+    line-height: 1.2 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-directory-hero {
+    padding: 12px 0 8px !important;
+  }
+  .category-directory-hero .container.narrow {
+    padding-inline: 14px;
+  }
+  .category-directory-hero .collection-breadcrumb {
+    margin-bottom: 8px;
+    font-size: 10px;
+  }
+  .category-directory-hero h1 {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-weight: 600 !important;
+    font-size: clamp(2rem, 8.4vw, 2.65rem) !important;
+    line-height: 1 !important;
+    letter-spacing: -.02em !important;
+    color: #17110c !important;
+    margin: 2px 0 8px !important;
+  }
+  .category-directory-hero .kicker {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: .24em !important;
+    text-transform: uppercase;
+    color: #a07f52 !important;
+    margin-bottom: 8px !important;
+  }
+  .category-directory-hero p:not(.kicker) {
+    font-size: 13px;
+    line-height: 1.55;
+    max-width: 36ch;
+    margin: 0;
+    color: #6f645a;
+  }
+  main > .section:has(.category-directory) {
+    padding-top: 8px !important;
+    padding-bottom: 24px !important;
+  }
+  .category-directory {
+    gap: 22px;
+  }
+  .category-directory-group {
+    scroll-margin-top: 96px;
+  }
+  .category-directory-head {
+    display: grid !important;
+    align-items: start !important;
+    gap: 6px;
+    margin-bottom: 12px;
+    padding: 0 0 12px;
+    border-bottom: 1px solid rgba(35, 27, 20, .08);
+    overflow: visible;
+  }
+  .category-directory-head .kicker {
+    margin: 0 !important;
+    padding: 0 0 2px;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+    letter-spacing: .14em !important;
+    color: #8a6b45 !important;
+    overflow: visible !important;
+    position: relative;
+    z-index: 1;
+  }
+  .category-directory-head p:not(.kicker) {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #7a6f64;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .category-directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .category-directory-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border-radius: 14px;
+    border: 1px solid rgba(35, 27, 20, .08);
+    background: #fffdf9;
+    box-shadow: 0 8px 22px rgba(27, 19, 13, .04);
+    overflow: hidden;
+    color: #18120f;
+    text-decoration: none;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  .category-directory-card:active {
+    transform: scale(.985);
+  }
+  .category-directory-card__media {
+    display: block;
+    aspect-ratio: 1 / 1;
+    background: linear-gradient(180deg, #f6efe6, #efe4d8);
+    overflow: hidden;
+  }
+  .category-directory-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .category-directory-card__media--icon {
+    display: grid;
+    place-items: center;
+    padding: 14px;
+  }
+  .category-directory-card__media--icon img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    opacity: .88;
+  }
+  .category-directory-card__body {
+    display: grid;
+    gap: 3px;
+    padding: 9px 10px 10px;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .category-directory-card strong {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-weight: 600 !important;
+    font-size: clamp(14px, 3.8vw, 16px) !important;
+    line-height: 1.15 !important;
+    letter-spacing: -.02em !important;
+    color: #17110c !important;
+  }
+  .category-directory-card__body > span {
+    color: #7a6f64;
+    font: 500 10px/1.4 "Plus Jakarta Sans", system-ui, sans-serif;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .category-directory-card__chevron {
+    display: none;
+  }
+}
