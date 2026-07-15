@@ -53,7 +53,7 @@
   .cs-mobile-v1-header {
     position: sticky; top: 0; z-index: 6500;
     min-height: var(--cs-mobile-header-height);
-    display: grid; grid-template-columns: 46px minmax(0, 1fr) 92px; align-items: center; gap: 8px;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 10px var(--cs-mobile-container);
     background: rgba(255, 250, 244, .94);
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
@@ -61,7 +61,11 @@
     box-shadow: 0 10px 30px rgba(42, 32, 22, .06);
   }
   .cs-mobile-v1-logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
     display: inline-flex; justify-content: center; align-items: center; min-width: 0;
+    max-width: calc(100% - 120px);
     color: var(--cs-mobile-ink); text-decoration: none;
     font-family: "Cormorant Garamond", Didot, "Bodoni 72", Georgia, serif;
     font-size: clamp(24px, 6.8vw, 34px);
@@ -72,6 +76,13 @@
     font-variant-ligatures: none;
     -webkit-font-smoothing: antialiased;
     text-rendering: geometricPrecision;
+    pointer-events: auto;
+    z-index: 1;
+  }
+  .cs-mobile-v1-header > .cs-mobile-v1-iconbtn,
+  .cs-mobile-v1-tools {
+    position: relative;
+    z-index: 2;
   }
   .cs-mobile-v1-logo span {
     display: block;
@@ -279,7 +290,6 @@
 }
 
 @media (max-width: 374px) {
-  .cs-mobile-v1-header { grid-template-columns: 46px minmax(0, 1fr) 88px; gap: 6px; }
-  .cs-mobile-v1-logo { font-size: 22px; letter-spacing: .28em; }
+  .cs-mobile-v1-logo { font-size: 22px; letter-spacing: .28em; max-width: calc(100% - 108px); }
   .cs-mobile-v1-logo span { padding-left: .14em; }
 }
