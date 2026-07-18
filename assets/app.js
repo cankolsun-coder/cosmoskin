@@ -415,6 +415,13 @@
 
   function closeModals() {
     [prefModal, legalModal, $('#accountModal')].forEach((modal) => modal?.classList.remove('show'));
+    const accountModal = $('#accountModal');
+    if (accountModal) {
+      accountModal.classList.remove('open');
+      accountModal.setAttribute('hidden', '');
+      accountModal.setAttribute('aria-hidden', 'true');
+      try { accountModal.inert = true; } catch (e) {}
+    }
     if (!(cartDrawer?.classList.contains('open')) && !(accountDrawer?.classList.contains('open'))) {
       backdrop?.classList.remove('show');
     }
