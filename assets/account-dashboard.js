@@ -134,8 +134,8 @@
           '<h1 id="csAccountGateTitle">Giriş yaparak devam et.</h1>' +
           '<p class="cs-account-gate__lede">' + escapeHtml(message || 'Siparişlerini, favorilerini, kuponlarını ve cilt rutininı güvenli hesap oturumuyla yönet.') + '</p>' +
           '<div class="cs-gate-actions">' +
-            '<button type="button" class="cs-pill-btn cs-pill-btn--dark" data-cs-open-auth="loginPanel">Giriş Yap</button>' +
-            '<button type="button" class="cs-pill-btn" data-cs-open-auth="registerPanel">Hesap Oluştur</button>' +
+            '<button type="button" class="cs-pill-btn cs-pill-btn--dark" data-open-auth data-auth-tab="loginPanel" data-cs-open-auth="loginPanel">Giriş Yap</button>' +
+            '<button type="button" class="cs-pill-btn" data-open-auth data-auth-tab="registerPanel" data-cs-open-auth="registerPanel">Hesap Oluştur</button>' +
             '<a class="cs-pill-btn cs-pill-btn--quiet" href="/allproducts.html">Alışverişe Dön</a>' +
           '</div>' +
           '<ul class="cs-account-gate__benefits">' +
@@ -2622,15 +2622,25 @@
           '<ul class="cs-security-rows">' + rows + '</ul>' +
         '</section>' +
         '<section class="cs-security-block">' +
-          '<header class="cs-security-block__head"><span>02</span><div><h3>Şifre</h3><p>En az 8 karakter · güvenli bağlantı</p></div></header>' +
+          '<header class="cs-security-block__head"><span>02</span><div><h3>Şifre</h3><p>E-posta ile güvenli yenileme</p></div></header>' +
           '<form class="cs-security-pass" id="passwordForm" novalidate>' +
             '<label class="cs-security-pass__field">' +
               '<span>Yeni şifre</span>' +
               '<div class="cs-security-pass__control">' +
-                '<input class="cs-input" name="password" type="password" autocomplete="new-password" minlength="8" required data-cs-mobile-pw="1">' +
+                '<input class="cs-input" id="securityPassword" name="password" type="password" autocomplete="new-password" minlength="8" required data-cs-mobile-pw="1">' +
                 '<button type="button" class="cs-security-pass__toggle" data-toggle-password="password" aria-label="Şifreyi göster">' + EYE + '</button>' +
               '</div>' +
             '</label>' +
+            '<div class="password-meter" id="securityPasswordMeter" aria-hidden="true">' +
+              '<div class="password-meter-bar"><span id="securityPasswordMeterFill"></span></div>' +
+              '<div class="password-meter-meta"><span id="securityPasswordStrengthText">Şifre güvenliği</span></div>' +
+            '</div>' +
+            '<ul class="password-rules" id="securityPasswordRules">' +
+              '<li data-rule="length">En az 8 karakter</li>' +
+              '<li data-rule="upper">En az 1 büyük harf</li>' +
+              '<li data-rule="lower">En az 1 küçük harf</li>' +
+              '<li data-rule="number">En az 1 rakam</li>' +
+            '</ul>' +
             '<label class="cs-security-pass__field">' +
               '<span>Yeni şifre tekrar</span>' +
               '<div class="cs-security-pass__control">' +
@@ -2638,8 +2648,9 @@
                 '<button type="button" class="cs-security-pass__toggle" data-toggle-password="password_confirm" aria-label="Şifreyi göster">' + EYE + '</button>' +
               '</div>' +
             '</label>' +
-            '<p class="cs-security-pass__hint">Şifre en az 8 karakter olmalıdır. Başarı mesajı yalnızca kimlik doğrulama işlemi tamamlanırsa gösterilir.</p>' +
+            '<p class="cs-security-pass__hint">Şifreyi Güncelle’ye bastığınızda şifre hemen değişmez. Hesap e-posta adresinize onay bağlantısı gönderilir; bağlantıya tıklayarak yeni şifrenizi kesinleştirirsiniz.</p>' +
             '<button class="cs-security-pass__submit" type="submit">Şifreyi Güncelle</button>' +
+            '<div class="cs-form-status" id="passwordSaveStatus" role="status" aria-live="polite"></div>' +
           '</form>' +
         '</section>' +
         '<section class="cs-security-block cs-security-block--split">' +
@@ -2655,6 +2666,43 @@
           '</article>' +
         '</section>' +
       '</section>';
+    bindSecurityPasswordMeter();
+  }
+  function evaluateSecurityPassword(password) {
+    var checks = {
+      length: password.length >= 8,
+      upper: /[A-ZÇĞİÖŞÜ]/.test(password),
+      lower: /[a-zçğıöşü]/.test(password),
+      number: /\d/.test(password)
+    };
+    var score = Object.keys(checks).filter(function (k) { return checks[k]; }).length;
+    var width = '0%';
+    var text = 'Şifre güvenliği';
+    var color = '#d1d5db';
+    if (score === 1) { width = '25%'; text = 'Zayıf'; color = '#d14b4b'; }
+    else if (score === 2) { width = '50%'; text = 'Orta'; color = '#d9972b'; }
+    else if (score === 3) { width = '75%'; text = 'İyi'; color = '#3d8b6d'; }
+    else if (score === 4) { width = '100%'; text = 'Güçlü'; color = '#1f7a4f'; }
+    return { checks: checks, width: width, text: text, color: color, score: score };
+  }
+  function bindSecurityPasswordMeter() {
+    var input = $('#securityPassword');
+    var fill = $('#securityPasswordMeterFill');
+    var text = $('#securityPasswordStrengthText');
+    var rules = $('#securityPasswordRules');
+    if (!input || !fill || !text || !rules) return;
+    var update = function () {
+      var result = evaluateSecurityPassword(input.value || '');
+      fill.style.width = result.width;
+      fill.style.backgroundColor = result.color;
+      text.textContent = input.value ? result.text : 'Şifre güvenliği';
+      rules.querySelector('[data-rule="length"]')?.classList.toggle('is-valid', result.checks.length);
+      rules.querySelector('[data-rule="upper"]')?.classList.toggle('is-valid', result.checks.upper);
+      rules.querySelector('[data-rule="lower"]')?.classList.toggle('is-valid', result.checks.lower);
+      rules.querySelector('[data-rule="number"]')?.classList.toggle('is-valid', result.checks.number);
+    };
+    input.addEventListener('input', update);
+    update();
   }
   function renderSupport() {
     var el = $('#supportPanel'); if (!el) return; var tickets = asArray(state.summary.support_requests); var orders = asArray(state.summary.orders);
@@ -2693,9 +2741,189 @@
       try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) { window.scrollTo(0, 0); }
     }
   }
+  function isLocalHost() {
+    try {
+      var host = location.hostname;
+      return host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host === '' || /\.local$/.test(host);
+    } catch (_) { return false; }
+  }
+
+  function sbData(result) {
+    if (result && result.error) throw result.error;
+    return result && result.data;
+  }
+
+  async function loadSummaryFromClient() {
+    if (!state.client || !state.session?.user) throw new Error('Oturum bulunamadı.');
+    var user = state.session.user;
+    var meta = safeObject(user.user_metadata);
+    var uid = user.id;
+    var email = String(user.email || '').toLowerCase();
+    var client = state.client;
+
+    var profileRes = await client.from('profiles').select('*').eq('id', uid).maybeSingle();
+    var profile = sbData(profileRes) || null;
+
+    var ordersRes = await client.from('orders').select('id,order_number,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,city,district,postal_code,address_line,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at').or('user_id.eq.' + uid + ',customer_email.eq.' + email).order('created_at', { ascending: false }).limit(12);
+    var ordersRaw = asArray(sbData(ordersRes));
+    var orderIds = ordersRaw.map(function (o) { return o.id; }).filter(Boolean);
+
+    var itemsByOrder = {};
+    var shipmentsByOrder = {};
+    if (orderIds.length) {
+      var itemsRes = await client.from('order_items').select('order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total').in('order_id', orderIds).order('created_at', { ascending: true });
+      asArray(sbData(itemsRes)).forEach(function (row) {
+        (itemsByOrder[row.order_id] || (itemsByOrder[row.order_id] = [])).push(row);
+      });
+      try {
+        var shipRes = await client.from('shipments').select('*').in('order_id', orderIds).order('created_at', { ascending: false });
+        asArray(sbData(shipRes)).forEach(function (row) {
+          (shipmentsByOrder[row.order_id] || (shipmentsByOrder[row.order_id] = [])).push(row);
+        });
+      } catch (_) {}
+    }
+
+    var addresses = asArray(sbData(await client.from('user_addresses').select('*').eq('user_id', uid).order('is_default', { ascending: false })));
+    var favorites = asArray(sbData(await client.from('user_favorites').select('*').eq('user_id', uid).order('created_at', { ascending: false })));
+    var notifications = [];
+    try { notifications = asArray(sbData(await client.from('notifications').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(20))); } catch (_) {}
+    var membership = null;
+    try { membership = sbData(await client.from('customer_membership_status').select('*').eq('user_id', uid).maybeSingle()); } catch (_) {}
+    var pointLedger = [];
+    try { pointLedger = asArray(sbData(await client.from('loyalty_points_ledger').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(20))); } catch (_) {}
+    var coupons = [];
+    try { coupons = asArray(sbData(await client.from('customer_coupons').select('*').eq('user_id', uid).order('created_at', { ascending: false }).limit(20))); } catch (_) {}
+    var skinProfiles = [];
+    try { skinProfiles = asArray(sbData(await client.from('customer_skin_profiles').select('*').eq('user_id', uid).order('updated_at', { ascending: false }).limit(1))); } catch (_) {}
+    var routineResults = [];
+    try { routineResults = asArray(sbData(await client.from('customer_routine_results').select('*').eq('user_id', uid).order('updated_at', { ascending: false }).limit(10))); } catch (_) {}
+    var prefs = null;
+    try { prefs = sbData(await client.from('notification_preferences').select('*').eq('user_id', uid).maybeSingle()); } catch (_) {}
+
+    function lineNet(order) {
+      var items = itemsByOrder[order.id] || [];
+      var sum = items.reduce(function (acc, item) {
+        var line = Number(item.line_total);
+        if (Number.isFinite(line) && line > 0) return acc + line;
+        return acc + (Number(item.unit_price || 0) * Math.max(1, Number(item.quantity || 1)));
+      }, 0);
+      if (sum > 0) return sum;
+      var sub = Number(order.subtotal_amount);
+      return Number.isFinite(sub) ? Math.max(0, sub) : 0;
+    }
+    function isPaid(order) {
+      var status = String(order.status || '').toLowerCase();
+      var payment = String(order.payment_status || '').toLowerCase();
+      return ['paid', 'confirmed', 'processing', 'preparing', 'shipped', 'delivered', 'completed'].indexOf(status) !== -1
+        || ['paid', 'confirmed', 'captured'].indexOf(payment) !== -1
+        || Boolean(order.paid_at);
+    }
+
+    var orders = ordersRaw.map(function (order) {
+      var ships = shipmentsByOrder[order.id] || [];
+      return Object.assign({}, order, {
+        order_items: itemsByOrder[order.id] || [],
+        shipments: ships,
+        latest_shipment: ships[0] || null,
+        return_requests: []
+      });
+    });
+    var paidOrders = orders.filter(isPaid);
+    var productSpend = paidOrders.reduce(function (sum, order) { return sum + lineNet(order); }, 0);
+    var availablePoints = pointLedger.filter(function (r) { return String(r.status || '').toLowerCase() === 'available'; }).reduce(function (s, r) { return s + Number(r.points_delta || r.points || 0); }, 0);
+    var pendingPoints = pointLedger.filter(function (r) { return String(r.status || '').toLowerCase() === 'pending'; }).reduce(function (s, r) { return s + Number(r.points_delta || r.points || 0); }, 0);
+    var reversedPoints = pointLedger.filter(function (r) { return String(r.status || '').toLowerCase() === 'reversed'; }).reduce(function (s, r) { return s + Math.abs(Number(r.points_delta || r.points || 0)); }, 0);
+    var skin = skinProfiles[0] || null;
+    var firstName = (profile && profile.first_name) || meta.first_name || meta.given_name || String(meta.name || '').split(' ')[0] || '';
+    var lastName = (profile && profile.last_name) || meta.last_name || meta.family_name || '';
+
+    return {
+      ok: true,
+      source: 'client-rls',
+      user: {
+        id: uid,
+        email: user.email,
+        created_at: user.created_at,
+        first_name: firstName,
+        last_name: lastName,
+        full_name: profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : (meta.full_name || meta.name || [firstName, lastName].filter(Boolean).join(' ')),
+        phone: (profile && profile.phone) || meta.phone || meta.phone_number || '',
+        birthday: (profile && profile.birthday) || '',
+        birth_date_locked: Boolean(profile && profile.birth_date_locked),
+        email_verified: Boolean(user.email_confirmed_at),
+        provider: (user.app_metadata && user.app_metadata.provider) || 'email',
+        communication: {
+          order_updates: !prefs || prefs.order_updates !== false,
+          cargo_updates: !prefs || prefs.cargo_updates !== false,
+          campaign_emails: Boolean(prefs && prefs.campaign_emails),
+          sms_notifications: Boolean(prefs && prefs.sms_notifications),
+          stock_notifications: Boolean(prefs && prefs.stock_notifications),
+          routine_reminders: Boolean(prefs && prefs.routine_reminders),
+          newsletter: Boolean(prefs && prefs.newsletter),
+          marketing_email_opt_in: Boolean(prefs && prefs.campaign_emails),
+          stock_alert_opt_in: Boolean(prefs && prefs.stock_notifications),
+          routine_reminder_opt_in: Boolean(prefs && prefs.routine_reminders),
+          newsletter_opt_in: Boolean(prefs && prefs.newsletter)
+        }
+      },
+      stats: {
+        order_count: orders.length,
+        paid_order_count: paidOrders.length,
+        active_order_count: orders.filter(function (o) { return ['paid', 'confirmed', 'processing', 'preparing', 'packed', 'shipped'].indexOf(String(o.status || '').toLowerCase()) !== -1; }).length,
+        product_spend_total: Math.round(productSpend * 100) / 100,
+        total_spent: Math.round(productSpend * 100) / 100,
+        favorites_count: favorites.length,
+        addresses_count: addresses.length,
+        unread_notifications: notifications.filter(function (n) { return !n.is_read && !n.read_at; }).length
+      },
+      membership: membership ? Object.assign({}, membership, { loyalty_spend_ex_shipping: Math.round(productSpend * 100) / 100 }) : {
+        level_code: productSpend >= 15000 ? 'elite' : (productSpend >= 6000 ? 'signature' : 'essential'),
+        loyalty_spend_ex_shipping: Math.round(productSpend * 100) / 100,
+        rolling_spend_ex_shipping: Math.round(productSpend * 100) / 100,
+        completed_orders_12m: paidOrders.length
+      },
+      points: {
+        balance: Math.max(0, Math.round(availablePoints)),
+        available: Math.max(0, Math.round(availablePoints)),
+        pending: Math.max(0, Math.round(pendingPoints)),
+        reversed: Math.max(0, Math.round(reversedPoints)),
+        ledger: pointLedger,
+        has_ledger_history: pointLedger.length > 0
+      },
+      coupons: coupons,
+      skin_profile: skin,
+      routine_results: routineResults,
+      notification_preferences: prefs,
+      orders: orders,
+      addresses: addresses,
+      favorites: favorites,
+      notifications: notifications,
+      support_requests: [],
+      legal_consents: [],
+      returns: []
+    };
+  }
+
   async function loadSummary() {
-    var data = await apiFetch('/account/summary');
-    if (!data || data.ok === false) throw new Error(data?.error || 'Hesap özeti alınamadı.');
+    var data = null;
+    var apiError = null;
+    try {
+      data = await apiFetch('/account/summary');
+    } catch (error) {
+      apiError = error;
+      // Local static server has no /api/* — read the same tables via Supabase RLS.
+      if (isLocalHost() && state.client && state.session?.access_token) {
+        try {
+          data = await loadSummaryFromClient();
+          console.info('[COSMOSKIN] Hesap özeti yerel RLS üzerinden yüklendi (API yok).');
+        } catch (clientError) {
+          throw apiError || clientError;
+        }
+      } else {
+        throw error;
+      }
+    }
+    if (!data || data.ok === false) throw new Error(data?.error || (apiError && apiError.message) || 'Hesap özeti alınamadı.');
     state.summary = normalizeSummary(data);
     renderAll();
     return state.summary;
@@ -3089,18 +3317,45 @@
   async function updatePassword(form) {
     var p = form.elements.password.value;
     var p2 = form.elements.password_confirm.value;
-    if (p !== p2) return showToast('Şifreler eşleşmiyor.', 'warning');
-    if (p.length < 8) return showToast('Şifre en az 8 karakter olmalı.', 'warning');
+    var status = $('#passwordSaveStatus');
+    if (p !== p2) {
+      if (status) status.textContent = 'Şifreler eşleşmiyor.';
+      return showToast('Şifreler eşleşmiyor.', 'warning');
+    }
+    var strength = evaluateSecurityPassword(p);
+    if (strength.score < 4) {
+      if (status) status.textContent = 'Şifre tüm güvenlik kurallarını karşılamalı.';
+      return showToast('Şifre tüm güvenlik kurallarını karşılamalı.', 'warning');
+    }
     if (isDesignPreview()) {
       form.reset();
-      showToast('Şifreniz güncellendi.');
+      if (status) status.textContent = 'Şifre güncelleme bağlantısı gönderildi (önizleme).';
+      showToast('Şifre güncelleme bağlantısı e-posta adresinize gönderildi.');
       return;
     }
     if (!state.client) return showToast('Şifre güncelleme için oturum gerekli.', 'warning');
-    var res = await state.client.auth.updateUser({ password: p });
-    if (res.error) throw res.error;
+    var email = String(state.summary?.user?.email || state.session?.user?.email || '').trim();
+    if (!email) {
+      var sessionResult = await state.client.auth.getSession();
+      email = String(sessionResult?.data?.session?.user?.email || '').trim();
+    }
+    if (!email) return showToast('E-posta adresi bulunamadı.', 'warning');
+    if (status) status.textContent = 'Onay e-postası gönderiliyor...';
+    try {
+      sessionStorage.setItem('cosmoskin_pending_password_v1', JSON.stringify({ password: p, email: email, at: Date.now() }));
+    } catch (_) {}
+    var siteUrl = (window.location.origin || 'https://www.cosmoskin.com.tr').replace(/\/$/, '');
+    var res = await state.client.auth.resetPasswordForEmail(email, {
+      redirectTo: siteUrl + '/auth/reset.html'
+    });
+    if (res.error) {
+      if (status) status.textContent = res.error.message || 'Şifre güncelleme e-postası gönderilemedi.';
+      throw res.error;
+    }
     form.reset();
-    showToast('Şifreniz güncellendi.');
+    bindSecurityPasswordMeter();
+    if (status) status.textContent = 'Şifre güncelleme bağlantısı e-posta adresinize gönderildi. Bağlantıya tıklayarak yeni şifrenizi onaylayın.';
+    showToast('Şifre güncelleme bağlantısı e-posta adresinize gönderildi.');
   }
   async function createSupportRequest(form) { var data = new FormData(form); var payload = { category:data.get('category'), order_id:data.get('order_id') || undefined, subject:data.get('subject'), message:data.get('message') }; await apiFetch('/account/support-requests', { method:'POST', body:payload }); form.reset(); await loadSummary(); switchTab('support', false); showToast('Destek talebiniz oluşturuldu.'); }
   async function uploadReturnAttachments(files, orderId) {

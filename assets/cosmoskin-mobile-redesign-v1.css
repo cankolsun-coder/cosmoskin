@@ -58,81 +58,123 @@
   body.cs-mobile-v1-active .site-search-form--mobile,
   body.cs-mobile-v1-active header.header .header-tools { display: none !important; }
 
-  /* Mobile announcement — seamless, complete four-message ticker */
-  body.cs-mobile-v1-active .announcement {
+  /* Mobile announcement — Rhode / Sephora editorial ticker */
+  body.cs-mobile-v1-active .announcement,
+  body.cs-mobile-v1-active .announcement.cs-announcement--premium {
     position: relative !important;
     top: auto !important;
     z-index: 6490 !important;
     width: 100% !important;
-    height: 36px !important;
-    min-height: 36px !important;
+    height: 34px !important;
+    min-height: 34px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
     overflow: hidden !important;
-    background: #101419 !important;
+    background: #1a1510 !important;
     border: 0 !important;
   }
   body.cs-mobile-v1-active .announcement .marquee {
     width: max-content !important;
-    height: 36px !important;
-    min-height: 36px !important;
+    height: 34px !important;
+    min-height: 34px !important;
     display: flex !important;
     align-items: center !important;
     flex: 0 0 auto !important;
     gap: 0 !important;
     padding: 0 !important;
     background: transparent !important;
-    color: rgba(255,255,255,.90) !important;
+    color: rgba(255, 253, 249, .86) !important;
     white-space: nowrap !important;
     will-change: transform;
-    animation: csMobileAnnouncementTicker 13s linear infinite !important;
+    animation: csMobileAnnouncementTicker 32s linear infinite !important;
   }
   body.cs-mobile-v1-active .announcement .cs-mobile-announcement__group {
-    height: 36px;
+    height: 34px;
     display: flex !important;
     align-items: center !important;
     flex: 0 0 auto !important;
     gap: 0 !important;
     white-space: nowrap !important;
   }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__item,
   body.cs-mobile-v1-active .announcement .cs-mobile-announcement__group > span {
     position: relative;
-    height: 36px;
+    height: 34px;
     display: inline-flex !important;
     align-items: center !important;
+    gap: 8px !important;
     flex: 0 0 auto !important;
-    padding: 0 46px 0 18px !important;
-    color: rgba(255,255,255,.90) !important;
-    font: 600 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    letter-spacing: .09em !important;
+    padding: 0 28px 0 18px !important;
+    color: rgba(255, 253, 249, .88) !important;
+    font: 500 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .08em !important;
     text-transform: none !important;
     opacity: 1 !important;
   }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__icon {
+    display: inline-grid !important;
+    place-items: center !important;
+    width: 14px !important;
+    height: 14px !important;
+    color: #c4a06a !important;
+    flex: 0 0 auto !important;
+  }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__icon svg {
+    width: 14px !important;
+    height: 14px !important;
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 1.5 !important;
+    stroke-linecap: round !important;
+    stroke-linejoin: round !important;
+  }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__text {
+    display: inline-block !important;
+  }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__item::after,
   body.cs-mobile-v1-active .announcement .cs-mobile-announcement__group > span::after {
-    content: "";
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: rgba(255,255,255,.28);
-    transform: translateY(-50%);
+    content: "" !important;
+    position: absolute !important;
+    right: 10px !important;
+    top: 50% !important;
+    width: 3px !important;
+    height: 3px !important;
+    border-radius: 50% !important;
+    background: rgba(196, 160, 106, .55) !important;
+    transform: translateY(-50%) !important;
   }
   body.cs-mobile-v1-active .announcement .marquee span + span::before {
     content: none !important;
     display: none !important;
   }
   @keyframes csMobileAnnouncementTicker {
-    from { transform: translate3d(0,0,0); }
-    to { transform: translate3d(-50%,0,0); }
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
   }
   @media (prefers-reduced-motion: reduce) {
     body.cs-mobile-v1-active .announcement .marquee {
       animation: none !important;
       transform: none !important;
     }
+    body.cs-mobile-v1-active .announcement {
+      justify-content: center !important;
+    }
+    body.cs-mobile-v1-active .announcement .cs-mobile-announcement__group[aria-hidden="true"] {
+      display: none !important;
+    }
+  }
+
+  /* Checkout: quieter ticker, same premium language */
+  body.cs-checkout-mobile .announcement {
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+  body.cs-checkout-mobile .announcement .marquee,
+  body.cs-checkout-mobile .announcement .cs-mobile-announcement__group,
+  body.cs-checkout-mobile .announcement .cs-mobile-announcement__item {
+    height: 32px !important;
+    min-height: 32px !important;
   }
 
   .cs-mobile-v1-header {
@@ -234,8 +276,57 @@
     margin-right: -4px;
   }
   .cs-mobile-v1-badge {
-    position: absolute; top: 4px; right: 2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
-    background: #1a120b; color: #fff; font: 700 9px/16px "Plus Jakarta Sans", system-ui, sans-serif; text-align: center; border: 1.5px solid #fffaf4;
+    position: absolute;
+    top: 1px;
+    right: -1px;
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1.5px solid #fffaf4;
+    background: #17120d;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Plus Jakarta Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    font-style: normal;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum" 1, "tnum" 1;
+    line-height: 1;
+    letter-spacing: 0;
+    text-align: center;
+    text-indent: 0;
+    box-shadow: 0 3px 8px rgba(26, 18, 11, 0.2);
+    pointer-events: none;
+    z-index: 2;
+  }
+  .cs-mobile-v1-badge:not([hidden]) {
+    /* keep circle when 1 digit; grow slightly for 10+ */
+  }
+  .cs-mobile-v1-badge.is-wide {
+    width: auto;
+    min-width: 20px;
+    padding: 0 5px;
+  }
+  .cs-mobile-v1-tools .cs-mobile-v1-iconbtn[data-cs-open="cart"] {
+    position: relative;
+  }
+  .cs-mobile-v1-tools .cs-mobile-v1-iconbtn[data-cs-open="cart"] .cs-mobile-v1-badge {
+    top: 2px;
+    right: 0;
+  }
+  .cs-mobile-v1-bottom-nav .cs-mobile-v1-badge {
+    top: 4px;
+    right: calc(50% - 20px);
+    width: 17px;
+    height: 17px;
+    min-width: 17px;
+    font-size: 9.5px;
   }
 
   .cs-mobile-v1-bottom-nav {
@@ -282,6 +373,84 @@
   }
   .cs-mobile-v1-bottom-nav a.is-active { color: var(--cs-mobile-ink); background: transparent; }
   .cs-mobile-v1-bottom-nav svg { display: block; flex: 0 0 auto; width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Favorites heart — Sephora/Rhode fill burst on tab arrive */
+  .cs-mobile-v1-bottom-nav .cs-nav-heart {
+    overflow: visible;
+    transform-origin: 50% 55%;
+  }
+  .cs-mobile-v1-bottom-nav .cs-nav-heart__fill {
+    fill: transparent;
+    stroke: none;
+    opacity: 0;
+    transform-origin: 50% 55%;
+    transform-box: fill-box;
+  }
+  .cs-mobile-v1-bottom-nav .cs-nav-heart__stroke {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.65;
+  }
+  .cs-mobile-v1-bottom-nav a.is-heart-burst .cs-nav-heart {
+    animation: csNavHeartPop 1.12s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cs-mobile-v1-bottom-nav a.is-heart-burst .cs-nav-heart__fill {
+    animation: csNavHeartFill 1.12s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .cs-mobile-v1-bottom-nav a.is-heart-burst .cs-nav-heart__stroke {
+    animation: csNavHeartStroke 1.12s ease both;
+  }
+  @keyframes csNavHeartFill {
+    0% {
+      fill: transparent;
+      opacity: 0;
+      transform: scale(0.72);
+    }
+    16% {
+      fill: #c45c54;
+      opacity: 1;
+      transform: scale(1.08);
+    }
+    38% {
+      fill: #d46860;
+      opacity: 1;
+      transform: scale(1);
+    }
+    62% {
+      fill: #c45c54;
+      opacity: 1;
+      transform: scale(1);
+    }
+    82% {
+      fill: #c45c54;
+      opacity: 0.35;
+      transform: scale(1.02);
+    }
+    100% {
+      fill: transparent;
+      opacity: 0;
+      transform: scale(1);
+    }
+  }
+  @keyframes csNavHeartPop {
+    0% { transform: scale(1); }
+    18% { transform: scale(1.22); }
+    36% { transform: scale(0.94); }
+    54% { transform: scale(1.1); }
+    72% { transform: scale(1); }
+    100% { transform: scale(1); }
+  }
+  @keyframes csNavHeartStroke {
+    0%, 100% { stroke: currentColor; }
+    14%, 70% { stroke: #c45c54; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-mobile-v1-bottom-nav a.is-heart-burst .cs-nav-heart,
+    .cs-mobile-v1-bottom-nav a.is-heart-burst .cs-nav-heart__fill,
+    .cs-mobile-v1-bottom-nav a.is-heart-burst .cs-nav-heart__stroke {
+      animation: none !important;
+    }
+  }
 
   /* Bottom tab navigation — horizontal slide transitions */
   .cs-mobile-v1-page-stage {
@@ -601,7 +770,16 @@
   body.cs-mobile-v1-active .favorite-btn svg path { stroke: #15110d !important; fill: none !important; stroke-width: 1.75 !important; stroke-linecap: round !important; stroke-linejoin: round !important; }
   body.cs-mobile-v1-active .favorite-btn.active .favorite-btn-icon svg path,
   body.cs-mobile-v1-active .favorite-btn.is-active .favorite-btn-icon svg path,
-  body.cs-mobile-v1-active .favorite-btn[aria-pressed="true"] .favorite-btn-icon svg path { stroke: #b58a4a !important; fill: #b58a4a !important; }
+  body.cs-mobile-v1-active .favorite-btn[aria-pressed="true"] .favorite-btn-icon svg path {
+    stroke: #c43b3b !important;
+    fill: #c43b3b !important;
+    animation: csFavPop .38s cubic-bezier(.22, 1, .36, 1);
+  }
+  @keyframes csFavPop {
+    0% { transform: scale(.82); }
+    55% { transform: scale(1.14); }
+    100% { transform: scale(1); }
+  }
   body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn,
   body.cs-mobile-v1-active #bestsellers .bestseller-card__favorite {
     width: 36px !important;
@@ -1185,42 +1363,613 @@
     grid-column: auto !important;
   }
 
-  /* Cart sheet */
-  .cs-mobile-v1-cart-items { display: grid; gap: 12px; }
-  .cs-mobile-v1-cart-item { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 12px; border-radius: 18px; border: 1px solid var(--cs-mobile-line); background: #fffaf6; }
-  .cs-mobile-v1-cart-item img { width: 76px; height: 76px; object-fit: contain; background: #f4ece2; border-radius: 14px; padding: 6px; }
-  .cs-mobile-v1-cart-item strong { display: block; font-size: 13px; line-height: 1.28; }
-  .cs-mobile-v1-cart-item small { color: var(--cs-mobile-muted); }
-  .cs-mobile-v1-qty { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; border: 1px solid var(--cs-mobile-line); border-radius: 999px; overflow: hidden; }
-  .cs-mobile-v1-qty button { width: 34px; height: 34px; border: 0; background: transparent; font-weight: 800; }
-  .cs-mobile-v1-qty span { min-width: 22px; text-align: center; font-weight: 800; }
-  .cs-mobile-v1-cart-summary { margin-top: 16px; padding: 16px; border-radius: 20px; background: #f2e7dc; display: grid; gap: 8px; }
-  .cs-mobile-v1-cart-summary-row { display: flex; justify-content: space-between; gap: 16px; }
-  .cs-mobile-v1-cart-empty { padding: 28px 16px; text-align: center; border-radius: 20px; background: #fffaf6; border: 1px solid var(--cs-mobile-line); }
+  /* ============================================================
+     CART SHEET — premium Sephora / Rhode grade composition
+     ============================================================ */
+  .cs-mobile-v1-sheet--cart {
+    max-height: min(90dvh, 780px);
+    border-radius: 32px 32px 0 0;
+    background:
+      radial-gradient(circle at 100% 0%, rgba(181,138,74,.10), transparent 42%),
+      linear-gradient(180deg, #fffdf9 0%, #f8f0e7 48%, #f3ebe1 100%);
+    box-shadow: 0 -28px 80px rgba(28, 20, 14, .22);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  .cs-mobile-v1-sheet--cart .cs-mobile-v1-sheet-grip {
+    top: 10px;
+    width: 42px;
+    height: 4px;
+    background: rgba(42, 32, 22, .18);
+  }
+  .cs-mobile-v1-cart-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 28px 20px 14px;
+    border-bottom: 1px solid rgba(42, 32, 22, .07);
+  }
+  .cs-mobile-v1-cart-head__copy {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+  .cs-mobile-v1-cart-kicker {
+    font: 800 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #a2835d;
+  }
+  .cs-mobile-v1-cart-title {
+    font: 500 clamp(30px, 8vw, 38px)/.92 "Cormorant Garamond", Georgia, serif;
+    letter-spacing: -.03em;
+    color: #17120d;
+  }
+  .cs-mobile-v1-cart-count {
+    justify-self: start;
+    margin-top: 4px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(26, 21, 16, .06);
+    color: #6f6358;
+    font: 750 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    font-style: normal;
+    letter-spacing: .04em;
+  }
+  .cs-mobile-v1-cart-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid rgba(42, 32, 22, .12);
+    background: rgba(255, 253, 249, .92);
+    color: #17120d;
+    display: inline-grid;
+    place-items: center;
+    box-shadow: 0 8px 20px rgba(28, 20, 14, .06);
+    flex: 0 0 auto;
+  }
+  .cs-mobile-v1-cart-close svg { width: 16px; height: 16px; }
+  .cs-mobile-v1-sheet-body--cart {
+    flex: 1 1 auto;
+    max-height: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .cs-mobile-v1-cart-studio {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+  .cs-mobile-v1-cart-items {
+    display: grid;
+    gap: 0;
+    padding: 6px 20px 8px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .cs-mobile-v1-cart-item {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 14px;
+    padding: 16px 0;
+    border: 0;
+    border-bottom: 1px solid rgba(42, 32, 22, .08);
+    background: transparent;
+    border-radius: 0;
+    animation: csCartItemIn .42s cubic-bezier(.22, 1, .36, 1) both;
+    animation-delay: calc(var(--cs-cart-i, 0) * 45ms);
+  }
+  .cs-mobile-v1-cart-item:last-child { border-bottom: 0; }
+  @keyframes csCartItemIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .cs-mobile-v1-cart-item__media {
+    display: grid;
+    place-items: center;
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+    background:
+      linear-gradient(160deg, #fffdf9, #f3e8dc);
+    overflow: hidden;
+    text-decoration: none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+  }
+  .cs-mobile-v1-cart-item__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+    background: transparent;
+    border-radius: 0;
+  }
+  .cs-mobile-v1-cart-item__body {
+    min-width: 0;
+    display: grid;
+    gap: 12px;
+    align-content: start;
+  }
+  .cs-mobile-v1-cart-item__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .cs-mobile-v1-cart-item__copy {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .cs-mobile-v1-cart-item__copy small {
+    font: 800 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #a2835d;
+  }
+  .cs-mobile-v1-cart-item__copy strong {
+    font: 650 14px/1.32 "Plus Jakarta Sans", system-ui, sans-serif;
+    color: #17120d;
+    letter-spacing: -.01em;
+  }
+  .cs-mobile-v1-cart-item__price {
+    flex: 0 0 auto;
+    font: 800 14px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    color: #17120d;
+    white-space: nowrap;
+  }
+  .cs-mobile-v1-cart-item__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .cs-mobile-v1-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    margin-top: 0;
+    border: 1px solid rgba(42, 32, 22, .12);
+    border-radius: 999px;
+    overflow: hidden;
+    background: #fffdf9;
+    box-shadow: 0 4px 12px rgba(28, 20, 14, .04);
+  }
+  .cs-mobile-v1-qty button {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: transparent;
+    color: #17120d;
+    font: 700 16px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-v1-qty button:active { background: rgba(26, 21, 16, .05); }
+  .cs-mobile-v1-qty span {
+    min-width: 28px;
+    text-align: center;
+    font: 800 13px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    color: #17120d;
+  }
+  .cs-mobile-v1-cart-remove {
+    border: 0;
+    background: transparent;
+    color: #8a7463;
+    font: 750 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 8px 0;
+    cursor: pointer;
+  }
+  .cs-mobile-v1-cart-dock {
+    margin-top: auto;
+    padding: 14px 20px calc(16px + var(--cs-mobile-safe-bottom));
+    border-top: 1px solid rgba(42, 32, 22, .08);
+    background:
+      linear-gradient(180deg, rgba(255,253,249,.55), rgba(248,240,231,.96) 18%, #f4ebe1);
+    display: grid;
+    gap: 12px;
+    box-shadow: 0 -18px 40px rgba(28, 20, 14, .06);
+  }
+  .cs-mobile-v1-cart-shipnote {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(255, 253, 249, .72);
+    border: 1px solid rgba(181, 138, 74, .18);
+    color: #6f6358;
+    font: 650 12px/1.35 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-v1-cart-shipnote span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #b58a4a;
+    box-shadow: 0 0 0 4px rgba(181, 138, 74, .14);
+    flex: 0 0 auto;
+  }
+  .cs-mobile-v1-cart-shipnote.is-free {
+    border-color: rgba(31, 107, 74, .16);
+    color: #2f6b4f;
+  }
+  .cs-mobile-v1-cart-shipnote.is-free span {
+    background: #2f6b4f;
+    box-shadow: 0 0 0 4px rgba(47, 107, 79, .12);
+  }
+  .cs-mobile-v1-cart-shipnote strong { color: #17120d; font-weight: 800; }
+  .cs-mobile-v1-cart-coupon {
+    display: grid;
+    gap: 7px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .cs-mobile-v1-cart-coupon label {
+    margin: 0;
+    font: 800 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: #8a7868;
+  }
+  .cs-mobile-v1-cart-coupon__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+  .cs-mobile-v1-cart-coupon input {
+    min-height: 46px;
+    border-radius: 999px;
+    border: 1px solid rgba(42, 32, 22, .12);
+    background: #fffdf9;
+    padding: 0 16px;
+    font: 650 13px/1 "Plus Jakarta Sans", sans-serif;
+    color: #1a1510;
+    text-transform: uppercase;
+  }
+  .cs-mobile-v1-cart-coupon input:focus {
+    outline: 0;
+    border-color: rgba(181, 138, 74, .55);
+    box-shadow: 0 0 0 3px rgba(181, 138, 74, .14);
+  }
+  .cs-mobile-v1-cart-coupon__apply {
+    min-height: 46px;
+    min-width: 92px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid #17120d;
+    background: #17120d;
+    color: #fffdf9;
+    font: 800 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .cs-mobile-v1-cart-coupon__status {
+    min-height: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #74675d;
+  }
+  .cs-mobile-v1-cart-coupon__status.is-error { color: #8a3b2f; }
+  .cs-mobile-v1-cart-coupon__status.is-success { color: #1f6b4a; }
+  .cs-mobile-v1-cart-coupon__status.is-pending { color: #8a7358; }
+  .cs-mobile-v1-cart-coupon__clear {
+    justify-self: start;
+    border: 0;
+    background: transparent;
+    color: #8a3b2f;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 0;
+    cursor: pointer;
+  }
+  .cs-mobile-v1-cart-totals {
+    display: grid;
+    gap: 8px;
+    padding-top: 2px;
+  }
+  .cs-mobile-v1-cart-summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: #6f6358;
+    font: 650 13px/1.3 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-v1-cart-summary-row strong {
+    color: #17120d;
+    font-weight: 800;
+  }
+  .cs-mobile-v1-cart-summary-row.is-discount strong { color: #1f6b4a; }
+  .cs-mobile-v1-cart-summary-row.is-total {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(42, 32, 22, .1);
+    color: #17120d;
+    font-size: 14px;
+  }
+  .cs-mobile-v1-cart-summary-row.is-total strong {
+    font-size: 18px;
+    letter-spacing: -.02em;
+  }
+  .cs-mobile-v1-cart-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    border-radius: 999px;
+    background: #17120d;
+    color: #fffdf9 !important;
+    text-decoration: none !important;
+    font: 800 12px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    box-shadow: 0 16px 34px rgba(23, 18, 13, .22);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .cs-mobile-v1-cart-cta:active {
+    transform: scale(.985);
+    box-shadow: 0 10px 22px rgba(23, 18, 13, .18);
+  }
+  .cs-mobile-v1-cart-trust {
+    margin: 0;
+    text-align: center;
+    color: #8a7868;
+    font: 650 11px/1.4 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .02em;
+  }
+  .cs-mobile-v1-cart-empty {
+    margin: 28px 20px 36px;
+    padding: 36px 22px;
+    text-align: center;
+    border-radius: 28px;
+    background:
+      linear-gradient(160deg, rgba(255,253,249,.95), rgba(245,236,226,.88));
+    border: 1px solid rgba(42, 32, 22, .08);
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+  }
+  .cs-mobile-v1-cart-empty__mark {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    background: rgba(26, 21, 16, .05);
+    color: #17120d;
+    margin-bottom: 4px;
+  }
+  .cs-mobile-v1-cart-empty__mark svg { width: 26px; height: 26px; }
+  .cs-mobile-v1-cart-empty strong {
+    font: 500 28px/.95 "Cormorant Garamond", Georgia, serif;
+    letter-spacing: -.03em;
+    color: #17120d;
+  }
+  .cs-mobile-v1-cart-empty p {
+    margin: 0 0 8px;
+    max-width: 26ch;
+    color: #74675d;
+    font: 500 13px/1.55 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  body.cs-mobile-cart-open .cs-mobile-v1-backdrop {
+    background: rgba(22, 16, 12, .48);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .cs-mobile-v1-sheet--cart {
+    transition: transform .4s cubic-bezier(.22, 1, .36, 1);
+  }
 
-  /* Checkout */
-  body.cs-checkout-mobile .cs-checkout-page { padding: 18px var(--cs-mobile-container) calc(var(--cs-mobile-safe-bottom) + 22px) !important; }
-  body.cs-checkout-mobile .cs-checkout-shell { width: 100% !important; max-width: 100% !important; }
-  body.cs-checkout-mobile .cs-checkout-topline { display: grid !important; gap: 10px !important; }
-  body.cs-checkout-mobile .cs-checkout-title h1 { font-size: clamp(30px, 9vw, 42px) !important; line-height: .95 !important; }
+  /* Checkout — premium mobile (Sephora / Rhode) */
+  body.cs-checkout-mobile {
+    --cs-co-ink: #1a1510;
+    --cs-co-muted: #74675d;
+    --cs-co-gold: #b58a4a;
+    --cs-co-surface: #fffdf9;
+    --cs-co-soft: #f8f0e7;
+    --cs-co-line: rgba(26, 21, 16, .1);
+  }
+  body.cs-checkout-mobile .cs-checkout-page {
+    padding: 10px var(--cs-mobile-container) calc(var(--cs-mobile-safe-bottom) + 28px) !important;
+    background: transparent !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-topline {
+    display: grid !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+    padding: 4px 2px 0 !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-eyebrow {
+    margin: 0 0 6px !important;
+    color: var(--cs-co-gold) !important;
+    font: 700 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .2em !important;
+    text-transform: uppercase !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-title h1 {
+    font-size: clamp(34px, 9vw, 42px) !important;
+    line-height: .96 !important;
+    letter-spacing: -.015em !important;
+    font-weight: 400 !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-title p {
+    max-width: 26ch !important;
+    margin-top: 10px !important;
+    color: var(--cs-co-muted) !important;
+    font: 500 13.5px/1.55 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-secure {
+    justify-self: start !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--cs-co-muted) !important;
+    font: 650 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .14em !important;
+    text-transform: uppercase !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-secure .cs-checkout-icon {
+    width: 14px !important;
+    height: 14px !important;
+    color: var(--cs-co-gold) !important;
+  }
+  body.cs-checkout-mobile .cs-mobile-v1-checkout-note { display: none !important; }
   body.cs-checkout-mobile .cs-checkout-grid { display: block !important; }
   body.cs-checkout-mobile .cs-checkout-main,
-  body.cs-checkout-mobile .cs-checkout-summary { width: 100% !important; max-width: 100% !important; }
-  body.cs-checkout-mobile .cs-checkout-summary { position: static !important; margin-top: 14px !important; }
+  body.cs-checkout-mobile .cs-checkout-summary {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-summary {
+    position: static !important;
+    margin-top: 14px !important;
+    display: grid !important;
+    gap: 12px !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-stepper {
+    margin: 4px 0 18px !important;
+    padding: 2px 0 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-stepper__rail {
+    top: 13px !important;
+    left: 12% !important;
+    right: 12% !important;
+    height: 1px !important;
+    background: rgba(26, 21, 16, .12) !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-stepper__fill {
+    background: linear-gradient(90deg, #1a1510, #b58a4a) !important;
+    transition: transform .55s cubic-bezier(.22, 1, .36, 1) !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-stepper__steps {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-step {
+    min-height: 0 !important;
+    min-width: 0 !important;
+    gap: 8px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-step.is-active {
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-step__dot {
+    width: 26px !important;
+    height: 26px !important;
+    border-radius: 999px !important;
+    box-shadow: 0 0 0 4px #fffdf9 !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-step.is-active .cs-checkout-step__dot {
+    box-shadow:
+      0 0 0 4px #fffdf9,
+      0 0 0 5px rgba(181, 138, 74, .45) !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-step strong {
+    font-size: 9px !important;
+    letter-spacing: .1em !important;
+  }
   body.cs-checkout-mobile .cs-checkout-summary-card,
   body.cs-checkout-mobile .cs-checkout-card,
-  body.cs-checkout-mobile .cs-checkout-section { border-radius: 22px !important; }
+  body.cs-checkout-mobile .cs-checkout-section,
+  body.cs-checkout-mobile .cs-checkout-empty--commerce {
+    border-radius: 16px !important;
+    box-shadow: none !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-empty--commerce {
+    min-height: 0 !important;
+    padding: 36px 20px !important;
+    gap: 10px !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-empty-mark {
+    width: 52px !important;
+    height: 52px !important;
+  }
   body.cs-checkout-mobile .cs-checkout-input,
   body.cs-checkout-mobile input,
   body.cs-checkout-mobile select,
-  body.cs-checkout-mobile textarea { min-height: 46px !important; width: 100% !important; font-size: 16px !important; }
+  body.cs-checkout-mobile textarea {
+    min-height: 48px !important;
+    width: 100% !important;
+    font-size: 16px !important;
+    border-radius: 12px !important;
+  }
   body.cs-checkout-mobile .cs-checkout-primary,
-  body.cs-checkout-mobile #csCheckoutAction { min-height: 52px !important; width: 100% !important; border-radius: 999px !important; }
+  body.cs-checkout-mobile #csCheckoutAction {
+    min-height: 52px !important;
+    width: 100% !important;
+    border-radius: 999px !important;
+    letter-spacing: .08em !important;
+  }
   body.cs-checkout-mobile .cs-checkout-payment-card,
   body.cs-checkout-mobile .bank-account-card,
-  body.cs-checkout-mobile [data-payment-method] { min-height: 56px; border-radius: 18px !important; }
-  body.cs-checkout-mobile .cs-checkout-stepper { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
-  body.cs-checkout-mobile .cs-checkout-trust-strip { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  body.cs-checkout-mobile [data-payment-method] {
+    min-height: 56px;
+    border-radius: 14px !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-trust-strip {
+    display: none !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-summary-toggle {
+    display: none !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-shell {
+    padding-bottom: 36px !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-summary-cta {
+    display: grid !important;
+    gap: 10px !important;
+    margin: 16px 0 14px !important;
+    padding-top: 4px !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-summary-cta .cs-checkout-primary {
+    width: 100% !important;
+    min-height: 54px !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-summary-cta .cs-checkout-mini-note {
+    margin: 0 !important;
+    color: rgba(26, 21, 16, .55) !important;
+    font-size: 11.5px !important;
+    text-align: center !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-summary-cta .cs-checkout-status:empty {
+    display: none !important;
+  }
+  body.cs-checkout-mobile .cs-checkout-summary-card--action {
+    display: none !important;
+  }
 
   /* ============================================================
      ACCOUNT — premium mobile experience (Sephora / Rhode / Apple grade)
@@ -5990,7 +6739,28 @@
   }
   .cs-password-wrap { position: relative; display: block; }
   .cs-password-wrap input { padding-right: 86px !important; }
-  .cs-password-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); min-width: 68px; height: 34px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: #fff; color: var(--cs-mobile-ink); font-size: 11px; font-weight: 800; }
+  .cs-password-toggle {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    min-width: 64px; height: 32px; padding: 0 12px; border-radius: 999px;
+    border: 1px solid rgba(42, 32, 22, .14); background: #fffdf9; color: #1a1510;
+    font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(26, 18, 11, .04);
+  }
+  .cs-password-toggle:active { transform: translateY(-50%) scale(.98); }
+
+  body.cs-mobile-v1-active .favorites-page .price-row,
+  body.cs-mobile-v1-active.cs-route-listing .price-row {
+    align-items: stretch !important;
+  }
+  body.cs-mobile-v1-active .favorites-page .price-row .btn,
+  body.cs-mobile-v1-active .favorites-page [data-add-cart] {
+    width: 100% !important;
+    min-height: 44px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+  }
 
   /* Homepage Smart Routine — premium mobile composition */
   body.cs-mobile-v1-active #smart-routine.cs-mobile-smart-routine {
@@ -7450,6 +8220,13 @@
     color: var(--cs-footer-text);
     isolation: isolate;
   }
+  body.cs-route-pdp .cs-mobile-footer,
+  body.cs-checkout-mobile .cs-mobile-footer,
+  body.cs-route-cart .cs-mobile-footer,
+  body.cs-route-account .cs-mobile-footer,
+  body.cs-route-checkout .cs-mobile-footer {
+    display: none !important;
+  }
   body.cs-route-pdp .cs-mobile-footer {
     padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom));
   }
@@ -7952,6 +8729,11 @@
     from { opacity: 0; transform: translate3d(0, 10px, 0); }
     to { opacity: 1; transform: translate3d(0, 0, 0); }
   }
+  @keyframes csHeroGoldFlash {
+    /* Mostly idle — brief gold sweep, no continuous filter work */
+    0%, 74%, 100% { background-position: 120% 50%; }
+    82% { background-position: -20% 50%; }
+  }
 
   body.cs-mobile-v1-active.cs-route-home #heroSection.home-hero.section {
     --cs-hero-ink: #1a1510;
@@ -7983,7 +8765,7 @@
   body.cs-mobile-v1-active.cs-route-home .home-hero__media {
     display: block !important;
     position: absolute !important;
-    inset: 0 !important;
+    inset: 0 0 68px 0 !important;
     z-index: 0 !important;
     margin: 0 !important;
     pointer-events: none !important;
@@ -7995,154 +8777,211 @@
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
-    object-position: 74% 22% !important;
+    /* Products sit mid-lower; top third reserved for editorial copy */
+    object-position: 74% 56% !important;
     will-change: transform !important;
     animation: csHeroKenBurns 22s var(--cs-hero-ease) both !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__canvas::before {
     content: "" !important;
     position: absolute !important;
-    inset: 0 !important;
+    inset: 0 0 68px 0 !important;
     z-index: 1 !important;
     pointer-events: none !important;
     background:
-      linear-gradient(185deg, rgba(255, 253, 249, 0.88) 0%, rgba(255, 253, 249, 0.52) 18%, rgba(255, 253, 249, 0.08) 42%, transparent 58%),
-      linear-gradient(95deg, rgba(255, 253, 249, 0.62) 0%, rgba(255, 253, 249, 0.18) 34%, transparent 58%) !important;
+      linear-gradient(180deg, rgba(255, 253, 249, 0.98) 0%, rgba(255, 253, 249, 0.9) 12%, rgba(255, 253, 249, 0.62) 26%, rgba(255, 253, 249, 0.22) 38%, rgba(255, 253, 249, 0.04) 48%, transparent 58%),
+      radial-gradient(ellipse 100% 36% at 50% 0%, rgba(255, 253, 249, 0.96), transparent 74%) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__canvas::after {
     content: "" !important;
     position: absolute !important;
-    inset: auto 0 0 0 !important;
-    height: 42% !important;
+    inset: auto 0 68px 0 !important;
+    height: 32% !important;
     z-index: 1 !important;
     pointer-events: none !important;
-    background: linear-gradient(180deg, transparent 0%, rgba(243, 235, 226, 0.22) 38%, rgba(255, 253, 249, 0.94) 100%) !important;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(255, 253, 249, 0.2) 40%,
+      rgba(255, 253, 249, 0.78) 82%,
+      #fffdf9 100%
+    ) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__grid {
     position: relative !important;
     z-index: 2 !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
     flex: 1 1 auto !important;
     min-height: 0 !important;
     max-height: none !important;
     height: auto !important;
     overflow: visible !important;
-    padding: 20px var(--cs-mobile-container) 120px !important;
+    padding: 28px var(--cs-mobile-container) 86px !important;
+    width: 100% !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__copy {
-    max-width: min(62vw, 228px) !important;
-    padding: 0 !important;
+    /* Keep static so absolute CTAs dock to canvas, not this box */
+    position: static !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: min(86vw, 320px) !important;
+    margin: 0 auto !important;
+    padding: 4px 8px 0 !important;
     overflow: visible !important;
+    text-align: center !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__brand {
-    margin: 0 0 10px !important;
+    margin: 0 0 12px !important;
     color: var(--cs-hero-ink) !important;
-    font: 500 clamp(1.35rem, 6.4vw, 1.65rem)/1 "Cormorant Garamond", Georgia, serif !important;
-    letter-spacing: 0.22em !important;
-    text-indent: 0.22em !important;
+    font: 500 clamp(1.2rem, 5.6vw, 1.45rem)/1 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: 0.28em !important;
+    text-indent: 0.28em !important;
     text-transform: uppercase !important;
+    text-align: center !important;
     animation: csHeroRise 0.9s var(--cs-hero-ease) 0.08s both !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__eyebrow {
     position: relative !important;
     display: inline-flex !important;
     flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 9px !important;
-    margin: 0 0 16px !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin: 0 0 12px !important;
     max-width: none !important;
     width: max-content !important;
     color: var(--cs-hero-gold) !important;
-    font: 700 9.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    letter-spacing: 0.2em !important;
+    font: 650 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: 0.26em !important;
     text-transform: uppercase !important;
     white-space: nowrap !important;
-    animation: csHeroRise 0.9s var(--cs-hero-ease) 0.18s both !important;
+    text-align: center !important;
+    animation: csHeroRise 0.9s var(--cs-hero-ease) 0.16s both !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__eyebrow::after {
     position: static !important;
     left: auto !important;
     top: auto !important;
-    width: 32px !important;
+    display: block !important;
+    width: 28px !important;
     height: 1px !important;
-    margin: 0 !important;
-    background: linear-gradient(90deg, var(--cs-hero-gold), rgba(181, 138, 74, 0.08)) !important;
-    opacity: 1 !important;
+    margin: 0 auto !important;
+    background: linear-gradient(90deg, transparent, var(--cs-hero-gold), transparent) !important;
+    opacity: 0.9 !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero h1 {
     margin: 0 !important;
-    max-width: 11ch !important;
+    max-width: 11.5ch !important;
     color: var(--cs-hero-ink) !important;
-    font: 500 clamp(2.7rem, 11.6vw, 3.55rem)/0.92 "Cormorant Garamond", Georgia, serif !important;
-    letter-spacing: -0.035em !important;
+    font: 400 clamp(2.15rem, 8.6vw, 2.75rem)/0.98 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -0.038em !important;
+    text-align: center !important;
     text-wrap: balance !important;
     overflow: visible !important;
-    text-shadow: 0 1px 0 rgba(255, 253, 249, 0.4) !important;
-    animation: csHeroRise 1s var(--cs-hero-ease) 0.28s both !important;
+    text-shadow: 0 1px 0 rgba(255, 253, 249, 0.65) !important;
+    animation: csHeroRise 1s var(--cs-hero-ease) 0.26s both !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero h1 .home-hero__line {
     display: block !important;
     white-space: normal !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero h1 > span.home-hero__line {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: baseline !important;
+    gap: 0.1em 0.24em !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero h1 em.home-hero__line {
     margin-top: 4px !important;
     font-style: normal !important;
     font-weight: 400 !important;
   }
+  body.cs-mobile-v1-active.cs-route-home #homeHeroTitle .home-hero__shine-word,
   body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word {
-    animation: none !important;
-    background: none !important;
-    -webkit-text-fill-color: var(--cs-hero-gold) !important;
-    color: var(--cs-hero-gold) !important;
-    filter: none !important;
+    position: relative !important;
+    display: inline-block !important;
+    isolation: isolate !important;
     font-style: italic !important;
     font-weight: 400 !important;
+    letter-spacing: -0.03em !important;
+    /* Static gold base — flash runs on background-position only (no filter/glow) */
+    background-image: linear-gradient(
+      105deg,
+      #9a7439 0%,
+      #b58a4a 36%,
+      #f2e2b4 50%,
+      #b58a4a 64%,
+      #8a6530 100%
+    ) !important;
+    background-size: 220% 100% !important;
+    background-position: 120% 50% !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    filter: none !important;
+    animation: csHeroGoldFlash 5.8s ease-in-out infinite !important;
   }
+  body.cs-mobile-v1-active.cs-route-home #homeHeroTitle .home-hero__shine-word::before,
+  body.cs-mobile-v1-active.cs-route-home #homeHeroTitle .home-hero__shine-word::after,
   body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word::before,
   body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word::after {
+    content: none !important;
     display: none !important;
+    animation: none !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__script {
+    display: inline-block !important;
     font-family: "Cormorant Garamond", Georgia, serif !important;
-    font-style: italic !important;
+    font-style: normal !important;
     font-weight: 400 !important;
-    letter-spacing: -0.015em !important;
+    font-size: 1em !important;
+    letter-spacing: -0.038em !important;
     line-height: 1.02 !important;
-    color: var(--cs-hero-ink) !important;
-    text-shadow: none !important;
+    color: #a88968 !important;
+    text-shadow: 0 1px 0 rgba(255, 253, 249, 0.45) !important;
     transform: none !important;
-    white-space: normal !important;
+    white-space: nowrap !important;
+    -webkit-font-smoothing: antialiased !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero__lead {
-    max-width: 28ch !important;
-    margin: 14px 0 0 !important;
-    color: var(--cs-hero-soft) !important;
-    font: 500 12.75px/1.5 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    letter-spacing: -0.012em !important;
-    animation: csHeroRise 0.95s var(--cs-hero-ease) 0.4s both !important;
+    display: none !important;
   }
+  /* CTAs docked bottom-center — clear of product photography */
   body.cs-mobile-v1-active.cs-route-home .home-hero__actions {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 9px !important;
-    margin-top: 22px !important;
-    max-width: 236px !important;
+    position: absolute !important;
+    left: 16px !important;
+    right: 16px !important;
+    bottom: 14px !important;
+    z-index: 5 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
     width: auto !important;
+    max-width: 340px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
     animation: csHeroRise 0.95s var(--cs-hero-ease) 0.52s both !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn {
     position: relative !important;
-    flex: 1 1 auto !important;
+    flex: 1 1 0 !important;
     min-width: 0 !important;
-    width: 100% !important;
-    height: 50px !important;
-    min-height: 50px !important;
-    padding: 0 18px !important;
+    width: auto !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 14px !important;
     border-radius: 999px !important;
     justify-content: center !important;
-    gap: 9px !important;
-    font: 700 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    letter-spacing: 0.14em !important;
+    gap: 7px !important;
+    font: 650 9.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: 0.11em !important;
     text-transform: uppercase !important;
     white-space: nowrap !important;
     overflow: hidden !important;
@@ -8153,124 +8992,266 @@
       border-color 0.22s ease,
       color 0.22s ease !important;
   }
+  body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn span {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
   body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn svg {
-    width: 14px !important;
-    height: 14px !important;
-    flex: 0 0 14px !important;
-    opacity: 0.9 !important;
+    width: 13px !important;
+    height: 13px !important;
+    flex: 0 0 13px !important;
+    opacity: 0.88 !important;
     transition: transform 0.28s var(--cs-hero-ease) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn:active svg {
-    transform: translateX(3px) !important;
+    transform: translateX(2px) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--primary {
     color: #fffdf9 !important;
-    background: linear-gradient(180deg, #221c16 0%, #17130f 100%) !important;
-    border: 1px solid #17130f !important;
-    box-shadow:
-      0 1px 0 rgba(255, 253, 249, 0.12) inset,
-      0 10px 24px rgba(23, 19, 15, 0.22) !important;
+    background: #1a1510 !important;
+    border: 1px solid #1a1510 !important;
+    box-shadow: 0 8px 20px rgba(26, 21, 16, 0.16) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--primary:active {
-    transform: scale(0.982) !important;
-    box-shadow: 0 5px 14px rgba(23, 19, 15, 0.18) !important;
+    transform: scale(0.985) !important;
+    box-shadow: 0 4px 12px rgba(26, 21, 16, 0.14) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--secondary {
     color: var(--cs-hero-ink) !important;
-    background: rgba(255, 253, 249, 0.72) !important;
-    border: 1px solid rgba(26, 21, 16, 0.12) !important;
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55) inset !important;
-    backdrop-filter: blur(12px) saturate(1.15) !important;
-    -webkit-backdrop-filter: blur(12px) saturate(1.15) !important;
+    background: rgba(255, 253, 249, 0.78) !important;
+    border: 1px solid rgba(26, 21, 16, 0.14) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) inset !important;
+    backdrop-filter: blur(14px) saturate(1.12) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.12) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--secondary:active {
-    background: rgba(255, 253, 249, 0.92) !important;
-    transform: scale(0.982) !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .home-hero__trust {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    z-index: 3 !important;
-    margin: 0 !important;
-    flex: none !important;
-    width: 100% !important;
-    overflow: visible !important;
-    max-height: none !important;
-    border-top: 1px solid rgba(42, 32, 22, 0.07) !important;
     background: rgba(255, 253, 249, 0.94) !important;
-    backdrop-filter: blur(18px) saturate(1.2) !important;
-    -webkit-backdrop-filter: blur(18px) saturate(1.2) !important;
-    animation: csHeroTrustIn 0.85s var(--cs-hero-ease) 0.7s both !important;
+    transform: scale(0.985) !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__grid {
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    gap: 0 !important;
-    padding: 12px 8px 14px !important;
-    overflow: visible !important;
-    width: 100% !important;
-    max-width: none !important;
+  /* Trust strip removed — seamless hero → categories dissolve */
+  body.cs-mobile-v1-active.cs-route-home .home-hero__trust {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #heroSection.home-hero.section {
+    margin-bottom: 0 !important;
+    background: #fffdf9 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__canvas {
+    background:
+      radial-gradient(ellipse 70% 45% at 78% 42%, rgba(255, 252, 247, 0.35), transparent 62%),
+      linear-gradient(180deg, #f3ebe2 0%, #f7f1ea 72%, #fffdf9 100%) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #brand-strip.brand-ribbon {
+    position: relative !important;
+    z-index: 2 !important;
     margin: 0 !important;
+    padding: 10px 0 6px !important;
+    border: 0 !important;
+    background: #fffdf9 !important;
+    box-shadow: none !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__item {
-    display: grid !important;
-    justify-items: center !important;
-    align-content: start !important;
-    gap: 7px !important;
-    padding: 2px 3px !important;
-    text-align: center !important;
-    border: none !important;
-    border-right: 1px solid rgba(42, 32, 22, 0.07) !important;
+  body.cs-mobile-v1-active.cs-route-home #brand-strip .brand-ribbon__inner {
+    gap: 18px !important;
+    padding: 0 var(--cs-mobile-container) !important;
+    justify-content: flex-start !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 92%, transparent 100%) !important;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 92%, transparent 100%) !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__item:last-child {
-    border-right: none !important;
+  body.cs-mobile-v1-active.cs-route-home #brand-strip .brand-ribbon__inner::-webkit-scrollbar {
+    display: none !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__item:nth-child(odd),
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__item:nth-child(n+3) {
-    border-bottom: none !important;
+  body.cs-mobile-v1-active.cs-route-home #brand-strip .brand-ribbon__item {
+    flex: 0 0 auto !important;
+    opacity: 0.55 !important;
+    filter: grayscale(0.15) !important;
+    transition: opacity 0.2s ease !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__icon {
-    flex: none !important;
+  body.cs-mobile-v1-active.cs-route-home #brand-strip .brand-ribbon__item img {
+    height: 18px !important;
+    width: auto !important;
+    max-width: 72px !important;
+  }
+  /* HEDEF ODAKLI — Rhode/Sephora editorial rail (image-led, no card chrome) */
+  body.cs-mobile-v1-active.cs-route-home #concerns.concern-section {
+    position: relative !important;
+    z-index: 2 !important;
+    margin: 0 !important;
+    padding: 8px 0 40px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fffdf9 !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns.concern-section::before {
+    content: "" !important;
+    display: block !important;
     width: 24px !important;
-    height: 24px !important;
-    color: var(--cs-hero-gold) !important;
-    display: grid !important;
-    place-items: center !important;
-    border-radius: 50% !important;
-    background: rgba(181, 138, 74, 0.08) !important;
+    height: 1px !important;
+    margin: 0 auto 22px !important;
+    background: linear-gradient(90deg, transparent, rgba(181, 138, 74, 0.5), transparent) !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__icon svg {
-    width: 15px !important;
-    height: 15px !important;
+  body.cs-mobile-v1-active.cs-route-home #concerns .container {
+    padding-left: var(--cs-mobile-container) !important;
+    padding-right: var(--cs-mobile-container) !important;
+    max-width: none !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__item div {
+  body.cs-mobile-v1-active.cs-route-home #concerns .section-head {
     display: grid !important;
-    gap: 2px !important;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    margin: 0 0 20px !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .section-head > p {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .section-head .kicker {
+    margin: 0 0 12px !important;
+    color: #b58a4a !important;
+    font: 650 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: 0.24em !important;
+    text-transform: uppercase !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .section-head h2 {
+    margin: 0 !important;
+    max-width: 11.5ch !important;
+    font: 400 clamp(1.9rem, 7.4vw, 2.4rem)/1.02 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -0.038em !important;
+    color: #1a1510 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 14px !important;
+    margin: 0 calc(var(--cs-mobile-container) * -1) !important;
+    padding: 0 var(--cs-mobile-container) 4px !important;
+    padding-right: calc(var(--cs-mobile-container) + 28px) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    scroll-padding-inline: var(--cs-mobile-container) !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    touch-action: pan-x !important;
+    scrollbar-width: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-grid::-webkit-scrollbar {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card {
+    position: relative !important;
+    flex: 0 0 min(66vw, 236px) !important;
+    width: min(66vw, 236px) !important;
+    min-width: min(66vw, 236px) !important;
+    max-width: min(66vw, 236px) !important;
+    scroll-snap-align: start !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    text-decoration: none !important;
+    color: inherit !important;
+    transform: none !important;
+    transition: opacity 0.22s ease !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card:active {
+    opacity: 0.86 !important;
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card img {
+    display: block !important;
+    width: 100% !important;
+    aspect-ratio: 3 / 4 !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    object-fit: cover !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #efe6db !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card__body {
+    display: grid !important;
+    gap: 7px !important;
+    padding: 16px 0 0 !important;
     min-width: 0 !important;
+    overflow: visible !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__item strong {
-    font: 700 9.25px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    letter-spacing: -0.01em !important;
-    color: var(--cs-hero-ink) !important;
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card__body .kicker {
+    margin: 0 !important;
+    color: #b58a4a !important;
+    font: 650 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: 0.2em !important;
+    text-transform: uppercase !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .hero-trust__item div > span {
-    margin-top: 0 !important;
-    font: 500 8.75px/1.25 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    color: #8a8076 !important;
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card__body h3 {
+    margin: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    font: 400 1.22rem/1.2 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -0.028em !important;
+    color: #1a1510 !important;
+    display: block !important;
+    -webkit-box-orient: unset !important;
+    -webkit-line-clamp: unset !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card__body p {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card__link {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-top: 10px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: none !important;
+    color: #1a1510 !important;
+    font: 650 9.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card__link::after {
+    content: "" !important;
+    display: block !important;
+    width: 16px !important;
+    height: 1px !important;
+    background: #b58a4a !important;
+    opacity: 0.75 !important;
+    transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home #concerns .concern-card:active .concern-card__link::after {
+    width: 26px !important;
+    opacity: 1 !important;
   }
   @media (min-width: 390px) {
     body.cs-mobile-v1-active.cs-route-home .home-hero__copy {
-      max-width: min(58vw, 236px) !important;
+      max-width: min(88vw, 340px) !important;
     }
     body.cs-mobile-v1-active.cs-route-home .home-hero h1 {
-      font-size: clamp(2.85rem, 11vw, 3.65rem) !important;
+      font-size: clamp(2.25rem, 8.4vw, 2.85rem) !important;
     }
   }
   @media (min-width: 430px) {
     body.cs-mobile-v1-active.cs-route-home .home-hero__actions {
-      max-width: 248px !important;
+      max-width: 360px !important;
     }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -8281,128 +9262,185 @@
     body.cs-mobile-v1-active.cs-route-home .home-hero h1,
     body.cs-mobile-v1-active.cs-route-home .home-hero__lead,
     body.cs-mobile-v1-active.cs-route-home .home-hero__actions,
-    body.cs-mobile-v1-active.cs-route-home .home-hero__trust {
+    body.cs-mobile-v1-active.cs-route-home .home-hero__trust,
+    body.cs-mobile-v1-active.cs-route-home #homeHeroTitle .home-hero__shine-word,
+    body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word {
       animation: none !important;
       opacity: 1 !important;
       transform: none !important;
+    }
+    body.cs-mobile-v1-active.cs-route-home #homeHeroTitle .home-hero__shine-word,
+    body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word {
+      background-image: none !important;
+      background-color: transparent !important;
+      color: #b58a4a !important;
+      -webkit-text-fill-color: #b58a4a !important;
+      filter: none !important;
     }
     body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn {
       transition: none !important;
     }
   }
 
-  /* Premium mobile cart page */
+  /* Premium mobile cart page — editorial / Sephora–Rhode quiet luxury */
   body.cs-mobile-v1-active.cs-route-cart #cs-mobile-v1-page-stage {
     display: block !important;
-    min-height: 100dvh;
+    min-height: auto !important;
     background:
-      radial-gradient(circle at 12% 0%, rgba(255,250,244,.92), transparent 34%),
-      radial-gradient(circle at 88% 8%, rgba(239,228,214,.55), transparent 28%),
-      linear-gradient(180deg, #f7f1ea 0%, #efe4d8 42%, #f8f3ec 100%) !important;
+      linear-gradient(180deg, #faf6f1 0%, #f3ebe3 52%, #efe6dc 100%) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp.cs-cart-page {
-    --cs-cart-ink: #1d1712;
-    --cs-cart-muted: #756b61;
-    --cs-cart-line: rgba(42,32,22,.11);
-    --cs-cart-surface: rgba(255,253,249,.88);
+    --cs-cart-ink: #17120d;
+    --cs-cart-muted: #7a7168;
+    --cs-cart-soft: #9a9086;
+    --cs-cart-line: rgba(35,27,20,.09);
+    --cs-cart-line-strong: rgba(35,27,20,.14);
+    --cs-cart-surface: #fffdf9;
+    --cs-cart-gold: #b58a4a;
     background: transparent !important;
     min-height: auto !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-page__inner {
     width: 100% !important;
-    max-width: 620px !important;
+    max-width: 560px !important;
     margin: 0 auto !important;
-    padding: 12px 14px calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 24px) !important;
+    padding: 8px 16px calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 14px) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero {
     display: grid !important;
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 14px !important;
     align-items: start !important;
-    margin: 0 0 14px !important;
-    padding: 18px 16px !important;
-    border: 1px solid var(--cs-cart-line) !important;
-    border-radius: 24px !important;
-    background: var(--cs-cart-surface) !important;
-    box-shadow: 0 14px 34px rgba(44,34,25,.06) !important;
+    margin: 0 0 18px !important;
+    padding: 8px 0 16px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--cs-cart-line) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__copy { min-width: 0; }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-kicker {
-    margin: 0 0 8px !important;
-    color: #8d7f72 !important;
-    font: 700 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    letter-spacing: .16em !important;
+    margin: 0 0 10px !important;
+    color: var(--cs-cart-soft) !important;
+    font: 650 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .22em !important;
+    text-transform: uppercase !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__title-row {
+    display: flex !important;
+    align-items: baseline !important;
+    flex-wrap: wrap !important;
+    gap: 8px 12px !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero h2 {
     margin: 0 !important;
-    font: 400 clamp(28px, 8vw, 34px)/.95 "Cormorant Garamond", Georgia, serif !important;
-    letter-spacing: -.03em !important;
+    font: 400 clamp(32px, 9vw, 40px)/.92 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.035em !important;
     color: var(--cs-cart-ink) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__count {
-    margin: 8px 0 0 !important;
-    padding: 5px 10px !important;
-    background: rgba(181,138,74,.12) !important;
-    border: 1px solid rgba(181,138,74,.18) !important;
-    color: #6f5430 !important;
-    font-size: 9px !important;
+    margin: 0 !important;
+    padding: 4px 0 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: var(--cs-cart-muted) !important;
+    font: 600 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero p {
-    max-width: none !important;
+    max-width: 36ch !important;
     margin: 10px 0 0 !important;
     color: var(--cs-cart-muted) !important;
-    font-size: 11px !important;
-    line-height: 1.6 !important;
+    font: 450 12.5px/1.55 "Plus Jakarta Sans", system-ui, sans-serif !important;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__continue,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__continue {
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 0 2px !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(181,138,74,.4) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #6f5430 !important;
+    font: 700 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .1em !important;
+    text-transform: uppercase !important;
+    transform: none !important;
+    justify-self: start !important;
+  }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__cta,
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-checkout__btn {
     width: 100% !important;
     min-height: 50px !important;
-    border-radius: 15px !important;
-    font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
-    letter-spacing: .1em !important;
+    border-radius: 999px !important;
+    font: 650 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .12em !important;
     text-transform: uppercase !important;
     transform: none !important;
   }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-checkout__btn {
+    background: #1a1510 !important;
+    border-color: #1a1510 !important;
+    color: #fffdf9 !important;
+    box-shadow: 0 10px 24px rgba(26, 21, 16, .14) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-checkout__trust {
+    margin: 12px 0 0 !important;
+    font: 500 10px/1.4 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .04em !important;
+    color: var(--cs-cart-soft) !important;
+  }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty {
     gap: 0 !important;
-    padding: 28px 18px 22px !important;
-    border: 1px solid var(--cs-cart-line) !important;
-    border-radius: 26px !important;
-    background: var(--cs-cart-surface) !important;
-    box-shadow: 0 16px 38px rgba(44,34,25,.06) !important;
+    padding: 32px 8px 24px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__icon {
-    width: 64px !important;
-    height: 64px !important;
-    margin: 0 auto 14px !important;
-    border-radius: 18px !important;
+    width: 56px !important;
+    height: 56px !important;
+    margin: 0 auto 16px !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    border: 1px solid var(--cs-cart-line) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty strong {
-    font-size: clamp(24px, 7vw, 30px) !important;
-    line-height: 1.05 !important;
+    font: 400 clamp(26px, 7vw, 32px)/1.05 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.03em !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty p {
     margin: 10px 0 0 !important;
-    font-size: 11px !important;
-    line-height: 1.62 !important;
+    font-size: 12.5px !important;
+    line-height: 1.55 !important;
+    color: var(--cs-cart-muted) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust {
-    gap: 7px !important;
-    margin-top: 16px !important;
+    gap: 0 !important;
+    margin-top: 20px !important;
     text-align: left !important;
+    border-top: 1px solid var(--cs-cart-line) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust__item {
-    padding: 9px 10px !important;
-    border-radius: 14px !important;
-    font-size: 10px !important;
+    padding: 12px 0 !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--cs-cart-line) !important;
+    background: transparent !important;
+    font-size: 11px !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust__icon {
-    width: 30px !important;
-    height: 30px !important;
-    flex-basis: 30px !important;
-    border-radius: 10px !important;
+    width: 28px !important;
+    height: 28px !important;
+    flex-basis: 28px !important;
+    border-radius: 0 !important;
+    background: transparent !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust__icon svg {
     width: 16px !important;
@@ -8412,43 +9450,48 @@
     display: grid !important;
     grid-template-columns: repeat(2,minmax(0,1fr)) !important;
     gap: 8px !important;
-    margin: 14px 0 12px !important;
+    margin: 16px 0 14px !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__link {
     min-width: 0 !important;
     text-align: center !important;
-    padding: 10px 8px !important;
+    padding: 11px 8px !important;
+    border-radius: 0 !important;
     font-size: 9px !important;
+    letter-spacing: .1em !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__link:last-child:nth-child(3) {
     grid-column: 1 / -1 !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp.is-empty .cs-cart-hero--empty {
-    margin: 0 0 10px !important;
-    padding: 14px 16px !important;
-    border-radius: 20px !important;
-    box-shadow: 0 8px 22px rgba(44,34,25,.04) !important;
+    margin: 0 0 8px !important;
+    padding: 8px 0 14px !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp.is-empty .cs-cart-hero--empty p {
     display: none !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio {
-    gap: 12px !important;
+    gap: 16px !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio__hero {
-    gap: 11px !important;
-    padding: 26px 18px 20px !important;
-    border-radius: 26px !important;
-    border: 1px solid var(--cs-cart-line) !important;
-    box-shadow: 0 16px 38px rgba(44,34,25,.06) !important;
+    gap: 12px !important;
+    padding: 28px 4px 20px !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--cs-cart-line) !important;
+    box-shadow: none !important;
+    background: transparent !important;
   }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio__hero::before { display: none !important; }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio__hero h2 {
-    font: 400 clamp(28px, 7.5vw, 34px)/.95 "Cormorant Garamond", Georgia, serif !important;
-    letter-spacing: -.03em !important;
+    font: 400 clamp(30px, 8vw, 36px)/.95 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.035em !important;
     color: var(--cs-cart-ink) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio__hero > p {
-    font-size: 12.5px !important;
+    font-size: 13px !important;
     line-height: 1.55 !important;
     color: var(--cs-cart-muted) !important;
   }
@@ -8459,26 +9502,29 @@
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio__chip {
     justify-content: center !important;
-    min-height: 40px !important;
+    min-height: 42px !important;
     padding: 0 10px !important;
+    border-radius: 0 !important;
     font-size: 9.5px !important;
-    letter-spacing: .07em !important;
-    background: rgba(255,253,249,.92) !important;
+    letter-spacing: .1em !important;
+    background: transparent !important;
+    border: 1px solid var(--cs-cart-line-strong) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio__chip:last-child:nth-child(3) {
     grid-column: 1 / -1 !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-studio .cs-cart-trust {
-    margin-top: 2px !important;
+    margin-top: 4px !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last,
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover {
-    gap: 12px !important;
-    padding: 16px 14px 14px !important;
-    border-radius: 22px !important;
-    border: 1px solid var(--cs-cart-line) !important;
-    background: linear-gradient(180deg, #fffefb, #faf4ec) !important;
-    box-shadow: 0 12px 28px rgba(44,34,25,.045) !important;
+    gap: 14px !important;
+    padding: 18px 0 16px !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    border-top: 1px solid var(--cs-cart-line) !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__head,
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover__head {
@@ -8486,31 +9532,39 @@
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__head > span,
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover__head > span {
-    min-width: 28px !important;
-    height: 28px !important;
+    min-width: 24px !important;
+    height: 24px !important;
+    border-radius: 0 !important;
     font-size: 10px !important;
+    background: transparent !important;
+    border: 1px solid var(--cs-cart-line) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__head h3,
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover__head h3 {
-    font-size: 14.5px !important;
+    font: 400 22px/1.1 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.02em !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__head p,
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover__head p {
     font-size: 11.5px !important;
+    color: var(--cs-cart-muted) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__lede {
     font-size: 12.5px !important;
     line-height: 1.5 !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__card {
-    grid-template-columns: 68px minmax(0, 1fr) !important;
-    gap: 12px !important;
-    padding: 11px !important;
-    border-radius: 16px !important;
+    grid-template-columns: 72px minmax(0, 1fr) !important;
+    gap: 14px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__media {
-    width: 68px !important;
-    height: 68px !important;
+    width: 72px !important;
+    height: 72px !important;
+    border-radius: 0 !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__actions {
     grid-template-columns: 1fr !important;
@@ -8518,250 +9572,519 @@
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-last__btn {
     min-height: 46px !important;
-    border-radius: 13px !important;
-    font-size: 12px !important;
+    border-radius: 2px !important;
+    font-size: 11px !important;
+    letter-spacing: .1em !important;
+    text-transform: uppercase !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover__rail {
-    gap: 9px !important;
-    margin: 0 -2px !important;
-    padding: 2px 2px 6px !important;
+    gap: 10px !important;
+    margin: 0 -4px !important;
+    padding: 2px 4px 6px !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover__card {
-    padding: 9px !important;
-    border-radius: 15px !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-discover__card strong {
     font-size: 12px !important;
+    font-weight: 600 !important;
   }
+
+  /* Filled cart — product list + summary */
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-layout {
     display: grid !important;
     grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    gap: 0 !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-items,
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary,
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs {
-    padding: 16px !important;
-    border: 1px solid var(--cs-cart-line) !important;
-    border-radius: 24px !important;
-    background: var(--cs-cart-surface) !important;
-    box-shadow: 0 14px 34px rgba(44,34,25,.05) !important;
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary {
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
     backdrop-filter: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-items {
+    border-bottom: 1px solid var(--cs-cart-line) !important;
+    margin-bottom: 22px !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary {
     position: static !important;
+    padding: 4px 0 0 !important;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary h2,
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs h2 {
-    margin: 0 0 12px !important;
-    font: 400 24px/1 "Cormorant Garamond", Georgia, serif !important;
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary__head {
+    margin: 0 0 16px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary__head h2 {
+    margin: 0 !important;
+    font: 600 1.45rem/1.05 "Cormorant Garamond", Georgia, serif !important;
     letter-spacing: -.02em !important;
     color: var(--cs-cart-ink) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row {
-    grid-template-columns: 72px minmax(0,1fr) !important;
-    gap: 12px !important;
-    padding: 14px 0 !important;
+    grid-template-columns: 84px minmax(0,1fr) !important;
+    gap: 14px 14px !important;
+    padding: 18px 0 !important;
     align-items: start !important;
+    border-bottom: 1px solid var(--cs-cart-line) !important;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row:first-child { padding-top: 0 !important; }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row:last-child {
+    border-bottom: 0 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row:first-child { padding-top: 4px !important; }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row__media {
+    display: grid !important;
+    place-items: center !important;
+    aspect-ratio: 1 / 1 !important;
+    background: #f4ece3 !important;
+    border: 0 !important;
+    overflow: hidden !important;
+  }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row img {
-    width: 72px !important;
-    height: 72px !important;
-    border-radius: 16px !important;
-    padding: 8px !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    padding: 10px !important;
+    border: 0 !important;
     object-fit: contain !important;
-    background: linear-gradient(145deg,#fffaf4,#efe4d6) !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-name {
-    font-size: 12px !important;
-    line-height: 1.35 !important;
+    background: transparent !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-brand {
-    margin-top: 4px !important;
-    font-size: 9px !important;
+    margin: 0 0 5px !important;
+    font: 650 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .14em !important;
+    color: var(--cs-cart-soft) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-name {
+    font: 600 13.5px/1.35 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: -.015em !important;
+    color: var(--cs-cart-ink) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-meta {
-    gap: 8px !important;
-    margin-top: 10px !important;
+    gap: 10px !important;
+    margin-top: 12px !important;
+    align-items: center !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stock-badge.is-unknown {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stock-badge {
+    padding: 4px 8px !important;
+    border-radius: 0 !important;
+    font: 650 8.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .1em !important;
+    text-transform: uppercase !important;
+    background: rgba(35,27,20,.05) !important;
+    color: var(--cs-cart-muted) !important;
+    border: 0 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stock-badge.is-out {
+    background: rgba(138,59,47,.08) !important;
+    color: #8a3b2f !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stepper {
-    grid-template-columns: 30px 34px 30px !important;
-    border-radius: 999px !important;
+    grid-template-columns: 28px 32px 28px !important;
+    border-radius: 0 !important;
+    border: 1px solid var(--cs-cart-line-strong) !important;
+    background: transparent !important;
+    overflow: hidden !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stepper button {
-    height: 32px !important;
-    font-size: 15px !important;
+    height: 30px !important;
+    font-size: 14px !important;
+    color: var(--cs-cart-ink) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stepper span {
-    font-size: 12px !important;
+    font: 650 12px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-link-button {
+    text-decoration: none !important;
+    border-bottom: 1px solid rgba(35,27,20,.28) !important;
+    padding: 0 0 1px !important;
+    font: 550 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: var(--cs-cart-muted) !important;
+    letter-spacing: .02em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row__top {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row__copy {
+    min-width: 0 !important;
+    flex: 1 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row__price {
+    flex: 0 0 auto !important;
+    margin-top: 1px !important;
+    font: 650 14px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: -.02em !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+    color: var(--cs-cart-ink) !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row__total {
-    grid-column: 1 / -1 !important;
-    justify-items: start !important;
-    text-align: left !important;
-    padding-top: 2px !important;
-    border-top: 1px dashed rgba(42,32,22,.08) !important;
-    margin-top: 2px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon {
-    margin: 0 0 12px !important;
-    padding: 12px !important;
-    border-radius: 16px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon label {
-    font-size: 9px !important;
-    letter-spacing: .12em !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon__row {
-    grid-template-columns: 1fr auto !important;
-    gap: 8px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon input {
-    min-height: 46px !important;
-    font-size: 11px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon .cs-btn {
-    min-height: 46px !important;
-    padding: 0 14px !important;
-    font-size: 9px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon-status,
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-stock-warning {
-    font-size: 10px !important;
-    line-height: 1.5 !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-line {
-    margin: 8px 0 !important;
-    font-size: 11px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-total {
-    margin-top: 12px !important;
-    padding-top: 12px !important;
-    font-size: 16px !important;
+    display: none !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-progress,
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-note {
-    margin-bottom: 12px !important;
+    margin: 0 0 18px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
   }
   body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-progress__text {
-    font-size: 10px !important;
+    font-size: 11px !important;
+    color: var(--cs-cart-muted) !important;
+    letter-spacing: .01em !important;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs {
-    margin-top: 12px !important;
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-progress__bar {
+    height: 2px !important;
+    border-radius: 0 !important;
+    background: rgba(35,27,20,.08) !important;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid {
-    display: flex !important;
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-progress__bar span {
+    height: 2px !important;
+    border-radius: 0 !important;
+    background: var(--cs-cart-gold) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon {
+    margin: 0 0 18px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon label {
+    font: 650 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .16em !important;
+    text-transform: uppercase !important;
+    color: var(--cs-cart-soft) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon__row {
+    grid-template-columns: 1fr auto !important;
+    gap: 0 !important;
+    border-bottom: 1px solid var(--cs-cart-line-strong) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon input {
+    min-height: 44px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 4px 0 0 !important;
+    background: transparent !important;
+    font: 600 12px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .08em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon .cs-btn {
+    min-height: 44px !important;
+    padding: 0 4px 0 14px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: var(--cs-cart-ink) !important;
+    font: 650 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .12em !important;
+    text-transform: uppercase !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon-status,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-stock-warning {
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+    color: var(--cs-cart-muted) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-totals {
+    margin: 4px 0 18px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-line {
+    margin: 10px 0 !important;
+    font: 450 12.5px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: var(--cs-cart-muted) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-line strong {
+    font-weight: 600 !important;
+    color: var(--cs-cart-ink) !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-line.is-discount strong {
+    color: #3d6b52 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-total {
+    margin-top: 14px !important;
+    padding-top: 14px !important;
+    border-top: 1px solid rgba(181, 138, 74, .45) !important;
+    align-items: baseline !important;
+    font: 650 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .1em !important;
+    text-transform: uppercase !important;
+    color: var(--cs-cart-ink) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-total strong {
+    font: 650 22px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: -.03em !important;
+    text-transform: none !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-checkout {
+    margin-top: 4px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero {
+    margin-bottom: 14px !important;
     gap: 10px !important;
-    overflow-x: auto !important;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px !important;
-    scrollbar-width: none;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid::-webkit-scrollbar { display: none; }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card {
-    flex: 0 0 min(72vw, 240px) !important;
-    scroll-snap-align: start;
-    padding: 12px !important;
-    border-radius: 18px !important;
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero h2 {
+    font: 600 clamp(1.85rem, 8vw, 2.2rem)/1 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.03em !important;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card__media {
-    border-radius: 14px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card__info strong {
-    min-height: 32px !important;
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__count {
+    min-width: 26px !important;
+    min-height: 26px !important;
     font-size: 11px !important;
   }
-  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card button {
-    min-height: 32px !important;
-    font-size: 9px !important;
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__continue {
+    font: 700 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .1em !important;
+    text-transform: uppercase !important;
+    color: #6f5430 !important;
+    border-bottom: 1px solid rgba(181,138,74,.4) !important;
+    padding-bottom: 2px !important;
+    background: transparent !important;
+    min-height: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
   }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero p:not(.cs-kicker) {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #cs-mobile-v1-page-stage {
+    display: block !important;
+    min-height: auto !important;
+    background:
+      linear-gradient(180deg, #faf6f1 0%, #f3ebe3 52%, #efe6dc 100%) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-page__inner {
+    width: 100% !important;
+    max-width: 560px !important;
+    margin: 0 auto !important;
+    padding: 8px 16px calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 14px) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs.cs-recs-rail {
+    margin: 18px -16px 0 !important;
+    padding: 22px 0 16px !important;
+    border: 0 !important;
+    border-top: 1px solid rgba(42,32,22,.08) !important;
+    border-radius: 28px 28px 0 0 !important;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255,253,249,.9), transparent 46%),
+      linear-gradient(180deg, #fffaf4 0%, #f6eee4 62%, #f1e7db 100%) !important;
+    box-shadow: 0 -12px 36px rgba(42,32,22,.04) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__head {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 0 16px 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__copy {
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__kicker {
+    display: block !important;
+    margin: 0 0 5px !important;
+    font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .16em !important;
+    text-transform: uppercase !important;
+    color: #b58a4a !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__head h2 {
+    margin: 0 !important;
+    font: 600 1.55rem/1.02 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.025em !important;
+    color: #1a1510 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__lede {
+    display: block !important;
+    margin: 7px 0 0 !important;
+    max-width: 28ch !important;
+    font: 500 12.5px/1.4 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: #7a7168 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__controls {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__track {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 11px !important;
+    margin: 0 !important;
+    padding: 0 16px 2px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain !important;
+    touch-action: pan-x !important;
+    scrollbar-width: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__track::-webkit-scrollbar {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide {
+    flex: 0 0 138px !important;
+    width: 138px !important;
+    max-width: 138px !important;
+    min-width: 138px !important;
+    scroll-snap-align: start !important;
+    display: grid !important;
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__media-wrap {
+    position: relative !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__media {
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 16px !important;
+    background: linear-gradient(160deg, #fffdf9, #efe5d8) !important;
+    box-shadow: inset 0 0 0 1px rgba(42,32,22,.05) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__media img {
+    width: 70% !important;
+    height: 70% !important;
+    object-fit: contain !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__body {
+    gap: 3px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__brand {
+    font: 700 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .1em !important;
+    color: #8d663c !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__title {
+    min-height: 0 !important;
+    max-height: 2.55em !important;
+    font: 600 12.5px/1.28 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: #1a1510 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__price {
+    margin-top: 2px !important;
+    font: 700 12.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: #1a1510 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__cart {
+    position: absolute !important;
+    right: 7px !important;
+    bottom: 7px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    background: #1a1510 !important;
+    color: #fffaf3 !important;
+    box-shadow: 0 6px 14px rgba(26,21,16,.16) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-rec-slide__cart svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__foot {
+    display: flex !important;
+    align-items: center !important;
+    margin: 12px 16px 0 !important;
+    padding: 12px 0 0 !important;
+    border-top: 1px solid rgba(42,32,22,.08) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__more {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    margin: 0 !important;
+    font: 700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .08em !important;
+    text-transform: uppercase !important;
+    color: #8d663c !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-recs-rail__more svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
   body.cs-mobile-v1-active.cs-route-cart.cs-has-mobile-footer {
     padding-bottom: 0 !important;
   }
 
-  /* Home assurance — trust pillars + rutin CTA */
+  /* Home assurance — compact trust rail */
   body.cs-mobile-v1-active.cs-route-home .assurance-section {
-    padding: 8px var(--cs-mobile-container) 6px !important;
+    padding: 6px var(--cs-mobile-container) 4px !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-assurance {
-    gap: 18px !important;
-    padding: 22px 16px 18px !important;
-    border-radius: 26px !important;
-    box-shadow: 0 14px 34px rgba(51, 38, 27, .055) !important;
+    gap: 16px !important;
+    padding: 18px 14px 14px !important;
+    border-radius: 22px !important;
+    box-shadow: 0 10px 28px rgba(51, 38, 27, .04) !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-assurance__head {
-    gap: 8px !important;
+    gap: 6px !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-assurance__kicker {
     font-size: 10px !important;
-    letter-spacing: .22em !important;
+    letter-spacing: .16em !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-assurance__title {
-    font-size: clamp(1.7rem, 7.5vw, 2.15rem) !important;
-    line-height: 1.06 !important;
+    font-size: clamp(1.45rem, 6.4vw, 1.75rem) !important;
+    line-height: 1.08 !important;
+    max-width: 14ch !important;
   }
   body.cs-mobile-v1-active.cs-route-home .home-assurance__lede {
-    font-size: 13px !important;
-    line-height: 1.55 !important;
-    max-width: 34ch !important;
+    display: none !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillars {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 8px !important;
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__rail {
+    grid-template-columns: 1fr !important;
+    border-radius: 16px !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar {
-    gap: 10px !important;
-    padding: 14px 12px 12px !important;
-    border-radius: 18px !important;
-    min-height: 0 !important;
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__item {
+    border-right: 0 !important;
+    border-bottom: 1px solid rgba(42, 32, 22, .08) !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar:hover {
-    transform: none;
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__item:last-child {
+    border-bottom: 0 !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__icon {
-    width: 34px !important;
-    height: 34px !important;
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__link {
+    min-height: 58px !important;
+    padding: 13px 12px !important;
+    gap: 12px !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__icon svg {
-    width: 16px !important;
-    height: 16px !important;
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__meta strong {
+    font-size: 13.5px !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-copy {
-    gap: 4px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-copy strong {
-    font-size: 15px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-copy span {
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__meta small {
     font-size: 11.5px !important;
-    line-height: 1.45 !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-link {
-    font-size: 9.5px !important;
-    letter-spacing: .1em !important;
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__routine {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    gap: 12px !important;
+    padding: 14px 14px !important;
+    border-radius: 16px !important;
   }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__routine-copy strong {
+    font-size: 1.1rem !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__routine-cta {
+    min-height: 38px !important;
+    padding: 0 14px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillars,
   body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight {
-    grid-template-columns: 1fr !important;
-    gap: 14px !important;
-    padding: 18px 16px !important;
-    border-radius: 20px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight h3 {
-    font-size: 1.35rem !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight-copy > p:last-child {
-    font-size: 12.5px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight-actions {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .home-assurance__cta {
-    width: 100% !important;
-    min-height: 48px !important;
+    display: none !important;
   }
 }
 
@@ -8813,7 +10136,7 @@
   }
   .cs-mobile-v1-logo span { margin-right: -.24em; }
   body.cs-mobile-v1-active.cs-route-home .home-hero__actions { grid-template-columns: 1fr !important; }
-  body.cs-mobile-v1-active.cs-route-home .home-hero h1 { font-size: clamp(2.5rem, 12vw, 3.2rem) !important; }
+  body.cs-mobile-v1-active.cs-route-home .home-hero h1 { font-size: clamp(2.05rem, 8.2vw, 2.55rem) !important; }
 }
 
 /* Home spotlight — shoppable campaign (replaces editorial manifesto) */
@@ -8860,27 +10183,70 @@
     min-height: 48px !important;
   }
   body.cs-mobile-v1-active.cs-route-home .cs-spotlight__shop {
-    padding: 14px 12px 12px !important;
-    border-radius: 22px !important;
+    padding: 16px 12px 12px !important;
+    border-radius: 24px !important;
+    gap: 14px !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__rail {
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__shop-lede {
+    max-width: none !important;
+    font-size: 12.5px !important;
+    line-height: 1.45 !important;
+    color: #6f6458 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__stories {
+    height: min(72vh, 620px) !important;
+    max-height: min(72vh, 620px) !important;
     margin: 0 -2px !important;
     padding: 2px 2px 8px !important;
-    gap: 9px !important;
+    gap: 12px !important;
+    scroll-snap-type: y mandatory !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__card {
-    padding: 10px !important;
-    border-radius: 16px !important;
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__story {
+    flex: 0 0 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
   }
-  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__card strong {
-    font-size: 12.5px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__promos {
-    gap: 8px !important;
-  }
-  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__promo {
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__story-main {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
     padding: 12px !important;
+    border-radius: 20px !important;
+    height: 100% !important;
+    box-sizing: border-box !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__story-media {
+    aspect-ratio: 4 / 3 !important;
     border-radius: 14px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__story-media img {
+    width: 62% !important;
+    height: 78% !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__story-name {
+    font-size: clamp(1.15rem, 5.2vw, 1.35rem) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__story-text {
+    font-size: 12.5px !important;
+    line-height: 1.48 !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__story-cart {
+    min-height: 48px !important;
+    border-radius: 999px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__scroll-hint {
+    display: block !important;
+    margin-top: 2px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__rail,
+  body.cs-mobile-v1-active.cs-route-home .cs-spotlight__promos {
+    display: none !important;
   }
   body.cs-mobile-v1-active.cs-route-home .cs-curation {
     padding: 28px 0 32px !important;

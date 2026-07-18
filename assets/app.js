@@ -959,8 +959,12 @@
 
   function cartStockCheck(item, nextQty) {
     const api = getStockApi();
-    if (!api || typeof api.canBuy !== 'function') return { ok: false, unknown: true, message: 'Stok bilgisi doğrulanamadı. Lütfen tekrar deneyin.' };
-    return api.canBuy(item.slug || item.id, nextQty || item.qty || 1);
+    if (!api || typeof api.canBuy !== 'function') return { ok: true };
+    const result = api.canBuy(item.slug || item.id, nextQty || item.qty || 1);
+    // Soft-allow while inventory is still loading or the service is unreachable.
+    // Confirmed out-of-stock / missing-record responses still block.
+    if (result && (result.unknown || result.service_unavailable)) return { ok: true, unknown: true };
+    return result;
   }
 
   function showStockToast(message) {
@@ -1300,11 +1304,38 @@
     }
   }
 
+  function enhanceCookieBanner() {
+    if (!cookieBanner) return;
+    const card = cookieBanner.querySelector('.cookie-card');
+    if (!card || card.dataset.csCookieEnhanced === '1') return;
+    card.dataset.csCookieEnhanced = '1';
+    const actions = card.querySelector('.cookie-actions');
+    const existingP = card.querySelector('p');
+    const copy = document.createElement('div');
+    copy.className = 'cookie-copy';
+    copy.innerHTML = '' +
+      '<p class="cookie-kicker">Gizlilik</p>' +
+      '<h2 class="cookie-title">Çerez tercihleri</h2>' +
+      '<p>Zorunlu çerezler sepet, oturum ve güvenli ödeme için kullanılır. Analitik, işlevsel ve pazarlama çerezleri yalnızca seçiminize göre etkinleşir.</p>' +
+      '<p class="cookie-links"><a href="/legal/cerez-politikasi.html">Çerez Politikası</a><a href="/legal/kvkk-aydinlatma-metni.html">KVKK Aydınlatma</a><button type="button" class="cookie-detail-link" id="cookieOpenDetails">Detaylı tercihler</button></p>';
+    if (existingP) existingP.replaceWith(copy);
+    else card.insertBefore(copy, actions || null);
+    const detailBtn = card.querySelector('#cookieOpenDetails');
+    if (detailBtn && !detailBtn.dataset.bound) {
+      detailBtn.dataset.bound = '1';
+      detailBtn.addEventListener('click', () => {
+        applyStoredCookiePrefs();
+        openModal(prefModal);
+      });
+    }
+  }
+
   $('#cookieAcceptAll')?.addEventListener('click', () => setConsent('all'));
   $('#cookieAcceptEssential')?.addEventListener('click', () => setConsent('essential'));
   $('#cookieSavePrefs')?.addEventListener('click', () => setConsent('custom'));
   $('#cookieCustomize')?.addEventListener('click', () => { applyStoredCookiePrefs(); openModal(prefModal); });
 
+  enhanceCookieBanner();
   if (!state.consent) cookieBanner?.classList.add('show');
   else if (state.consent.analytics && window.enableAnalytics) window.enableAnalytics();
 

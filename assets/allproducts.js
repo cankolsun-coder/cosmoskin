@@ -810,6 +810,9 @@
       if (typeof window.initFavoriteButtons === 'function') window.initFavoriteButtons(els.grid);
       if (typeof window.initCartButtons === 'function') window.initCartButtons(els.grid);
       bindFallbackCartButtons(els.grid);
+      if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.loadInventory === 'function') {
+        window.COSMOSKIN_STOCK.loadInventory(visible.map(function (p) { return p.slug || p.id; }).filter(Boolean), { root: els.grid });
+      }
     }
     if (els.empty) els.empty.hidden = state.filtered.length !== 0;
     if (els.resultCount) els.resultCount.textContent = state.filtered.length.toLocaleString('tr-TR');

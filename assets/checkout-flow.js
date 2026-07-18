@@ -157,6 +157,10 @@
   }
   function writeSession(key, value) {
     try { sessionStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
+    // Persist last order across tabs/sessions so cart "Son sipariş" can show real checkout data.
+    if (key === ORDER_KEY) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
+    }
   }
 
   function dispatchCheckoutEvent(name, detail) {
@@ -303,12 +307,28 @@
   function authHeaders(token) {
     return token ? { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
   }
-  async function fetchAccountAddresses(token) {
-    if (!token) return [];
-    var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/account/addresses', { headers: authHeaders(token) });
-    if (!res.ok) throw new Error('Adresler alınamadı.');
-    var data = await res.json().catch(function () { return {}; });
-    return (Array.isArray(data.addresses) ? data.addresses : []).map(normalizeAddress).filter(addressHasContent);
+  async function fetchAccountAddressesFromClient(userId) {
+    var client = window.cosmoskinSupabase;
+    if (!client || !userId || typeof client.from !== 'function') return [];
+    var result = await client.from('user_addresses').select('*').eq('user_id', userId).order('is_default', { ascending: false });
+    if (result && result.error) throw result.error;
+    return (Array.isArray(result.data) ? result.data : []).map(normalizeAddress).filter(addressHasContent);
+  }
+  async function fetchAccountAddresses(token, userId) {
+    if (!token && !userId) return [];
+    if (token) {
+      try {
+        var res = await fetch(((cfg && cfg.apiBase) || '/api') + '/account/addresses', { headers: authHeaders(token) });
+        if (res.ok) {
+          var data = await res.json().catch(function () { return {}; });
+          return (Array.isArray(data.addresses) ? data.addresses : []).map(normalizeAddress).filter(addressHasContent);
+        }
+      } catch (_) {
+        /* Local static server has no /api — fall through to Supabase client. */
+      }
+    }
+    if (userId) return fetchAccountAddressesFromClient(userId);
+    return [];
   }
   async function fetchBankAccountConfig(options) {
     options = options || {};
@@ -461,6 +481,15 @@
     var node = byId('csCheckoutStatus');
     if (!node) return;
     node.className = 'cs-checkout-status' + (type ? ' is-' + type : '');
+    node.textContent = message || '';
+  }
+  function setCouponFeedback(message, type) {
+    var node = byId('csCouponFeedback');
+    if (!node) {
+      if (message) setStatus(message, type);
+      return;
+    }
+    node.className = 'cs-checkout-coupon-feedback' + (message ? ' is-visible' : '') + (type ? ' is-' + type : '');
     node.textContent = message || '';
   }
   function field(name) { return $('[name="' + name + '"]'); }
@@ -665,10 +694,24 @@
       if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.validateCartPurchasable === 'function') {
         var gate = await window.COSMOSKIN_STOCK.validateCartPurchasable(cart.items);
         if (!gate.ok) {
+          var hardBlocked = (gate.items || []).filter(function (row) {
+            if (!row || row.can_purchase !== false) return false;
+            if (row.unknown || row.service_unavailable) return false;
+            var status = String(row.status || row.stock_status || row.inventory_status || '').toLowerCase();
+            if (!status || status === 'unknown' || status === 'service_unavailable' || status === 'missing') return false;
+            var available = Number(row.available_stock);
+            return status === 'out' || status === 'out_of_stock' || status === 'insufficient' || (Number.isFinite(available) && available <= 0);
+          });
+          if (!hardBlocked.length) {
+            stockBlocked = false;
+            stockBlockDetails = [];
+            inventoryWarning = '';
+            return true;
+          }
           stockBlocked = true;
-          stockBlockDetails = gate.items || [];
+          stockBlockDetails = hardBlocked;
           inventoryWarning = gate.actionMessage || 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.';
-          setStatus(formatStockGateMessage(gate, 'Sepetinizde stokta olmayan ürünler var.'), 'error');
+          setStatus(formatStockGateMessage({ items: hardBlocked, message: gate.message }, 'Sepetinizde stokta olmayan ürünler var.'), 'error');
           return false;
         }
         stockBlocked = false;
@@ -696,11 +739,11 @@
       stockBlocked = false;
       return true;
     } catch (_) {
-      stockBlocked = true;
+      // Local static / inventory outage: soft-allow like cart. Hard block only when API returns explicit unpurchasable items.
+      stockBlocked = false;
       stockBlockDetails = [];
-      inventoryWarning = 'Ödemeye geçmeden önce stok durumunu doğrulayıp tekrar deneyin.';
-      setStatus('Stok bilgisi doğrulanamadı. Lütfen sepeti yenileyin.', 'error');
-      return false;
+      inventoryWarning = '';
+      return true;
     }
   }
   async function refreshStockGate() {
@@ -760,7 +803,8 @@
   }
 
   function checkoutBadge(text, tone) {
-    return '<span class="cs-checkout-badge ' + (tone ? 'is-' + tone : '') + '">' + esc(text) + '</span>';
+    var mark = tone === 'delivery' ? icon('truck') : icon(tone === 'secure' ? 'lock' : 'check');
+    return '<span class="cs-checkout-badge ' + (tone ? 'is-' + tone : '') + '">' + mark + '<span>' + esc(text) + '</span></span>';
   }
   function compactAddress() {
     var bits = [state.delivery.address, [state.delivery.district, state.delivery.city].filter(Boolean).join(' / '), state.delivery.postalCode].filter(Boolean);
@@ -774,7 +818,43 @@
     return '<div class="cs-checkout-free-shipping"><div class="cs-checkout-free-shipping__bar"><span style="width:' + pct + '%"></span></div><p>' + esc(copy) + '</p></div>';
   }
   function miniTrustRow() {
-    return '<div class="cs-checkout-mini-trust"><span>' + icon('lock') + ' Güvenli ödeme</span><span>' + icon('check') + ' KDV dahil fiyat</span><span>' + icon('return') + ' 14 gün cayma hakkı</span></div>';
+    return '<div class="cs-checkout-mini-trust" role="list">' +
+      [['lock', 'Güvenli ödeme'], ['check', 'KDV dahil'], ['return', '14 gün cayma']].map(function (item) {
+        return '<span class="cs-checkout-mini-trust__item" role="listitem"><i aria-hidden="true">' + icon(item[0]) + '</i><em>' + item[1] + '</em></span>';
+      }).join('') +
+      '</div>';
+  }
+
+  function summaryHeroHtml(t, options) {
+    options = options || {};
+    var count = Number(options.count || 0);
+    var metaBits = [];
+    if (options.success) metaBits.push('Sipariş kaydı');
+    else if (count > 0) metaBits.push(count + ' ürün');
+    metaBits.push('KDV dahil');
+    if (!options.success && t.shipping === 0) metaBits.push('Ücretsiz kargo');
+    else if (!options.success && t.shipping > 0) metaBits.push('Kargo ' + money(t.shipping));
+    return '<div class="cs-checkout-summary-hero">' +
+      '<div class="cs-checkout-summary-hero__row"><span class="cs-checkout-summary-kicker">' + esc(options.kicker || 'Sipariş Özeti') + '</span>' +
+      (options.editHtml || '') +
+      '</div>' +
+      '<div class="cs-checkout-summary-hero__total"><span>Toplam</span><strong>' + (options.totalLabel || money(t.total)) + '</strong></div>' +
+      '<p class="cs-checkout-summary-hero__meta">' + esc(metaBits.join(' · ')) + '</p>' +
+      '</div>';
+  }
+
+  function summarySuccessPanelHtml(order, t) {
+    order = order || {};
+    var orderNo = order.orderNumber || order.order_number || '';
+    var payLabel = (order.paymentMethod === 'bank_transfer' || order.payment_method === 'bank_transfer')
+      ? 'Havale/EFT bekleniyor'
+      : 'Ödeme onayı bekleniyor';
+    return '<div class="cs-checkout-summary-success-panel">' +
+      (orderNo ? '<div class="cs-checkout-summary-success-row"><span>Sipariş No</span><strong>' + esc(orderNo) + '</strong></div>' : '') +
+      '<div class="cs-checkout-summary-success-row"><span>Ödeme</span><strong>' + esc(payLabel) + '</strong></div>' +
+      (t && t.total > 0 ? '<div class="cs-checkout-summary-success-row"><span>Ödenen / Ödenecek</span><strong>' + money(t.total) + '</strong></div>' : '') +
+      '<p class="cs-checkout-summary-success-copy">Sipariş detaylarını Siparişlerim alanından takip edebilirsin.</p>' +
+      '</div>';
   }
 
   function orderNumberFallback() {
@@ -998,14 +1078,14 @@
     if (!cart.items.length) {
       resetCouponState(input);
       renderSummary();
-      if (!options.silent) setStatus('İndirim kodu uygulamak için önce sepetine ürün eklemelisin.', 'error');
+      if (!options.silent) setCouponFeedback('İndirim kodu uygulamak için önce sepetine ürün eklemelisin.', 'error');
       return;
     }
     var code = input ? input.value.trim().toUpperCase() : String(state.coupon && state.coupon.code || '').trim().toUpperCase();
     if (!code) {
       resetCouponState(input);
       renderSummary();
-      if (!options.silent) setStatus('Kupon kodu temizlendi.', '');
+      if (!options.silent) setCouponFeedback('Kupon kodu temizlendi.', '');
       return;
     }
     state.coupon = { code: code, type: '', discount: 0, freeShipping: false, label: '', minSubtotal: 0 };
@@ -1030,12 +1110,12 @@
       }
       applyValidatedCoupon(code, data);
       renderSummary();
-      if (!options.silent) setStatus(data.freeShipping || data.free_shipping ? 'Ücretsiz kargo kuponu uygulandı.' : 'Kupon uygulandı.', 'success');
+      if (!options.silent) setCouponFeedback(data.freeShipping || data.free_shipping ? 'Ücretsiz kargo kuponu uygulandı.' : 'Kupon uygulandı.', 'success');
     } catch (error) {
       resetCouponState(input);
       renderSummary();
       if (!options.suppressStatus) {
-        setStatus(options.silent ? 'Sepet değiştiği için kupon kaldırıldı: ' + (error.message || 'Kupon artık geçerli değil.') : (error.message || 'Kupon bulunamadı veya aktif değil.'), 'error');
+        setCouponFeedback(options.silent ? 'Sepet değiştiği için kupon kaldırıldı: ' + (error.message || 'Kupon artık geçerli değil.') : (error.message || 'Bu kupon şu anda geçerli değil.'), 'error');
       }
     }
   }
@@ -1047,7 +1127,7 @@
   async function revalidateCouponAfterCartChange() {
     if (couponRevalidationInFlight || !state.coupon || !state.coupon.code) return;
     couponRevalidationInFlight = true;
-    try { await applyCoupon({ silent: true }); } finally { couponRevalidationInFlight = false; }
+    try { await applyCoupon({ silent: true, suppressStatus: true }); } finally { couponRevalidationInFlight = false; }
   }
   function renderStepper() {
     var current = STEPS.indexOf(state.step);
@@ -1055,17 +1135,38 @@
     if (!node) return;
     if (!cart.items.length && state.step !== 'success') {
       node.innerHTML = '';
+      node.removeAttribute('data-step-index');
       node.setAttribute('hidden', 'hidden');
       node.setAttribute('aria-hidden', 'true');
       return;
     }
     node.removeAttribute('hidden');
     node.setAttribute('aria-hidden', 'false');
-    node.innerHTML = STEPS.map(function (step, index) {
-      var complete = index < current;
-      var active = index === current;
-      return '<button class="cs-checkout-step ' + (complete ? 'is-complete ' : '') + (active ? 'is-active' : '') + '" type="button" data-step-nav="' + esc(step) + '" aria-current="' + (active ? 'step' : 'false') + '"><span>' + (complete ? '✓' : index + 1) + '</span><strong>' + esc(STEP_LABELS[step]) + '</strong><small>' + esc(STEP_SUBTITLES[step] || '') + '</small></button>';
-    }).join('');
+    var prev = Number(node.dataset.stepIndex);
+    var direction = !Number.isFinite(prev) ? 'init' : (current > prev ? 'forward' : (current < prev ? 'back' : 'same'));
+    var progress = STEPS.length <= 1 ? 1 : Math.max(0, Math.min(1, current / (STEPS.length - 1)));
+    node.dataset.stepIndex = String(current);
+    node.dataset.direction = direction;
+    node.style.setProperty('--cs-step-progress', String(progress));
+    node.style.setProperty('--cs-step-count', String(STEPS.length));
+    var checkMark = '<svg class="cs-checkout-step__check" viewBox="0 0 24 24" aria-hidden="true"><path d="m6.8 12.2 3.4 3.4 7-7.8" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+    node.innerHTML =
+      '<div class="cs-checkout-stepper__rail" aria-hidden="true"><span class="cs-checkout-stepper__fill"></span></div>' +
+      '<div class="cs-checkout-stepper__steps">' +
+      STEPS.map(function (step, index) {
+        var complete = index < current;
+        var active = index === current;
+        var cls = 'cs-checkout-step' + (complete ? ' is-complete' : '') + (active ? ' is-active' : '');
+        return '<button class="' + cls + '" type="button" data-step-nav="' + esc(step) + '" aria-current="' + (active ? 'step' : 'false') + '" aria-label="' + esc(STEP_LABELS[step]) + (complete ? ' tamamlandı' : (active ? ', mevcut adım' : '')) + '">' +
+          '<span class="cs-checkout-step__dot">' + (complete ? checkMark : '<i>' + (index + 1) + '</i>') + '</span>' +
+          '<strong>' + esc(STEP_LABELS[step]) + '</strong>' +
+          '</button>';
+      }).join('') +
+      '</div>';
+    node.classList.remove('is-animating');
+    // Force reflow so enter animation restarts on step change.
+    void node.offsetWidth;
+    node.classList.add('is-animating');
   }
   function input(name, label, value, attrs) {
     attrs = attrs || {};
@@ -1147,7 +1248,7 @@
       '</div><p class="cs-checkout-note">Siparişler ödeme onayından sonra hazırlık sürecine alınır. Kargo süreci e-posta ile paylaşılır.</p></div>';
   }
   function optionHtml(value, title, desc, fee) {
-    return '<button class="cs-checkout-option ' + (state.shippingMethod === value ? 'is-selected' : '') + '" type="button" data-shipping="' + value + '"><span class="cs-checkout-radio"></span><span><strong>' + title + '</strong><span>' + desc + '</span></span><em>' + (fee ? money(fee) : 'Ücretsiz') + '</em></button>';
+    return '<button class="cs-checkout-option ' + (state.shippingMethod === value ? 'is-selected' : '') + '" type="button" data-shipping="' + value + '"><span class="cs-checkout-radio"></span><span class="cs-checkout-option__icon" aria-hidden="true">' + icon('truck') + '</span><span><strong>' + title + '</strong><span>' + desc + '</span></span><em>' + (fee ? money(fee) : 'Ücretsiz') + '</em></button>';
   }
 
   function invoiceFieldsHtml(individual, same) {
@@ -1219,7 +1320,7 @@
 
   function renderReview() {
     var ship = shippingInfo();
-    return '<section class="cs-checkout-card"><div class="cs-checkout-card-head"><div><h2>Siparişini Kontrol Et</h2><p>Lütfen sipariş bilgilerini kontrol edin ve onaylayarak devam edin.</p></div></div><div class="cs-checkout-review-list">' +
+    return '<section class="cs-checkout-card cs-checkout-card--review"><div class="cs-checkout-card-head"><div><span class="cs-checkout-kicker">Kontrol</span><h2>Siparişini kontrol et</h2><p>Teslimat, ödeme ve yasal onayları son kez gözden geçir.</p></div>' + checkoutBadge('Son adım', 'secure') + '</div><div class="cs-checkout-review-list">' +
       reviewCard('Teslimat Bilgileri', 'delivery', [
         ['Ad Soyad', [state.delivery.firstName, state.delivery.lastName].filter(Boolean).join(' ')],
         ['E-posta', state.delivery.email],
@@ -1233,11 +1334,16 @@
       reviewCard('Fatura Bilgileri', 'delivery', invoiceReviewRows()) +
       reviewCard('Ödeme Yöntemi', 'payment', paymentReviewRows()) +
       reviewCard('Ürünler', 'delivery', cart.items.map(function (item) { return [item.name, item.qty + ' adet · ' + money(item.price * item.qty)]; })) +
-      '<div class="cs-checkout-review-card"><header><h3>Yasal Onaylar</h3><button class="cs-checkout-edit" type="button" data-go-step="payment">Düzenle</button></header><p>Ön Bilgilendirme Formu, Mesafeli Satış Sözleşmesi ve KVKK Aydınlatma Metni onaylandı. Ticari elektronik ileti izni yalnızca ayrıca seçildiyse geçerlidir.</p></div>' +
+      '<div class="cs-checkout-review-card"><header><span class="cs-checkout-review-card__icon" aria-hidden="true">' + icon('check') + '</span><h3>Yasal Onaylar</h3><button class="cs-checkout-edit" type="button" data-go-step="payment">Düzenle</button></header><p>Ön Bilgilendirme Formu, Mesafeli Satış Sözleşmesi ve KVKK Aydınlatma Metni onaylandı. Ticari elektronik ileti izni yalnızca ayrıca seçildiyse geçerlidir.</p></div>' +
       '</div></section>';
   }
   function reviewCard(title, step, rows) {
-    return '<div class="cs-checkout-review-card"><header><h3>' + esc(title) + '</h3><button class="cs-checkout-edit" type="button" data-go-step="' + step + '">Düzenle</button></header><dl>' + rows.map(function (row) { return '<dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1] || '—') + '</dd>'; }).join('') + '</dl></div>';
+    var mark = 'truck';
+    if (title.indexOf('Ödeme') === 0) mark = 'card';
+    else if (title.indexOf('Fatura') === 0) mark = 'bank';
+    else if (title.indexOf('Ürün') === 0) mark = 'box';
+    else if (title.indexOf('Kargo') === 0) mark = 'truck';
+    return '<div class="cs-checkout-review-card"><header><span class="cs-checkout-review-card__icon" aria-hidden="true">' + icon(mark) + '</span><h3>' + esc(title) + '</h3><button class="cs-checkout-edit" type="button" data-go-step="' + step + '">Düzenle</button></header><dl>' + rows.map(function (row) { return '<dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1] || '—') + '</dd>'; }).join('') + '</dl></div>';
   }
   function invoiceReviewRows() {
     if (state.invoice.type === 'corporate') {
@@ -1285,62 +1391,51 @@
       return '<article class="cs-checkout-bank-account cs-checkout-success-bank" data-bank-index="' + index + '"><h4>' + esc(b.bankName) + '</h4>' + lines.map(function (line) { return '<div class="cs-checkout-bank-line"><span>' + esc(line[0]) + '</span><strong>' + esc(line[1]) + '</strong>' + (line[0] === 'IBAN' ? '<button class="cs-checkout-secondary" data-copy-iban data-iban="' + esc(b.iban) + '" aria-label="' + esc(b.bankName + ' IBAN bilgisini kopyala') + '" type="button">Kopyala</button>' : '<i></i>') + '</div>'; }).join('') + '</article>';
     }).join('') + '</div>' : '<p class="cs-checkout-status is-error">Banka bilgileri bu oturumda doğrulanamadı. Ödeme yapmadan önce Siparişlerim ekranındaki güncel bilgileri kontrol edin veya destek@cosmoskin.com.tr ile iletişime geçin.</p>') : '';
     var deadline = formatOrderDeadline(order.paymentDeadline);
-    return '<section class="cs-checkout-card cs-checkout-success"><div class="cs-checkout-success-mark">' + icon('check') + '</div><h2>' + (isBank ? 'Siparişiniz Oluşturuldu' : 'Siparişiniz Alındı') + '</h2><p>' + (isBank ? 'Havale/EFT ödemeniz bekleniyor. Ödeme açıklamasına mutlaka sipariş numaranızı yazın: <strong>' + esc(orderNo) + '</strong>' : 'Siparişiniz alındı. Elektronik faturanız hazırlanarak kayıtlı e-posta adresinize gönderilecektir.') + '</p><div class="cs-checkout-success-grid"><div class="cs-checkout-success-row"><span>Sipariş No</span><strong>' + esc(orderNo) + '</strong></div><div class="cs-checkout-success-row"><span>E-posta</span><strong>' + esc(order.email || state.delivery.email || '—') + '</strong></div><div class="cs-checkout-success-row"><span>Ödeme Durumu</span><strong>' + (isBank ? 'Havale/EFT bekleniyor' : 'Ödeme sağlayıcı onayı bekleniyor') + '</strong></div><div class="cs-checkout-success-row"><span>Tahmini Teslimat</span><strong>2-4 iş günü</strong></div></div><div class="cs-checkout-success-products"><h3>Sipariş Özeti</h3>' + itemHtml + '<div class="cs-checkout-success-totals">' + totalRow('Ara Toplam', money(t.subtotal)) + (t.discount ? totalRow('İndirim', '-' + money(t.discount)) : '') + totalRow('Kargo', t.shipping ? money(t.shipping) : 'Ücretsiz') + totalRow('Dahil olan KDV', money(t.vat)) + totalRow('Toplam', money(t.total), true) + '</div></div>' + (isBank ? '<div class="cs-checkout-success-payment"><h3>Havale/EFT Bilgileri</h3><p class="cs-checkout-note">Ödeme açıklaması: <strong>' + esc(orderNo) + '</strong></p>' + bankCards + (deadline ? '<p class="cs-checkout-note"><strong>Ödeme son zamanı:</strong> ' + esc(deadline) + '</p>' : '') + '</div>' : '') + '<div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/account/profile.html?tab=orders">Siparişlerime Git</a><a class="cs-checkout-secondary" href="/order-tracking.html">Siparişi Takip Et</a><a class="cs-checkout-secondary" href="/contact.html">Destek Al</a></div></section>';
+    return '<section class="cs-checkout-card cs-checkout-success"><div class="cs-checkout-success-mark" aria-hidden="true">' + icon('check') + '</div><p class="cs-checkout-kicker">Tamamlandı</p><h2>' + (isBank ? 'Siparişiniz oluşturuldu' : 'Siparişiniz alındı') + '</h2><p>' + (isBank ? 'Havale/EFT ödemeniz bekleniyor. Ödeme açıklamasına mutlaka sipariş numaranızı yazın: <strong>' + esc(orderNo) + '</strong>' : 'Siparişiniz alındı. Elektronik faturanız hazırlanarak kayıtlı e-posta adresinize gönderilecektir.') + '</p><div class="cs-checkout-success-grid"><div class="cs-checkout-success-row"><span>Sipariş No</span><strong>' + esc(orderNo) + '</strong></div><div class="cs-checkout-success-row"><span>E-posta</span><strong>' + esc(order.email || state.delivery.email || '—') + '</strong></div><div class="cs-checkout-success-row"><span>Ödeme Durumu</span><strong>' + (isBank ? 'Havale/EFT bekleniyor' : 'Ödeme sağlayıcı onayı bekleniyor') + '</strong></div><div class="cs-checkout-success-row"><span>Tahmini Teslimat</span><strong>2-4 iş günü</strong></div></div><div class="cs-checkout-success-products"><h3>Sipariş Özeti</h3>' + itemHtml + '<div class="cs-checkout-success-totals">' + totalRow('Ara Toplam', money(t.subtotal)) + (t.discount ? totalRow('İndirim', '-' + money(t.discount)) : '') + totalRow('Kargo', t.shipping ? money(t.shipping) : 'Ücretsiz') + totalRow('Dahil olan KDV', money(t.vat)) + totalRow('Toplam', money(t.total), true) + '</div></div>' + (isBank ? '<div class="cs-checkout-success-payment"><h3>Havale/EFT Bilgileri</h3><p class="cs-checkout-note">Ödeme açıklaması: <strong>' + esc(orderNo) + '</strong></p>' + bankCards + (deadline ? '<p class="cs-checkout-note"><strong>Ödeme son zamanı:</strong> ' + esc(deadline) + '</p>' : '') + '</div>' : '') + '<div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/account/profile.html?tab=orders">Siparişlerime Git</a><a class="cs-checkout-secondary" href="/order-tracking.html">Siparişi Takip Et</a><a class="cs-checkout-secondary" href="/contact.html">Destek Al</a></div></section>';
   }
   function renderContent() {
     var host = byId('csCheckoutContent');
     if (!host) return;
+    var prevStep = host.dataset.renderedStep || '';
     if (!cart.items.length && state.step !== 'success') {
-      host.innerHTML = '<section class="cs-checkout-empty cs-checkout-empty--commerce"><div class="cs-checkout-empty-mark">' + icon('box') + '</div><h2>Sepetin boş</h2><p class="cs-checkout-note">Checkout’a devam etmek için sepetine ürün eklemelisin. Sana uygun ürünleri keşfedebilir veya favorilerine göz atabilirsin.</p><div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/allproducts.html">Ürünleri Keşfet</a><a class="cs-checkout-secondary" href="/account/profile.html?tab=favorites">Favorilerime Git</a><a class="cs-checkout-secondary" href="/collections/bestsellers.html">Çok Satanları Gör</a></div><p class="cs-checkout-empty-trust">Orijinal ürün · Güvenli ödeme · Kolay iade süreci</p></section>';
+      host.innerHTML = '<section class="cs-checkout-empty cs-checkout-empty--commerce"><div class="cs-checkout-empty-mark">' + icon('box') + '</div><p class="cs-checkout-kicker">Sepet</p><h2>Sepetin boş</h2><p class="cs-checkout-note">Checkout’a devam etmek için sepetine ürün eklemelisin.</p><div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/allproducts.html">Ürünleri Keşfet</a><a class="cs-checkout-secondary" href="/account/profile.html?tab=favorites">Favorilerime Git</a><a class="cs-checkout-secondary" href="/collections/bestsellers.html">Çok Satanları Gör</a></div><p class="cs-checkout-empty-trust">Orijinal ürün · Güvenli ödeme · Kolay iade süreci</p></section>';
+      host.dataset.renderedStep = 'empty';
       return;
     }
     if (stockBlocked && cart.items.length && state.step !== 'success') {
-      host.innerHTML = '<section class="cs-checkout-empty cs-checkout-empty--commerce"><div class="cs-checkout-empty-mark">' + icon('box') + '</div><h2>Stok doğrulaması gerekli</h2><p class="cs-checkout-note">' + esc(formatStockGateMessage({ items: stockBlockDetails, message: inventoryWarning }, 'Sepetinizde stokta olmayan ürünler var. Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.')) + '</p>' + stockBlockListHtml() + '<div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/cart.html">Sepete Dön</a><a class="cs-checkout-secondary" href="/allproducts.html">Alışverişe Devam Et</a></div></section>';
+      host.innerHTML = '<section class="cs-checkout-empty cs-checkout-empty--commerce cs-checkout-empty--stock"><div class="cs-checkout-empty-mark" aria-hidden="true">' + icon('box') + '</div><p class="cs-checkout-kicker">Stok kontrolü</p><h2>Stok doğrulaması gerekli</h2><p class="cs-checkout-note">' + esc(formatStockGateMessage({ items: stockBlockDetails, message: inventoryWarning }, 'Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.')) + '</p>' + stockBlockListHtml() + '<div class="cs-checkout-summary-actions"><a class="cs-checkout-primary" href="/cart.html">Sepete Dön</a><a class="cs-checkout-secondary" href="/allproducts.html">Alışverişe Devam</a></div></section>';
+      host.dataset.renderedStep = 'stock';
       return;
     }
     if (state.step === 'payment') host.innerHTML = renderPayment();
     else if (state.step === 'review') host.innerHTML = renderReview();
     else if (state.step === 'success') host.innerHTML = renderSuccess();
     else host.innerHTML = renderDelivery();
+    host.dataset.renderedStep = state.step;
+    if (prevStep && prevStep !== state.step) {
+      host.classList.remove('is-step-enter');
+      void host.offsetWidth;
+      host.classList.add('is-step-enter');
+    }
   }
+  function summaryCtaHtml(label, disabled, note) {
+    return '<div class="cs-checkout-summary-cta">' +
+      '<button class="cs-checkout-primary" id="csCheckoutAction" type="button"' + (disabled ? ' disabled aria-disabled="true"' : '') + ' aria-busy="false">' + esc(label) + '</button>' +
+      '<p class="cs-checkout-mini-note" id="csCheckoutActionNote">' + esc(note || '') + '</p>' +
+      '<div aria-live="polite" class="cs-checkout-status" id="csCheckoutStatus" role="status"></div>' +
+      '</div>';
+  }
+
   function renderSummary() {
     var host = byId('csCheckoutSummaryCard');
-    var action = byId('csCheckoutAction');
     if (!host) return;
     var successOrder = state.step === 'success' ? (state.order || readJSON(ORDER_KEY, null) || {}) : null;
     var summaryItems = successOrder ? normalizedOrderItems(successOrder) : cart.items.map(normalizedOrderItem);
     var t = successOrder ? normalizedOrderTotals(successOrder) : totals();
-    if (!summaryItems.length && state.step !== 'success') {
-      host.innerHTML = '<div class="cs-checkout-summary-head"><div><span class="cs-checkout-summary-kicker">Sepet</span><h2>Sipariş Özeti</h2></div><span class="cs-checkout-secure">KDV dahil</span></div><div class="cs-checkout-empty-inline cs-checkout-empty-inline--summary"><strong>Sepetinde ürün bulunmuyor.</strong><span>Ürün eklediğinde ürünler, kargo, KDV ve toplam bilgileri burada görünür.</span></div>';
-      if (action) {
-        action.textContent = 'Ödeme adımına geçilemez';
-        action.disabled = true;
-        action.setAttribute('aria-busy', 'false');
-      }
-      var emptyNote = byId('csCheckoutActionNote');
-      if (emptyNote) emptyNote.textContent = 'Ödeme adımına geçmek için sepetine ürün eklemelisin.';
-      return;
-    }
-    host.innerHTML = '<div class="cs-checkout-summary-head"><div><span class="cs-checkout-summary-kicker">Sepet Detayı</span><h2>Sipariş Özeti</h2></div><a class="cs-checkout-summary-edit" href="/cart.html">Sepeti Düzenle</a></div>' +
-      '<div class="cs-checkout-summary-items">' + (summaryItems.length ? summaryItems.map(function (item) {
-        return '<article class="cs-checkout-item"><a href="' + esc(item.url) + '"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div><strong>' + esc(item.brand) + '<br>' + esc(item.name) + '</strong><span>' + esc(item.size || 'KDV dahil') + '</span><span>Adet: ' + item.qty + '</span></div>' + checkoutItemPriceHtml(item) + '</article>';
-      }).join('') : '<p class="cs-checkout-note">Sipariş ürünleri kaydedildi.</p>') + '</div>' +
-      (state.step === 'success' ? '' : shippingProgressHtml(t)) +
-      '<div class="cs-checkout-totals">' +
-      totalRow('Ara Toplam', money(t.subtotal)) +
-      (t.discount ? totalRow(state.coupon && state.coupon.code ? 'Kupon indirimi' : 'İndirim', '-' + money(t.discount)) : '') +
-      totalRow('Kargo', t.shipping ? money(t.shipping) : 'Ücretsiz') +
-      totalRow('Dahil olan KDV', money(t.vat)) +
-      totalRow('Toplam', money(t.total), true) +
-      '</div>' +
-      (state.step === 'success' ? '<p class="cs-checkout-note cs-checkout-summary-success-note">Sipariş özeti, sepet temizlendikten sonra oluşturulan sipariş verisinden gösterilir.</p>' : '<div class="cs-checkout-discount"><label class="cs-checkout-label" for="csCouponInput">İndirim Kodu</label><div class="cs-checkout-discount-row"><input class="cs-checkout-input" id="csCouponInput" value="' + esc(state.coupon.code || '') + '" placeholder="Örn. WELCOME10" autocomplete="off"><button class="cs-checkout-secondary" id="csCouponApply" type="button">Uygula</button>' + (state.coupon && state.coupon.code ? '<button class="cs-checkout-coupon-clear" id="csCouponClear" type="button" data-clear-checkout-coupon>Kuponu Kaldır</button>' : '') + '</div>' + (state.coupon && state.coupon.code && t.discount ? '<p class="cs-checkout-coupon-applied"><strong>' + esc(state.coupon.code) + '</strong> uygulandı' + (state.coupon.label ? ' · ' + esc(state.coupon.label) : '') + '.</p>' : '<p class="cs-checkout-coupon-hint">Kuponlar otomatik uygulanmaz; geçerli kodu sepet/checkout adımında manuel girmen gerekir.</p>') + '</div>') + miniTrustRow();
-    if (!action) return;
     var label = state.step === 'delivery' ? 'Ödeme Adımına Geç' : state.step === 'payment' ? 'Siparişi Kontrol Et' : state.step === 'review' ? (state.paymentMethod === 'bank_transfer' ? 'Siparişi Oluştur' : 'Siparişi Onayla ve Güvenli Ödemeye Geç') : 'Alışverişe Devam Et';
-    action.textContent = submitLocked ? (state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor…' : 'Güvenli ödeme hazırlanıyor…') : label;
-    action.disabled = submitLocked || stockBlocked || (!summaryItems.length && state.step !== 'success') || (state.paymentMethod === 'bank_transfer' && state.step !== 'delivery' && state.step !== 'success' && !bankConfig().configured);
-    action.setAttribute('aria-busy', submitLocked ? 'true' : 'false');
-    var note = byId('csCheckoutActionNote');
-    if (note) note.textContent = stockBlocked
+    if (submitLocked) label = state.paymentMethod === 'bank_transfer' ? 'Sipariş oluşturuluyor…' : 'Güvenli ödeme hazırlanıyor…';
+    var disabled = submitLocked || stockBlocked || (!summaryItems.length && state.step !== 'success') || (state.paymentMethod === 'bank_transfer' && state.step !== 'delivery' && state.step !== 'success' && !bankConfig().configured);
+    var note = stockBlocked
       ? formatStockGateMessage({ items: stockBlockDetails, message: inventoryWarning }, 'Sepetinizde stokta olmayan ürünler var. Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.')
       : state.step === 'success'
       ? 'Siparişin oluşturuldu. Siparişlerim alanından takip edebilirsin.'
@@ -1348,7 +1443,42 @@
         ? 'Havale/EFT siparişleri ödeme bekleniyor durumuyla oluşturulur.'
         : state.step === 'review'
           ? 'Onayladıktan sonra güvenli ödeme sağlayıcısına yönlendirilebilirsiniz.'
-          : inventoryWarning || 'Ödeme bilgileriniz güvenli bağlantı üzerinden işlenir.';
+          : (!summaryItems.length && state.step !== 'success')
+            ? 'Ödeme adımına geçmek için sepetine ürün eklemelisin.'
+            : inventoryWarning || 'Ödeme bilgileriniz güvenli bağlantı üzerinden işlenir.';
+
+    if (!summaryItems.length && state.step !== 'success') {
+      host.innerHTML = summaryHeroHtml({ total: 0, shipping: 0 }, { kicker: 'Sepet', count: 0, totalLabel: money(0) }) +
+        '<div class="cs-checkout-empty-inline cs-checkout-empty-inline--summary"><strong>Sepetinde ürün bulunmuyor.</strong><span>Ürün eklediğinde ürünler, kargo, KDV ve toplam bilgileri burada görünür.</span></div>' +
+        summaryCtaHtml('Ödeme adımına geçilemez', true, note) +
+        miniTrustRow();
+      return;
+    }
+    var isSuccess = state.step === 'success';
+    var editHtml = isSuccess ? '' : '<a class="cs-checkout-summary-edit" href="/cart.html">Düzenle</a>';
+    var hero = summaryHeroHtml(t, {
+      kicker: isSuccess ? 'Sipariş Onayı' : 'Sipariş Özeti',
+      count: summaryItems.length,
+      success: isSuccess,
+      editHtml: editHtml,
+      totalLabel: (isSuccess && !(t && t.total)) ? 'Kaydedildi' : money(t.total)
+    });
+    var itemsHtml = '<div class="cs-checkout-summary-items">' + (summaryItems.length ? summaryItems.map(function (item) {
+      return '<article class="cs-checkout-item"><a class="cs-checkout-item__media" href="' + esc(item.url || '/allproducts.html') + '"><img src="' + esc(item.image || '/assets/img/brand/cosmoskin-wordmark.svg') + '" alt="' + esc(item.name) + '" loading="lazy"></a><div class="cs-checkout-item__body"><span class="cs-checkout-item__brand">' + esc(item.brand || 'COSMOSKIN') + '</span><strong>' + esc(item.name) + '</strong><span class="cs-checkout-item__meta">Adet ' + item.qty + (item.size ? ' · ' + esc(item.size) : '') + '</span></div>' + checkoutItemPriceHtml(item) + '</article>';
+    }).join('') : '<p class="cs-checkout-note">Sipariş ürünleri kaydedildi. Detaylar Siparişlerim ekranında.</p>') + '</div>';
+    var totalsHtml = '<div class="cs-checkout-totals">' +
+      totalRow('Ara Toplam', money(t.subtotal)) +
+      (t.discount ? totalRow(state.coupon && state.coupon.code ? 'Kupon indirimi' : 'İndirim', '-' + money(t.discount)) : '') +
+      totalRow('Kargo', t.shipping ? money(t.shipping) : 'Ücretsiz') +
+      totalRow('Dahil olan KDV', money(t.vat)) +
+      totalRow('Toplam', (isSuccess && !(t && t.total)) ? '—' : money(t.total), true) +
+      '</div>';
+    var footHtml = isSuccess
+      ? summarySuccessPanelHtml(successOrder, t)
+      : '<div class="cs-checkout-discount"><label class="cs-checkout-label" for="csCouponInput">İndirim Kodu</label><div class="cs-checkout-discount-row"><input class="cs-checkout-input" id="csCouponInput" value="' + esc(state.coupon.code || '') + '" placeholder="Örn. WELCOME10" autocomplete="off"><button class="cs-checkout-secondary" id="csCouponApply" type="button">Uygula</button>' + (state.coupon && state.coupon.code ? '<button class="cs-checkout-coupon-clear" id="csCouponClear" type="button" data-clear-checkout-coupon>Kuponu Kaldır</button>' : '') + '</div><div class="cs-checkout-coupon-feedback" id="csCouponFeedback" role="status" aria-live="polite"></div>' + (state.coupon && state.coupon.code && t.discount ? '<p class="cs-checkout-coupon-applied"><strong>' + esc(state.coupon.code) + '</strong> uygulandı' + (state.coupon.label ? ' · ' + esc(state.coupon.label) : '') + '.</p>' : '<p class="cs-checkout-coupon-hint">Kuponlar otomatik uygulanmaz; geçerli kodu sepet/checkout adımında manuel girmen gerekir.</p>') + '</div>';
+    host.innerHTML = hero + itemsHtml + (isSuccess ? '' : shippingProgressHtml(t)) + totalsHtml + footHtml + summaryCtaHtml(label, disabled, note) + miniTrustRow();
+    var action = byId('csCheckoutAction');
+    if (action) action.setAttribute('aria-busy', submitLocked ? 'true' : 'false');
   }
 
   function totalRow(label, value, total) {
@@ -1368,15 +1498,7 @@
   }
   function renderTrust() {
     var host = byId('csCheckoutTrust');
-    if (!host) return;
-    host.innerHTML = [
-      ['check', 'Orijinal ürün seçkisi'],
-      ['truck', 'DHL teslimat süreci'],
-      ['return', '14 gün cayma hakkı'],
-      ['lock', 'Güvenli ödeme altyapısı']
-    ].map(function (item) {
-      return '<div class="cs-checkout-trust-item"><span class="cs-checkout-trust-icon">' + icon(item[0]) + '</span><span>' + item[1] + '</span></div>';
-    }).join('');
+    if (host) host.remove();
   }
 
   function render(options) {
@@ -1580,9 +1702,9 @@
         return;
       }
       var changed = applyUserToState(user, false);
-      if (!addressSyncLoaded && session.access_token) {
+      if (!addressSyncLoaded && (session.access_token || user.id)) {
         try {
-          savedAddresses = await fetchAccountAddresses(session.access_token);
+          savedAddresses = await fetchAccountAddresses(session.access_token, user.id);
           addressSyncLoaded = true;
           var defaultAddress = savedAddresses.find(function (item) { return item.isDefault && ['billing', 'invoice', 'fatura'].indexOf(String(item.type || '').toLowerCase()) === -1; }) ||
             savedAddresses.find(function (item) { return ['billing', 'invoice', 'fatura'].indexOf(String(item.type || '').toLowerCase()) === -1; }) ||

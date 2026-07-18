@@ -26,6 +26,35 @@ function groupByOrderId(rows = []) {
     return grouped;
   }, new Map());
 }
+
+const HIDDEN_CUSTOMER_STATUS_EVENTS = new Set([
+  'stock_reserved',
+  'stock_released',
+  'payment_authorized',
+  'payment_duplicate_ignored',
+  'order_processing_review_required',
+  'inventory_reconciliation_required',
+  'payment_callback_error',
+  'mark_payment_paid',
+  'mark_preparing',
+  'mark_packed',
+  'mark_shipped',
+  'mark_delivered',
+  'cancel_order',
+  'status_updated',
+  'updated',
+  'shipment_created',
+  'shipment_updated'
+]);
+
+function isCustomerVisibleStatusEvent(event = {}) {
+  const key = String(event.status || event.event_type || '').toLowerCase().trim();
+  if (!key) return false;
+  if (HIDDEN_CUSTOMER_STATUS_EVENTS.has(key)) return false;
+  if (String(event.source || '').toLowerCase() === 'inventory') return false;
+  return true;
+}
+
 function publicInvoice(invoice = {}) {
   return {
     id: invoice.id,
@@ -95,7 +124,7 @@ export async function onRequestGet(context) {
       ...order,
       order_items: (groupedItems.get(order.id) || []).map(resolveOrderItem),
       shipments: (groupedShipments.get(order.id) || []).map((s) => ({ ...s, carrier: s.carrier || s.carrier_name || '' })),
-      status_events: groupedEvents.get(order.id) || [],
+      status_events: (groupedEvents.get(order.id) || []).filter(isCustomerVisibleStatusEvent),
       invoices: (groupedInvoices.get(order.id) || []).map(publicInvoice),
       return_requests: (groupedReturns.get(order.id) || []).map(publicReturn)
     }));

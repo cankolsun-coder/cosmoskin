@@ -167,7 +167,7 @@
 </aside>
 <script src="/assets/products-data.js?v=20260718-inspect-full1"></script>
 <script src="/api/public-config?v=20260627-auth-config"></script>
-<script src="/assets/site-config.js?v=20260418a"></script>
+<script src="/assets/site-config.js?v=20260719-auth2"></script>
 <script src="/assets/auth.js?v=20260627-auth-hotfix" type="module"></script><script src="/assets/auth-ui-hotfix.js?v=20260717-auth-overlay-hoist"></script>
 <script src="/assets/app.js?v=20260616-stockfix"></script><script defer="True" src="/assets/phase6-commerce.js?v=20260616-stockfix"></script>
 <script src="/assets/commerce.js?v=20260418d"></script>
@@ -287,6 +287,9 @@
     /* Re-init cart buttons */
     if (typeof window.initCartButtons === 'function') window.initCartButtons(grid);
     if (typeof window.initFavoriteButtons === 'function') window.initFavoriteButtons(grid);
+    if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.loadInventory === 'function') {
+      window.COSMOSKIN_STOCK.loadInventory(results.map(function (p) { return p.slug || p.id; }).filter(Boolean), { root: grid });
+    }
   }
 
   function loadProducts() {

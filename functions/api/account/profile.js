@@ -171,13 +171,13 @@ export async function onRequestPatch(context) {
     payload.birthday_last_changed_at = nextLastChanged;
     payload.birth_date_locked = nextLocked;
 
+    // Only write opt-in columns when present on the row or explicitly sent.
+    // Older profiles tables may lack these columns — always writing them caused 500s on birthday/name saves.
     for (const field of OPT_IN_FIELDS) {
       if (hasOwn(body, field)) {
         payload[field] = normalizeBoolExplicit(body[field]);
-      } else if (existing) {
+      } else if (existing && Object.prototype.hasOwnProperty.call(existing, field)) {
         payload[field] = Boolean(existing[field]);
-      } else {
-        payload[field] = false;
       }
     }
 
@@ -193,7 +193,15 @@ export async function onRequestPatch(context) {
     return json({ ok: true, profile });
   } catch (error) {
     console.error('profile patch failed:', error);
-    return json({ ok: false, error: 'Hesap bilgileri şu anda kaydedilemedi. Lütfen daha sonra tekrar deneyin.' }, { status: 500 });
+    const detail = String(error && error.message || '').trim();
+    const hint = /column|schema cache|PGRST/i.test(detail)
+      ? ' Profil alanları henüz hazır değil olabilir; lütfen daha sonra tekrar deneyin.'
+      : '';
+    return json({
+      ok: false,
+      error: 'Hesap bilgileri şu anda kaydedilemedi. Lütfen daha sonra tekrar deneyin.' + hint,
+      code: 'PROFILE_UPSERT_FAILED'
+    }, { status: 500 });
   }
 }
 

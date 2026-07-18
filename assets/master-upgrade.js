@@ -60,13 +60,17 @@
     var p = bySlug(slug);
     if (!p) return false;
     var invState = stockState(slug);
-    if (invState.state === 'unknown') { toast('Stok bilgisi kontrol ediliyor. Lütfen birkaç saniye sonra tekrar deneyin.', 'error'); return false; }
+    // Only hard-block confirmed out-of-stock. Unknown (no inventory API / still loading) stays buyable.
     if (invState.state === 'out') { toast('Bu ürün şu anda stokta yok.', 'error'); return false; }
     var item = { id: p.slug, slug: p.slug, name: p.name, brand: p.brand, price: Number(p.price || 0), image: p.image, url: p.url, qty: Number(qty || 1) || 1 };
     if (window.COSMOSKIN_CART_API && typeof window.COSMOSKIN_CART_API.addItems === 'function') {
-      window.COSMOSKIN_CART_API.addItems([item], { openDrawer: true });
-      toast('Ürün sepetinize eklendi.', 'success');
-      return true;
+      var added = Number(window.COSMOSKIN_CART_API.addItems([item], { openDrawer: false }) || 0);
+      if (added > 0) {
+        toast('Ürün sepetinize eklendi.', 'success');
+        return true;
+      }
+      toast('Ürün sepete eklenemedi. Lütfen tekrar deneyin.', 'error');
+      return false;
     }
     var items = cartItems();
     var found = items.find(function (entry) { return (entry.slug || entry.id) === p.slug; });
@@ -121,6 +125,8 @@
   }
   function stockBadge(slug) {
     var state = stockState(slug);
+    // Quiet luxury: only surface stock when it needs attention (out / low).
+    if (state.state === 'unknown' || (state.state === 'in' && state.label === 'Stokta')) return '';
     return '<span class="cs-stock-badge ' + (state.state === 'out' ? 'is-out' : (state.state === 'unknown' ? 'is-unknown' : 'is-in')) + '" data-cm-stock-badge data-product-slug="' + esc(slug) + '">' + esc(state.label) + '</span>';
   }
   function toast(message, type) {
@@ -207,13 +213,48 @@
     options = options || {};
     if (!p) return '';
     var inventory = stockState(p.slug);
-    var unavailable = inventory.state !== 'in';
     var out = inventory.state === 'out';
+    var unavailable = out;
+    var btnLabel = unavailable ? inventory.label : (options.shortButton ? 'Ekle' : 'Sepete Ekle');
     return '<article class="cs-product-card' + (unavailable ? ' is-out-of-stock' : '') + '" data-product-id="' + esc(p.slug) + '">' +
       '<a class="cs-product-card__media" href="' + esc(p.url) + '"><img src="' + esc(p.image) + '" alt="' + esc(p.brand + ' ' + p.name) + '" loading="lazy"></a>' +
       '<div class="cs-product-card__info"><small>' + esc(p.brand) + '</small><a class="cs-cart-name" href="' + esc(p.url) + '">' + esc(p.name) + '</a>' + stockBadge(p.slug) + '</div>' +
-      '<div class="cs-product-card__footer">' + priceHtml(p, { compact: true }) + '<button type="button" data-cs-add="' + esc(p.slug) + '"' + (unavailable ? ' disabled aria-disabled="true" class="is-stock-disabled"' : '') + '>' + (unavailable ? inventory.label : (options.shortButton ? 'Ekle' : 'Sepete Ekle')) + '</button></div>' +
+      '<div class="cs-product-card__footer">' + priceHtml(p, { compact: true }) + '<button type="button" data-cs-add="' + esc(p.slug) + '"' + (unavailable ? ' disabled aria-disabled="true" class="is-stock-disabled"' : '') + '>' + btnLabel + '</button></div>' +
     '</article>';
+  }
+
+  function cartRecCard(p, index) {
+    if (!p) return '';
+    var out = stockState(p.slug).state === 'out';
+    return '<article class="cs-rec-slide" data-product-id="' + esc(p.slug) + '" style="--cs-rec-i:' + (index || 0) + '" role="listitem">' +
+      '<div class="cs-rec-slide__media-wrap">' +
+        '<a class="cs-rec-slide__media" href="' + esc(p.url) + '"><img src="' + esc(p.image) + '" alt="' + esc(p.brand + ' ' + p.name) + '" loading="lazy" decoding="async"></a>' +
+        '<button type="button" class="cs-rec-slide__cart" data-cs-add="' + esc(p.slug) + '" aria-label="' + (out ? 'Stokta yok' : 'Sepete ekle') + '"' + (out ? ' disabled aria-disabled="true"' : '') + '>' +
+          (out
+            ? '<span aria-hidden="true">×</span>'
+            : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>') +
+        '</button>' +
+      '</div>' +
+      '<div class="cs-rec-slide__body">' +
+        '<span class="cs-rec-slide__brand">' + esc(p.brand) + '</span>' +
+        '<a class="cs-rec-slide__title" href="' + esc(p.url) + '">' + esc(p.name) + '</a>' +
+        '<b class="cs-rec-slide__price">' + esc(fmt(p.price)) + '</b>' +
+      '</div>' +
+    '</article>';
+  }
+  function bindCartRecsRail(root) {
+    var track = (root || document).querySelector('#csCartApp [data-recs-track]');
+    if (!track || track.dataset.bound === '1') return;
+    track.dataset.bound = '1';
+    var rail = track.closest('.cs-recs-rail');
+    if (!rail) return;
+    rail.querySelectorAll('[data-recs-dir]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var dir = Number(btn.getAttribute('data-recs-dir')) || 1;
+        var amount = Math.max(200, Math.floor(track.clientWidth * 0.72));
+        track.scrollBy({ left: dir * amount, behavior: 'smooth' });
+      });
+    });
   }
 
   function mountLiveSearch() {
@@ -295,17 +336,18 @@
 
   function recommendations(items) {
     if (window.COSMOSKIN_CART_COMMERCE && typeof window.COSMOSKIN_CART_COMMERCE.recommendationCandidates === 'function') {
-      return window.COSMOSKIN_CART_COMMERCE.recommendationCandidates(items, { excludeOutOfStock: true, limit: 4 });
+      // Soft-allow unknown inventory so local/static hosts still show a premium rail.
+      return window.COSMOSKIN_CART_COMMERCE.recommendationCandidates(items, { excludeOutOfStock: false, limit: 8 });
     }
     var used = new Set(items.map(function (item) { return item.slug || item.id; }));
     var base = items.map(function (item) { return bySlug(item.slug || item.id); }).filter(Boolean);
     var cats = base.map(function (p) { return p.category; });
     var brands = base.map(function (p) { return p.brand; });
-    return products().filter(function (p) { return !used.has(p.slug) && !isOutOfStock(p.slug); }).sort(function (a, b) {
+    return products().filter(function (p) { return !used.has(p.slug); }).sort(function (a, b) {
       var as = (brands.indexOf(a.brand) !== -1 ? 3 : 0) + (cats.indexOf(a.category) !== -1 ? 2 : 0);
       var bs = (brands.indexOf(b.brand) !== -1 ? 3 : 0) + (cats.indexOf(b.category) !== -1 ? 2 : 0);
       return bs - as || Number(b.price || 0) - Number(a.price || 0);
-    }).slice(0, 4);
+    }).slice(0, 8);
   }
   function cartEmptyIcon() {
     return '<span class="cs-cart-empty__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7.5 8.2V7a4.5 4.5 0 0 1 9 0v1.2"/><path d="M5.5 8.2h13l-1.1 11.3H6.6L5.5 8.2Z"/><path d="M9.2 11.4h5.6"/></svg></span>';
@@ -327,11 +369,33 @@
     try {
       var raw = sessionStorage.getItem('cosmoskin_checkout_last_order_v1');
       if (raw == null) raw = localStorage.getItem('cosmoskin_checkout_last_order_v1');
-      if (!raw) return null;
-      var order = JSON.parse(raw);
-      if (!order || !(order.orderNumber || order.order_number || order.orderId || order.order_id)) return null;
-      return order;
-    } catch (_) { return null; }
+      if (raw) {
+        var order = JSON.parse(raw);
+        if (order && (order.orderNumber || order.order_number || order.orderId || order.order_id)) return order;
+      }
+    } catch (_) {}
+    try {
+      var summary = JSON.parse(localStorage.getItem('cosmoskin_account_summary') || 'null');
+      var orders = summary && (summary.orders || (summary.data && summary.data.orders));
+      if (Array.isArray(orders) && orders[0]) {
+        var latest = orders[0];
+        return {
+          orderId: latest.id || latest.order_id,
+          order_id: latest.id || latest.order_id,
+          orderNumber: latest.order_number || latest.orderNumber,
+          order_number: latest.order_number || latest.orderNumber,
+          paymentStatus: latest.payment_status,
+          payment_status: latest.payment_status,
+          orderStatus: latest.status,
+          status: latest.status,
+          paymentMethod: latest.payment_method,
+          items: latest.order_items || latest.items || [],
+          order_items: latest.order_items || latest.items || [],
+          totals: { total: latest.total_amount || latest.total }
+        };
+      }
+    } catch (_) {}
+    return null;
   }
   function cartOrderStatusLabel(order) {
     var payment = String(order.paymentStatus || order.payment_status || '').toLowerCase();
@@ -434,9 +498,13 @@
     var pct = Math.min(100, Math.round((Number(subtotal || 0) / 2500) * 100));
     return '<div class="cs-cart-shipping-progress" aria-label="Ücretsiz kargo ilerlemesi"><div class="cs-cart-shipping-progress__bar"><span style="width:' + pct + '%"></span></div><p class="cs-cart-shipping-progress__text">Ücretsiz kargoya <strong>' + esc(fmt(remaining)) + '</strong> kaldı</p></div>';
   }
-  function renderCartPage() {
+  var cartPageRenderToken = 0;
+  var cartInventoryRefreshTimer = 0;
+  function renderCartPage(options) {
+    options = options || {};
     var host = document.getElementById('csCartApp');
     if (!host) return;
+    var renderToken = ++cartPageRenderToken;
     var t = totals();
     var items = t.items;
     var empty = !items.length;
@@ -445,22 +513,71 @@
     var blocked = cartBlockingItems();
     var checkoutCta = blocked.length
       ? '<div class="cs-cart-checkout"><p class="cs-cart-stock-warning" role="alert">Sepetinizde stokta olmayan ürünler var.</p><p class="cs-cart-stock-warning">Ödemeye geçmeden önce stokta olmayan ürünleri sepetten kaldırın.</p><button class="cs-btn cs-btn--dark cs-cart-checkout__btn" type="button" data-cs-checkout-blocked disabled aria-disabled="true">Güvenli Ödemeye Geç</button></div>'
-      : '<div class="cs-cart-checkout"><a class="cs-btn cs-btn--dark cs-cart-checkout__btn" href="/checkout.html" data-cs-proceed-checkout>Güvenli Ödemeye Geç</a></div>';
+      : '<div class="cs-cart-checkout"><a class="cs-btn cs-btn--dark cs-cart-checkout__btn" href="/checkout.html" data-cs-proceed-checkout>Ödemeye Geç</a><p class="cs-cart-checkout__trust">Güvenli ödeme · Orijinal ürün · 14 gün cayma</p></div>';
     var recProducts = empty ? [] : recommendations(items);
     var recsSection = recProducts.length
-      ? '<section class="cs-card cs-cart-recs" data-cs-cart-recs aria-label="Sepete uygun öneriler"><div class="cs-cart-recs__head"><div><p class="cs-kicker">ÖNERİLER</p><h2>Sepete uygun öneriler</h2></div></div><div class="cs-recs-grid cs-cart-recs__grid">' + recProducts.map(function (p) { return productCard(p, { shortButton: true }); }).join('') + '</div></section>'
+      ? '<section id="cs-cart-recs" class="cs-cart-recs cs-recs-rail" data-cs-cart-recs aria-label="Sepete uygun öneriler">' +
+          '<header class="cs-recs-rail__head">' +
+            '<div class="cs-recs-rail__copy">' +
+              '<span class="cs-recs-rail__kicker">Tamamla</span>' +
+              '<h2>Sepetine uygun</h2>' +
+              '<p class="cs-recs-rail__lede">Sepetindeki ürünlerle uyumlu, rutini tamamlayan seçimler.</p>' +
+            '</div>' +
+            '<div class="cs-recs-rail__controls" aria-hidden="false">' +
+              '<button type="button" class="cs-recs-rail__nav" data-recs-dir="-1" aria-label="Önceki ürünler">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6 9 12l6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '</button>' +
+              '<button type="button" class="cs-recs-rail__nav" data-recs-dir="1" aria-label="Sonraki ürünler">' +
+                '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+              '</button>' +
+            '</div>' +
+          '</header>' +
+          '<div class="cs-recs-rail__track" data-recs-track role="list" tabindex="0">' +
+            recProducts.map(function (p, i) { return cartRecCard(p, i); }).join('') +
+          '</div>' +
+          '<footer class="cs-recs-rail__foot">' +
+            '<a class="cs-recs-rail__more" href="/allproducts.html">Tüm ürünleri keşfet' +
+              '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            '</a>' +
+          '</footer>' +
+        '</section>'
       : '';
-    var heroContinue = empty ? '' : '<a class="cs-btn cs-btn--light cs-cart-hero__continue" href="/allproducts.html">Alışverişe Devam Et</a>';
-    var heroCount = empty ? '<span class="cs-cart-hero__count">Boş</span>' : '<span class="cs-cart-hero__count">' + itemCount + ' ürün</span>';
+    var heroContinue = empty ? '' : '<a class="cs-cart-hero__continue" href="/allproducts.html">Alışverişe devam</a>';
+    var heroCount = empty ? '<span class="cs-cart-hero__count">Boş</span>' : '<span class="cs-cart-hero__count">' + itemCount + '</span>';
     var hero = empty
-      ? '<header class="cs-page__hero cs-cart-hero cs-cart-hero--empty"><div class="cs-cart-hero__copy"><p class="cs-kicker">SEPET</p><h2>Sepetin</h2>' + heroCount + '</div></header>'
-      : '<header class="cs-page__hero cs-cart-hero"><div class="cs-cart-hero__copy"><p class="cs-kicker">SEPET</p><h2>Sepetin</h2>' + heroCount + '<p>Ürünlerini, kuponunu ve teslimat özetini tek ekranda kontrol et.</p></div>' + heroContinue + '</header>';
+      ? '<header class="cs-page__hero cs-cart-hero cs-cart-hero--empty"><div class="cs-cart-hero__copy"><p class="cs-kicker">Sepet</p><div class="cs-cart-hero__title-row"><h2>Siparişin</h2>' + heroCount + '</div></div></header>'
+      : '<header class="cs-page__hero cs-cart-hero"><div class="cs-cart-hero__copy"><p class="cs-kicker">Sepet</p><div class="cs-cart-hero__title-row"><h2>Siparişin</h2>' + heroCount + '</div></div>' + heroContinue + '</header>';
     var emptySection = cartEmptyStudio();
-    var filledSection = '<div class="cs-cart-layout"><section class="cs-card cs-cart-items" aria-label="Sepet ürünleri">' + items.map(function (item) {
+    var filledSection = '<div class="cs-cart-layout"><section class="cs-card cs-cart-items" aria-label="Sepet ürünleri">' + items.map(function (item, idx) {
       var slug = item.slug || item.id, p = bySlug(slug) || item, qty = Number(item.qty || item.quantity || 1), out = isOutOfStock(slug);
-      return '<article class="cs-cart-row' + (out ? ' is-out-of-stock' : '') + '" data-cs-cart-row="' + esc(slug) + '"><a class="cs-cart-row__media" href="' + esc(p.url || item.url || '#') + '"><img src="' + esc(p.image || item.image) + '" alt="' + esc((p.brand || item.brand || '') + ' ' + (p.name || item.name || '')) + '"></a><div class="cs-cart-row__body"><a class="cs-cart-name" href="' + esc(p.url || item.url || '#') + '">' + esc(p.name || item.name) + '</a><span class="cs-cart-brand">' + esc(p.brand || item.brand || '') + '</span><div class="cs-cart-meta">' + stockBadge(slug) + '<div class="cs-stepper" aria-label="Adet"><button type="button" data-cs-qty="-1" data-slug="' + esc(slug) + '" aria-label="Adedi azalt">−</button><span>' + qty + '</span><button type="button" data-cs-qty="1" data-slug="' + esc(slug) + '" aria-label="Adedi artır">+</button></div><button class="cs-link-button" type="button" data-cs-remove="' + esc(slug) + '">Kaldır</button></div></div><div class="cs-cart-row__total cs-cart-row__total--price">' + priceHtml(p, { compact: true, multiplier: qty, showBadge: false }) + (out ? '<span class="cs-stock-badge is-out">Stokta Yok</span>' : '') + '</div></article>';
-    }).join('') + '</section><aside class="cs-card cs-cart-summary" aria-label="Sipariş özeti"><h2>Sipariş Özeti</h2>' + cartShippingNote(t.subtotal) + '<div class="cs-coupon"><label for="csCouponInput">Kupon Kodu</label><div class="cs-coupon__row"><input id="csCouponInput" value="' + esc(t.coupon ? t.coupon.code : '') + '" placeholder="WELCOME10" autocomplete="off"><button class="cs-btn cs-btn--dark" type="button" data-cs-apply-coupon>Uygula</button></div><div class="cs-coupon-status" id="csCouponStatus">' + (t.coupon ? 'Kupon aktif: ' + esc(t.coupon.code) + (t.discount ? ' · -' + esc(fmt(t.discount)) : ' · minimum tutar bekleniyor') + ' <button class="cs-link-button" type="button" data-cs-remove-coupon>Kuponu kaldır</button>' : 'Geçerli kuponlarda indirim toplamdan düşülür.') + '</div></div><div class="cs-summary-line"><span>Ara toplam</span><strong>' + esc(fmt(t.subtotal)) + '</strong></div>' + (t.discount ? '<div class="cs-summary-line"><span>Kupon indirimi</span><strong>-' + esc(fmt(t.discount)) + '</strong></div>' : '') + '<div class="cs-summary-line"><span>Kargo</span><strong>' + (t.shipping ? esc(fmt(t.shipping)) : 'Ücretsiz') + '</strong></div><div class="cs-summary-total"><span>Toplam</span><strong>' + esc(fmt(t.total)) + '</strong></div>' + checkoutCta + cartTrustRow() + '</aside></div>' + recsSection;
+      var lineTotal = Number(p.price != null ? p.price : item.price || 0) * qty;
+      return '<article class="cs-cart-row' + (out ? ' is-out-of-stock' : '') + '" data-cs-cart-row="' + esc(slug) + '" style="--cs-cart-i:' + idx + '">' +
+        '<a class="cs-cart-row__media" href="' + esc(p.url || item.url || '/products/' + slug + '.html') + '"><img src="' + esc(p.image || item.image) + '" alt="' + esc((p.brand || item.brand || '') + ' ' + (p.name || item.name || '')) + '" loading="lazy"></a>' +
+        '<div class="cs-cart-row__body">' +
+          '<div class="cs-cart-row__top">' +
+            '<div class="cs-cart-row__copy">' +
+              '<span class="cs-cart-brand">' + esc(p.brand || item.brand || '') + '</span>' +
+              '<a class="cs-cart-name" href="' + esc(p.url || item.url || '/products/' + slug + '.html') + '">' + esc(p.name || item.name) + '</a>' +
+            '</div>' +
+            '<strong class="cs-cart-row__price">' + esc(fmt(lineTotal)) + '</strong>' +
+          '</div>' +
+          '<div class="cs-cart-meta">' + stockBadge(slug) +
+            '<div class="cs-stepper" aria-label="Adet"><button type="button" data-cs-qty="-1" data-slug="' + esc(slug) + '" aria-label="Adedi azalt">−</button><span>' + qty + '</span><button type="button" data-cs-qty="1" data-slug="' + esc(slug) + '" aria-label="Adedi artır">+</button></div>' +
+            '<button class="cs-link-button" type="button" data-cs-remove="' + esc(slug) + '">Kaldır</button>' +
+            (out ? '<span class="cs-stock-badge is-out">Stokta Yok</span>' : '') +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('') + '</section><aside class="cs-card cs-cart-summary" aria-label="Sipariş özeti"><header class="cs-cart-summary__head"><p class="cs-kicker">Özet</p><h2>Toplam</h2></header>' + cartShippingNote(t.subtotal) + '<div class="cs-coupon"><label for="csCouponInput">İndirim kodu</label><div class="cs-coupon__row"><input id="csCouponInput" value="' + esc(t.coupon ? t.coupon.code : '') + '" placeholder="Kodunu gir" autocomplete="off" autocapitalize="characters"><button class="cs-btn cs-btn--dark" type="button" data-cs-apply-coupon>Uygula</button></div><div class="cs-coupon-status" id="csCouponStatus">' + (t.coupon ? 'Aktif: ' + esc(t.coupon.code) + (t.discount ? ' · -' + esc(fmt(t.discount)) : '') + ' <button class="cs-link-button" type="button" data-cs-remove-coupon>Kaldır</button>' : '') + '</div></div><div class="cs-cart-totals"><div class="cs-summary-line"><span>Ara toplam</span><strong>' + esc(fmt(t.subtotal)) + '</strong></div>' + (t.discount ? '<div class="cs-summary-line is-discount"><span>İndirim</span><strong>-' + esc(fmt(t.discount)) + '</strong></div>' : '') + '<div class="cs-summary-line"><span>Kargo</span><strong>' + (t.shipping ? esc(fmt(t.shipping)) : 'Ücretsiz') + '</strong></div><div class="cs-summary-total"><span>Toplam</span><strong>' + esc(fmt(t.total)) + '</strong></div></div>' + checkoutCta + '</aside></div>' + recsSection;
     host.innerHTML = '<div class="cs-page__inner cs-cart-page__inner">' + hero + (empty ? emptySection : filledSection) + '</div>';
+    bindCartRecsRail(host);
+    if (!empty && !options.skipInventory && window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.loadInventory === 'function') {
+      var stockSlugs = items.map(function (item) { return item.slug || item.id; }).concat(recProducts.map(function (p) { return p.slug; })).filter(Boolean);
+      window.setTimeout(function () {
+        if (renderToken !== cartPageRenderToken) return;
+        window.COSMOSKIN_STOCK.loadInventory(stockSlugs, { root: host });
+      }, 0);
+    }
   }
 
 
@@ -557,7 +674,19 @@
       if (event.target.closest('[data-cs-remove-coupon]')) { saveCoupon(null); toast('Kupon kaldırıldı.', 'info'); renderCartPage(); enhanceCheckoutSummary(); return; }
       if (event.target.closest('[data-cs-apply-coupon]')) {
         var input = document.getElementById('csCouponInput');
-        validateCoupon(input && input.value, totals().subtotal).then(function (result) { toast(result.ok ? 'Kupon uygulandı.' : (result.message || 'Kupon doğrulanamadı.'), result.ok ? 'success' : 'error'); renderCartPage(); enhanceCheckoutSummary(); });
+        var status = document.getElementById('csCouponStatus');
+        if (status) { status.textContent = 'Kupon kontrol ediliyor…'; status.className = 'cs-coupon-status is-pending'; }
+        validateCoupon(input && input.value, totals().subtotal).then(function (result) {
+          if (status) {
+            status.textContent = result.ok
+              ? ('Kupon aktif: ' + (result.code || (input && input.value) || '') + (result.discountAmount || result.discount_amount ? '' : ''))
+              : (result.message || 'Bu kupon şu anda geçerli değil.');
+            status.className = 'cs-coupon-status ' + (result.ok ? 'is-success' : 'is-error');
+          }
+          toast(result.ok ? 'Kupon uygulandı.' : (result.message || 'Kupon doğrulanamadı.'), result.ok ? 'success' : 'error');
+          renderCartPage();
+          enhanceCheckoutSummary();
+        });
         return;
       }
       var checkout = event.target.closest('[data-cs-proceed-checkout]');
@@ -579,7 +708,14 @@
       }
     });
     window.addEventListener('cosmoskin:cart-updated', function () { renderCartPage(); enhanceCheckoutSummary(); });
-    window.addEventListener('cosmoskin:inventory-updated', function () { renderCartPage(); mountBrandsPage(); });
+    window.addEventListener('cosmoskin:inventory-updated', function () {
+      // Re-render once with skipInventory to refresh badges — never call loadInventory again here.
+      window.clearTimeout(cartInventoryRefreshTimer);
+      cartInventoryRefreshTimer = window.setTimeout(function () {
+        renderCartPage({ skipInventory: true });
+        mountBrandsPage();
+      }, 80);
+    });
   }
 
   function normalizePaymentLogos() {
@@ -596,7 +732,12 @@
     normalizePaymentLogos();
     bindGlobalActions();
     setTimeout(mountLiveSearch, 600);
-    setTimeout(function () { if (window.COSMOSKIN_STOCK && window.COSMOSKIN_STOCK.loadInventory) window.COSMOSKIN_STOCK.loadInventory(products().map(function (p) { return p.slug; })); }, 400);
+    setTimeout(function () {
+      if (!window.COSMOSKIN_STOCK || !window.COSMOSKIN_STOCK.loadInventory) return;
+      // Cart page already loads cart + recommendation slugs; avoid a second full-catalog fetch.
+      if (document.getElementById('csCartApp')) return;
+      window.COSMOSKIN_STOCK.loadInventory(products().map(function (p) { return p.slug; }));
+    }, 400);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

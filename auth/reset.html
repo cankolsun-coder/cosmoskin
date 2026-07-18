@@ -279,6 +279,16 @@
             <input autocomplete="new-password" class="auth-input" id="newPassword" minlength="8" placeholder="En az 8 karakter" type="password"/>
             <button class="password-toggle" onclick="togglePassword('newPassword', this)" type="button">Göster</button>
           </div>
+          <div aria-hidden="true" class="password-meter" id="resetPasswordMeter" style="margin-top:12px">
+            <div class="password-meter-bar"><span id="resetPasswordMeterFill"></span></div>
+            <div class="password-meter-meta"><span id="resetPasswordStrengthText">Şifre güvenliği</span></div>
+          </div>
+          <ul class="password-rules" id="resetPasswordRules">
+            <li data-rule="length">En az 8 karakter</li>
+            <li data-rule="upper">En az 1 büyük harf</li>
+            <li data-rule="lower">En az 1 küçük harf</li>
+            <li data-rule="number">En az 1 rakam</li>
+          </ul>
         </div>
 
         <div class="auth-field">
@@ -359,7 +369,52 @@
     function showUpdateStep(){
       hideAll();
       stepUpdate.style.display='block';
+      try {
+        var pending = JSON.parse(sessionStorage.getItem('cosmoskin_pending_password_v1') || 'null');
+        if (pending && pending.password && Date.now() - Number(pending.at || 0) < 60 * 60 * 1000) {
+          document.getElementById('newPassword').value = pending.password;
+          document.getElementById('confirmPassword').value = pending.password;
+        }
+      } catch (_) {}
+      bindResetPasswordMeter();
       setTimeout(()=>document.getElementById('newPassword').focus(),100);
+    }
+
+    function evaluateResetPassword(password) {
+      const checks = {
+        length: password.length >= 8,
+        upper: /[A-ZÇĞİÖŞÜ]/.test(password),
+        lower: /[a-zçğıöşü]/.test(password),
+        number: /\d/.test(password)
+      };
+      const score = Object.values(checks).filter(Boolean).length;
+      let width = '0%', text = 'Şifre güvenliği', color = '#d1d5db';
+      if (score === 1) { width = '25%'; text = 'Zayıf'; color = '#d14b4b'; }
+      else if (score === 2) { width = '50%'; text = 'Orta'; color = '#d9972b'; }
+      else if (score === 3) { width = '75%'; text = 'İyi'; color = '#3d8b6d'; }
+      else if (score === 4) { width = '100%'; text = 'Güçlü'; color = '#1f7a4f'; }
+      return { checks, width, text, color, score };
+    }
+
+    function bindResetPasswordMeter() {
+      const input = document.getElementById('newPassword');
+      const fill = document.getElementById('resetPasswordMeterFill');
+      const text = document.getElementById('resetPasswordStrengthText');
+      const rules = document.getElementById('resetPasswordRules');
+      if (!input || !fill || !text || !rules || input.dataset.meterBound === '1') return;
+      input.dataset.meterBound = '1';
+      const update = () => {
+        const result = evaluateResetPassword(input.value || '');
+        fill.style.width = result.width;
+        fill.style.backgroundColor = result.color;
+        text.textContent = input.value ? result.text : 'Şifre güvenliği';
+        rules.querySelector('[data-rule="length"]')?.classList.toggle('is-valid', result.checks.length);
+        rules.querySelector('[data-rule="upper"]')?.classList.toggle('is-valid', result.checks.upper);
+        rules.querySelector('[data-rule="lower"]')?.classList.toggle('is-valid', result.checks.lower);
+        rules.querySelector('[data-rule="number"]')?.classList.toggle('is-valid', result.checks.number);
+      };
+      input.addEventListener('input', update);
+      update();
     }
 
     function showErrorStep(message){
@@ -447,8 +502,9 @@
         status.style.color='#8a3b2f';
         return;
       }
-      if(!(/[A-Za-zÇĞİÖŞÜçğıöşü]/.test(pw)) || !(/\d/.test(pw))){
-        status.textContent='Şifre en az bir harf ve bir rakam içermelidir.';
+      const strength = evaluateResetPassword(pw);
+      if(strength.score < 4){
+        status.textContent='Şifre tüm güvenlik kurallarını karşılamalı.';
         status.style.color='#8a3b2f';
         return;
       }
@@ -470,6 +526,7 @@
         return;
       }
 
+      try { sessionStorage.removeItem('cosmoskin_pending_password_v1'); } catch (_) {}
       hideAll();
       stepSuccess.style.display='block';
       await client.auth.signOut();

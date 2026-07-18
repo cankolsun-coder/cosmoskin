@@ -49,7 +49,13 @@
     return uniq(slugs);
   }
   function getInventory(slug) { return inventoryMap.get(slugFrom(slug)) || null; }
-  function isOut(inv) { return inv && inv.status === 'active' && !inv.allow_backorder && Number(inv.available_stock || 0) <= 0; }
+  function isOut(inv) {
+    if (!inv) return false;
+    if (inv._missing || inv.status === 'missing') return true;
+    if (inv.status !== 'active') return true;
+    if (inv.allow_backorder) return false;
+    return Number(inv.available_stock || 0) <= 0;
+  }
   function isLow(inv) { return inv && inv.low_stock && !isOut(inv); }
   function canBuy(slug, qty) {
     var inv = getInventory(slug);
@@ -203,9 +209,16 @@
   async function loadInventory(slugs, options) {
     options = options || {};
     slugs = uniq(slugs || collectSlugs(document)).slice(0, 120);
-    if (!slugs.length) return [];
+    if (!slugs.length) {
+      applyState(options.root || document);
+      return [];
+    }
     var requested = options.force ? slugs : slugs.filter(function (slug) { return !inventoryMap.has(slug); });
-    if (!requested.length) return Array.from(inventoryMap.values());
+    if (!requested.length) {
+      // Cache hit — still re-apply so re-rendered cards get correct CTA labels.
+      applyState(options.root || document);
+      return Array.from(inventoryMap.values());
+    }
     serviceState = 'loading';
     serviceError = '';
     loadingPromise = fetch(API_BASE + '/inventory?product_slugs=' + encodeURIComponent(requested.join(',')), { cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } })
@@ -214,13 +227,13 @@
         serviceState = 'available';
         (data.inventory || []).forEach(function (row) { inventoryMap.set(slugFrom(row.product_slug), row); });
         (data.missing || []).forEach(function (slug) { inventoryMap.set(slugFrom(slug), { product_slug: slugFrom(slug), status: 'missing', _missing: true, available_stock: null }); });
-        applyState(document);
+        applyState(options.root || document);
         return data.inventory || [];
       })
       .catch(function (error) {
         serviceState = 'error';
         serviceError = error.message || COPY.serviceUnavailable;
-        applyState(document);
+        applyState(options.root || document);
         return [];
       });
     return loadingPromise;

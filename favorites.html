@@ -23,7 +23,7 @@
 <link href="/assets/master-upgrade.css?v=20260718-inspect-stretch1" rel="stylesheet"/>
 <link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
   <link rel="stylesheet" href="/assets/cosmoskin-final-uat-fix.css?v=20260629-uat-v7-searchtiming">
-<link href="/assets/cosmoskin-mobile-redesign-v1.css?v=20260718-auth-gate2" rel="stylesheet"/>
+<link href="/assets/cosmoskin-mobile-redesign-v1.css?v=20260719-heart-burst1" rel="stylesheet"/>
 </head>
 <body>
 <div class="progress" id="progress"></div>
@@ -204,7 +204,7 @@
 <div class="cookie" id="cookieBanner"><div class="cookie-card"><p>Bu site, temel alışveriş işlevleri için zorunlu çerezleri kullanır. Analitik, işlevsel ve pazarlama çerezleri yalnızca tercihlerinize göre etkinleştirilir.</p><div class="cookie-actions"><button class="btn btn-secondary" id="cookieCustomize" type="button">Tercihleri Yönet</button><button class="btn btn-secondary" id="cookieAcceptEssential" type="button">Sadece Zorunlu</button><button class="btn btn-primary" id="cookieAcceptAll" type="button">Tümünü Kabul Et</button></div></div></div>
 <script src="/assets/products-data.js?v=20260718-inspect-full1"></script>
 <script src="/api/public-config?v=20260627-auth-config"></script>
-<script src="/assets/site-config.js?v=20260418a"></script>
+<script src="/assets/site-config.js?v=20260719-auth2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/favorites-store.js?v=20260712-e1"></script>
 <script src="/assets/app.js?v=20260712-e1"></script><script defer="True" src="/assets/phase6-commerce.js?v=20260616-stockfix"></script>
@@ -232,13 +232,13 @@
   function read(){if(window.COSMOSKINFavorites&&typeof window.COSMOSKINFavorites.get==='function')return window.COSMOSKINFavorites.get();try{var raw=localStorage.getItem(KEY)||localStorage.getItem(LEGACY)||'[]'; var parsed=JSON.parse(raw); if(Array.isArray(parsed)) return parsed; if(parsed&&typeof parsed==='object') return Object.values(parsed); return [];}catch(_){return [];}}
   function bySlug(slug){return (window.COSMOSKIN_PRODUCTS||[]).find(function(p){return p.slug===slug||p.id===slug;});}
   function card(p){return '<article class="product-card cs-product-card" data-product-id="'+esc(p.slug||p.id)+'"><div class="product-media-wrap"><a class="product-media" href="'+esc(p.url)+'"><img alt="'+esc(p.name)+'" src="'+esc(p.image)+'" loading="lazy" width="400" height="400"/><span class="badge">'+esc(p.brand)+'</span></a><button class="favorite-btn active is-active" aria-label="Favorilerden kaldır" aria-pressed="true" data-favorite-id="'+esc(p.slug||p.id)+'" data-name="'+esc(p.name)+'" data-brand="'+esc(p.brand)+'" data-price="'+esc(p.price)+'" data-image="'+esc(p.image)+'" data-url="'+esc(p.url)+'" type="button">'+heartSvg(true)+'</button></div><div class="product-body"><div class="brandline">'+esc(p.brand)+'</div><a href="'+esc(p.url)+'"><h3>'+esc(p.name)+'</h3></a><p>'+esc(p.category||'COSMOSKIN seçkisi')+(p.volume?' · '+esc(p.volume):'')+'</p><div class="price-row"><div><div class="price">'+esc(fmt(p.price))+'</div><div class="price-note">KDV dahil</div></div><button class="btn btn-primary" data-add-cart data-id="'+esc(p.slug||p.id)+'" data-slug="'+esc(p.slug||p.id)+'" data-name="'+esc(p.name)+'" data-brand="'+esc(p.brand)+'" data-price="'+esc(p.price)+'" data-image="'+esc(p.image)+'" data-url="'+esc(p.url)+'">Sepete Ekle</button></div></div></article>'; }
-  function render(){var grid=document.getElementById('favoritesGrid'); var count=document.getElementById('favoritesCount'); if(!grid) return; var seen=new Set(); var items=read().map(function(item){var slug=slugOf(item); var product=bySlug(slug); return product||null;}).filter(function(p){if(!p) return false; var slug=slugOf(p); if(!slug||seen.has(slug)) return false; seen.add(slug); return !!(p.name&&p.url&&p.image);}); if(count) count.textContent=items.length+' ürün'; if(!items.length){grid.innerHTML='<div class="collection-empty favorites-empty-state"><strong>Favorilerin henüz boş.</strong><p>Cilt bakım rutinine eklemek istediğin ürünleri kalp ikonuyla kaydedebilirsin.</p><a class="btn btn-secondary" href="/allproducts.html">Tüm ürünleri keşfet</a></div>'; return;} grid.innerHTML=items.map(card).join(''); if(typeof window.initCartButtons==='function') window.initCartButtons(grid); if(typeof window.initFavoriteButtons==='function') window.initFavoriteButtons(grid);}
+  function render(){var grid=document.getElementById('favoritesGrid'); var count=document.getElementById('favoritesCount'); if(!grid) return; var seen=new Set(); var items=read().map(function(item){var slug=slugOf(item); var product=bySlug(slug); return product||null;}).filter(function(p){if(!p) return false; var slug=slugOf(p); if(!slug||seen.has(slug)) return false; seen.add(slug); return !!(p.name&&p.url&&p.image);}); if(count) count.textContent=items.length+' ürün'; if(!items.length){grid.innerHTML='<div class="collection-empty favorites-empty-state"><strong>Favorilerin henüz boş.</strong><p>Cilt bakım rutinine eklemek istediğin ürünleri kalp ikonuyla kaydedebilirsin.</p><a class="btn btn-secondary" href="/allproducts.html">Tüm ürünleri keşfet</a></div>'; return;} grid.innerHTML=items.map(card).join(''); if(typeof window.initCartButtons==='function') window.initCartButtons(grid); if(typeof window.initFavoriteButtons==='function') window.initFavoriteButtons(grid); if(window.COSMOSKIN_STOCK&&typeof window.COSMOSKIN_STOCK.loadInventory==='function'){window.COSMOSKIN_STOCK.loadInventory(items.map(function(p){return p.slug||p.id;}).filter(Boolean),{root:grid});}}
   function start(){if(window.COSMOSKIN_PRODUCTS_READY&&window.COSMOSKIN_PRODUCTS_READY.then){window.COSMOSKIN_PRODUCTS_READY.finally(render);}else render();}
   window.addEventListener('storage',render); window.addEventListener('cosmoskin:favorites-updated',render); if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
 })();
 </script>
 <script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
   <script defer src="/assets/cosmoskin-final-uat-fix.js?v=20260629-uat-final"></script>
-<script defer src="/assets/cosmoskin-mobile-redesign-v1.js?v=20260718-home-scrolltop1"></script>
+<script defer src="/assets/cosmoskin-mobile-redesign-v1.js?v=20260719-heart-burst1"></script>
 </body>
 </html>

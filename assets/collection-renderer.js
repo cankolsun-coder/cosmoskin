@@ -251,9 +251,13 @@
       if (typeof initCartButtons === 'function') {
         initCartButtons();
       }
+      if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.loadInventory === 'function') {
+        window.COSMOSKIN_STOCK.loadInventory(filtered.map(function (p) { return p.slug || p.id; }).filter(Boolean), { root: grid });
+      }
       document.dispatchEvent(new CustomEvent('cosmoskin:collection-rendered', {
         detail: { grid: grid, count: filtered.length }
       }));
+      document.dispatchEvent(new CustomEvent('cosmoskin:products-updated', { detail: { root: grid } }));
     });
   }
 

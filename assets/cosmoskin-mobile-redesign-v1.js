@@ -15,7 +15,7 @@
     bag:'<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9.25V7.4a4 4 0 0 1 8 0v1.85"/><path d="M5.75 9.25h12.5l-.85 10.55A1.7 1.7 0 0 1 15.72 21.5H8.28a1.7 1.7 0 0 1-1.68-1.7L5.75 9.25Z"/></svg>',
     home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10.5 12 4.5 19.5 10.5"/><path d="M6 10v9.5h12V10"/><path d="M10.5 19.5V14h3v5.5"/></svg>',
     grid:'<svg viewBox="0 0 24 24"><path d="M5 5h5v5H5V5Zm9 0h5v5h-5V5ZM5 14h5v5H5v-5Zm9 0h5v5h-5v-5Z"/></svg>',
-    heart:'<svg viewBox="0 0 24 24"><path d="M12 20s-7-4.6-8.4-9.1A4.7 4.7 0 0 1 11 6l1 1 1-1a4.7 4.7 0 0 1 7.4 4.9C19 15.4 12 20 12 20Z"/></svg>',
+    heart:'<svg class="cs-nav-heart" viewBox="0 0 24 24" aria-hidden="true"><path class="cs-nav-heart__fill" d="M12 20s-7-4.6-8.4-9.1A4.7 4.7 0 0 1 11 6l1 1 1-1a4.7 4.7 0 0 1 7.4 4.9C19 15.4 12 20 12 20Z"/><path class="cs-nav-heart__stroke" d="M12 20s-7-4.6-8.4-9.1A4.7 4.7 0 0 1 11 6l1 1 1-1a4.7 4.7 0 0 1 7.4 4.9C19 15.4 12 20 12 20Z"/></svg>',
     user:'<svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20a7.5 7.5 0 0 1 15 0"/></svg>',
     chevron:'<svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></svg>',
     filter:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M8 5v4M16 15v4"/></svg>',
@@ -39,19 +39,32 @@
   function mobileAnnouncement(){
     var announcement = $('.announcement');
     var track = $('.marquee', announcement);
-    if (!announcement || !track || track.dataset.csMobileTicker === '1') return;
-    var messages = [
-      'TÜRKİYE GENELİ HIZLI GÖNDERİM',
-      'ORİJİNAL K-BEAUTY SEÇKİSİ',
-      'GÜVENLİ ÖDEME',
-      '2.500 TL ÜZERİ ÜCRETSİZ KARGO'
+    if (!announcement || !track) return;
+    if (track.dataset.csMobileTicker === '2') return;
+    var icons = {
+      truck: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.5"/><circle cx="18" cy="18" r="1.5"/></svg>',
+      sparkle: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v4M12 16v4M4 12h4M16 12h4M7.05 7.05l2.83 2.83M14.12 14.12l2.83 2.83M16.95 7.05l-2.83 2.83M9.88 14.12l-2.83 2.83"/></svg>',
+      lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V8.2a4 4 0 0 1 8 0V11"/><rect x="6.5" y="11" width="11" height="9" rx="1.6"/></svg>',
+      gift: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10" width="15" height="9.2" rx="1"/><path d="M3.8 7h16.4v3H3.8zM12 7v12.2"/><path d="M12 7c-2.2 0-3.6-.9-3.6-2.1S9.4 3.5 10.6 3.5c1.4 0 1.4 2 1.4 3.5Zm0 0c2.2 0 3.6-.9 3.6-2.1S14.6 3.5 13.4 3.5C12 3.5 12 5.5 12 7Z"/></svg>'
+    };
+    var items = [
+      { icon: 'truck', text: 'Türkiye geneli hızlı gönderim' },
+      { icon: 'sparkle', text: 'Orijinal K-Beauty seçkisi' },
+      { icon: 'lock', text: 'Güvenli ödeme' },
+      { icon: 'gift', text: '2.500 TL üzeri ücretsiz kargo' }
     ];
-    var group = '<span class="cs-mobile-announcement__group">' + messages.map(function(message){
-      return '<span>' + message + '</span>';
-    }).join('') + '</span>';
-    track.dataset.csMobileTicker = '1';
-    track.setAttribute('aria-label', messages.join(' · '));
-    track.innerHTML = group + group.replace('class="cs-mobile-announcement__group"', 'class="cs-mobile-announcement__group" aria-hidden="true"');
+    function groupHtml(ariaHidden) {
+      return '<span class="cs-mobile-announcement__group"' + (ariaHidden ? ' aria-hidden="true"' : '') + '>' + items.map(function (item) {
+        return '<span class="cs-mobile-announcement__item">' +
+          '<span class="cs-mobile-announcement__icon">' + (icons[item.icon] || '') + '</span>' +
+          '<span class="cs-mobile-announcement__text">' + item.text + '</span>' +
+        '</span>';
+      }).join('') + '</span>';
+    }
+    announcement.classList.add('cs-announcement--premium');
+    track.dataset.csMobileTicker = '2';
+    track.setAttribute('aria-label', items.map(function (i) { return i.text; }).join(' · '));
+    track.innerHTML = groupHtml(false) + groupHtml(true);
   }
   function header(){ if($('.cs-mobile-v1-header')) return; var h=document.createElement('header'); h.className='cs-mobile-v1-header'; h.innerHTML='<button type="button" class="cs-mobile-v1-iconbtn" data-cs-open="menu" aria-label="Menüyü aç">'+svg.menu+'</button><a class="cs-mobile-v1-logo" href="/index.html" aria-label="COSMOSKIN anasayfa"><span>COSMOSKIN</span></a><div class="cs-mobile-v1-tools"><button type="button" class="cs-mobile-v1-iconbtn" data-cs-open="search" aria-label="Arama">'+svg.search+'</button><button type="button" class="cs-mobile-v1-iconbtn" data-cs-open="cart" aria-label="Sepet">'+svg.bag+'<span class="cs-mobile-v1-badge" data-cs-cart-badge hidden>0</span></button></div>'; var ann=$('.announcement'); if(ann && ann.parentNode) ann.insertAdjacentElement('afterend', h); else document.body.insertBefore(h, document.body.firstChild); }
   function bottomNav(){
@@ -64,7 +77,7 @@
       nav.className = 'cs-mobile-v1-bottom-nav';
       nav.setAttribute('aria-label', 'Mobil alt navigasyon');
       nav.innerHTML = '<span class="cs-mobile-v1-tab-indicator" aria-hidden="true"></span>' + items.map(function(i, idx){
-        return '<a href="'+i[1]+'" data-cs-tab-nav data-tab-index="'+idx+'">'+svg[i[2]]+'<span>'+i[0]+'</span>'+(i[2]==='bag'?'<em class="cs-mobile-v1-badge" data-cs-cart-badge hidden>0</em>':'')+'</a>';
+        return '<a href="'+i[1]+'" data-cs-tab-nav data-tab-index="'+idx+'"'+(i[2]==='heart'?' data-cs-nav-heart':'')+'>'+svg[i[2]]+'<span>'+i[0]+'</span>'+(i[2]==='bag'?'<em class="cs-mobile-v1-badge" data-cs-cart-badge hidden>0</em>':'')+'</a>';
       }).join('');
       document.body.appendChild(nav);
     } else {
@@ -75,12 +88,62 @@
           link.setAttribute('data-tab-index', String(idx));
         }
       });
+      ensureFavoritesHeartIcon(nav);
     }
     setBottomNavActive(currentIdx < 0 ? 0 : currentIdx, false);
   }
+  function ensureFavoritesHeartIcon(nav){
+    var link = nav && (nav.querySelector('[data-cs-nav-heart]') || nav.querySelector('a[href*="favorites"]'));
+    if (!link) return;
+    link.setAttribute('data-cs-nav-heart', '');
+    if (link.querySelector('.cs-nav-heart__fill')) return;
+    var label = link.querySelector('span');
+    var badge = link.querySelector('.cs-mobile-v1-badge, em');
+    link.innerHTML = svg.heart + (label ? label.outerHTML : '<span>Favoriler</span>') + (badge ? badge.outerHTML : '');
+  }
+  var heartBurstTimer = 0;
+  function playFavoritesHeartBurst(){
+    if (reducedMotion()) return;
+    var link = $('.cs-mobile-v1-bottom-nav [data-cs-nav-heart]') || $('.cs-mobile-v1-bottom-nav a[href*="favorites"]');
+    if (!link) return;
+    ensureFavoritesHeartIcon(link.closest('.cs-mobile-v1-bottom-nav'));
+    link.classList.remove('is-heart-burst');
+    void link.offsetWidth;
+    link.classList.add('is-heart-burst');
+    if (heartBurstTimer) window.clearTimeout(heartBurstTimer);
+    heartBurstTimer = window.setTimeout(function(){
+      link.classList.remove('is-heart-burst');
+      heartBurstTimer = 0;
+    }, 1180);
+  }
+  function maybeFavoritesHeartBurst(){
+    var shouldPlay = false;
+    try {
+      shouldPlay = sessionStorage.getItem('cs_mobile_heart_burst') === '1';
+      if (shouldPlay) sessionStorage.removeItem('cs_mobile_heart_burst');
+    } catch (e) {}
+    if (!shouldPlay) return;
+    if (tabPathIndex(location.pathname) !== 2) return;
+    requestAnimationFrame(function(){
+      requestAnimationFrame(playFavoritesHeartBurst);
+    });
+  }
   function mobileFooter(){
     var desktopFooter = $('footer.footer');
-    if (!desktopFooter || $('.cs-mobile-footer')) return;
+    var path = location.pathname || '';
+    var allowFooter = route() === 'home' || /categories\.html$/.test(path);
+    var existing = $('.cs-mobile-footer');
+    if (!allowFooter) {
+      if (existing) existing.remove();
+      document.body.classList.remove('cs-has-mobile-footer', 'cs-mobile-footer-visible');
+      if (desktopFooter) {
+        desktopFooter.classList.add('cs-desktop-footer');
+        desktopFooter.hidden = true;
+        desktopFooter.setAttribute('aria-hidden', 'true');
+      }
+      return;
+    }
+    if (!desktopFooter || existing) return;
     document.body.classList.add('cs-has-mobile-footer');
     desktopFooter.classList.add('cs-desktop-footer');
     desktopFooter.hidden = true;
@@ -293,8 +356,16 @@
       indicator.style.transition = '';
     }
   }
-  function sheets(){ if($('.cs-mobile-v1-backdrop')) return; var wrap=document.createElement('div'); wrap.innerHTML='<div class="cs-mobile-v1-backdrop" data-cs-close></div><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--side" data-cs-mobile-sheet="menu" aria-label="Mobil menü"><div class="cs-mobile-v1-menu-head"><div class="cs-mobile-v1-menu-brand"><span class="cs-mobile-v1-menu-kicker">COSMOSKIN</span><strong class="cs-mobile-v1-menu-title">Menü</strong></div><button type="button" class="cs-mobile-v1-menu-close" data-cs-close aria-label="Menüyü kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="cs-mobile-v1-sheet-body cs-mobile-v1-sheet-body--menu"><nav class="cs-mobile-v1-menu" aria-label="Menü bağlantıları"><div class="cs-mobile-v1-menu-group"><a href="/index.html"><span>Ana Sayfa</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/allproducts.html"><span>Tüm Ürünler</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/categories.html"><span>Kategoriler</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/brands.html"><span>Markalar</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div><div class="cs-mobile-v1-menu-group"><p class="cs-mobile-v1-menu-label">Keşfet</p><a href="/routine.html"><span>Akıllı Rutin</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/cosmoskin-club.html"><span>COSMOSKIN Club</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/favorites.html"><span>Favoriler</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div><div class="cs-mobile-v1-menu-group"><p class="cs-mobile-v1-menu-label">Hesap & Destek</p><a href="/cart.html"><span>Sepetim</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/account/profile.html"><span>Hesabım</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/order-tracking.html"><span>Sipariş Takibi</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/teslimat-kargo.html"><span>Teslimat & Kargo</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/iade-degisim.html"><span>İade & Cayma</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/contact.html"><span>İletişim</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div></nav><div class="cs-mobile-v1-menu-account" data-cs-menu-account></div></div></aside><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--bottom cs-mobile-v1-sheet--search" data-cs-mobile-sheet="search" aria-label="Ürün ara"><span class="cs-mobile-v1-sheet-grip" aria-hidden="true"></span><div class="cs-mobile-v1-search-head"><div class="cs-mobile-v1-search-heading"><span class="cs-mobile-v1-search-kicker">COSMOSKIN</span><strong>Ürün Ara</strong></div><button type="button" class="cs-mobile-v1-search-close" data-cs-close aria-label="Kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="cs-mobile-v1-sheet-body cs-mobile-v1-sheet-body--search"><form class="cs-mobile-v1-search-form" data-cs-mobile-search><div class="cs-mobile-v1-search-field"><svg class="cs-mobile-v1-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg><input name="q" type="search" placeholder="Ürün, marka veya içerik ara" autocomplete="off" enterkeyhint="search" aria-label="Ürün, marka veya içerik ara"></div><button class="cs-mobile-v1-search-submit" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg><span>Ara</span></button></form><div class="cs-mobile-v1-search-suggest"><p class="cs-mobile-v1-search-suggest-title">Popüler aramalar</p><div class="cs-mobile-v1-search-chips"><a class="cs-mobile-v1-search-chip" href="/search.html?q=g%C3%BCne%C5%9F%20kremi">Güneş kremi</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=serum">Serum</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=temizleyici">Temizleyici</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=nemlendirici">Nemlendirici</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=tonik">Tonik</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=maske">Maske</a></div><p class="cs-mobile-v1-search-suggest-title">Öne çıkan markalar</p><div class="cs-mobile-v1-search-chips"><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/anua.html">Anua</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/cosrx.html">COSRX</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/beauty-of-joseon.html">Beauty of Joseon</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/round-lab.html">Round Lab</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/torriden.html">Torriden</a></div></div></div></aside><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--bottom cs-mobile-v1-sheet--filter" data-cs-mobile-sheet="filter" aria-label="Filtrele"><span class="cs-mobile-v1-sheet-grip" aria-hidden="true"></span><div class="cs-mobile-v1-filter-head"><div class="cs-mobile-v1-filter-heading"><span class="cs-mobile-v1-filter-kicker">COSMOSKIN</span><strong>Filtrele</strong></div><button type="button" class="cs-mobile-v1-filter-close" data-cs-close aria-label="Kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="cs-mobile-v1-sheet-body cs-mobile-v1-sheet-body--filter" data-cs-filter-body></div></aside><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--bottom" data-cs-mobile-sheet="cart" aria-label="Sepet"><div class="cs-mobile-v1-sheet-head"><strong>Sepetim</strong><button type="button" class="cs-mobile-v1-close" data-cs-close aria-label="Kapat">×</button></div><div class="cs-mobile-v1-sheet-body" data-cs-cart-body></div></aside>'; while(wrap.firstChild) document.body.appendChild(wrap.firstChild); }
-  function updateBadge(){ var count=cartCount(); $$('[data-cs-cart-badge]').forEach(function(b){ b.textContent=count; b.hidden = count < 1; }); }
+  function sheets(){ if($('.cs-mobile-v1-backdrop')) return; var wrap=document.createElement('div'); wrap.innerHTML='<div class="cs-mobile-v1-backdrop" data-cs-close></div><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--side" data-cs-mobile-sheet="menu" aria-label="Mobil menü"><div class="cs-mobile-v1-menu-head"><div class="cs-mobile-v1-menu-brand"><span class="cs-mobile-v1-menu-kicker">COSMOSKIN</span><strong class="cs-mobile-v1-menu-title">Menü</strong></div><button type="button" class="cs-mobile-v1-menu-close" data-cs-close aria-label="Menüyü kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="cs-mobile-v1-sheet-body cs-mobile-v1-sheet-body--menu"><nav class="cs-mobile-v1-menu" aria-label="Menü bağlantıları"><div class="cs-mobile-v1-menu-group"><a href="/index.html"><span>Ana Sayfa</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/allproducts.html"><span>Tüm Ürünler</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/categories.html"><span>Kategoriler</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/brands.html"><span>Markalar</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div><div class="cs-mobile-v1-menu-group"><p class="cs-mobile-v1-menu-label">Keşfet</p><a href="/routine.html"><span>Akıllı Rutin</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/cosmoskin-club.html"><span>COSMOSKIN Club</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/favorites.html"><span>Favoriler</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div><div class="cs-mobile-v1-menu-group"><p class="cs-mobile-v1-menu-label">Hesap & Destek</p><a href="/cart.html"><span>Sepetim</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/account/profile.html"><span>Hesabım</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/order-tracking.html"><span>Sipariş Takibi</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/teslimat-kargo.html"><span>Teslimat & Kargo</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/iade-degisim.html"><span>İade & Cayma</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a><a href="/contact.html"><span>İletişim</span><svg class="cs-mobile-v1-menu-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></a></div></nav><div class="cs-mobile-v1-menu-account" data-cs-menu-account></div></div></aside><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--bottom cs-mobile-v1-sheet--search" data-cs-mobile-sheet="search" aria-label="Ürün ara"><span class="cs-mobile-v1-sheet-grip" aria-hidden="true"></span><div class="cs-mobile-v1-search-head"><div class="cs-mobile-v1-search-heading"><span class="cs-mobile-v1-search-kicker">COSMOSKIN</span><strong>Ürün Ara</strong></div><button type="button" class="cs-mobile-v1-search-close" data-cs-close aria-label="Kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="cs-mobile-v1-sheet-body cs-mobile-v1-sheet-body--search"><form class="cs-mobile-v1-search-form" data-cs-mobile-search><div class="cs-mobile-v1-search-field"><svg class="cs-mobile-v1-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg><input name="q" type="search" placeholder="Ürün, marka veya içerik ara" autocomplete="off" enterkeyhint="search" aria-label="Ürün, marka veya içerik ara"></div><button class="cs-mobile-v1-search-submit" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4 4"/></svg><span>Ara</span></button></form><div class="cs-mobile-v1-search-suggest"><p class="cs-mobile-v1-search-suggest-title">Popüler aramalar</p><div class="cs-mobile-v1-search-chips"><a class="cs-mobile-v1-search-chip" href="/search.html?q=g%C3%BCne%C5%9F%20kremi">Güneş kremi</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=serum">Serum</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=temizleyici">Temizleyici</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=nemlendirici">Nemlendirici</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=tonik">Tonik</a><a class="cs-mobile-v1-search-chip" href="/search.html?q=maske">Maske</a></div><p class="cs-mobile-v1-search-suggest-title">Öne çıkan markalar</p><div class="cs-mobile-v1-search-chips"><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/anua.html">Anua</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/cosrx.html">COSRX</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/beauty-of-joseon.html">Beauty of Joseon</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/round-lab.html">Round Lab</a><a class="cs-mobile-v1-search-chip cs-mobile-v1-search-chip--brand" href="/brands/torriden.html">Torriden</a></div></div></div></aside><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--bottom cs-mobile-v1-sheet--filter" data-cs-mobile-sheet="filter" aria-label="Filtrele"><span class="cs-mobile-v1-sheet-grip" aria-hidden="true"></span><div class="cs-mobile-v1-filter-head"><div class="cs-mobile-v1-filter-heading"><span class="cs-mobile-v1-filter-kicker">COSMOSKIN</span><strong>Filtrele</strong></div><button type="button" class="cs-mobile-v1-filter-close" data-cs-close aria-label="Kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="cs-mobile-v1-sheet-body cs-mobile-v1-sheet-body--filter" data-cs-filter-body></div></aside><aside class="cs-mobile-v1-sheet cs-mobile-v1-sheet--bottom cs-mobile-v1-sheet--cart" data-cs-mobile-sheet="cart" aria-label="Sepet"><span class="cs-mobile-v1-sheet-grip" aria-hidden="true"></span><div class="cs-mobile-v1-cart-head"><div class="cs-mobile-v1-cart-head__copy"><span class="cs-mobile-v1-cart-kicker">COSMOSKIN</span><strong class="cs-mobile-v1-cart-title">Sepet</strong><em class="cs-mobile-v1-cart-count" data-cs-cart-count-label hidden></em></div><button type="button" class="cs-mobile-v1-cart-close" data-cs-close aria-label="Sepeti kapat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button></div><div class="cs-mobile-v1-sheet-body cs-mobile-v1-sheet-body--cart" data-cs-cart-body></div></aside>'; while(wrap.firstChild) document.body.appendChild(wrap.firstChild); }
+  function updateBadge(){
+    var count=cartCount();
+    $$('[data-cs-cart-badge]').forEach(function(b){
+      b.textContent=String(count);
+      b.hidden = count < 1;
+      b.classList.toggle('is-wide', count > 9);
+      b.setAttribute('aria-hidden', count < 1 ? 'true' : 'false');
+    });
+  }
   function readJSON(key){ try{ return JSON.parse(localStorage.getItem(key)||'null'); }catch(e){ return null; } }
   function menuProfile(){
     var user = {};
@@ -353,7 +424,155 @@
       if(client && client.auth && client.auth.signOut){ client.auth.signOut().finally(done); } else { done(); }
     } catch(e){ done(); }
   }
-  function renderCart(){ var body=$('[data-cs-cart-body]'); if(!body) return; var items=cartItems(); if(!items.length){ body.innerHTML='<div class="cs-mobile-v1-cart-empty"><strong>Sepetin boş</strong><p>Favori K-Beauty ürünlerini keşfetmeye başlayabilirsin.</p><a class="cs-mobile-v1-primary" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin-top:10px" href="/allproducts.html">Ürünleri İncele</a></div>'; return; } body.innerHTML='<div class="cs-mobile-v1-cart-items">'+items.map(function(i){ var slug=esc(i.slug||i.id||''); return '<article class="cs-mobile-v1-cart-item"><img src="'+esc(i.image||'/assets/logo-mark.png')+'" alt="'+esc(i.name||'Ürün')+'"><div><strong>'+esc(i.name||'COSMOSKIN ürünü')+'</strong><small>'+esc(i.brand||'')+' · '+fmt(i.price||0)+'</small><div class="cs-mobile-v1-qty"><button type="button" data-cs-cart-qty="-1" data-slug="'+slug+'">−</button><span>'+Number(i.qty||i.quantity||1)+'</span><button type="button" data-cs-cart-qty="1" data-slug="'+slug+'">+</button></div><button type="button" class="cs-mobile-v1-secondary" style="min-height:34px;margin-top:8px" data-cs-cart-remove="'+slug+'">Kaldır</button></div></article>'; }).join('')+'</div><div class="cs-mobile-v1-cart-summary"><div class="cs-mobile-v1-cart-summary-row"><span>Ara toplam</span><strong>'+fmt(subtotal())+'</strong></div><div class="cs-mobile-v1-cart-summary-row"><span>Kargo</span><strong>'+(subtotal()>=2500?'Ücretsiz':fmt(89))+'</strong></div><div class="cs-mobile-v1-cart-summary-row"><span>Toplam</span><strong>'+fmt(subtotal()+(subtotal()>=2500?0:89))+'</strong></div><a class="cs-mobile-v1-primary" style="display:flex;align-items:center;justify-content:center;text-decoration:none;margin-top:8px" href="/checkout.html">Ödemeye Geç</a></div>'; }
+  function readCoupon(){
+    try{
+      if(window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.readState==='function'){
+        var state = window.COSMOSKIN_COUPON.readState();
+        if(state && state.code) return state;
+      }
+      return JSON.parse(localStorage.getItem(COUPON_KEY)||'null');
+    }catch(e){ return null; }
+  }
+  function saveCouponState(coupon){
+    try{
+      if(!coupon){
+        localStorage.removeItem(COUPON_KEY);
+        localStorage.removeItem(LEGACY_COUPON_KEY);
+        if(window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.clearState==='function') window.COSMOSKIN_COUPON.clearState();
+        return;
+      }
+      localStorage.setItem(COUPON_KEY, JSON.stringify(coupon));
+      localStorage.setItem(LEGACY_COUPON_KEY, coupon.code || '');
+      if(window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.persistState==='function'){
+        window.COSMOSKIN_COUPON.persistState(coupon, coupon.code);
+      }
+    }catch(e){}
+  }
+  function couponDiscountAmount(sub){
+    var coupon = readCoupon();
+    if(!coupon || !coupon.code) return 0;
+    var min = Number(coupon.minSubtotal || coupon.min_subtotal || 0);
+    if(Number(sub || 0) < min) return 0;
+    return Math.max(0, Math.min(Number(sub || 0), Math.round(Number(coupon.discountAmount || coupon.discount_amount || 0))));
+  }
+  async function applyCartCoupon(code){
+    code = String(code || '').trim().toUpperCase();
+    var feedback = $('[data-cs-cart-coupon-status]');
+    if(!code){
+      saveCouponState(null);
+      if(feedback){ feedback.textContent='Kupon kaldırıldı.'; feedback.className='cs-mobile-v1-cart-coupon__status'; }
+      renderCart();
+      return;
+    }
+    if(feedback){ feedback.textContent='Kupon kontrol ediliyor…'; feedback.className='cs-mobile-v1-cart-coupon__status is-pending'; }
+    try{
+      var result;
+      if(window.COSMOSKIN_COUPON && typeof window.COSMOSKIN_COUPON.validate==='function'){
+        result = await window.COSMOSKIN_COUPON.validate({ code: code, cartItems: cartItems() });
+      } else {
+        var res = await fetch('/api/coupons/validate', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ code: code, cart: cartItems() }) });
+        var data = await res.json().catch(function(){ return {}; });
+        result = (res.ok && data && data.ok) ? Object.assign({ ok:true, code:code }, data) : { ok:false, message:(data && (data.error||data.message)) || 'Bu kupon şu anda geçerli değil.' };
+      }
+      if(!result || !result.ok){
+        saveCouponState(null);
+        if(feedback){ feedback.textContent=result && result.message ? result.message : 'Bu kupon şu anda geçerli değil.'; feedback.className='cs-mobile-v1-cart-coupon__status is-error'; }
+        return;
+      }
+      saveCouponState(Object.assign({ code: code }, result));
+      renderCart();
+      feedback = $('[data-cs-cart-coupon-status]');
+      if(feedback){ feedback.textContent='Kupon uygulandı: '+code; feedback.className='cs-mobile-v1-cart-coupon__status is-success'; }
+    }catch(err){
+      saveCouponState(null);
+      if(feedback){ feedback.textContent='Kupon doğrulanamadı. Lütfen tekrar deneyin.'; feedback.className='cs-mobile-v1-cart-coupon__status is-error'; }
+    }
+  }
+  function renderCart(){
+    var body=$('[data-cs-cart-body]'); if(!body) return;
+    var items=cartItems();
+    var countLabel=$('[data-cs-cart-count-label]');
+    var count=cartCount();
+    if(countLabel){
+      if(count>0){
+        countLabel.hidden=false;
+        countLabel.textContent=count+' ürün';
+      } else {
+        countLabel.hidden=true;
+        countLabel.textContent='';
+      }
+    }
+    if(!items.length){
+      body.innerHTML=''+
+        '<div class="cs-mobile-v1-cart-empty">'+
+          '<span class="cs-mobile-v1-cart-empty__mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 9.25V7.4a4 4 0 0 1 8 0v1.85"/><path d="M5.75 9.25h12.5l-.85 10.55A1.7 1.7 0 0 1 15.72 21.5H8.28a1.7 1.7 0 0 1-1.68-1.7L5.75 9.25Z"/></svg></span>'+
+          '<strong>Sepetin henüz boş</strong>'+
+          '<p>Seçilmiş K-Beauty ürünlerini keşfet, sepetine ekle.</p>'+
+          '<a class="cs-mobile-v1-cart-cta" href="/allproducts.html">Alışverişe Başla</a>'+
+        '</div>';
+      return;
+    }
+    var sub=subtotal();
+    var discount=couponDiscountAmount(sub);
+    var ship=sub-discount>=2500?0:89;
+    var total=Math.max(0, sub-discount+ship);
+    var coupon=readCoupon();
+    var couponCode=coupon && coupon.code ? String(coupon.code) : '';
+    var freeShipRemain=Math.max(0, 2500-(sub-discount));
+    body.innerHTML=''+
+      '<div class="cs-mobile-v1-cart-studio">'+
+        '<div class="cs-mobile-v1-cart-items">'+items.map(function(i, idx){
+          var slug=esc(i.slug||i.id||'');
+          var qty=Number(i.qty||i.quantity||1);
+          var line=Number(i.price||0)*qty;
+          return ''+
+            '<article class="cs-mobile-v1-cart-item" style="--cs-cart-i:'+idx+'">'+
+              '<a class="cs-mobile-v1-cart-item__media" href="'+esc(i.url||('/products/'+slug+'.html'))+'">'+
+                '<img src="'+esc(i.image||'/assets/logo-mark.png')+'" alt="'+esc(i.name||'Ürün')+'" loading="lazy">'+
+              '</a>'+
+              '<div class="cs-mobile-v1-cart-item__body">'+
+                '<div class="cs-mobile-v1-cart-item__top">'+
+                  '<div class="cs-mobile-v1-cart-item__copy">'+
+                    '<small>'+esc(i.brand||'COSMOSKIN')+'</small>'+
+                    '<strong>'+esc(i.name||'COSMOSKIN ürünü')+'</strong>'+
+                  '</div>'+
+                  '<b class="cs-mobile-v1-cart-item__price">'+fmt(line)+'</b>'+
+                '</div>'+
+                '<div class="cs-mobile-v1-cart-item__actions">'+
+                  '<div class="cs-mobile-v1-qty" role="group" aria-label="Adet">'+
+                    '<button type="button" data-cs-cart-qty="-1" data-slug="'+slug+'" aria-label="Azalt">−</button>'+
+                    '<span aria-live="polite">'+qty+'</span>'+
+                    '<button type="button" data-cs-cart-qty="1" data-slug="'+slug+'" aria-label="Artır">+</button>'+
+                  '</div>'+
+                  '<button type="button" class="cs-mobile-v1-cart-remove" data-cs-cart-remove="'+slug+'">Kaldır</button>'+
+                '</div>'+
+              '</div>'+
+            '</article>';
+        }).join('')+'</div>'+
+        '<div class="cs-mobile-v1-cart-dock">'+
+          (freeShipRemain>0
+            ? '<p class="cs-mobile-v1-cart-shipnote"><span></span>Ücretsiz kargoya <strong>'+fmt(freeShipRemain)+'</strong> kaldı</p>'
+            : '<p class="cs-mobile-v1-cart-shipnote is-free"><span></span>Bu sepette kargo ücretsiz</p>')+
+          '<div class="cs-mobile-v1-cart-coupon">'+
+            '<label for="csMobileCartCoupon">İndirim kodu</label>'+
+            '<div class="cs-mobile-v1-cart-coupon__row">'+
+              '<input id="csMobileCartCoupon" type="text" value="'+esc(couponCode)+'" placeholder="Kodunu gir" autocomplete="off" autocapitalize="characters" spellcheck="false">'+
+              '<button type="button" class="cs-mobile-v1-cart-coupon__apply" data-cs-cart-coupon-apply>Uygula</button>'+
+            '</div>'+
+            (couponCode ? '<button type="button" class="cs-mobile-v1-cart-coupon__clear" data-cs-cart-coupon-clear>Kuponu kaldır</button>' : '')+
+            '<div class="cs-mobile-v1-cart-coupon__status'+(couponCode?' is-success':'')+'" data-cs-cart-coupon-status role="status" aria-live="polite">'+(couponCode ? ('Aktif: '+esc(couponCode)) : '')+'</div>'+
+          '</div>'+
+          '<div class="cs-mobile-v1-cart-totals" aria-label="Sipariş özeti">'+
+            '<div class="cs-mobile-v1-cart-summary-row"><span>Ara toplam</span><strong>'+fmt(sub)+'</strong></div>'+
+            (discount ? '<div class="cs-mobile-v1-cart-summary-row is-discount"><span>İndirim</span><strong>-'+fmt(discount)+'</strong></div>' : '')+
+            '<div class="cs-mobile-v1-cart-summary-row"><span>Kargo</span><strong>'+(ship?fmt(ship):'Ücretsiz')+'</strong></div>'+
+            '<div class="cs-mobile-v1-cart-summary-row is-total"><span>Toplam</span><strong>'+fmt(total)+'</strong></div>'+
+          '</div>'+
+          '<a class="cs-mobile-v1-cart-cta" href="/checkout.html">Ödemeye Geç</a>'+
+          '<p class="cs-mobile-v1-cart-trust">Güvenli ödeme · Orijinal ürün · 14 gün cayma</p>'+
+        '</div>'+
+      '</div>';
+  }
   function changeQty(slug, delta){ var items=cartItems().map(function(i){ if((i.slug||i.id)===slug){ i.qty=Math.max(1, Number(i.qty||i.quantity||1)+delta); i.quantity=i.qty; } return i; }); saveCart(items); renderCart(); }
   function removeItem(slug){ saveCart(cartItems().filter(function(i){ return (i.slug||i.id)!==slug; })); renderCart(); }
   function plpToolbar(){ if(!/^(listing|favorites)$/.test(route())) return; if($('.cs-allproducts')) return; var grid=$('.product-grid, .products-grid, .cs-ap-grid, .collection-grid'); if(!grid || $('.cs-mobile-v1-plpbar')) return; var bar=document.createElement('div'); bar.className='cs-mobile-v1-plpbar'; bar.setAttribute('role','toolbar'); bar.setAttribute('aria-label','Filtre ve sıralama'); bar.innerHTML='<button type="button" class="cs-mobile-v1-plpbar__btn" data-cs-open="filter">'+svg.filter+'<span>Filtrele</span></button><label class="cs-mobile-v1-plpbar__sort"><span class="cs-mobile-v1-plpbar__sort-ico" aria-hidden="true">'+svg.sort+'</span><select aria-label="Sırala" data-cs-sort><option value="featured">Öne çıkan</option><option value="price-asc">Fiyat artan</option><option value="price-desc">Fiyat azalan</option><option value="name">Ürün adı</option></select><span class="cs-mobile-v1-plpbar__chev" aria-hidden="true"></span></label>'; grid.parentNode.insertBefore(bar, grid); }
@@ -405,7 +624,20 @@
   function passwordToggles(){ $$('input[type="password"]').forEach(function(input){ if(input.dataset.csMobilePw) return; if(input.closest('.cs-security-pass')) { input.dataset.csMobilePw='1'; return; } input.dataset.csMobilePw='1'; var wrap=document.createElement('span'); wrap.className='cs-password-wrap'; input.parentNode.insertBefore(wrap,input); wrap.appendChild(input); var btn=document.createElement('button'); btn.type='button'; btn.className='cs-password-toggle'; btn.textContent='Göster'; btn.setAttribute('aria-label','Şifreyi göster'); btn.addEventListener('click',function(){ var visible=input.type==='text'; input.type=visible?'password':'text'; btn.textContent=visible?'Göster':'Gizle'; btn.setAttribute('aria-label', visible?'Şifreyi göster':'Şifreyi gizle'); }); wrap.appendChild(btn); }); }
   function accountTabs(){ /* Tab switching owned by account-dashboard.js — avoid double handlers */ }
   function normalizeRoutineLinks(){ $$('a[href="/account/routines/"], a[href="/collections/routine.html"], a[href="/routine.html"], a[href="/rutinler.html"]').forEach(function(a){ a.setAttribute('href','/routine.html'); }); }
-  function checkoutMobile(){ if(route()!=='checkout') return; document.body.classList.add('cs-checkout-mobile'); var page=$('#csCheckoutPage'); if(page && !$('.cs-mobile-v1-checkout-note')){ var note=document.createElement('div'); note.className='cs-mobile-v1-checkout-note'; note.style.cssText='margin:12px 0;padding:12px 14px;border-radius:18px;background:#fffaf4;border:1px solid rgba(42,32,22,.12);font-size:13px;color:#5d554e'; note.textContent='Mobil ödeme akışı: teslimat, ödeme, kupon ve sipariş özeti adım adım gösterilir.'; page.querySelector('.cs-checkout-topline') && page.querySelector('.cs-checkout-topline').appendChild(note); } }
+  function checkoutMobile(){
+    if (route() !== 'checkout') return;
+    document.body.classList.add('cs-checkout-mobile');
+    $$('.cs-mobile-v1-checkout-note').forEach(function (el) { el.remove(); });
+    var summary = $('#csCheckoutSummary');
+    if (summary) summary.classList.remove('is-collapsed');
+    var toggle = $('#csCheckoutSummaryToggle');
+    if (toggle) {
+      toggle.hidden = true;
+      toggle.setAttribute('aria-hidden', 'true');
+    }
+    var trust = $('#csCheckoutTrust');
+    if (trust) trust.remove();
+  }
   var AUTH_CLOSE_SVG = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.75 6.75l10.5 10.5M17.25 6.75l-10.5 10.5" stroke="currentColor" stroke-width="1.55" stroke-linecap="round"/></svg>';
   function enhanceAuthSheetHead(){
     if (!isMobile()) return;
@@ -588,6 +820,9 @@
     if (tabNavBusy || toIdx < 0 || toIdx === fromIdx) return;
     closePanel(false);
     var dir = tabDirection(fromIdx, toIdx);
+    if (toIdx === 2) {
+      try { sessionStorage.setItem('cs_mobile_heart_burst', '1'); } catch (e) {}
+    }
     if (reducedMotion()) {
       try {
         sessionStorage.setItem('cs_mobile_tab_idx', String(toIdx));
@@ -611,6 +846,7 @@
         sessionStorage.setItem('cs_mobile_tab_idx', String(fromIdx));
         sessionStorage.setItem('cs_mobile_tab_nav', '1');
         sessionStorage.setItem('cs_mobile_tab_dir', dir);
+        if (toIdx === 2) sessionStorage.setItem('cs_mobile_heart_burst', '1');
       } catch (e) {}
       location.href = href;
     }, TAB_NAV_MS);
@@ -650,9 +886,80 @@
       if (ev.persisted) playTabEnterAnimation();
     });
   }
-  function bind(){ document.addEventListener('click', function(e){ var authOpen=e.target.closest('[data-cs-open-auth]'); if(authOpen){ e.preventDefault(); openAuthSheet(authOpen.getAttribute('data-cs-open-auth') || 'loginPanel'); return; } var open=e.target.closest('[data-cs-open]'); if(open){ e.preventDefault(); openPanel(open.getAttribute('data-cs-open'), open); return; } if(e.target.closest('[data-cs-close]')){ e.preventDefault(); closePanel(); return; } if(e.target.closest('[data-cs-logout]')){ e.preventDefault(); logout(); return; } var rm=e.target.closest('[data-cs-cart-remove]'); if(rm){ removeItem(rm.getAttribute('data-cs-cart-remove')); return; } var qty=e.target.closest('[data-cs-cart-qty]'); if(qty){ changeQty(qty.getAttribute('data-slug'), Number(qty.getAttribute('data-cs-cart-qty'))); return; } var brand=e.target.closest('[data-cs-filter-brand]'); if(brand){ filterState.brand=brand.getAttribute('data-cs-filter-brand')||''; renderFilter(); return; } var stock=e.target.closest('[data-cs-filter-stock]'); if(stock){ filterState.stock=stock.getAttribute('data-cs-filter-stock')||''; renderFilter(); return; } if(e.target.closest('[data-cs-filter-clear]')){ filterState={brand:'',stock:'',query:''}; applyFilter(); renderFilter(); return; } if(e.target.closest('[data-cs-filter-apply]')){ applyFilter(); closePanel(); return; } if(e.target.closest('[data-add-cart]')){ setTimeout(function(){ updateBadge(); if(isMobile()) openPanel('cart'); },180); } }); document.addEventListener('submit', function(e){ var sf=e.target.closest('[data-cs-mobile-search]'); if(sf){ e.preventDefault(); var q=sf.querySelector('input[name="q"]').value.trim(); location.href='/search.html'+(q?'?q='+encodeURIComponent(q):''); } }); document.addEventListener('change', function(e){ if(e.target.matches('[data-cs-sort]')) sortCards(e.target.value); }); document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePanel(); }); ['cosmoskin:cart-updated','storage'].forEach(function(ev){ window.addEventListener(ev,function(){ updateBadge(); if(activePanel==='cart') renderCart(); }); document.addEventListener(ev,function(){ updateBadge(); if(activePanel==='cart') renderCart(); }); }); }
+  function bind(){ document.addEventListener('click', function(e){ var authOpen=e.target.closest('[data-cs-open-auth]'); if(authOpen){ e.preventDefault(); openAuthSheet(authOpen.getAttribute('data-cs-open-auth') || 'loginPanel'); return; } var open=e.target.closest('[data-cs-open]'); if(open){ e.preventDefault(); openPanel(open.getAttribute('data-cs-open'), open); return; } if(e.target.closest('[data-cs-close]')){ e.preventDefault(); closePanel(); return; } if(e.target.closest('[data-cs-logout]')){ e.preventDefault(); logout(); return; } var rm=e.target.closest('[data-cs-cart-remove]'); if(rm){ removeItem(rm.getAttribute('data-cs-cart-remove')); return; } var qty=e.target.closest('[data-cs-cart-qty]'); if(qty){ changeQty(qty.getAttribute('data-slug'), Number(qty.getAttribute('data-cs-cart-qty'))); return; } if(e.target.closest('[data-cs-cart-coupon-apply]')){ var input=$('#csMobileCartCoupon'); applyCartCoupon(input && input.value); return; } if(e.target.closest('[data-cs-cart-coupon-clear]')){ saveCouponState(null); renderCart(); return; } var brand=e.target.closest('[data-cs-filter-brand]'); if(brand){ filterState.brand=brand.getAttribute('data-cs-filter-brand')||''; renderFilter(); return; } var stock=e.target.closest('[data-cs-filter-stock]'); if(stock){ filterState.stock=stock.getAttribute('data-cs-filter-stock')||''; renderFilter(); return; } if(e.target.closest('[data-cs-filter-clear]')){ filterState={brand:'',stock:'',query:''}; applyFilter(); renderFilter(); return; } if(e.target.closest('[data-cs-filter-apply]')){ applyFilter(); closePanel(); return; } if(e.target.closest('[data-add-cart]')){ setTimeout(function(){ updateBadge(); if(isMobile()) openPanel('cart'); },180); } }); document.addEventListener('submit', function(e){ var sf=e.target.closest('[data-cs-mobile-search]'); if(sf){ e.preventDefault(); var q=sf.querySelector('input[name="q"]').value.trim(); location.href='/search.html'+(q?'?q='+encodeURIComponent(q):''); } }); document.addEventListener('change', function(e){ if(e.target.matches('[data-cs-sort]')) sortCards(e.target.value); }); document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePanel(); if(e.key==='Enter' && e.target && e.target.id==='csMobileCartCoupon'){ e.preventDefault(); applyCartCoupon(e.target.value); } }); ['cosmoskin:cart-updated','storage'].forEach(function(ev){ window.addEventListener(ev,function(){ updateBadge(); if(activePanel==='cart') renderCart(); }); document.addEventListener(ev,function(){ updateBadge(); if(activePanel==='cart') renderCart(); }); }); }
+  function initSpotlightStories(){
+    var root = document.querySelector('[data-cs-spotlight-stories]');
+    if(!root || root.dataset.csSpotBound === '1') return;
+    root.dataset.csSpotBound = '1';
+    var stories = Array.prototype.slice.call(root.querySelectorAll('[data-spot-story]'));
+    if(!stories.length) return;
+    var hint = document.querySelector('.cs-spotlight__scroll-hint');
+    var reduce = false;
+    try{ reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+    var io = null;
+    function setActive(el){
+      stories.forEach(function(s){
+        var on = s === el;
+        s.classList.toggle('is-active', on);
+        s.classList.toggle('is-visible', on);
+      });
+    }
+    function canSnapScroll(){
+      return root.scrollHeight > root.clientHeight + 8;
+    }
+    function nearest(){
+      var rootBox = root.getBoundingClientRect();
+      var mid = rootBox.top + rootBox.height * 0.4;
+      var best = stories[0], bestDist = Infinity;
+      stories.forEach(function(s){
+        var b = s.getBoundingClientRect();
+        var d = Math.abs((b.top + b.height * 0.3) - mid);
+        if(d < bestDist){ bestDist = d; best = s; }
+      });
+      return best;
+    }
+    function syncHint(){
+      if(!hint) return;
+      if(!canSnapScroll()){ hint.style.opacity = '0'; return; }
+      var atEnd = root.scrollTop + root.clientHeight >= root.scrollHeight - 14;
+      hint.style.opacity = atEnd ? '0' : '1';
+    }
+    function refreshMode(){
+      if(!canSnapScroll()){
+        stories.forEach(function(s){ s.classList.add('is-active','is-visible'); });
+        syncHint();
+        return;
+      }
+      setActive(nearest());
+      syncHint();
+    }
+    function onScroll(){
+      if(!canSnapScroll()) return;
+      setActive(nearest());
+      syncHint();
+    }
+    if('IntersectionObserver' in window){
+      io = new IntersectionObserver(function(entries){
+        if(!canSnapScroll()) return;
+        var top = null, topRatio = 0;
+        entries.forEach(function(entry){
+          if(entry.isIntersecting && entry.intersectionRatio >= topRatio){
+            topRatio = entry.intersectionRatio;
+            top = entry.target;
+          }
+        });
+        if(top) setActive(top);
+      },{ root: root, threshold: [0.35, 0.55, 0.75] });
+      stories.forEach(function(s){ io.observe(s); });
+    }
+    root.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', refreshMode, { passive: true });
+    if(hint) hint.style.transition = reduce ? 'none' : 'opacity .35s ease';
+    refreshMode();
+    requestAnimationFrame(refreshMode);
+  }
   function routeClasses(){ var r=route(); document.body.classList.add('cs-route-'+r); if(r==='listing'||r==='favorites') document.body.classList.add('cs-route-listing'); if(r==='pdp') document.body.classList.add('cs-route-pdp'); if(r==='account') document.body.classList.add('cs-route-account'); }
-  function init(){ window.__COSMOSKIN_MOBILE_V1_ACTIVE__ = true; normalizeCouponStorage(); normalizeRoutineLinks(); if(!isMobile()) return; document.body.classList.add('cs-mobile-v1-active'); ensurePageStage(); resolveTabEnterDirection(); routeClasses(); mobileAnnouncement(); header(); bottomNav(); sheets(); mobileFooter(); mobileFaq(); mobileSmartRoutine(); mobileContentPages(); playTabEnterAnimation(); plpToolbar(); passwordToggles(); accountTabs(); checkoutMobile(); enhanceAuthSheetHead(); updateBadge(); applyFilter(); bind(); bindTabNavigation(); rememberTabIndex(); document.addEventListener('cosmoskin:open-auth', enhanceAuthSheetHead); document.addEventListener('cosmoskin:open-auth-modal', enhanceAuthSheetHead); }
+  function init(){ window.__COSMOSKIN_MOBILE_V1_ACTIVE__ = true; normalizeCouponStorage(); normalizeRoutineLinks(); initSpotlightStories(); if(!isMobile()) return; document.body.classList.add('cs-mobile-v1-active'); ensurePageStage(); resolveTabEnterDirection(); routeClasses(); mobileAnnouncement(); header(); bottomNav(); sheets(); mobileFooter(); mobileFaq(); mobileSmartRoutine(); mobileContentPages(); playTabEnterAnimation(); maybeFavoritesHeartBurst(); plpToolbar(); passwordToggles(); accountTabs(); checkoutMobile(); enhanceAuthSheetHead(); updateBadge(); applyFilter(); bind(); bindTabNavigation(); rememberTabIndex(); document.addEventListener('cosmoskin:open-auth', enhanceAuthSheetHead); document.addEventListener('cosmoskin:open-auth-modal', enhanceAuthSheetHead); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.addEventListener('resize', function(){ if(isMobile() && !document.body.classList.contains('cs-mobile-v1-active')) init(); });
 })();

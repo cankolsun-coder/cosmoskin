@@ -4,11 +4,11 @@
   if (!document.querySelector('.category-directory')) return;
 
   var MEDIA = {
-    cleanse: { img: '/assets/img/cleanse.jpg', icon: '/assets/icons/cosmoskin/routine-step-cleanse.svg' },
-    hydrate: { img: '/assets/img/hydrate.jpg', icon: '/assets/icons/cosmoskin/routine-step-prep.svg' },
-    treat: { img: '/assets/img/treat.jpg', icon: '/assets/icons/cosmoskin/routine-step-serum.svg' },
+    cleanse: { img: '/assets/img/editorial/cosrx-low-ph-good-morning-gel-cleanser-campaign-card.webp', icon: '/assets/icons/cosmoskin/routine-step-cleanse.svg' },
+    hydrate: { img: '/assets/img/editorial/anua-heartleaf-77-soothing-toner-campaign-card.webp', icon: '/assets/icons/cosmoskin/routine-step-prep.svg' },
+    treat: { img: '/assets/img/editorial/beauty-of-joseon-glow-serum-campaign-card.webp', icon: '/assets/icons/cosmoskin/routine-step-serum.svg' },
     care: { img: '/assets/img/care.jpg', icon: '/assets/icons/cosmoskin/routine-step-moisturize.svg' },
-    protect: { img: '/assets/img/protect.jpg', icon: '/assets/icons/cosmoskin/routine-step-spf.svg' },
+    protect: { img: '/assets/img/editorial/round-lab-birch-juice-sunscreen-campaign-card.webp', icon: '/assets/icons/cosmoskin/routine-step-spf.svg' },
     masks: { img: '/assets/img/routine.jpg', icon: '/assets/icons/cosmoskin/routine-step-weekly.svg' },
     'kuru-cilt': { icon: '/assets/icons/cosmoskin/routine-goal-hydration.svg' },
     'yagli-cilt': { icon: '/assets/icons/cosmoskin/routine-goal-pore.svg' },

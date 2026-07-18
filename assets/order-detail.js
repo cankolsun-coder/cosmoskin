@@ -100,14 +100,53 @@
       return '<a class="cs-detail-item" href="' + escapeHtml(item.product_url) + '"><span class="cs-order-thumb">' + image + '</span><span><small>' + escapeHtml(item.brand) + '</small><strong>' + escapeHtml(item.product_name) + '</strong><em>Adet: ' + escapeHtml(item.quantity || 1) + ' · Birim: ' + escapeHtml(formatMoney(item.unit_price || 0)) + '</em></span><b>' + escapeHtml(formatMoney(item.line_total || 0)) + '</b></a>';
     }).join('') : '<p class="account-mini">Ürün detayı bulunamadı.</p>') + '</div>';
   }
+  function isCustomerVisibleEvent(event) {
+    if (!event) return false;
+    var key = String(event.status || event.event_type || '').toLowerCase().trim();
+    if (!key) return false;
+    var hidden = {
+      stock_reserved: 1,
+      stock_released: 1,
+      payment_authorized: 1,
+      payment_duplicate_ignored: 1,
+      order_processing_review_required: 1,
+      inventory_reconciliation_required: 1,
+      payment_callback_error: 1,
+      mark_payment_paid: 1,
+      mark_preparing: 1,
+      mark_packed: 1,
+      mark_shipped: 1,
+      mark_delivered: 1,
+      cancel_order: 1,
+      status_updated: 1,
+      updated: 1,
+      shipment_created: 1,
+      shipment_updated: 1
+    };
+    if (hidden[key]) return false;
+    if (String(event.source || '').toLowerCase() === 'inventory') return false;
+    return true;
+  }
   function renderTimeline(order) {
     var shipment = getPrimaryShipment(order);
     var events = Array.isArray(order.status_events) ? order.status_events.slice() : [];
+    events = events.filter(isCustomerVisibleEvent);
+    // Deduplicate consecutive same status labels
+    var deduped = [];
+    events.forEach(function (event) {
+      var label = statusLabels[event.status] || shipmentLabels[event.status] || '';
+      if (!label) return; // skip unlabeled/raw snake_case leftovers
+      var prev = deduped[deduped.length - 1];
+      if (prev && prev._label === label && String(prev.message || '') === String(event.message || '')) return;
+      event = Object.assign({}, event, { _label: label });
+      deduped.push(event);
+    });
+    events = deduped;
     if (!events.length) {
-      events = [{ status: 'received', message: 'Siparişiniz oluşturuldu.', created_at: order.created_at }, order.paid_at ? { status: 'paid', message: 'Ödeme onaylandı.', created_at: order.paid_at } : null, shipment.tracking_number ? { status: 'shipped', message: 'Kargo takip numarası oluşturuldu.', created_at: shipment.shipped_at || shipment.created_at } : null, order.delivered_at || shipment.delivered_at ? { status: 'delivered', message: 'Teslimat tamamlandı.', created_at: order.delivered_at || shipment.delivered_at } : null].filter(Boolean);
+      events = [{ status: 'received', _label: 'Sipariş Alındı', message: 'Siparişiniz oluşturuldu.', created_at: order.created_at }, order.paid_at ? { status: 'paid', _label: statusLabels.paid, message: 'Ödeme onaylandı.', created_at: order.paid_at } : null, shipment.tracking_number ? { status: 'shipped', _label: statusLabels.shipped, message: 'Kargo takip numarası oluşturuldu.', created_at: shipment.shipped_at || shipment.created_at } : null, order.delivered_at || shipment.delivered_at ? { status: 'delivered', _label: statusLabels.delivered, message: 'Teslimat tamamlandı.', created_at: order.delivered_at || shipment.delivered_at } : null].filter(Boolean);
     }
-    return '<div class="cs-detail-card-head"><span>Operasyon Geçmişi</span><h2>Durum Hareketleri</h2></div><div class="cs-timeline cs-timeline--detail">' + events.map(function (event) {
-      return '<div class="cs-timeline-item"><strong>' + escapeHtml(statusLabels[event.status] || shipmentLabels[event.status] || event.status || 'Durum') + '</strong><time>' + escapeHtml(formatDate(event.created_at, true)) + '</time>' + (event.message ? '<p>' + escapeHtml(event.message) + '</p>' : '') + '</div>';
+    return '<div class="cs-detail-card-head"><span>Sipariş Geçmişi</span><h2>Durum Hareketleri</h2></div><div class="cs-timeline cs-timeline--detail">' + events.map(function (event) {
+      return '<div class="cs-timeline-item"><strong>' + escapeHtml(event._label || statusLabels[event.status] || shipmentLabels[event.status] || 'Durum') + '</strong><time>' + escapeHtml(formatDate(event.created_at, true)) + '</time>' + (event.message ? '<p>' + escapeHtml(event.message) + '</p>' : '') + '</div>';
     }).join('') + '</div>';
   }
   function renderSummary(order) {

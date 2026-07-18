@@ -147,6 +147,10 @@
   <span>Seçilmiş K-Beauty</span>
 </div>
 </footer>
+<div class="backdrop" id="backdrop"></div>
+<aside class="drawer" id="cartDrawer"><div class="drawer-head"><div class="drawer-title">Sepet</div><button class="icon-close close-any">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-summary"><div class="sum-row"><span>Ürün Toplamı (KDV dahil)</span><strong id="cartSubtotal">₺0</strong></div><div class="sum-row"><span>Dahil olan KDV</span><strong id="cartVat">₺0</strong></div><div class="sum-row"><span>Kargo</span><strong id="cartShipping">₺0</strong></div><div class="sum-row total"><span>Ödenecek Toplam</span><strong id="cartTotal">₺0</strong></div><a class="btn btn-primary" href="/checkout.html">Ödemeye Geç</a></div></aside>
+<aside class="drawer" id="accountDrawer"><div class="drawer-head"><div class="drawer-title">Hesap</div><button class="icon-close close-any">×</button></div><div class="account-state" id="accountState"></div><div class="account-actions" id="accountActions"><button class="btn btn-primary" data-auth-tab="loginPanel" data-open-auth="">Giriş Yap</button><button class="btn btn-secondary" data-auth-tab="registerPanel" data-open-auth="">Kayıt Ol</button></div></aside>
+<div class="modal" id="accountModal"><div class="modal-card"><div class="modal-head"><div><h2>COSMOSKIN hesabı</h2><div class="account-mini">Sipariş, adres ve Club bilgilerin için giriş yap.</div></div><button class="icon-close close-any">×</button></div><div class="tab-row"><button class="tab-btn active" data-tab="loginPanel">Giriş Yap</button><button class="tab-btn" data-tab="registerPanel">Hesap Oluştur</button></div><div class="tab-panel active" id="loginPanel"><form class="form-grid compact" id="loginForm"><div class="field full"><label>E-posta</label><input id="loginEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="loginPassword" placeholder="Şifreniz" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="loginPassword" type="button">Göster</button></div></div><div class="field full form-inline"><label class="checkline"><input type="checkbox"/> Beni hatırla</label><a data-forgot-password="" href="/auth/reset.html">Şifremi unuttum</a></div><div class="field full"><button class="btn btn-primary" type="submit">Giriş Yap</button><div class="form-status" id="loginStatus"></div></div></form></div><div class="tab-panel" id="registerPanel"><form class="form-grid compact" id="registerForm"><div class="field"><label>Ad</label><input id="registerFirstName" required="" type="text"/></div><div class="field"><label>Soyad</label><input id="registerLastName" required="" type="text"/></div><div class="field full"><label>E-posta</label><input id="registerEmail" placeholder="ornek@eposta.com" required="" type="email"/></div><div class="field full"><label>Şifre</label><div class="password-wrap"><input id="registerPassword" minlength="8" placeholder="En az 8 karakter" required="" type="password"/><button aria-label="Şifreyi göster" class="password-toggle" data-toggle-password="registerPassword" type="button">Göster</button></div></div><div class="field full"><label class="checkline"><input name="membership_terms" required="" type="checkbox"/> <a href="/legal/uyelik-sozlesmesi.html" data-legal-document="uyelik-sozlesmesi" data-legal-version="legal-20260702">Üyelik Sözleşmesi</a>’ni okudum.</label></div><div class="field full"><button class="btn btn-primary" type="submit">Hesap Oluştur</button><div class="form-status" id="registerStatus"></div></div></form></div></div></div>
 <script src="/assets/products-data.js?v=20260718-inspect-full1"></script>
 <script src="/assets/skin-profile-store.js?v=20260516-profile-store"></script>
 <script src="/assets/routine-data-model.js?v=20260702-routine-sync"></script>
@@ -197,9 +201,12 @@
 })();
 </script>
 <script src="/api/public-config?v=20260627-auth-config"></script>
-<script src="/assets/site-config.js?v=20260418a"></script>
+<script src="/assets/site-config.js?v=20260719-auth2"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/assets/account-dashboard.js?v=20260718-club-mini1"></script>
+<script src="/assets/app.js?v=20260616-stockfix"></script>
+<script src="/assets/auth.js?v=20260627-auth-hotfix" type="module"></script>
+<script src="/assets/auth-ui-hotfix.js?v=20260717-auth-overlay-hoist"></script>
+<script src="/assets/account-dashboard.js?v=20260719-local-auth1"></script>
 <script src="/assets/mobile.js?v=20260425f"></script>
 <script defer="True" src="/assets/phase6-commerce.js?v=20260616-stockfix"></script><script defer="" src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>
 <script defer="" src="/assets/mobile-redesign.js?v=20260715-bestsellers-final"></script>
