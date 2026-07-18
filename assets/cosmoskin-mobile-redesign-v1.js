@@ -402,8 +402,8 @@
   }
   function applyFilter(){ var visible=0; productCards().forEach(function(card){ var b=(card.dataset.brand || ($('.brandline',card)||{}).textContent || '').trim(); var text=(card.textContent||'').toLowerCase(); var out=/stokta yok|tükendi|bildir/i.test(text); var show=(!filterState.brand || b===filterState.brand) && (!filterState.stock || !out); card.style.display=show?'':'none'; if(show) visible++; }); var count=$('[data-cs-product-count], .product-count, .cs-ap-count'); if(count) count.textContent=visible+' ürün'; }
   function sortCards(value){ var grid=$('.product-grid, .products-grid, .cs-ap-grid, .collection-grid'); if(!grid) return; var cards=productCards().filter(function(c){return c.parentNode===grid;}); cards.sort(function(a,b){ if(value==='price-asc') return cardPrice(a)-cardPrice(b); if(value==='price-desc') return cardPrice(b)-cardPrice(a); if(value==='name') return (a.textContent||'').localeCompare(b.textContent||'','tr'); return 0; }); cards.forEach(function(c){ grid.appendChild(c); }); }
-  function passwordToggles(){ $$('input[type="password"]').forEach(function(input){ if(input.dataset.csMobilePw) return; input.dataset.csMobilePw='1'; var wrap=document.createElement('span'); wrap.className='cs-password-wrap'; input.parentNode.insertBefore(wrap,input); wrap.appendChild(input); var btn=document.createElement('button'); btn.type='button'; btn.className='cs-password-toggle'; btn.textContent='Göster'; btn.setAttribute('aria-label','Şifreyi göster'); btn.addEventListener('click',function(){ var visible=input.type==='text'; input.type=visible?'password':'text'; btn.textContent=visible?'Göster':'Gizle'; btn.setAttribute('aria-label', visible?'Şifreyi göster':'Şifreyi gizle'); }); wrap.appendChild(btn); }); }
-  function accountTabs(){ if(route()!=='account') return; var params=new URLSearchParams(location.search); var tab=params.get('tab') || (location.pathname.indexOf('orders')>-1?'orders':'overview'); var link=$('[data-tab="'+tab+'"]'); var panel=$('[data-panel="'+tab+'"]'); if(link && panel){ $$('.cs-account-nav a').forEach(function(a){a.classList.toggle('is-active', a===link);}); $$('.cs-panel').forEach(function(p){ p.classList.toggle('is-active', p===panel); p.hidden = p!==panel; }); } $$('.cs-account-nav a[data-tab]').forEach(function(a){ a.addEventListener('click', function(e){ var t=a.getAttribute('data-tab'); var p=$('[data-panel="'+t+'"]'); if(!p) return; e.preventDefault(); history.replaceState(null,'','/account/profile.html?tab='+encodeURIComponent(t)); $$('.cs-account-nav a').forEach(function(x){x.classList.remove('is-active');}); a.classList.add('is-active'); $$('.cs-panel').forEach(function(x){x.classList.toggle('is-active',x===p); x.hidden=x!==p;}); }); }); }
+  function passwordToggles(){ $$('input[type="password"]').forEach(function(input){ if(input.dataset.csMobilePw) return; if(input.closest('.cs-security-pass')) { input.dataset.csMobilePw='1'; return; } input.dataset.csMobilePw='1'; var wrap=document.createElement('span'); wrap.className='cs-password-wrap'; input.parentNode.insertBefore(wrap,input); wrap.appendChild(input); var btn=document.createElement('button'); btn.type='button'; btn.className='cs-password-toggle'; btn.textContent='Göster'; btn.setAttribute('aria-label','Şifreyi göster'); btn.addEventListener('click',function(){ var visible=input.type==='text'; input.type=visible?'password':'text'; btn.textContent=visible?'Göster':'Gizle'; btn.setAttribute('aria-label', visible?'Şifreyi göster':'Şifreyi gizle'); }); wrap.appendChild(btn); }); }
+  function accountTabs(){ /* Tab switching owned by account-dashboard.js — avoid double handlers */ }
   function normalizeRoutineLinks(){ $$('a[href="/account/routines/"], a[href="/collections/routine.html"], a[href="/routine.html"], a[href="/rutinler.html"]').forEach(function(a){ a.setAttribute('href','/routine.html'); }); }
   function checkoutMobile(){ if(route()!=='checkout') return; document.body.classList.add('cs-checkout-mobile'); var page=$('#csCheckoutPage'); if(page && !$('.cs-mobile-v1-checkout-note')){ var note=document.createElement('div'); note.className='cs-mobile-v1-checkout-note'; note.style.cssText='margin:12px 0;padding:12px 14px;border-radius:18px;background:#fffaf4;border:1px solid rgba(42,32,22,.12);font-size:13px;color:#5d554e'; note.textContent='Mobil ödeme akışı: teslimat, ödeme, kupon ve sipariş özeti adım adım gösterilir.'; page.querySelector('.cs-checkout-topline') && page.querySelector('.cs-checkout-topline').appendChild(note); } }
   var AUTH_CLOSE_SVG = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6.75 6.75l10.5 10.5M17.25 6.75l-10.5 10.5" stroke="currentColor" stroke-width="1.55" stroke-linecap="round"/></svg>';
@@ -627,7 +627,16 @@
       var toIdx = tabHrefIndex(href);
       var fromIdx = tabPathIndex(location.pathname);
       if (toIdx < 0) return;
-      if (toIdx === fromIdx) { e.preventDefault(); return; }
+      if (toIdx === fromIdx) {
+        e.preventDefault();
+        closePanel(false);
+        try {
+          window.scrollTo({ top: 0, left: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
+        } catch (err) {
+          window.scrollTo(0, 0);
+        }
+        return;
+      }
       if (fromIdx < 0) return;
       e.preventDefault();
       e.stopPropagation();

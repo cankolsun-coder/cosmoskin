@@ -139,10 +139,16 @@
 }
 
 .product-card .price-row .btn,
-.cs-product-card__footer button,
-.bestseller-card__cta-row .bestseller-btn {
+.cs-product-card__footer button {
   flex: 0 0 auto;
   align-self: flex-end;
+}
+
+.bestseller-card__cta-row .bestseller-btn {
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Mini cart / drawer recommendation thumbs */

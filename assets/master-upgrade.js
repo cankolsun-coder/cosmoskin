@@ -323,6 +323,111 @@
       '<li class="cs-cart-trust__item" role="listitem">' + cartTrustIcon('shipping') + '<span>2.500 TL üzeri ücretsiz kargo</span></li>' +
     '</ul>';
   }
+  function readLastCheckoutOrder() {
+    try {
+      var raw = sessionStorage.getItem('cosmoskin_checkout_last_order_v1');
+      if (raw == null) raw = localStorage.getItem('cosmoskin_checkout_last_order_v1');
+      if (!raw) return null;
+      var order = JSON.parse(raw);
+      if (!order || !(order.orderNumber || order.order_number || order.orderId || order.order_id)) return null;
+      return order;
+    } catch (_) { return null; }
+  }
+  function cartOrderStatusLabel(order) {
+    var payment = String(order.paymentStatus || order.payment_status || '').toLowerCase();
+    var status = String(order.orderStatus || order.status || '').toLowerCase();
+    if (order.paymentMethod === 'bank_transfer' || payment === 'awaiting_transfer' || status === 'pending_bank_transfer') return 'Havale/EFT bekleniyor';
+    if (['paid', 'confirmed', 'preparing', 'packed', 'shipped', 'delivered'].indexOf(status) >= 0) return 'Sipariş alındı';
+    if (payment === 'paid') return 'Ödeme alındı';
+    return 'Sipariş kaydı';
+  }
+  function cartLastOrderSection() {
+    var order = readLastCheckoutOrder();
+    if (!order) {
+      return '<section class="cs-cart-last cs-cart-last--empty" aria-label="Son sipariş">' +
+        '<header class="cs-cart-last__head"><span>01</span><div><h3>Son sipariş</h3><p>Geçmiş siparişler hesabında görünür</p></div></header>' +
+        '<div class="cs-cart-last__empty-visual" aria-hidden="true">' +
+          '<span class="cs-cart-last__empty-mark"><svg viewBox="0 0 24 24"><path d="M7.5 8.2V7a4.5 4.5 0 0 1 9 0v1.2"/><path d="M5.5 8.2h13l-1.1 11.3H6.6L5.5 8.2Z"/></svg></span>' +
+          '<div class="cs-cart-last__empty-copy"><strong>Henüz sipariş kaydı yok</strong><p>Bu cihazda tamamlanmış bir checkout bulunamadı.</p></div>' +
+        '</div>' +
+        '<p class="cs-cart-last__lede">Siparişlerini hesap alanından görüntüleyebilir veya takip numarasıyla kontrol edebilirsin.</p>' +
+        '<div class="cs-cart-last__actions">' +
+          '<a class="cs-cart-last__btn cs-cart-last__btn--dark" href="/account/profile.html?tab=orders">Siparişlerim</a>' +
+          '<a class="cs-cart-last__btn" href="/order-tracking.html">Sipariş takip</a>' +
+        '</div>' +
+      '</section>';
+    }
+    var items = Array.isArray(order.items) ? order.items : (Array.isArray(order.order_items) ? order.order_items : []);
+    var first = items[0] || {};
+    var product = bySlug(first.slug || first.product_slug || first.id) || first;
+    var orderNo = order.orderNumber || order.order_number || order.orderId || order.order_id;
+    var total = order.totals && (order.totals.total != null ? order.totals.total : order.totals.grand_total);
+    if (total == null && items.length) {
+      total = items.reduce(function (sum, item) {
+        return sum + Number(item.line_total || item.lineTotal || ((item.price || 0) * (item.qty || item.quantity || 1)) || 0);
+      }, 0);
+    }
+    var qty = items.reduce(function (sum, item) { return sum + Number(item.qty || item.quantity || 1); }, 0) || items.length || 1;
+    var img = product.image || first.image || '/assets/logo-mark.png';
+    var name = product.name || first.name || 'Sipariş ürünü';
+    var brand = product.brand || first.brand || '';
+    var detailHref = order.orderId || order.order_id
+      ? '/account/order-detail.html?id=' + encodeURIComponent(order.orderId || order.order_id)
+      : '/account/profile.html?tab=orders';
+    return '<section class="cs-cart-last" aria-label="Son sipariş">' +
+      '<header class="cs-cart-last__head"><span>01</span><div><h3>Son sipariş</h3><p>Bu oturumdaki checkout kaydı</p></div></header>' +
+      '<article class="cs-cart-last__card">' +
+        '<a class="cs-cart-last__media" href="' + esc(detailHref) + '"><img src="' + esc(img) + '" alt="' + esc(brand + ' ' + name) + '" loading="lazy" decoding="async"></a>' +
+        '<div class="cs-cart-last__copy">' +
+          '<em class="cs-cart-last__status">' + esc(cartOrderStatusLabel(order)) + '</em>' +
+          '<strong>' + esc(orderNo) + '</strong>' +
+          '<p>' + esc(brand ? brand + ' · ' + name : name) + '</p>' +
+          '<small>' + qty + ' ürün' + (total != null ? ' · ' + esc(fmt(total)) : '') + '</small>' +
+        '</div>' +
+      '</article>' +
+      '<div class="cs-cart-last__actions">' +
+        '<a class="cs-cart-last__btn cs-cart-last__btn--dark" href="' + esc(detailHref) + '">Siparişi gör</a>' +
+        '<a class="cs-cart-last__btn" href="/order-tracking.html">Takip et</a>' +
+      '</div>' +
+    '</section>';
+  }
+  function cartEmptyDiscover() {
+    var picks = products().filter(function (p) { return !isOutOfStock(p.slug); }).slice(0, 4);
+    if (!picks.length) return '';
+    return '<section class="cs-cart-discover" aria-label="Keşfet">' +
+      '<header class="cs-cart-discover__head"><span>02</span><div><h3>Keşfetmeye başla</h3><p>Seçilmiş K-Beauty ürünleri</p></div></header>' +
+      '<div class="cs-cart-discover__rail">' + picks.map(function (p, i) {
+        return '<a class="cs-cart-discover__card" href="' + esc(p.url || '/products/' + p.slug + '.html') + '" style="--cs-cart-i:' + i + '">' +
+          '<span class="cs-cart-discover__media"><img src="' + esc(p.image || '/assets/logo-mark.png') + '" alt="' + esc((p.brand || '') + ' ' + (p.name || '')) + '" loading="lazy" decoding="async"></span>' +
+          '<span class="cs-cart-discover__brand">' + esc(p.brand || '') + '</span>' +
+          '<strong>' + esc(p.name || '') + '</strong>' +
+          '<em>' + esc(fmt(p.price || 0)) + '</em>' +
+        '</a>';
+      }).join('') + '</div>' +
+    '</section>';
+  }
+  function cartEmptyStudio() {
+    return '<section class="cs-cart-studio" aria-label="Boş sepet">' +
+      '<article class="cs-cart-studio__hero">' +
+        '<div class="cs-cart-studio__hero-top">' +
+          cartEmptyIcon() +
+          '<span class="cs-cart-studio__badge">0 ürün</span>' +
+        '</div>' +
+        '<span class="cs-cart-studio__kicker">Sepet durumu</span>' +
+        '<h2>Sepetin henüz boş</h2>' +
+        '<p>Nem, bariyer veya ışıltı hedeflerine göre seçilmiş ürünlerle sepetini oluştur. Kupon ve teslimat özeti ürün ekledikten sonra burada görünür.</p>' +
+        cartTrustRow() +
+        '<div class="cs-cart-studio__links">' +
+          '<a class="cs-cart-studio__chip" href="/collections/bestsellers.html">Çok Satanlar</a>' +
+          '<a class="cs-cart-studio__chip" href="/account/routines/">Akıllı Rutin</a>' +
+          '<a class="cs-cart-studio__chip" href="/categories.html">Kategoriler</a>' +
+        '</div>' +
+        '<a class="cs-btn cs-btn--dark cs-cart-empty__cta" href="/allproducts.html">Alışverişe Başla</a>' +
+      '</article>' +
+      cartLastOrderSection() +
+      cartEmptyDiscover() +
+    '</section>';
+  }
   function cartShippingNote(subtotal) {
     if (Number(subtotal || 0) >= 2500) return '<p class="cs-cart-shipping-note is-free">2.500 TL üzeri siparişlerde kargo ücretsiz.</p>';
     var remaining = Math.max(0, 2500 - Number(subtotal || 0));
@@ -346,9 +451,11 @@
       ? '<section class="cs-card cs-cart-recs" data-cs-cart-recs aria-label="Sepete uygun öneriler"><div class="cs-cart-recs__head"><div><p class="cs-kicker">ÖNERİLER</p><h2>Sepete uygun öneriler</h2></div></div><div class="cs-recs-grid cs-cart-recs__grid">' + recProducts.map(function (p) { return productCard(p, { shortButton: true }); }).join('') + '</div></section>'
       : '';
     var heroContinue = empty ? '' : '<a class="cs-btn cs-btn--light cs-cart-hero__continue" href="/allproducts.html">Alışverişe Devam Et</a>';
-    var heroCount = empty ? '' : '<span class="cs-cart-hero__count">' + itemCount + ' ürün</span>';
-    var hero = '<header class="cs-page__hero cs-cart-hero"><div class="cs-cart-hero__copy"><p class="cs-kicker">SEPET</p><h2>Sepetin</h2>' + heroCount + '<p>Ürünlerini, kuponunu ve teslimat özetini tek ekranda kontrol et.</p></div>' + heroContinue + '</header>';
-    var emptySection = '<section class="cs-empty cs-cart-empty" aria-label="Boş sepet durumu">' + cartEmptyIcon() + '<strong>Sepetin şu anda boş.</strong><p>Nem, bariyer veya ışıltı hedeflerine göre seçilmiş ürünleri keşfederek sepetini oluşturabilirsin.</p>' + cartTrustRow() + '<div class="cs-cart-empty__links"><a class="cs-cart-empty__link" href="/collections/bestsellers.html">Çok Satanlar</a><a class="cs-cart-empty__link" href="/routine.html">Akıllı Rutin</a><a class="cs-cart-empty__link" href="/categories.html">Kategoriler</a></div><a class="cs-btn cs-btn--dark cs-cart-empty__cta" href="/allproducts.html">Alışverişe Başla</a></section>';
+    var heroCount = empty ? '<span class="cs-cart-hero__count">Boş</span>' : '<span class="cs-cart-hero__count">' + itemCount + ' ürün</span>';
+    var hero = empty
+      ? '<header class="cs-page__hero cs-cart-hero cs-cart-hero--empty"><div class="cs-cart-hero__copy"><p class="cs-kicker">SEPET</p><h2>Sepetin</h2>' + heroCount + '</div></header>'
+      : '<header class="cs-page__hero cs-cart-hero"><div class="cs-cart-hero__copy"><p class="cs-kicker">SEPET</p><h2>Sepetin</h2>' + heroCount + '<p>Ürünlerini, kuponunu ve teslimat özetini tek ekranda kontrol et.</p></div>' + heroContinue + '</header>';
+    var emptySection = cartEmptyStudio();
     var filledSection = '<div class="cs-cart-layout"><section class="cs-card cs-cart-items" aria-label="Sepet ürünleri">' + items.map(function (item) {
       var slug = item.slug || item.id, p = bySlug(slug) || item, qty = Number(item.qty || item.quantity || 1), out = isOutOfStock(slug);
       return '<article class="cs-cart-row' + (out ? ' is-out-of-stock' : '') + '" data-cs-cart-row="' + esc(slug) + '"><a class="cs-cart-row__media" href="' + esc(p.url || item.url || '#') + '"><img src="' + esc(p.image || item.image) + '" alt="' + esc((p.brand || item.brand || '') + ' ' + (p.name || item.name || '')) + '"></a><div class="cs-cart-row__body"><a class="cs-cart-name" href="' + esc(p.url || item.url || '#') + '">' + esc(p.name || item.name) + '</a><span class="cs-cart-brand">' + esc(p.brand || item.brand || '') + '</span><div class="cs-cart-meta">' + stockBadge(slug) + '<div class="cs-stepper" aria-label="Adet"><button type="button" data-cs-qty="-1" data-slug="' + esc(slug) + '" aria-label="Adedi azalt">−</button><span>' + qty + '</span><button type="button" data-cs-qty="1" data-slug="' + esc(slug) + '" aria-label="Adedi artır">+</button></div><button class="cs-link-button" type="button" data-cs-remove="' + esc(slug) + '">Kaldır</button></div></div><div class="cs-cart-row__total cs-cart-row__total--price">' + priceHtml(p, { compact: true, multiplier: qty, showBadge: false }) + (out ? '<span class="cs-stock-badge is-out">Stokta Yok</span>' : '') + '</div></article>';
