@@ -7803,19 +7803,9 @@
     z-index: 6750 !important;
     background: rgba(18, 13, 8, .48) !important;
   }
-  body.cs-mobile-v1-active #accountModal.modal:not(.open):not(.show),
-  body.cs-mobile-v1-active #accountModal[hidden] {
-    display: none !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    opacity: 0 !important;
-  }
+  body.cs-mobile-v1-active #accountModal.modal,
   body.cs-mobile-v1-active #accountModal.modal.show,
   body.cs-mobile-v1-active #accountModal.modal.open {
-    display: grid !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
     z-index: 6800 !important;
     place-items: end center !important;
     align-items: end !important;
