@@ -86,6 +86,7 @@
     modal.classList.add('open', 'show');
     modal.removeAttribute('hidden');
     modal.setAttribute('aria-hidden', 'false');
+    try { modal.inert = false; } catch (e) {}
     modal.style.zIndex = isMobileV1() ? '6800' : '370';
     if (backdrop) backdrop.classList.add('show');
     document.body.classList.add('modal-open');
@@ -97,6 +98,25 @@
         catch (e) { input.focus(); }
       }
     }, 90);
+  }
+
+  function syncAuthModalGate() {
+    var modal = qs('#accountModal');
+    if (!modal) return;
+    var open = modal.classList.contains('open') || modal.classList.contains('show');
+    if (open) {
+      modal.removeAttribute('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+      try { modal.inert = false; } catch (e) {}
+      return;
+    }
+    modal.setAttribute('hidden', '');
+    modal.setAttribute('aria-hidden', 'true');
+    try { modal.inert = true; } catch (e) {}
+    var active = document.activeElement;
+    if (active && modal.contains(active)) {
+      try { active.blur(); } catch (e) {}
+    }
   }
 
 
@@ -192,8 +212,17 @@
     new MutationObserver(function () { bootPasswordToggles(); }).observe(document.documentElement, { childList: true, subtree: true });
   } catch (error) {}
 
+  syncAuthModalGate();
+  try {
+    var authModal = qs('#accountModal');
+    if (authModal) {
+      new MutationObserver(function () { syncAuthModalGate(); }).observe(authModal, { attributes: true, attributeFilter: ['class', 'hidden'] });
+    }
+  } catch (error) {}
+
   document.addEventListener('DOMContentLoaded', function () {
     bootPasswordToggles();
+    syncAuthModalGate();
     try {
       var params = new URLSearchParams(window.location.search);
       var mode = params.get('auth') || (params.get('login') === '1' ? 'login' : '');

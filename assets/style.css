@@ -1766,6 +1766,15 @@ button[disabled] { opacity: 0.72; cursor: wait; }
 
 .modal.show { opacity: 1; pointer-events: auto; }
 
+/* Keep closed auth form out of iOS Safari password autofill scanning */
+#accountModal.modal:not(.open):not(.show),
+#accountModal[hidden] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+
 .modal-card {
   width: min(640px, 100%);
   max-height: 90dvh;

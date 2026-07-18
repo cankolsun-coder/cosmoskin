@@ -427,6 +427,13 @@ function closeAccountModal() {
 
   modal?.classList.remove('open');
   modal?.classList.remove('show');
+  if (modal) {
+    modal.setAttribute('hidden', '');
+    modal.setAttribute('aria-hidden', 'true');
+    try { modal.inert = true; } catch (e) {}
+    const active = document.activeElement;
+    if (active && modal.contains(active)) active.blur();
+  }
   backdrop?.classList.remove('show');
   document.body.classList.remove('modal-open');
 }
@@ -453,6 +460,7 @@ function openAccountModal(tab = 'login') {
   modal.classList.add('show');
   modal.removeAttribute('hidden');
   modal.setAttribute('aria-hidden', 'false');
+  try { modal.inert = false; } catch (e) {}
   modal.style.zIndex = '370';
   backdrop?.classList.add('show');
   document.body.classList.add('modal-open');
