@@ -53,13 +53,8 @@ function normalizePreferences(input = {}, profile = {}, existing = {}) {
 }
 
 async function readPreferences(context, user) {
-  const [prefRows, profileRows] = await Promise.all([
-    selectRows(context, 'notification_preferences', { select: '*', user_id: `eq.${user.id}`, limit: '1' }).catch(() => []),
-    selectRows(context, 'profiles', {
-      select: 'marketing_email_opt_in,newsletter_opt_in,stock_alert_opt_in,routine_reminder_opt_in',
-      id: `eq.${user.id}`,
-      limit: '1'
-    }).catch(() => [])
+  const [prefRows] = await Promise.all([
+    selectRows(context, 'notification_preferences', { select: '*', user_id: `eq.${user.id}`, limit: '1' }).catch(() => [])
   ]);
   const prefs = prefRows?.[0];
   if (prefs) {
@@ -74,7 +69,8 @@ async function readPreferences(context, user) {
       sms_notifications: Boolean(prefs.sms_notifications)
     };
   }
-  return { ...DEFAULT_PREFERENCES, ...normalizePreferences({}, profileRows?.[0] || {}) };
+  // profiles.*_opt_in columns are not present on the live schema; defaults only.
+  return { ...DEFAULT_PREFERENCES };
 }
 
 export async function onRequestGet(context) {
@@ -108,21 +104,19 @@ export async function onRequestPatch(context) {
     const body = await context.request.json().catch(() => ({}));
 
     if (body.preferences || body.order_updates !== undefined || body.campaign_emails !== undefined || body.newsletter !== undefined) {
-      const [existingPrefs, profileRows] = await Promise.all([
-        readPreferences(context, auth.user),
-        selectRows(context, 'profiles', {
-          select: 'marketing_email_opt_in,newsletter_opt_in,stock_alert_opt_in,routine_reminder_opt_in,sms_notifications',
-          id: `eq.${auth.user.id}`,
-          limit: '1'
-        }).catch(() => [])
-      ]);
-      const preferences = normalizePreferences(body, profileRows?.[0] || {}, existingPrefs);
+      const existingPrefs = await readPreferences(context, auth.user);
+      const preferences = normalizePreferences(body, {}, existingPrefs);
+      // Always keep transactional order/cargo alerts on.
+      preferences.order_updates = true;
+      preferences.cargo_updates = true;
       const now = new Date().toISOString();
       let saved = null;
       try {
+        // Live table PK is user_id. Do NOT send `email`/`id` — those columns are
+        // not present on the production notification_preferences schema and cause
+        // PostgREST "column not found in schema cache" failures on save.
         saved = await upsertRow(context, 'notification_preferences', {
           user_id: auth.user.id,
-          email: auth.user.email || null,
           ...preferences,
           updated_at: now
         }, 'user_id');

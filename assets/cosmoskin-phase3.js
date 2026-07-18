@@ -66,8 +66,6 @@
       .cs-phase3-compliance-grid article{padding:16px;border:1px solid rgba(35,27,20,.08);border-radius:18px;background:rgba(255,255,255,.58)}\
       .cs-phase3-compliance-grid strong{display:block;margin-bottom:7px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6d6054}\
       .cs-phase3-compliance-grid span{display:block;color:#1f1711;font-size:13px;line-height:1.6;white-space:pre-line}\
-      .cs-stock-filter-inline{display:flex;align-items:center;gap:8px;margin:12px 0;padding:10px 12px;border:1px solid rgba(35,27,20,.1);border-radius:999px;background:rgba(255,255,255,.62);width:max-content;max-width:100%;font-size:12px;font-weight:700;color:#51463d}\
-      .cs-stock-filter-inline input{width:16px;height:16px;accent-color:#17120f}\
       @media(max-width:720px){.cs-phase3-compliance-grid{grid-template-columns:1fr}.cs-phase3-compliance{padding:18px;border-radius:22px}}';
     document.head.appendChild(style);
   }
@@ -97,21 +95,5 @@
       var sc=document.createElement('script');sc.type='application/ld+json';sc.dataset.cosmoskinDynamicProductSchema='true';sc.textContent=JSON.stringify(schema);document.head.appendChild(sc);
     }).catch(function(){});
   }
-  function addStockFilter(){
-    if(!/allproducts\.html|search\.html|\/collections\//.test(location.pathname))return;
-    if(qs('#csStockFilterInline'))return;
-    addCss();
-    var anchor=qs('.filter-row,.filters,.collection-controls,.search-tools,.section-head')||qs('main'); if(!anchor)return;
-    var label=document.createElement('label');label.id='csStockFilterInline';label.className='cs-stock-filter-inline';label.innerHTML=''; label.hidden=true;
-    anchor.parentNode.insertBefore(label, anchor.nextSibling);
-    var input=qs('input',label);
-    input.addEventListener('change',function(){
-      var cards=qsa('[data-product-id], .product-card, .pdp-related-card');
-      cards.forEach(function(card){
-        var btn=qs('[data-add-cart]',card); var unavailable=btn&&btn.disabled || /stokta yok/i.test(card.textContent||'');
-        card.style.display=(input.checked&&unavailable)?'none':'';
-      });
-    });
-  }
-  document.addEventListener('DOMContentLoaded',function(){trackProductView();bindCommerceEvents();loadCompliance();injectDynamicProductSchema();addStockFilter();});
+  document.addEventListener('DOMContentLoaded',function(){trackProductView();bindCommerceEvents();loadCompliance();injectDynamicProductSchema();});
 })();

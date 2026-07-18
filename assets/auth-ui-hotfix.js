@@ -40,7 +40,16 @@
     if (!keepBackdrop && backdrop) backdrop.classList.remove('show');
   }
 
+  function isMobileV1() {
+    return document.body && document.body.classList.contains('cs-mobile-v1-active');
+  }
+
   function openAccountDrawer() {
+    // Mobile v1 already has bottom-nav account + auth sheet; skip legacy teaser drawer.
+    if (isMobileV1()) {
+      openAuth('loginPanel');
+      return;
+    }
     var drawer = qs('#accountDrawer');
     var backdrop = qs('#backdrop');
     if (!drawer) return;
@@ -48,6 +57,16 @@
     drawer.setAttribute('aria-hidden', 'false');
     if (backdrop) backdrop.classList.add('show');
     document.body.classList.add('modal-open');
+  }
+
+  function closeCartDrawer(keepBackdrop) {
+    var drawer = qs('#cartDrawer');
+    var backdrop = qs('#backdrop');
+    if (drawer) {
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+    }
+    if (!keepBackdrop && backdrop) backdrop.classList.remove('show');
   }
 
   function openAuth(tab) {
@@ -58,18 +77,25 @@
       window.location.href = '/index.html?auth=' + (panelId === 'registerPanel' ? 'register' : 'login') + '&next=' + next;
       return;
     }
+    // Never open auth under/alongside cart; keep viewport scroll position.
+    closeCartDrawer(true);
     closeAccountDrawer(true);
+    if (modal.parentElement !== document.body) document.body.appendChild(modal);
+    var backdrop = qs('#backdrop');
+    if (backdrop && backdrop.parentElement !== document.body) document.body.appendChild(backdrop);
     modal.classList.add('open', 'show');
     modal.removeAttribute('hidden');
     modal.setAttribute('aria-hidden', 'false');
-    modal.style.zIndex = '370';
-    var backdrop = qs('#backdrop');
+    modal.style.zIndex = isMobileV1() ? '6800' : '370';
     if (backdrop) backdrop.classList.add('show');
     document.body.classList.add('modal-open');
     switchPanel(panelId);
     window.setTimeout(function () {
       var input = qs('#' + panelId + ' input', modal);
-      if (input) input.focus();
+      if (input) {
+        try { input.focus({ preventScroll: true }); }
+        catch (e) { input.focus(); }
+      }
     }, 90);
   }
 

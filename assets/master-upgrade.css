@@ -25,7 +25,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* Announcement bar: one premium rhythm on desktop and mobile. */
 .announcement,.announcement-bar,.top-announcement,.site-announcement,.marquee,.cm-announcement,.announce-bar{background:#0f0d0b;color:#fff;min-height:32px;display:flex;align-items:center;overflow:hidden;}
-.announcement__track,.announcement-track,.marquee__track,.cm-announcement__track{animation-duration:22s!important;animation-timing-function:linear!important;}
+.announcement__track,.announcement-track,.marquee__track,.cm-announcement__track{animation-duration:20s!important;animation-timing-function:linear!important;}
 @media (max-width: 767px){.announcement,.announcement-bar,.top-announcement,.site-announcement,.marquee,.cm-announcement,.announce-bar{min-height:30px;font-size:11px;letter-spacing:.08em}.cm-announcement span{white-space:nowrap}}
 @media (prefers-reduced-motion: reduce){.announcement__track,.announcement-track,.marquee__track,.cm-announcement__track,.home-hero__shine-word:after,.shine-word:after{animation:none!important;transition:none!important}}
 
@@ -123,6 +123,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .cs-empty{display:grid;place-items:center;text-align:center;padding:54px 24px;border-radius:30px;background:rgba(255,255,255,.56);border:1px dashed rgba(35,27,20,.18);}
 .cs-empty strong{font-family:var(--cs-serif);font-weight:400;font-size:34px;letter-spacing:-.035em;}
 .cs-empty p{max-width:480px;color:var(--cs-muted);line-height:1.65;}
+.cs-cart-hero__count{display:inline-flex;align-items:center;margin:10px 0 0;padding:4px 10px;border-radius:999px;background:rgba(24,18,15,.06);color:#6f6258;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.cs-cart-empty__icon{display:grid;place-items:center;width:72px;height:72px;margin-bottom:18px;border-radius:22px;background:linear-gradient(145deg,#fffaf4,#efe4d6);border:1px solid rgba(35,27,20,.10);color:#765433;}
+.cs-cart-empty__icon svg{width:34px;height:34px;stroke:currentColor;fill:none;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round;}
+.cs-cart-trust{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none;width:100%;}
+.cs-cart-trust__item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.54);border:1px solid rgba(35,27,20,.08);color:#6f6258;font-size:12px;line-height:1.4;}
+.cs-cart-trust__icon{display:grid;place-items:center;width:32px;height:32px;flex:0 0 32px;border-radius:10px;background:#f5ece1;color:#765433;}
+.cs-cart-trust__icon svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round;}
+.cs-cart-empty__links{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:16px 0;}
+.cs-cart-empty__link{padding:8px 12px;border-radius:999px;border:1px solid rgba(35,27,20,.10);background:rgba(255,255,255,.62);color:#18120f;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;}
+.cs-cart-shipping-progress{display:grid;gap:8px;margin:0 0 14px;padding:12px;border-radius:18px;background:#f7efe7;border:1px solid rgba(35,27,20,.08);}
+.cs-cart-shipping-progress__bar{height:5px;border-radius:999px;background:rgba(35,27,20,.08);overflow:hidden;}
+.cs-cart-shipping-progress__bar span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#b58a4a,#d4b485);}
+.cs-cart-shipping-progress__text,.cs-cart-shipping-note{margin:0;color:#74685d;font-size:12px;line-height:1.45;}
+.cs-cart-shipping-note.is-free{padding:10px 12px;border-radius:16px;background:rgba(181,138,74,.10);border:1px solid rgba(181,138,74,.18);color:#5f4a2c;font-weight:600;}
+.cs-cart-checkout__btn{width:100%;margin-top:14px;}
+.cs-cart-row__media{display:block;}
+.cs-cart-row__body{min-width:0;}
+.cs-cart-recs__head{margin-bottom:16px;}
 .cs-brand-nav{display:flex;gap:10px;overflow:auto;padding:4px 2px 18px;margin-bottom:18px;scrollbar-width:none;}
 .cs-brand-nav a{flex:0 0 auto;padding:10px 14px;border:1px solid rgba(35,27,20,.10);border-radius:999px;background:rgba(255,255,255,.62);color:#18120f;text-decoration:none;font-size:12px;font-weight:800;}
 .cs-brand-section{margin:18px 0;scroll-margin-top:120px;}
@@ -183,7 +201,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 
 /* COSMOSKIN targeted polish 20260516 — routine route, header/search/cart/product fixes */
-.marquee{animation-duration:22s!important;}
+.marquee{animation-duration:20s!important;}
 .header .categories-wrap > .mega{left:0!important;right:auto!important;transform:translateX(var(--mega-nudge-x,0px)) translateY(14px)!important;transition:opacity 360ms ease, transform 440ms cubic-bezier(.22,1,.36,1)!important;}
 .header .categories-wrap:hover > .mega,.header .categories-wrap:focus-within > .mega,.header .categories-wrap.open > .mega{transform:translateX(var(--mega-nudge-x,0px)) translateY(0)!important;}
 .header .brands-wrap > .mega{transition:opacity 360ms ease, transform 440ms cubic-bezier(.22,1,.36,1)!important;}
@@ -467,4 +485,343 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .cm-header-brandlock .cm-brand-logo{width:30px!important;height:30px!important;flex-basis:30px!important;}
   .header .brand .brand-word,
   .cm-header-brandlock .cm-wordmark{font-size:20px!important;letter-spacing:.22em!important;}
+}
+
+/* Collection / category landing heroes — match Kategoriler premium type */
+@media (max-width: 768px) {
+  .page-hero h1,
+  .collection-landing-hero h1 {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-weight: 600 !important;
+    font-size: clamp(2rem, 8.4vw, 2.65rem) !important;
+    line-height: 1 !important;
+    letter-spacing: -.02em !important;
+    color: #17110c !important;
+    margin: 2px 0 8px !important;
+  }
+  .page-hero .kicker,
+  .collection-landing-hero .kicker {
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: .24em !important;
+    text-transform: uppercase;
+    color: #a07f52 !important;
+    margin-bottom: 8px !important;
+  }
+  .page-hero p:not(.kicker):not(.collection-result-count),
+  .collection-landing-hero p:not(.kicker):not(.collection-result-count) {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    color: #6f645a !important;
+  }
+}
+
+/* Brand directory — logo-first, product-free discovery. */
+#csBrandsApp .cs-brands-directory{
+  background:
+    radial-gradient(circle at 8% 5%,rgba(255,255,255,.92),transparent 28%),
+    linear-gradient(180deg,#f8f2ea 0%,#eee4d8 58%,#f8f3ec 100%);
+}
+#csBrandsApp .cs-brands-directory .cs-page__inner{
+  width:min(1180px,calc(100% - 40px));
+}
+#csBrandsApp .cs-brands-hero{
+  position:relative;
+  align-items:center;
+  margin-bottom:52px;
+  padding:44px 46px;
+  overflow:hidden;
+  border:1px solid rgba(26,21,16,.08);
+  border-radius:36px;
+  background:
+    radial-gradient(circle at 92% 12%,rgba(255,255,255,.98),transparent 34%),
+    linear-gradient(135deg,#fffdf9 0%,#eee2d4 100%);
+  box-shadow:0 24px 70px rgba(42,30,19,.085);
+}
+#csBrandsApp .cs-brands-hero:after{
+  content:"";
+  position:absolute;
+  right:-92px;
+  top:-120px;
+  width:330px;
+  height:330px;
+  border:1px solid rgba(181,138,74,.12);
+  border-radius:50%;
+  pointer-events:none;
+}
+#csBrandsApp .cs-brands-hero>div{
+  position:relative;
+  z-index:1;
+  max-width:700px;
+}
+#csBrandsApp .cs-brands-hero h2{
+  max-width:11ch;
+  margin:0;
+  color:#18130f;
+  font:400 clamp(48px,6vw,72px)/.92 var(--cs-serif);
+  letter-spacing:-.05em;
+}
+#csBrandsApp .cs-brands-hero p:not(.cs-kicker){
+  max-width:580px;
+  margin:20px 0 0;
+  color:#675d54;
+  font-size:14px;
+  line-height:1.75;
+}
+#csBrandsApp .cs-brands-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:24px;
+}
+#csBrandsApp .cs-brands-meta span{
+  display:inline-flex;
+  min-height:34px;
+  align-items:center;
+  padding:0 12px;
+  border:1px solid rgba(26,21,16,.085);
+  border-radius:999px;
+  background:rgba(255,253,249,.55);
+  color:#665c53;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.04em;
+}
+#csBrandsApp .cs-brands-hero .cs-btn{
+  position:relative;
+  z-index:1;
+  min-width:190px;
+}
+#csBrandsApp .cs-brands-hero .cs-btn svg{
+  width:17px;
+  height:17px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+#csBrandsApp .cs-brand-directory-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:28px;
+  margin:0 0 22px;
+  padding:0 2px 18px;
+  border-bottom:1px solid rgba(26,21,16,.1);
+}
+#csBrandsApp .cs-brand-directory-head .cs-kicker{margin-bottom:7px}
+#csBrandsApp .cs-brand-directory-head h2{
+  margin:0;
+  color:#1a1510;
+  font:400 38px/1 var(--cs-serif);
+  letter-spacing:-.04em;
+}
+#csBrandsApp .cs-brand-directory-head>p{
+  max-width:380px;
+  margin:0;
+  color:#74695f;
+  font-size:12px;
+  line-height:1.6;
+  text-align:right;
+}
+#csBrandsApp .cs-brand-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:16px;
+}
+#csBrandsApp .cs-brand-tile{
+  position:relative;
+  display:grid;
+  place-items:center;
+  aspect-ratio:1/1;
+  min-width:0;
+  overflow:hidden;
+  border:1px solid rgba(26,21,16,.085);
+  border-radius:28px;
+  background:
+    radial-gradient(circle at 50% 35%,#fff 0%,rgba(255,255,255,.58) 38%,transparent 66%),
+    linear-gradient(145deg,#fffdf9,#eee5da);
+  box-shadow:0 14px 38px rgba(42,30,19,.055);
+  color:#211a15;
+  text-decoration:none;
+  transform:translateZ(0);
+  transition:transform .28s cubic-bezier(.2,.75,.2,1),border-color .22s ease,box-shadow .28s ease;
+  animation:csBrandTileIn .45s cubic-bezier(.2,.75,.2,1) both;
+}
+#csBrandsApp .cs-brand-tile:nth-child(4n+2){animation-delay:.04s}
+#csBrandsApp .cs-brand-tile:nth-child(4n+3){animation-delay:.08s}
+#csBrandsApp .cs-brand-tile:nth-child(4n+4){animation-delay:.12s}
+#csBrandsApp .cs-brand-tile:before{
+  content:"";
+  position:absolute;
+  inset:11px;
+  border:1px solid rgba(255,255,255,.7);
+  border-radius:21px;
+  pointer-events:none;
+}
+#csBrandsApp .cs-brand-tile__index{
+  position:absolute;
+  left:18px;
+  top:17px;
+  color:#9b8e82;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.14em;
+}
+#csBrandsApp .cs-brand-tile__logo{
+  width:72%;
+  height:42%;
+  display:grid;
+  place-items:center;
+}
+#csBrandsApp .cs-brand-tile__logo img{
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:190px;
+  max-height:70px;
+  object-fit:contain;
+  filter:none;
+}
+#csBrandsApp .cs-brand-tile__arrow{
+  position:absolute;
+  right:15px;
+  bottom:15px;
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(26,21,16,.1);
+  border-radius:50%;
+  background:rgba(255,253,249,.72);
+  transition:background-color .2s ease,color .2s ease;
+}
+#csBrandsApp .cs-brand-tile__arrow svg{
+  width:15px;
+  height:15px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+@media(hover:hover) and (pointer:fine){
+  #csBrandsApp .cs-brand-tile:hover{
+    transform:translateY(-4px);
+    border-color:rgba(159,122,72,.28);
+    box-shadow:0 24px 58px rgba(42,30,19,.11);
+  }
+  #csBrandsApp .cs-brand-tile:hover .cs-brand-tile__arrow{
+    background:#211a15;
+    color:#fffdf9;
+  }
+}
+@keyframes csBrandTileIn{
+  from{opacity:0;transform:translate3d(0,10px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@media(max-width:900px){
+  #csBrandsApp .cs-brand-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:767px){
+  #csBrandsApp .cs-brands-directory .cs-page__inner{
+    width:calc(100% - 32px)!important;
+    padding:24px 0 116px!important;
+  }
+  #csBrandsApp .cs-brands-hero{
+    display:block!important;
+    margin:0 0 36px!important;
+    padding:28px 22px 22px!important;
+    border-radius:28px!important;
+    box-shadow:0 16px 42px rgba(42,30,19,.065);
+  }
+  #csBrandsApp .cs-brands-hero:after{
+    right:-76px;
+    top:-92px;
+    width:220px;
+    height:220px;
+  }
+  #csBrandsApp .cs-brands-hero .cs-kicker{
+    margin-bottom:11px;
+    color:#967143;
+    font-size:9px;
+    letter-spacing:.2em;
+  }
+  #csBrandsApp .cs-brands-hero h2{
+    max-width:10ch;
+    font-size:40px;
+    line-height:.94;
+  }
+  #csBrandsApp .cs-brands-hero p:not(.cs-kicker){
+    margin-top:15px;
+    font-size:12px;
+    line-height:1.7;
+  }
+  #csBrandsApp .cs-brands-meta{
+    gap:6px;
+    margin-top:18px;
+  }
+  #csBrandsApp .cs-brands-meta span{
+    min-height:30px;
+    padding:0 10px;
+    font-size:8.5px;
+  }
+  #csBrandsApp .cs-brands-hero .cs-btn{
+    width:100%;
+    min-height:48px;
+    margin-top:22px;
+    border-radius:999px;
+    font-size:10px;
+  }
+  #csBrandsApp .cs-brand-directory-head{
+    display:block;
+    margin-bottom:16px;
+    padding:0 1px 15px;
+  }
+  #csBrandsApp .cs-brand-directory-head h2{
+    font-size:32px;
+  }
+  #csBrandsApp .cs-brand-directory-head>p{
+    max-width:290px;
+    margin-top:9px;
+    font-size:10.5px;
+    line-height:1.55;
+    text-align:left;
+  }
+  #csBrandsApp .cs-brand-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+  }
+  #csBrandsApp .cs-brand-tile{
+    border-radius:23px;
+    box-shadow:0 10px 26px rgba(42,30,19,.05);
+  }
+  #csBrandsApp .cs-brand-tile:before{
+    inset:8px;
+    border-radius:17px;
+  }
+  #csBrandsApp .cs-brand-tile__index{
+    left:14px;
+    top:13px;
+    font-size:8px;
+  }
+  #csBrandsApp .cs-brand-tile__logo{
+    width:72%;
+    height:38%;
+  }
+  #csBrandsApp .cs-brand-tile__logo img{
+    max-height:52px;
+  }
+  #csBrandsApp .cs-brand-tile__arrow{
+    right:12px;
+    bottom:12px;
+    width:32px;
+    height:32px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #csBrandsApp .cs-brand-tile{animation:none;transition:none}
+  #csBrandsApp .cs-brand-tile__arrow{transition:none}
 }

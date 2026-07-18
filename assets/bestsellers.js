@@ -208,6 +208,10 @@
     return `<a class="bestseller-rating" data-rating-slug="${slug}" href="${esc(product.url)}#reviewsSection" aria-label="${esc(rating.avg.toFixed(1))} puan, ${esc(formatReviewCount(rating.count))}">${ratingInnerHtml(rating)}</a>`;
   }
 
+  function isMobileBestsellers() {
+    return window.matchMedia ? window.matchMedia('(max-width: 767px)').matches : window.innerWidth <= 767;
+  }
+
   function productCard(slug, tabKey, index) {
     const product = getProduct(slug);
     if (!product) return '';
@@ -232,7 +236,10 @@
           </div>
         </div>
         <div class="bestseller-card__cta-row">
+          <p class="bestseller-stock-note bestseller-stock-note--checking">Stok bilgisi güncelleniyor</p>
+          <p class="bestseller-stock-note bestseller-stock-note--out">Stokta yok</p>
           <button class="bestseller-btn bestseller-btn--full" type="button" data-add-cart="" data-id="${esc(product.id || product.slug)}" data-slug="${esc(product.slug)}" data-name="${esc(product.name)}" data-brand="${esc(product.brand)}" data-price="${esc(product.price)}" data-image="${esc(product.image)}" data-url="${esc(product.url)}">${bagIcon}<span>Sepete Ekle</span></button>
+          <a class="bestseller-btn bestseller-btn--inspect" href="${esc(product.url)}">Ürünü İncele</a>
         </div>
       </div>
     </article>`;
@@ -306,15 +313,21 @@
           </div>
           <div class="bestseller-actions">
             <button class="bestseller-btn" type="button" data-add-cart="" data-id="${esc(featured.id || featured.slug)}" data-slug="${esc(featured.slug)}" data-name="${esc(featured.name)}" data-brand="${esc(featured.brand)}" data-price="${esc(featured.price)}" data-image="${esc(featured.image)}" data-url="${esc(featured.url)}">${bagIcon}<span>Sepete Ekle</span></button>
-            <a class="bestseller-btn bestseller-btn--secondary" href="${esc(featured.url)}">Ürünü İncele</a>
+            <a class="bestseller-btn bestseller-btn--secondary" href="${esc(featured.url)}">${isMobileBestsellers() ? 'İncele' : 'Ürünü İncele'}</a>
           </div>
         </div>
       </div>`;
-      gridNode.innerHTML = tab.products.map((productSlug, index) => productCard(productSlug, currentTab, index)).join('');
+      const gridSlugs = isMobileBestsellers()
+        ? tab.products.filter((slug) => slug !== tab.featuredProduct).slice(0, 4)
+        : tab.products;
+      gridNode.innerHTML = gridSlugs.map((productSlug, index) => productCard(productSlug, currentTab, index)).join('');
       if (typeof window.initCartButtons === 'function') window.initCartButtons(section);
       if (typeof window.initFavoriteButtons === 'function') window.initFavoriteButtons(section);
       hydrateReviewSummaries(section);
       document.dispatchEvent(new CustomEvent('cosmoskin:bestsellers-rendered', { detail: { tab: currentTab } }));
+      if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.loadInventory === 'function') {
+        window.COSMOSKIN_STOCK.loadInventory([featured.slug, ...gridSlugs].filter(Boolean));
+      }
       window.setTimeout(() => shell && shell.classList.remove('is-switching'), 40);
     }, 120);
   }
@@ -327,6 +340,15 @@
     document.addEventListener('cosmoskin:products-updated', () => {
       render(currentTab);
     });
+    if (window.matchMedia) {
+      const mobileQuery = window.matchMedia('(max-width: 767px)');
+      const onBreakpointChange = () => render(currentTab);
+      if (typeof mobileQuery.addEventListener === 'function') {
+        mobileQuery.addEventListener('change', onBreakpointChange);
+      } else if (typeof mobileQuery.addListener === 'function') {
+        mobileQuery.addListener(onBreakpointChange);
+      }
+    }
   }
 
   const ready = window.COSMOSKIN_PRODUCTS_READY || Promise.resolve(window.COSMOSKIN_PRODUCTS || []);

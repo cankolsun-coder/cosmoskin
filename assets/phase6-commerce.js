@@ -361,7 +361,7 @@
 
   function miniCard(p) {
     if (!p) return '';
-    return '<a class="phase6-mini-product" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '"><span><strong>' + escapeHtml(p.name) + '</strong><span>' + escapeHtml(p.brand) + ' · ' + priceDisplayHtml(p, { compact: true, showBadge: false }) + '</span></span></a>';
+    return '<a class="phase6-mini-product" href="' + escapeHtml(p.url) + '" aria-label="' + escapeHtml(p.brand + ' ' + p.name) + ' ürününü yeniden incele"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.brand + ' ' + p.name) + '" loading="lazy"><span class="phase6-mini-product__copy"><span class="phase6-mini-product__brand">' + escapeHtml(p.brand) + '</span><strong>' + escapeHtml(p.name) + '</strong><span class="phase6-mini-product__price">' + priceDisplayHtml(p, { compact: true, showBadge: false }) + '</span></span></a>';
   }
 
   function compareList() { return read(COMPARE_KEY).map(bySlug).filter(Boolean).slice(0, 4); }
@@ -441,7 +441,7 @@
     var sec = document.createElement('section');
     sec.className = 'section phase6-section';
     sec.id = 'phase6RecentViewed';
-    sec.innerHTML = '<div class="container"><div class="phase6-section-head"><div><p class="kicker">Son gezilenler</p><h2>İlgilendiğin ürünlere hızlı dön.</h2></div></div><div class="phase6-recent-grid">' + items.map(miniCard).join('') + '</div></div>';
+    sec.innerHTML = '<div class="container"><div class="phase6-section-head"><div><p class="kicker">Son gezilenler</p><h2>İlgilendiğin ürünlere hızlı dön.</h2><p class="phase6-recent-note">Yakın zamanda incelediğin seçkilere kaldığın yerden devam et.</p></div></div><div class="phase6-recent-grid" role="region" aria-label="Son gezilen ürünler" tabindex="0">' + items.map(miniCard).join('') + '</div></div>';
     anchor.insertAdjacentElement('afterend', sec);
   }
 
@@ -482,7 +482,8 @@
     }).map(function (x) { return x.p; }).slice(0, 4);
     if (!list.length) return;
     grid.innerHTML = list.map(function (p) {
-      return '<article class="product-card cs-product-card pdp-related-card" data-product-id="' + escapeHtml(p.slug) + '"><a class="product-media" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '" loading="lazy"></a><div class="product-body"><span class="badge">' + escapeHtml(p.brand) + '</span><h3><a href="' + escapeHtml(p.url) + '">' + escapeHtml(p.name) + '</a></h3><p>' + escapeHtml(p.category || 'Rutini tamamlayan bakım adımı') + '</p><div class="price-row"><span class="price">' + priceDisplayHtml(p, { compact: true }) + '</span><button class="btn btn-primary" data-add-cart data-id="' + escapeHtml(p.slug) + '" data-slug="' + escapeHtml(p.slug) + '" data-name="' + escapeHtml(p.name) + '" data-brand="' + escapeHtml(p.brand) + '" data-price="' + escapeHtml(p.price) + '" data-image="' + escapeHtml(p.image) + '" data-url="' + escapeHtml(p.url) + '">Sepete Ekle</button></div></div></article>';
+      var heart = '<button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="' + escapeHtml(p.slug) + '" data-name="' + escapeHtml(p.name) + '" data-brand="' + escapeHtml(p.brand) + '" data-price="' + escapeHtml(p.price) + '" data-image="' + escapeHtml(p.image) + '" data-url="' + escapeHtml(p.url) + '"><span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></button>';
+      return '<article class="product-card cs-product-card pdp-related-card" data-product-id="' + escapeHtml(p.slug) + '"><div class="product-media-wrap"><a class="product-media" href="' + escapeHtml(p.url) + '"><img src="' + escapeHtml(p.image) + '" alt="' + escapeHtml(p.name) + '" loading="lazy"></a>' + heart + '</div><div class="product-body"><span class="badge">' + escapeHtml(p.brand) + '</span><h3><a href="' + escapeHtml(p.url) + '">' + escapeHtml(p.name) + '</a></h3><p>' + escapeHtml(p.category || 'Rutini tamamlayan bakım adımı') + '</p><div class="price-row"><span class="price">' + priceDisplayHtml(p, { compact: true }) + '</span><button class="btn btn-primary" data-add-cart data-id="' + escapeHtml(p.slug) + '" data-slug="' + escapeHtml(p.slug) + '" data-name="' + escapeHtml(p.name) + '" data-brand="' + escapeHtml(p.brand) + '" data-price="' + escapeHtml(p.price) + '" data-image="' + escapeHtml(p.image) + '" data-url="' + escapeHtml(p.url) + '">Sepete Ekle</button></div></div></article>';
     }).join('');
     if (window.initCartButtons) window.initCartButtons(grid);
     if (window.initFavoriteButtons) window.initFavoriteButtons(grid);

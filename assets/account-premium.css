@@ -302,7 +302,7 @@
 /* 2026-06-28 — COSMOSKIN Account 10/10 production module: overview, Club, skin profile, coupons */
 .account-page .cs-account-top[hidden]{display:none!important;}
 .account-page .announcement{height:38px;background:#050504;color:#efe5d6;border-bottom:1px solid rgba(255,255,255,.08);overflow:hidden;}
-.account-page .announcement .marquee{height:100%;display:flex!important;align-items:center;justify-content:center;gap:min(12vw,150px);animation:marqueeMove 28s linear infinite!important;white-space:nowrap;}
+.account-page .announcement .marquee{height:100%;display:flex!important;align-items:center;justify-content:center;gap:min(12vw,150px);animation:marqueeMove 20s linear infinite!important;white-space:nowrap;}
 .account-page .announcement .marquee span{font:800 11px/1 var(--cs-sans);letter-spacing:.18em;text-transform:uppercase;color:#f3eadf;}
 .account-page .announcement .marquee span:first-child{display:none;}
 .account-page .header.account-header{background:rgba(255,253,248,.86);border-bottom:1px solid rgba(42,32,24,.08);backdrop-filter:blur(18px);}
@@ -435,7 +435,7 @@
   gap:64px!important;
   justify-content:flex-start!important;
   transform:none;
-  animation:marqueeMove 28s linear infinite!important;
+  animation:marqueeMove 20s linear infinite!important;
   will-change:transform;
 }
 .account-page .announcement .marquee span:first-child{display:inline-flex!important;}
@@ -776,7 +776,7 @@
   letter-spacing:.32em!important;
   text-transform:uppercase!important;
   animation-name:marqueeMove!important;
-  animation-duration:22s!important;
+  animation-duration:20s!important;
   animation-timing-function:linear!important;
   animation-iteration-count:infinite!important;
   will-change:transform!important;
@@ -810,7 +810,7 @@
     font-size:11px!important;
     letter-spacing:.025em!important;
     gap:36px!important;
-    animation-duration:22s!important;
+    animation-duration:20s!important;
   }
   .account-page .announcement .marquee span + span::before{margin-right:36px!important;}
 }
@@ -1045,13 +1045,16 @@
 .account-page .cs-toggle-grid--premium{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:0 18px 18px;}
 .account-page .cs-premium-toggle{position:relative;display:grid;grid-template-columns:auto 44px minmax(0,1fr);gap:0 14px;align-items:start;padding:16px 18px;border:1px solid rgba(42,32,24,.10);border-radius:20px;background:linear-gradient(145deg,#fffdf9,#fbf4ea);min-width:0;cursor:pointer;transition:border-color .22s ease,box-shadow .22s ease,background .22s ease;}
 .account-page .cs-premium-toggle:hover{border-color:rgba(181,138,74,.28);box-shadow:0 12px 28px rgba(38,29,22,.05);}
-.account-page .cs-premium-toggle.is-on{border-color:rgba(181,138,74,.34);background:linear-gradient(145deg,#fffaf3,#f7ecdd);}
+.account-page .cs-premium-toggle.is-on,
+.account-page .cs-premium-toggle:has(.cs-premium-toggle__input:checked){border-color:rgba(181,138,74,.34);background:linear-gradient(145deg,#fffaf3,#f7ecdd);}
 .account-page .cs-premium-toggle--locked{opacity:.92;cursor:default;}
 .account-page .cs-premium-toggle__input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none;}
 .account-page .cs-premium-toggle__track{grid-column:2;grid-row:1/span 2;width:44px;height:26px;border-radius:999px;background:#e8ddd0;border:1px solid rgba(42,32,24,.08);position:relative;transition:background .24s ease,border-color .24s ease;margin-top:2px;}
 .account-page .cs-premium-toggle__thumb{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fffdf9;box-shadow:0 2px 8px rgba(38,29,22,.16);transition:transform .24s cubic-bezier(.4,0,.2,1),background .24s ease;}
-.account-page .cs-premium-toggle.is-on .cs-premium-toggle__track{background:linear-gradient(135deg,#c9a06a,#9a6d35);border-color:rgba(154,109,53,.45);}
-.account-page .cs-premium-toggle.is-on .cs-premium-toggle__thumb{transform:translateX(18px);background:#fffaf3;}
+.account-page .cs-premium-toggle.is-on .cs-premium-toggle__track,
+.account-page .cs-premium-toggle:has(.cs-premium-toggle__input:checked) .cs-premium-toggle__track{background:linear-gradient(135deg,#c9a06a,#9a6d35);border-color:rgba(154,109,53,.45);}
+.account-page .cs-premium-toggle.is-on .cs-premium-toggle__thumb,
+.account-page .cs-premium-toggle:has(.cs-premium-toggle__input:checked) .cs-premium-toggle__thumb{transform:translateX(18px);background:#fffaf3;}
 .account-page .cs-premium-toggle__copy{grid-column:3;min-width:0;display:grid;gap:4px;}
 .account-page .cs-premium-toggle__label{font-weight:850;color:#17130f;font-size:13px;line-height:1.35;}
 .account-page .cs-premium-toggle__desc{color:#766b62;font-size:12px;line-height:1.45;}
@@ -1071,3 +1074,27 @@
   .account-page .cs-premium-toggle{grid-template-columns:44px minmax(0,1fr);gap:12px;}
   .account-page .cs-premium-toggle__copy{grid-column:2;}
 }
+
+/* Premium profile identity card (shared markup, desktop presentation) */
+.account-page .cs-profile-card--v2{display:block!important;padding:0!important;position:relative;overflow:hidden;grid-template-columns:none!important;border-radius:24px!important;}
+.account-page .cs-profile-card--v2 .cs-profile-card__aura{position:absolute;inset:auto -28% 42% auto;width:66%;aspect-ratio:1;background:radial-gradient(circle,rgba(197,158,106,.2),rgba(197,158,106,0) 70%);z-index:0;pointer-events:none;}
+.account-page .cs-profile-card--v2 .cs-profile-card__head{position:relative;z-index:1;display:grid;grid-template-columns:60px minmax(0,1fr);align-items:center;gap:15px;padding:20px 20px 16px;}
+.account-page .cs-profile-card--v2 .cs-profile-info__top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:1px;}
+.account-page .cs-profile-card--v2 .cs-profile-tier{flex:0 0 auto;}
+.account-page .cs-profile-card--v2 .cs-profile-avatar{position:relative;width:60px!important;height:60px!important;}
+.account-page .cs-profile-card--v2 .cs-profile-avatar__text{font-family:var(--cs-serif);font-size:25px;font-weight:600;line-height:1;}
+.account-page .cs-profile-card--v2 .cs-profile-avatar__badge{position:absolute;right:-3px;bottom:-3px;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(150deg,#1d1712,#3a2c1c);box-shadow:0 0 0 2.5px #fdf7ee,0 3px 8px rgba(29,21,14,.35);}
+.account-page .cs-profile-card--v2 .cs-profile-avatar__badge svg{width:12px;height:12px;color:#e7c894;}
+.account-page .cs-profile-card--v2 .cs-profile-info{display:grid;gap:3px;min-width:0;text-align:left;}
+.account-page .cs-profile-card--v2 .cs-profile-kicker{font:700 9.5px/1 var(--cs-sans);letter-spacing:.22em;text-transform:uppercase;color:#b58a4a;}
+.account-page .cs-profile-card--v2 .cs-profile-info strong{font-family:var(--cs-serif)!important;font-weight:600!important;font-size:23px!important;line-height:1.08;letter-spacing:-.01em;color:#17130f;}
+.account-page .cs-profile-card--v2 .cs-profile-info span{font:500 12.5px/1.3 var(--cs-sans)!important;color:#8a7d6f;}
+.account-page .cs-profile-card--v2 .cs-profile-tier{align-self:start;display:inline-flex;align-items:center;gap:5px;padding:6px 11px 6px 9px;border-radius:999px;background:linear-gradient(150deg,#241a10,#4a3720);color:#f0dcb6;font:700 10px/1 var(--cs-sans);letter-spacing:.05em;box-shadow:0 4px 12px rgba(45,32,18,.22);white-space:nowrap;}
+.account-page .cs-profile-card--v2 .cs-profile-tier svg{width:12px;height:12px;color:#e7c894;}
+.account-page .cs-profile-card--v2 .cs-profile-tier em{font-style:normal;}
+.account-page .cs-profile-card--v2 .cs-profile-card__meta{position:relative;z-index:1;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:13px 20px 16px;border-top:1px solid rgba(181,138,74,.16);background:linear-gradient(180deg,rgba(255,253,249,0),rgba(181,138,74,.05));}
+.account-page .cs-profile-card--v2 .cs-profile-meta-item{display:grid;gap:3px;min-width:0;}
+.account-page .cs-profile-card--v2 .cs-profile-meta-item:last-child{text-align:right;}
+.account-page .cs-profile-card--v2 .cs-profile-meta-item b{font:700 16px/1 var(--cs-sans);color:#17130f;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.account-page .cs-profile-card--v2 .cs-profile-meta-item small{font:600 9.5px/1.25 var(--cs-sans);letter-spacing:.04em;text-transform:uppercase;color:#8a7d6f;}
+.account-page .cs-profile-card--v2 .cs-profile-meta-divider{width:1px;height:30px;background:rgba(42,32,22,.12);margin:0 14px;}

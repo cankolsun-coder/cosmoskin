@@ -511,7 +511,7 @@
           '<span class="cs-stock-badge" data-cm-stock-badge data-product-slug="' + esc(product.slug) + '">Stokta</span>' +
         '</div>' +
       '</a>' +
-      '<button class="smart-routine__product-remove" type="button" data-sr-remove-product="' + esc(slot) + '" aria-label="' + esc(product.name + ' ürününü rutinden çıkar') + '">×</button>' +
+      '<button class="smart-routine__product-remove" type="button" data-sr-remove-product="' + esc(slot) + '" aria-label="' + esc(product.name + ' ürününü rutinden çıkar') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>' +
       (!isLast ? iconImg(icon.ui('arrow-right'), 'cs-icon cs-icon--sm smart-routine__connector') : '') +
     '</div>';
   }
@@ -875,6 +875,8 @@
       toast = document.createElement('div');
       toast.className = 'smart-routine__toast';
       toast.setAttribute('data-sr-toast', '');
+      toast.setAttribute('role', 'status');
+      toast.setAttribute('aria-live', 'polite');
       document.body.appendChild(toast);
     }
     toast.textContent = message;
