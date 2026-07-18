@@ -25,13 +25,13 @@
 <link href="/assets/product-routine.css?v=20260415a" rel="stylesheet"/>
 <link href="/assets/mobile.css?v=20260425f" rel="stylesheet"/>
 <link href="/assets/phase6-commerce.css?v=20260503-ratingux" rel="stylesheet"/>
-<link href="/assets/allproducts.css?v=20260503b" rel="stylesheet"/>
+<link href="/assets/allproducts.css?v=20260716-perpage1" rel="stylesheet"/>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Tüm Ürünler","url":"https://www.cosmoskin.com.tr/allproducts.html","isPartOf":{"@type":"WebSite","name":"COSMOSKIN","url":"https://www.cosmoskin.com.tr"}}</script>
 <link href="/assets/mobile-redesign.css?v=20260512-reference-ui" rel="stylesheet"/>
 <link href="/assets/master-upgrade.css?v=20260513-master" rel="stylesheet"/>
 <link href="/assets/legal-modal.css?v=20260626-launch" rel="stylesheet"/>
   <link rel="stylesheet" href="/assets/cosmoskin-final-uat-fix.css?v=20260629-uat-v7-searchtiming">
-<link href="/assets/cosmoskin-mobile-redesign-v1.css?v=20260715-menu-premium" rel="stylesheet"/>
+<link href="/assets/cosmoskin-mobile-redesign-v1.css?v=20260718-header-icons1" rel="stylesheet"/>
 </head>
 <body>
 <div class="progress" id="progress"></div>
@@ -126,49 +126,66 @@
 </section>
 <section aria-label="Tüm ürünler katalog alanı" class="cs-ap-section">
 <div class="container cs-ap-shell">
-<button aria-controls="csApFilters" aria-expanded="false" class="cs-ap-filter-toggle" id="csApFilterToggle" type="button">
-<span>Filtrele</span>
-<small id="csApFilterToggleCount">0 aktif filtre</small>
-</button>
 <aside aria-label="Ürün filtreleri" class="cs-ap-sidebar" id="csApFilters">
+<div aria-hidden="true" class="cs-ap-sidebar__grip"></div>
 <div class="cs-ap-sidebar__head">
-<div>
+<div class="cs-ap-sidebar__heading">
+<p class="cs-ap-sidebar__kicker">Katalog</p>
 <strong>Filtrele</strong>
 <span id="csApMobileResultCount">35 ürün bulundu</span>
 </div>
-<button class="cs-ap-clear" id="csApClearFilters" type="button">Tümünü Temizle</button>
-<button aria-label="Filtreleri kapat" class="cs-ap-filter-close" id="csApFilterClose" type="button">×</button>
+<button class="cs-ap-clear cs-ap-clear--head" id="csApClearFilters" type="button">Tümünü Temizle</button>
+<button aria-label="Filtreleri kapat" class="cs-ap-filter-close" id="csApFilterClose" type="button">
+<svg aria-hidden="true" fill="none" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path></svg>
+</button>
 </div>
+<div class="cs-ap-sidebar__scroll">
 <div class="cs-ap-filter-group is-open" data-filter-group="">
 <button aria-expanded="true" class="cs-ap-filter-title" type="button">Kategori</button>
 <div class="cs-ap-filter-body" data-filter-list="category"></div>
 </div>
-<div class="cs-ap-filter-group is-open" data-filter-group="">
-<button aria-expanded="true" class="cs-ap-filter-title" type="button">Marka</button>
+<div class="cs-ap-filter-group" data-filter-group="">
+<button aria-expanded="false" class="cs-ap-filter-title" type="button">Marka</button>
 <label class="cs-ap-mini-search">
 <span class="sr-only">Marka ara</span>
 <input autocomplete="off" id="csApBrandSearch" placeholder="Marka ara..." type="search"/>
 </label>
-<div class="cs-ap-filter-body" data-filter-list="brand"></div>
+<div class="cs-ap-filter-body cs-ap-filter-body--brands" data-filter-list="brand"></div>
 </div>
 <div class="cs-ap-filter-group is-open" data-filter-group="">
 <button aria-expanded="true" class="cs-ap-filter-title" type="button">Fiyat Aralığı</button>
 <div class="cs-ap-price-box">
-<div class="cs-ap-price-values"><span id="csApMinPriceLabel">₺449</span><span id="csApMaxPriceLabel">₺1.249</span></div>
-<div class="cs-ap-range" id="csApPriceRange">
+<div class="cs-ap-price-values" aria-live="polite">
+<span class="cs-ap-price-values__item"><em>Min</em><strong id="csApMinPriceLabel">₺449</strong></span>
+<span class="cs-ap-price-values__sep" aria-hidden="true"></span>
+<span class="cs-ap-price-values__item cs-ap-price-values__item--end"><em>Max</em><strong id="csApMaxPriceLabel">₺1.249</strong></span>
+</div>
+<div class="cs-ap-range" id="csApPriceRange" style="--range-left:0%;--range-right:0%">
+<span class="cs-ap-range-track" aria-hidden="true"></span>
 <input aria-label="Minimum fiyat" id="csApPriceMin" max="1249" min="449" step="1" type="range" value="449"/>
 <input aria-label="Maksimum fiyat" id="csApPriceMax" max="1249" min="449" step="1" type="range" value="1249"/>
-<span class="cs-ap-range-track"></span>
 </div>
 <div class="cs-ap-price-inputs">
-<label>Min <input id="csApPriceMinInput" inputmode="numeric" max="1249" min="449" step="1" type="number" value="449"/></label>
-<label>Max <input id="csApPriceMaxInput" inputmode="numeric" max="1249" min="449" step="1" type="number" value="1249"/></label>
+<label class="cs-ap-price-field" for="csApPriceMinInput">
+<span class="sr-only">Minimum fiyat</span>
+<span class="cs-ap-price-field__control">
+<span class="cs-ap-price-field__currency" aria-hidden="true">₺</span>
+<input id="csApPriceMinInput" inputmode="numeric" max="1249" min="449" step="1" type="number" value="449"/>
+</span>
+</label>
+<label class="cs-ap-price-field" for="csApPriceMaxInput">
+<span class="sr-only">Maksimum fiyat</span>
+<span class="cs-ap-price-field__control">
+<span class="cs-ap-price-field__currency" aria-hidden="true">₺</span>
+<input id="csApPriceMaxInput" inputmode="numeric" max="1249" min="449" step="1" type="number" value="1249"/>
+</span>
+</label>
 </div>
 <div class="cs-ap-price-presets" id="csApPricePresets"></div>
 </div>
 </div>
-<div class="cs-ap-filter-group is-open" data-filter-group="">
-<button aria-expanded="true" class="cs-ap-filter-title" type="button">Cilt İhtiyacı</button>
+<div class="cs-ap-filter-group" data-filter-group="">
+<button aria-expanded="false" class="cs-ap-filter-title" type="button">Cilt İhtiyacı</button>
 <div class="cs-ap-filter-body" data-filter-list="concern"></div>
 </div>
 <div class="cs-ap-filter-group" data-filter-group="">
@@ -183,6 +200,11 @@
 <button aria-expanded="false" class="cs-ap-filter-title" type="button">Ürün Özelliği</button>
 <div class="cs-ap-filter-body" data-filter-list="feature"></div>
 </div>
+</div>
+<div class="cs-ap-sidebar__actions">
+<button class="cs-ap-filter-reset" id="csApFilterReset" type="button">Temizle</button>
+<button class="cs-ap-filter-apply" id="csApFilterApply" type="button">Uygula</button>
+</div>
 </aside>
 <div class="cs-ap-content">
 <div class="cs-ap-toolbar">
@@ -193,9 +215,22 @@
 <input aria-label="Ürün kataloğunda ara" autocomplete="off" id="csApSearch" placeholder="Ürün, marka veya içerik ara..." type="search"/>
 </div>
 <div class="cs-ap-toolbar__right">
-<p class="cs-ap-result-copy"><strong id="csApResultCount">35</strong> ürün bulundu</p>
-<label class="cs-ap-select-label">Sırala:
-              <select id="csApSort">
+<button aria-controls="csApFilters" aria-expanded="false" class="cs-ap-ctrl cs-ap-filter-toggle" id="csApFilterToggle" type="button">
+<span aria-hidden="true" class="cs-ap-ctrl__ico"><svg fill="none" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10M8 5v4M16 15v4" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path></svg></span>
+<span class="cs-ap-ctrl__label">Filtrele</span>
+<em class="cs-ap-ctrl__count" hidden="" id="csApFilterToggleCount">0</em>
+</button>
+<button aria-controls="csApSortSheet" aria-expanded="false" aria-haspopup="dialog" class="cs-ap-ctrl cs-ap-sort-toggle" id="csApSortToggle" type="button">
+<span aria-hidden="true" class="cs-ap-ctrl__ico"><svg fill="none" viewBox="0 0 24 24"><path d="M8 7h8M10 12h6M12 17h4" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path></svg></span>
+<span class="cs-ap-ctrl__meta">
+<span class="cs-ap-ctrl__kicker">Sırala</span>
+<strong class="cs-ap-ctrl__value" id="csApSortLabel">Öne Çıkanlar</strong>
+</span>
+<span aria-hidden="true" class="cs-ap-ctrl__chev"></span>
+</button>
+<label class="cs-ap-select-label cs-ap-sort-native-wrap">
+<span class="sr-only">Sırala</span>
+<select aria-label="Sırala" id="csApSort">
 <option value="featured">Öne Çıkanlar</option>
 <option value="best">Çok Satanlar</option>
 <option value="new">Yeni Gelenler</option>
@@ -205,6 +240,7 @@
 <option value="name-asc">İsim: A-Z</option>
 </select>
 </label>
+<p class="cs-ap-result-copy"><strong id="csApResultCount">35</strong> ürün bulundu</p>
 </div>
 </div>
 <div aria-label="Hızlı filtreler" class="cs-ap-quick-row" role="list">
@@ -225,8 +261,18 @@
 </div>
 <div class="cs-ap-pagination">
 <button class="cs-ap-load" id="csApLoadMore" type="button">DAHA FAZLA ÜRÜN YÜKLE</button>
-<label>Sayfa başına ürün:
-            <select id="csApPerPage">
+<div class="cs-ap-perpage">
+<span class="cs-ap-perpage__label" id="csApPerPageLabelText">Sayfa başına</span>
+<button aria-controls="csApPerPageSheet" aria-expanded="false" aria-haspopup="dialog" aria-labelledby="csApPerPageLabelText csApPerPageLabel" class="cs-ap-ctrl cs-ap-perpage-toggle" id="csApPerPageToggle" type="button">
+<span class="cs-ap-ctrl__meta">
+<span class="cs-ap-ctrl__kicker">Ürün</span>
+<strong class="cs-ap-ctrl__value" id="csApPerPageLabel">24</strong>
+</span>
+<span aria-hidden="true" class="cs-ap-ctrl__chev"></span>
+</button>
+<label class="cs-ap-perpage-native">
+<span class="sr-only">Sayfa başına ürün</span>
+<select aria-hidden="true" id="csApPerPage" tabindex="-1">
 <option value="12">12</option>
 <option selected="" value="24">24</option>
 <option value="36">36</option>
@@ -235,7 +281,36 @@
 </div>
 </div>
 </div>
+</div>
 </section>
+<div aria-hidden="true" class="cs-ap-sort-backdrop" id="csApSortBackdrop"></div>
+<aside aria-hidden="true" aria-label="Ürün sıralama" class="cs-ap-sort-sheet" id="csApSortSheet" role="dialog">
+<div aria-hidden="true" class="cs-ap-sort-sheet__grip"></div>
+<header class="cs-ap-sort-sheet__head">
+<div class="cs-ap-sort-sheet__heading">
+<p class="cs-ap-sort-sheet__kicker">Katalog</p>
+<h2 class="cs-ap-sort-sheet__title">Sırala</h2>
+</div>
+<button aria-label="Sıralamayı kapat" class="cs-ap-sort-sheet__close" id="csApSortClose" type="button">
+<svg fill="none" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path></svg>
+</button>
+</header>
+<div class="cs-ap-sort-sheet__list" id="csApSortList" role="listbox" aria-label="Sıralama seçenekleri"></div>
+</aside>
+<div aria-hidden="true" class="cs-ap-sort-backdrop" id="csApPerPageBackdrop"></div>
+<aside aria-hidden="true" aria-label="Sayfa başına ürün" class="cs-ap-sort-sheet cs-ap-perpage-sheet" id="csApPerPageSheet" role="dialog">
+<div aria-hidden="true" class="cs-ap-sort-sheet__grip"></div>
+<header class="cs-ap-sort-sheet__head">
+<div class="cs-ap-sort-sheet__heading">
+<p class="cs-ap-sort-sheet__kicker">Katalog</p>
+<h2 class="cs-ap-sort-sheet__title">Sayfa başına</h2>
+</div>
+<button aria-label="Kapat" class="cs-ap-sort-sheet__close" id="csApPerPageClose" type="button">
+<svg fill="none" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-linecap="round" stroke-width="1.7"></path></svg>
+</button>
+</header>
+<div class="cs-ap-sort-sheet__list" id="csApPerPageList" role="listbox" aria-label="Sayfa başına ürün seçenekleri"></div>
+</aside>
 </main>
 <footer class="footer">
 <section aria-labelledby="csNewsletterTitle" class="footer-newsletter">
@@ -337,20 +412,20 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/assets/app.js?v=20260616-stockfix"></script>
 <script defer="true" src="/assets/phase6-commerce.js?v=20260616-stockfix"></script>
-<script src="/assets/auth.js?v=20260627-auth-hotfix" type="module"></script><script src="/assets/auth-ui-hotfix.js?v=20260627-auth-hotfix"></script>
+<script src="/assets/auth.js?v=20260627-auth-hotfix" type="module"></script><script src="/assets/auth-ui-hotfix.js?v=20260717-auth-overlay-hoist"></script>
 <script src="/assets/commerce.js?v=20260418d"></script>
 <script src="/assets/product-routine.js?v=20260415a"></script>
 <script src="/js/search.js?v=20260424"></script>
 <script src="/assets/mobile.js?v=20260425f"></script>
-<script src="/assets/allproducts.js?v=20260503b"></script>
+<script src="/assets/allproducts.js?v=20260716-perpage1"></script>
 <script defer="" src="/assets/cosmoskin-newsletter.js?v=20260510-newsletter"></script>
-<script defer="" src="/assets/mobile-redesign.js?v=20260715-bag-v2"></script>
+<script defer="" src="/assets/mobile-redesign.js?v=20260715-bestsellers-final"></script>
 <script defer="" src="/assets/inventory-client.js?v=20260616-stockfix"></script>
-<script defer="" src="/assets/cosmoskin-phase3.js?v=20260511-phase3"></script>
+<script defer="" src="/assets/cosmoskin-phase3.js?v=20260716-nostockfilter"></script>
 <script defer="" src="/assets/master-upgrade.js?v=20260513-master"></script>
 <script defer="" src="/assets/routine-route-bridge.js?v=20260516-routefix"></script>
 <script src="/assets/site-config.js"></script><script src="/assets/site-chrome.js"></script><script src="/assets/bottom-nav.js"></script><script defer src="/assets/legal-modal.js?v=20260626-launch"></script>
   <script defer src="/assets/cosmoskin-final-uat-fix.js?v=20260629-uat-final"></script>
-<script defer src="/assets/cosmoskin-mobile-redesign-v1.js?v=20260715-menu-premium"></script>
+<script defer src="/assets/cosmoskin-mobile-redesign-v1.js?v=20260718-header-icons1"></script>
 </body>
 </html>

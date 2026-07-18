@@ -111,7 +111,8 @@
     } else if(session){
       wrap.innerHTML='<span class="pdp5-empty" style="display:inline-flex;padding:10px 14px;border-radius:999px">Yorum yazmak için ürünü satın almış olmalısın.</span>';
     } else {
-      wrap.innerHTML='<a class="btn btn-secondary" href="/auth/login.html?returnTo='+encodeURIComponent(location.pathname+location.search+'#reviewsSection')+'">Giriş Yap</a>';
+      // /auth/login.html does not exist; open the on-page auth modal / mobile auth sheet.
+      wrap.innerHTML='<button type="button" class="btn btn-secondary" data-open-auth data-auth-tab="loginPanel" data-cs-open-auth="loginPanel">Giriş Yap</button>';
     }
   }
   function renderFilters(){

@@ -36,7 +36,7 @@
 
   function slugFromHref(href) {
     var match = String(href || '').match(/\/collections\/([^/?#]+)/);
-    return match ? match[1] : '';
+    return match ? match[1].replace(/\.html$/i, '') : '';
   }
 
   function productThumbForCategory(category) {
@@ -51,15 +51,20 @@
     var productImg = category ? productThumbForCategory(category) : '';
     return {
       img: base.img || productImg || '',
-      icon: base.icon || '/assets/icons/cosmoskin/system-arrow-right.svg'
+      icon: base.icon || '/assets/icons/cosmoskin/account-routine.svg'
     };
   }
 
-  function chevronSvg() {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function groupType(group) {
+    var kicker = group && group.querySelector('.category-directory-head .kicker');
+    var label = String(kicker ? kicker.textContent : '').toLocaleLowerCase('tr-TR');
+    if (label.indexOf('ürün') !== -1) return 'products';
+    if (label.indexOf('cilt tipi') !== -1) return 'skin';
+    if (label.indexOf('ihtiya') !== -1) return 'concerns';
+    return 'ingredients';
   }
 
-  function enhanceCard(card) {
+  function enhanceCard(card, index, type) {
     if (!card || card.dataset.categoryEnhanced === 'true') return;
     var slug = slugFromHref(card.getAttribute('href'));
     if (!slug) return;
@@ -72,10 +77,14 @@
     mediaEl.className = 'category-directory-card__media';
     if (media.img) {
       var img = document.createElement('img');
-      img.src = media.img;
+      img.src = media.img + '?v=20260717-category-editorial1';
       img.alt = '';
       img.loading = 'lazy';
       img.decoding = 'async';
+      img.addEventListener('error', function () {
+        mediaEl.classList.add('category-directory-card__media--icon');
+        img.src = media.icon + '?v=20260717-category-editorial1';
+      }, { once: true });
       mediaEl.appendChild(img);
     } else {
       mediaEl.classList.add('category-directory-card__media--icon');
@@ -92,19 +101,30 @@
     body.appendChild(title);
     if (desc) body.appendChild(desc);
 
-    var chevron = document.createElement('span');
-    chevron.className = 'category-directory-card__chevron';
-    chevron.innerHTML = chevronSvg();
+    var action = document.createElement('span');
+    action.className = 'category-directory-card__action';
+    action.textContent = 'Keşfet';
+    action.setAttribute('aria-hidden', 'true');
 
     card.textContent = '';
     card.appendChild(mediaEl);
     card.appendChild(body);
-    card.appendChild(chevron);
+    card.appendChild(action);
+    card.dataset.categorySlug = slug;
+    card.dataset.categoryIndex = String(index + 1).padStart(2, '0');
+    card.dataset.categoryType = type;
     card.dataset.categoryEnhanced = 'true';
   }
 
   function init() {
-    document.querySelectorAll('.category-directory-card').forEach(enhanceCard);
+    document.querySelectorAll('.category-directory-group').forEach(function (group, groupIndex) {
+      var type = groupType(group);
+      group.dataset.categoryGroup = type;
+      group.style.setProperty('--category-group-index', String(groupIndex + 1).padStart(2, '0'));
+      group.querySelectorAll('.category-directory-card').forEach(function (card, index) {
+        enhanceCard(card, index, type);
+      });
+    });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

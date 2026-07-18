@@ -195,7 +195,11 @@
       locked_coupons: asArray(data.locked_coupons || data.upcoming_coupons),
       routine_results: asArray(data.routine_results || data.routines),
       support_requests: asArray(data.support_requests),
-      notifications: asArray(data.notifications),
+      notifications: asArray(data.notifications).map(function (n) {
+        n = safeObject(n);
+        var isRead = n.is_read === true || Boolean(n.read_at);
+        return Object.assign({}, n, { is_read: isRead });
+      }),
       legal_consents: asArray(data.legal_consents),
       notification_preferences: data.notification_preferences || safeObject(user.communication),
       skin_profile: data.skin_profile || null,
@@ -561,13 +565,45 @@
     renderRoutines(); renderSkinProfile(); renderClub(); renderCoupons(); renderProfile();
     renderAddresses(); renderPayments(); renderNotifications(); renderSecurity(); renderSupport();
   }
+  var PROFILE_CROWN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17.5h16M5.2 8.4l3.4 3.1L12 6l3.4 5.5 3.4-3.1-1.1 9.1H6.3L5.2 8.4Z"/></svg>';
+  var PROFILE_SPARK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l1.9 5.3 5.3 1.9-5.3 1.9L12 17.6l-1.9-5.3L4.8 10.4l5.3-1.9L12 3.2Z"/></svg>';
+  function tierShortName(key) { return (LOYALTY_TIERS[key] || LOYALTY_TIERS.essential).name; }
+  function renderProfileIdentity(user, l) {
+    var card = $('.cs-profile-card'); if (!card) return;
+    var name = displayName(user);
+    var email = user.email || 'E-posta bilgisi yok';
+    var mono = initials(user);
+    var since = user.created_at ? formatDate(user.created_at) : '';
+    var tier = tierShortName(l.key);
+    var points = Math.max(0, Math.round(finiteNumber(l.available, 0)));
+    card.classList.add('cs-profile-card--v2');
+    card.setAttribute('data-tier', l.key || 'essential');
+    card.innerHTML =
+      '<span class="cs-profile-card__aura" aria-hidden="true"></span>' +
+      '<div class="cs-profile-card__head">' +
+        '<div class="cs-profile-avatar" id="accountAvatar">' +
+          '<span class="cs-profile-avatar__text">' + escapeHtml(mono) + '</span>' +
+          '<span class="cs-profile-avatar__badge">' + PROFILE_CROWN_SVG + '</span>' +
+        '</div>' +
+        '<div class="cs-profile-info">' +
+          '<div class="cs-profile-info__top">' +
+            '<span class="cs-profile-kicker">HESABIM</span>' +
+            '<span class="cs-profile-tier">' + PROFILE_SPARK_SVG + '<em>' + escapeHtml(tier) + '</em></span>' +
+          '</div>' +
+          '<strong id="accountName">' + escapeHtml(name) + '</strong>' +
+          '<span id="accountEmail">' + escapeHtml(email) + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cs-profile-card__meta">' +
+        '<span class="cs-profile-meta-item"><b>' + points.toLocaleString('tr-TR') + '</b><small>Toplam puan</small></span>' +
+        '<span class="cs-profile-meta-divider" aria-hidden="true"></span>' +
+        '<span class="cs-profile-meta-item"><b id="accountMemberSince">' + escapeHtml(since || '—') + '</b><small>Üye tarihi</small></span>' +
+      '</div>';
+  }
   function renderShell() {
     var summary = state.summary || {}; var user = summary.user || {};
     var l = loyalty();
-    setText('#accountName', displayName(user));
-    setText('#accountEmail', user.email || 'E-posta bilgisi yok');
-    setText('#accountAvatar', initials(user));
-    setText('#accountMemberSince', user.created_at ? 'Üyelik: ' + formatDate(user.created_at) : 'Üyelik bilgisi mevcut değil');
+    renderProfileIdentity(user, l);
     setText('#ordersBadge', String(summary.orders.length));
     setText('#returnsBadge', String(summary.returns.length));
     setText('#favoritesBadge', String(uniqueFavoriteList().length));
@@ -594,14 +630,25 @@
   function premiumToggleHtml(name, isOn, label, description, opts) {
     opts = opts || {};
     var id = 'pref-' + String(name).replace(/[^a-z0-9_-]/gi, '-');
-    var disabled = opts.disabled ? ' disabled aria-disabled="true"' : '';
-    var locked = opts.locked ? ' cs-premium-toggle--locked' : '';
+    var isLocked = Boolean(opts.locked || opts.disabled);
+    var disabled = isLocked ? ' disabled aria-disabled="true"' : '';
+    var locked = isLocked ? ' cs-premium-toggle--locked' : '';
     var stateClass = isOn ? ' is-on' : '';
     return '<label class="cs-premium-toggle' + stateClass + locked + '" for="' + escapeHtml(id) + '">' +
       '<input class="cs-premium-toggle__input" type="checkbox" name="' + escapeHtml(name) + '" id="' + escapeHtml(id) + '" ' + (isOn ? 'checked ' : '') + disabled + '>' +
       '<span class="cs-premium-toggle__track" aria-hidden="true"><span class="cs-premium-toggle__thumb"></span></span>' +
       '<span class="cs-premium-toggle__copy"><span class="cs-premium-toggle__label">' + escapeHtml(label) + '</span>' +
       (description ? '<small class="cs-premium-toggle__desc">' + escapeHtml(description) + '</small>' : '') + '</span></label>';
+  }
+  function syncPremiumToggle(input) {
+    if (!input || !input.classList || !input.classList.contains('cs-premium-toggle__input')) return;
+    var label = input.closest('.cs-premium-toggle');
+    if (!label) return;
+    label.classList.toggle('is-on', Boolean(input.checked));
+    input.setAttribute('aria-checked', input.checked ? 'true' : 'false');
+  }
+  function syncAllPremiumToggles(root) {
+    $$('.cs-premium-toggle__input', root || document).forEach(syncPremiumToggle);
   }
   function profileCompletionPercent(user) {
     user = user || {};
@@ -1109,14 +1156,15 @@
     function prefOn(name, fallback) { return (comm[name] === undefined ? fallback : Boolean(comm[name])); }
     el.innerHTML = '<div class="cs-tab-title"><div><h1>Bildirim Tercihlerim</h1><p>Sipariş, kargo, kampanya, stok, SMS ve rutin bildirim tercihlerinizi yönetin. Değişiklikler yalnızca seçtiğiniz alanları günceller.</p></div><div class="cs-panel-actions"><button class="cs-pill-btn" id="markAllNotificationsBtn" type="button">Bildirimleri Okundu Yap</button><button class="cs-pill-btn cs-pill-btn--dark" id="saveNotificationsBtn" type="button" data-save-notifications>Tercihleri Kaydet</button></div></div>' +
       '<form class="cs-toggle-grid cs-toggle-grid--premium" id="notificationPrefsForm">' +
-      premiumToggleHtml('order_updates', prefOn('order_updates', true), 'Sipariş güncellemeleri', 'Ödeme ve sipariş durumları', { locked: true }) +
-      premiumToggleHtml('cargo_updates', prefOn('cargo_updates', true), 'Kargo güncellemeleri', 'Takip ve teslimat bilgileri', { locked: true }) +
+      premiumToggleHtml('order_updates', true, 'Sipariş güncellemeleri', 'Sipariş durumu için zorunlu — kapatılamaz', { locked: true }) +
+      premiumToggleHtml('cargo_updates', true, 'Kargo güncellemeleri', 'Teslimat takibi için zorunlu — kapatılamaz', { locked: true }) +
       premiumToggleHtml('campaign_emails', prefOn('campaign_emails', Boolean(comm.marketing_email_opt_in)), 'E-posta kampanyaları', 'İndirim ve ürün duyuruları') +
       premiumToggleHtml('sms_notifications', prefOn('sms_notifications', false), 'SMS bildirimleri', 'Sipariş veya izin verilen pazarlama SMS tercihleri') +
       premiumToggleHtml('stock_notifications', prefOn('stock_notifications', Boolean(comm.stock_alert_opt_in)), 'Stok bildirimleri', 'Favori ürün stok uyarıları') +
       premiumToggleHtml('routine_reminders', prefOn('routine_reminders', Boolean(comm.routine_reminder_opt_in)), 'Rutin önerileri', 'Bakım rutinine dair e-posta notları') +
       premiumToggleHtml('newsletter', prefOn('newsletter', Boolean(comm.newsletter_opt_in)), 'COSMOSKIN Journal', 'Bakım notları ve seçki e-postaları') +
       '</form><div class="cs-form-status" id="notificationSaveStatus" role="status" aria-live="polite"></div><section class="cs-content-help-card cs-journal-state"><div><span class="cs-overline">JOURNAL</span><h3>' + (journalActive ? 'Journal aboneliğiniz aktif.' : 'Journal aboneliğiniz aktif değil.') + '</h3><p>Abonelik tercihiniz güvenli şekilde kaydedilir. Kaydetme sonrası seçimleriniz bu ekranda korunur.</p></div>' + (journalActive ? '<button class="cs-pill-btn" data-newsletter-unsubscribe type="button">Abonelikten Çık</button>' : '<button class="cs-pill-btn" data-save-notifications type="button">Tercihleri Kaydet</button>') + '</section>' + notificationListHtml();
+    syncAllPremiumToggles(el);
   }
   function renderSecurity() {
     var el = $('#securityPanel'); if (!el) return; var checklist = securityChecklist().map(securityRow).join('');
@@ -1183,7 +1231,33 @@
       if (e.target.matches('#addressModal')) { e.preventDefault(); closeAddressModal(); }
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAddressModal(); });
-    document.addEventListener('change', function(e){ var sel = e.target.closest('[data-return-order-select]'); if (sel) { var order = state.summary.orders.find(function(o){ return String(o.id) === String(sel.value); }); var target = $('[data-return-order-items]'); if (target && order) target.innerHTML = orderReturnItemsHtml(order); } var cat = e.target.closest('[data-support-category]'); if (cat) { var hint = $('[data-return-support-hint]'); if (hint) hint.hidden = cat.value !== 'return_request'; } });
+    document.addEventListener('change', function (e) {
+      if (e.target && e.target.classList && e.target.classList.contains('cs-premium-toggle__input')) {
+        if (e.target.disabled) {
+          e.target.checked = true;
+          syncPremiumToggle(e.target);
+          return;
+        }
+        syncPremiumToggle(e.target);
+      }
+      var sel = e.target.closest('[data-return-order-select]');
+      if (sel) {
+        var order = state.summary.orders.find(function (o) { return String(o.id) === String(sel.value); });
+        var target = $('[data-return-order-items]');
+        if (target && order) target.innerHTML = orderReturnItemsHtml(order);
+      }
+      var cat = e.target.closest('[data-support-category]');
+      if (cat) {
+        var hint = $('[data-return-support-hint]');
+        if (hint) hint.hidden = cat.value !== 'return_request';
+      }
+    });
+    document.addEventListener('click', function (e) {
+      var locked = e.target.closest('.cs-premium-toggle--locked');
+      if (!locked) return;
+      e.preventDefault();
+      showToast('Sipariş ve kargo bildirimleri güvenlik için her zaman açıktır.', 'info');
+    }, true);
     document.addEventListener('submit', function (e) {
       if (e.target.matches('#passwordForm')) { e.preventDefault(); updatePassword(e.target).catch(handleError); }
       if (e.target.matches('#addressForm')) { e.preventDefault(); saveAddress(e.target).catch(handleError); }
@@ -1284,12 +1358,23 @@
     } finally { if (btn) btn.disabled = false; }
   }
   function checkedFormValue(form, names, fallback) { for (var i = 0; i < names.length; i += 1) { var input = form.elements[names[i]]; if (input) return Boolean(input.checked); } return Boolean(fallback); }
+  function applyNotificationPreferencesLocally(payload) {
+    state.summary.notification_preferences = Object.assign({}, safeObject(state.summary.notification_preferences), payload);
+    if (state.summary.user) {
+      state.summary.user.communication = Object.assign({}, safeObject(state.summary.user.communication), payload, {
+        marketing_email_opt_in: Boolean(payload.campaign_emails),
+        stock_alert_opt_in: Boolean(payload.stock_notifications),
+        routine_reminder_opt_in: Boolean(payload.routine_reminders),
+        newsletter_opt_in: Boolean(payload.newsletter)
+      });
+    }
+  }
   async function saveNotifications() {
     var f = $('#notificationPrefsForm'); if (!f) return;
     var status = $('#notificationSaveStatus'); var btn = $('#saveNotificationsBtn');
     var payload = {
-      order_updates: checkedFormValue(f, ['order_updates','orderUpdates'], true),
-      cargo_updates: checkedFormValue(f, ['cargo_updates','cargoUpdates'], true),
+      order_updates: true,
+      cargo_updates: true,
       campaign_emails: checkedFormValue(f, ['campaign_emails','campaignEmails'], false),
       stock_notifications: checkedFormValue(f, ['stock_notifications','stockNotifications','restockAlerts'], false),
       routine_reminders: checkedFormValue(f, ['routine_reminders','routineReminders'], false),
@@ -1299,6 +1384,16 @@
     if (status) status.textContent = 'Tercihler kaydediliyor...';
     if (btn) btn.disabled = true;
     try {
+      if (isDesignPreview()) {
+        applyNotificationPreferencesLocally(payload);
+        renderNotifications();
+        renderOverview();
+        renderFooterJournal(state.summary.user || {});
+        var previewStatus = $('#notificationSaveStatus');
+        if (previewStatus) previewStatus.textContent = 'Bildirim tercihleriniz kaydedildi.';
+        showToast('Bildirim tercihleriniz kaydedildi.');
+        return;
+      }
       var res = await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } });
       if (res && res.preferences) state.summary.notification_preferences = Object.assign({}, safeObject(state.summary.notification_preferences), res.preferences);
       await loadSummary(); switchTab('notifications', false);
@@ -1310,8 +1405,46 @@
       throw error;
     } finally { if (btn) btn.disabled = false; }
   }
-  async function markAllNotificationsRead() { await apiFetch('/account/notifications', { method:'PATCH', body:{ mark_all_read:true } }); await loadSummary(); switchTab('notifications', false); showToast('Bildirimler okundu olarak işaretlendi.'); }
-  async function unsubscribeJournal() { var current = Object.assign({}, safeObject(state.summary?.user?.communication), safeObject(state.summary?.notification_preferences)); var payload = { order_updates:current.order_updates !== false, cargo_updates:current.cargo_updates !== false, campaign_emails:Boolean(current.campaign_emails || current.marketing_email_opt_in), stock_notifications:Boolean(current.stock_notifications || current.stock_alert_opt_in), routine_reminders:Boolean(current.routine_reminders || current.routine_reminder_opt_in), sms_notifications:Boolean(current.sms_notifications), newsletter:false }; await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } }); await loadSummary(); switchTab(state.activeTab, false); showToast('COSMOSKIN Journal aboneliğiniz kapatıldı.'); }
+  async function markAllNotificationsRead() {
+    if (isDesignPreview()) {
+      state.summary.notifications = asArray(state.summary.notifications).map(function (n) {
+        return Object.assign({}, n, { is_read: true, read_at: n.read_at || new Date().toISOString() });
+      });
+      if (state.summary.stats) state.summary.stats.unread_notifications = 0;
+      renderNotifications();
+      renderShell();
+      showToast('Bildirimler okundu olarak işaretlendi.');
+      return;
+    }
+    await apiFetch('/account/notifications', { method:'PATCH', body:{ mark_all_read:true } });
+    await loadSummary();
+    switchTab('notifications', false);
+    showToast('Bildirimler okundu olarak işaretlendi.');
+  }
+  async function unsubscribeJournal() {
+    var current = Object.assign({}, safeObject(state.summary?.user?.communication), safeObject(state.summary?.notification_preferences));
+    var payload = {
+      order_updates: true,
+      cargo_updates: true,
+      campaign_emails: Boolean(current.campaign_emails || current.marketing_email_opt_in),
+      stock_notifications: Boolean(current.stock_notifications || current.stock_alert_opt_in),
+      routine_reminders: Boolean(current.routine_reminders || current.routine_reminder_opt_in),
+      sms_notifications: Boolean(current.sms_notifications),
+      newsletter: false
+    };
+    if (isDesignPreview()) {
+      applyNotificationPreferencesLocally(payload);
+      renderNotifications();
+      renderOverview();
+      renderFooterJournal(state.summary.user || {});
+      showToast('COSMOSKIN Journal aboneliğiniz kapatıldı.');
+      return;
+    }
+    await apiFetch('/account/notifications', { method:'PATCH', body:{ preferences:payload } });
+    await loadSummary();
+    switchTab(state.activeTab, false);
+    showToast('COSMOSKIN Journal aboneliğiniz kapatıldı.');
+  }
   async function updatePassword(form) { var p = form.elements.password.value; var p2 = form.elements.password_confirm.value; if (p !== p2) return showToast('Şifreler eşleşmiyor.', 'warning'); if (p.length < 8) return showToast('Şifre en az 8 karakter olmalı.', 'warning'); if (!state.client) return showToast('Şifre güncelleme için oturum gerekli.', 'warning'); var res = await state.client.auth.updateUser({ password:p }); if (res.error) throw res.error; form.reset(); showToast('Şifreniz güncellendi.'); }
   async function createSupportRequest(form) { var data = new FormData(form); var payload = { category:data.get('category'), order_id:data.get('order_id') || undefined, subject:data.get('subject'), message:data.get('message') }; await apiFetch('/account/support-requests', { method:'POST', body:payload }); form.reset(); await loadSummary(); switchTab('support', false); showToast('Destek talebiniz oluşturuldu.'); }
   async function uploadReturnAttachments(files, orderId) {
@@ -1383,11 +1516,154 @@
     if (!state.session?.access_token) return false;
     return true;
   }
+  // Localhost-only DESIGN PREVIEW mode.
+  // Renders the full account UI with representative sample data so the layout
+  // can be designed without a backend, Supabase session, or /api/* endpoints.
+  // Activated with ?design=1 (or ?preview=1) and ONLY on local hosts, so it can
+  // never affect production. No data is persisted; save actions stay backend-bound.
+  function isDesignPreview() {
+    try {
+      var host = location.hostname;
+      var isLocal = host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0' || host === '' || /\.local$/.test(host);
+      var params = new URLSearchParams(location.search);
+      return isLocal && (params.get('design') === '1' || params.get('preview') === '1');
+    } catch (_) { return false; }
+  }
+  function daysAgoIso(days) { var d = new Date(); d.setDate(d.getDate() - days); return d.toISOString(); }
+  function daysAheadIso(days) { var d = new Date(); d.setDate(d.getDate() + days); return d.toISOString(); }
+  function samplePreviewSummary() {
+    return {
+      user: {
+        id: 'preview-user', first_name: 'Elif', last_name: 'Demir',
+        email: 'elif.demir@example.com', phone: '+90 532 000 00 00',
+        birthday: '1994-05-12', birth_date_locked: true,
+        created_at: daysAgoIso(420), email_verified: true, email_confirmed_at: daysAgoIso(420),
+        provider: 'E-posta',
+        communication: {
+          order_updates: true,
+          cargo_updates: true,
+          campaign_emails: false,
+          sms_notifications: false,
+          stock_notifications: true,
+          routine_reminders: false,
+          newsletter: false,
+          marketing_email_opt_in: false,
+          stock_alert_opt_in: true,
+          routine_reminder_opt_in: false,
+          newsletter_opt_in: false
+        }
+      },
+      stats: { order_count: 3, active_order_count: 1, favorites_count: 4, addresses_count: 2, unread_notifications: 2 },
+      membership: { tier: 'signature', spend: 7450 },
+      points: {
+        balance: 640, available: 480, pending: 160, reversed: 0,
+        ledger: [
+          { event_type: 'purchase', status: 'available', points: 220, created_at: daysAgoIso(6), description: 'CS-24193 siparişi kazanımı' },
+          { event_type: 'purchase', status: 'available', points: 260, created_at: daysAgoIso(48), description: 'CS-23771 siparişi kazanımı' },
+          { event_type: 'purchase', status: 'pending', points: 160, created_at: daysAgoIso(2), description: 'CS-24310 siparişi (onay bekliyor)' }
+        ]
+      },
+      orders: [
+        {
+          id: 'ord-24310', order_number: 'CS-24310', status: 'preparing', payment_status: 'paid',
+          created_at: daysAgoIso(2), subtotal_amount: 1290, total_amount: 1349, paid_at: daysAgoIso(2),
+          order_items: [
+            { product_slug: 'beauty-of-joseon-relief-sun-spf50', product_name: 'Relief Sun Rice + Probiotics SPF50+', brand: 'Beauty of Joseon', quantity: 2, unit_price: 349, line_total: 698, image: '' },
+            { product_slug: 'torriden-dive-in-serum', product_name: 'Dive-In Low Molecular Hyaluronic Acid Serum', brand: 'Torriden', quantity: 1, unit_price: 592, line_total: 592, image: '' }
+          ],
+          shipments: [{ status: 'preparing', carrier: 'Aras Kargo' }], invoices: []
+        },
+        {
+          id: 'ord-24193', order_number: 'CS-24193', status: 'shipped', payment_status: 'paid',
+          created_at: daysAgoIso(6), subtotal_amount: 880, total_amount: 880, paid_at: daysAgoIso(6),
+          order_items: [
+            { product_slug: 'anua-heartleaf-77-soothing-toner', product_name: 'Heartleaf 77% Soothing Toner', brand: 'Anua', quantity: 1, unit_price: 439, line_total: 439, image: '' },
+            { product_slug: 'cosrx-advanced-snail-96-mucin-essence', product_name: 'Advanced Snail 96 Mucin Power Essence', brand: 'COSRX', quantity: 1, unit_price: 441, line_total: 441, image: '' }
+          ],
+          shipments: [{ status: 'shipped', carrier: 'Yurtiçi Kargo', tracking_number: 'YK123456789', tracking_url: 'https://www.yurticikargo.com' }],
+          invoices: [{ pdf_url: '/assets/logo-mark-beige.png', number: 'FTR-24193' }]
+        },
+        {
+          id: 'ord-23771', order_number: 'CS-23771', status: 'delivered', payment_status: 'paid',
+          created_at: daysAgoIso(48), subtotal_amount: 1120, total_amount: 1120, paid_at: daysAgoIso(48),
+          order_items: [
+            { product_slug: 'laneige-water-sleeping-mask', product_name: 'Water Sleeping Mask', brand: 'Laneige', quantity: 1, unit_price: 620, line_total: 620, image: '' },
+            { product_slug: 'round-lab-1025-dokdo-cleanser', product_name: '1025 Dokdo Cleanser', brand: 'Round Lab', quantity: 1, unit_price: 500, line_total: 500, image: '' }
+          ],
+          shipments: [{ status: 'delivered', carrier: 'Aras Kargo' }], invoices: [{ pdf_url: '/assets/logo-mark-beige.png', number: 'FTR-23771' }]
+        }
+      ],
+      addresses: [
+        { id: 'adr-1', title: 'Ev', address_type: 'both', first_name: 'Elif', last_name: 'Demir', phone: '+90 532 000 00 00', city: 'İstanbul', district: 'Kadıköy', neighborhood: 'Caferağa Mah.', address_line: 'Moda Caddesi No: 42 D: 5', postal_code: '34710', is_default: true },
+        { id: 'adr-2', title: 'İş', address_type: 'shipping', first_name: 'Elif', last_name: 'Demir', phone: '+90 532 000 00 00', city: 'İstanbul', district: 'Şişli', neighborhood: 'Mecidiyeköy Mah.', address_line: 'Büyükdere Caddesi No: 120 Kat: 8', postal_code: '34394', is_default: false }
+      ],
+      favorites: [
+        { id: 'fav-1', product_slug: 'skin1004-madagascar-centella-ampoule' },
+        { id: 'fav-2', product_slug: 'beauty-of-joseon-glow-deep-serum' },
+        { id: 'fav-3', product_slug: 'cosrx-advanced-snail-96-mucin-essence' },
+        { id: 'fav-4', product_slug: 'torriden-dive-in-serum' }
+      ],
+      coupons: [
+        { code: 'WELCOME10', title: 'Hoş geldin indirimi', description: 'İlk siparişinde geçerli %10 indirim.', status: 'available', copyable: true, scope_label: 'Tüm ürünler', valid_until: daysAheadIso(30) },
+        { code: 'CLUB15', title: 'Signature üye avantajı', description: 'Seçili bakım ürünlerinde %15 indirim.', status: 'available', copyable: true, scope_label: 'Bakım kategorisi', valid_until: daysAheadIso(14) }
+      ],
+      locked_coupons: [
+        { code: 'BIRTHDAY10', title: 'Doğum günü kuponu', description: 'Doğum gününde otomatik görünür.', status: 'locked' }
+      ],
+      routine_results: [
+        {
+          id: 'rt-1', routine_title: 'Nem & Bariyer Rutini', is_active: true, updated_at: daysAgoIso(4),
+          skin_type: 'combination', primary_goal: 'hydration', sensitivity: 'medium', routine_preference: 'Dengeli (4-5 adım)',
+          result: { summary: 'Karma cilt için nem odaklı, bariyer destekleyici günlük rutin.', score: 82 },
+          products: [
+            { product_slug: 'anua-heartleaf-77-soothing-toner' },
+            { product_slug: 'torriden-dive-in-serum' },
+            { product_slug: 'cosrx-advanced-snail-96-mucin-essence' },
+            { product_slug: 'beauty-of-joseon-relief-sun-spf50' }
+          ]
+        }
+      ],
+      notifications: [
+        { id: 'n1', title: 'Siparişin hazırlanıyor', body: 'CS-24310 numaralı siparişin hazırlanmaya başlandı.', created_at: daysAgoIso(1), is_read: false, read_at: null },
+        { id: 'n2', title: 'Kargoya verildi', body: 'CS-24193 numaralı siparişin kargoya teslim edildi.', created_at: daysAgoIso(5), is_read: false, read_at: null },
+        { id: 'n3', title: 'Puan kazandın', body: '260 COSMOSKIN puanı hesabına tanımlandı.', created_at: daysAgoIso(48), is_read: true, read_at: daysAgoIso(47) }
+      ],
+      skin_profile: { skin_type: 'combination', sensitivity: 'medium', primary_goal: 'hydration', secondary_goal: 'barrier', routine_preference: 'Dengeli (4-5 adım)', updated_at: daysAgoIso(4) },
+      support_requests: [],
+      legal_consents: [],
+      notification_preferences: {
+        order_updates: true,
+        cargo_updates: true,
+        campaign_emails: false,
+        sms_notifications: false,
+        stock_notifications: true,
+        routine_reminders: false,
+        newsletter: false
+      }
+    };
+  }
+  function initDesignPreview() {
+    cfg = window.COSMOSKIN_CONFIG || {};
+    state.authenticated = true;
+    state.session = { access_token: 'design-preview', user: { email: 'elif.demir@example.com', app_metadata: { provider: 'email' }, email_confirmed_at: daysAgoIso(420) } };
+    state.summary = normalizeSummary(samplePreviewSummary());
+    renderAll();
+    var tab = normalizeTab(new URL(window.location.href).searchParams.get('tab') || 'overview');
+    setLoading(false);
+    switchTab(tab, false);
+    state.ready = true;
+    try {
+      var app = $('#accountApp'); if (app) app.dataset.state = 'preview';
+      console.info('%c[COSMOSKIN] Hesabım TASARIM ÖNİZLEME modu aktif — örnek verilerle, backend olmadan. Üretimi etkilemez.', 'color:#b58a4a;font-weight:700');
+    } catch (_) {}
+  }
+
   async function init() {
     try {
       ensureAccountDom();
       bindEvents();
       await (window.COSMOSKIN_PRODUCTS_READY || Promise.resolve());
+      if (isDesignPreview()) { initDesignPreview(); return; }
       var loggedIn = await initSession();
       if (!loggedIn) { showAuthGate('Hesap bilgilerinizi görüntülemek için giriş yapmanız gerekir.'); return; }
       await loadSummary();

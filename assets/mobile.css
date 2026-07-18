@@ -922,7 +922,7 @@ body {
   display:flex !important;
   position:fixed;
   left:12px; right:12px;
-  bottom:calc(var(--nav-h) + 8px);
+  bottom:calc(var(--cs-mobile-bottom-nav-height, var(--nav-h)) + var(--cs-mobile-safe-bottom, env(safe-area-inset-bottom, 0px)) + 8px);
   z-index:80;
   padding:10px 12px 10px 16px;
   border-radius:18px;

@@ -28,6 +28,7 @@
 
   function $(selector, root){ return (root || document).querySelector(selector); }
   function $$(selector, root){ return Array.prototype.slice.call((root || document).querySelectorAll(selector)); }
+  function reducedMotion(){ return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
   function esc(value){ return String(value == null ? '' : value).replace(/[&<>"]/g, function(ch){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]); }); }
   function lower(value){ return String(value || '').toLocaleLowerCase('tr-TR'); }
   function slug(){
@@ -299,6 +300,272 @@
     }).join('');
   }
 
+  function mobilePanelHead(kicker, title, copy){
+    return '<div class="pdp8-panel-head"><div><span class="pdp8-panel-kicker">' + esc(kicker) + '</span><h2>' + esc(title) + '</h2><p>' + esc(copy) + '</p></div></div>';
+  }
+
+  function mobileDisclosure(label, content, group){
+    return '<div class="pdp8-mobile-disclosure"' + (group ? ' data-pdp-disclosure-group="' + esc(group) + '"' : '') + ' data-pdp-disclosure-open="false"><button class="pdp8-mobile-disclosure__toggle" type="button" data-pdp-disclosure-toggle aria-expanded="false">' + esc(label) + '<span aria-hidden="true"></span></button><div class="pdp8-mobile-disclosure__body" hidden>' + content + '</div></div>';
+  }
+
+  function wrapDesktopPanelContent(panel){
+    if (!panel || $('.pdp8-desktop-content', panel)) return;
+    var desktop = document.createElement('div');
+    desktop.className = 'pdp8-desktop-content';
+    while (panel.firstChild) desktop.appendChild(panel.firstChild);
+    panel.appendChild(desktop);
+  }
+
+  function bindDisclosureGroup(root){
+    $$('[data-pdp-disclosure-group]', root).forEach(function(disclosure){
+      disclosure.dataset.pdpDisclosureBound = 'true';
+    });
+    if (document.documentElement.dataset.pdpDisclosureClickBound === 'true') return;
+    document.documentElement.dataset.pdpDisclosureClickBound = 'true';
+    document.addEventListener('click', function(event){
+      var toggle = event.target.closest('[data-pdp-disclosure-toggle]');
+      if (!toggle) return;
+      event.preventDefault();
+      var disclosure = toggle.closest('[data-pdp-disclosure-group]');
+      if (!disclosure) return;
+      var body = $('.pdp8-mobile-disclosure__body', disclosure);
+      var willOpen = disclosure.dataset.pdpDisclosureOpen !== 'true';
+      var group = disclosure.getAttribute('data-pdp-disclosure-group');
+      $$('[data-pdp-disclosure-group="' + group + '"]').forEach(function(other){
+        var otherToggle = $('[data-pdp-disclosure-toggle]', other);
+        var otherBody = $('.pdp8-mobile-disclosure__body', other);
+        var open = other === disclosure && willOpen;
+        other.dataset.pdpDisclosureOpen = open ? 'true' : 'false';
+        if (otherToggle) otherToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (otherBody) otherBody.hidden = !open;
+      });
+    }, true);
+  }
+
+  function renderMobileOverview(panel, product, guide, kind, ideal, benefits, usageTime){
+    if (!panel || $('.pdp8-mobile-content', panel)) return;
+    wrapDesktopPanelContent(panel);
+    var texture = guide.texture || (kind === 'sunscreen' ? 'Hafif SPF doku' : KIND_LABELS[kind] || 'Bakım dokusu');
+    var profile = ideal.slice(0,3).join(' · ') || 'Cilt profiline göre';
+    var facts = [
+      ['Rutin adımı', KIND_LABELS[kind] || product.category || 'Bakım'],
+      ['Doku', texture],
+      ['Uygun profil', profile],
+      ['Kullanım zamanı', usageTime]
+    ];
+    var notes = [
+      guide.editorNote || 'COSMOSKIN editör notu bu ürünün rutin içindeki konumuna göre hazırlanmıştır.',
+      guide.caution || 'Hassasiyetiniz varsa ilk kullanımda küçük bir bölgede denemeniz önerilir.',
+      guide.inciNote || 'Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.'
+    ];
+    var mobile = document.createElement('div');
+    mobile.className = 'pdp8-mobile-content';
+    mobile.innerHTML = mobilePanelHead('Ürün rehberi', 'Kısa ürün özeti', guide.lead || product.description || '') +
+      '<dl class="pdp8-mobile-facts">' + facts.map(function(item){
+        return '<div><dt>' + esc(item[0]) + '</dt><dd>' + esc(item[1]) + '</dd></div>';
+      }).join('') + '</dl>' +
+      '<div class="pdp8-chip-row">' + ideal.concat(benefits).slice(0,6).map(function(chip){ return '<span class="pdp8-chip">' + esc(chip) + '</span>'; }).join('') + '</div>' +
+      mobileDisclosure('Devamını Gör', '<ul class="pdp8-mobile-note-list">' + notes.map(function(note){ return '<li>' + esc(note) + '</li>'; }).join('') + '</ul>', 'overview');
+    panel.appendChild(mobile);
+    bindDisclosureGroup(mobile);
+  }
+
+  function renderMobileIngredients(panel, product, guide, ingredientsList){
+    if (!panel || $('.pdp8-mobile-content', panel)) return;
+    wrapDesktopPanelContent(panel);
+    var inciNote = guide.inciNote || 'İçerik bilgisi resmi kaynakla doğrulanmamıştır. Tam INCI listesi için ürün ambalajını veya markanın resmi sayfasını esas alın.';
+    var mobile = document.createElement('div');
+    mobile.className = 'pdp8-mobile-content';
+    mobile.innerHTML = mobilePanelHead('Formül analizi', 'İçerik ve formül odağı', 'Öne çıkan bakım bileşenleri ve formül karakteri.') +
+      '<div class="pdp8-mobile-ingredient-chips">' + ingredientsList.slice(0,3).map(function(item){
+        return '<span>' + esc(item.name || 'Öne çıkan içerik') + '</span>';
+      }).join('') + '</div>' +
+      mobileDisclosure('Tam İçerik Listesini Gör',
+        '<div class="pdp8-mobile-ingredient-list">' + ingredientsList.map(function(item){
+          return '<div><strong>' + esc(item.name || 'Öne çıkan içerik') + '</strong><p>' + esc(item.description || 'Ürünün bakım vaadiyle ilişkili içerik odağı.') + '</p></div>';
+        }).join('') + '</div><p class="pdp8-safe-note">' + esc(inciNote) + ' Kozmetik ürünlerde hassasiyetiniz varsa ilk kullanım öncesi yama testi yapmanız önerilir.</p>',
+        'ingredients');
+    panel.appendChild(mobile);
+    bindDisclosureGroup(mobile);
+  }
+
+  function renderMobileUsage(panel, guide, kind){
+    if (!panel || $('.pdp8-mobile-content', panel)) return;
+    wrapDesktopPanelContent(panel);
+    var steps = usageSteps(kind, guide.usage);
+    var mobile = document.createElement('div');
+    mobile.className = 'pdp8-mobile-content';
+    mobile.innerHTML = mobilePanelHead('Uygulama ritüeli', 'Nasıl kullanılır?', guide.usage || 'Ürünü rutindeki uygun adımda, temiz cilde uygulayın.') +
+      '<ol class="pdp8-mobile-usage-steps">' + steps.map(function(step){ return '<li>' + esc(step) + '</li>'; }).join('') + '</ol>' +
+      mobileDisclosure('Detaylı Kullanım Önerileri',
+        '<div class="pdp8-routine-mini"><small>Rutindeki yeri</small><div class="pdp8-routine-mini__steps">' + buildRoutineSteps(kind) + '</div></div><p class="pdp8-safe-note">' + esc(guide.caution || 'Hassasiyet durumunda kullanım sıklığını azaltarak başlayın; gündüz rutininizi SPF ile tamamlayın.') + '</p>',
+        'usage');
+    panel.appendChild(mobile);
+    bindDisclosureGroup(mobile);
+  }
+
+  function renderMobileFitContent(panel, product, guide){
+    if (!panel) return;
+    var existingMobile = $('.pdp8-mobile-content', panel);
+    if (existingMobile) existingMobile.remove();
+    wrapDesktopPanelContent(panel);
+    var profile = readProfile();
+    var meta = normalizeProductMeta(product, guide);
+    var mobile = document.createElement('div');
+    mobile.className = 'pdp8-mobile-content';
+    if (!hasProfile(profile)) {
+      mobile.innerHTML = mobilePanelHead('Kişisel uyum', 'Cilt profilime uygun mu?', 'Cilt profilinizi tamamlayarak bu ürünün rutininizdeki yerini görün.') +
+        '<div class="pdp8-mobile-fit-summary"><strong>Profil gerekli</strong><p>' + esc(meta.routineStep) + ' · ' + esc(meta.routineTime) + '</p><a class="btn btn-primary" href="/routine.html?source=pdp&product=' + esc(meta.slug) + '">Akıllı Rutinimi Oluştur</a></div>';
+    } else {
+      var fit = scoreFit(product, guide, profile);
+      var percent = fitPercent(fit.score, product, guide, profile);
+      var skin = profileSkin(profile);
+      var sens = profileSensitivity(profile);
+      var goals = profileGoals(profile);
+      var tags = [
+        SKIN_LABELS[skin] || profile.skinType,
+        SENS_LABELS[sens] ? SENS_LABELS[sens] + ' hassasiyet' : profile.sensitivity,
+        goals[0] ? (GOAL_LABELS[goals[0]] || goals[0]) : '',
+        meta.routineStep
+      ].filter(Boolean);
+      mobile.innerHTML = mobilePanelHead('Kişisel uyum', 'Cilt profilime uygun mu?', 'Profiliniz, ürün kategorisi ve ürün rehberi verileri birlikte değerlendirilir.') +
+        '<div class="pdp8-mobile-fit-summary"><div class="pdp8-mobile-fit-score"><strong>' + esc(percent) + '<span>/100</span></strong><div><b>' + esc(fit.label) + '</b><p>' + esc(fit.reasons[0] || 'Ürün profilinizle birlikte değerlendirildi.') + '</p></div></div>' +
+        '<div class="pdp8-chip-row">' + tags.map(function(tag){ return '<span class="pdp8-chip">' + esc(tag) + '</span>'; }).join('') + '</div></div>' +
+        mobileDisclosure('Detayı Gör',
+          '<ul class="pdp8-mobile-note-list">' + fit.reasons.concat(fit.cautions).map(function(reason){ return '<li>' + esc(reason) + '</li>'; }).join('') + '</ul><p class="pdp8-safe-note">Bu değerlendirme kozmetik bakım rehberidir; tıbbi tavsiye değildir.</p>',
+          'fit');
+    }
+    panel.appendChild(mobile);
+    bindDisclosureGroup(mobile);
+  }
+
+  function renderDeliveryPanel(tabs, tabList){
+    if (!tabs || !tabList || $('[data-pdp-tab="delivery"]', tabList)) return;
+    var tab = document.createElement('button');
+    tab.className = 'pdp5-tab pdp8-mobile-only-tab';
+    tab.type = 'button';
+    tab.dataset.pdpTab = 'delivery';
+    tab.setAttribute('role', 'tab');
+    tab.setAttribute('aria-selected', 'false');
+    tab.textContent = 'Teslimat & İade';
+    tabList.appendChild(tab);
+    var panel = document.createElement('div');
+    panel.className = 'pdp5-panel pdp8-mobile-only-panel';
+    panel.dataset.pdpPanel = 'delivery';
+    panel.setAttribute('role', 'tabpanel');
+    panel.hidden = true;
+    panel.innerHTML = mobilePanelHead('Sipariş bilgileri', 'Teslimat & İade', 'Teslimat, ödeme ve iade koşullarını kısa başlıklar altında inceleyin.') +
+      '<div class="pdp8-delivery-accordions">' +
+      mobileDisclosure('Teslimat süresi', '<p>Kargoya teslim edilen siparişler genellikle 1–3 iş gününde teslim edilir. Süre adres, operasyon yoğunluğu, resmi tatiller ve bölgesel koşullara göre değişebilir.</p>', 'delivery') +
+      mobileDisclosure('Ücretsiz kargo koşulları', '<p>2.500 TL ve üzeri siparişlerde ücretsiz kargo uygulanır. Eşik dönemsel kampanya, Club avantajı veya operasyonel koşullara göre güncellenebilir.</p>', 'delivery') +
+      mobileDisclosure('Güvenli ödeme', '<p>Kart ödemeleri iyzico altyapısı üzerinden yürütülür. COSMOSKIN kart bilgilerini doğrudan saklamaz.</p><a href="/odeme-ve-guvenlik.html">Ödeme ve güvenlik bilgileri</a>', 'delivery') +
+      mobileDisclosure('İade ve cayma hakkı', '<p>Mevzuattaki şartlar dahilinde teslimden itibaren 14 gün içinde cayma hakkı kullanılabilir. Kozmetik ve hijyen ürünlerinde ambalaj, jelatin, koruma bandı ve kullanılmamış ürün koşulları değerlendirilir.</p><a href="/legal/iade-ve-cayma-politikasi.html">İade politikasını incele</a>', 'delivery') +
+      mobileDisclosure('Hasarlı veya eksik teslimat', '<p>Hasarlı, yanlış veya eksik ürünlerde sipariş numarası ve fotoğraf/video ile teslimattan itibaren 48 saat içinde destek@cosmoskin.com.tr adresine bildirim yapılması hızlı çözüm için önemlidir; yasal haklar saklıdır.</p><a href="/legal/teslimat-ve-kargo.html#hasar">Teslimat politikasını incele</a>', 'delivery') +
+      '</div><div class="pdp8-policy-links"><a href="/legal/teslimat-ve-kargo.html">Teslimat ve Kargo</a><a href="/legal/iade-ve-cayma-politikasi.html">İade ve Cayma</a></div>';
+    tabs.appendChild(panel);
+    bindDisclosureGroup(panel);
+  }
+
+  function setupTabAccessibility(tabs){
+    if (!tabs) return;
+    var tabList = $('.pdp5-tablist', tabs);
+    if (!tabList) return;
+    var controls = $$('.pdp5-tab', tabList);
+    controls.forEach(function(tab, index){
+      var id = tab.getAttribute('data-pdp-tab') || ('tab-' + index);
+      tab.id = 'pdp-tab-' + id;
+      tab.setAttribute('tabindex', tab.classList.contains('is-active') ? '0' : '-1');
+      if (tab.hasAttribute('data-pdp-scroll-reviews')) {
+        tab.setAttribute('aria-controls', 'reviewsSection');
+        return;
+      }
+      var panel = $('[data-pdp-panel="' + id + '"]', tabs);
+      if (!panel) return;
+      panel.id = 'pdp-panel-' + id;
+      panel.setAttribute('aria-labelledby', tab.id);
+      tab.setAttribute('aria-controls', panel.id);
+      tab.setAttribute('aria-selected', tab.classList.contains('is-active') ? 'true' : 'false');
+    });
+    if (tabList.dataset.pdpKeyboardBound === 'true') return;
+    tabList.dataset.pdpKeyboardBound = 'true';
+    tabList.addEventListener('keydown', function(event){
+      if (['ArrowLeft','ArrowRight','Home','End'].indexOf(event.key) === -1) return;
+      var visible = $$('.pdp5-tab', tabList).filter(function(item){ return item.offsetParent !== null; });
+      var current = visible.indexOf(document.activeElement);
+      if (current < 0) return;
+      event.preventDefault();
+      var next = event.key === 'Home' ? 0 : event.key === 'End' ? visible.length - 1 : (current + (event.key === 'ArrowRight' ? 1 : -1) + visible.length) % visible.length;
+      visible[next].focus();
+      visible[next].click();
+    });
+  }
+
+  function setupMobileWishlist(){
+    var favorite = $('.pdp5-actions .pdp5-favorite');
+    var gallery = $('.pdp5-media-card');
+    var actions = favorite && favorite.parentNode;
+    if (!favorite || !gallery || !actions || favorite.dataset.pdpMobileRelocate === 'true') return;
+    favorite.dataset.pdpMobileRelocate = 'true';
+    var marker = document.createComment('pdp wishlist position');
+    actions.insertBefore(marker, favorite);
+    favorite.classList.add('pdp8-gallery-favorite');
+    var media = window.matchMedia('(max-width: 767px)');
+    function sync(){
+      if (media.matches) gallery.appendChild(favorite);
+      else if (marker.parentNode) marker.parentNode.insertBefore(favorite, marker.nextSibling);
+    }
+    if (document.documentElement.dataset.pdpGalleryFavoriteBound !== 'true') {
+      document.documentElement.dataset.pdpGalleryFavoriteBound = 'true';
+      document.addEventListener('click', function(event){
+        var button = event.target.closest('.pdp8-gallery-favorite');
+        if (!button || !window.matchMedia('(max-width: 767px)').matches) return;
+        var store = window.COSMOSKINFavorites;
+        if (!store || typeof store.toggle !== 'function') return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (button.dataset.pdpFavoriteBusy === 'true') return;
+        button.dataset.pdpFavoriteBusy = 'true';
+        store.toggle({
+          id: button.dataset.favoriteId,
+          slug: button.dataset.favoriteId,
+          name: button.dataset.name,
+          brand: button.dataset.brand,
+          price: Number(button.dataset.price || 0),
+          image: button.dataset.image,
+          url: button.dataset.url || location.pathname
+        }).then(function(active){
+          button.setAttribute('aria-pressed', active ? 'true' : 'false');
+          button.setAttribute('aria-label', active ? 'Favorilerden kaldır' : 'Favorilere ekle');
+        }).catch(function(){
+          button.setAttribute('aria-label', 'Favori güncellenemedi');
+        }).finally(function(){
+          delete button.dataset.pdpFavoriteBusy;
+        });
+      }, true);
+    }
+    sync();
+    if (media.addEventListener) media.addEventListener('change', sync);
+    else if (media.addListener) media.addListener(sync);
+  }
+
+  function renderMobileArchitecture(product, guide){
+    var tabs = $('.pdp5-tabs');
+    var tabList = $('.pdp5-tablist', tabs || document);
+    if (!tabs || !tabList || !guide) return;
+    var kind = normalizeKind(guide.kind, product && product.category);
+    var ideal = toArray(guide.idealSkinTypes).slice(0,5);
+    var benefits = toArray(guide.benefits).slice(0,5);
+    var usageTime = guide.usageTime || (kind === 'sunscreen' ? 'Sabah' : 'Sabah & Akşam');
+    var ingredientsList = toArray(guide.ingredients).slice(0,6);
+    renderMobileOverview($('[data-pdp-panel="overview"]', tabs), product, guide, kind, ideal, benefits, usageTime);
+    renderMobileIngredients($('[data-pdp-panel="ingredients"]', tabs), product, guide, ingredientsList);
+    renderMobileUsage($('[data-pdp-panel="usage"]', tabs), guide, kind);
+    renderMobileFitContent($('[data-pdp-panel="fit"]', tabs), product, guide);
+    renderDeliveryPanel(tabs, tabList);
+    setupTabAccessibility(tabs);
+    setupMobileWishlist();
+  }
+
   function renderTabs(product, guide){
     var tabList = $('.pdp5-tablist');
     var tabs = $('.pdp5-tabs');
@@ -332,7 +599,7 @@
 
     if (overview) {
       var texture = guide.texture || (kind === 'sunscreen' ? 'Hafif SPF doku' : KIND_LABELS[kind] || 'Bakım dokusu');
-      overview.innerHTML = '<div class="pdp8-panel-head"><div><h2>Kısa ürün özeti</h2><p>' + esc(guide.lead || product.description || '') + '</p></div></div>' +
+      overview.innerHTML = '<div class="pdp8-panel-head"><div><span class="pdp8-panel-kicker">Ürün rehberi</span><h2>Kısa ürün özeti</h2><p>' + esc(guide.lead || product.description || '') + '</p></div></div>' +
         '<div class="pdp8-summary-grid pdp8-summary-grid--compact">' +
         '<article class="pdp8-summary-card"><small>Rutin adımı</small><strong>' + esc(KIND_LABELS[kind] || product.category || 'Bakım') + '</strong><span>' + esc(routineSentence(kind)) + '</span></article>' +
         '<article class="pdp8-summary-card"><small>Doku</small><strong>' + esc(texture) + '</strong><span>' + esc(usageMicroCopy(kind, usageTime)) + '</span></article>' +
@@ -347,14 +614,14 @@
     }
     if (ingredients) {
       var ingredientVisual = guide.images && (guide.images.ingredientVisual || guide.images.ingredientVisualCustom || guide.images.fallbackIngredientVisual);
-      ingredients.innerHTML = '<div class="pdp8-panel-head"><div><h2>İçerik ve formül odağı</h2><p>Bu bölüm ürünün öne çıkan içerik yaklaşımını ve doku karakterini özetler. Marka formülleri dönemsel güncellenebileceği için nihai INCI kontrolü her zaman ürün ambalajından yapılmalıdır.</p></div></div>' +
-        '<div class="pdp8-ingredient-layout"><div class="pdp8-ingredient-list">' + ingredientsList.map(function(item){ return '<article class="pdp8-ingredient-card"><b>' + esc(item.name || 'Öne çıkan içerik') + '</b><span>' + esc(item.description || 'Ürünün bakım vaadiyle ilişkili içerik odağı.') + '</span></article>'; }).join('') + '</div>' +
+      ingredients.innerHTML = '<div class="pdp8-panel-head"><div><span class="pdp8-panel-kicker">Formül analizi</span><h2>İçerik ve formül odağı</h2><p>Bu bölüm ürünün öne çıkan içerik yaklaşımını ve doku karakterini özetler. Marka formülleri dönemsel güncellenebileceği için nihai INCI kontrolü her zaman ürün ambalajından yapılmalıdır.</p></div></div>' +
+        '<div class="pdp8-ingredient-layout"><div class="pdp8-ingredient-list">' + ingredientsList.map(function(item, index){ return '<article class="pdp8-ingredient-card"><small>' + String(index + 1).padStart(2, '0') + '</small><b>' + esc(item.name || 'Öne çıkan içerik') + '</b><span>' + esc(item.description || 'Ürünün bakım vaadiyle ilişkili içerik odağı.') + '</span></article>'; }).join('') + '</div>' +
         (ingredientVisual ? '<figure class="pdp8-ingredient-visual"><img alt="' + esc((guide.texture || product.name || 'Ürün dokusu')) + ' doku görseli" src="' + esc(ingredientVisual) + '" loading="lazy"><figcaption>' + esc(guide.texture || 'Formül dokusu') + '</figcaption></figure>' : '') + '</div>' +
         '<p class="pdp8-safe-note">' + esc(guide.inciNote || 'Tam içerik listesi için ürün ambalajındaki güncel INCI bilgisini esas alın.') + ' Kozmetik ürünlerde hassasiyetiniz varsa ilk kullanım öncesi yama testi yapmanız önerilir.</p>';
     }
     if (usage) {
       var steps = usageSteps(kind, guide.usage);
-      usage.innerHTML = '<div class="pdp8-panel-head"><div><h2>Nasıl kullanılır?</h2><p>' + esc(guide.usage || 'Ürünü rutindeki uygun adımda, temiz cilde uygulayın.') + '</p></div></div>' +
+      usage.innerHTML = '<div class="pdp8-panel-head"><div><span class="pdp8-panel-kicker">Uygulama ritüeli</span><h2>Nasıl kullanılır?</h2><p>' + esc(guide.usage || 'Ürünü rutindeki uygun adımda, temiz cilde uygulayın.') + '</p></div></div>' +
         '<div class="pdp8-usage-grid"><ol class="pdp8-usage-steps">' + steps.map(function(step){ return '<li>' + esc(step) + '</li>'; }).join('') + '</ol>' +
         '<aside class="pdp8-routine-mini"><small>Rutindeki yeri</small><div class="pdp8-routine-mini__steps">' + buildRoutineSteps(kind) + '</div></aside></div>';
     }
@@ -529,15 +796,95 @@
     if (current && candidate && current.brand === candidate.brand) score += .4;
     return score;
   }
-  function buildRecommendationCard(candidate, guide, reason, label){
+  function routineStepLabel(kind){
+    var steps = { cleanser:'1. Adım · Temizleyici', toner:'2. Adım · Tonik', serum:'3. Adım · Serum', moisturizer:'4. Adım · Nemlendirici', sunscreen:'5. Adım · SPF', mask:'Haftalık · Maske', spot:'Hedef bakım' };
+    return steps[kind] || 'Tamamlayıcı bakım';
+  }
+  function isKnownUnavailable(product){
+    var stock = window.COSMOSKIN_STOCK;
+    if (!stock || typeof stock.getInventory !== 'function') return false;
+    var inv = stock.getInventory(product && product.slug);
+    if (!inv || inv._missing || inv.status === 'missing') return false;
+    return inv.status !== 'active' || (!inv.allow_backorder && Number(inv.available_stock || 0) <= 0);
+  }
+  function buildRecommendationCard(candidate, guide, reason, kind){
     var img = candidate.image || (guide && guide.images && guide.images.product) || '/assets/img/editorial.jpg';
     var url = candidate.url || ('/products/' + candidate.slug + '.html');
     var heart = '<button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="' + esc(candidate.slug) + '" data-name="' + esc(candidate.name || '') + '" data-brand="' + esc(candidate.brand || '') + '" data-price="' + esc(candidate.price || 0) + '" data-image="' + esc(img) + '" data-url="' + esc(url) + '"><span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></button>';
-    return '<article class="product-card cs-product-card pdp-related-card pdp8-related-card" data-product-id="' + esc(candidate.slug) + '">' +
-      '<span class="pdp8-rec-label">' + esc(label) + '</span>' +
-      '<div class="product-media-wrap"><a class="product-media" href="' + esc(url) + '"><img alt="' + esc(candidate.name) + '" loading="lazy" src="' + esc(img) + '"/></a>' + heart + '</div>' +
-      '<div class="product-body"><div class="product-meta">' + esc(candidate.brand || '') + '</div><h3><a href="' + esc(candidate.url || ('/products/' + candidate.slug + '.html')) + '">' + esc(candidate.name || '') + '</a></h3><p class="pdp8-rec-reason">' + esc(reason) + '</p><div class="product-price">' + money(candidate.price) + '</div>' +
-      '<button class="btn btn-secondary" data-add-cart data-id="' + esc(candidate.slug) + '" data-slug="' + esc(candidate.slug) + '" data-name="' + esc(candidate.name || '') + '" data-brand="' + esc(candidate.brand || '') + '" data-price="' + esc(candidate.price || 0) + '" data-image="' + esc(img) + '" data-url="' + esc(candidate.url || ('/products/' + candidate.slug + '.html')) + '" type="button">Sepete Ekle</button></div></article>';
+    return '<article class="product-card cs-product-card pdp-related-card pdp8-related-card" data-product-id="' + esc(candidate.slug) + '" data-routine-kind="' + esc(kind) + '">' +
+      '<div class="product-media-wrap"><a class="product-media" href="' + esc(url) + '" aria-label="' + esc(candidate.brand + ' ' + candidate.name) + ' ürününü incele"><img alt="' + esc(candidate.brand + ' ' + candidate.name) + '" loading="lazy" src="' + esc(img) + '"/></a>' + heart + '</div>' +
+      '<div class="product-body"><span class="pdp8-rec-step">' + esc(routineStepLabel(kind)) + '</span><div class="product-meta">' + esc(candidate.brand || '') + '</div><h3><a href="' + esc(url) + '">' + esc(candidate.name || '') + '</a></h3><p class="pdp8-rec-reason">' + esc(reason) + '</p>' +
+      '<span class="pdp8-rec-rating" data-pdp-rec-rating="' + esc(candidate.slug) + '" aria-hidden="true"></span>' +
+      '<div class="pdp8-rec-bottom"><div><div class="product-price">' + money(candidate.price) + '</div>' + (candidate.volume ? '<span class="pdp8-rec-volume">' + esc(candidate.volume) + '</span>' : '') + '</div>' +
+      '<button class="btn btn-secondary" data-add-cart data-id="' + esc(candidate.slug) + '" data-slug="' + esc(candidate.slug) + '" data-name="' + esc(candidate.name || '') + '" data-brand="' + esc(candidate.brand || '') + '" data-price="' + esc(candidate.price || 0) + '" data-image="' + esc(img) + '" data-url="' + esc(url) + '" type="button">Sepete Ekle</button></div></div></article>';
+  }
+  function recommendationStars(value){
+    var rounded = Math.max(0, Math.min(5, Math.round(Number(value || 0))));
+    return '★★★★★'.slice(0, rounded) + '☆☆☆☆☆'.slice(0, 5 - rounded);
+  }
+  function hydrateRecommendationRatings(grid){
+    if (!grid || typeof fetch !== 'function') return;
+    var apiBase = ((window.COSMOSKIN_CONFIG && window.COSMOSKIN_CONFIG.apiBase) || '/api').replace(/\/$/, '');
+    $$('[data-pdp-rec-rating]', grid).forEach(function(node){
+      var productSlug = node.getAttribute('data-pdp-rec-rating');
+      if (!productSlug) return;
+      fetch(apiBase + '/reviews?product_slug=' + encodeURIComponent(productSlug), { credentials:'same-origin' })
+        .then(function(response){ return response.ok ? response.json() : null; })
+        .then(function(data){
+          var summary = data && data.summary;
+          var count = Number(summary && (summary.count || summary.total) || 0);
+          var avg = Number(summary && (summary.avg || summary.average) || 0);
+          if (!(count > 0 && avg > 0)) return;
+          node.innerHTML = '<span aria-hidden="true">' + recommendationStars(avg) + '</span><strong>' + esc(avg.toFixed(1)) + '</strong><span>(' + esc(count) + ')</span>';
+          node.removeAttribute('aria-hidden');
+          node.setAttribute('aria-label', avg.toFixed(1) + ' puan, ' + count + ' yorum');
+          node.classList.add('is-ready');
+        }).catch(function(){});
+    });
+  }
+  function setupRecommendationCarousel(section, grid){
+    if (!section || !grid) return;
+    var oldControls = $('.pdp8-related-controls', section);
+    if (oldControls) oldControls.remove();
+    if (grid._pdpRelatedScrollUpdate) {
+      grid.removeEventListener('scroll', grid._pdpRelatedScrollUpdate);
+      window.removeEventListener('resize', grid._pdpRelatedScrollUpdate);
+      grid._pdpRelatedScrollUpdate = null;
+    }
+    grid.setAttribute('role', 'region');
+    grid.setAttribute('aria-label', 'Rutinini tamamlayan ürünler');
+    grid.setAttribute('tabindex', '0');
+    var controls = document.createElement('div');
+    controls.className = 'pdp8-related-controls';
+    controls.innerHTML = '<div class="pdp8-related-progress" aria-hidden="true"><span class="pdp8-related-progress__thumb"></span></div><div class="pdp8-related-arrows"><button type="button" data-pdp-related-prev aria-label="Önceki tamamlayıcı ürün"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg></button><button type="button" data-pdp-related-next aria-label="Sonraki tamamlayıcı ürün"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button></div>';
+    grid.insertAdjacentElement('afterend', controls);
+    var prev = $('[data-pdp-related-prev]', controls);
+    var next = $('[data-pdp-related-next]', controls);
+    var track = $('.pdp8-related-progress', controls);
+    function cardStep(){
+      var card = $('.pdp8-related-card', grid);
+      if (!card) return grid.clientWidth;
+      var gap = parseFloat(getComputedStyle(grid).columnGap || getComputedStyle(grid).gap || 0);
+      return card.getBoundingClientRect().width + gap;
+    }
+    function update(){
+      var max = Math.max(0, grid.scrollWidth - grid.clientWidth);
+      var ratio = max > 0 ? Math.max(0, Math.min(1, grid.scrollLeft / max)) : 0;
+      if (track) track.style.setProperty('--pdp-related-progress', ratio.toFixed(4));
+      if (prev) { prev.disabled = grid.scrollLeft <= 3; prev.setAttribute('aria-disabled', prev.disabled ? 'true' : 'false'); }
+      if (next) { next.disabled = grid.scrollLeft >= max - 3; next.setAttribute('aria-disabled', next.disabled ? 'true' : 'false'); }
+    }
+    grid._pdpRelatedScrollUpdate = update;
+    prev.addEventListener('click', function(){ grid.scrollBy({ left:-cardStep(), behavior:reducedMotion() ? 'auto' : 'smooth' }); });
+    next.addEventListener('click', function(){ grid.scrollBy({ left:cardStep(), behavior:reducedMotion() ? 'auto' : 'smooth' }); });
+    grid.addEventListener('scroll', update, { passive:true });
+    grid.addEventListener('keydown', function(event){
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      grid.scrollBy({ left:(event.key === 'ArrowRight' ? 1 : -1) * cardStep(), behavior:reducedMotion() ? 'auto' : 'smooth' });
+    });
+    window.addEventListener('resize', update, { passive:true });
+    requestAnimationFrame(update);
   }
   function renderRecommendations(products, guides, currentSlug){
     var section = $('.pdp5-related');
@@ -549,39 +896,55 @@
     if (!current || !currentGuide) return;
     var profile = readProfile();
     var currentKind = normalizeKind(currentGuide.kind, current.category);
-    var scored = (products || []).filter(function(product){ return product.slug !== currentSlug && guides[product.slug]; }).map(function(product){
+    var scored = (products || []).filter(function(product){ return product.slug !== currentSlug && guides[product.slug] && !isKnownUnavailable(product); }).map(function(product){
       var candidateGuide = guides[product.slug];
       var kind = normalizeKind(candidateGuide.kind, product.category);
       return { product: product, guide: candidateGuide, kind: kind, score: scoreCandidate(current, currentGuide, product, candidateGuide, profile) };
     }).sort(function(a,b){ return b.score - a.score; });
     var picks = [];
     var kinds = Object.create(null);
+    var seen = Object.create(null);
     scored.forEach(function(item){
       if (picks.length >= 4) return;
-      var allowSameKind = item.kind === currentKind && picks.filter(function(p){ return p.kind === currentKind; }).length < 1;
-      var allowKind = !kinds[item.kind] || allowSameKind;
-      if (!allowKind && picks.length < 3) return;
-      picks.push(item); kinds[item.kind] = true;
+      if (item.kind === currentKind || seen[item.product.slug]) return;
+      if (kinds[item.kind] && picks.length < 3) return;
+      picks.push(item); kinds[item.kind] = true; seen[item.product.slug] = true;
     });
+    if (picks.length < 3) {
+      scored.forEach(function(item){
+        if (picks.length >= 4 || seen[item.product.slug]) return;
+        picks.push(item); seen[item.product.slug] = true;
+      });
+    }
     if (!picks.length) return;
     section.dataset.pdp8Recommendations = 'true';
     if (head) {
       var title = $('h2', head); var kicker = $('.kicker', head); var link = $('a', head);
-      if (kicker) kicker.textContent = hasProfile(profile) ? 'Cilt profilinize göre' : 'Rutini tamamlayan seçimler';
-      if (title) title.textContent = 'Bu ürünle uyumlu öneriler';
+      if (kicker) kicker.textContent = 'COSMOSKIN Rutin Önerisi';
+      if (title) title.textContent = 'Rutinini Tamamla';
       if (link) link.href = '/routine.html';
-      if (link) link.textContent = 'Rutinini oluştur';
-      var mode = document.createElement('div');
-      mode.className = 'pdp8-related-mode';
-      mode.innerHTML = '<span>Rutin adımı uyumu</span><span>Cilt profili sinyali</span><span>Stokta olan ürün odağı</span>';
-      head.appendChild(mode);
+      if (link) link.textContent = 'Tüm rutini gör';
+      var oldMode = $('.pdp8-related-mode', head);
+      if (oldMode) oldMode.remove();
+      var support = $('.pdp8-related-support', head);
+      if (!support) {
+        support = document.createElement('p');
+        support.className = 'pdp8-related-support';
+        var copy = $('div', head) || head;
+        copy.appendChild(support);
+      }
+      support.textContent = 'Bu ürünle birlikte kullanabileceğin tamamlayıcı bakım adımları.';
     }
     grid.innerHTML = picks.map(function(item){
-      var label = item.kind === currentKind ? 'Alternatif' : 'Tamamlayıcı';
-      return buildRecommendationCard(item.product, item.guide, candidateReason(currentKind, item.kind, profile, item.guide), label);
+      return buildRecommendationCard(item.product, item.guide, candidateReason(currentKind, item.kind, profile, item.guide), item.kind);
     }).join('');
+    setupRecommendationCarousel(section, grid);
     if (window.initCartButtons) window.initCartButtons(grid);
     if (window.initFavoriteButtons) window.initFavoriteButtons(grid);
+    hydrateRecommendationRatings(grid);
+    if (window.COSMOSKIN_STOCK && typeof window.COSMOSKIN_STOCK.loadInventory === 'function') {
+      window.COSMOSKIN_STOCK.loadInventory(picks.map(function(item){ return item.product.slug; }));
+    }
   }
 
   function enhanceGuide(guides, currentSlug){
@@ -632,22 +995,33 @@
     document.documentElement.dataset.pdp8DelegatedTabs = 'true';
     document.addEventListener('click', function(event){
       var tab = event.target.closest('.pdp5-tab[data-pdp-tab]');
-      if (!tab || tab.hasAttribute('data-pdp-scroll-reviews')) return;
+      if (!tab) return;
+      if (tab.hasAttribute('data-pdp-scroll-reviews')) {
+        document.querySelectorAll('.pdp5-tab').forEach(function(item){
+          var activeReview = item === tab;
+          item.classList.toggle('is-active', activeReview);
+          item.setAttribute('aria-selected', activeReview ? 'true' : 'false');
+          item.setAttribute('tabindex', activeReview ? '0' : '-1');
+        });
+        var reviews = document.getElementById('reviewsSection');
+        if (reviews) reviews.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block:'start' });
+        return;
+      }
       var root = tab.closest('.pdp5-tabs');
       var id = tab.getAttribute('data-pdp-tab');
       if (!root || !id) return;
       root.querySelectorAll('.pdp5-tab').forEach(function(item){
-        if (item.hasAttribute('data-pdp-scroll-reviews')) return;
         var active = item === tab;
         item.classList.toggle('is-active', active);
         if (item.hasAttribute('aria-selected')) item.setAttribute('aria-selected', active ? 'true' : 'false');
+        item.setAttribute('tabindex', active ? '0' : '-1');
       });
       root.querySelectorAll('.pdp5-panel').forEach(function(panel){
         var activePanel = panel.getAttribute('data-pdp-panel') === id;
         panel.classList.toggle('is-active', activePanel);
         panel.hidden = !activePanel;
       });
-    });
+    }, true);
   }
 
   async function init(){
@@ -665,6 +1039,7 @@
     enhanceGallery(guide);
     refreshPdpProfessionalPricing();
     renderTabs(product, guide);
+    renderMobileArchitecture(product, guide);
     renderRoutineAside(product, guide);
     renderRecommendations(products, guides, currentSlug);
     enhanceGuide(guides, currentSlug);
@@ -678,6 +1053,7 @@
     window.addEventListener('cosmoskin:skin-profile-change', function(){
       var fitPanel = $('[data-pdp-panel="fit"]');
       renderFitPanel(fitPanel, product, guide);
+      renderMobileFitContent(fitPanel, product, guide);
       var related = $('.pdp5-related');
       if (related) { related.dataset.pdp8Recommendations = ''; var grid = $('.pdp5-related-grid', related); if (grid) renderRecommendations(products, guides, currentSlug); }
     });

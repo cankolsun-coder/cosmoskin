@@ -1,5 +1,9 @@
 /* COSMOSKIN Mobile Redesign v1 — mobile-only architecture layer.
    Desktop protection: every visual rule is scoped under max-width/tablet media queries. */
+
+/* Desktop: hide mobile-only hero product media (shown only under cs-mobile-v1-active). */
+.home-hero__media { display: none; }
+
 @media (max-width: 767px) {
   :root {
     --cs-mobile-bg: #f7f1ea;
@@ -43,17 +47,101 @@
   body.cs-mobile-v1-active .cm-bottom-nav--fallback,
   body.cs-mobile-v1-active nav.cm-bottom-nav:not(.cs-mobile-v1-bottom-nav) { display: none !important; }
 
-  /* Original desktop chrome hidden on mobile only; new mobile v1 shell replaces it. */
+  /* Original desktop chrome hidden on mobile only; new mobile v1 shell replaces it.
+     Header is moved into #cs-mobile-v1-page-stage, so it is no longer a direct body child —
+     match both placements or the legacy .header-tools bar leaks under the v1 header. */
   body.cs-mobile-v1-active > header.header,
+  body.cs-mobile-v1-active #cs-mobile-v1-page-stage > header.header,
   body.cs-mobile-v1-active header.account-header,
   body.cs-mobile-v1-active .mobile-nav,
   body.cs-mobile-v1-active #mobileNav,
-  body.cs-mobile-v1-active .site-search-form--mobile { display: none !important; }
+  body.cs-mobile-v1-active .site-search-form--mobile,
+  body.cs-mobile-v1-active header.header .header-tools { display: none !important; }
+
+  /* Mobile announcement — seamless, complete four-message ticker */
+  body.cs-mobile-v1-active .announcement {
+    position: relative !important;
+    top: auto !important;
+    z-index: 6490 !important;
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+    background: #101419 !important;
+    border: 0 !important;
+  }
+  body.cs-mobile-v1-active .announcement .marquee {
+    width: max-content !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    display: flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: rgba(255,255,255,.90) !important;
+    white-space: nowrap !important;
+    will-change: transform;
+    animation: csMobileAnnouncementTicker 13s linear infinite !important;
+  }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__group {
+    height: 36px;
+    display: flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    gap: 0 !important;
+    white-space: nowrap !important;
+  }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__group > span {
+    position: relative;
+    height: 36px;
+    display: inline-flex !important;
+    align-items: center !important;
+    flex: 0 0 auto !important;
+    padding: 0 46px 0 18px !important;
+    color: rgba(255,255,255,.90) !important;
+    font: 600 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .09em !important;
+    text-transform: none !important;
+    opacity: 1 !important;
+  }
+  body.cs-mobile-v1-active .announcement .cs-mobile-announcement__group > span::after {
+    content: "";
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.28);
+    transform: translateY(-50%);
+  }
+  body.cs-mobile-v1-active .announcement .marquee span + span::before {
+    content: none !important;
+    display: none !important;
+  }
+  @keyframes csMobileAnnouncementTicker {
+    from { transform: translate3d(0,0,0); }
+    to { transform: translate3d(-50%,0,0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.cs-mobile-v1-active .announcement .marquee {
+      animation: none !important;
+      transform: none !important;
+    }
+  }
 
   .cs-mobile-v1-header {
     position: sticky; top: 0; z-index: 6500;
     min-height: var(--cs-mobile-header-height);
-    display: flex; align-items: center; justify-content: space-between;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 10px;
     padding: 10px var(--cs-mobile-container);
     background: rgba(255, 250, 244, .94);
     backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
@@ -61,11 +149,13 @@
     box-shadow: 0 10px 30px rgba(42, 32, 22, .06);
   }
   .cs-mobile-v1-logo {
-    position: absolute;
-    left: 50%;
-    transform: translateX(calc(-50% - 14px));
+    position: static;
+    left: auto;
+    transform: translateX(5px);
+    grid-column: 2;
+    justify-self: center;
     display: inline-flex; justify-content: center; align-items: center; min-width: 0;
-    max-width: calc(100% - 136px);
+    max-width: 100%;
     color: var(--cs-mobile-ink); text-decoration: none;
     font-family: "Cormorant Garamond", Didot, "Bodoni 72", Georgia, serif;
     font-size: clamp(21px, 5.9vw, 29px);
@@ -84,6 +174,10 @@
     position: relative;
     z-index: 2;
   }
+  .cs-mobile-v1-header > .cs-mobile-v1-iconbtn[data-cs-open="menu"] {
+    grid-column: 1;
+    justify-self: start;
+  }
   .cs-mobile-v1-logo span {
     display: block;
     overflow: visible;
@@ -101,11 +195,37 @@
     outline: 2px solid rgba(181, 138, 74, .45);
     outline-offset: 2px;
   }
-  .cs-mobile-v1-iconbtn svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
-  .cs-mobile-v1-tools { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+  .cs-mobile-v1-iconbtn svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  .cs-mobile-v1-header > .cs-mobile-v1-iconbtn[data-cs-open="menu"] svg {
+    width: 22px;
+    height: 22px;
+  }
+  .cs-mobile-v1-tools .cs-mobile-v1-iconbtn[data-cs-open="cart"] svg {
+    width: 21px;
+    height: 21px;
+    transform: translateY(.5px);
+  }
+  .cs-mobile-v1-tools {
+    grid-column: 3;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 2px;
+    margin-left: 4px;
+  }
   .cs-mobile-v1-badge {
-    position: absolute; top: -3px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
-    background: #1a120b; color: #fff; font: 700 10px/18px "Plus Jakarta Sans", system-ui, sans-serif; text-align: center; border: 2px solid #fffaf4;
+    position: absolute; top: 4px; right: 2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
+    background: #1a120b; color: #fff; font: 700 9px/16px "Plus Jakarta Sans", system-ui, sans-serif; text-align: center; border: 1.5px solid #fffaf4;
   }
 
   .cs-mobile-v1-bottom-nav {
@@ -116,15 +236,85 @@
     background: rgba(255, 250, 244, .96); border-top: 1px solid var(--cs-mobile-line);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 -16px 34px rgba(37, 29, 21, .10);
+    isolation: isolate;
+    --cs-tab-indicator-index: 0;
+  }
+  .cs-mobile-v1-tab-indicator {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: calc((100% - 16px) / 5);
+    height: calc(100% - 16px - var(--cs-mobile-safe-bottom));
+    border-radius: 18px;
+    background: rgba(31, 23, 16, .055);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .42);
+    transform: translate3d(calc(var(--cs-tab-indicator-index, 0) * 100%), 0, 0);
+    transition: transform .38s cubic-bezier(.22, .9, .28, 1);
+    pointer-events: none;
+    z-index: 0;
+    will-change: transform;
   }
   body.cs-checkout-mobile .cs-mobile-v1-bottom-nav { display: none !important; }
   body.cs-checkout-mobile { padding-bottom: calc(var(--cs-mobile-safe-bottom) + 16px) !important; }
   .cs-mobile-v1-bottom-nav a {
     min-width: 0; min-height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
     color: var(--cs-mobile-muted); text-decoration: none; border-radius: 18px; font: 700 10px/1.15 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: -.01em; position: relative;
+    transition: color .24s ease, transform .24s cubic-bezier(.22, .9, .28, 1);
+    z-index: 1;
   }
-  .cs-mobile-v1-bottom-nav a.is-active { color: var(--cs-mobile-ink); background: rgba(31, 23, 16, .055); }
+  .cs-mobile-v1-bottom-nav a.is-active { color: var(--cs-mobile-ink); background: transparent; }
   .cs-mobile-v1-bottom-nav svg { display: block; flex: 0 0 auto; width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.65; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Bottom tab navigation — horizontal slide transitions */
+  .cs-mobile-v1-page-stage {
+    position: relative;
+    width: 100%;
+    min-height: calc(100dvh - var(--cs-mobile-bottom-nav-height) - var(--cs-mobile-safe-bottom));
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  body.cs-mobile-tab-navigating {
+    overflow-x: clip;
+    touch-action: none;
+  }
+  .cs-mobile-v1-page-stage.cs-mobile-tab-exit {
+    transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .3s ease;
+    pointer-events: none;
+  }
+  .cs-mobile-v1-page-stage.cs-mobile-tab-exit--forward {
+    transform: translate3d(-22%, 0, 0);
+    opacity: .42;
+  }
+  .cs-mobile-v1-page-stage.cs-mobile-tab-exit--back {
+    transform: translate3d(22%, 0, 0);
+    opacity: .42;
+  }
+  .cs-mobile-v1-page-stage.cs-mobile-tab-enter {
+    opacity: .58;
+    transform: translate3d(var(--cs-tab-enter-x, 22%), 0, 0);
+  }
+  .cs-mobile-v1-page-stage.cs-mobile-tab-enter--forward { --cs-tab-enter-x: 22%; }
+  .cs-mobile-v1-page-stage.cs-mobile-tab-enter--back { --cs-tab-enter-x: -22%; }
+  .cs-mobile-v1-page-stage.cs-mobile-tab-enter-active {
+    transition: transform .38s cubic-bezier(.22, .9, .28, 1), opacity .34s ease;
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  body.cs-mobile-tab-navigating .cs-mobile-v1-bottom-nav a {
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-mobile-v1-page-stage.cs-mobile-tab-exit,
+    .cs-mobile-v1-page-stage.cs-mobile-tab-enter,
+    .cs-mobile-v1-page-stage.cs-mobile-tab-enter-active {
+      transition: none !important;
+      transform: none !important;
+      opacity: 1 !important;
+    }
+    .cs-mobile-v1-tab-indicator { transition: none !important; }
+  }
 
   .cs-mobile-v1-backdrop { position: fixed; inset: 0; z-index: 7000; background: rgba(25, 18, 12, .38); opacity: 0; pointer-events: none; transition: opacity .22s ease; }
   .cs-mobile-v1-backdrop.is-open { opacity: 1; pointer-events: auto; }
@@ -159,10 +349,28 @@
   .cs-mobile-v1-menu a:active { color: #b58a4a; }
   .cs-mobile-v1-menu a:active .cs-mobile-v1-menu-chevron { transform: translateX(3px); color: #b58a4a; }
 
-  .cs-mobile-v1-menu-foot { margin-top: auto; padding-top: 20px; display: flex; flex-direction: column; gap: 4px; }
-  .cs-mobile-v1-menu-foot::before { content: ""; display: block; width: 34px; height: 1px; margin-bottom: 14px; background: rgba(181, 138, 74, .55); }
-  .cs-mobile-v1-menu-foot-line { font: 500 12px/1.5 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .01em; color: var(--cs-mobile-muted); }
-  .cs-mobile-v1-menu-foot-line--accent { color: #8a6a34; font-weight: 600; }
+  /* Account / auth footer */
+  .cs-mobile-v1-menu-account { margin-top: auto; padding-top: 22px; display: flex; flex-direction: column; gap: 12px; }
+  .cs-mobile-v1-menu-account::before { content: ""; display: block; width: 100%; height: 1px; margin-bottom: 6px; background: linear-gradient(90deg, rgba(181, 138, 74, .4), rgba(42, 32, 22, .08) 60%, transparent); }
+
+  /* Signed-out: premium login CTA */
+  .cs-mobile-v1-signin { display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 54px; padding: 0 22px; border: 0; border-radius: 16px; text-decoration: none; color: #fdf7ee; background: linear-gradient(135deg, #241a11 0%, #3a2c1c 100%); box-shadow: 0 12px 26px rgba(31, 23, 16, .28); font: 600 15px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .02em; cursor: pointer; appearance: none; -webkit-appearance: none; transition: transform .18s ease, box-shadow .18s ease; }
+  .cs-mobile-v1-signin svg { width: 19px; height: 19px; color: #d8b071; }
+  .cs-mobile-v1-signin:active { transform: translateY(1px) scale(.99); box-shadow: 0 8px 18px rgba(31, 23, 16, .24); }
+  .cs-mobile-v1-signup-link { text-align: center; font: 500 13px/1.4 "Plus Jakarta Sans", system-ui, sans-serif; color: var(--cs-mobile-muted); text-decoration: none; }
+  .cs-mobile-v1-signup-link strong { color: #8a6a34; font-weight: 700; }
+
+  /* Signed-in: account card + sign out */
+  .cs-mobile-v1-account-card { display: flex; align-items: center; gap: 13px; padding: 12px 14px; border-radius: 18px; text-decoration: none; color: #211a12; background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(247,239,227,.72)); border: 1px solid rgba(181, 138, 74, .26); box-shadow: 0 10px 24px rgba(56, 43, 31, .08); }
+  .cs-mobile-v1-account-avatar { flex: 0 0 auto; width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #2b2013, #4a3823); color: #f4dcb4; font: 700 15px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .02em; box-shadow: inset 0 0 0 1px rgba(216, 176, 113, .35); }
+  .cs-mobile-v1-account-meta { min-width: 0; display: flex; flex-direction: column; gap: 3px; flex: 1 1 auto; }
+  .cs-mobile-v1-account-meta strong { font: 600 15px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cs-mobile-v1-account-meta small { font: 500 12px/1.3 "Plus Jakarta Sans", system-ui, sans-serif; color: var(--cs-mobile-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cs-mobile-v1-account-card .cs-mobile-v1-menu-chevron { color: var(--cs-mobile-soft); }
+  .cs-mobile-v1-account-card:active { transform: scale(.995); }
+  .cs-mobile-v1-signout { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; padding: 0 18px; border-radius: 14px; border: 1px solid rgba(42, 32, 22, .16); background: transparent; color: #6a5f54; font: 600 13px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .06em; text-transform: uppercase; -webkit-tap-highlight-color: transparent; transition: color .18s ease, border-color .18s ease, background .18s ease; }
+  .cs-mobile-v1-signout svg { width: 17px; height: 17px; }
+  .cs-mobile-v1-signout:active { color: #a8443a; border-color: rgba(168, 68, 58, .4); background: rgba(168, 68, 58, .06); }
 
   .cs-mobile-v1-search-form { display: grid; gap: 12px; }
   .cs-mobile-v1-search-form input { width: 100%; min-height: 52px; padding: 0 16px; border-radius: 18px; border: 1px solid var(--cs-mobile-line); background: #fff; font: 600 15px/1 "Plus Jakarta Sans", system-ui, sans-serif; color: var(--cs-mobile-ink); }
@@ -170,13 +378,183 @@
   .cs-mobile-v1-primary { background: var(--cs-mobile-ink); color: #fff; }
   .cs-mobile-v1-secondary { background: transparent; color: var(--cs-mobile-ink); border-color: var(--cs-mobile-line); }
 
-  /* Product listing mobile polish */
+  /* Premium product search sheet — Sephora / Rhode / Apple grade */
+  .cs-mobile-v1-sheet--search {
+    background: linear-gradient(180deg, #fffdf9 0%, #fdf7ee 46%, #f9f1e5 100%);
+    border-radius: 30px 30px 0 0;
+    box-shadow: 0 -18px 60px rgba(40, 29, 18, .22), 0 -1px 0 rgba(255, 255, 255, .6) inset;
+    padding-bottom: calc(18px + var(--cs-mobile-safe-bottom));
+  }
+  .cs-mobile-v1-sheet-grip { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 38px; height: 4px; border-radius: 999px; background: rgba(42, 32, 22, .16); }
+  .cs-mobile-v1-search-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 24px 20px 16px; }
+  .cs-mobile-v1-search-heading { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .cs-mobile-v1-search-kicker { font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .28em; text-transform: uppercase; color: #b58a4a; }
+  .cs-mobile-v1-search-heading strong { font: 500 27px/1 "Cormorant Garamond", Georgia, serif; letter-spacing: .005em; color: var(--cs-mobile-ink); }
+  .cs-mobile-v1-search-close { flex: 0 0 auto; width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: rgba(255, 255, 255, .72); color: var(--cs-mobile-ink); transition: background-color .18s ease, border-color .18s ease, transform .16s ease; }
+  .cs-mobile-v1-search-close svg { width: 19px; height: 19px; }
+  .cs-mobile-v1-search-close:active { transform: scale(.94); background: #fff; border-color: rgba(42, 32, 22, .24); }
+  .cs-mobile-v1-sheet-body--search { padding: 4px 20px 8px; }
+
+  .cs-mobile-v1-search-field { position: relative; display: flex; align-items: center; }
+  .cs-mobile-v1-search-ico { position: absolute; left: 17px; width: 19px; height: 19px; color: var(--cs-mobile-soft); pointer-events: none; }
+  .cs-mobile-v1-sheet--search .cs-mobile-v1-search-form input { min-height: 56px; padding: 0 18px 0 46px; border-radius: 16px; border: 1px solid var(--cs-mobile-line); background: #fffdfa; box-shadow: 0 2px 10px rgba(42, 30, 20, .04); font: 500 15px/1.2 "Plus Jakarta Sans", system-ui, sans-serif; color: var(--cs-mobile-ink); transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease; }
+  .cs-mobile-v1-sheet--search .cs-mobile-v1-search-form input::placeholder { color: var(--cs-mobile-soft); font-weight: 500; }
+  .cs-mobile-v1-sheet--search .cs-mobile-v1-search-form input:focus { outline: none; border-color: rgba(181, 138, 74, .55); background: #fff; box-shadow: 0 0 0 3px rgba(181, 138, 74, .14), 0 6px 18px rgba(42, 30, 20, .06); }
+  .cs-mobile-v1-search-field .cs-mobile-v1-search-ico { transition: color .18s ease; }
+  .cs-mobile-v1-search-form input:focus + .cs-mobile-v1-search-ico { color: #b58a4a; }
+
+  .cs-mobile-v1-search-submit { min-height: 54px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border-radius: 999px; border: 1px solid var(--cs-mobile-ink); background: var(--cs-mobile-ink); color: #fff; font: 700 12.5px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; box-shadow: 0 12px 28px rgba(23, 18, 13, .22); transition: transform .16s ease, box-shadow .18s ease, opacity .18s ease; }
+  .cs-mobile-v1-search-submit svg { width: 17px; height: 17px; }
+  .cs-mobile-v1-search-submit:active { transform: scale(.985); box-shadow: 0 6px 16px rgba(23, 18, 13, .2); }
+
+  .cs-mobile-v1-search-suggest { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .cs-mobile-v1-search-suggest-title { margin: 6px 0 0; font: 700 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .18em; text-transform: uppercase; color: var(--cs-mobile-muted); }
+  .cs-mobile-v1-search-suggest-title:not(:first-child) { margin-top: 12px; }
+  .cs-mobile-v1-search-chips { display: flex; flex-wrap: wrap; gap: 9px; }
+  .cs-mobile-v1-search-chip { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: rgba(255, 253, 249, .8); color: var(--cs-mobile-ink); font: 600 12.5px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .01em; text-decoration: none; transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .16s ease; }
+  .cs-mobile-v1-search-chip:active { transform: scale(.97); background: var(--cs-mobile-ink); border-color: var(--cs-mobile-ink); color: #fff; }
+  .cs-mobile-v1-search-chip--brand { font-weight: 650; color: var(--cs-mobile-accent); border-color: rgba(181, 138, 74, .32); background: rgba(181, 138, 74, .07); }
+  .cs-mobile-v1-search-chip--brand:active { background: #b58a4a; border-color: #b58a4a; color: #fff; }
+  .cs-mobile-v1-search-close:focus-visible,
+  .cs-mobile-v1-search-chip:focus-visible,
+  .cs-mobile-v1-search-submit:focus-visible { outline: 2px solid #b58a4a; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cs-mobile-v1-search-close, .cs-mobile-v1-search-submit, .cs-mobile-v1-search-chip, .cs-mobile-v1-sheet--search .cs-mobile-v1-search-form input { transition: none; }
+  }
+
+  /* Product listing mobile polish — hide desktop sidebars */
   body.cs-route-listing .filters-sidebar,
-  body.cs-route-listing .cs-ap-sidebar,
-  body.cs-route-listing aside[class*="filter"],
+  body.cs-route-listing aside[class*="filter"]:not([data-cs-mobile-sheet]):not(.cs-ap-sidebar),
   body.cs-route-listing .desktop-filter { display: none !important; }
-  .cs-mobile-v1-plpbar { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px var(--cs-mobile-container) 14px; }
-  .cs-mobile-v1-plpbar button, .cs-mobile-v1-plpbar select { min-height: 46px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: var(--cs-mobile-surface); color: var(--cs-mobile-ink); font-weight: 800; padding: 0 14px; }
+
+  /* Collections / other listings: keep plpbar. All-products uses native filter drawer + sort. */
+  body.cs-mobile-v1-active:has(.cs-allproducts) .cs-mobile-v1-plpbar {
+    display: none !important;
+  }
+  /* Restore allproducts native filter sheet — do NOT force display:block;
+     allproducts.css uses flex column so Temizle/Uygula stay pinned at bottom. */
+  body.cs-mobile-v1-active:has(.cs-allproducts) .cs-ap-sidebar {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .cs-mobile-v1-plpbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px var(--cs-mobile-container) 14px;
+    padding: 0;
+    align-items: stretch;
+  }
+  .cs-mobile-v1-plpbar__btn,
+  .cs-mobile-v1-plpbar__sort {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 40px;
+    height: 40px;
+    max-height: 40px;
+    width: 100%;
+    margin: 0;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(26, 21, 16, .14);
+    background: rgba(255, 253, 249, .92);
+    color: var(--cs-mobile-ink);
+    box-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 6px 16px rgba(28, 20, 14, .05);
+    font: 700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .16s ease, border-color .16s ease, transform .14s ease;
+  }
+  .cs-mobile-v1-plpbar__btn {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+  .cs-mobile-v1-plpbar__btn:active,
+  .cs-mobile-v1-plpbar__sort:active {
+    transform: scale(.985);
+    background: #fff;
+    border-color: rgba(181, 138, 74, .45);
+  }
+  .cs-mobile-v1-plpbar__btn svg,
+  .cs-mobile-v1-plpbar__sort-ico svg {
+    width: 15px;
+    height: 15px;
+    flex: 0 0 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: .88;
+  }
+  .cs-mobile-v1-plpbar__btn span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cs-mobile-v1-plpbar__sort {
+    position: relative;
+    justify-content: flex-start;
+    padding-right: 28px;
+    cursor: pointer;
+  }
+  .cs-mobile-v1-plpbar__sort-ico {
+    display: inline-flex;
+    flex: 0 0 auto;
+    color: #8a6a34;
+  }
+  .cs-mobile-v1-plpbar__sort select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0 28px 0 34px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--cs-mobile-ink);
+    font: 700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    outline: none;
+  }
+  .cs-mobile-v1-plpbar__sort select:focus-visible {
+    outline: 2px solid rgba(181, 138, 74, .45);
+    outline-offset: 2px;
+  }
+  .cs-mobile-v1-plpbar__chev {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-65%) rotate(45deg);
+    opacity: .55;
+    pointer-events: none;
+  }
+  .cs-mobile-v1-plpbar button,
+  .cs-mobile-v1-plpbar select {
+    /* legacy fallback if old markup is cached */
+    min-height: 40px;
+    max-height: 40px;
+  }
+  .cs-mobile-v1-plpbar > button svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
   body.cs-mobile-v1-active .product-grid,
   body.cs-mobile-v1-active .products-grid,
   body.cs-mobile-v1-active .cs-ap-grid,
@@ -208,23 +586,23 @@
   body.cs-mobile-v1-active .favorite-btn[aria-pressed="true"] .favorite-btn-icon svg path { stroke: #b58a4a !important; fill: #b58a4a !important; }
   body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn,
   body.cs-mobile-v1-active #bestsellers .bestseller-card__favorite {
-    width: 22px !important;
-    height: 22px !important;
-    top: 5px !important;
-    right: 5px !important;
-    box-shadow: 0 4px 10px rgba(18, 13, 8, 0.08) !important;
+    width: 36px !important;
+    height: 36px !important;
+    top: 9px !important;
+    right: 9px !important;
+    box-shadow: 0 6px 14px rgba(42, 30, 20, 0.08) !important;
   }
   body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn .favorite-btn-icon,
   body.cs-mobile-v1-active #bestsellers .bestseller-card__favorite .favorite-btn-icon {
-    width: 12px !important;
-    height: 12px !important;
-    flex: 0 0 12px !important;
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
   }
   body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn .favorite-btn-icon svg,
   body.cs-mobile-v1-active #bestsellers .bestseller-card .favorite-btn svg,
   body.cs-mobile-v1-active #bestsellers .bestseller-card__favorite .favorite-btn-icon svg {
-    width: 12px !important;
-    height: 12px !important;
+    width: 16px !important;
+    height: 16px !important;
   }
   body.cs-mobile-v1-active .badge { max-width: calc(100% - 54px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -235,6 +613,237 @@
   .cs-mobile-v1-chip.is-active { background: var(--cs-mobile-ink); color: #fff; border-color: var(--cs-mobile-ink); }
   .cs-mobile-v1-sheet-actions { position: sticky; bottom: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 0 0; background: linear-gradient(180deg, rgba(255,250,244,0), var(--cs-mobile-surface) 24%); }
 
+  /* ===== Premium filter bottom sheet — Sephora / Rhode grade ===== */
+  .cs-mobile-v1-sheet--filter {
+    display: flex;
+    flex-direction: column;
+    max-height: min(86dvh, 760px);
+    border-radius: 28px 28px 0 0;
+    background:
+      linear-gradient(180deg, #fffdf9 0%, #fbf6ee 42%, #f8f1e6 100%);
+    box-shadow: 0 -18px 50px rgba(28, 20, 14, .22);
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-sheet-grip {
+    top: 10px;
+    width: 36px;
+    height: 4px;
+    background: rgba(42, 32, 22, .18);
+  }
+  .cs-mobile-v1-backdrop.is-open {
+    background: rgba(18, 13, 9, .46);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+  }
+  .cs-mobile-v1-filter-head {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 28px 20px 14px;
+    flex: 0 0 auto;
+  }
+  .cs-mobile-v1-filter-head::after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(181,138,74,.35), rgba(42,32,22,.08) 55%, transparent);
+  }
+  .cs-mobile-v1-filter-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .cs-mobile-v1-filter-kicker {
+    font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .28em;
+    text-transform: uppercase;
+    color: #b58a4a;
+  }
+  .cs-mobile-v1-filter-heading strong {
+    font: 500 28px/1 "Cormorant Garamond", Georgia, serif;
+    letter-spacing: -.01em;
+    color: #17130f;
+    text-transform: none;
+  }
+  .cs-mobile-v1-filter-close {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    margin: -4px -4px 0 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0;
+    border: 0;
+    background: transparent;
+    color: #2a2016;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .16s ease, color .16s ease, opacity .16s ease;
+  }
+  .cs-mobile-v1-filter-close svg { width: 18px; height: 18px; display: block; stroke-width: 1.55; }
+  .cs-mobile-v1-filter-close:active { transform: scale(.92); color: #b58a4a; opacity: .9; }
+  .cs-mobile-v1-sheet-body--filter {
+    flex: 1 1 auto;
+    max-height: none;
+    padding: 16px 20px 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .cs-mobile-v1-filter {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding-bottom: calc(12px + var(--cs-mobile-safe-bottom));
+  }
+  .cs-mobile-v1-filter__lede {
+    margin: 0 0 18px;
+    max-width: 34ch;
+    font: 500 12.5px/1.45 "Plus Jakarta Sans", system-ui, sans-serif;
+    color: #6b6057;
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-filter-group {
+    margin: 0 0 22px;
+  }
+  .cs-mobile-v1-sheet--filter.is-open .cs-mobile-v1-filter-group {
+    animation: csFilterGroupIn .42s cubic-bezier(.22, .8, .24, 1) both;
+  }
+  .cs-mobile-v1-sheet--filter.is-open .cs-mobile-v1-filter-group:nth-of-type(1) { animation-delay: .04s; }
+  .cs-mobile-v1-sheet--filter.is-open .cs-mobile-v1-filter-group:nth-of-type(2) { animation-delay: .1s; }
+  .cs-mobile-v1-filter-group__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 11px;
+  }
+  .cs-mobile-v1-filter-group__head h4 {
+    margin: 0;
+    font: 700 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #8a8076;
+  }
+  .cs-mobile-v1-filter-group__head span {
+    font: 600 10px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .04em;
+    color: #b58a4a;
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-chipgrid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-chip {
+    flex: 0 0 auto;
+    min-height: 34px;
+    height: 34px;
+    max-width: 100%;
+    padding: 0 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(42, 32, 22, .12);
+    background: rgba(255, 253, 249, .92);
+    color: #211a12;
+    box-shadow: 0 1px 0 rgba(255,255,255,.65) inset;
+    font: 600 12px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease, transform .14s ease, box-shadow .16s ease;
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-chip:active {
+    transform: scale(.97);
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-chip.is-active {
+    background: #17130f;
+    border-color: #17130f;
+    color: #fffdf9;
+    box-shadow: 0 8px 18px rgba(23, 19, 15, .18);
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-chipgrid--stock .cs-mobile-v1-chip {
+    flex: 1 1 auto;
+    justify-content: center;
+    text-align: center;
+    min-width: calc(50% - 4px);
+  }
+  .cs-mobile-v1-sheet--filter .cs-mobile-v1-sheet-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: .9fr 1.2fr;
+    gap: 8px;
+    margin-top: auto;
+    padding: 14px 0 calc(10px + var(--cs-mobile-safe-bottom));
+    background: linear-gradient(180deg, rgba(251,246,238,0) 0%, #fbf6ee 28%, #fbf6ee 100%);
+  }
+  .cs-mobile-v1-filter-clear,
+  .cs-mobile-v1-filter-apply {
+    min-height: 46px;
+    height: 46px;
+    border-radius: 999px;
+    font: 700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .14s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease;
+  }
+  .cs-mobile-v1-filter-clear {
+    border: 1px solid rgba(42, 32, 22, .14);
+    background: rgba(255,253,249,.88);
+    color: #3a322b;
+  }
+  .cs-mobile-v1-filter-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid #17130f;
+    background: #17130f;
+    color: #fffdf9;
+    box-shadow: 0 12px 26px rgba(23, 19, 15, .2);
+  }
+  .cs-mobile-v1-filter-apply em {
+    font-style: normal;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,253,249,.16);
+    font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: 0;
+  }
+  .cs-mobile-v1-filter-clear:active,
+  .cs-mobile-v1-filter-apply:active {
+    transform: scale(.985);
+  }
+  @keyframes csFilterGroupIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-mobile-v1-sheet--filter .cs-mobile-v1-filter-group {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .cs-mobile-v1-filter-clear,
+    .cs-mobile-v1-filter-apply,
+    .cs-mobile-v1-sheet--filter .cs-mobile-v1-chip,
+    .cs-mobile-v1-filter-close { transition: none !important; }
+  }
+
   /* PDP */
   body.cs-route-pdp main, body.cs-route-pdp .product-page, body.cs-route-pdp .pdp, body.cs-route-pdp .product-detail { padding-left: var(--cs-mobile-container) !important; padding-right: var(--cs-mobile-container) !important; }
   body.cs-route-pdp .product-layout,
@@ -242,11 +851,321 @@
   body.cs-route-pdp .product-main { display: block !important; }
   body.cs-route-pdp .product-gallery,
   body.cs-route-pdp .product-info { width: 100% !important; max-width: 100% !important; }
-  body.cs-route-pdp .product-title, body.cs-route-pdp h1 { font-size: clamp(28px, 9vw, 40px) !important; line-height: .98 !important; }
+  body.cs-route-pdp .pdp5-brand-lockup img {
+    width: auto !important;
+    height: 22px !important;
+    max-width: 140px !important;
+    max-height: 22px !important;
+    object-fit: contain !important;
+  }
+
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-purchase-card {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    padding: 18px !important;
+    border-radius: 20px !important;
+    background: #fffdf9 !important;
+    border: 1px solid rgba(26, 21, 16, 0.07) !important;
+    box-shadow: 0 10px 36px rgba(18, 13, 8, 0.06) !important;
+  }
+
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-purchase-card > .pdp5-price-row { order: 1 !important; }
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-purchase-card > .pdp-quantity-control { order: 2 !important; }
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-purchase-card > .pdp5-actions { order: 3 !important; margin-top: 0 !important; }
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-purchase-card > .pdp5-delivery-grid { order: 4 !important; margin-top: 0 !important; }
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-purchase-card > .pdp8-club-points { order: 5 !important; margin: 0 !important; }
+
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-actions {
+    grid-template-columns: 1fr 44px !important;
+    gap: 8px !important;
+  }
+
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-actions .favorite-btn.pdp5-favorite {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    justify-self: start !important;
+    align-self: center !important;
+  }
+
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-actions .favorite-btn.pdp5-favorite .favorite-btn-icon svg,
+  body.cs-mobile-v1-active.cs-route-pdp .pdp5-actions .favorite-btn.pdp5-favorite svg {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  body.cs-route-pdp .product-title,
+  body.cs-route-pdp .pdp5-info h1,
+  body.cs-route-pdp h1 {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-size: clamp(1.85rem, 7vw, 2.35rem) !important;
+    font-weight: 600 !important;
+    line-height: 1.02 !important;
+    letter-spacing: -.02em !important;
+  }
   .cs-mobile-v1-pdp-sticky { position: fixed; left: 0; right: 0; bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom)); z-index: 6300; padding: 10px 14px; background: rgba(255,250,244,.96); border-top: 1px solid var(--cs-mobile-line); backdrop-filter: blur(18px); display: grid; grid-template-columns: 1fr 1.2fr; gap: 10px; align-items: center; }
   .cs-mobile-v1-pdp-sticky strong { font-size: 14px; }
   .cs-mobile-v1-pdp-sticky button { min-height: 48px; border-radius: 999px; border: 0; background: var(--cs-mobile-ink); color: #fff; font-weight: 800; }
-  body.cs-route-pdp { padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-sticky-height) + var(--cs-mobile-safe-bottom) + 20px) !important; }
+  body.cs-route-pdp {
+    padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-sticky-height) + var(--cs-mobile-safe-bottom) + 28px) !important;
+  }
+
+  /* Sticky PDP CTA must stay viewport-fixed above bottom nav */
+  body.cs-mobile-v1-active #mobileStickyPdp,
+  body.cs-mobile-v1-active .mobile-sticky-pdp {
+    position: fixed !important;
+    left: 12px !important;
+    right: 12px !important;
+    bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 8px) !important;
+    z-index: 6400 !important;
+  }
+
+  body.cs-route-pdp .mobile-sticky-pdp {
+    bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 8px) !important;
+    z-index: 6400 !important;
+  }
+
+  /* ============================================================
+     ORDER TRACKING — premium mobile utility (Sephora / Rhode grade)
+     Unified editorial shell: intro + form as one composition.
+     ============================================================ */
+  body.cs-mobile-v1-active.cs-route-order-tracking {
+    --cs-track-gold: #b58a4a;
+    --cs-track-ink: #17120d;
+    --cs-track-muted: #6a5f55;
+    --cs-track-line: rgba(53, 40, 29, .1);
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking #cs-mobile-v1-page-stage {
+    background:
+      radial-gradient(ellipse 80% 50% at 100% 0%, rgba(181, 138, 74, .1), transparent 55%),
+      linear-gradient(180deg, #f8f3ec 0%, #eee4d9 42%, #f7f1ea 100%) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-page {
+    min-height: 0 !important;
+    background: transparent !important;
+    padding-top: calc(var(--cs-mobile-header-height) + 38px + 12px) !important;
+    padding-left: var(--cs-mobile-container) !important;
+    padding-right: var(--cs-mobile-container) !important;
+    padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 36px) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-shell {
+    width: 100% !important;
+    max-width: 520px !important;
+    margin: 0 auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    border: 1px solid var(--cs-track-line) !important;
+    border-radius: 28px !important;
+    background:
+      radial-gradient(ellipse 70% 60% at 100% 0%, rgba(181, 138, 74, .11), transparent 52%),
+      linear-gradient(165deg, #fffdf9 0%, #f8f1e9 55%, #f3ebe2 100%) !important;
+    box-shadow: 0 16px 40px rgba(51, 38, 27, .07) !important;
+    overflow: hidden;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-hero,
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-card {
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-hero {
+    position: relative;
+    padding: 24px 22px 16px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-hero::after {
+    content: "";
+    position: absolute;
+    right: -48px;
+    top: -42px;
+    width: 118px;
+    height: 118px;
+    border: 1px solid rgba(181, 138, 74, .15);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-kicker {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 10px !important;
+    font: 700 10px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .24em !important;
+    color: #9a7344 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-hero h1 {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 10px !important;
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-weight: 500 !important;
+    font-size: clamp(1.95rem, 8.2vw, 2.4rem) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -.028em !important;
+    color: var(--cs-track-ink) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-lede {
+    position: relative;
+    z-index: 1;
+    max-width: 34ch !important;
+    margin: 0 !important;
+    font: 500 13px/1.55 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: var(--cs-track-muted) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-trust {
+    position: relative;
+    z-index: 1;
+    margin: 12px 0 0 !important;
+    gap: 6px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-trust li {
+    min-height: 30px !important;
+    padding: 0 10px !important;
+    background: rgba(255, 253, 249, .72) !important;
+    border-color: rgba(53, 40, 29, .09) !important;
+    font-size: 10px !important;
+    font-weight: 650 !important;
+    color: #5f554c !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-note {
+    position: relative;
+    z-index: 1;
+    margin-top: 12px !important;
+    padding-top: 0 !important;
+    border-top: 0 !important;
+    font: 500 11.5px/1.5 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: #85786c !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-card {
+    padding: 0 22px 22px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-card-head {
+    margin: 0 0 14px !important;
+    padding-top: 16px !important;
+    border-top: 1px solid rgba(53, 40, 29, .09);
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-card-head strong {
+    font: 600 1.35rem/1.15 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.02em !important;
+    color: var(--cs-track-ink) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-card-head span {
+    margin-top: 5px !important;
+    font: 500 12.5px/1.5 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: #7a6f64 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-form {
+    gap: 14px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field {
+    gap: 7px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field label {
+    font: 700 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .18em !important;
+    color: #7a6f64 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field input {
+    height: 48px !important;
+    width: 100% !important;
+    border: 1px solid rgba(53, 40, 29, .13) !important;
+    border-radius: 14px !important;
+    background: rgba(255, 253, 249, .92) !important;
+    padding: 0 15px !important;
+    font: 500 16px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: var(--cs-track-ink) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field input::placeholder {
+    color: #a89a8c !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field input:focus {
+    border-color: var(--cs-track-gold) !important;
+    box-shadow: 0 0 0 4px rgba(181, 138, 74, .15) !important;
+    background: #fff !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field input:-webkit-autofill,
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field input:-webkit-autofill:hover,
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-field input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--cs-track-ink) !important;
+    box-shadow: 0 0 0 1000px #fffdf9 inset !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-btn {
+    min-height: 50px !important;
+    margin-top: 2px;
+    border-radius: 999px !important;
+    background: var(--cs-track-ink) !important;
+    color: #fffdf9 !important;
+    font: 700 13px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .05em !important;
+    box-shadow: 0 10px 24px rgba(23, 18, 13, .16);
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-btn:active {
+    transform: scale(.985);
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-btn.secondary {
+    background: rgba(255, 253, 249, .92) !important;
+    color: var(--cs-track-ink) !important;
+    border: 1px solid rgba(53, 40, 29, .14) !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-status {
+    min-height: 18px !important;
+    font: 500 12.5px/1.5 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-result {
+    margin-top: 18px !important;
+    padding-top: 16px !important;
+    border-top: 1px solid rgba(53, 40, 29, .09);
+    gap: 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-summary {
+    border: 1px solid rgba(53, 40, 29, .1) !important;
+    border-radius: 20px !important;
+    background: rgba(255, 253, 249, .88) !important;
+    padding: 16px !important;
+    gap: 11px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-summary-row {
+    gap: 12px !important;
+    padding-bottom: 10px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-summary-row span {
+    font-size: 9.5px !important;
+    letter-spacing: .14em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-summary-row strong {
+    font-size: 13px !important;
+    word-break: break-word;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-items {
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-item {
+    grid-template-columns: 52px 1fr auto !important;
+    gap: 11px !important;
+    padding: 11px !important;
+    border-radius: 16px !important;
+    background: rgba(255, 253, 249, .9) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-item img {
+    width: 52px !important;
+    height: 52px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-order-tracking .tracking-item b {
+    grid-column: auto !important;
+  }
 
   /* Cart sheet */
   .cs-mobile-v1-cart-items { display: grid; gap: 12px; }
@@ -285,35 +1204,3065 @@
   body.cs-checkout-mobile .cs-checkout-stepper { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
   body.cs-checkout-mobile .cs-checkout-trust-strip { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
 
-  /* Account */
-  body.cs-route-account .cs-account-shell { padding-top: 18px !important; }
-  body.cs-route-account .cs-account-top { display: grid !important; gap: 14px !important; padding-left: var(--cs-mobile-container) !important; padding-right: var(--cs-mobile-container) !important; }
-  body.cs-route-account .cs-account-welcome h1 { font-size: clamp(30px, 9vw, 42px) !important; line-height: .95 !important; }
-  body.cs-route-account .cs-account-layout { display: block !important; padding-left: var(--cs-mobile-container) !important; padding-right: var(--cs-mobile-container) !important; }
-  body.cs-route-account .cs-account-sidebar { width: 100% !important; position: static !important; margin-bottom: 16px !important; }
-  body.cs-route-account .cs-account-nav { display: flex !important; overflow-x: auto !important; gap: 8px !important; padding: 8px 0 12px !important; -webkit-overflow-scrolling: touch; }
-  body.cs-route-account .cs-account-nav a { flex: 0 0 auto; min-height: 44px; border-radius: 999px !important; white-space: nowrap; padding: 10px 14px !important; }
-  body.cs-route-account .cs-account-content, body.cs-route-account .cs-panel { width: 100% !important; max-width: 100% !important; }
-  body.cs-route-account .cs-card, body.cs-route-account .cs-panel { border-radius: 22px !important; }
-  body.cs-route-account .cs-form { grid-template-columns: 1fr !important; }
+  /* ============================================================
+     ACCOUNT — premium mobile experience (Sephora / Rhode / Apple grade)
+     Scoped to body.cs-route-account inside max-width:767px.
+     Overrides the desktop-first account-premium.css collapse rules
+     with a cohesive, readable, conversion-focused mobile layout.
+     ============================================================ */
+  body.cs-route-account {
+    --cs-acc-gold: #b58a4a;
+    --cs-acc-gold-deep: #8a663c;
+    --cs-acc-ink: #17130f;
+    --cs-acc-ink-soft: #5f554c;
+    --cs-acc-muted: #8a7d6f;
+    --cs-acc-surface: #fffdf9;
+    --cs-acc-surface-soft: #f6efe4;
+    --cs-acc-line: rgba(42, 32, 22, .11);
+    --cs-acc-line-strong: rgba(42, 32, 22, .2);
+    --cs-acc-shadow: 0 14px 34px rgba(46, 34, 22, .07);
+    --cs-acc-shadow-soft: 0 8px 22px rgba(46, 34, 22, .05);
+    --cs-acc-radius: 20px;
+  }
+  body.cs-route-account .cs-account-shell { padding-top: 6px !important; background: transparent !important; }
+  body.cs-route-account .cs-account-layout { display: block !important; padding: 12px var(--cs-mobile-container) 6px !important; }
+  body.cs-route-account .cs-account-sidebar { width: 100% !important; position: static !important; margin: 0 0 18px !important; display: grid !important; gap: 14px !important; }
+  body.cs-route-account .cs-account-content { display: grid !important; gap: 16px !important; min-width: 0 !important; }
+  body.cs-route-account .cs-panel { width: 100% !important; max-width: 100% !important; border: 0 !important; background: transparent !important; box-shadow: none !important; padding: 0 !important; }
+
+  /* Profile identity card — premium (Apple / Sephora / Rhode grade) */
+  body.cs-route-account .cs-profile-card {
+    position: relative !important;
+    display: grid !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    border-radius: 24px !important;
+    border: 1px solid var(--cs-acc-line) !important;
+    background:
+      radial-gradient(120% 90% at 88% -10%, rgba(181, 138, 74, .16), rgba(181, 138, 74, 0) 58%),
+      linear-gradient(158deg, #fffefb 0%, #fdf7ee 46%, #f7efe2 100%) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset, 0 18px 42px rgba(46, 34, 22, .09) !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+  }
+  body.cs-route-account .cs-profile-card__aura {
+    position: absolute !important; inset: auto -30% 40% auto; width: 70%; aspect-ratio: 1;
+    background: radial-gradient(circle, rgba(197, 158, 106, .22), rgba(197, 158, 106, 0) 70%);
+    z-index: 0; pointer-events: none;
+  }
+  body.cs-route-account .cs-profile-card__head {
+    position: relative; z-index: 1;
+    display: grid !important; grid-template-columns: 62px minmax(0, 1fr) !important;
+    align-items: center !important; gap: 15px !important;
+    padding: 18px 18px 16px !important;
+  }
+  body.cs-route-account .cs-profile-info__top {
+    display: flex !important; align-items: center !important; justify-content: space-between !important;
+    gap: 10px !important; margin-bottom: 1px !important;
+  }
+  body.cs-route-account .cs-profile-avatar {
+    position: relative !important;
+    width: 62px !important; height: 62px !important; border-radius: 50% !important;
+    display: grid !important; place-items: center !important;
+    background: linear-gradient(145deg, #f1e2cd 0%, #d9be9b 60%, #c7a883 100%) !important;
+    color: #4f3921 !important;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, .85), 0 0 0 3px #fffdf9, 0 0 0 4.5px rgba(181, 138, 74, .34), 0 8px 18px rgba(90, 64, 34, .18) !important;
+  }
+  body.cs-route-account .cs-profile-avatar__text {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-size: 26px !important; font-weight: 600 !important; letter-spacing: .02em !important; line-height: 1 !important;
+  }
+  body.cs-route-account .cs-profile-avatar__badge {
+    position: absolute !important; right: -3px; bottom: -3px;
+    width: 24px; height: 24px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: linear-gradient(150deg, #1d1712, #3a2c1c) !important;
+    box-shadow: 0 0 0 2.5px #fdf7ee, 0 3px 8px rgba(29, 21, 14, .35);
+  }
+  body.cs-route-account .cs-profile-avatar__badge svg { width: 13px; height: 13px; color: #e7c894; }
+  body.cs-route-account .cs-profile-info { min-width: 0 !important; display: grid !important; gap: 3px !important; text-align: left !important; }
+  body.cs-route-account .cs-profile-kicker {
+    font: 700 9.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .22em !important; text-transform: uppercase !important; color: var(--cs-acc-gold) !important;
+  }
+  body.cs-route-account .cs-profile-info strong {
+    display: block !important;
+    font-family: "Cormorant Garamond", Georgia, serif !important; font-weight: 600 !important;
+    font-size: 24px !important; line-height: 1.08 !important; letter-spacing: -.01em !important; color: var(--cs-acc-ink) !important;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  body.cs-route-account .cs-profile-info span {
+    display: block !important; font: 500 12.5px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: var(--cs-acc-muted) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  body.cs-route-account .cs-profile-tier {
+    flex: 0 0 auto !important;
+    display: inline-flex !important; align-items: center !important; gap: 5px !important;
+    padding: 6px 11px 6px 9px !important; border-radius: 999px !important;
+    background: linear-gradient(150deg, #241a10, #4a3720) !important; color: #f0dcb6 !important;
+    font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .05em !important;
+    box-shadow: 0 4px 12px rgba(45, 32, 18, .22) !important; white-space: nowrap;
+  }
+  body.cs-route-account .cs-profile-tier svg { width: 12px; height: 12px; color: #e7c894; }
+  body.cs-route-account .cs-profile-tier em { font-style: normal !important; }
+  body.cs-route-account .cs-profile-card__meta {
+    position: relative; z-index: 1;
+    display: grid !important; grid-template-columns: 1fr auto 1fr !important; align-items: center !important;
+    padding: 13px 18px 15px !important; margin-top: 2px !important;
+    border-top: 1px solid rgba(181, 138, 74, .16) !important;
+    background: linear-gradient(180deg, rgba(255, 253, 249, 0), rgba(181, 138, 74, .05)) !important;
+  }
+  body.cs-route-account .cs-profile-meta-item { min-width: 0 !important; display: grid !important; gap: 3px !important; text-align: left !important; }
+  body.cs-route-account .cs-profile-meta-item:last-child { text-align: right !important; }
+  body.cs-route-account .cs-profile-meta-item b {
+    font: 700 16px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-ink) !important;
+    font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  body.cs-route-account .cs-profile-meta-item small {
+    font: 600 9.5px/1.25 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .04em !important;
+    text-transform: uppercase !important; color: var(--cs-acc-muted) !important;
+  }
+  body.cs-route-account .cs-profile-meta-divider { width: 1px; height: 30px; background: rgba(42, 32, 22, .12); margin: 0 14px; }
+
+  /* Section nav — horizontal premium pills */
+  body.cs-route-account .cs-account-nav {
+    display: flex !important; flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important;
+    gap: 8px !important; padding: 4px 2px 10px !important; margin: 0 -2px !important;
+    -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; overscroll-behavior-inline: contain;
+    background: transparent !important;
+  }
+  body.cs-route-account .cs-account-nav::-webkit-scrollbar { display: none; }
+  body.cs-route-account .cs-account-nav { scrollbar-width: none; }
+  body.cs-route-account .cs-nav-label { display: none !important; }
+  body.cs-route-account .cs-account-nav a {
+    flex: 0 0 auto !important; scroll-snap-align: start; display: inline-flex !important; align-items: center !important; gap: 8px !important;
+    min-height: 42px !important; padding: 0 15px !important; border-radius: 999px !important; white-space: nowrap !important;
+    border: 1px solid var(--cs-acc-line-strong) !important; background: rgba(255, 253, 249, .8) !important;
+    color: var(--cs-acc-ink) !important; font: 700 12.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .005em !important;
+    box-shadow: none !important; transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .16s ease !important;
+  }
+  body.cs-route-account .cs-account-nav a:active { transform: scale(.97); }
+  body.cs-route-account .cs-account-nav a.is-active { background: var(--cs-acc-ink) !important; border-color: var(--cs-acc-ink) !important; color: #fffaf3 !important; }
+  body.cs-route-account .cs-account-nav a.is-active:before { display: none !important; }
+  body.cs-route-account .cs-account-nav .cs-nav-icon {
+    width: 19px !important; height: 19px !important; flex: 0 0 auto !important; border: 0 !important; border-radius: 0 !important;
+    background: none !important; color: var(--cs-acc-gold-deep) !important; display: grid !important; place-items: center !important;
+  }
+  body.cs-route-account .cs-account-nav .cs-nav-icon img,
+  body.cs-route-account .cs-account-nav .cs-nav-icon svg { width: 18px !important; height: 18px !important; }
+  body.cs-route-account .cs-account-nav a.is-active .cs-nav-icon { color: #f3dcb9 !important; }
+  body.cs-route-account .cs-account-nav a em {
+    margin-left: 1px !important; min-width: 20px !important; height: 19px !important; padding: 0 6px !important; border-radius: 999px !important;
+    background: rgba(181, 138, 74, .16) !important; color: var(--cs-acc-gold-deep) !important; font: 800 10px/19px "Plus Jakarta Sans", system-ui, sans-serif !important; font-style: normal !important; display: inline-flex; align-items: center; justify-content: center;
+  }
+  body.cs-route-account .cs-account-nav a.is-active em { background: rgba(255, 250, 243, .18) !important; color: #f3dcb9 !important; }
+
+  /* Help card + logout */
+  body.cs-route-account .cs-help-card {
+    display: grid !important; grid-template-columns: 46px minmax(0, 1fr) !important; align-items: center !important; gap: 14px !important;
+    padding: 18px !important; border-radius: 20px !important; background: #15110d !important; color: #fff8ef !important;
+    border: 1px solid rgba(255, 255, 255, .08) !important; box-shadow: 0 16px 38px rgba(18, 12, 8, .18) !important; text-decoration: none !important;
+  }
+  body.cs-route-account .cs-help-card .cs-help-icon {
+    grid-row: 1 / 3 !important; width: 46px !important; height: 46px !important; border-radius: 14px !important; display: grid !important; place-items: center !important;
+    color: #e8c690 !important; background: rgba(255, 250, 242, .08) !important; border: 1px solid rgba(232, 198, 144, .28) !important;
+  }
+  body.cs-route-account .cs-help-card .cs-help-icon img, body.cs-route-account .cs-help-card .cs-help-icon svg { width: 22px !important; height: 22px !important; }
+  body.cs-route-account .cs-help-card strong { color: #e8c690 !important; font: 500 20px/1.1 "Cormorant Garamond", Georgia, serif !important; }
+  body.cs-route-account .cs-help-card small { color: rgba(255, 248, 239, .74) !important; font-size: 12px !important; line-height: 1.5 !important; }
+  body.cs-route-account .cs-logout {
+    width: 100% !important; min-height: 50px !important; border-radius: 16px !important; background: #fffaf3 !important;
+    border: 1px solid var(--cs-acc-line) !important; color: #7a3226 !important; font: 800 12px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .1em !important; text-transform: uppercase !important;
+  }
+  body.cs-route-account .cs-logout:active { transform: scale(.99); }
+
+  /* Tab title header */
+  body.cs-route-account .cs-tab-title { display: grid !important; gap: 12px !important; margin: 0 0 16px !important; }
+  body.cs-route-account .cs-tab-title h1 { margin: 0 !important; font-family: "Cormorant Garamond", Georgia, serif !important; font-weight: 500 !important; font-size: clamp(27px, 7.6vw, 33px) !important; line-height: 1.04 !important; letter-spacing: -.01em !important; color: var(--cs-acc-ink) !important; }
+  body.cs-route-account .cs-tab-title p { margin: 0 !important; max-width: 40ch !important; color: var(--cs-acc-ink-soft) !important; font: 500 13.5px/1.6 "Plus Jakarta Sans", system-ui, sans-serif !important; }
+  body.cs-route-account .cs-overline { display: inline-flex !important; align-items: center !important; gap: 7px !important; font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .2em !important; text-transform: uppercase !important; color: var(--cs-acc-gold) !important; }
+  body.cs-route-account .cs-overline img,
+  body.cs-route-account .cs-overline svg { width: 14px !important; height: 14px !important; flex: 0 0 auto !important; }
+  /* Safety net: no oversized inline icon images anywhere in account content */
+  body.cs-route-account .cs-account-content img.cs-icon { width: 1.15em; height: 1.15em; }
+  body.cs-route-account .cs-panel-actions { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+  body.cs-route-account .cs-panel-actions .cs-pill-btn { flex: 1 1 auto !important; }
+
+  /* Buttons */
+  body.cs-route-account .cs-pill-btn {
+    min-height: 48px !important; border-radius: 999px !important; padding: 0 18px !important;
+    border: 1px solid var(--cs-acc-line-strong) !important; background: rgba(255, 253, 249, .85) !important; color: var(--cs-acc-ink) !important;
+    font: 700 11.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .09em !important; text-transform: uppercase !important;
+    box-shadow: none !important; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  body.cs-route-account .cs-pill-btn--dark { background: var(--cs-acc-ink) !important; border-color: var(--cs-acc-ink) !important; color: #fffaf3 !important; }
+  body.cs-route-account .cs-pill-btn:active, body.cs-route-account .cs-mini-btn:active { transform: scale(.985); }
+  body.cs-route-account .cs-mini-btn {
+    min-height: 42px !important; border-radius: 999px !important; padding: 0 15px !important; border: 1px solid var(--cs-acc-line-strong) !important;
+    background: #fffdf9 !important; color: var(--cs-acc-ink) !important; font: 700 11.5px/1.15 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px; text-align: center;
+  }
+  body.cs-route-account .cs-mini-btn.dark { background: var(--cs-acc-ink) !important; border-color: var(--cs-acc-ink) !important; color: #fffaf3 !important; }
+
+  /* Cards + card heads */
+  body.cs-route-account .cs-card,
+  body.cs-route-account .cs-overview-module,
+  body.cs-route-account .cs-account-welcome-card,
+  body.cs-route-account .cs-loyalty-card--mini,
+  body.cs-route-account .cs-skin-profile-card--mini,
+  body.cs-route-account .cs-coupon-tabs,
+  body.cs-route-account .cs-content-help-card {
+    border-radius: var(--cs-acc-radius) !important; border: 1px solid var(--cs-acc-line) !important; box-shadow: var(--cs-acc-shadow-soft) !important; min-width: 0 !important;
+  }
+  body.cs-route-account .cs-card-head { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important; padding: 16px 16px 0 !important; }
+  body.cs-route-account .cs-card-head span { font: 800 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .16em !important; text-transform: uppercase !important; color: var(--cs-acc-gold-deep) !important; }
+  body.cs-route-account .cs-card-head a { font: 700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-gold-deep) !important; text-decoration: none !important; }
+
+  /* Overview: hide redundant welcome hero (greeting + chips duplicate the tab title + stat grid) */
+  body.cs-route-account .cs-account-welcome-card { display: none !important; }
+  body.cs-route-account .cs-overview-hero-grid { display: grid !important; grid-template-columns: 1fr !important; gap: 14px !important; margin: 0 0 16px !important; }
+  body.cs-route-account .cs-overview-modules,
+  body.cs-route-account .cs-overview-grid--final-minimal { display: grid !important; grid-template-columns: 1fr !important; gap: 14px !important; padding: 0 !important; }
+  body.cs-route-account .cs-overview-module--order { grid-column: auto !important; }
+
+  /* Stat grid — compact 2-column */
+  body.cs-route-account .cs-stat-grid,
+  body.cs-route-account .cs-stat-grid--six { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; padding: 0 !important; margin: 0 0 16px !important; }
+  body.cs-route-account .cs-stat {
+    display: flex !important; align-items: center !important; gap: 12px !important; min-height: 74px !important; padding: 13px !important;
+    border-radius: 16px !important; background: var(--cs-acc-surface) !important; border: 1px solid var(--cs-acc-line) !important; box-shadow: none !important;
+  }
+  body.cs-route-account .cs-stat-icon { flex: 0 0 auto !important; width: 38px !important; height: 38px !important; border-radius: 12px !important; display: grid !important; place-items: center !important; background: rgba(181, 138, 74, .12) !important; color: var(--cs-acc-gold-deep) !important; }
+  body.cs-route-account .cs-stat-icon img, body.cs-route-account .cs-stat-icon svg { width: 19px !important; height: 19px !important; }
+  body.cs-route-account .cs-stat > div { min-width: 0 !important; }
+  body.cs-route-account .cs-stat small { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font: 600 10.5px/1.25 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-muted) !important; overflow: hidden; }
+  body.cs-route-account .cs-stat strong { display: block !important; margin: 4px 0 2px !important; font: 700 20px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-ink) !important; font-variant-numeric: tabular-nums; }
+  body.cs-route-account .cs-stat em { display: block !important; font: 500 9.5px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important; font-style: normal !important; color: var(--cs-acc-muted) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Club mini card (dark) */
+  body.cs-route-account .cs-loyalty-card--mini { padding: 20px !important; border-radius: 20px !important; }
+  body.cs-route-account .cs-loyalty-card--mini h2 { font-size: 26px !important; margin: 6px 0 14px !important; }
+  body.cs-route-account .cs-loyalty-card--mini .cs-loyalty-progress,
+  body.cs-route-account .cs-loyalty-card--mini .cs-loyalty-meta { max-width: none !important; }
+  body.cs-route-account .cs-loyalty-links { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; margin-top: 16px !important; }
+  body.cs-route-account .cs-loyalty-card--mini .cs-loyalty-links a { flex: 1 1 auto !important; min-height: 38px !important; justify-content: center; }
+
+  /* Skin mini card */
+  body.cs-route-account .cs-skin-profile-card--mini { padding: 20px !important; }
+  body.cs-route-account .cs-skin-profile-actions { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+  body.cs-route-account .cs-skin-profile-actions .cs-mini-btn { flex: 1 1 auto !important; }
+
+  /* Profile completion module */
+  body.cs-route-account .cs-profile-completion { display: grid !important; grid-template-columns: auto minmax(0, 1fr) !important; gap: 16px !important; align-items: center !important; padding: 16px !important; }
+  body.cs-route-account .cs-profile-completion__ring { width: 84px !important; height: 84px !important; }
+  body.cs-route-account .cs-profile-completion__copy small { white-space: normal !important; }
+
+  /* Quick access grid */
+  body.cs-route-account .cs-quick-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; padding: 14px !important; }
+  body.cs-route-account .cs-quick-grid a { display: grid !important; gap: 4px !important; padding: 13px !important; border-radius: 15px !important; border: 1px solid var(--cs-acc-line) !important; background: var(--cs-acc-surface) !important; color: var(--cs-acc-ink) !important; text-decoration: none !important; min-width: 0 !important; }
+  body.cs-route-account .cs-quick-grid a svg { width: 20px !important; height: 20px !important; color: var(--cs-acc-gold-deep) !important; }
+  body.cs-route-account .cs-quick-grid b { font: 700 12.5px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important; }
+  body.cs-route-account .cs-quick-grid small { font-size: 11px !important; line-height: 1.4 !important; color: var(--cs-acc-muted) !important; }
+
+  /* Preferences preview module */
+  body.cs-route-account .cs-preferences-preview { padding: 16px !important; display: grid !important; gap: 10px !important; }
+  body.cs-route-account .cs-preferences-preview .cs-mini-btn { justify-self: start; }
+
+  /* SECURITY LIST — fix the conflicting circle/overlap bug */
+  body.cs-route-account .cs-security-list {
+    display: grid !important; grid-template-columns: 1fr !important; gap: 10px !important; padding: 14px !important; margin: 0 !important; list-style: none !important;
+  }
+  body.cs-route-account .cs-security-list li {
+    display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 12px !important;
+    grid-template-columns: none !important; padding: 13px 15px !important; border: 1px solid var(--cs-acc-line) !important; border-radius: 14px !important; background: var(--cs-acc-surface) !important; min-width: 0 !important;
+  }
+  body.cs-route-account .cs-security-list li strong {
+    flex: 1 1 auto !important; width: auto !important; height: auto !important; border: 0 !important; border-radius: 0 !important; background: none !important;
+    font: 700 12.5px/1.35 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-ink) !important; text-align: left !important; display: block !important;
+  }
+  body.cs-route-account .cs-security-list li span {
+    flex: 0 0 auto !important; width: auto !important; height: auto !important; min-width: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important;
+    display: inline !important; place-items: unset !important; text-align: right !important;
+    font: 500 12px/1.35 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-muted) !important;
+  }
+
+  /* Forms */
+  body.cs-route-account .cs-form,
+  body.cs-route-account .cs-form-compact,
+  body.cs-route-account .cs-form-grid { display: grid !important; grid-template-columns: 1fr !important; gap: 14px !important; }
+  body.cs-route-account .cs-form .full,
+  body.cs-route-account .cs-form-grid .span-2 { grid-column: 1 / -1 !important; }
+  body.cs-route-account .cs-field,
+  body.cs-route-account .cs-form-grid label { display: grid !important; gap: 7px !important; min-width: 0 !important; }
+  body.cs-route-account .cs-field > span,
+  body.cs-route-account .cs-form-grid label { font: 700 11px/1.4 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .04em !important; color: var(--cs-acc-ink-soft) !important; }
+  body.cs-route-account .cs-input,
+  body.cs-route-account .cs-form-grid input,
+  body.cs-route-account .cs-form-grid select,
+  body.cs-route-account .cs-form-grid textarea,
+  body.cs-route-account select.cs-input,
+  body.cs-route-account textarea.cs-input {
+    width: 100% !important; min-height: 52px !important; border-radius: 14px !important; border: 1px solid var(--cs-acc-line) !important;
+    background: #fffdfa !important; color: var(--cs-acc-ink) !important; padding: 0 14px !important; font: 500 14.5px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    transition: border-color .18s ease, box-shadow .18s ease !important;
+  }
+  body.cs-route-account textarea.cs-input,
+  body.cs-route-account .cs-form-grid textarea { min-height: 112px !important; padding: 12px 14px !important; resize: vertical; }
+  body.cs-route-account .cs-input:focus,
+  body.cs-route-account .cs-form-grid input:focus,
+  body.cs-route-account .cs-form-grid select:focus,
+  body.cs-route-account .cs-form-grid textarea:focus { outline: none !important; border-color: rgba(181, 138, 74, .55) !important; box-shadow: 0 0 0 3px rgba(181, 138, 74, .14) !important; }
+  body.cs-route-account .cs-field-help,
+  body.cs-route-account .cs-form-status { font-size: 11.5px !important; line-height: 1.5 !important; color: var(--cs-acc-muted) !important; }
+
+  /* Order cards */
+  body.cs-route-account .cs-order-list { padding: 0 !important; display: grid !important; gap: 14px !important; }
+  body.cs-route-account .cs-order-card { border-radius: 20px !important; border: 1px solid var(--cs-acc-line) !important; background: var(--cs-acc-surface) !important; overflow: hidden !important; }
+  body.cs-route-account .cs-order-card-head { padding: 16px !important; background: #faf3ea !important; border-bottom: 1px solid var(--cs-acc-line) !important; }
+  body.cs-route-account .cs-order-head-actions { max-width: 100% !important; justify-content: flex-start !important; }
+  body.cs-route-account .cs-order-body { display: block !important; padding: 14px !important; }
+  body.cs-route-account .cs-order-product { display: grid !important; grid-template-columns: 58px minmax(0, 1fr) !important; grid-auto-rows: auto; gap: 10px 12px !important; align-items: center !important; }
+  body.cs-route-account .cs-order-total { grid-column: 2 !important; text-align: left !important; }
+  body.cs-route-account .cs-order-side { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; margin: 12px 0 !important; }
+  body.cs-route-account .cs-order-side div { display: grid !important; gap: 3px !important; align-content: start !important; padding: 10px 12px !important; border-radius: 12px !important; }
+  body.cs-route-account .cs-order-side span { display: block !important; white-space: normal !important; font-size: 10px !important; color: var(--cs-acc-muted) !important; }
+  body.cs-route-account .cs-order-side strong { display: block !important; text-align: left !important; font-size: 12.5px !important; color: var(--cs-acc-ink) !important; }
+  body.cs-route-account .cs-order-actions { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+  body.cs-route-account .cs-order-actions .cs-mini-btn { flex: 1 1 auto !important; min-width: calc(50% - 4px) !important; }
+  body.cs-route-account .cs-order-cancel-block { margin-top: 12px !important; }
+
+  /* Favorites — 2-column vertical product cards */
+  body.cs-route-account .cs-favorites-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; padding: 0 !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini { display: grid !important; grid-template-columns: 1fr !important; grid-template-rows: auto auto !important; gap: 0 !important; padding: 0 !important; border-radius: 18px !important; border: 1px solid var(--cs-acc-line) !important; background: var(--cs-acc-surface) !important; overflow: hidden !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__media { height: auto !important; aspect-ratio: 1 / 1 !important; border-radius: 0 !important; background: var(--cs-acc-surface-soft) !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__body { padding: 12px !important; display: grid !important; align-content: start !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__body small { font: 800 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .1em !important; color: var(--cs-acc-gold-deep) !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__body > a strong { display: -webkit-box !important; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin: 6px 0 4px !important; font: 700 13px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-ink) !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__body p { font-size: 11px !important; color: var(--cs-acc-muted) !important; margin: 0 !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__bottom { display: grid !important; grid-template-columns: 1fr auto !important; gap: 8px !important; align-items: center !important; margin-top: 10px !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__bottom b { font: 700 15px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__bottom .cs-heart-btn { width: 38px !important; height: 38px !important; border-radius: 12px !important; }
+  body.cs-route-account .cs-favorites-grid .cs-product-mini__bottom .cs-mini-btn { grid-column: 1 / -1 !important; width: 100% !important; min-height: 42px !important; padding: 6px 10px !important; font-size: 10.5px !important; line-height: 1.2 !important; letter-spacing: .04em !important; white-space: normal !important; }
+  body.cs-route-account .cs-favorites-grid .cs-stock-dot { display: block !important; margin: 10px 12px 12px !important; font: 700 10px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important; white-space: normal !important; }
+
+  /* Coupons */
+  body.cs-route-account .cs-coupon-hero { display: grid !important; grid-template-columns: 1fr !important; gap: 14px !important; padding: 18px !important; margin: 0 0 14px !important; border-radius: 20px !important; }
+  body.cs-route-account .cs-coupon-actions { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+  body.cs-route-account .cs-coupon-row { display: grid !important; grid-template-columns: 1fr !important; gap: 8px !important; padding: 15px !important; border: 1px solid var(--cs-acc-line) !important; border-radius: 16px !important; background: var(--cs-acc-surface) !important; margin: 0 0 10px !important; }
+  body.cs-route-account .cs-coupon-code { font: 800 15px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .06em !important; color: var(--cs-acc-gold-deep) !important; }
+  body.cs-route-account .cs-coupon-tabs .cs-tabstrip { padding: 0 14px !important; gap: 18px !important; overflow-x: auto !important; }
+  body.cs-route-account .cs-coupon-tabs .cs-tabstrip button { white-space: nowrap !important; }
+
+  /* Club panel */
+  body.cs-route-account .cs-club-hero { padding: 26px 22px !important; min-height: 0 !important; border-radius: 22px !important; }
+  body.cs-route-account .cs-club-hero h2 { font-size: 30px !important; }
+  body.cs-route-account .cs-club-actions { display: flex !important; flex-wrap: wrap !important; gap: 10px !important; }
+  body.cs-route-account .cs-club-actions .cs-pill-btn { flex: 1 1 auto !important; }
+  body.cs-route-account .cs-level-journey,
+  body.cs-route-account .cs-benefit-grid,
+  body.cs-route-account .cs-club-bottom,
+  body.cs-route-account .cs-tier-grid,
+  body.cs-route-account .cs-tier-grid--premium { display: grid !important; grid-template-columns: 1fr !important; gap: 12px !important; }
+  body.cs-route-account .cs-loyalty-metrics { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 8px !important; }
+  body.cs-route-account .cs-loyalty-metrics span { display: grid !important; gap: 6px !important; min-width: 0 !important; padding: 12px 6px !important; border-radius: 12px !important; text-align: center !important; font: 700 8.5px/1.25 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .04em !important; text-transform: uppercase !important; white-space: normal !important; word-break: break-word; }
+  body.cs-route-account .cs-loyalty-metrics span b { font: 700 15px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: 0 !important; }
+  body.cs-route-account .cs-point-row,
+  body.cs-route-account .cs-point-table-head { grid-template-columns: 1fr auto !important; gap: 6px 10px !important; padding-left: 16px !important; padding-right: 16px !important; }
+  body.cs-route-account .cs-point-table-head { display: none !important; }
+  body.cs-route-account .cs-point-row { display: flex !important; flex-wrap: wrap !important; align-items: baseline !important; }
+
+  /* Notifications + toggles */
+  body.cs-route-account .cs-notification-list { display: grid !important; gap: 10px !important; padding: 0 !important; margin: 0 !important; }
+  body.cs-route-account .cs-notification-item { display: flex !important; align-items: flex-start !important; justify-content: space-between !important; gap: 12px !important; padding: 15px 16px !important; border-radius: 16px !important; border: 1px solid var(--cs-acc-line) !important; background: var(--cs-acc-surface) !important; }
+  body.cs-route-account .cs-notification-item.is-unread { border-color: rgba(181, 138, 74, .35) !important; background: #fff8ee !important; }
+  body.cs-route-account .cs-notification-item span { flex: 0 0 auto; align-self: flex-start; padding: 4px 9px; border-radius: 999px; background: rgba(181, 138, 74, .14); color: var(--cs-acc-gold-deep); font: 800 9px/1 "Plus Jakarta Sans", system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; }
+  body.cs-route-account .cs-toggle-grid,
+  body.cs-route-account .cs-toggle-grid--premium {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    margin: 0 0 14px !important;
+  }
+  body.cs-route-account .cs-premium-toggle {
+    position: relative !important;
+    display: grid !important;
+    grid-template-columns: 48px minmax(0, 1fr) !important;
+    gap: 2px 14px !important;
+    align-items: center !important;
+    min-height: 72px !important;
+    padding: 16px 16px !important;
+    border: 1px solid var(--cs-acc-line) !important;
+    border-radius: 18px !important;
+    background: linear-gradient(160deg, #fffdf9, #faf3ea) !important;
+    cursor: pointer !important;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease, transform .16s ease !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body.cs-route-account .cs-premium-toggle:active:not(.cs-premium-toggle--locked) { transform: scale(.99) !important; }
+  body.cs-route-account .cs-premium-toggle.is-on,
+  body.cs-route-account .cs-premium-toggle:has(.cs-premium-toggle__input:checked) {
+    border-color: rgba(181, 138, 74, .34) !important;
+    background: linear-gradient(160deg, #fffaf3, #f6eadc) !important;
+    box-shadow: 0 8px 22px rgba(45, 33, 23, .045) !important;
+  }
+  body.cs-route-account .cs-premium-toggle__input {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: 0 !important;
+    pointer-events: none !important;
+  }
+  body.cs-route-account .cs-premium-toggle__track {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+    width: 48px !important;
+    height: 28px !important;
+    margin-top: 0 !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(42, 32, 24, .1) !important;
+    background: #e7ddd1 !important;
+    position: relative !important;
+    transition: background .22s ease, border-color .22s ease !important;
+    flex: 0 0 auto !important;
+  }
+  body.cs-route-account .cs-premium-toggle__thumb {
+    position: absolute !important;
+    top: 2px !important;
+    left: 2px !important;
+    width: 22px !important;
+    height: 22px !important;
+    border-radius: 50% !important;
+    background: #fffdf9 !important;
+    box-shadow: 0 2px 8px rgba(38, 29, 22, .18) !important;
+    transition: transform .22s cubic-bezier(.4, 0, .2, 1), background .22s ease !important;
+  }
+  body.cs-route-account .cs-premium-toggle.is-on .cs-premium-toggle__track,
+  body.cs-route-account .cs-premium-toggle:has(.cs-premium-toggle__input:checked) .cs-premium-toggle__track {
+    background: linear-gradient(135deg, #c9a06a, #9a6d35) !important;
+    border-color: rgba(154, 109, 53, .45) !important;
+  }
+  body.cs-route-account .cs-premium-toggle.is-on .cs-premium-toggle__thumb,
+  body.cs-route-account .cs-premium-toggle:has(.cs-premium-toggle__input:checked) .cs-premium-toggle__thumb {
+    transform: translateX(20px) !important;
+    background: #fffaf3 !important;
+  }
+  body.cs-route-account .cs-premium-toggle__copy { grid-column: 2 !important; min-width: 0 !important; display: grid !important; gap: 4px !important; }
+  body.cs-route-account .cs-premium-toggle__label { font: 700 13.5px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-ink) !important; letter-spacing: -.01em !important; }
+  body.cs-route-account .cs-premium-toggle__desc { font-size: 12px !important; line-height: 1.45 !important; color: var(--cs-acc-muted) !important; }
+  body.cs-route-account .cs-premium-toggle--locked {
+    cursor: default !important;
+    opacity: .92 !important;
+  }
+  body.cs-route-account .cs-premium-toggle--locked .cs-premium-toggle__track {
+    background: linear-gradient(135deg, #b8925d, #8a6232) !important;
+    border-color: rgba(138, 98, 50, .4) !important;
+  }
+  body.cs-route-account .cs-premium-toggle--locked .cs-premium-toggle__thumb {
+    transform: translateX(20px) !important;
+  }
+  body.cs-route-account .cs-premium-toggle__input:focus-visible + .cs-premium-toggle__track {
+    box-shadow: 0 0 0 3px rgba(178, 132, 76, .28) !important;
+  }
+  body.cs-route-account #notificationSaveStatus {
+    min-height: 20px;
+    margin: 0 0 12px;
+    font: 650 12.5px/1.4 "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--cs-acc-ink-soft);
+  }
+  body.cs-route-account .cs-panel-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  body.cs-route-account .cs-panel-actions .cs-pill-btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  /* Plain checkbox toggle cards (non-premium) */
+  body.cs-route-account .cs-toggle-grid label:not(.cs-premium-toggle) { min-height: 0 !important; display: grid !important; grid-template-columns: auto 1fr !important; gap: 6px 12px !important; align-items: start !important; padding: 15px 16px !important; border: 1px solid var(--cs-acc-line) !important; border-radius: 16px !important; background: var(--cs-acc-surface) !important; }
+  body.cs-route-account .cs-toggle-grid label:not(.cs-premium-toggle) input { margin-top: 3px !important; width: 20px; height: 20px; accent-color: var(--cs-acc-gold-deep) !important; }
+  body.cs-route-account .cs-toggle-grid label:not(.cs-premium-toggle) span { font: 700 13px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important; color: var(--cs-acc-ink) !important; }
+  body.cs-route-account .cs-toggle-grid label:not(.cs-premium-toggle) small { grid-column: 2 !important; font-size: 12px !important; line-height: 1.45 !important; color: var(--cs-acc-muted) !important; }
+
+  /* Empty states + content help + status pills */
+  body.cs-route-account .cs-empty { display: grid !important; gap: 9px !important; padding: 24px 20px !important; border: 1px solid var(--cs-acc-line) !important; border-radius: 20px !important; background: linear-gradient(180deg, #fffdf9, #faf3ea) !important; }
+  body.cs-route-account .cs-empty strong { font: 500 22px/1.15 "Cormorant Garamond", Georgia, serif !important; color: var(--cs-acc-ink) !important; }
+  body.cs-route-account .cs-empty p { margin: 0 !important; font-size: 13px !important; line-height: 1.6 !important; color: var(--cs-acc-ink-soft) !important; }
+  body.cs-route-account .cs-empty .cs-pill-btn { justify-self: start !important; margin-top: 4px !important; }
+  body.cs-route-account .cs-content-help-card { display: grid !important; grid-template-columns: 1fr !important; gap: 10px !important; padding: 18px !important; margin-top: 14px !important; }
+  body.cs-route-account .cs-status-pill { min-height: 26px !important; border-radius: 999px !important; padding: 0 11px !important; font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important; letter-spacing: .05em !important; }
+
+  body.cs-route-account *:focus-visible { outline: 2px solid var(--cs-acc-gold) !important; outline-offset: 2px !important; }
+
+  @media (prefers-reduced-motion: reduce) {
+    body.cs-route-account .cs-account-nav a,
+    body.cs-route-account .cs-pill-btn,
+    body.cs-route-account .cs-mini-btn,
+    body.cs-route-account .cs-logout,
+    body.cs-route-account .cs-input { transition: none !important; }
+  }
   .cs-password-wrap { position: relative; display: block; }
   .cs-password-wrap input { padding-right: 86px !important; }
   .cs-password-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); min-width: 68px; height: 34px; border-radius: 999px; border: 1px solid var(--cs-mobile-line); background: #fff; color: var(--cs-mobile-ink); font-size: 11px; font-weight: 800; }
 
-  /* Legal/contact/footer preservation + compact mobile */
+  /* Homepage Smart Routine — premium mobile composition */
+  body.cs-mobile-v1-active #smart-routine.cs-mobile-smart-routine {
+    --sr-mobile-ink: #1c1611;
+    --sr-mobile-muted: #71675e;
+    --sr-mobile-line: rgba(42,32,22,.12);
+    --sr-mobile-gold: #a67b43;
+    margin: 0 !important;
+    padding: 44px 0 48px !important;
+    overflow: hidden !important;
+    background:
+      radial-gradient(circle at 100% 0, rgba(181,138,74,.13), transparent 27%),
+      linear-gradient(180deg, #f4ede5 0%, #eee5db 100%) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine > .container {
+    width: 100% !important;
+    max-width: 620px !important;
+    margin-inline: auto !important;
+    padding: 0 14px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__shell {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 0 !important;
+    padding: 25px 18px 19px !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(42,32,22,.12) !important;
+    border-radius: 30px !important;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.84), rgba(249,243,235,.68)),
+      #f9f4ee !important;
+    box-shadow: 0 24px 64px rgba(52,39,28,.10) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__shell::before {
+    border-radius: 29px;
+    background:
+      radial-gradient(circle at 88% 2%, rgba(181,138,74,.12), transparent 28%),
+      linear-gradient(120deg, rgba(255,255,255,.52), transparent 42%) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__left,
+  body.cs-mobile-v1-active #smart-routine .smart-routine__middle,
+  body.cs-mobile-v1-active #smart-routine .smart-routine__right {
+    min-width: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__middle,
+  body.cs-mobile-v1-active #smart-routine .smart-routine__right {
+    margin: 25px 0 0 !important;
+    padding: 25px 0 0 !important;
+    border-top: 1px solid var(--sr-mobile-line) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__eyebrow {
+    margin: 0 0 13px !important;
+    color: var(--sr-mobile-gold) !important;
+    font: 750 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .23em !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__title {
+    max-width: 330px !important;
+    margin: 0 !important;
+    color: var(--sr-mobile-ink) !important;
+    font: 400 clamp(35px, 10.2vw, 42px)/.98 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.028em !important;
+    text-wrap: balance;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__lede {
+    max-width: 325px !important;
+    margin: 17px 0 18px !important;
+    color: var(--sr-mobile-muted) !important;
+    font: 450 13px/1.65 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__badge {
+    min-height: 34px !important;
+    padding: 0 13px !important;
+    border-color: rgba(166,123,67,.22) !important;
+    background: rgba(255,253,249,.72) !important;
+    box-shadow: 0 8px 22px rgba(42,32,22,.04) !important;
+    color: #856033 !important;
+    font: 700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__badge img {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__panel {
+    margin-top: 21px !important;
+    padding: 17px !important;
+    border: 1px solid var(--sr-mobile-line) !important;
+    border-radius: 22px !important;
+    background: rgba(255,253,249,.62) !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__panel + .smart-routine__panel {
+    margin-top: 12px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__panel-title,
+  body.cs-mobile-v1-active #smart-routine .smart-routine__column-title {
+    gap: 10px !important;
+    margin: 0 0 15px !important;
+    color: var(--sr-mobile-ink) !important;
+    font: 500 19px/1.08 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.01em !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__number {
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px !important;
+    background: #211914 !important;
+    box-shadow: 0 8px 18px rgba(42,32,22,.13) !important;
+    font-size: 11px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goals {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 9px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal {
+    min-width: 0 !important;
+    min-height: 68px !important;
+    display: grid !important;
+    grid-template-columns: 36px minmax(0,1fr) !important;
+    gap: 9px !important;
+    align-items: center !important;
+    justify-content: initial !important;
+    padding: 10px 11px !important;
+    border: 1px solid rgba(42,32,22,.10) !important;
+    border-radius: 17px !important;
+    background: rgba(255,255,255,.72) !important;
+    color: #29211b !important;
+    text-align: left !important;
+    box-shadow: 0 7px 20px rgba(42,32,22,.035) !important;
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal > img {
+    width: 36px !important;
+    height: 36px !important;
+    padding: 7px !important;
+    border: 1px solid rgba(166,123,67,.16);
+    border-radius: 50%;
+    background: #f7efe6;
+    object-fit: contain !important;
+    image-rendering: auto;
+    filter: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal > span:last-child {
+    min-width: 0;
+    font: 700 11.5px/1.25 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: -.012em !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal[aria-pressed="true"] {
+    border-color: #211914 !important;
+    background: #211914 !important;
+    color: #fffaf4 !important;
+    box-shadow: 0 12px 24px rgba(42,32,22,.15) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal[aria-pressed="true"] > img {
+    border-color: rgba(255,255,255,.16);
+    background: rgba(255,255,255,.09);
+    filter: brightness(0) invert(1) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal-check {
+    top: 6px !important;
+    right: 6px !important;
+    width: 19px !important;
+    height: 19px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__goal-check img {
+    width: 11px !important;
+    height: 11px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__selection-line {
+    min-height: 35px;
+    margin: 12px 0 0 !important;
+    padding: 11px 0 0 !important;
+    border-top: 1px solid var(--sr-mobile-line) !important;
+    font-size: 10.5px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__clear {
+    min-width: 44px;
+    min-height: 30px;
+    text-align: right;
+    font-size: 10.5px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__skin-title {
+    margin: 0 0 12px !important;
+    font-size: 11.5px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__skin-types {
+    display: grid !important;
+    grid-template-columns: repeat(4,minmax(0,1fr)) !important;
+    gap: 7px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__skin-pill {
+    min-width: 0 !important;
+    min-height: 42px !important;
+    padding: 0 5px !important;
+    border-radius: 13px !important;
+    font-size: 10.5px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__skin-pill[aria-pressed="true"] {
+    background: #211914 !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__column-title small {
+    margin-top: 4px !important;
+    color: var(--sr-mobile-muted) !important;
+    font: 550 10.5px/1.35 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__steps {
+    display: flex !important;
+    gap: 9px !important;
+    margin: 16px -18px 0 !important;
+    padding: 0 18px 10px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 18px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__steps::-webkit-scrollbar,
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-flow::-webkit-scrollbar { display: none; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__steps::before { display: none !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step {
+    position: relative;
+    flex: 0 0 142px;
+    display: block !important;
+    scroll-snap-align: start;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step-index {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    width: 24px !important;
+    height: 24px !important;
+    border: 0 !important;
+    background: rgba(255,253,249,.92) !important;
+    color: #7f5b31 !important;
+    font-size: 9px !important;
+    box-shadow: 0 5px 12px rgba(42,32,22,.08) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step-card {
+    min-height: 122px !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 45px auto !important;
+    gap: 8px !important;
+    align-content: center;
+    justify-items: center;
+    padding: 13px 10px 12px !important;
+    border: 1px solid var(--sr-mobile-line) !important;
+    border-radius: 19px !important;
+    background: rgba(255,253,249,.70) !important;
+    text-align: center;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step-icon {
+    width: 45px !important;
+    height: 45px !important;
+    border-color: rgba(166,123,67,.16) !important;
+    background: #f7efe6 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step-icon img {
+    width: 27px !important;
+    height: 27px !important;
+    object-fit: contain !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step-copy strong {
+    margin: 0 0 3px !important;
+    font-size: 11px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step-copy span {
+    font-size: 9.5px !important;
+    line-height: 1.35 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__step-arrow { display: none !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__note {
+    grid-template-columns: 31px minmax(0,1fr) !important;
+    gap: 10px !important;
+    margin: 12px 0 0 !important;
+    padding: 13px !important;
+    border-color: rgba(166,123,67,.17) !important;
+    border-radius: 16px !important;
+    background: rgba(239,226,209,.54) !important;
+    font-size: 10.5px !important;
+    line-height: 1.55 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__note img {
+    width: 31px !important;
+    height: 31px !important;
+    padding: 6px;
+    border-radius: 50%;
+    background: rgba(255,253,249,.72);
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__right-head {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) auto !important;
+    gap: 10px !important;
+    align-items: start !important;
+    margin: 0 0 17px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__routine-title {
+    margin: 0 !important;
+    font: 500 20px/1.08 "Cormorant Garamond", Georgia, serif !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__routine-title .smart-routine__number {
+    margin-right: 7px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__routine-subtitle {
+    margin: 8px 0 0 38px !important;
+    color: var(--sr-mobile-muted) !important;
+    font-size: 10.5px !important;
+    line-height: 1.45 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__match {
+    min-height: 30px !important;
+    margin: 0 !important;
+    padding: 0 9px !important;
+    font-size: 9px !important;
+    white-space: nowrap;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__match img {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__daypart {
+    margin: 12px 0 0 !important;
+    padding: 14px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--sr-mobile-line) !important;
+    border-radius: 21px !important;
+    background: rgba(255,253,249,.58) !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__daypart-title {
+    margin: 0 0 11px !important;
+    color: #805b31 !important;
+    font-size: 9.5px !important;
+    letter-spacing: .17em !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__daypart-title img {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-flow,
+  body.cs-mobile-v1-active #smart-routine .smart-routine__daypart--night .smart-routine__product-flow {
+    display: flex !important;
+    grid-template-columns: none !important;
+    gap: 10px !important;
+    margin: 0 -14px !important;
+    padding: 0 14px 5px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 14px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-flow:focus-visible {
+    outline: 2px solid rgba(166,123,67,.55);
+    outline-offset: -2px;
+    border-radius: 14px;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-wrap {
+    flex: 0 0 188px !important;
+    min-width: 188px !important;
+    scroll-snap-align: start;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-card {
+    min-height: 244px !important;
+    height: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 112px auto !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(42,32,22,.10) !important;
+    border-radius: 17px !important;
+    background: #fffdf9 !important;
+    box-shadow: 0 9px 24px rgba(42,32,22,.055) !important;
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-media {
+    min-height: 112px !important;
+    height: 112px !important;
+    aspect-ratio: auto !important;
+    padding: 10px !important;
+    background: linear-gradient(180deg,#fff,#f7efe7) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-media img {
+    width: 100% !important;
+    height: 94px !important;
+    max-height: 94px !important;
+    object-fit: contain !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-info {
+    align-self: stretch !important;
+    padding: 10px 11px 12px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-step {
+    margin: 0 0 4px !important;
+    font-size: 8.5px !important;
+    letter-spacing: .1em !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-name {
+    min-height: 32px !important;
+    font-size: 11px !important;
+    line-height: 1.38 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-reason {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-price {
+    margin-top: 7px !important;
+    font-size: 12px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__connector { display: none !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-remove {
+    top: 5px !important;
+    right: 5px !important;
+    width: 44px !important;
+    height: 44px !important;
+    opacity: 1 !important;
+    transform: none !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__product-remove svg {
+    width: 26px;
+    height: 26px;
+    padding: 6px;
+    border: 1px solid rgba(42,32,22,.12);
+    border-radius: 50%;
+    background: rgba(255,253,249,.90);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__empty {
+    flex: 1 0 100%;
+    min-height: 102px !important;
+    display: grid !important;
+    align-content: center;
+    padding: 18px !important;
+    border: 1px dashed rgba(42,32,22,.14) !important;
+    border-radius: 16px !important;
+    background: rgba(255,255,255,.52) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__empty strong {
+    font: 500 18px/1.1 "Cormorant Garamond", Georgia, serif !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__empty span {
+    margin-top: 7px !important;
+    font-size: 10.5px !important;
+    line-height: 1.5 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__bundle-offer {
+    grid-template-columns: 36px minmax(0,1fr) auto !important;
+    gap: 10px !important;
+    margin: 12px 0 0 !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__offer-icon {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__bundle-offer strong { font-size: 11px !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__bundle-offer span { font-size: 9.5px !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__bundle-offer b {
+    grid-column: auto !important;
+    font-size: 10px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__meta-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+    margin: 12px 0 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__meta-item {
+    min-height: 66px !important;
+    grid-template-columns: 26px minmax(0,1fr) !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    border: 1px solid var(--sr-mobile-line) !important;
+    border-radius: 15px !important;
+    background: rgba(255,253,249,.64);
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__meta-item img {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__meta-item span { font-size: 9px !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__meta-item strong {
+    margin-top: 3px !important;
+    font-size: 12px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__actions {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+    margin: 12px 0 0 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__btn {
+    min-width: 0 !important;
+    min-height: 54px !important;
+    padding: 8px 10px !important;
+    border-radius: 15px !important;
+    font-size: 10.5px !important;
+    line-height: 1.25 !important;
+    white-space: normal !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__btn--primary {
+    grid-column: 1 / -1;
+    background: #1d1712 !important;
+    box-shadow: 0 12px 24px rgba(42,32,22,.16) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__btn img {
+    width: 19px !important;
+    height: 19px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__tertiary {
+    min-height: 44px;
+    margin: 7px auto 0 !important;
+    font-size: 10.5px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__privacy {
+    align-items: flex-start !important;
+    margin: 8px 0 0 !important;
+    padding: 0 5px;
+    text-align: left;
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__trustbar {
+    grid-column: 1 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+    margin: 18px 0 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__trust-item {
+    min-height: 68px !important;
+    display: grid !important;
+    grid-template-columns: 30px minmax(0,1fr) !important;
+    gap: 8px !important;
+    padding: 10px !important;
+    border: 1px solid var(--sr-mobile-line) !important;
+    border-radius: 15px !important;
+    background: rgba(255,253,249,.54);
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__trust-item img {
+    width: 27px !important;
+    height: 27px !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__trust-item strong { font-size: 10px !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__trust-item span {
+    margin-top: 3px !important;
+    font-size: 8.5px !important;
+    line-height: 1.3 !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__trust-item--avatars {
+    grid-template-columns: 42px minmax(0,1fr) !important;
+  }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__avatars { min-width: 42px !important; }
+  body.cs-mobile-v1-active #smart-routine .smart-routine__avatar {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 8px !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__modal {
+    z-index: 7200 !important;
+    align-items: flex-end !important;
+    padding: 0 !important;
+    background: rgba(18,13,8,.48) !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__modal-card {
+    width: 100% !important;
+    max-height: 88dvh !important;
+    border-radius: 28px 28px 0 0 !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__modal-head {
+    padding: 19px 18px 14px !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__modal-head h3 {
+    font-size: 27px !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__modal-head p {
+    max-width: 280px;
+    font-size: 10.5px !important;
+    line-height: 1.45 !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__modal-close {
+    width: 44px !important;
+    height: 44px !important;
+    flex: 0 0 44px;
+  }
+  body.cs-mobile-v1-active .smart-routine__modal-close svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.55;
+    stroke-linecap: round;
+  }
+  body.cs-mobile-v1-active .smart-routine__alternatives {
+    padding: 16px 16px calc(16px + var(--cs-mobile-safe-bottom)) !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__alt-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 9px !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__alt-card {
+    grid-template-rows: 86px auto auto !important;
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+  body.cs-mobile-v1-active .smart-routine__alt-card img { height: 82px !important; }
+  body.cs-mobile-v1-active .smart-routine__toast {
+    z-index: 7300 !important;
+    bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 12px) !important;
+    max-width: calc(100vw - 28px) !important;
+    border-radius: 16px !important;
+    text-align: center;
+    font-size: 11px !important;
+  }
+  @media (max-width: 374px) {
+    body.cs-mobile-v1-active #smart-routine .smart-routine__shell { padding-inline: 15px !important; }
+    body.cs-mobile-v1-active #smart-routine .smart-routine__goal { grid-template-columns: 32px minmax(0,1fr) !important; padding-inline: 8px !important; }
+    body.cs-mobile-v1-active #smart-routine .smart-routine__goal > img { width: 32px !important; height: 32px !important; }
+    body.cs-mobile-v1-active #smart-routine .smart-routine__right-head { grid-template-columns: 1fr !important; }
+    body.cs-mobile-v1-active #smart-routine .smart-routine__match { justify-self: start; margin-left: 38px !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.cs-mobile-v1-active #smart-routine *,
+    body.cs-mobile-v1-active .smart-routine__modal * { scroll-behavior: auto !important; transition: none !important; }
+  }
+
+  /* Content, legal and institutional pages — premium mobile system */
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) #cs-mobile-v1-page-stage {
+    display: block !important;
+    min-height: 100dvh;
+    background:
+      radial-gradient(circle at 100% 0, rgba(181,138,74,.10), transparent 24rem),
+      linear-gradient(180deg, #f4eee7 0%, #eee5dc 58%, #f7f2ec 100%) !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page.cs-mobile-content-ready {
+    --cs-content-ink: #1d1712;
+    --cs-content-muted: #6d6259;
+    --cs-content-line: rgba(44,34,25,.11);
+    --cs-content-gold: #a47a43;
+    width: 100% !important;
+    max-width: 620px !important;
+    margin: 0 auto !important;
+    padding: 26px 14px 44px !important;
+    color: var(--cs-content-ink) !important;
+    overflow: visible !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page *,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page *::before,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page *::after {
+    box-sizing: border-box;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page a,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page li,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page td,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page th {
+    overflow-wrap: anywhere;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-hero,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-hero,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-about-hero {
+    position: relative !important;
+    display: grid !important;
+    gap: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 29px 22px 27px !important;
+    overflow: hidden !important;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 30px !important;
+    background:
+      radial-gradient(circle at 92% 2%, rgba(181,138,74,.14), transparent 31%),
+      linear-gradient(145deg, rgba(255,255,255,.88), rgba(248,242,235,.76)) !important;
+    box-shadow: 0 22px 58px rgba(48,36,26,.09) !important;
+    isolation: isolate;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-hero::after,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-hero::after,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-about-hero::after {
+    content: "" !important;
+    position: absolute !important;
+    right: -62px !important;
+    top: -72px !important;
+    width: 168px !important;
+    height: 168px !important;
+    border: 1px solid rgba(164,122,67,.13);
+    border-radius: 50% !important;
+    background: transparent !important;
+    box-shadow: 0 0 0 24px rgba(255,255,255,.12), 0 0 0 48px rgba(164,122,67,.025);
+    pointer-events: none;
+    z-index: -1;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-kicker,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-about-eyebrow {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 15px !important;
+    color: var(--cs-content-gold) !important;
+    font: 750 9.5px/1.25 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .2em !important;
+    text-transform: uppercase;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-hero h1,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-hero h1,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-about-hero h1 {
+    position: relative;
+    z-index: 1;
+    max-width: 510px !important;
+    margin: 0 !important;
+    color: var(--cs-content-ink) !important;
+    font: 400 clamp(39px, 11.5vw, 51px)/.96 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.035em !important;
+    text-wrap: balance;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-hero > p:not(.cs-legal-kicker),
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-hero > p:not(.cs-legal-kicker),
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-about-hero > p:not(.cs-about-eyebrow) {
+    position: relative;
+    z-index: 1;
+    max-width: 490px !important;
+    margin: 20px 0 0 !important;
+    color: var(--cs-content-muted) !important;
+    font: 450 13px/1.72 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-meta,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-actions,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-hero__actions {
+    position: relative;
+    z-index: 1;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin: 22px 0 0 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-meta span,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-pill-link {
+    min-height: 38px !important;
+    max-width: 100%;
+    padding: 9px 13px !important;
+    border: 1px solid rgba(44,34,25,.10) !important;
+    border-radius: 999px !important;
+    background: rgba(255,255,255,.64) !important;
+    color: #5f554d !important;
+    box-shadow: 0 6px 18px rgba(44,34,25,.025);
+    font: 700 10.5px/1.35 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    text-decoration: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-pill-link.is-dark {
+    border-color: #1d1712 !important;
+    background: #1d1712 !important;
+    color: #fffaf4 !important;
+    box-shadow: 0 10px 24px rgba(29,23,18,.14);
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-trust-grid,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-trust-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 9px !important;
+    margin: 13px 0 0 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-trust-grid > span,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-trust-grid > span {
+    position: relative;
+    min-width: 0;
+    min-height: 126px !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 6px !important;
+    padding: 14px !important;
+    overflow: hidden;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 21px !important;
+    background:
+      linear-gradient(150deg, rgba(255,255,255,.86), rgba(249,243,236,.68)) !important;
+    color: var(--cs-content-muted) !important;
+    box-shadow: 0 10px 30px rgba(44,34,25,.045) !important;
+    font: 500 10.5px/1.45 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-trust-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    height: 38px !important;
+    flex: 0 0 38px !important;
+    margin: 0 0 auto !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    border: 1px solid rgba(164,122,67,.17) !important;
+    border-radius: 50% !important;
+    background: #f5ece1 !important;
+    box-shadow: none !important;
+    color: #34281f;
+    line-height: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-trust-icon svg {
+    display: block !important;
+    width: 18px !important;
+    height: 18px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 auto;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-trust-icon--security svg,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-trust-icon--payment svg,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-trust-icon--shipping svg,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-trust-icon--benefit svg {
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-trust-grid b,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-trust-grid b {
+    color: var(--cs-content-ink) !important;
+    font-size: 9.5px !important;
+    line-height: 1.25 !important;
+    letter-spacing: .105em !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-layout,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-contact-layout,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 12px !important;
+    margin: 13px 0 0 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-layout > div,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-side {
+    min-width: 0;
+    display: grid !important;
+    gap: 12px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-toc {
+    position: relative !important;
+    top: auto !important;
+    order: -1;
+    display: flex !important;
+    align-items: center;
+    gap: 7px;
+    width: calc(100% + 28px);
+    margin: 0 -14px !important;
+    padding: 0 14px 5px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-toc::-webkit-scrollbar { display: none; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-toc h2,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-toc a {
+    flex: 0 0 auto;
+    min-height: 39px;
+    display: inline-flex !important;
+    align-items: center;
+    margin: 0 !important;
+    padding: 0 13px !important;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 999px !important;
+    background: rgba(255,253,249,.72) !important;
+    color: #55483e !important;
+    font: 700 10.5px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+    text-decoration: none !important;
+    scroll-snap-align: start;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-toc h2 {
+    border-color: #1d1712 !important;
+    background: #1d1712 !important;
+    color: #fffaf4 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card {
+    min-width: 0;
+    margin: 0 !important;
+    padding: 22px 19px !important;
+    overflow: hidden;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 24px !important;
+    background: rgba(255,253,249,.78) !important;
+    box-shadow: 0 14px 38px rgba(44,34,25,.055) !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page > .cs-content-card,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page > .cs-payment-card {
+    margin-top: 12px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card::before,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card::before {
+    content: attr(data-cs-section-index);
+    display: grid;
+    place-items: center;
+    width: 31px;
+    height: 31px;
+    margin: 0 0 17px;
+    border: 1px solid rgba(164,122,67,.18);
+    border-radius: 50%;
+    background: #f5ece1;
+    color: #876134;
+    font: 750 9px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card h2,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card h2,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card h2 {
+    margin: 0 0 13px !important;
+    color: var(--cs-content-ink) !important;
+    font: 500 27px/1.04 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.025em !important;
+    text-wrap: balance;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card h3,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card h3,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card h3 {
+    margin: 22px 0 8px !important;
+    color: #765b3d !important;
+    font: 750 10px/1.3 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .12em !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card li,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card li,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card li {
+    color: var(--cs-content-muted) !important;
+    font: 450 12.5px/1.78 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card p { margin: 0 0 14px; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card p:last-child,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card p:last-child,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-card p:last-child { margin-bottom: 0; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card ul,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-card ol,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card ul,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-card ol {
+    margin: 13px 0 0 !important;
+    padding-left: 20px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page li + li { margin-top: 7px; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page li::marker { color: var(--cs-content-gold); }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-note,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-info-tile {
+    padding: 16px !important;
+    border: 1px solid rgba(164,122,67,.17) !important;
+    border-radius: 18px !important;
+    background: rgba(249,242,233,.78) !important;
+    box-shadow: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-safe {
+    padding: 21px 19px !important;
+    border: 1px solid rgba(255,255,255,.10) !important;
+    border-radius: 23px !important;
+    background: linear-gradient(145deg,#1c1713,#2b221c) !important;
+    color: #fff8ef !important;
+    box-shadow: 0 16px 36px rgba(29,23,18,.14) !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-safe p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-safe li,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-safe a {
+    color: rgba(255,248,239,.82) !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-info-grid,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-form-grid,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-bank-grid,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-club-points-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 9px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-info-tile b {
+    margin-bottom: 6px !important;
+    color: var(--cs-content-ink) !important;
+    font-size: 11px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-info-tile span,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-info-tile a {
+    color: var(--cs-content-muted) !important;
+    font-size: 10.5px !important;
+    line-height: 1.55 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-table {
+    width: 100% !important;
+    display: block !important;
+    overflow-x: auto !important;
+    border-radius: 17px !important;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-table th,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-table td {
+    min-width: 145px;
+    padding: 11px 12px !important;
+    font-size: 10.5px !important;
+    line-height: 1.55 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-field {
+    gap: 7px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-field label,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-checkline {
+    color: #66594e !important;
+    font-size: 9.5px !important;
+    line-height: 1.45 !important;
+    letter-spacing: .07em !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-field input,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-field select,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-field textarea {
+    min-height: 50px !important;
+    padding: 13px 14px !important;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 15px !important;
+    background: rgba(255,255,255,.82) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7);
+    color: var(--cs-content-ink) !important;
+    font-size: 12px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-field textarea { min-height: 124px !important; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-checkline {
+    min-height: 44px;
+    gap: 10px !important;
+    align-items: flex-start !important;
+    letter-spacing: 0 !important;
+    text-transform: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-checkline input {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    margin-top: 1px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-contact-form .btn {
+    width: 100%;
+    min-height: 52px !important;
+    border-radius: 15px !important;
+    font-size: 11px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathways {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 9px !important;
+    margin: 13px 0 0 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathway {
+    min-height: 128px;
+    align-content: end;
+    gap: 6px !important;
+    padding: 15px !important;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 20px !important;
+    background: rgba(255,253,249,.75) !important;
+    box-shadow: 0 10px 28px rgba(44,34,25,.045) !important;
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathway::before {
+    content: none !important;
+    display: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathway__icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    margin: 0 0 auto;
+    border: 1px solid rgba(149,112,66,.20);
+    border-radius: 12px;
+    background: linear-gradient(145deg,rgba(255,253,249,.96),rgba(239,228,214,.82));
+    color: #745433;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.82), 0 5px 14px rgba(75,55,34,.07);
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathway__icon svg {
+    width: 19px;
+    height: 19px;
+    display: block;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.45;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathway strong {
+    font-size: 10.5px !important;
+    line-height: 1.35 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathway > span:not(.cs-support-pathway__icon) {
+    font-size: 9px !important;
+    line-height: 1.45 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-mobile-payment-page .payment-logos {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+    margin: 16px 0 0 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-mobile-payment-page .payment-logo {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 48px !important;
+    padding: 9px 13px !important;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 14px !important;
+    background: #fff !important;
+    box-shadow: 0 7px 18px rgba(44,34,25,.04) !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-mobile-payment-page .payment-logo img {
+    width: 100% !important;
+    height: 24px !important;
+    max-width: 76px !important;
+    max-height: 24px !important;
+    object-fit: contain !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-journey,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-story,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-values {
+    margin: 12px 0 0 !important;
+    padding: 22px 19px !important;
+    border: 1px solid var(--cs-content-line) !important;
+    border-radius: 24px !important;
+    background: rgba(255,253,249,.78) !important;
+    box-shadow: 0 14px 38px rgba(44,34,25,.05) !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-section-head {
+    gap: 0 !important;
+    margin: 0 0 17px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-section-head h2 {
+    margin: 0 !important;
+    color: var(--cs-content-ink) !important;
+    font: 500 28px/1.04 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.03em !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-journey-visual {
+    border-radius: 18px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-journey-visual figcaption,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-copy p {
+    color: var(--cs-content-muted) !important;
+    font-size: 11.5px !important;
+    line-height: 1.75 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-values-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-values-grid article {
+    min-width: 0;
+    padding: 15px !important;
+    border-radius: 17px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-values-grid span {
+    margin-bottom: 17px !important;
+    font-size: 23px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-values-grid h3 { font-size: 10.5px !important; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-values-grid p {
+    font-size: 9px !important;
+    line-height: 1.55 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-closing {
+    margin: 12px 0 0 !important;
+    padding: 20px !important;
+    border-radius: 23px !important;
+    background: linear-gradient(145deg,#1c1713,#2b221c) !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-about-page .cs-about-closing p {
+    font-size: 25px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-levels {
+    display: flex !important;
+    gap: 10px !important;
+    width: calc(100% + 28px);
+    margin: 13px -14px 0 !important;
+    padding: 0 14px 7px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 14px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-levels::-webkit-scrollbar { display: none; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-level-card {
+    flex: 0 0 min(82vw,310px);
+    min-width: 0;
+    padding: 20px !important;
+    border-radius: 23px !important;
+    scroll-snap-align: start;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-level-card h2 {
+    font: 500 26px/1.05 "Cormorant Garamond", Georgia, serif !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-level-card p,
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-level-card li {
+    font-size: 10.5px !important;
+    line-height: 1.58 !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-tier {
+    min-height: 31px !important;
+    padding: 0 10px !important;
+    font-size: 8.5px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-club-page .cs-club-points-grid > div {
+    padding: 16px !important;
+    border-radius: 18px !important;
+  }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page [id] { scroll-margin-top: 88px; }
+  body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page :focus-visible {
+    outline: 2px solid rgba(164,122,67,.62) !important;
+    outline-offset: 3px !important;
+  }
+  @media (max-width: 374px) {
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page.cs-mobile-content-ready { padding-inline: 11px !important; }
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-hero,
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-content-hero,
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-about-hero { padding-inline: 19px !important; }
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-legal-trust-grid > span,
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-payment-trust-grid > span { min-height: 132px !important; padding: 12px !important; }
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page .cs-support-pathways { grid-template-columns: 1fr !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.cs-mobile-v1-active:is(.cs-route-content,.cs-route-contact) main.cs-content-page * {
+      scroll-behavior: auto !important;
+      transition: none !important;
+    }
+  }
+
+  /* Home FAQ — premium mobile accordion */
+  body.cs-mobile-v1-active .cs-mobile-faq {
+    margin: 0 !important;
+    padding: 52px 0 44px !important;
+    background:
+      radial-gradient(circle at 100% 0, rgba(181,138,74,.10), transparent 32%),
+      #f4ede5 !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq > .container {
+    width: 100% !important;
+    padding: 0 18px !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .section-head.compact {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    align-items: start !important;
+    margin: 0 0 27px !important;
+    padding: 0 2px !important;
+    text-align: left !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .section-head .kicker {
+    display: block !important;
+    margin: 0 0 13px !important;
+    color: #9b7441 !important;
+    font: 750 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .22em !important;
+    text-transform: uppercase !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .section-head h2 {
+    max-width: 330px;
+    margin: 0 !important;
+    color: #17120d !important;
+    font: 400 clamp(34px, 10vw, 42px)/.98 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.025em !important;
+    text-wrap: balance;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .section-head.compact > p {
+    display: block !important;
+    max-width: 320px;
+    margin: 16px 0 0 !important;
+    color: #71675e !important;
+    font: 450 13px/1.6 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-list {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-top: 1px solid rgba(42,32,22,.17);
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(42,32,22,.15) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: background-color .2s ease;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item[open] {
+    background: rgba(255,253,249,.58) !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item summary {
+    position: relative;
+    min-height: 72px;
+    display: grid;
+    grid-template-columns: 28px minmax(0,1fr) 32px;
+    gap: 8px;
+    align-items: center;
+    margin: 0 !important;
+    padding: 13px 0 !important;
+    color: #27211b !important;
+    cursor: pointer;
+    list-style: none;
+    font: 620 13px/1.42 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: -.01em !important;
+    text-align: left !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item summary::-webkit-details-marker { display: none; }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item summary::before {
+    content: var(--cs-faq-index);
+    align-self: center;
+    color: #9b7441;
+    font: 700 9px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .08em;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item summary::after {
+    content: "+";
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    justify-self: end;
+    border: 1px solid rgba(42,32,22,.14);
+    border-radius: 50%;
+    background: rgba(255,253,249,.62);
+    color: #302820;
+    font: 400 20px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+    transition: transform .22s ease, background-color .22s ease;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item[open] summary {
+    color: #8a6335 !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item[open] summary::after {
+    content: "−";
+    background: #1b1713;
+    color: #fffdf9;
+    transform: rotate(180deg);
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item p {
+    margin: 0 !important;
+    padding: 0 40px 22px 36px !important;
+    color: #665d54 !important;
+    font: 450 12.5px/1.7 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  body.cs-mobile-v1-active .cs-mobile-faq .faq-item summary:focus-visible {
+    outline: 2px solid #b58a4a;
+    outline-offset: -2px;
+    border-radius: 8px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.cs-mobile-v1-active .cs-mobile-faq .faq-item,
+    body.cs-mobile-v1-active .cs-mobile-faq .faq-item summary::after { transition: none; }
+  }
+
+  /* Legal/contact preservation */
   body.cs-mobile-v1-active main,
   body.cs-mobile-v1-active .container { max-width: 100% !important; }
   body.cs-mobile-v1-active .container { padding-left: var(--cs-mobile-container); padding-right: var(--cs-mobile-container); }
-  body.cs-mobile-v1-active .footer { padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 22px) !important; }
-  body.cs-checkout-mobile .footer { padding-bottom: calc(var(--cs-mobile-safe-bottom) + 22px) !important; }
-  body.cs-mobile-v1-active .footer-grid,
-  body.cs-mobile-v1-active .footer-trustbar { display: grid !important; grid-template-columns: 1fr !important; gap: 18px !important; }
-  body.cs-mobile-v1-active .footer-newsletter { padding: 24px var(--cs-mobile-container) !important; }
-  body.cs-mobile-v1-active .footer-col a,
-  body.cs-mobile-v1-active .footer-col span { min-height: 32px; display: flex; align-items: center; }
+
+  /* Mobile footer — one compact architecture, desktop footer remains untouched */
+  body.cs-mobile-v1-active .cs-desktop-footer {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-has-mobile-footer,
+  body.cs-mobile-v1-active.cs-route-pdp.cs-has-mobile-footer,
+  body.cs-checkout-mobile.cs-has-mobile-footer {
+    padding-bottom: 0 !important;
+  }
+  .cs-mobile-footer {
+    --cs-footer-bg: #0b0b0b;
+    --cs-footer-surface: #202429;
+    --cs-footer-line: rgba(255,255,255,.13);
+    --cs-footer-text: #f5f1eb;
+    --cs-footer-muted: #a8a7a4;
+    position: relative;
+    width: 100%;
+    margin: 44px 0 0;
+    padding: 14px 16px calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom));
+    overflow: hidden;
+    background: var(--cs-footer-bg);
+    color: var(--cs-footer-text);
+    isolation: isolate;
+  }
+  body.cs-route-pdp .cs-mobile-footer {
+    padding-bottom: calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom));
+  }
+  body.cs-checkout-mobile .cs-mobile-footer {
+    padding-bottom: var(--cs-mobile-safe-bottom);
+  }
+  .cs-mobile-footer a { color: inherit; }
+  .cs-mobile-footer__journal {
+    margin: 0 0 10px;
+    padding: 27px 20px 22px;
+    border: 1px solid var(--cs-footer-line);
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+  }
+  .cs-mobile-footer__eyebrow {
+    margin: 0 0 13px;
+    color: #d6b47d;
+    font: 700 10px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+  }
+  .cs-mobile-footer__journal h2 {
+    margin: 0;
+    max-width: 300px;
+    color: var(--cs-footer-text);
+    font: 400 clamp(34px, 10vw, 42px)/.98 "Cormorant Garamond", Georgia, serif;
+    letter-spacing: -.025em;
+  }
+  .cs-mobile-footer__journal > p:not(.cs-mobile-footer__eyebrow) {
+    margin: 15px 0 0;
+    max-width: 320px;
+    color: var(--cs-footer-muted);
+    font: 400 13px/1.6 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-footer__form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    margin-top: 21px;
+  }
+  .cs-mobile-footer__form label { min-width: 0; }
+  .cs-mobile-footer__form input {
+    width: 100%;
+    height: 52px;
+    padding: 0 17px;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 999px;
+    outline: none;
+    background: rgba(255,255,255,.045);
+    color: #fff;
+    font: 500 13px/1 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-footer__form input::placeholder { color: #9a9b9d; opacity: 1; }
+  .cs-mobile-footer__form input:focus {
+    border-color: #d6b47d;
+    box-shadow: 0 0 0 3px rgba(214,180,125,.13);
+  }
+  .cs-mobile-footer__form button {
+    width: 52px;
+    height: 52px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #f4f0ea;
+    color: #171a1d;
+  }
+  .cs-mobile-footer__form button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .cs-mobile-footer__form button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+  .cs-mobile-footer__consent,
+  .cs-mobile-footer__status {
+    grid-column: 1 / -1;
+    margin: 2px 2px 0 !important;
+    color: #818387 !important;
+    font: 500 9px/1.5 "Plus Jakarta Sans", system-ui, sans-serif !important;
+  }
+  .cs-mobile-footer__consent a { text-underline-offset: 2px; }
+  .cs-mobile-footer__status:empty { display: none; }
+  .cs-mobile-footer__status[data-state="success"],
+  .cs-mobile-footer__status.is-success { color: #d6b47d !important; }
+  .cs-mobile-footer__navigation {
+    border-top: 1px solid var(--cs-footer-line);
+  }
+  .cs-mobile-footer__group {
+    border-bottom: 1px solid var(--cs-footer-line);
+  }
+  .cs-mobile-footer__group summary {
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 4px;
+    color: var(--cs-footer-text);
+    cursor: pointer;
+    list-style: none;
+    font: 600 13px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .01em;
+  }
+  .cs-mobile-footer__group summary::-webkit-details-marker { display: none; }
+  .cs-mobile-footer__plus {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+  }
+  .cs-mobile-footer__plus::before,
+  .cs-mobile-footer__plus::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 1px;
+    background: #b8b5af;
+    transform: translate(-50%, -50%);
+    transition: transform .22s ease, opacity .22s ease;
+  }
+  .cs-mobile-footer__plus::after { transform: translate(-50%, -50%) rotate(90deg); }
+  .cs-mobile-footer__group[open] .cs-mobile-footer__plus::after { transform: translate(-50%, -50%) rotate(0); opacity: 0; }
+  .cs-mobile-footer__links {
+    display: grid;
+    gap: 0;
+    padding: 0 4px 15px;
+  }
+  .cs-mobile-footer__links a {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    color: var(--cs-footer-muted);
+    text-decoration: none;
+    font: 500 12px/1.35 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-footer__links a:active { color: #fff; }
+  .cs-mobile-footer__assurance {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin: 4px 0 0;
+    padding: 0;
+    border-top: 1px solid var(--cs-footer-line);
+    border-bottom: 1px solid var(--cs-footer-line);
+  }
+  .cs-mobile-footer__assurance-item {
+    min-width: 0;
+    min-height: 72px;
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 8px 14px 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cs-mobile-footer__assurance-item:nth-child(odd) {
+    padding-right: 12px;
+    border-right: 1px solid var(--cs-footer-line);
+  }
+  .cs-mobile-footer__assurance-item:nth-child(-n+2) {
+    border-bottom: 1px solid var(--cs-footer-line);
+  }
+  .cs-mobile-footer__assurance-item:active .cs-mobile-footer__assurance-copy strong {
+    color: #fff;
+  }
+  .cs-mobile-footer__assurance-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    border-radius: 50%;
+    border: 1px solid var(--cs-footer-line);
+    background: transparent;
+    color: #dad7d2;
+    box-sizing: border-box;
+  }
+  .cs-mobile-footer__assurance-icon svg {
+    display: block;
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    padding: 0;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.55;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .cs-mobile-footer__assurance-copy {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .cs-mobile-footer__assurance-item strong {
+    overflow: hidden;
+    color: var(--cs-footer-text);
+    font: 600 13px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .01em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .cs-mobile-footer__assurance-item small {
+    overflow: hidden;
+    color: var(--cs-footer-muted);
+    font: 500 11px/1.3 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: 0;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .cs-mobile-footer__brand {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px 20px;
+    align-items: end;
+    padding: 22px 2px 19px;
+    border-top: 1px solid var(--cs-footer-line);
+  }
+  .cs-mobile-footer__wordmark {
+    grid-column: 1 / -1;
+    width: fit-content;
+    color: #fff;
+    text-decoration: none;
+    font: 400 24px/1 "Cormorant Garamond", Georgia, serif;
+    letter-spacing: .25em;
+  }
+  .cs-mobile-footer__brand p {
+    margin: 0;
+    color: #8d8e90;
+    font: 500 10px/1.55 "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+  .cs-mobile-footer__socials { display: flex; gap: 7px; }
+  .cs-mobile-footer__socials a {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--cs-footer-line);
+    border-radius: 50%;
+    color: #dad7d2;
+    text-decoration: none;
+  }
+  .cs-mobile-footer__socials svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.55; }
+  .cs-mobile-footer__socials svg .is-fill,
+  .cs-mobile-footer__socials a:nth-child(2) svg { fill: currentColor; stroke: none; }
+  .cs-mobile-footer__payment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 45px;
+    padding: 0 2px;
+    border-top: 1px solid var(--cs-footer-line);
+    border-bottom: 1px solid var(--cs-footer-line);
+    overflow: hidden;
+  }
+  .cs-mobile-footer__payment-logo {
+    width: 48px;
+    height: 27px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    padding: 5px 7px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 7px;
+    background: #f5f3ef;
+  }
+  body.cs-mobile-v1-active .cs-mobile-footer__payment-logo img {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain;
+    object-position: center;
+    margin: 0 !important;
+    transform: none !important;
+  }
+  .cs-mobile-footer__payment-logo--iyzico { width: 55px; }
+  .cs-mobile-footer__payment-logo--visa { width: 43px; }
+  .cs-mobile-footer__payment-logo--mastercard { width: 43px; }
+  .cs-mobile-footer__payment-logo--troy {
+    position: relative;
+    width: 43px;
+    padding: 0 7px;
+  }
+  body.cs-mobile-v1-active .cs-mobile-footer__payment-logo--troy img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 27px !important;
+    height: 27px !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  .cs-mobile-footer__bottom {
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 0 2px;
+    color: #77797c;
+    font: 600 9px/1.2 "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: .08em;
+  }
+  .cs-mobile-footer__bottom a { color: inherit; text-underline-offset: 3px; }
+  body.cs-mobile-footer-visible #mobileStickyPdp,
+  body.cs-mobile-footer-visible .mobile-sticky-pdp {
+    opacity: 0 !important;
+    transform: translateY(18px) !important;
+    pointer-events: none !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cs-mobile-footer__plus::before,
+    .cs-mobile-footer__plus::after { transition: none; }
+  }
+
   body.cs-mobile-v1-active table { display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   body.cs-mobile-v1-active pre { white-space: pre-wrap; word-break: break-word; }
   body.cs-mobile-v1-active .modal-card, body.cs-mobile-v1-active .drawer { width: calc(100vw - 24px) !important; max-width: calc(100vw - 24px) !important; }
+
+  /* Legacy account teaser drawer is redundant on mobile v1 —
+     bottom nav → /account/profile.html, auth → #accountModal sheet. */
+  body.cs-mobile-v1-active #accountDrawer {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
+
+  /* Closed legacy drawers must never paint inside page content */
+  body.cs-mobile-v1-active #cartDrawer:not(.open),
+  body.cs-mobile-v1-active #accountDrawer:not(.open) {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+  body.cs-mobile-v1-active #cartDrawer.open,
+  body.cs-mobile-v1-active #accountModal.modal.open,
+  body.cs-mobile-v1-active #accountModal.modal.show {
+    position: fixed !important;
+  }
+
+  /* Auth modal → premium mobile bottom sheet (desktop modal unchanged) */
+  body.cs-mobile-v1-active.modal-open #backdrop.show {
+    z-index: 6750 !important;
+    background: rgba(18, 13, 8, .48) !important;
+  }
+  body.cs-mobile-v1-active #accountModal.modal,
+  body.cs-mobile-v1-active #accountModal.modal.show,
+  body.cs-mobile-v1-active #accountModal.modal.open {
+    z-index: 6800 !important;
+    place-items: end center !important;
+    align-items: end !important;
+    padding: 0 !important;
+    background: rgba(18, 13, 8, .34);
+  }
+  body.cs-mobile-v1-active #accountModal .modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 28px 28px 0 0 !important;
+    max-height: min(88dvh, 760px) !important;
+    padding: 18px 18px calc(18px + var(--cs-mobile-safe-bottom)) !important;
+    box-shadow: 0 -18px 48px rgba(18, 13, 8, .22) !important;
+    transform: translateY(0);
+    animation: csMobileAuthSheetIn .34s cubic-bezier(.22, .9, .28, 1);
+  }
+  body.cs-mobile-v1-active #accountModal .modal-card:before {
+    content: "";
+    display: block;
+    width: 42px;
+    height: 4px;
+    margin: 2px auto 14px;
+    border-radius: 999px;
+    background: rgba(26, 21, 16, .16);
+  }
+  body.cs-mobile-v1-active #accountModal .modal-head,
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-head {
+    align-items: flex-start;
+    gap: 0;
+    padding: 2px 2px 18px;
+    margin-bottom: 2px;
+    border-bottom: none;
+    position: relative;
+  }
+  body.cs-mobile-v1-active #accountModal .modal-head > div:first-child {
+    flex: 1;
+    min-width: 0;
+    padding-right: 44px;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-brand {
+    display: block;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .24em;
+    text-transform: uppercase;
+    color: #a2835d;
+    line-height: 1.2;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-title {
+    display: block;
+    font: 600 34px/1 "Cormorant Garamond", "Cormorant", Georgia, serif;
+    letter-spacing: .005em;
+    color: #1a1510;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-lede,
+  body.cs-mobile-v1-active #accountModal .modal-head .account-mini {
+    margin-top: 10px;
+    max-width: 30ch;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.55;
+    letter-spacing: -.01em;
+    color: #6f655c;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-close.icon-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    margin: -6px -4px 0 0;
+    padding: 0;
+    border: none !important;
+    border-radius: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #1a1510;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    opacity: .72;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-close.icon-close svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    pointer-events: none;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-close.icon-close:hover,
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-close.icon-close:focus-visible {
+    opacity: 1;
+    background: transparent !important;
+    border: none !important;
+    outline: none;
+  }
+  body.cs-mobile-v1-active #accountModal .cs-auth-sheet-close.icon-close:active {
+    transform: scale(.94);
+    opacity: .88;
+  }
+  body.cs-mobile-v1-active #accountModal .tab-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin: 14px 0 16px !important;
+  }
+  body.cs-mobile-v1-active #accountModal .tab-btn {
+    min-height: 44px !important;
+    border-radius: 999px !important;
+  }
+  body.cs-mobile-v1-active #accountModal .btn {
+    min-height: 50px !important;
+    border-radius: 999px !important;
+  }
+  @keyframes csMobileAuthSheetIn {
+    from { transform: translateY(28px); opacity: .72; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.cs-mobile-v1-active #accountModal .modal-card { animation: none; }
+  }
+
+  /* ===== Premium mobile homepage hero — e-commerce editorial ===== */
+  body.cs-mobile-v1-active.cs-route-home #heroSection.home-hero.section {
+    --cs-hero-ink: #17130f;
+    --cs-hero-gold: #b58a4a;
+    --cs-hero-soft: #62584e;
+    --cs-hero-surface: #fffdf9;
+    padding: 0 !important;
+    border-bottom: none !important;
+    background: #f4ebe0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__canvas {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: min(92svh, 760px) !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: hidden !important;
+    isolation: isolate !important;
+    padding: 0 !important;
+    background: #f4ebe0 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__media {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+    margin: 0 !important;
+    pointer-events: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__media picture,
+  body.cs-mobile-v1-active.cs-route-home .home-hero__media img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: 72% 28% !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__canvas::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    background:
+      linear-gradient(180deg, rgba(255,253,249,.94) 0%, rgba(255,253,249,.72) 22%, rgba(255,253,249,.18) 48%, rgba(255,253,249,0) 68%),
+      linear-gradient(90deg, rgba(255,253,249,.55) 0%, rgba(255,253,249,.12) 42%, transparent 68%) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__canvas::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: auto 0 0 0 !important;
+    height: 38% !important;
+    z-index: 1 !important;
+    pointer-events: none !important;
+    background: linear-gradient(180deg, transparent 0%, rgba(244,235,224,.35) 45%, rgba(255,253,249,.92) 100%) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__grid {
+    position: relative !important;
+    z-index: 2 !important;
+    display: block !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 22px var(--cs-mobile-container) 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__copy {
+    max-width: min(58vw, 210px) !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__lead {
+    max-width: 26ch !important;
+    margin: 10px 0 0 !important;
+    color: var(--cs-hero-soft) !important;
+    font: 500 12.5px/1.45 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: -.01em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-top: 20px !important;
+    max-width: 240px !important;
+    width: auto !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    padding: 0 18px !important;
+    border-radius: 999px !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    font: 700 11px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .12em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+    flex: 0 0 14px !important;
+    opacity: .88 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--primary {
+    color: #fffdf9 !important;
+    background: #17130f !important;
+    border: 1px solid #17130f !important;
+    box-shadow: 0 8px 18px rgba(23,19,15,.18) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--primary:active {
+    transform: scale(.985) !important;
+    box-shadow: 0 5px 12px rgba(23,19,15,.16) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--secondary {
+    color: var(--cs-hero-ink) !important;
+    background: rgba(255,253,249,.82) !important;
+    border: 1px solid rgba(23,19,15,.14) !important;
+    box-shadow: none !important;
+    backdrop-filter: blur(8px) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn--secondary:active {
+    background: rgba(255,253,249,.95) !important;
+    transform: scale(.985) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__eyebrow {
+    position: relative !important;
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+    margin: 0 0 14px !important;
+    max-width: none !important;
+    width: max-content !important;
+    color: var(--cs-hero-gold) !important;
+    font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .16em !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__eyebrow::after {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: 28px !important;
+    height: 1.5px !important;
+    margin: 0 !important;
+    background: linear-gradient(90deg, var(--cs-hero-gold), rgba(181,138,74,.15)) !important;
+    opacity: 1 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero h1 {
+    margin: 0 !important;
+    max-width: 12ch !important;
+    color: var(--cs-hero-ink) !important;
+    font: 600 clamp(2.55rem, 11vw, 3.35rem)/.94 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.03em !important;
+    text-wrap: balance !important;
+    overflow: visible !important;
+    text-shadow: 0 1px 0 rgba(255,253,249,.55) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero h1 .home-hero__line {
+    display: block !important;
+    white-space: normal !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero h1 em.home-hero__line {
+    margin-top: 2px !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word {
+    animation: none !important;
+    background: none !important;
+    -webkit-text-fill-color: var(--cs-hero-gold) !important;
+    color: var(--cs-hero-gold) !important;
+    filter: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word::before,
+  body.cs-mobile-v1-active.cs-route-home .home-hero__shine-word::after {
+    display: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__script {
+    font-family: "Cormorant Garamond", Georgia, serif !important;
+    font-style: italic !important;
+    font-weight: 400 !important;
+    letter-spacing: -.01em !important;
+    line-height: 1.02 !important;
+    color: var(--cs-hero-ink) !important;
+    text-shadow: none !important;
+    transform: none !important;
+    white-space: normal !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__trust {
+    position: relative !important;
+    z-index: 2 !important;
+    margin-top: auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+    border-top: 1px solid rgba(42,32,22,.08) !important;
+    background: rgba(255,253,249,.88) !important;
+    backdrop-filter: blur(14px) saturate(1.1) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(1.1) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__grid {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+    padding: 12px 10px calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow: visible !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__item {
+    display: grid !important;
+    justify-items: center !important;
+    align-content: start !important;
+    gap: 6px !important;
+    padding: 4px 4px 2px !important;
+    text-align: center !important;
+    border: none !important;
+    border-right: 1px solid rgba(42,32,22,.08) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__item:last-child {
+    border-right: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__item:nth-child(odd),
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__item:nth-child(n+3) {
+    border-bottom: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__icon {
+    flex: none !important;
+    width: 22px !important;
+    height: 22px !important;
+    color: var(--cs-hero-gold) !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__icon svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__item div {
+    display: grid !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__item strong {
+    font: 700 9.5px/1.2 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: -.01em !important;
+    color: var(--cs-hero-ink) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .hero-trust__item div > span {
+    margin-top: 0 !important;
+    font: 500 9px/1.25 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    color: #8a8076 !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.cs-mobile-v1-active.cs-route-home .home-hero .hero-btn {
+      transition: none !important;
+    }
+  }
+
+  /* Premium mobile cart page */
+  body.cs-mobile-v1-active.cs-route-cart #cs-mobile-v1-page-stage {
+    display: block !important;
+    min-height: 100dvh;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255,250,244,.92), transparent 34%),
+      radial-gradient(circle at 88% 8%, rgba(239,228,214,.55), transparent 28%),
+      linear-gradient(180deg, #f7f1ea 0%, #efe4d8 42%, #f8f3ec 100%) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp.cs-cart-page {
+    --cs-cart-ink: #1d1712;
+    --cs-cart-muted: #756b61;
+    --cs-cart-line: rgba(42,32,22,.11);
+    --cs-cart-surface: rgba(255,253,249,.88);
+    background: transparent !important;
+    min-height: auto !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-page__inner {
+    width: 100% !important;
+    max-width: 620px !important;
+    margin: 0 auto !important;
+    padding: 12px 14px calc(var(--cs-mobile-bottom-nav-height) + var(--cs-mobile-safe-bottom) + 24px) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    align-items: start !important;
+    margin: 0 0 14px !important;
+    padding: 18px 16px !important;
+    border: 1px solid var(--cs-cart-line) !important;
+    border-radius: 24px !important;
+    background: var(--cs-cart-surface) !important;
+    box-shadow: 0 14px 34px rgba(44,34,25,.06) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__copy { min-width: 0; }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-kicker {
+    margin: 0 0 8px !important;
+    color: #8d7f72 !important;
+    font: 700 9px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .16em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero h2 {
+    margin: 0 !important;
+    font: 400 clamp(28px, 8vw, 34px)/.95 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.03em !important;
+    color: var(--cs-cart-ink) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__count {
+    margin: 8px 0 0 !important;
+    padding: 5px 10px !important;
+    background: rgba(181,138,74,.12) !important;
+    border: 1px solid rgba(181,138,74,.18) !important;
+    color: #6f5430 !important;
+    font-size: 9px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero p {
+    max-width: none !important;
+    margin: 10px 0 0 !important;
+    color: var(--cs-cart-muted) !important;
+    font-size: 11px !important;
+    line-height: 1.6 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-hero__continue,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__cta,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-checkout__btn {
+    width: 100% !important;
+    min-height: 50px !important;
+    border-radius: 15px !important;
+    font: 700 10px/1 "Plus Jakarta Sans", system-ui, sans-serif !important;
+    letter-spacing: .1em !important;
+    text-transform: uppercase !important;
+    transform: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty {
+    gap: 0 !important;
+    padding: 28px 18px 22px !important;
+    border: 1px solid var(--cs-cart-line) !important;
+    border-radius: 26px !important;
+    background: var(--cs-cart-surface) !important;
+    box-shadow: 0 16px 38px rgba(44,34,25,.06) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__icon {
+    width: 64px !important;
+    height: 64px !important;
+    margin: 0 auto 14px !important;
+    border-radius: 18px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty strong {
+    font-size: clamp(24px, 7vw, 30px) !important;
+    line-height: 1.05 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty p {
+    margin: 10px 0 0 !important;
+    font-size: 11px !important;
+    line-height: 1.62 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust {
+    gap: 7px !important;
+    margin-top: 16px !important;
+    text-align: left !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust__item {
+    padding: 9px 10px !important;
+    border-radius: 14px !important;
+    font-size: 10px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust__icon {
+    width: 30px !important;
+    height: 30px !important;
+    flex-basis: 30px !important;
+    border-radius: 10px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-trust__icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__links {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
+    gap: 8px !important;
+    margin: 14px 0 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__link {
+    min-width: 0 !important;
+    text-align: center !important;
+    padding: 10px 8px !important;
+    font-size: 9px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-empty__link:last-child:nth-child(3) {
+    grid-column: 1 / -1 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-layout {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-items,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs {
+    padding: 16px !important;
+    border: 1px solid var(--cs-cart-line) !important;
+    border-radius: 24px !important;
+    background: var(--cs-cart-surface) !important;
+    box-shadow: 0 14px 34px rgba(44,34,25,.05) !important;
+    backdrop-filter: none !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary {
+    position: static !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-summary h2,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs h2 {
+    margin: 0 0 12px !important;
+    font: 400 24px/1 "Cormorant Garamond", Georgia, serif !important;
+    letter-spacing: -.02em !important;
+    color: var(--cs-cart-ink) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row {
+    grid-template-columns: 72px minmax(0,1fr) !important;
+    gap: 12px !important;
+    padding: 14px 0 !important;
+    align-items: start !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row:first-child { padding-top: 0 !important; }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row img {
+    width: 72px !important;
+    height: 72px !important;
+    border-radius: 16px !important;
+    padding: 8px !important;
+    object-fit: contain !important;
+    background: linear-gradient(145deg,#fffaf4,#efe4d6) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-name {
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-brand {
+    margin-top: 4px !important;
+    font-size: 9px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-meta {
+    gap: 8px !important;
+    margin-top: 10px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stepper {
+    grid-template-columns: 30px 34px 30px !important;
+    border-radius: 999px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stepper button {
+    height: 32px !important;
+    font-size: 15px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-stepper span {
+    font-size: 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-row__total {
+    grid-column: 1 / -1 !important;
+    justify-items: start !important;
+    text-align: left !important;
+    padding-top: 2px !important;
+    border-top: 1px dashed rgba(42,32,22,.08) !important;
+    margin-top: 2px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon {
+    margin: 0 0 12px !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon label {
+    font-size: 9px !important;
+    letter-spacing: .12em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon__row {
+    grid-template-columns: 1fr auto !important;
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon input {
+    min-height: 46px !important;
+    font-size: 11px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon .cs-btn {
+    min-height: 46px !important;
+    padding: 0 14px !important;
+    font-size: 9px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-coupon-status,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-stock-warning {
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-line {
+    margin: 8px 0 !important;
+    font-size: 11px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-summary-total {
+    margin-top: 12px !important;
+    padding-top: 12px !important;
+    font-size: 16px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-progress,
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-note {
+    margin-bottom: 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-shipping-progress__text {
+    font-size: 10px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs {
+    margin-top: 12px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid {
+    display: flex !important;
+    gap: 10px !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px !important;
+    scrollbar-width: none;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid::-webkit-scrollbar { display: none; }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card {
+    flex: 0 0 min(72vw, 240px) !important;
+    scroll-snap-align: start;
+    padding: 12px !important;
+    border-radius: 18px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card__media {
+    border-radius: 14px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card__info strong {
+    min-height: 32px !important;
+    font-size: 11px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart #csCartApp .cs-cart-recs__grid .cs-product-card button {
+    min-height: 32px !important;
+    font-size: 9px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-cart.cs-has-mobile-footer {
+    padding-bottom: 0 !important;
+  }
+
+  /* Home assurance — trust pillars + rutin CTA */
+  body.cs-mobile-v1-active.cs-route-home .assurance-section {
+    padding: 8px var(--cs-mobile-container) 6px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance {
+    gap: 18px !important;
+    padding: 22px 16px 18px !important;
+    border-radius: 26px !important;
+    box-shadow: 0 14px 34px rgba(51, 38, 27, .055) !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__head {
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__kicker {
+    font-size: 10px !important;
+    letter-spacing: .22em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__title {
+    font-size: clamp(1.7rem, 7.5vw, 2.15rem) !important;
+    line-height: 1.06 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__lede {
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    max-width: 34ch !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillars {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar {
+    gap: 10px !important;
+    padding: 14px 12px 12px !important;
+    border-radius: 18px !important;
+    min-height: 0 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar:hover {
+    transform: none;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__icon {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-copy {
+    gap: 4px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-copy strong {
+    font-size: 15px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-copy span {
+    font-size: 11.5px !important;
+    line-height: 1.45 !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__pillar-link {
+    font-size: 9.5px !important;
+    letter-spacing: .1em !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    padding: 18px 16px !important;
+    border-radius: 20px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight h3 {
+    font-size: 1.35rem !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight-copy > p:last-child {
+    font-size: 12.5px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__spotlight-actions {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  body.cs-mobile-v1-active.cs-route-home .home-assurance__cta {
+    width: 100% !important;
+    min-height: 48px !important;
+  }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) {
@@ -363,4 +4312,6 @@
     transform: translateX(calc(-50% - 12px));
   }
   .cs-mobile-v1-logo span { margin-right: -.24em; }
+  body.cs-mobile-v1-active.cs-route-home .home-hero__actions { grid-template-columns: 1fr !important; }
+  body.cs-mobile-v1-active.cs-route-home .home-hero h1 { font-size: clamp(2.5rem, 12vw, 3.2rem) !important; }
 }

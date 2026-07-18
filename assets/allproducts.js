@@ -15,10 +15,24 @@
     totalProducts: document.getElementById('csApTotalProducts'),
     totalBrands: document.getElementById('csApTotalBrands'),
     sort: document.getElementById('csApSort'),
+    sortToggle: document.getElementById('csApSortToggle'),
+    sortLabel: document.getElementById('csApSortLabel'),
+    sortSheet: document.getElementById('csApSortSheet'),
+    sortBackdrop: document.getElementById('csApSortBackdrop'),
+    sortClose: document.getElementById('csApSortClose'),
+    sortList: document.getElementById('csApSortList'),
     perPage: document.getElementById('csApPerPage'),
+    perPageToggle: document.getElementById('csApPerPageToggle'),
+    perPageLabel: document.getElementById('csApPerPageLabel'),
+    perPageSheet: document.getElementById('csApPerPageSheet'),
+    perPageBackdrop: document.getElementById('csApPerPageBackdrop'),
+    perPageClose: document.getElementById('csApPerPageClose'),
+    perPageList: document.getElementById('csApPerPageList'),
     loadMore: document.getElementById('csApLoadMore'),
     activeFilters: document.getElementById('csApActiveFilters'),
     clear: document.getElementById('csApClearFilters'),
+    filterReset: document.getElementById('csApFilterReset'),
+    filterApply: document.getElementById('csApFilterApply'),
     filterToggle: document.getElementById('csApFilterToggle'),
     filterToggleCount: document.getElementById('csApFilterToggleCount'),
     filterClose: document.getElementById('csApFilterClose'),
@@ -259,9 +273,9 @@
     var safeId = product.id || safeSlug;
     var safeUrl = product.url || ('/products/' + safeSlug + '.html');
     var badge = '';
-    if (features.indexOf('best-seller') !== -1) badge = 'En Çok Satan';
+    if (features.indexOf('best-seller') !== -1) badge = 'Çok Satan';
     else if (features.indexOf('new') !== -1) badge = 'Yeni';
-    else if (features.indexOf('editor-pick') !== -1) badge = 'Editör Önerisi';
+    else if (features.indexOf('editor-pick') !== -1) badge = 'Editör';
 
     labelMaps.category.set(categoryKey, product.category || 'Kategori');
     labelMaps.brand.set(brandKey, product.brand || 'Marka');
@@ -388,14 +402,194 @@
     renderFilterList('feature', features);
   }
 
+  function sortOptionLabel(value) {
+    if (!els.sort) return value;
+    var option = els.sort.querySelector('option[value="' + value + '"]');
+    return option ? option.textContent.trim() : value;
+  }
+
+  function syncSortUi() {
+    var value = state.filters.sort || (els.sort && els.sort.value) || 'featured';
+    if (els.sort) els.sort.value = value;
+    if (els.sortLabel) els.sortLabel.textContent = sortOptionLabel(value);
+    if (els.sortList) {
+      els.sortList.querySelectorAll('[data-sort-value]').forEach(function (btn) {
+        var on = btn.getAttribute('data-sort-value') === value;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+  }
+
+  function closeSortSheet() {
+    if (!els.sortSheet) return;
+    els.sortSheet.classList.remove('is-open');
+    els.sortSheet.setAttribute('aria-hidden', 'true');
+    if (els.sortBackdrop) {
+      els.sortBackdrop.classList.remove('is-open');
+      els.sortBackdrop.setAttribute('aria-hidden', 'true');
+    }
+    if (els.sortToggle) els.sortToggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('cs-ap-sort-open');
+  }
+
+  function closePerPageSheet() {
+    if (!els.perPageSheet) return;
+    els.perPageSheet.classList.remove('is-open');
+    els.perPageSheet.setAttribute('aria-hidden', 'true');
+    if (els.perPageBackdrop) {
+      els.perPageBackdrop.classList.remove('is-open');
+      els.perPageBackdrop.setAttribute('aria-hidden', 'true');
+    }
+    if (els.perPageToggle) els.perPageToggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('cs-ap-perpage-open');
+  }
+
+  function syncPerPageUi() {
+    var value = String((els.perPage && els.perPage.value) || state.visibleCount || 24);
+    if (els.perPage) els.perPage.value = value;
+    if (els.perPageLabel) els.perPageLabel.textContent = value;
+    if (els.perPageList) {
+      els.perPageList.querySelectorAll('[data-perpage-value]').forEach(function (btn) {
+        var on = btn.getAttribute('data-perpage-value') === value;
+        btn.classList.toggle('is-active', on);
+        btn.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+    }
+  }
+
+  function openSortSheet() {
+    if (!els.sortSheet) return;
+    closeFilterSheet();
+    closePerPageSheet();
+    syncSortUi();
+    if (els.sortBackdrop) {
+      els.sortBackdrop.hidden = false;
+      els.sortBackdrop.setAttribute('aria-hidden', 'false');
+    }
+    els.sortSheet.hidden = false;
+    els.sortSheet.setAttribute('aria-hidden', 'false');
+    if (els.sortToggle) els.sortToggle.setAttribute('aria-expanded', 'true');
+    /* Force closed-frame paint, then open — single stable transition like Filtrele. */
+    void els.sortSheet.offsetWidth;
+    document.body.classList.add('cs-ap-sort-open');
+    if (els.sortBackdrop) els.sortBackdrop.classList.add('is-open');
+    els.sortSheet.classList.add('is-open');
+  }
+
+  function openPerPageSheet() {
+    if (!els.perPageSheet) return;
+    closeFilterSheet();
+    closeSortSheet();
+    syncPerPageUi();
+    if (els.perPageBackdrop) {
+      els.perPageBackdrop.hidden = false;
+      els.perPageBackdrop.setAttribute('aria-hidden', 'false');
+    }
+    els.perPageSheet.hidden = false;
+    els.perPageSheet.setAttribute('aria-hidden', 'false');
+    if (els.perPageToggle) els.perPageToggle.setAttribute('aria-expanded', 'true');
+    void els.perPageSheet.offsetWidth;
+    document.body.classList.add('cs-ap-perpage-open');
+    if (els.perPageBackdrop) els.perPageBackdrop.classList.add('is-open');
+    els.perPageSheet.classList.add('is-open');
+  }
+
+  function bindSortSheet() {
+    if (!els.sortList || !els.sort) return;
+    var options = Array.prototype.slice.call(els.sort.options || []);
+    els.sortList.innerHTML = options.map(function (opt) {
+      return '<button type="button" class="cs-ap-sort-option" role="option" data-sort-value="' + esc(opt.value) + '" aria-selected="false"><span>' + esc(opt.textContent.trim()) + '</span><span class="cs-ap-sort-option__check" aria-hidden="true"></span></button>';
+    }).join('');
+
+    document.addEventListener('click', function (event) {
+      var toggle = event.target.closest('#csApSortToggle');
+      if (toggle) {
+        if (els.sortSheet && els.sortSheet.classList.contains('is-open')) closeSortSheet();
+        else openSortSheet();
+        return;
+      }
+      if (event.target.closest('#csApSortClose') || event.target.closest('#csApSortBackdrop')) {
+        closeSortSheet();
+        return;
+      }
+      var optBtn = event.target.closest('#csApSortList [data-sort-value]');
+      if (!optBtn) return;
+      var value = optBtn.getAttribute('data-sort-value');
+      state.filters.sort = value;
+      if (els.sort) els.sort.value = value;
+      syncSortUi();
+      closeSortSheet();
+      render();
+    });
+  }
+
+  function bindPerPageSheet() {
+    if (!els.perPageList || !els.perPage) return;
+    var options = Array.prototype.slice.call(els.perPage.options || []);
+    els.perPageList.innerHTML = options.map(function (opt) {
+      return '<button type="button" class="cs-ap-sort-option" role="option" data-perpage-value="' + esc(opt.value) + '" aria-selected="false"><span>' + esc(opt.textContent.trim()) + ' ürün</span><span class="cs-ap-sort-option__check" aria-hidden="true"></span></button>';
+    }).join('');
+
+    document.addEventListener('click', function (event) {
+      var toggle = event.target.closest('#csApPerPageToggle');
+      if (toggle) {
+        if (els.perPageSheet && els.perPageSheet.classList.contains('is-open')) closePerPageSheet();
+        else openPerPageSheet();
+        return;
+      }
+      if (event.target.closest('#csApPerPageClose') || event.target.closest('#csApPerPageBackdrop')) {
+        closePerPageSheet();
+        return;
+      }
+      var optBtn = event.target.closest('#csApPerPageList [data-perpage-value]');
+      if (!optBtn) return;
+      var value = optBtn.getAttribute('data-perpage-value');
+      if (els.perPage) els.perPage.value = value;
+      state.visibleCount = Number(value || 24);
+      syncPerPageUi();
+      closePerPageSheet();
+      render();
+    });
+  }
+
+  function syncFilterChipStates() {
+    document.querySelectorAll('.cs-ap-check').forEach(function (label) {
+      var input = label.querySelector('input[type="checkbox"]');
+      if (!input) return;
+      label.classList.toggle('is-checked', !!input.checked);
+    });
+  }
+
+  function openFilterSheet() {
+    closeSortSheet();
+    closePerPageSheet();
+    document.body.classList.add('cs-ap-filter-open');
+    if (els.filterToggle) els.filterToggle.setAttribute('aria-expanded', 'true');
+    if (els.filterPanel) {
+      els.filterPanel.setAttribute('aria-hidden', 'false');
+      try { els.filterPanel.scrollTop = 0; } catch (e) {}
+      var scroll = els.filterPanel.querySelector('.cs-ap-sidebar__scroll');
+      if (scroll) scroll.scrollTop = 0;
+    }
+  }
+
+  function closeFilterSheet() {
+    document.body.classList.remove('cs-ap-filter-open');
+    if (els.filterToggle) els.filterToggle.setAttribute('aria-expanded', 'false');
+    if (els.filterPanel) els.filterPanel.setAttribute('aria-hidden', 'true');
+  }
+
   function syncInputsFromState() {
     if (els.search) els.search.value = state.filters.q;
     if (els.sort) els.sort.value = state.filters.sort;
+    syncSortUi();
     document.querySelectorAll('[data-filter-key]').forEach(function (input) {
       var key = input.getAttribute('data-filter-key');
       if (key === 'category' && input.value === 'all-products') input.checked = state.filters.category.size === 0;
       else input.checked = state.filters[key] && state.filters[key].has(input.value);
     });
+    syncFilterChipStates();
     syncPriceControls();
   }
 
@@ -497,7 +691,7 @@
   }
 
   function cardHtml(product) {
-    var badge = product.badge ? '<span class="cs-ap-card-badge">' + esc(product.badge) + '</span>' : '<span class="cs-ap-card-badge">' + esc(product.brand) + '</span>';
+    var badge = product.badge ? '<span class="cs-ap-card-badge">' + esc(product.badge) + '</span>' : '';
     var chips = product.chips.length ? product.chips : [product.category];
     var ratingHtml = hasReviewStats(product)
       ? '<div class="cs-ap-rating" aria-label="' + esc(product.rating.toFixed(1) + ' puan, ' + product.reviewCount + ' yorum') + '"><span class="star">★</span><strong>' + esc(product.rating.toFixed(1)) + '</strong><span>· ' + esc(product.reviewCount.toLocaleString('tr-TR')) + ' yorum</span></div>'
@@ -505,8 +699,9 @@
     return '<article class="product-card cs-product-card cs-catalog-card" data-product-id="' + esc(product.id) + '" data-brand="' + esc(product.brand) + '">' +
       '<div class="product-media-wrap">' +
         '<a class="product-media" href="' + esc(product.url) + '" aria-label="' + esc(product.name) + '">' +
-          '<img src="' + esc(product.image) + '" alt="' + esc(product.name) + '" loading="lazy" width="420" height="420">' + badge +
+          '<img src="' + esc(product.image) + '" alt="' + esc(product.name) + '" loading="lazy" width="420" height="420">' +
         '</a>' +
+        badge +
         '<button class="favorite-btn" type="button" aria-label="Favorilere ekle" aria-pressed="false" data-favorite-id="' + esc(product.id) + '" data-name="' + esc(product.name) + '" data-brand="' + esc(product.brand) + '" data-price="' + esc(product.price) + '" data-image="' + esc(product.image) + '" data-url="' + esc(product.url) + '"><span class="favorite-btn-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></button>' +
       '</div>' +
       '<div class="product-body">' +
@@ -537,7 +732,17 @@
       return '<button class="cs-ap-filter-chip" type="button" data-remove-filter="' + esc(chip.key) + '" data-value="' + esc(chip.value) + '">' + esc(chip.label) + '<span aria-hidden="true">×</span></button>';
     }).join('');
     var count = getSelectedCount();
-    if (els.filterToggleCount) els.filterToggleCount.textContent = count + ' aktif filtre';
+    if (els.filterToggleCount) {
+      if (count > 0) {
+        els.filterToggleCount.textContent = String(count);
+        els.filterToggleCount.hidden = false;
+        if (els.filterToggle) els.filterToggle.classList.add('has-active');
+      } else {
+        els.filterToggleCount.textContent = '0';
+        els.filterToggleCount.hidden = true;
+        if (els.filterToggle) els.filterToggle.classList.remove('has-active');
+      }
+    }
   }
 
   function renderQuickActive() {
@@ -609,6 +814,16 @@
     if (els.empty) els.empty.hidden = state.filtered.length !== 0;
     if (els.resultCount) els.resultCount.textContent = state.filtered.length.toLocaleString('tr-TR');
     if (els.mobileResultCount) els.mobileResultCount.textContent = state.filtered.length.toLocaleString('tr-TR') + ' ürün bulundu';
+    if (els.filterApply) {
+      var n = state.filtered.length;
+      els.filterApply.textContent = n ? (n.toLocaleString('tr-TR') + ' ürünü göster') : 'Sonuç yok';
+    }
+    if (els.pricePresets) {
+      els.pricePresets.querySelectorAll('.cs-ap-price-preset').forEach(function (btn) {
+        var on = Number(btn.dataset.min) === Number(state.filters.minPrice) && Number(btn.dataset.max) === Number(state.filters.maxPrice);
+        btn.classList.toggle('is-active', on);
+      });
+    }
     if (els.loadMore) {
       els.loadMore.hidden = state.filtered.length <= visible.length;
       els.loadMore.disabled = state.filtered.length <= visible.length;
@@ -632,14 +847,19 @@
   }
 
   function bindEvents() {
-    document.querySelectorAll('[data-filter-group] .cs-ap-filter-title').forEach(function (btn) {
-      btn.addEventListener('click', function () {
+    /* Event delegation — survives re-renders and works for chevron area */
+    if (!root.dataset.csApAccordionBound) {
+      root.dataset.csApAccordionBound = '1';
+      root.addEventListener('click', function (event) {
+        var btn = event.target.closest('.cs-ap-filter-title');
+        if (!btn || !root.contains(btn)) return;
         var group = btn.closest('[data-filter-group]');
+        if (!group) return;
         var open = !group.classList.contains('is-open');
         group.classList.toggle('is-open', open);
         btn.setAttribute('aria-expanded', open ? 'true' : 'false');
       });
-    });
+    }
 
     document.addEventListener('change', function (event) {
       var input = event.target.closest('[data-filter-key]');
@@ -666,10 +886,27 @@
 
     if (els.brandSearch) els.brandSearch.addEventListener('input', applyBrandSearch);
 
-    if (els.sort) els.sort.addEventListener('change', function () { state.filters.sort = els.sort.value; render(); });
-    if (els.perPage) els.perPage.addEventListener('change', function () { state.visibleCount = Number(els.perPage.value || 24); render(); });
+    if (els.sort) {
+      els.sort.addEventListener('change', function () {
+        state.filters.sort = els.sort.value;
+        syncSortUi();
+        render();
+      });
+    }
+    bindSortSheet();
+    syncSortUi();
+    bindPerPageSheet();
+    syncPerPageUi();
+
+    if (els.perPage) els.perPage.addEventListener('change', function () {
+      state.visibleCount = Number(els.perPage.value || 24);
+      syncPerPageUi();
+      render();
+    });
     if (els.loadMore) els.loadMore.addEventListener('click', function () { state.visibleCount += Number(els.perPage && els.perPage.value || 24); render(); });
     if (els.clear) els.clear.addEventListener('click', function () { clearFilters(false); });
+    if (els.filterReset) els.filterReset.addEventListener('click', function () { clearFilters(true); });
+    if (els.filterApply) els.filterApply.addEventListener('click', closeFilterSheet);
     if (els.emptyClear) els.emptyClear.addEventListener('click', function () { clearFilters(true); });
 
     [els.priceMin, els.priceMax].forEach(function (input) {
@@ -729,16 +966,18 @@
       });
     }
 
-    if (els.filterToggle) els.filterToggle.addEventListener('click', function () {
-      document.body.classList.add('cs-ap-filter-open');
-      els.filterToggle.setAttribute('aria-expanded', 'true');
-    });
-    if (els.filterClose) els.filterClose.addEventListener('click', function () {
-      document.body.classList.remove('cs-ap-filter-open');
-      if (els.filterToggle) els.filterToggle.setAttribute('aria-expanded', 'false');
+    if (els.filterToggle) els.filterToggle.addEventListener('click', openFilterSheet);
+    if (els.filterClose) els.filterClose.addEventListener('click', closeFilterSheet);
+    document.addEventListener('click', function (event) {
+      if (!document.body.classList.contains('cs-ap-filter-open')) return;
+      if (event.target.closest('#csApFilters, #csApFilterToggle')) return;
+      closeFilterSheet();
     });
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') document.body.classList.remove('cs-ap-filter-open');
+      if (event.key !== 'Escape') return;
+      closeSortSheet();
+      closePerPageSheet();
+      closeFilterSheet();
     });
   }
 
