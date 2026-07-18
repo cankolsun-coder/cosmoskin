@@ -288,7 +288,7 @@
     if (!document.querySelector('link[data-cosmoskin="product-card-frame-css"]')) {
       var frameLink = document.createElement('link');
       frameLink.rel = 'stylesheet';
-      frameLink.href = '/assets/product-card-frame.css?v=20260711-ux2';
+      frameLink.href = '/assets/product-card-frame.css?v=20260718-inspect-full1';
       frameLink.dataset.cosmoskin = 'product-card-frame-css';
       document.head.appendChild(frameLink);
     }

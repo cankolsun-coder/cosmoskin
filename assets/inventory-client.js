@@ -361,12 +361,12 @@
   function favoriteStockState(slug) {
     slug = slugFrom(slug);
     var inv = getInventory(slug);
-    if (!inv) return { sellable: false, label: 'Stok kontrol ediliyor', className: 'is-unknown', buttonLabel: 'Stok kontrol ediliyor' };
-    if (inv._missing || inv.status === 'missing') return { sellable: false, label: 'Stok kaydı eksik', className: 'is-out', buttonLabel: 'Stokta yok' };
+    if (!inv) return { sellable: false, label: 'Kontrol ediliyor', className: 'is-unknown', buttonLabel: 'Bekliyor' };
+    if (inv._missing || inv.status === 'missing') return { sellable: false, label: 'Stokta yok', className: 'is-out', buttonLabel: 'Stokta yok' };
     if (inv.status !== 'active') return { sellable: false, label: 'Stokta yok', className: 'is-out', buttonLabel: 'Stokta yok' };
     if (!inv.allow_backorder && Number(inv.available_stock || 0) <= 0) return { sellable: false, label: 'Stokta yok', className: 'is-out', buttonLabel: 'Stokta yok' };
-    if (inv.low_stock) return { sellable: true, label: 'Son ürünler', className: 'is-low', buttonLabel: 'Sepete Ekle' };
-    return { sellable: true, label: 'Stokta', className: 'is-in', buttonLabel: 'Sepete Ekle' };
+    if (inv.low_stock) return { sellable: true, label: 'Son ürünler', className: 'is-low', buttonLabel: 'Sepete ekle' };
+    return { sellable: true, label: 'Stokta', className: 'is-in', buttonLabel: 'Sepete ekle' };
   }
   function mountRestockForm(slug) {
     var actions = document.querySelector('.pdp5-actions');
