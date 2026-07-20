@@ -1,0 +1,425 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/admin/email-logs.js",
+      "type": "file",
+      "name": "email-logs.js",
+      "filePath": "functions/api/admin/email-logs.js",
+      "summary": "Admin API endpoint returning filterable transactional email event logs (status, type, recipient) for troubleshooting delivery issues.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "email",
+        "logging"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/inventory.js",
+      "type": "file",
+      "name": "inventory.js",
+      "filePath": "functions/api/admin/inventory.js",
+      "summary": "Admin API endpoint that returns the full product catalog merged with live inventory rows, stock-status flags, search/filter support, and pending restock-alert counts.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "inventory",
+        "stock-management"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/admin/inventory/[slug].js",
+      "type": "file",
+      "name": "[slug].js",
+      "filePath": "functions/api/admin/inventory/[slug].js",
+      "summary": "Admin API endpoint that applies a manual stock adjustment to a single product by slug via setInventory.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "inventory",
+        "dynamic-route"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "type": "file",
+      "name": "movements.js",
+      "filePath": "functions/api/admin/inventory/[slug]/movements.js",
+      "summary": "Admin API endpoint that lists recent inventory movement history for a single product slug.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "inventory",
+        "dynamic-route"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/email-logs.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/email-logs.js",
+      "lineRange": [
+        6,
+        6
+      ],
+      "summary": "Returns filtered email_events rows (status, type, recipient) for the admin email-logs view.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "email",
+        "logging"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/inventory.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/inventory.js",
+      "lineRange": [
+        13,
+        55
+      ],
+      "summary": "Merges the product catalog with live inventory, computes stock-status flags, applies search/filter, and returns a summary plus pending restock-alert count.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "inventory"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/inventory/[slug].js",
+      "lineRange": [
+        6,
+        19
+      ],
+      "summary": "Applies a validated manual stock update to a single product identified by its URL slug.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "inventory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/inventory/[slug]/movements.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/inventory/[slug]/movements.js",
+      "lineRange": [
+        7,
+        22
+      ],
+      "summary": "Returns the most recent inventory movement history rows for a single product slug.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "inventory"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/admin/email-logs.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/email-logs.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/email-logs.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/email-logs.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug].js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug].js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug].js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug].js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/email-logs.js",
+      "target": "function:functions/api/admin/email-logs.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/inventory.js",
+      "target": "function:functions/api/admin/inventory.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug].js",
+      "target": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "target": "function:functions/api/admin/inventory/[slug]/movements.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/email-logs.js",
+      "target": "function:functions/api/admin/email-logs.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/inventory.js",
+      "target": "function:functions/api/admin/inventory.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug].js",
+      "target": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "target": "function:functions/api/admin/inventory/[slug]/movements.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/email-logs.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/email-logs.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:getInventoryRows",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:catalogProducts",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:normalizeInventoryRow",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:normalizeSlug",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:assertAdminInventoryPayload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug].js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:setInventory",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug]/movements.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug]/movements.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/inventory/[slug]/movements.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:normalizeSlug",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

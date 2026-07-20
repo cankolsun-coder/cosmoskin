@@ -1,0 +1,1086 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/email/retry-failed.js",
+      "type": "file",
+      "name": "retry-failed.js",
+      "filePath": "functions/api/email/retry-failed.js",
+      "summary": "Admin endpoint that marks up to 25 failed email_events rows as retry_queued; actual provider-specific resend is intentionally gated until templates are verified.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "email",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/email/retry-failed.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/email/retry-failed.js",
+      "lineRange": [
+        6,
+        29
+      ],
+      "summary": "Loads failed email_events rows and flags each as retry_queued with a metadata marker, then records the admin activity.",
+      "tags": [
+        "api-handler",
+        "email",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/inventory.js",
+      "type": "file",
+      "name": "inventory.js",
+      "filePath": "functions/api/inventory.js",
+      "summary": "Public storefront endpoint returning current stock levels for a set of product slugs, used to show live inventory availability on product pages.",
+      "tags": [
+        "api-handler",
+        "inventory",
+        "public"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/inventory.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/inventory.js",
+      "lineRange": [
+        6,
+        31
+      ],
+      "summary": "Parses requested product slugs from the query string, fetches inventory rows, and returns public inventory info plus any missing slugs, with a 503 fallback on service failure.",
+      "tags": [
+        "api-handler",
+        "inventory",
+        "public"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/inventory/check.js",
+      "type": "file",
+      "name": "check.js",
+      "filePath": "functions/api/inventory/check.js",
+      "summary": "Rate-limited checkout-time stock validation endpoint: verifies a cart's requested quantities against live inventory before allowing an order to proceed.",
+      "tags": [
+        "api-handler",
+        "inventory",
+        "checkout",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/inventory/check.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/inventory/check.js",
+      "lineRange": [
+        7,
+        46
+      ],
+      "summary": "Rate-limits and validates a cart's item/quantity payload, releases expired reservations, and returns per-item can_purchase results plus an overall can_purchase flag.",
+      "tags": [
+        "api-handler",
+        "inventory",
+        "checkout",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/invoices/qnb-create.js",
+      "type": "file",
+      "name": "qnb-create.js",
+      "filePath": "functions/api/invoices/qnb-create.js",
+      "summary": "Admin endpoint intended to trigger automatic e-invoice/e-archive creation via the QNB provider; currently gated to a 409/503/501 stub until provider mapping and credentials are confirmed.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "invoicing",
+        "provider-integration",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/invoices/qnb-create.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/invoices/qnb-create.js",
+      "lineRange": [
+        5,
+        19
+      ],
+      "summary": "Checks that EARCHIVE_PROVIDER is set to 'qnb' and QNB credentials are configured, then returns a QNB_MAPPING_PENDING 501 since automated invoice creation isn't yet activated.",
+      "tags": [
+        "api-handler",
+        "invoicing",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/local-integration.test.mjs",
+      "type": "file",
+      "name": "local-integration.test.mjs",
+      "filePath": "tests/local-integration.test.mjs",
+      "summary": "Large end-to-end Node test suite exercising the Cloudflare Pages Functions API layer in-process: checkout, coupons, inventory reservation, admin auth/RBAC, order lifecycle, returns/refunds, invoices, bank-transfer finalization, reviews and account endpoints against a fake in-memory Supabase client.",
+      "tags": [
+        "test",
+        "integration-test",
+        "api-handler"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses node:test with a hand-rolled fake Supabase REST client (createFakeSupabase / AtomicInventoryMock) and installFetch()-based network mocking to exercise real handler functions in-process without a live Supabase or Cloudflare environment."
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:refundEmailTestHarness",
+      "type": "function",
+      "name": "refundEmailTestHarness",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        1122,
+        1217
+      ],
+      "summary": "Test harness that wires up a fake Supabase/environment to exercise refund email sending and event recording for a return/refund scenario.",
+      "tags": [
+        "test-helper",
+        "email"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:reviewUploadMocks",
+      "type": "function",
+      "name": "reviewUploadMocks",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        1734,
+        1747
+      ],
+      "summary": "Builds mock Supabase storage/fetch responses used to test product review image upload flows.",
+      "tags": [
+        "test-helper",
+        "reviews"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:postReviewImage",
+      "type": "function",
+      "name": "postReviewImage",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        1751,
+        1760
+      ],
+      "summary": "Test helper that posts a mock review image upload request to the reviews API handler.",
+      "tags": [
+        "test-helper",
+        "reviews"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:adminReviewRequest",
+      "type": "function",
+      "name": "adminReviewRequest",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        2029,
+        2039
+      ],
+      "summary": "Builds an authenticated admin request object for exercising review-moderation endpoints in tests.",
+      "tags": [
+        "test-helper",
+        "reviews",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:createFakeSupabase",
+      "type": "function",
+      "name": "createFakeSupabase",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3362,
+        3424
+      ],
+      "summary": "Constructs an in-memory fake Supabase REST client (select/insert/update/delete/rpc) seeded with test tables, used across the suite in place of a live database.",
+      "tags": [
+        "test-helper",
+        "mock",
+        "supabase"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:seedBankTransferOrder",
+      "type": "function",
+      "name": "seedBankTransferOrder",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3426,
+        3446
+      ],
+      "summary": "Seeds a fake Supabase instance with a bank-transfer order fixture used by the bank-transfer finalization tests.",
+      "tags": [
+        "test-helper",
+        "fixture",
+        "order-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:installFakeSupabaseWithAdmin",
+      "type": "function",
+      "name": "installFakeSupabaseWithAdmin",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3458,
+        3467
+      ],
+      "summary": "Installs a fake Supabase client pre-seeded with an admin_users owner row, used to test admin-authenticated flows.",
+      "tags": [
+        "test-helper",
+        "fixture",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:seedReturnOrder",
+      "type": "function",
+      "name": "seedReturnOrder",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3873,
+        3893
+      ],
+      "summary": "Seeds a fake order fixture eligible for a return-request test scenario.",
+      "tags": [
+        "test-helper",
+        "fixture",
+        "returns"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:seedReturnOrderItem",
+      "type": "function",
+      "name": "seedReturnOrderItem",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3895,
+        3907
+      ],
+      "summary": "Seeds an order_item fixture linked to a seeded return-eligible order.",
+      "tags": [
+        "test-helper",
+        "fixture",
+        "returns"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:seedDiscountedMultiLineOrder",
+      "type": "function",
+      "name": "seedDiscountedMultiLineOrder",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3909,
+        3918
+      ],
+      "summary": "Seeds a multi-line order fixture with an applied discount, used for return/refund allocation tests.",
+      "tags": [
+        "test-helper",
+        "fixture",
+        "order-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:seedMultiLineOrderItemsWithSnapshots",
+      "type": "function",
+      "name": "seedMultiLineOrderItemsWithSnapshots",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3927,
+        3942
+      ],
+      "summary": "Seeds multiple order_items with pricing-snapshot metadata for testing discount/refund allocation across order lines.",
+      "tags": [
+        "test-helper",
+        "fixture",
+        "pricing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:seedReturnBundle",
+      "type": "function",
+      "name": "seedReturnBundle",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3944,
+        3965
+      ],
+      "summary": "Seeds a full return-request fixture bundle (order, items, return request) in one call for return-flow tests.",
+      "tags": [
+        "test-helper",
+        "fixture",
+        "returns"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:d1ReturnPost",
+      "type": "function",
+      "name": "d1ReturnPost",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        3967,
+        3976
+      ],
+      "summary": "Test helper that submits a customer return request via the returns API handler.",
+      "tags": [
+        "test-helper",
+        "returns"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:d2RefundPost",
+      "type": "function",
+      "name": "d2RefundPost",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        4220,
+        4234
+      ],
+      "summary": "Test helper that submits an admin refund request via the refunds API handler.",
+      "tags": [
+        "test-helper",
+        "refunds",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:issueA1fSession",
+      "type": "function",
+      "name": "issueA1fSession",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        4940,
+        4957
+      ],
+      "summary": "Issues a signed admin session token for tests exercising Cloudflare Access-authenticated admin flows.",
+      "tags": [
+        "test-helper",
+        "admin",
+        "auth"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:createTestAccessJwt",
+      "type": "function",
+      "name": "createTestAccessJwt",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        5145,
+        5162
+      ],
+      "summary": "Signs a mock Cloudflare Access JWT for a test identity, used to simulate Access-authenticated admin requests.",
+      "tags": [
+        "test-helper",
+        "auth",
+        "jwt"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:installAccessCertsFetch",
+      "type": "function",
+      "name": "installAccessCertsFetch",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        5164,
+        5174
+      ],
+      "summary": "Mocks the fetch call used to retrieve Cloudflare Access JWKS certs so tests can verify locally-signed test JWTs.",
+      "tags": [
+        "test-helper",
+        "auth",
+        "mock"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:tests/local-integration.test.mjs:loadPriceDisplayApi",
+      "type": "function",
+      "name": "loadPriceDisplayApi",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        6175,
+        6186
+      ],
+      "summary": "Dynamically loads the price-display module under test for pricing-presentation assertions.",
+      "tags": [
+        "test-helper",
+        "pricing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:tests/local-integration.test.mjs:AtomicInventoryMock",
+      "type": "class",
+      "name": "AtomicInventoryMock",
+      "filePath": "tests/local-integration.test.mjs",
+      "lineRange": [
+        2415,
+        2421
+      ],
+      "summary": "Mock implementation of the atomic inventory RPC surface (serial/reserve/convert/release) used to simulate Supabase RPC-based inventory reservation logic in tests without a live database.",
+      "tags": [
+        "test-helper",
+        "mock",
+        "inventory"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/email/retry-failed.js",
+      "target": "function:functions/api/email/retry-failed.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/email/retry-failed.js",
+      "target": "function:functions/api/email/retry-failed.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/email/retry-failed.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/email/retry-failed.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/email/retry-failed.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/email/retry-failed.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/inventory.js",
+      "target": "function:functions/api/inventory.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/inventory.js",
+      "target": "function:functions/api/inventory.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/inventory.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/inventory.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/inventory.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:getInventoryRows",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/inventory.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:toPublicInventory",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/inventory/check.js",
+      "target": "function:functions/api/inventory/check.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/inventory/check.js",
+      "target": "function:functions/api/inventory/check.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/inventory/check.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/inventory/check.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/inventory/check.js",
+      "target": "file:functions/api/_lib/security.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/inventory/check.js:onRequestPost",
+      "target": "function:functions/api/_lib/inventory.js:getInventoryMap",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/inventory/check.js:onRequestPost",
+      "target": "function:functions/api/_lib/inventory.js:buildCheckItem",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/inventory/check.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/invoices/qnb-create.js",
+      "target": "function:functions/api/invoices/qnb-create.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/invoices/qnb-create.js",
+      "target": "function:functions/api/invoices/qnb-create.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/invoices/qnb-create.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/invoices/qnb-create.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/invoices/qnb-create.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:refundEmailTestHarness",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:reviewUploadMocks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:postReviewImage",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:adminReviewRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:createFakeSupabase",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:seedBankTransferOrder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:installFakeSupabaseWithAdmin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:seedReturnOrder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:seedReturnOrderItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:seedDiscountedMultiLineOrder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:seedMultiLineOrderItemsWithSnapshots",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:seedReturnBundle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:d1ReturnPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:d2RefundPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:issueA1fSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:createTestAccessJwt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:installAccessCertsFetch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "function:tests/local-integration.test.mjs:loadPriceDisplayApi",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "class:tests/local-integration.test.mjs:AtomicInventoryMock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/bank-accounts.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/commerce-finalization.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/coupon-admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/coupons.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/email-events.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/order-pricing-snapshot.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/_lib/product-pricing.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/account/favorites.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/account/notifications.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/account/profile.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/bank-accounts.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/compliance.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/coupons/index.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/customers.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/dashboard.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/email-logs.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/inventory/[slug].js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/inventory/[slug]/movements.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/inventory/adjust.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/invoices.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/lots.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/orders.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/orders/[id].js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/orders/[id]/emails.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/orders/[id]/shipments.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/orders/[id]/status.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/products.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/products/[slug]/price-history.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/products/[slug]/price.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/refunds.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/returns.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/session.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/shipments.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/suppliers.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/admin/users.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/coupons/validate.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/create-checkout.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/inventory/check.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/returns.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:tests/local-integration.test.mjs",
+      "target": "file:functions/api/reviews/[[path]].js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

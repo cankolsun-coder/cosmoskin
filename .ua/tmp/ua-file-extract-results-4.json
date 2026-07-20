@@ -1,0 +1,4147 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 18,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 18,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 18,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "functions/api/account/skin-profile.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 75,
+      "nonEmptyLines": 69,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 5,
+          "endLine": 9,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "unique",
+          "startLine": 11,
+          "endLine": 18,
+          "params": []
+        },
+        {
+          "name": "normalizePayload",
+          "startLine": 20,
+          "endLine": 44,
+          "params": [
+            "user"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 46,
+          "endLine": 56,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 58,
+          "endLine": 69,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequest",
+          "startLine": 71,
+          "endLine": 75,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "onRequest",
+          "line": 71,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "Array.isArray",
+          "lineNumber": 6
+        },
+        {
+          "caller": "toArray",
+          "callee": "value.map((item) => cleanString(item, 100)).filter",
+          "lineNumber": 6
+        },
+        {
+          "caller": "toArray",
+          "callee": "value.map",
+          "lineNumber": 6
+        },
+        {
+          "caller": "toArray",
+          "callee": "cleanString",
+          "lineNumber": 6
+        },
+        {
+          "caller": "toArray",
+          "callee": "cleanString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "toArray",
+          "callee": "text.split(',').map((item) => cleanString(item, 100)).filter",
+          "lineNumber": 8
+        },
+        {
+          "caller": "toArray",
+          "callee": "text.split(',').map",
+          "lineNumber": 8
+        },
+        {
+          "caller": "toArray",
+          "callee": "text.split",
+          "lineNumber": 8
+        },
+        {
+          "caller": "toArray",
+          "callee": "cleanString",
+          "lineNumber": 8
+        },
+        {
+          "caller": "unique",
+          "callee": "cleanString",
+          "lineNumber": 14
+        },
+        {
+          "caller": "unique",
+          "callee": "out.includes",
+          "lineNumber": 15
+        },
+        {
+          "caller": "unique",
+          "callee": "out.push",
+          "lineNumber": 15
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "unique",
+          "lineNumber": 21
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "toArray",
+          "lineNumber": 21
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 22
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "unique",
+          "lineNumber": 23
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "toArray(body.secondary_goals || body.secondaryGoals || concerns).filter",
+          "lineNumber": 23
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "toArray",
+          "lineNumber": 23
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "Array.isArray",
+          "lineNumber": 24
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "String(user.email || body.email || '').toLowerCase",
+          "lineNumber": 27
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 28
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 29
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "unique",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "[primaryGoal, ...secondaryGoals, ...concerns].filter",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 32
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 35
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "unique",
+          "lineNumber": 36
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "toArray",
+          "lineNumber": 36
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 37
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 38
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 40
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanString",
+          "lineNumber": 41
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "new Date().toISOString",
+          "lineNumber": 42
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireUser",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'customer_skin_profiles', {\n    select: '*',\n    user_id: `eq.${auth.user.id}`,\n    order: 'updated_at.desc',\n    limit: '1'\n  }).catch",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 55
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireUser",
+          "lineNumber": 59
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json().catch",
+          "lineNumber": 61
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json",
+          "lineNumber": 61
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "selectRows(context, 'customer_skin_profiles', {\n    select: 'id', user_id: `eq.${auth.user.id}`, order: 'updated_at.desc', limit: '1'\n  }).catch",
+          "lineNumber": 62
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "selectRows",
+          "lineNumber": 62
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "normalizePayload",
+          "lineNumber": 65
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "upsertRow",
+          "lineNumber": 67
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 68
+        },
+        {
+          "caller": "onRequest",
+          "callee": "onRequestGet",
+          "lineNumber": 72
+        },
+        {
+          "caller": "onRequest",
+          "callee": "onRequestPost",
+          "lineNumber": 73
+        },
+        {
+          "caller": "onRequest",
+          "callee": "json",
+          "lineNumber": 74
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 3,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/account/summary.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 382,
+      "nonEmptyLines": 369,
+      "functions": [
+        {
+          "name": "safeMeta",
+          "startLine": 9,
+          "endLine": 11,
+          "params": []
+        },
+        {
+          "name": "isSuccessfulOrder",
+          "startLine": 13,
+          "endLine": 17,
+          "params": []
+        },
+        {
+          "name": "finiteNumber",
+          "startLine": 19,
+          "endLine": 22,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "orderProductNetAmount",
+          "startLine": 24,
+          "endLine": 38,
+          "params": []
+        },
+        {
+          "name": "computeTier",
+          "startLine": 40,
+          "endLine": 51,
+          "params": []
+        },
+        {
+          "name": "groupBy",
+          "startLine": 53,
+          "endLine": 60,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "normalizeOrder",
+          "startLine": 62,
+          "endLine": 68,
+          "params": []
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 70,
+          "endLine": 382,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 70,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isSuccessfulOrder",
+          "callee": "String(order.status || '').toLowerCase",
+          "lineNumber": 14
+        },
+        {
+          "caller": "isSuccessfulOrder",
+          "callee": "String",
+          "lineNumber": 14
+        },
+        {
+          "caller": "isSuccessfulOrder",
+          "callee": "String(order.payment_status || '').toLowerCase",
+          "lineNumber": 15
+        },
+        {
+          "caller": "isSuccessfulOrder",
+          "callee": "String",
+          "lineNumber": 15
+        },
+        {
+          "caller": "isSuccessfulOrder",
+          "callee": "['paid', 'confirmed', 'processing', 'preparing', 'shipped', 'delivered', 'completed'].includes",
+          "lineNumber": 16
+        },
+        {
+          "caller": "isSuccessfulOrder",
+          "callee": "['paid', 'confirmed', 'captured'].includes",
+          "lineNumber": 16
+        },
+        {
+          "caller": "isSuccessfulOrder",
+          "callee": "Boolean",
+          "lineNumber": 16
+        },
+        {
+          "caller": "finiteNumber",
+          "callee": "Number",
+          "lineNumber": 20
+        },
+        {
+          "caller": "finiteNumber",
+          "callee": "Number.isFinite",
+          "lineNumber": 21
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "Array.isArray",
+          "lineNumber": 25
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "items.reduce",
+          "lineNumber": 26
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "finiteNumber",
+          "lineNumber": 27
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "Number.isFinite",
+          "lineNumber": 28
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "finiteNumber",
+          "lineNumber": 29
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "Math.max",
+          "lineNumber": 29
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "finiteNumber",
+          "lineNumber": 29
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "finiteNumber",
+          "lineNumber": 36
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "Number.isFinite",
+          "lineNumber": 37
+        },
+        {
+          "caller": "orderProductNetAmount",
+          "callee": "Math.max",
+          "lineNumber": 37
+        },
+        {
+          "caller": "computeTier",
+          "callee": "orders.filter",
+          "lineNumber": 41
+        },
+        {
+          "caller": "computeTier",
+          "callee": "paidOrders.reduce",
+          "lineNumber": 42
+        },
+        {
+          "caller": "computeTier",
+          "callee": "orderProductNetAmount",
+          "lineNumber": 42
+        },
+        {
+          "caller": "computeTier",
+          "callee": "computeTierFromSpend",
+          "lineNumber": 43
+        },
+        {
+          "caller": "computeTier",
+          "callee": "Math.round",
+          "lineNumber": 49
+        },
+        {
+          "caller": "groupBy",
+          "callee": "(rows || []).reduce",
+          "lineNumber": 54
+        },
+        {
+          "caller": "groupBy",
+          "callee": "map.get",
+          "lineNumber": 55
+        },
+        {
+          "caller": "groupBy",
+          "callee": "list.push",
+          "lineNumber": 56
+        },
+        {
+          "caller": "groupBy",
+          "callee": "map.set",
+          "lineNumber": 57
+        },
+        {
+          "caller": "normalizeOrder",
+          "callee": "(order.order_items || []).map",
+          "lineNumber": 65
+        },
+        {
+          "caller": "normalizeOrder",
+          "callee": "Array.isArray",
+          "lineNumber": 66
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireUser",
+          "lineNumber": 72
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "safeMeta",
+          "lineNumber": 75
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 77
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'orders', {\n        select: 'id,order_number,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,cancel_reason,cancel_requested_at,cancelled_by,cancel_request_reason,cancellation_status,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at',\n        or: `(user_id.eq.${user.id},customer_email.eq.${String(user.email || '').toLowerCase()})`,\n        order: 'created_at.desc',\n        limit: '12'\n      }).catch",
+          "lineNumber": 78
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 78
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(user.email || '').toLowerCase",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'user_addresses', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'is_default.desc,updated_at.desc'\n      }).catch",
+          "lineNumber": 84
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 84
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'user_favorites', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'created_at.desc'\n      }).catch",
+          "lineNumber": 89
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 89
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'notifications', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'created_at.desc',\n        limit: '20'\n      }).catch",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'profiles', {\n        select: '*',\n        id: `eq.${user.id}`,\n        limit: '1'\n      }).catch",
+          "lineNumber": 100
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 100
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'customer_membership_status', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        limit: '1'\n      }).catch",
+          "lineNumber": 105
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 105
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'loyalty_points_ledger', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'created_at.desc',\n        limit: '20'\n      }).catch",
+          "lineNumber": 110
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 110
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'customer_coupons', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'created_at.desc',\n        limit: '20'\n      }).catch",
+          "lineNumber": 116
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 116
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'customer_skin_profiles', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'updated_at.desc',\n        limit: '1'\n      }).catch",
+          "lineNumber": 122
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 122
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'customer_routine_results', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'is_active.desc,updated_at.desc,created_at.desc',\n        limit: '10'\n      }).catch",
+          "lineNumber": 128
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 128
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'consent_records', {\n        select: 'id,consent_type,status,version,source,created_at,updated_at',\n        user_id: `eq.${user.id}`,\n        order: 'created_at.desc',\n        limit: '30'\n      }).catch",
+          "lineNumber": 134
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 134
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'notification_preferences', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        limit: '1'\n      }).catch",
+          "lineNumber": 140
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 140
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'support_requests', {\n        select: '*',\n        user_id: `eq.${user.id}`,\n        order: 'created_at.desc',\n        limit: '20'\n      }).catch",
+          "lineNumber": 145
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 145
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 153
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "ordersRaw.map(order => order.id).filter",
+          "lineNumber": 153
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "ordersRaw.map",
+          "lineNumber": 153
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "buildInFilter",
+          "lineNumber": 163
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 164
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'order_items', {\n          select: 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total',\n          order_id: inFilter,\n          order: 'created_at.asc'\n        }).catch",
+          "lineNumber": 165
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 165
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'shipments', {\n          select: 'order_id,status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at',\n          order_id: inFilter,\n          order: 'created_at.desc'\n        }).catch",
+          "lineNumber": 170
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 170
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'order_status_events', {\n          select: 'order_id,status,message,source,created_at',\n          order_id: inFilter,\n          order: 'created_at.asc'\n        }).catch",
+          "lineNumber": 175
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 175
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'invoice_records', {\n          select: 'id,order_id,invoice_type,invoice_status,invoice_number,provider,pdf_url,issued_at,created_at',\n          order_id: inFilter,\n          order: 'created_at.desc'\n        }).catch",
+          "lineNumber": 180
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 180
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'return_requests', {\n          select: 'id,order_id,return_number,reason,status,refund_status,customer_note,admin_note,requested_items,requested_attachments,attachment_count,created_at,updated_at,requested_at,return_window_ends_at',\n          order_id: inFilter,\n          order: 'created_at.desc'\n        }).catch",
+          "lineNumber": 185
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 185
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 193
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 194
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 195
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 196
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(returns || []).map((row) => row.id).filter",
+          "lineNumber": 197
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(returns || []).map",
+          "lineNumber": 197
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "buildInFilter",
+          "lineNumber": 199
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 200
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'return_request_items', {\n          select: '*',\n          return_request_id: returnInFilter,\n          order: 'created_at.asc'\n        }).catch",
+          "lineNumber": 201
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 201
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'return_request_attachments', {\n          select: '*',\n          return_request_id: returnInFilter,\n          order: 'created_at.asc'\n        }).catch",
+          "lineNumber": 206
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 206
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'return_status_events', {\n          select: '*',\n          return_request_id: returnInFilter,\n          order: 'created_at.asc'\n        }).catch",
+          "lineNumber": 211
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 211
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupBy",
+          "lineNumber": 218
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupBy",
+          "lineNumber": 219
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupBy",
+          "lineNumber": 220
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 229
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(returns || []).map",
+          "lineNumber": 229
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedReturnAttachments.get",
+          "lineNumber": 230
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 230
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedReturnItems.get",
+          "lineNumber": 233
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 233
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "signReturnAttachments",
+          "lineNumber": 234
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedReturnEvents.get",
+          "lineNumber": 235
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 238
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(ordersRaw || []).map",
+          "lineNumber": 239
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "normalizeOrder",
+          "lineNumber": 239
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedItems.get",
+          "lineNumber": 241
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedShipments.get",
+          "lineNumber": 242
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedEvents.get",
+          "lineNumber": 243
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedInvoices.get",
+          "lineNumber": 244
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedReturns.get",
+          "lineNumber": 245
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "orders.filter",
+          "lineNumber": 248
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "paidOrders.reduce",
+          "lineNumber": 249
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "orderProductNetAmount",
+          "lineNumber": 249
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "orders.filter",
+          "lineNumber": 250
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "['paid', 'confirmed', 'processing', 'preparing', 'packed', 'shipped'].includes",
+          "lineNumber": 250
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(order.status || '').toLowerCase",
+          "lineNumber": 250
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 250
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 251
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 252
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 253
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "getLoyaltyBalance",
+          "lineNumber": 257
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 261
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "computeTierFromSpend",
+          "lineNumber": 265
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 267
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 268
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 269
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(profile.birthday).slice",
+          "lineNumber": 270
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 270
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(couponRows || []).some",
+          "lineNumber": 271
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(row.code || row.coupon_code || '').toUpperCase",
+          "lineNumber": 272
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 272
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(row.status || '').toLowerCase",
+          "lineNumber": 274
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 274
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "['used', 'redeemed', 'consumed'].includes",
+          "lineNumber": 275
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "new Date(usedAt).getFullYear",
+          "lineNumber": 277
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "new Date().getFullYear",
+          "lineNumber": 277
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 279
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "isBirthdayCouponEligible",
+          "lineNumber": 280
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 283
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "meta.name?.split",
+          "lineNumber": 289
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "[profile.first_name, profile.last_name].filter(Boolean).join",
+          "lineNumber": 291
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "[profile.first_name, profile.last_name].filter",
+          "lineNumber": 291
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "[meta.first_name, meta.last_name].filter(Boolean).join",
+          "lineNumber": 291
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "[meta.first_name, meta.last_name].filter",
+          "lineNumber": 291
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 294
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 296
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 300
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 300
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 300
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 302
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 306
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 313
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 314
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 315
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 316
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 317
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 318
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 319
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 320
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 321
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.round",
+          "lineNumber": 329
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.round",
+          "lineNumber": 330
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "notifications.filter",
+          "lineNumber": 333
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "tierLabel",
+          "lineNumber": 336
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "computeTier",
+          "lineNumber": 340
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 342
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "couponRows.filter",
+          "lineNumber": 342
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.round",
+          "lineNumber": 344
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 347
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.round",
+          "lineNumber": 347
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 348
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.round",
+          "lineNumber": 348
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 349
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.round",
+          "lineNumber": 349
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 361
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 362
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 363
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 364
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 365
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "supportRequests.filter",
+          "lineNumber": 372
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "['open', 'açık'].includes",
+          "lineNumber": 372
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(row.status || '').toLowerCase",
+          "lineNumber": 372
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 372
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "console.error",
+          "lineNumber": 379
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 380
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 1,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/account/support-requests.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 53,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "normalizeCategory",
+          "startLine": 7,
+          "endLine": 10,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 12,
+          "endLine": 26,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 28,
+          "endLine": 53,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 28,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeCategory",
+          "callee": "String(value || '').trim().toLowerCase",
+          "lineNumber": 8
+        },
+        {
+          "caller": "normalizeCategory",
+          "callee": "String(value || '').trim",
+          "lineNumber": 8
+        },
+        {
+          "caller": "normalizeCategory",
+          "callee": "String",
+          "lineNumber": 8
+        },
+        {
+          "caller": "normalizeCategory",
+          "callee": "CATEGORIES.has",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireUser",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'support_requests', {\n      select: '*',\n      user_id: `eq.${auth.user.id}`,\n      order: 'created_at.desc',\n      limit: '100'\n    }).catch",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireUser",
+          "lineNumber": 30
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json().catch",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "cleanString",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "cleanString",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 35
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 36
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date().toISOString",
+          "lineNumber": 37
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 38
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "normalizeCategory",
+          "lineNumber": 42
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 51
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/coupons/index.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 102,
+      "nonEmptyLines": 93,
+      "functions": [
+        {
+          "name": "numberOrNull",
+          "startLine": 8,
+          "endLine": 12,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "payloadFrom",
+          "startLine": 14,
+          "endLine": 44,
+          "params": []
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 46,
+          "endLine": 56,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 58,
+          "endLine": 71,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPatch",
+          "startLine": 73,
+          "endLine": 102,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPatch",
+          "line": 73,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "numberOrNull",
+          "callee": "Number",
+          "lineNumber": 10
+        },
+        {
+          "caller": "numberOrNull",
+          "callee": "Number.isFinite",
+          "lineNumber": 11
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "['percent', 'fixed', 'amount', 'free_shipping'].includes",
+          "lineNumber": 15
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Math.max",
+          "lineNumber": 17
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Number",
+          "lineNumber": 17
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "numberOrNull",
+          "lineNumber": 18
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "String(body.code || '').trim().toUpperCase().slice",
+          "lineNumber": 20
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "String(body.code || '').trim().toUpperCase",
+          "lineNumber": 20
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "String(body.code || '').trim",
+          "lineNumber": 20
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "String",
+          "lineNumber": 20
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "String(body.title || '').trim().slice",
+          "lineNumber": 21
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "String(body.title || '').trim",
+          "lineNumber": 21
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "String",
+          "lineNumber": 21
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Math.max",
+          "lineNumber": 26
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Number",
+          "lineNumber": 26
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "numberOrNull",
+          "lineNumber": 29
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Math.max",
+          "lineNumber": 30
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Number",
+          "lineNumber": 30
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "new Date().toISOString",
+          "lineNumber": 31
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Array.isArray",
+          "lineNumber": 35
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "Array.isArray",
+          "lineNumber": 36
+        },
+        {
+          "caller": "payloadFrom",
+          "callee": "sanitizeEligibilityMetadataPatch",
+          "lineNumber": 40
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 48
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 50
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 51
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(rows || []).map",
+          "lineNumber": 51
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "enrichCouponForAdmin",
+          "lineNumber": 51
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 52
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 54
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 60
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 61
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "readJsonBody",
+          "lineNumber": 62
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "payloadFrom",
+          "lineNumber": 63
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 64
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 65
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "enrichCouponForAdmin",
+          "lineNumber": 66
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 67
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 69
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdmin",
+          "lineNumber": 75
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "requireAdminPermission",
+          "lineNumber": 76
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "readJsonBody",
+          "lineNumber": 77
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 78
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "String(body.code || '').trim().toUpperCase",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "String(body.code || '').trim",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "String",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows",
+          "lineNumber": 81
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 83
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "buildCouponPatchPayload",
+          "lineNumber": 85
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 87
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "Object.keys",
+          "lineNumber": 90
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "updateRows",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows",
+          "lineNumber": 96
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "enrichCouponForAdmin",
+          "lineNumber": 97
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 98
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "adminError",
+          "lineNumber": 100
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 3,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/dashboard.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 52,
+      "nonEmptyLines": 49,
+      "functions": [
+        {
+          "name": "count",
+          "startLine": 6,
+          "endLine": 6,
+          "params": [
+            "rows",
+            "fn"
+          ]
+        },
+        {
+          "name": "todayStartIso",
+          "startLine": 7,
+          "endLine": 7,
+          "params": []
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 9,
+          "endLine": 52,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "count",
+          "callee": "(rows || []).filter",
+          "lineNumber": 6
+        },
+        {
+          "caller": "todayStartIso",
+          "callee": "d.setHours",
+          "lineNumber": 7
+        },
+        {
+          "caller": "todayStartIso",
+          "callee": "d.toISOString",
+          "lineNumber": 7
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'orders', { select: 'id,status,payment_status,fulfillment_status,total_amount,currency,created_at,delivered_at', order: 'created_at.desc', limit: '500' }).catch",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'product_inventory', { select: 'product_slug,stock_on_hand,stock_reserved,low_stock_threshold,status', limit: '500' }).catch",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'restock_alerts', { select: 'id,status', limit: '500' }).catch",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'email_events', { select: 'id,status,email_type,created_at', order: 'created_at.desc', limit: '500' }).catch",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'return_requests', { select: 'id,status,refund_status,created_at', order: 'created_at.desc', limit: '500' }).catch",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'payment_events', { select: 'id,event_type,status,created_at', order: 'created_at.desc', limit: '500' }).catch",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'shipments', { select: 'id,status,delivered_at,created_at', order: 'created_at.desc', limit: '500' }).catch",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'inventory_lots', { select: 'id,status,expiry_date,product_slug', order: 'expiry_date.asc', limit: '200' }).catch",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Date.now",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "todayStartIso",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(inventory || []).reduce",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(orders || []).filter",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "paidToday.reduce",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(lots || []).filter",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "new Date(lot.expiry_date).getTime",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "new Date(lot.expiry_date).getTime",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 35
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "['pending', 'pending_payment', 'pending_bank_transfer'].includes",
+          "lineNumber": 35
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 36
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 37
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 38
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(s.delivered_at || '').slice",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "dayStart.slice",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(s.created_at || '').slice",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "dayStart.slice",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 42
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 43
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "['closed','refunded','rejected'].includes",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "count",
+          "lineNumber": 45
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "revenueToday.toFixed",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 50
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/session.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 18,
+      "nonEmptyLines": 16,
+      "functions": [
+        {
+          "name": "onRequestPost",
+          "startLine": 4,
+          "endLine": 11,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 13,
+          "endLine": 18,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestGet",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestPost",
+          "callee": "issueAdminSession",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 7
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 14
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/auth/register.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 192,
+      "nonEmptyLines": 174,
+      "functions": [
+        {
+          "name": "validatePassword",
+          "startLine": 32,
+          "endLine": 42,
+          "params": [
+            "pw"
+          ]
+        },
+        {
+          "name": "validateEmail",
+          "startLine": 44,
+          "endLine": 48,
+          "params": [
+            "email"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 50,
+          "endLine": 182,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequest",
+          "startLine": 184,
+          "endLine": 192,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "onRequest",
+          "line": 184,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "validatePassword",
+          "callee": "rule.test",
+          "lineNumber": 37
+        },
+        {
+          "caller": "validateEmail",
+          "callee": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test",
+          "lineNumber": 47
+        },
+        {
+          "caller": "validateEmail",
+          "callee": "email.trim",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json",
+          "lineNumber": 53
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 55
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(payload.email || '').trim().toLowerCase",
+          "lineNumber": 58
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(payload.email || '').trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 58
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 59
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(payload.first_name || '').trim",
+          "lineNumber": 60
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 60
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(payload.last_name || '').trim",
+          "lineNumber": 61
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 61
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "validateEmail",
+          "lineNumber": 63
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 64
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 68
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "validatePassword",
+          "lineNumber": 71
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 73
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(context.env.SUPABASE_URL || '').replace",
+          "lineNumber": 76
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 76
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "fetch",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "JSON.stringify",
+          "lineNumber": 98
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 106
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "upstream.json",
+          "lineNumber": 111
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body?.msg || body?.error_description || body?.error || '').toLowerCase",
+          "lineNumber": 117
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 117
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "message.includes",
+          "lineNumber": 119
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "message.includes",
+          "lineNumber": 120
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "message.includes",
+          "lineNumber": 121
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "message.includes",
+          "lineNumber": 122
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 124
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 126
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "upsertRow(context, 'profiles', {\n      id: body.user.id,\n      email,\n      first_name: firstName,\n      last_name: lastName,\n      marketing_email_opt_in: body.marketing_email_opt_in === true,\n      newsletter_opt_in: body.newsletter_opt_in === true,\n      metadata: { source: 'auth_register_endpoint' }\n    }, 'id').catch",
+          "lineNumber": 146
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "upsertRow",
+          "lineNumber": 146
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "console.error",
+          "lineNumber": 154
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRows(context, 'consent_records', [{\n      user_id: body.user.id,\n      email,\n      consent_type: 'kvkk_acknowledged',\n      status: 'acknowledged',\n      source: 'account_register',\n      document_key: 'kvkk-aydinlatma-metni',\n      document_version: 'legal-20260702',\n      metadata: { page: 'account_register', note: 'Account registration KVKK notice acknowledged.' }\n    }, {\n      user_id: body.user.id,\n      email,\n      consent_type: 'membership_terms',\n      status: 'accepted',\n      source: 'account_register',\n      document_key: 'uyelik-sozlesmesi',\n      document_version: 'legal-20260702',\n      metadata: { page: 'account_register' }\n    }]).catch",
+          "lineNumber": 155
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRows",
+          "lineNumber": 155
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "console.error",
+          "lineNumber": 173
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 176
+        },
+        {
+          "caller": "onRequest",
+          "callee": "onRequestPost",
+          "lineNumber": 187
+        },
+        {
+          "caller": "onRequest",
+          "callee": "json",
+          "lineNumber": 188
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/coupons/validate.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 157,
+      "nonEmptyLines": 144,
+      "functions": [
+        {
+          "name": "normalizeMoney",
+          "startLine": 10,
+          "endLine": 13,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "calculateCouponPreview",
+          "startLine": 15,
+          "endLine": 45,
+          "params": []
+        },
+        {
+          "name": "normalizeCartItem",
+          "startLine": 47,
+          "endLine": 51,
+          "params": []
+        },
+        {
+          "name": "buildTrustedCartLines",
+          "startLine": 53,
+          "endLine": 81,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "authToken",
+          "startLine": 83,
+          "endLine": 87,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 89,
+          "endLine": 157,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "calculateCouponPreview",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 89,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeMoney",
+          "callee": "Number",
+          "lineNumber": 11
+        },
+        {
+          "caller": "normalizeMoney",
+          "callee": "Math.round",
+          "lineNumber": 12
+        },
+        {
+          "caller": "normalizeMoney",
+          "callee": "Number.isFinite",
+          "lineNumber": 12
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "normalizeMoney",
+          "lineNumber": 16
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Math.max",
+          "lineNumber": 16
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Number",
+          "lineNumber": 16
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "String(coupon.discount_type || coupon.type || '').trim().toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "String(coupon.discount_type || coupon.type || '').trim",
+          "lineNumber": 17
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "String",
+          "lineNumber": 17
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Number",
+          "lineNumber": 18
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Number.isFinite",
+          "lineNumber": 25
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Number.isFinite",
+          "lineNumber": 27
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "normalizeMoney",
+          "lineNumber": 30
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Math.max",
+          "lineNumber": 30
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Math.min",
+          "lineNumber": 30
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "normalizeMoney",
+          "lineNumber": 31
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "Math.max",
+          "lineNumber": 31
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "normalizeMoney",
+          "lineNumber": 35
+        },
+        {
+          "caller": "calculateCouponPreview",
+          "callee": "String",
+          "lineNumber": 43
+        },
+        {
+          "caller": "normalizeCartItem",
+          "callee": "Number",
+          "lineNumber": 48
+        },
+        {
+          "caller": "normalizeCartItem",
+          "callee": "Math.max",
+          "lineNumber": 49
+        },
+        {
+          "caller": "normalizeCartItem",
+          "callee": "Number",
+          "lineNumber": 49
+        },
+        {
+          "caller": "normalizeCartItem",
+          "callee": "Number.isFinite",
+          "lineNumber": 50
+        },
+        {
+          "caller": "normalizeCartItem",
+          "callee": "Number.isFinite",
+          "lineNumber": 50
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "Array.isArray",
+          "lineNumber": 57
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "Array.from",
+          "lineNumber": 58
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "cart.map((raw) => String(\n    raw?.slug || raw?.product_slug || raw?.product_id || raw?.productId || raw?.id || ''\n  ).trim()).filter",
+          "lineNumber": 58
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "cart.map",
+          "lineNumber": 58
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(\n    raw?.slug || raw?.product_slug || raw?.product_id || raw?.productId || raw?.id || ''\n  ).trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 58
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "buildPricedCatalogIndex",
+          "lineNumber": 61
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "cart.map((raw) => {\n    const normalized = normalizeCartItem(raw);\n    const slug = String(raw.slug || raw.product_slug || raw.product_id || raw.productId || raw.id || '').trim();\n    const product = index.get(slug);\n    const unitPrice = getPayableUnitPriceTry(product);\n    const trusted = Number.isFinite(unitPrice) && unitPrice > 0 ? unitPrice : 0;\n    const lineTotal = normalizeMoney(trusted * normalized.quantity);\n    return {\n      product_id: String(product?.id || slug || '').trim() || null,\n      product_slug: String(product?.slug || slug || '').trim() || null,\n      product_name: String(product?.name || '').trim() || null,\n      brand: String(product?.brand || '').trim() || null,\n      category: String(product?.category || '').trim() || null,\n      categorySlug: String(product?.categorySlug || '').trim() || null,\n      unit_price: trusted,\n      quantity: normalized.quantity,\n      line_total: lineTotal\n    };\n  }).filter",
+          "lineNumber": 62
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "cart.map",
+          "lineNumber": 62
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "normalizeCartItem",
+          "lineNumber": 63
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(raw.slug || raw.product_slug || raw.product_id || raw.productId || raw.id || '').trim",
+          "lineNumber": 64
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 64
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "index.get",
+          "lineNumber": 65
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "getPayableUnitPriceTry",
+          "lineNumber": 66
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "Number.isFinite",
+          "lineNumber": 67
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "normalizeMoney",
+          "lineNumber": 68
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(product?.id || slug || '').trim",
+          "lineNumber": 70
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 70
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(product?.slug || slug || '').trim",
+          "lineNumber": 71
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 71
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(product?.name || '').trim",
+          "lineNumber": 72
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 72
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(product?.brand || '').trim",
+          "lineNumber": 73
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 73
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(product?.category || '').trim",
+          "lineNumber": 74
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 74
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String(product?.categorySlug || '').trim",
+          "lineNumber": 75
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "String",
+          "lineNumber": 75
+        },
+        {
+          "caller": "buildTrustedCartLines",
+          "callee": "Number",
+          "lineNumber": 80
+        },
+        {
+          "caller": "authToken",
+          "callee": "String",
+          "lineNumber": 84
+        },
+        {
+          "caller": "authToken",
+          "callee": "context.request.headers.get",
+          "lineNumber": 84
+        },
+        {
+          "caller": "authToken",
+          "callee": "header.replace(/^Bearer\\s+/i, '').trim",
+          "lineNumber": 85
+        },
+        {
+          "caller": "authToken",
+          "callee": "header.replace",
+          "lineNumber": 85
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json().catch",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.code || body.coupon_code || '').trim().toUpperCase",
+          "lineNumber": 92
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.code || body.coupon_code || '').trim",
+          "lineNumber": 92
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 92
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Array.isArray",
+          "lineNumber": 93
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "buildTrustedCartLines",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "normalizeMoney",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "trustedCart.reduce",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "authToken",
+          "lineNumber": 96
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "getUserFromAccessToken(context, token).catch",
+          "lineNumber": 97
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "getUserFromAccessToken",
+          "lineNumber": 97
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "validateCouponEligibility",
+          "lineNumber": 99
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "forbidden.has",
+          "lineNumber": 119
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 120
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "['coupon_deprecated', 'coupon_expired', 'coupon_inactive', 'coupon_not_found'].includes",
+          "lineNumber": 126
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 130
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Math.round",
+          "lineNumber": 142
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "console.error",
+          "lineNumber": 154
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 155
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/cron/birthday-benefits.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 38,
+      "functions": [
+        {
+          "name": "assertCron",
+          "startLine": 4,
+          "endLine": 8,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 10,
+          "endLine": 40,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "assertCron",
+          "callee": "String",
+          "lineNumber": 5
+        },
+        {
+          "caller": "assertCron",
+          "callee": "String",
+          "lineNumber": 6
+        },
+        {
+          "caller": "assertCron",
+          "callee": "context.request.headers.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "assertCron",
+          "callee": "new URL(context.request.url).searchParams.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "assertCron",
+          "callee": "Object.assign",
+          "lineNumber": 7
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertCron",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(today.getUTCMonth() + 1).padStart",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "today.getUTCMonth",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(today.getUTCDate()).padStart",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "today.getUTCDate",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "today.getUTCFullYear",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "selectRows(context, 'profiles', { select: 'id,email,birthday', account_status: 'eq.active', limit: '200' }).catch",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "selectRows",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(p.birthday).slice",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow(context, 'birthday_benefits', { user_id: p.id, benefit_year: year, points_awarded: 500, expires_at: new Date(Date.now() + 1000*60*60*24*30).toISOString() }).catch",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date(Date.now() + 1000*60*60*24*30).toISOString",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Date.now",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow(context, 'loyalty_points_ledger', {\n        user_id: p.id,\n        email: p.email,\n        event_type: 'birthday',\n        points_delta: 500,\n        status: 'available',\n        source: 'cron',\n        transaction_reference: `birthday:${p.id}:${year}`,\n        metadata: { benefit_year: year }\n      }).catch",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 38
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/cron/points-expiry.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 12,
+      "functions": [
+        {
+          "name": "assertCron",
+          "startLine": 3,
+          "endLine": 7,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 9,
+          "endLine": 14,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "assertCron",
+          "callee": "String",
+          "lineNumber": 4
+        },
+        {
+          "caller": "assertCron",
+          "callee": "String",
+          "lineNumber": 5
+        },
+        {
+          "caller": "assertCron",
+          "callee": "context.request.headers.get",
+          "lineNumber": 5
+        },
+        {
+          "caller": "assertCron",
+          "callee": "new URL(context.request.url).searchParams.get",
+          "lineNumber": 5
+        },
+        {
+          "caller": "assertCron",
+          "callee": "Object.assign",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertCron",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 13
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/cron/recalculate-memberships.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 29,
+      "nonEmptyLines": 27,
+      "functions": [
+        {
+          "name": "assertCron",
+          "startLine": 4,
+          "endLine": 12,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 14,
+          "endLine": 29,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "assertCron",
+          "callee": "String",
+          "lineNumber": 5
+        },
+        {
+          "caller": "assertCron",
+          "callee": "String",
+          "lineNumber": 6
+        },
+        {
+          "caller": "assertCron",
+          "callee": "context.request.headers.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "assertCron",
+          "callee": "new URL(context.request.url).searchParams.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertCron",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Math.min",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Math.max",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "selectRows",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "rpc(context, 'recalculate_customer_membership', { p_user_id: profile.id }).catch",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "rpc",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 27
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/cron/release-expired-inventory.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 31,
+      "nonEmptyLines": 28,
+      "functions": [
+        {
+          "name": "safeEqual",
+          "startLine": 4,
+          "endLine": 11,
+          "params": []
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 13,
+          "endLine": 27,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 29,
+          "endLine": 31,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestGet",
+          "line": 29,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "safeEqual",
+          "callee": "new TextEncoder().encode",
+          "lineNumber": 5
+        },
+        {
+          "caller": "safeEqual",
+          "callee": "String",
+          "lineNumber": 5
+        },
+        {
+          "caller": "safeEqual",
+          "callee": "new TextEncoder().encode",
+          "lineNumber": 6
+        },
+        {
+          "caller": "safeEqual",
+          "callee": "String",
+          "lineNumber": 6
+        },
+        {
+          "caller": "safeEqual",
+          "callee": "Math.max",
+          "lineNumber": 7
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(context.request.headers.get('authorization') || '').replace",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.headers.get",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "safeEqual",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Math.min",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Math.max",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new URL(context.request.url).searchParams.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "rpc",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "console.error",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/dhl/webhook.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 8,
+      "functions": [
+        {
+          "name": "onRequestPost",
+          "startLine": 3,
+          "endLine": 9,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 3,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 5
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.headers.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 7
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 8
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/invoices.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 28,
+      "nonEmptyLines": 28,
+      "functions": [
+        {
+          "name": "tokenFromReq",
+          "startLine": 3,
+          "endLine": 3,
+          "params": [
+            "req"
+          ]
+        },
+        {
+          "name": "clean",
+          "startLine": 4,
+          "endLine": 4,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 5,
+          "endLine": 25,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 26,
+          "endLine": 28,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 26,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "tokenFromReq",
+          "callee": "(req.headers.get('authorization')||'').replace",
+          "lineNumber": 3
+        },
+        {
+          "caller": "tokenFromReq",
+          "callee": "req.headers.get",
+          "lineNumber": 3
+        },
+        {
+          "caller": "clean",
+          "callee": "String(value||'').trim().slice",
+          "lineNumber": 4
+        },
+        {
+          "caller": "clean",
+          "callee": "String(value||'').trim",
+          "lineNumber": 4
+        },
+        {
+          "caller": "clean",
+          "callee": "String",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "tokenFromReq",
+          "lineNumber": 7
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "getUserFromAccessToken",
+          "lineNumber": 7
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(user.email||'').toLowerCase",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context,'orders',orderParams).catch",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(orders||[]).map(o=>o.id).filter",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(orders||[]).map",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context,'invoice_records',{select:'id,order_id,invoice_type,invoice_status,invoice_number,provider,provider_reference,pdf_url,issued_at,error_message,metadata,created_at,updated_at',order_id:`in.(${ids.join(',')})`,order:'created_at.desc'}).catch",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "ids.join",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(invoices||[]).map",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 27
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 2,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/loyalty/recalculate-user.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 13,
+      "nonEmptyLines": 12,
+      "functions": [
+        {
+          "name": "onRequestPost",
+          "startLine": 5,
+          "endLine": 13,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestPost",
+          "callee": "requireUser",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "rpc(context, 'recalculate_customer_membership', { p_user_id: auth.user.id }).catch",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "rpc",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 12
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/loyalty/redeem.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 104,
+      "nonEmptyLines": 94,
+      "functions": [
+        {
+          "name": "codeFor",
+          "startLine": 13,
+          "endLine": 15,
+          "params": [
+            "points"
+          ]
+        },
+        {
+          "name": "findReplay",
+          "startLine": 17,
+          "endLine": 30,
+          "params": [
+            "context",
+            "transactionReference"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 32,
+          "endLine": 104,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 32,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "codeFor",
+          "callee": "crypto.randomUUID().slice(0, 8).toUpperCase",
+          "lineNumber": 14
+        },
+        {
+          "caller": "codeFor",
+          "callee": "crypto.randomUUID().slice",
+          "lineNumber": 14
+        },
+        {
+          "caller": "codeFor",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 14
+        },
+        {
+          "caller": "findReplay",
+          "callee": "selectRows(context, 'loyalty_points_ledger', {\n    select: '*',\n    transaction_reference: `eq.${transactionReference}`,\n    limit: '1'\n  }).catch",
+          "lineNumber": 19
+        },
+        {
+          "caller": "findReplay",
+          "callee": "selectRows",
+          "lineNumber": 19
+        },
+        {
+          "caller": "findReplay",
+          "callee": "selectRows(context, 'customer_coupons', { select: '*', id: `eq.${row.coupon_id}`, limit: '1' }).catch",
+          "lineNumber": 27
+        },
+        {
+          "caller": "findReplay",
+          "callee": "selectRows",
+          "lineNumber": 27
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireUser",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json().catch",
+          "lineNumber": 35
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json",
+          "lineNumber": 35
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 36
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 37
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.idempotency_key || '').trim().slice",
+          "lineNumber": 43
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.idempotency_key || '').trim",
+          "lineNumber": 43
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 43
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "findReplay",
+          "lineNumber": 46
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "getLoyaltyBalance",
+          "lineNumber": 52
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 54
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "codeFor",
+          "lineNumber": 56
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 57
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(auth.user.email || '').toLowerCase",
+          "lineNumber": 59
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 59
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date(Date.now() + 1000 * 60 * 60 * 24 * 60).toISOString",
+          "lineNumber": 66
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Date.now",
+          "lineNumber": 66
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 73
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(auth.user.email || '').toLowerCase",
+          "lineNumber": 75
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 75
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "findReplay",
+          "lineNumber": 88
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 89
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 93
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(auth.user.email || '').toLowerCase",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 103
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/payment/bank-accounts.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 20,
+      "functions": [
+        {
+          "name": "onRequestGet",
+          "startLine": 6,
+          "endLine": 22,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestGet",
+          "callee": "getValidatedBankAccounts",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "console.error",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(error?.message || 'unknown').slice",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/shipping/track.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 4,
+      "nonEmptyLines": 3,
+      "functions": [
+        {
+          "name": "onRequestGet",
+          "startLine": 4,
+          "endLine": 4,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 4
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 4
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    }
+  ]
+}

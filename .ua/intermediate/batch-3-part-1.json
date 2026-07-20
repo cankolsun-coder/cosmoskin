@@ -1,0 +1,1076 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/admin/loyalty/adjust-points.js",
+      "type": "file",
+      "name": "adjust-points.js",
+      "filePath": "functions/api/admin/loyalty/adjust-points.js",
+      "summary": "Admin endpoint that manually adjusts a customer's loyalty point balance, writing a ledger entry and recording the admin action for audit.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "loyalty",
+        "audit"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/loyalty/adjust-points.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/loyalty/adjust-points.js",
+      "lineRange": [
+        6,
+        32
+      ],
+      "summary": "Validates admin permission and payload, inserts a manual loyalty_points_ledger row for a positive/negative point delta, then logs the admin activity.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "loyalty",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/orders.js",
+      "type": "file",
+      "name": "orders.js",
+      "filePath": "functions/api/admin/orders.js",
+      "summary": "Core admin order-management API: lists/filters orders with hydrated related records (items, shipments, payments, invoices, returns, refunds), and handles status transitions with inventory, loyalty, bank-transfer finalization, shipment tracking and transactional email side effects.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "order-management",
+        "state-machine"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Central order state machine: enforces valid status/payment/fulfillment transitions, guards against re-shipping cancelled/failed orders, and coordinates multiple downstream systems (inventory reservations, loyalty ledger, bank-transfer confirmation, transactional email) from a single PATCH handler."
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:buildSummary",
+      "type": "function",
+      "name": "buildSummary",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        37,
+        46
+      ],
+      "summary": "Aggregates a list of orders into per-status counts and total paid revenue for the admin dashboard summary.",
+      "tags": [
+        "utility",
+        "aggregation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:statusFromAction",
+      "type": "function",
+      "name": "statusFromAction",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        60,
+        71
+      ],
+      "summary": "Maps a named admin action (e.g. mark_shipped, cancel_order) to the corresponding status/payment_status/fulfillment_status field values.",
+      "tags": [
+        "utility",
+        "state-machine"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:assertOperationalTransition",
+      "type": "function",
+      "name": "assertOperationalTransition",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        73,
+        93
+      ],
+      "summary": "Guards against invalid order status transitions, such as marking a cancelled or payment-failed order as shipped/delivered.",
+      "tags": [
+        "validation",
+        "state-machine"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:buildTrackingUrl",
+      "type": "function",
+      "name": "buildTrackingUrl",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        94,
+        104
+      ],
+      "summary": "Builds a carrier-specific shipment tracking URL, or returns a manually supplied tracking URL if provided.",
+      "tags": [
+        "utility",
+        "shipping"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:recordShipmentEvent",
+      "type": "function",
+      "name": "recordShipmentEvent",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        106,
+        116
+      ],
+      "summary": "Inserts a shipment_events audit row for a shipment status change, silently no-oping on failure.",
+      "tags": [
+        "audit",
+        "shipping"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:hydrateOrders",
+      "type": "function",
+      "name": "hydrateOrders",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        119,
+        156
+      ],
+      "summary": "Batch-loads items, shipments, status events, payments, emails, invoices, returns, refunds and shipment events for a set of orders and attaches them to each order object.",
+      "tags": [
+        "data-loading",
+        "aggregation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:recordEvent",
+      "type": "function",
+      "name": "recordEvent",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        165,
+        178
+      ],
+      "summary": "Inserts an order_status_events audit row describing a status change made from the admin panel.",
+      "tags": [
+        "audit",
+        "order-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:sendAndLogShipmentEmail",
+      "type": "function",
+      "name": "sendAndLogShipmentEmail",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        180,
+        213
+      ],
+      "summary": "Sends a shipment-related transactional email to the customer and records the outcome as an email_events row.",
+      "tags": [
+        "email",
+        "side-effect"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:sendAndLogStatusEmail",
+      "type": "function",
+      "name": "sendAndLogStatusEmail",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        215,
+        252
+      ],
+      "summary": "Sends an order-status transactional email (created, paid, preparing, etc.) and logs the send result to email_events.",
+      "tags": [
+        "email",
+        "side-effect"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:sendAndLogCommerceEmail",
+      "type": "function",
+      "name": "sendAndLogCommerceEmail",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        255,
+        284
+      ],
+      "summary": "Sends a commerce transactional email (e.g. bank-transfer pending/rejected, delivered) with bank account details when relevant, and logs the outcome.",
+      "tags": [
+        "email",
+        "side-effect"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        286,
+        307
+      ],
+      "summary": "Lists orders with optional status/email/order-number filters and pagination, returning hydrated orders plus a status summary.",
+      "tags": [
+        "api-handler",
+        "admin"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        309,
+        501
+      ],
+      "summary": "Applies an admin-driven order status/payment/fulfillment update: validates the transition, releases or converts inventory reservations, finalizes or rejects manual bank-transfer payments, records shipment info, sends the relevant customer email, and triggers loyalty point award/promotion/reversal based on the before/after state.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "order-management",
+        "state-machine"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/admin/orders.js:resendOrderEmail",
+      "type": "function",
+      "name": "resendOrderEmail",
+      "filePath": "functions/api/admin/orders.js",
+      "lineRange": [
+        503,
+        522
+      ],
+      "summary": "Re-sends a specific transactional email type for an existing order on demand from the admin panel.",
+      "tags": [
+        "email",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/orders/[id].js",
+      "type": "file",
+      "name": "[id].js",
+      "filePath": "functions/api/admin/orders/[id].js",
+      "summary": "Admin endpoint returning a single order's full detail, including items, shipments, status events, payments, emails, invoices, returns and refunds.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "order-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders/[id].js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/orders/[id].js",
+      "lineRange": [
+        7,
+        30
+      ],
+      "summary": "Fetches an order by id and its related records in parallel, returning a fully hydrated order object for the admin order-detail view.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "data-loading"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "type": "file",
+      "name": "dhl-shipment.js",
+      "filePath": "functions/api/admin/orders/[id]/dhl-shipment.js",
+      "summary": "Admin endpoint for creating a DHL shipment on a paid order; currently short-circuits to a 501 when DHL credentials are detected (API integration not yet activated) and otherwise falls back to a manual shipment record.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "shipping",
+        "provider-integration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders/[id]/dhl-shipment.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/orders/[id]/dhl-shipment.js",
+      "lineRange": [
+        7,
+        26
+      ],
+      "summary": "Validates the order is payable, blocks with a 501 if DHL is configured but not yet wired up, otherwise inserts a manual-fallback shipment row and logs the admin action.",
+      "tags": [
+        "api-handler",
+        "shipping",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/orders/[id]/emails.js",
+      "type": "file",
+      "name": "emails.js",
+      "filePath": "functions/api/admin/orders/[id]/emails.js",
+      "summary": "Admin endpoint that resends a specific transactional email for an order, restricted to a safe allow-list of email types.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "email"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/orders/[id]/emails.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/orders/[id]/emails.js",
+      "lineRange": [
+        8,
+        21
+      ],
+      "summary": "Validates the requested email_type against an allow-list and delegates to resendOrderEmail from orders.js to resend it.",
+      "tags": [
+        "api-handler",
+        "email",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/orders/[id]/status.js",
+      "type": "file",
+      "name": "status.js",
+      "filePath": "functions/api/admin/orders/[id]/status.js",
+      "summary": "Alternate/simplified admin endpoint for updating an order's status and fulfillment_status, enforcing the same transition guards, inventory reservation handling, bank-transfer finalization and loyalty point hooks as orders.js's PATCH handler.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "order-management",
+        "state-machine"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/orders/[id]/status.js",
+      "lineRange": [
+        12,
+        112
+      ],
+      "summary": "Validates and applies a status/fulfillment_status change to an order, guards against invalid transitions, releases or converts inventory, confirms/rejects manual bank-transfer payments, and awards/promotes/reverses loyalty points based on the transition.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "state-machine"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/admin/products/[slug]/price-history.js",
+      "type": "file",
+      "name": "price-history.js",
+      "filePath": "functions/api/admin/products/[slug]/price-history.js",
+      "summary": "Admin endpoint returning paginated price-change audit history for a product, with a legacy-column fallback for databases predating sale-price audit fields.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "pricing",
+        "audit"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/products/[slug]/price-history.js:loadPriceHistoryRows",
+      "type": "function",
+      "name": "loadPriceHistoryRows",
+      "filePath": "functions/api/admin/products/[slug]/price-history.js",
+      "lineRange": [
+        18,
+        38
+      ],
+      "summary": "Queries product_price_audit_logs for a slug, falling back to a legacy column set if the extended sale-price audit columns are missing.",
+      "tags": [
+        "data-loading",
+        "pricing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/products/[slug]/price-history.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/products/[slug]/price-history.js",
+      "lineRange": [
+        40,
+        72
+      ],
+      "summary": "Validates admin permission and product slug, loads and normalizes price-history rows, and returns a paginated event list.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "pricing"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/admin/loyalty/adjust-points.js",
+      "target": "function:functions/api/admin/loyalty/adjust-points.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/loyalty/adjust-points.js",
+      "target": "function:functions/api/admin/loyalty/adjust-points.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/loyalty/adjust-points.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/loyalty/adjust-points.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/loyalty/adjust-points.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/loyalty/adjust-points.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:buildSummary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:statusFromAction",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:assertOperationalTransition",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:buildTrackingUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:recordShipmentEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:hydrateOrders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:recordEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:sendAndLogShipmentEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:sendAndLogStatusEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:sendAndLogCommerceEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:resendOrderEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "function:functions/api/admin/orders.js:resendOrderEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/bank-accounts.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/commerce-finalization.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/email-events.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/loyalty-ledger.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/order-email.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:onRequestPatch",
+      "target": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:onRequestPatch",
+      "target": "function:functions/api/_lib/commerce-finalization.js:rejectManualBankTransferPayment",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:onRequestPatch",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:awardOrderPoints",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:onRequestPatch",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:promoteOrderPoints",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:onRequestPatch",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:reverseOrderPoints",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:convertInventoryReservations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:releaseInventoryReservations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:sendAndLogShipmentEmail",
+      "target": "function:functions/api/_lib/order-email.js:sendShipmentEmail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:sendAndLogStatusEmail",
+      "target": "function:functions/api/_lib/order-email.js:sendOrderStatusEmail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders.js:sendAndLogCommerceEmail",
+      "target": "function:functions/api/_lib/order-email.js:sendCommerceTransactionalEmail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id].js",
+      "target": "function:functions/api/admin/orders/[id].js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id].js",
+      "target": "function:functions/api/admin/orders/[id].js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id].js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id].js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id].js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id].js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id].js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "target": "function:functions/api/admin/orders/[id]/dhl-shipment.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "target": "function:functions/api/admin/orders/[id]/dhl-shipment.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "target": "file:functions/api/_lib/shipping-providers.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/dhl-shipment.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/dhl-shipment.js:onRequestPost",
+      "target": "function:functions/api/_lib/shipping-providers.js:buildManualShipmentPayload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/dhl-shipment.js:onRequestPost",
+      "target": "function:functions/api/_lib/shipping-providers.js:dhlConfigured",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/emails.js",
+      "target": "function:functions/api/admin/orders/[id]/emails.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/emails.js",
+      "target": "function:functions/api/admin/orders/[id]/emails.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/emails.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/emails.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/emails.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/emails.js",
+      "target": "file:functions/api/admin/orders.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/emails.js:onRequestPost",
+      "target": "function:functions/api/admin/orders.js:resendOrderEmail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/emails.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:functions/api/_lib/commerce-finalization.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:functions/api/_lib/loyalty-ledger.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "target": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "target": "function:functions/api/_lib/commerce-finalization.js:rejectManualBankTransferPayment",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:awardOrderPoints",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:convertInventoryReservations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/orders/[id]/status.js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:releaseInventoryReservations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/orders/[id]/status.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "function:functions/api/admin/products/[slug]/price-history.js:loadPriceHistoryRows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "function:functions/api/admin/products/[slug]/price-history.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "function:functions/api/admin/products/[slug]/price-history.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "file:functions/api/_lib/product-pricing.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/products/[slug]/price-history.js:onRequestGet",
+      "target": "function:functions/api/admin/products/[slug]/price-history.js:loadPriceHistoryRows",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price-history.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

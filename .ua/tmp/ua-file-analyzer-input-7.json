@@ -1,0 +1,106 @@
+{
+  "projectRoot": "/Users/can/Documents/GitHub/cosmoskin",
+  "batchFiles": [
+    {
+      "path": "functions/api/_lib/catalog.js",
+      "language": "javascript",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/product-pricing.js",
+      "language": "javascript",
+      "sizeLines": 609,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/products-data.js",
+      "language": "javascript",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/restock-email.js",
+      "language": "javascript",
+      "sizeLines": 126,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/health.js",
+      "language": "javascript",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/products.js",
+      "language": "javascript",
+      "sizeLines": 179,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/catalog/effective-prices.js",
+      "language": "javascript",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/get-orders.js",
+      "language": "javascript",
+      "sizeLines": 136,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/reviews/[[path]].js",
+      "language": "javascript",
+      "sizeLines": 1213,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "functions/api/_lib/catalog.js": [
+      "functions/api/_lib/products-data.js"
+    ],
+    "functions/api/_lib/product-pricing.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/products-data.js": [],
+    "functions/api/_lib/restock-email.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/email-brand.js",
+      "functions/api/_lib/product-pricing.js"
+    ],
+    "functions/api/admin/inventory/health.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/products.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/products-data.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/catalog/effective-prices.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/get-orders.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/reviews/[[path]].js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ]
+  }
+}

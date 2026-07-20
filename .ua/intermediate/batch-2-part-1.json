@@ -1,0 +1,1209 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/_lib/admin-audit.js",
+      "type": "file",
+      "name": "admin-audit.js",
+      "filePath": "functions/api/_lib/admin-audit.js",
+      "summary": "RBAC helper module that resolves the current admin's identity, checks role-based permissions against the admin_permissions table, and records admin activity events for the audit log.",
+      "tags": [
+        "admin",
+        "rbac",
+        "audit-logging",
+        "security",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/_lib/admin.js",
+      "type": "file",
+      "name": "admin.js",
+      "filePath": "functions/api/_lib/admin.js",
+      "summary": "Core admin authentication module implementing Cloudflare Access verification, signed session token issuance/validation (HMAC), login throttling, and the assertAdmin gate used by every admin API route.",
+      "tags": [
+        "admin",
+        "authentication",
+        "session",
+        "security",
+        "entry-point"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses Web Crypto HMAC-SHA256 for tamper-proof session tokens and a timing-safe comparison to avoid timing side-channel attacks on legacy token checks."
+    },
+    {
+      "id": "file:functions/api/_lib/bank-accounts.js",
+      "type": "file",
+      "name": "bank-accounts.js",
+      "filePath": "functions/api/_lib/bank-accounts.js",
+      "summary": "Validates and normalizes manual bank-transfer payout accounts, including Turkish IBAN checksum validation (mod-97) and currency whitelisting.",
+      "tags": [
+        "validation",
+        "payments",
+        "bank-transfer",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "type": "file",
+      "name": "cloudflare-access-jwt.js",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "summary": "Verifies Cloudflare Access JWT assertions against the team's JWKS certificates (RSA signature, audience, expiry) to resolve the authenticated admin's email identity.",
+      "tags": [
+        "authentication",
+        "jwt",
+        "security",
+        "cloudflare-access"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Implements manual RSA JWT signature verification via SubtleCrypto with an in-memory certs cache, since no JWT library is available in the Workers runtime."
+    },
+    {
+      "id": "function:functions/api/_lib/admin-audit.js:getAccessEmail",
+      "type": "function",
+      "name": "getAccessEmail",
+      "filePath": "functions/api/_lib/admin-audit.js",
+      "lineRange": [
+        14,
+        16
+      ],
+      "summary": "Reads the raw Cf-Access-Authenticated-User-Email header from the request.",
+      "tags": [
+        "admin",
+        "rbac",
+        "identity"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin-audit.js:getAdminRecord",
+      "type": "function",
+      "name": "getAdminRecord",
+      "filePath": "functions/api/_lib/admin-audit.js",
+      "lineRange": [
+        18,
+        33
+      ],
+      "summary": "Resolves the caller's admin_users row by trying Access header, JWT assertion, and signed session in order.",
+      "tags": [
+        "admin",
+        "rbac",
+        "identity"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/admin-audit.js:hasAdminPermission",
+      "type": "function",
+      "name": "hasAdminPermission",
+      "filePath": "functions/api/_lib/admin-audit.js",
+      "lineRange": [
+        35,
+        53
+      ],
+      "summary": "Checks whether the current admin has a given permission, either directly or via their role's admin_permissions grants.",
+      "tags": [
+        "admin",
+        "rbac",
+        "authorization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "function",
+      "name": "requireAdminPermission",
+      "filePath": "functions/api/_lib/admin-audit.js",
+      "lineRange": [
+        55,
+        62
+      ],
+      "summary": "Throws a 403 AdminAuthError if the current admin lacks the given permission; used as a route guard.",
+      "tags": [
+        "admin",
+        "rbac",
+        "authorization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin-audit.js:recordAdminActivity",
+      "type": "function",
+      "name": "recordAdminActivity",
+      "filePath": "functions/api/_lib/admin-audit.js",
+      "lineRange": [
+        64,
+        83
+      ],
+      "summary": "Writes an entry to the admin audit log capturing actor, action, resource, IP, and user agent.",
+      "tags": [
+        "admin",
+        "audit-logging"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:timingSafeEqual",
+      "type": "function",
+      "name": "timingSafeEqual",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        51,
+        60
+      ],
+      "summary": "Constant-time string comparison to prevent timing attacks on legacy admin token checks.",
+      "tags": [
+        "security",
+        "crypto"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:hmac",
+      "type": "function",
+      "name": "hmac",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        68,
+        77
+      ],
+      "summary": "Computes an HMAC-SHA256 signature over a value using the session secret, base64url-encoded.",
+      "tags": [
+        "security",
+        "crypto",
+        "session"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:getCloudflareAccessEmail",
+      "type": "function",
+      "name": "getCloudflareAccessEmail",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        104,
+        106
+      ],
+      "summary": "Returns the Cloudflare Access-authenticated email for the current request, if present.",
+      "tags": [
+        "admin",
+        "authentication"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:decodeSessionEmail",
+      "type": "function",
+      "name": "decodeSessionEmail",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        114,
+        125
+      ],
+      "summary": "Decodes a base64url-encoded email segment from a signed session token.",
+      "tags": [
+        "session",
+        "encoding"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:resolveActiveAdminByEmail",
+      "type": "function",
+      "name": "resolveActiveAdminByEmail",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        127,
+        138
+      ],
+      "summary": "Looks up an active admin_users row by normalized email address.",
+      "tags": [
+        "admin",
+        "identity"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:verifySignedSessionPayload",
+      "type": "function",
+      "name": "verifySignedSessionPayload",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        140,
+        175
+      ],
+      "summary": "Parses and cryptographically verifies a signed admin session token, checking HMAC signature and expiry.",
+      "tags": [
+        "session",
+        "security",
+        "authentication"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:getVerifiedSessionEmail",
+      "type": "function",
+      "name": "getVerifiedSessionEmail",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        181,
+        190
+      ],
+      "summary": "Extracts and verifies the admin session email from the Authorization header, returning null if invalid.",
+      "tags": [
+        "session",
+        "authentication"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "type": "function",
+      "name": "issueAdminSession",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        201,
+        239
+      ],
+      "summary": "Verifies Cloudflare Access identity plus a shared secret, throttles failures, and issues a new signed admin session token.",
+      "tags": [
+        "session",
+        "authentication",
+        "entry-point"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "function",
+      "name": "assertAdmin",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        241,
+        263
+      ],
+      "summary": "Route guard that verifies Cloudflare Access, checks the session/legacy token, and throttles repeated failures; throws AdminAuthError on failure.",
+      "tags": [
+        "admin",
+        "authentication",
+        "authorization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "function",
+      "name": "readJsonBody",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        265,
+        275
+      ],
+      "summary": "Reads and merges the JSON request body with URL query parameters into a single object.",
+      "tags": [
+        "utility",
+        "http"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/admin.js:adminError",
+      "type": "function",
+      "name": "adminError",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        277,
+        287
+      ],
+      "summary": "Converts a thrown error (including AdminAuthError) into a standardized admin JSON error response.",
+      "tags": [
+        "error-handling",
+        "http"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:functions/api/_lib/admin.js:AdminAuthError",
+      "type": "class",
+      "name": "AdminAuthError",
+      "filePath": "functions/api/_lib/admin.js",
+      "lineRange": [
+        192,
+        199
+      ],
+      "summary": "Custom error class carrying an HTTP status code for admin authentication/authorization failures.",
+      "tags": [
+        "admin",
+        "error-handling"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/bank-accounts.js:normalizeIban",
+      "type": "function",
+      "name": "normalizeIban",
+      "filePath": "functions/api/_lib/bank-accounts.js",
+      "lineRange": [
+        6,
+        8
+      ],
+      "summary": "Strips non-alphanumeric characters and uppercases a raw IBAN string.",
+      "tags": [
+        "validation",
+        "bank-transfer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/bank-accounts.js:isValidTurkishIban",
+      "type": "function",
+      "name": "isValidTurkishIban",
+      "filePath": "functions/api/_lib/bank-accounts.js",
+      "lineRange": [
+        10,
+        21
+      ],
+      "summary": "Validates a Turkish IBAN's format and mod-97 checksum.",
+      "tags": [
+        "validation",
+        "bank-transfer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/bank-accounts.js:normalizeBankAccount",
+      "type": "function",
+      "name": "normalizeBankAccount",
+      "filePath": "functions/api/_lib/bank-accounts.js",
+      "lineRange": [
+        23,
+        35
+      ],
+      "summary": "Normalizes a raw bank account row into a consistent shape (bank name, holder, IBAN, currency, active flag).",
+      "tags": [
+        "validation",
+        "bank-transfer",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/bank-accounts.js:validateBankAccount",
+      "type": "function",
+      "name": "validateBankAccount",
+      "filePath": "functions/api/_lib/bank-accounts.js",
+      "lineRange": [
+        37,
+        46
+      ],
+      "summary": "Validates a normalized bank account, collecting field-level errors (missing name, invalid IBAN, unsupported currency).",
+      "tags": [
+        "validation",
+        "bank-transfer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/bank-accounts.js:getValidatedBankAccounts",
+      "type": "function",
+      "name": "getValidatedBankAccounts",
+      "filePath": "functions/api/_lib/bank-accounts.js",
+      "lineRange": [
+        48,
+        65
+      ],
+      "summary": "Fetches active bank accounts from Supabase and returns only those that pass validation, ordered by sort_order.",
+      "tags": [
+        "bank-transfer",
+        "data-access"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/bank-accounts.js:getPrimaryBankAccount",
+      "type": "function",
+      "name": "getPrimaryBankAccount",
+      "filePath": "functions/api/_lib/bank-accounts.js",
+      "lineRange": [
+        67,
+        70
+      ],
+      "summary": "Returns the first validated bank account for use as the default payout destination.",
+      "tags": [
+        "bank-transfer",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:accessTeamDomain",
+      "type": "function",
+      "name": "accessTeamDomain",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        13,
+        21
+      ],
+      "summary": "Resolves and normalizes the configured Cloudflare Access team domain from environment variables.",
+      "tags": [
+        "authentication",
+        "cloudflare-access",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:accessAudience",
+      "type": "function",
+      "name": "accessAudience",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        23,
+        25
+      ],
+      "summary": "Reads the configured Cloudflare Access application audience (AUD) tag.",
+      "tags": [
+        "authentication",
+        "cloudflare-access",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:accessCertsUrl",
+      "type": "function",
+      "name": "accessCertsUrl",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        27,
+        32
+      ],
+      "summary": "Builds the JWKS certificate URL for the configured Access team domain.",
+      "tags": [
+        "authentication",
+        "cloudflare-access",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:base64UrlToBytes",
+      "type": "function",
+      "name": "base64UrlToBytes",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        34,
+        43
+      ],
+      "summary": "Decodes a base64url-encoded string into a raw byte array.",
+      "tags": [
+        "encoding",
+        "jwt"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:fetchAccessCerts",
+      "type": "function",
+      "name": "fetchAccessCerts",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        56,
+        65
+      ],
+      "summary": "Fetches and caches Cloudflare Access JWKS certificates for a short TTL to avoid refetching on every request.",
+      "tags": [
+        "authentication",
+        "jwt",
+        "caching"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:verifyAccessJwtAssertion",
+      "type": "function",
+      "name": "verifyAccessJwtAssertion",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        77,
+        143
+      ],
+      "summary": "Verifies a Cf-Access-Jwt-Assertion end-to-end: parses header/payload, checks audience and expiry, fetches the matching JWKS key, and validates the RSA signature.",
+      "tags": [
+        "authentication",
+        "jwt",
+        "security"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:getDirectAccessEmail",
+      "type": "function",
+      "name": "getDirectAccessEmail",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        145,
+        148
+      ],
+      "summary": "Returns the email from the Cf-Access-Authenticated-User-Email header when present.",
+      "tags": [
+        "authentication",
+        "cloudflare-access"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessEmailHeader",
+      "type": "function",
+      "name": "hasAccessEmailHeader",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        150,
+        152
+      ],
+      "summary": "Returns whether the direct Access email header is present on the request.",
+      "tags": [
+        "authentication",
+        "cloudflare-access"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessJwtHeader",
+      "type": "function",
+      "name": "hasAccessJwtHeader",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        154,
+        156
+      ],
+      "summary": "Returns whether the Cf-Access-Jwt-Assertion header is present on the request.",
+      "tags": [
+        "authentication",
+        "cloudflare-access"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmailFromJwt",
+      "type": "function",
+      "name": "resolveCloudflareAccessEmailFromJwt",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        158,
+        163
+      ],
+      "summary": "Resolves the verified admin email strictly from JWT assertion verification.",
+      "tags": [
+        "authentication",
+        "jwt"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmail",
+      "type": "function",
+      "name": "resolveCloudflareAccessEmail",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        165,
+        169
+      ],
+      "summary": "Resolves the Access-authenticated email, preferring the direct header and falling back to JWT verification.",
+      "tags": [
+        "authentication",
+        "cloudflare-access"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:describeAccessIdentity",
+      "type": "function",
+      "name": "describeAccessIdentity",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        171,
+        182
+      ],
+      "summary": "Builds a debug-friendly summary of the current Access identity resolution (header present, JWT present, masked email) for diagnostics.",
+      "tags": [
+        "authentication",
+        "diagnostics"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/cloudflare-access-jwt.js:clearAccessCertsCacheForTests",
+      "type": "function",
+      "name": "clearAccessCertsCacheForTests",
+      "filePath": "functions/api/_lib/cloudflare-access-jwt.js",
+      "lineRange": [
+        184,
+        186
+      ],
+      "summary": "Clears the in-memory JWKS certs cache; used by tests to avoid stale cert state.",
+      "tags": [
+        "testing",
+        "utility"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:getAccessEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:getAdminRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:hasAdminPermission",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:recordAdminActivity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:timingSafeEqual",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:hmac",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:getCloudflareAccessEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:decodeSessionEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:resolveActiveAdminByEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:verifySignedSessionPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:getVerifiedSessionEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:adminError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "class:functions/api/_lib/admin.js:AdminAuthError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeIban",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:isValidTurkishIban",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeBankAccount",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:validateBankAccount",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:getValidatedBankAccounts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:getPrimaryBankAccount",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:accessTeamDomain",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:accessAudience",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:accessCertsUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:base64UrlToBytes",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:fetchAccessCerts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:verifyAccessJwtAssertion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:getDirectAccessEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessEmailHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessJwtHeader",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmailFromJwt",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:describeAccessIdentity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:clearAccessCertsCacheForTests",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:getAccessEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:getAdminRecord",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:hasAdminPermission",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin-audit.js",
+      "target": "function:functions/api/_lib/admin-audit.js:recordAdminActivity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:getCloudflareAccessEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:getVerifiedSessionEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "function:functions/api/_lib/admin.js:adminError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/admin.js",
+      "target": "class:functions/api/_lib/admin.js:AdminAuthError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeIban",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:isValidTurkishIban",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeBankAccount",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:validateBankAccount",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:getValidatedBankAccounts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/bank-accounts.js",
+      "target": "function:functions/api/_lib/bank-accounts.js:getPrimaryBankAccount",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:accessTeamDomain",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:accessAudience",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:accessCertsUrl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:getDirectAccessEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessEmailHeader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessJwtHeader",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmailFromJwt",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:describeAccessIdentity",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/cloudflare-access-jwt.js",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:clearAccessCertsCacheForTests",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin-audit.js:getAdminRecord",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmailFromJwt",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin-audit.js:getAdminRecord",
+      "target": "function:functions/api/_lib/admin.js:getVerifiedSessionEmail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin.js:getCloudflareAccessEmail",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:getDirectAccessEmail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:resolveCloudflareAccessEmail",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:describeAccessIdentity",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessJwtHeader",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:hasAccessEmailHeader",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "target": "function:functions/api/_lib/cloudflare-access-jwt.js:accessTeamDomain",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

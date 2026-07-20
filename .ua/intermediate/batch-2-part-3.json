@@ -1,0 +1,640 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/admin/bank-accounts.js",
+      "type": "file",
+      "name": "bank-accounts.js",
+      "filePath": "functions/api/admin/bank-accounts.js",
+      "summary": "Admin API endpoint for listing, creating, and updating the store's manual bank-transfer payout accounts, gated by the bank_accounts:manage permission.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "bank-transfer",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/admin/compliance.js",
+      "type": "file",
+      "name": "compliance.js",
+      "filePath": "functions/api/admin/compliance.js",
+      "summary": "Admin API endpoint for viewing and editing per-product regulatory compliance fields (barcode, origin, INCI ingredients, warnings) required for Turkish cosmetics disclosure.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "compliance",
+        "product-data"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/admin/coupons/issue-customer-coupon.js",
+      "type": "file",
+      "name": "issue-customer-coupon.js",
+      "filePath": "functions/api/admin/coupons/issue-customer-coupon.js",
+      "summary": "Admin API endpoint that manually issues a targeted discount coupon to a specific customer, requiring a documented reason and logging the action to the admin audit trail.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "coupons",
+        "audit-logging"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/customers.js",
+      "type": "file",
+      "name": "customers.js",
+      "filePath": "functions/api/admin/customers.js",
+      "summary": "Admin API endpoint that aggregates the orders table into a per-customer summary (order counts, paid totals, last order date) for the admin customer list view.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "customers",
+        "aggregation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/bank-accounts.js:toDbPayload",
+      "type": "function",
+      "name": "toDbPayload",
+      "filePath": "functions/api/admin/bank-accounts.js",
+      "lineRange": [
+        10,
+        27
+      ],
+      "summary": "Normalizes and validates a raw bank-account payload into the DB row shape, throwing a 400 error on validation failure.",
+      "tags": [
+        "admin",
+        "bank-transfer",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/bank-accounts.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/bank-accounts.js",
+      "lineRange": [
+        29,
+        38
+      ],
+      "summary": "Lists all manual bank-transfer payout accounts for the admin dashboard.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "bank-transfer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/bank-accounts.js",
+      "lineRange": [
+        40,
+        51
+      ],
+      "summary": "Creates a new manual bank-transfer payout account.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "bank-transfer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/bank-accounts.js",
+      "lineRange": [
+        53,
+        69
+      ],
+      "summary": "Updates an existing manual bank-transfer payout account by id.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "bank-transfer"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/compliance.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/compliance.js",
+      "lineRange": [
+        19,
+        43
+      ],
+      "summary": "Returns compliance data for a single product slug, or a full product+compliance list when no slug is given.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "compliance"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/compliance.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/compliance.js",
+      "lineRange": [
+        45,
+        65
+      ],
+      "summary": "Creates or updates a product's compliance record (INCI ingredients, origin, warnings, etc.).",
+      "tags": [
+        "admin",
+        "api-handler",
+        "compliance"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/coupons/issue-customer-coupon.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/coupons/issue-customer-coupon.js",
+      "lineRange": [
+        11,
+        36
+      ],
+      "summary": "Issues a manual customer-targeted coupon with a required justification reason and logs the action to the admin audit trail.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "coupons"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/customers.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/customers.js",
+      "lineRange": [
+        6,
+        32
+      ],
+      "summary": "Aggregates the last 1000 orders into a per-customer summary (order counts, paid totals, last order date) sorted by recency.",
+      "tags": [
+        "admin",
+        "api-handler",
+        "customers",
+        "aggregation"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "file:functions/api/_lib/bank-accounts.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "file:functions/api/_lib/security.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/issue-customer-coupon.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/issue-customer-coupon.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/issue-customer-coupon.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/issue-customer-coupon.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/customers.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/customers.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/customers.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/customers.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "function:functions/api/admin/bank-accounts.js:toDbPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "function:functions/api/admin/bank-accounts.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "function:functions/api/admin/compliance.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "function:functions/api/admin/compliance.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/coupons/issue-customer-coupon.js",
+      "target": "function:functions/api/admin/coupons/issue-customer-coupon.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/customers.js",
+      "target": "function:functions/api/admin/customers.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "function:functions/api/admin/bank-accounts.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/bank-accounts.js",
+      "target": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "function:functions/api/admin/compliance.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/compliance.js",
+      "target": "function:functions/api/admin/compliance.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/coupons/issue-customer-coupon.js",
+      "target": "function:functions/api/admin/coupons/issue-customer-coupon.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/customers.js",
+      "target": "function:functions/api/admin/customers.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestGet",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeBankAccount",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "target": "function:functions/api/admin/bank-accounts.js:toDbPayload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPost",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeBankAccount",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "target": "function:functions/api/admin/bank-accounts.js:toDbPayload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:onRequestPatch",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeBankAccount",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:toDbPayload",
+      "target": "function:functions/api/_lib/bank-accounts.js:normalizeBankAccount",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/bank-accounts.js:toDbPayload",
+      "target": "function:functions/api/_lib/bank-accounts.js:validateBankAccount",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:normalizeSlug",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestGet",
+      "target": "function:functions/api/_lib/inventory.js:catalogProducts",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/compliance.js:onRequestPatch",
+      "target": "function:functions/api/_lib/inventory.js:normalizeSlug",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/customers.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/customers.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/issue-customer-coupon.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/issue-customer-coupon.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/issue-customer-coupon.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin.js:readJsonBody",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/issue-customer-coupon.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin-audit.js:recordAdminActivity",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

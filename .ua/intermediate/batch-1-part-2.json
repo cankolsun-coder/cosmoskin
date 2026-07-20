@@ -1,0 +1,1009 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/account/favorites.js",
+      "type": "file",
+      "name": "favorites.js",
+      "filePath": "functions/api/account/favorites.js",
+      "summary": "Cloudflare Pages Function implementing /api/account/favorites: list, add, and remove favorite products for the authenticated customer.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/favorites.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/account/favorites.js",
+      "lineRange": [
+        30,
+        90
+      ],
+      "summary": "Adds a product to the authenticated user's favorites, normalizing the payload and preventing duplicates.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/account/favorites.js:onRequestDelete",
+      "type": "function",
+      "name": "onRequestDelete",
+      "filePath": "functions/api/account/favorites.js",
+      "lineRange": [
+        92,
+        133
+      ],
+      "summary": "Removes a product from the authenticated user's favorites list.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/account/membership.js",
+      "type": "file",
+      "name": "membership.js",
+      "filePath": "functions/api/account/membership.js",
+      "summary": "Cloudflare Pages Function implementing GET /api/account/membership, returning the customer's loyalty tier, progress, and points using stored membership data with a computed fallback.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/membership.js:computeFallback",
+      "type": "function",
+      "name": "computeFallback",
+      "filePath": "functions/api/account/membership.js",
+      "lineRange": [
+        16,
+        39
+      ],
+      "summary": "Computes a membership tier/progress response from spend and order data when no stored membership row exists yet.",
+      "tags": [
+        "business-logic",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/membership.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/membership.js",
+      "lineRange": [
+        41,
+        55
+      ],
+      "summary": "Returns the authenticated user's membership tier and progress, using the stored row or the computed fallback.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/account/notifications.js",
+      "type": "file",
+      "name": "notifications.js",
+      "filePath": "functions/api/account/notifications.js",
+      "summary": "Cloudflare Pages Function implementing /api/account/notifications: reads and updates the customer's notification preference flags stored on their profile.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/notifications.js:normalizePreferences",
+      "type": "function",
+      "name": "normalizePreferences",
+      "filePath": "functions/api/account/notifications.js",
+      "lineRange": [
+        24,
+        53
+      ],
+      "summary": "Normalizes a raw notification-preferences object into a canonical set of boolean flags with defaults.",
+      "tags": [
+        "validation",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/notifications.js:readPreferences",
+      "type": "function",
+      "name": "readPreferences",
+      "filePath": "functions/api/account/notifications.js",
+      "lineRange": [
+        55,
+        74
+      ],
+      "summary": "Reads and normalizes the current user's stored notification preferences from their profile row.",
+      "tags": [
+        "data-model",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/notifications.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/account/notifications.js",
+      "lineRange": [
+        100,
+        148
+      ],
+      "summary": "Merges and persists updated notification preference flags onto the user's profile.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/account/orders.js",
+      "type": "file",
+      "name": "orders.js",
+      "filePath": "functions/api/account/orders.js",
+      "summary": "Cloudflare Pages Function implementing GET /api/account/orders, listing the authenticated customer's order history with shipment status.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/orders.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/orders.js",
+      "lineRange": [
+        9,
+        40
+      ],
+      "summary": "Fetches and returns the authenticated user's orders along with normalized shipment info.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/account/orders/[id].js",
+      "type": "file",
+      "name": "[id].js",
+      "filePath": "functions/api/account/orders/[id].js",
+      "summary": "Cloudflare Pages Function implementing GET /api/account/orders/:id, returning a single order's detail scoped to the authenticated owner.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/orders/[id].js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/orders/[id].js",
+      "lineRange": [
+        5,
+        21
+      ],
+      "summary": "Fetches a single order by id, verifying it belongs to the authenticated user before returning it.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "authorization"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/account/orders/[id]/cancel.js",
+      "type": "file",
+      "name": "cancel.js",
+      "filePath": "functions/api/account/orders/[id]/cancel.js",
+      "summary": "Cloudflare Pages Function implementing POST /api/account/orders/:id/cancel, letting a customer request or directly execute cancellation of their own order via the shared order-cancellation logic.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/orders/[id]/cancel.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/account/orders/[id]/cancel.js",
+      "lineRange": [
+        20,
+        69
+      ],
+      "summary": "Loads the user's owned order bundle, evaluates cancellation eligibility, and executes either a direct cancel or a cancel request based on the outcome.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "business-logic"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/account/points.js",
+      "type": "file",
+      "name": "points.js",
+      "filePath": "functions/api/account/points.js",
+      "summary": "Cloudflare Pages Function implementing GET /api/account/points, returning the authenticated customer's current loyalty points balance.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "business-logic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/points.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/points.js",
+      "lineRange": [
+        6,
+        26
+      ],
+      "summary": "Resolves and returns the authenticated user's loyalty points balance via the loyalty ledger helper.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/account/profile.js",
+      "type": "file",
+      "name": "profile.js",
+      "filePath": "functions/api/account/profile.js",
+      "summary": "Cloudflare Pages Function implementing /api/account/profile: reads and validates/patches the authenticated customer's profile fields (name, birthday, contact/marketing flags) with birthday-format validation.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/account/profile.js:isValidBirthdayDate",
+      "type": "function",
+      "name": "isValidBirthdayDate",
+      "filePath": "functions/api/account/profile.js",
+      "lineRange": [
+        24,
+        40
+      ],
+      "summary": "Validates a birthday string is a real calendar date within a sane range before it is persisted.",
+      "tags": [
+        "validation",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/profile.js:getProfile",
+      "type": "function",
+      "name": "getProfile",
+      "filePath": "functions/api/account/profile.js",
+      "lineRange": [
+        57,
+        64
+      ],
+      "summary": "Fetches the current user's profile row from Supabase.",
+      "tags": [
+        "data-model",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/profile.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/account/profile.js",
+      "lineRange": [
+        73,
+        206
+      ],
+      "summary": "Validates and applies a partial update to the authenticated user's profile fields, merging metadata and persisting only recognized, cleaned values.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/account/profile.js:onRequest",
+      "type": "function",
+      "name": "onRequest",
+      "filePath": "functions/api/account/profile.js",
+      "lineRange": [
+        208,
+        212
+      ],
+      "summary": "Fallback request handler dispatching unsupported HTTP methods on the profile endpoint to a 405-style response.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/account/routine-results.js",
+      "type": "file",
+      "name": "routine-results.js",
+      "filePath": "functions/api/account/routine-results.js",
+      "summary": "Cloudflare Pages Function implementing /api/account/routine-results: reads and saves the customer's skin-routine quiz/recommendation results, normalizing steps and recommended products.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/routine-results.js:normalizeProduct",
+      "type": "function",
+      "name": "normalizeProduct",
+      "filePath": "functions/api/account/routine-results.js",
+      "lineRange": [
+        14,
+        32
+      ],
+      "summary": "Normalizes a recommended-product entry within a routine result into a canonical shape.",
+      "tags": [
+        "data-model",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/routine-results.js:normalizeSteps",
+      "type": "function",
+      "name": "normalizeSteps",
+      "filePath": "functions/api/account/routine-results.js",
+      "lineRange": [
+        34,
+        48
+      ],
+      "summary": "Normalizes the list of routine steps, each with its recommended products, into a canonical shape.",
+      "tags": [
+        "data-model",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/routine-results.js:normalizeRoutinePayload",
+      "type": "function",
+      "name": "normalizeRoutinePayload",
+      "filePath": "functions/api/account/routine-results.js",
+      "lineRange": [
+        67,
+        109
+      ],
+      "summary": "Normalizes an entire client-submitted routine-result payload (skin profile, steps, recommended products) before persistence.",
+      "tags": [
+        "validation",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/routine-results.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/account/routine-results.js",
+      "lineRange": [
+        128,
+        165
+      ],
+      "summary": "Persists a normalized routine-result payload for the authenticated user, upserting their latest skin-routine outcome.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "function:functions/api/account/favorites.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "function:functions/api/account/favorites.js:onRequestDelete",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "function:functions/api/account/favorites.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "function:functions/api/account/favorites.js:onRequestDelete",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/favorites.js:onRequestPost",
+      "target": "function:functions/api/_lib/account.js:normalizeFavoritePayload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/favorites.js:onRequestPost",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/favorites.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/account/membership.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/membership.js",
+      "target": "file:functions/api/_lib/loyalty-config.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/membership.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/membership.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/membership.js",
+      "target": "function:functions/api/account/membership.js:computeFallback",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/membership.js",
+      "target": "function:functions/api/account/membership.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/membership.js",
+      "target": "function:functions/api/account/membership.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/membership.js:computeFallback",
+      "target": "function:functions/api/_lib/loyalty-config.js:computeTierFromSpend",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/membership.js:onRequestGet",
+      "target": "function:functions/api/account/membership.js:computeFallback",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "function:functions/api/account/notifications.js:normalizePreferences",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "function:functions/api/account/notifications.js:readPreferences",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "function:functions/api/account/notifications.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "function:functions/api/account/notifications.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/notifications.js:readPreferences",
+      "target": "function:functions/api/account/notifications.js:normalizePreferences",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/notifications.js:onRequestPatch",
+      "target": "function:functions/api/account/notifications.js:readPreferences",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/notifications.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/account/orders.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders.js",
+      "target": "function:functions/api/account/orders.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/orders.js",
+      "target": "function:functions/api/account/orders.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/orders.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/orders.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:resolveOrderItem",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/orders/[id].js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders/[id].js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders/[id].js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders/[id].js",
+      "target": "function:functions/api/account/orders/[id].js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/orders/[id].js",
+      "target": "function:functions/api/account/orders/[id].js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/orders/[id].js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/orders/[id]/cancel.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders/[id]/cancel.js",
+      "target": "file:functions/api/_lib/order-cancellation.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders/[id]/cancel.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/orders/[id]/cancel.js",
+      "target": "function:functions/api/account/orders/[id]/cancel.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/orders/[id]/cancel.js",
+      "target": "function:functions/api/account/orders/[id]/cancel.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/orders/[id]/cancel.js:onRequestPost",
+      "target": "function:functions/api/_lib/order-cancellation.js:loadOwnedOrderBundle",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/orders/[id]/cancel.js:onRequestPost",
+      "target": "function:functions/api/_lib/order-cancellation.js:evaluateCancelEligibility",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/orders/[id]/cancel.js:onRequestPost",
+      "target": "function:functions/api/_lib/order-cancellation.js:executeDirectCancel",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/orders/[id]/cancel.js:onRequestPost",
+      "target": "function:functions/api/_lib/order-cancellation.js:executeCancelRequest",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/points.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/points.js",
+      "target": "file:functions/api/_lib/loyalty-ledger.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/points.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/points.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/points.js",
+      "target": "function:functions/api/account/points.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/points.js",
+      "target": "function:functions/api/account/points.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/points.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/points.js:onRequestGet",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:getLoyaltyBalance",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.75
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "function:functions/api/account/profile.js:isValidBirthdayDate",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "function:functions/api/account/profile.js:getProfile",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "function:functions/api/account/profile.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "function:functions/api/account/profile.js:onRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "function:functions/api/account/profile.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "function:functions/api/account/profile.js:onRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/profile.js:onRequestPatch",
+      "target": "function:functions/api/account/profile.js:isValidBirthdayDate",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/profile.js:onRequestPatch",
+      "target": "function:functions/api/account/profile.js:getProfile",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/profile.js:onRequestPatch",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/profile.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "function:functions/api/account/routine-results.js:normalizeProduct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "function:functions/api/account/routine-results.js:normalizeSteps",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "function:functions/api/account/routine-results.js:normalizeRoutinePayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "function:functions/api/account/routine-results.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/routine-results.js",
+      "target": "function:functions/api/account/routine-results.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/routine-results.js:normalizeSteps",
+      "target": "function:functions/api/account/routine-results.js:normalizeProduct",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/routine-results.js:normalizeRoutinePayload",
+      "target": "function:functions/api/account/routine-results.js:normalizeSteps",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/routine-results.js:onRequestPost",
+      "target": "function:functions/api/account/routine-results.js:normalizeRoutinePayload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

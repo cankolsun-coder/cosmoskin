@@ -1,0 +1,259 @@
+{
+  "projectRoot": "/Users/can/Documents/GitHub/cosmoskin",
+  "batchFiles": [
+    {
+      "path": "supabase/migrations/20260418_guest_checkout.sql",
+      "language": "sql",
+      "sizeLines": 1,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260510_newsletter_subscribers.sql",
+      "language": "sql",
+      "sizeLines": 45,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260510_operations_inventory_orders_shipments.sql",
+      "language": "sql",
+      "sizeLines": 143,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260510_phase1_operational_safety.sql",
+      "language": "sql",
+      "sizeLines": 116,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260511_phase2_invoice_returns_refunds.sql",
+      "language": "sql",
+      "sizeLines": 136,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260511_phase3_compliance_crm_security.sql",
+      "language": "sql",
+      "sizeLines": 92,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260517_checkout_bank_transfer_statuses.sql",
+      "language": "sql",
+      "sizeLines": 38,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_atomic_inventory_reservation.sql",
+      "language": "sql",
+      "sizeLines": 43,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_inventory_reservation_hardening.sql",
+      "language": "sql",
+      "sizeLines": 343,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_payment_bank_and_callback_hardening.sql",
+      "language": "sql",
+      "sizeLines": 303,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_rls_security_hardening.sql",
+      "language": "sql",
+      "sizeLines": 33,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260626_production_launch_readiness.sql",
+      "language": "sql",
+      "sizeLines": 683,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260627_customer_experience_production_patch.sql",
+      "language": "sql",
+      "sizeLines": 303,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260628_cosmoskin_final_ecommerce_hotfix.sql",
+      "language": "sql",
+      "sizeLines": 312,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_checkout_bank_transfer_final_fix.sql",
+      "language": "sql",
+      "sizeLines": 699,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix.sql",
+      "language": "sql",
+      "sizeLines": 981,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix_v2.sql",
+      "language": "sql",
+      "sizeLines": 981,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_post_verification_hotfix.sql",
+      "language": "sql",
+      "sizeLines": 78,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260702_customer_returns_account_pdp_polish.sql",
+      "language": "sql",
+      "sizeLines": 111,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260702_routine_data_sync.sql",
+      "language": "sql",
+      "sizeLines": 56,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_account_experience_final_polish.sql",
+      "language": "sql",
+      "sizeLines": 22,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_account_runtime_hotfixes.sql",
+      "language": "sql",
+      "sizeLines": 19,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_batch1_account_safe_functional_fixes.sql",
+      "language": "sql",
+      "sizeLines": 48,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_batch3_customer_order_cancellation.sql",
+      "language": "sql",
+      "sizeLines": 38,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_batch4_loyalty_ledger.sql",
+      "language": "sql",
+      "sizeLines": 613,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql",
+      "language": "sql",
+      "sizeLines": 381,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql",
+      "language": "sql",
+      "sizeLines": 124,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h0c_release_expired_pending_status_patch.sql",
+      "language": "sql",
+      "sizeLines": 128,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h1_return_attachment_storage_rls.sql",
+      "language": "sql",
+      "sizeLines": 82,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260706_d3a_order_item_pricing_snapshot.sql",
+      "language": "sql",
+      "sizeLines": 13,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260707_p1c_admin_product_price_editing.sql",
+      "language": "sql",
+      "sizeLines": 56,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260707_r1g_review_moderation_updated_at_fix.sql",
+      "language": "sql",
+      "sizeLines": 44,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260709_p1e_sale_compare_at_price.sql",
+      "language": "sql",
+      "sizeLines": 69,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260712232725_db1c1b1_privileged_function_acl_normalization.sql",
+      "language": "sql",
+      "sizeLines": 174,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260714161845_e4_email_event_types.sql",
+      "language": "sql",
+      "sizeLines": 48,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260718_profiles_opt_in_columns.sql",
+      "language": "sql",
+      "sizeLines": 6,
+      "fileCategory": "data"
+    }
+  ],
+  "batchImportData": {
+    "supabase/migrations/20260418_guest_checkout.sql": [],
+    "supabase/migrations/20260510_newsletter_subscribers.sql": [],
+    "supabase/migrations/20260510_operations_inventory_orders_shipments.sql": [],
+    "supabase/migrations/20260510_phase1_operational_safety.sql": [],
+    "supabase/migrations/20260511_phase2_invoice_returns_refunds.sql": [],
+    "supabase/migrations/20260511_phase3_compliance_crm_security.sql": [],
+    "supabase/migrations/20260517_checkout_bank_transfer_statuses.sql": [],
+    "supabase/migrations/20260616_atomic_inventory_reservation.sql": [],
+    "supabase/migrations/20260616_inventory_reservation_hardening.sql": [],
+    "supabase/migrations/20260616_payment_bank_and_callback_hardening.sql": [],
+    "supabase/migrations/20260616_rls_security_hardening.sql": [],
+    "supabase/migrations/20260626_production_launch_readiness.sql": [],
+    "supabase/migrations/20260627_customer_experience_production_patch.sql": [],
+    "supabase/migrations/20260628_cosmoskin_final_ecommerce_hotfix.sql": [],
+    "supabase/migrations/20260629_cosmoskin_checkout_bank_transfer_final_fix.sql": [],
+    "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix.sql": [],
+    "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix_v2.sql": [],
+    "supabase/migrations/20260629_cosmoskin_post_verification_hotfix.sql": [],
+    "supabase/migrations/20260702_customer_returns_account_pdp_polish.sql": [],
+    "supabase/migrations/20260702_routine_data_sync.sql": [],
+    "supabase/migrations/20260703_account_experience_final_polish.sql": [],
+    "supabase/migrations/20260703_account_runtime_hotfixes.sql": [],
+    "supabase/migrations/20260703_batch1_account_safe_functional_fixes.sql": [],
+    "supabase/migrations/20260703_batch3_customer_order_cancellation.sql": [],
+    "supabase/migrations/20260704_batch4_loyalty_ledger.sql": [],
+    "supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql": [],
+    "supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql": [],
+    "supabase/migrations/20260704_h0c_release_expired_pending_status_patch.sql": [],
+    "supabase/migrations/20260704_h1_return_attachment_storage_rls.sql": [],
+    "supabase/migrations/20260706_d3a_order_item_pricing_snapshot.sql": [],
+    "supabase/migrations/20260707_p1c_admin_product_price_editing.sql": [],
+    "supabase/migrations/20260707_r1g_review_moderation_updated_at_fix.sql": [],
+    "supabase/migrations/20260709_p1e_sale_compare_at_price.sql": [],
+    "supabase/migrations/20260712232725_db1c1b1_privileged_function_acl_normalization.sql": [],
+    "supabase/migrations/20260714161845_e4_email_event_types.sql": [],
+    "supabase/migrations/20260718_profiles_opt_in_columns.sql": []
+  }
+}

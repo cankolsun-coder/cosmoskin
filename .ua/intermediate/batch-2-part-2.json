@@ -1,0 +1,1252 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/_lib/commerce-finalization.js",
+      "type": "file",
+      "name": "commerce-finalization.js",
+      "filePath": "functions/api/_lib/commerce-finalization.js",
+      "summary": "Finalizes order state after successful payment (invoice record creation, coupon redemption, loyalty points) and handles admin-confirmed or admin-rejected manual bank-transfer payments.",
+      "tags": [
+        "orders",
+        "payments",
+        "finalization",
+        "business-logic"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/_lib/inventory.js",
+      "type": "file",
+      "name": "inventory.js",
+      "filePath": "functions/api/_lib/inventory.js",
+      "summary": "Central inventory management module: stock normalization, cart stock validation, admin stock adjustments, restock-alert notifications, and atomic reservation/release/conversion of stock for orders.",
+      "tags": [
+        "inventory",
+        "stock-management",
+        "business-logic",
+        "validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/_lib/loyalty-ledger.js",
+      "type": "file",
+      "name": "loyalty-ledger.js",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "summary": "Manages the customer loyalty points ledger: awarding and promoting order points, computing refund-proportional point reversal, and recalculating membership tiers.",
+      "tags": [
+        "loyalty",
+        "points",
+        "business-logic",
+        "ledger"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/_lib/shipping-providers.js",
+      "type": "file",
+      "name": "shipping-providers.js",
+      "filePath": "functions/api/_lib/shipping-providers.js",
+      "summary": "Small helper that checks DHL API configuration and builds the payload for a manual (non-API) shipment record fallback.",
+      "tags": [
+        "shipping",
+        "dhl",
+        "utility",
+        "fallback"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/commerce-finalization.js:ensureShipmentShell",
+      "type": "function",
+      "name": "ensureShipmentShell",
+      "filePath": "functions/api/_lib/commerce-finalization.js",
+      "lineRange": [
+        28,
+        44
+      ],
+      "summary": "Ensures a shipment placeholder row exists for an order, creating a 'label_pending' shipment if none exists yet.",
+      "tags": [
+        "orders",
+        "shipping"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/commerce-finalization.js:finalizeCommerceAfterPayment",
+      "type": "function",
+      "name": "finalizeCommerceAfterPayment",
+      "filePath": "functions/api/_lib/commerce-finalization.js",
+      "lineRange": [
+        46,
+        129
+      ],
+      "summary": "Runs post-payment order finalization: marks coupon redemption used, creates the invoice_records row with e-fatura/e-arşiv data, and awards loyalty points.",
+      "tags": [
+        "orders",
+        "payments",
+        "invoicing",
+        "loyalty"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "type": "function",
+      "name": "confirmManualBankTransferPayment",
+      "filePath": "functions/api/_lib/commerce-finalization.js",
+      "lineRange": [
+        144,
+        242
+      ],
+      "summary": "Admin action that confirms a manual bank-transfer payment: marks the payment paid, updates order status, converts inventory reservations, finalizes commerce, and ensures a shipment shell.",
+      "tags": [
+        "orders",
+        "payments",
+        "bank-transfer",
+        "admin"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/commerce-finalization.js:rejectManualBankTransferPayment",
+      "type": "function",
+      "name": "rejectManualBankTransferPayment",
+      "filePath": "functions/api/_lib/commerce-finalization.js",
+      "lineRange": [
+        273,
+        397
+      ],
+      "summary": "Admin action that rejects a manual bank-transfer payment: marks the payment failed, cancels the order, releases inventory reservations, and releases any coupon redemptions.",
+      "tags": [
+        "orders",
+        "payments",
+        "bank-transfer",
+        "admin"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:normalizeSlug",
+      "type": "function",
+      "name": "normalizeSlug",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        12,
+        19
+      ],
+      "summary": "Normalizes a raw product slug/URL into a canonical lowercase slug string.",
+      "tags": [
+        "inventory",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:normalizeEmail",
+      "type": "function",
+      "name": "normalizeEmail",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        21,
+        23
+      ],
+      "summary": "Trims and lowercases an email address.",
+      "tags": [
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:validEmail",
+      "type": "function",
+      "name": "validEmail",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        25,
+        27
+      ],
+      "summary": "Checks a string against a basic email-format regex.",
+      "tags": [
+        "validation",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:catalogProduct",
+      "type": "function",
+      "name": "catalogProduct",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        29,
+        32
+      ],
+      "summary": "Looks up a static catalog product definition by normalized slug.",
+      "tags": [
+        "inventory",
+        "catalog"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:catalogProducts",
+      "type": "function",
+      "name": "catalogProducts",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        34,
+        36
+      ],
+      "summary": "Returns all static catalog product definitions as an array.",
+      "tags": [
+        "inventory",
+        "catalog"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:normalizeInventoryRow",
+      "type": "function",
+      "name": "normalizeInventoryRow",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        38,
+        57
+      ],
+      "summary": "Normalizes a raw inventory DB row into a consistent shape with computed available stock and status.",
+      "tags": [
+        "inventory",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:toPublicInventory",
+      "type": "function",
+      "name": "toPublicInventory",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        59,
+        70
+      ],
+      "summary": "Strips a normalized inventory row down to the public-safe fields exposed to storefront clients.",
+      "tags": [
+        "inventory",
+        "api"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:getInventoryRows",
+      "type": "function",
+      "name": "getInventoryRows",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        72,
+        81
+      ],
+      "summary": "Fetches normalized inventory rows for a set of product slugs from Supabase.",
+      "tags": [
+        "inventory",
+        "data-access"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:getInventoryMap",
+      "type": "function",
+      "name": "getInventoryMap",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        83,
+        86
+      ],
+      "summary": "Fetches inventory rows and returns them keyed by product slug for fast lookup.",
+      "tags": [
+        "inventory",
+        "data-access"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:stockBlockReason",
+      "type": "function",
+      "name": "stockBlockReason",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        98,
+        104
+      ],
+      "summary": "Determines why a requested cart quantity would be blocked (out of stock, low stock, inactive product).",
+      "tags": [
+        "inventory",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:buildCheckItem",
+      "type": "function",
+      "name": "buildCheckItem",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        106,
+        143
+      ],
+      "summary": "Builds a single stock-check result item (slug, requested/available quantity, block reason) for cart validation.",
+      "tags": [
+        "inventory",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:stockValidationCode",
+      "type": "function",
+      "name": "stockValidationCode",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        145,
+        153
+      ],
+      "summary": "Maps a human-readable stock block reason to a machine-readable error code.",
+      "tags": [
+        "inventory",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:releaseExpiredReservationsBestEffort",
+      "type": "function",
+      "name": "releaseExpiredReservationsBestEffort",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        155,
+        159
+      ],
+      "summary": "Calls the release-expired-reservations RPC on a best-effort basis, swallowing errors.",
+      "tags": [
+        "inventory",
+        "reservations"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:validateCartStock",
+      "type": "function",
+      "name": "validateCartStock",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        161,
+        204
+      ],
+      "summary": "Validates an entire cart's line items against live inventory, releasing expired reservations first and returning any blocked items.",
+      "tags": [
+        "inventory",
+        "validation",
+        "cart"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:assertAdminInventoryPayload",
+      "type": "function",
+      "name": "assertAdminInventoryPayload",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        206,
+        231
+      ],
+      "summary": "Validates and coerces an admin-submitted inventory update payload (stock levels, thresholds, status).",
+      "tags": [
+        "inventory",
+        "validation",
+        "admin"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:normalizeMovementReason",
+      "type": "function",
+      "name": "normalizeMovementReason",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        233,
+        236
+      ],
+      "summary": "Normalizes a free-text inventory movement reason code.",
+      "tags": [
+        "inventory",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:ensureInventoryRow",
+      "type": "function",
+      "name": "ensureInventoryRow",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        238,
+        253
+      ],
+      "summary": "Ensures an inventory row exists for a product slug, creating a default row if missing.",
+      "tags": [
+        "inventory",
+        "data-access"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:setInventory",
+      "type": "function",
+      "name": "setInventory",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        255,
+        275
+      ],
+      "summary": "Applies an admin stock update to a product's inventory row and records the resulting movement.",
+      "tags": [
+        "inventory",
+        "admin",
+        "data-access"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:adjustInventory",
+      "type": "function",
+      "name": "adjustInventory",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        277,
+        291
+      ],
+      "summary": "Applies a relative or absolute inventory adjustment for a product from an admin request payload.",
+      "tags": [
+        "inventory",
+        "admin"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:notifyRestockAlerts",
+      "type": "function",
+      "name": "notifyRestockAlerts",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        293,
+        339
+      ],
+      "summary": "Notifies customers who registered restock alerts once a product becomes available again.",
+      "tags": [
+        "inventory",
+        "notifications",
+        "email"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:atomicInventoryError",
+      "type": "function",
+      "name": "atomicInventoryError",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        350,
+        364
+      ],
+      "summary": "Formats a friendly error response for atomic inventory RPC failures, distinguishing missing-RPC from business-rule failures.",
+      "tags": [
+        "inventory",
+        "error-handling"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:reserveInventoryForOrder",
+      "type": "function",
+      "name": "reserveInventoryForOrder",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        366,
+        387
+      ],
+      "summary": "Atomically reserves inventory for all line items of an order via a Supabase RPC, with reservation expiry.",
+      "tags": [
+        "inventory",
+        "reservations",
+        "orders"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:releaseInventoryReservations",
+      "type": "function",
+      "name": "releaseInventoryReservations",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        389,
+        400
+      ],
+      "summary": "Releases previously reserved inventory for an order (e.g., on cancellation or payment rejection).",
+      "tags": [
+        "inventory",
+        "reservations",
+        "orders"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/inventory.js:convertInventoryReservations",
+      "type": "function",
+      "name": "convertInventoryReservations",
+      "filePath": "functions/api/_lib/inventory.js",
+      "lineRange": [
+        402,
+        410
+      ],
+      "summary": "Converts reserved inventory into committed stock deductions once an order's payment is confirmed.",
+      "tags": [
+        "inventory",
+        "reservations",
+        "orders"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-ledger.js:awardOrderPoints",
+      "type": "function",
+      "name": "awardOrderPoints",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "lineRange": [
+        22,
+        30
+      ],
+      "summary": "Awards loyalty points for a newly paid order via the award-order-points Supabase RPC.",
+      "tags": [
+        "loyalty",
+        "points"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-ledger.js:promoteOrderPoints",
+      "type": "function",
+      "name": "promoteOrderPoints",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "lineRange": [
+        37,
+        45
+      ],
+      "summary": "Promotes an order's pending loyalty points to confirmed/spendable status.",
+      "tags": [
+        "loyalty",
+        "points"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-ledger.js:promoteDueLoyaltyPoints",
+      "type": "function",
+      "name": "promoteDueLoyaltyPoints",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "lineRange": [
+        52,
+        59
+      ],
+      "summary": "Batch-promotes all loyalty points that have passed their maturity/return window.",
+      "tags": [
+        "loyalty",
+        "points",
+        "batch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-ledger.js:computeRefundRatio",
+      "type": "function",
+      "name": "computeRefundRatio",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "lineRange": [
+        61,
+        73
+      ],
+      "summary": "Computes the proportion of an order's value being refunded, used to scale point reversal.",
+      "tags": [
+        "loyalty",
+        "refunds"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-ledger.js:reverseOrderPoints",
+      "type": "function",
+      "name": "reverseOrderPoints",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "lineRange": [
+        85,
+        102
+      ],
+      "summary": "Reverses (deducts) loyalty points proportional to a refund amount for an order.",
+      "tags": [
+        "loyalty",
+        "points",
+        "refunds"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-ledger.js:getLoyaltyBalance",
+      "type": "function",
+      "name": "getLoyaltyBalance",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "lineRange": [
+        109,
+        125
+      ],
+      "summary": "Fetches a user's current loyalty point balance and membership tier.",
+      "tags": [
+        "loyalty",
+        "points",
+        "data-access"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-ledger.js:recalculateMembership",
+      "type": "function",
+      "name": "recalculateMembership",
+      "filePath": "functions/api/_lib/loyalty-ledger.js",
+      "lineRange": [
+        131,
+        139
+      ],
+      "summary": "Recalculates a user's loyalty membership tier based on their lifetime points/spend.",
+      "tags": [
+        "loyalty",
+        "membership"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/shipping-providers.js:dhlConfigured",
+      "type": "function",
+      "name": "dhlConfigured",
+      "filePath": "functions/api/_lib/shipping-providers.js",
+      "lineRange": [
+        1,
+        3
+      ],
+      "summary": "Checks whether all required DHL API environment variables are set.",
+      "tags": [
+        "shipping",
+        "dhl",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/shipping-providers.js:buildManualShipmentPayload",
+      "type": "function",
+      "name": "buildManualShipmentPayload",
+      "filePath": "functions/api/_lib/shipping-providers.js",
+      "lineRange": [
+        5,
+        30
+      ],
+      "summary": "Builds a manual (non-API) shipment record payload from order and request-body data as a DHL fallback.",
+      "tags": [
+        "shipping",
+        "dhl",
+        "fallback"
+      ],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "file:functions/api/_lib/loyalty-ledger.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "file:functions/api/_lib/catalog.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "file:functions/api/_lib/restock-email.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:ensureShipmentShell",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:finalizeCommerceAfterPayment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:rejectManualBankTransferPayment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeSlug",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:validEmail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:catalogProduct",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:catalogProducts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeInventoryRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:toPublicInventory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:getInventoryRows",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:getInventoryMap",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:stockBlockReason",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:buildCheckItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:stockValidationCode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:releaseExpiredReservationsBestEffort",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:validateCartStock",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:assertAdminInventoryPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeMovementReason",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:ensureInventoryRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:setInventory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:adjustInventory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:notifyRestockAlerts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:atomicInventoryError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:reserveInventoryForOrder",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:releaseInventoryReservations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:convertInventoryReservations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:awardOrderPoints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:promoteOrderPoints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:promoteDueLoyaltyPoints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:computeRefundRatio",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:reverseOrderPoints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:getLoyaltyBalance",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:recalculateMembership",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/shipping-providers.js",
+      "target": "function:functions/api/_lib/shipping-providers.js:dhlConfigured",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/shipping-providers.js",
+      "target": "function:functions/api/_lib/shipping-providers.js:buildManualShipmentPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:ensureShipmentShell",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:finalizeCommerceAfterPayment",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/commerce-finalization.js",
+      "target": "function:functions/api/_lib/commerce-finalization.js:rejectManualBankTransferPayment",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeSlug",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:validEmail",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:catalogProduct",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:catalogProducts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeInventoryRow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:toPublicInventory",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:getInventoryRows",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:getInventoryMap",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:stockBlockReason",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:buildCheckItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:stockValidationCode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:releaseExpiredReservationsBestEffort",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:validateCartStock",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:assertAdminInventoryPayload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:normalizeMovementReason",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:setInventory",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:adjustInventory",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:notifyRestockAlerts",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:reserveInventoryForOrder",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:releaseInventoryReservations",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/inventory.js",
+      "target": "function:functions/api/_lib/inventory.js:convertInventoryReservations",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:awardOrderPoints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:promoteOrderPoints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:promoteDueLoyaltyPoints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:reverseOrderPoints",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:getLoyaltyBalance",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-ledger.js",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:recalculateMembership",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/shipping-providers.js",
+      "target": "function:functions/api/_lib/shipping-providers.js:dhlConfigured",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/shipping-providers.js",
+      "target": "function:functions/api/_lib/shipping-providers.js:buildManualShipmentPayload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "target": "function:functions/api/_lib/inventory.js:convertInventoryReservations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/commerce-finalization.js:rejectManualBankTransferPayment",
+      "target": "function:functions/api/_lib/inventory.js:releaseInventoryReservations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/commerce-finalization.js:finalizeCommerceAfterPayment",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:awardOrderPoints",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "target": "function:functions/api/_lib/commerce-finalization.js:finalizeCommerceAfterPayment",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/commerce-finalization.js:confirmManualBankTransferPayment",
+      "target": "function:functions/api/_lib/commerce-finalization.js:ensureShipmentShell",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

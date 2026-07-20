@@ -1,0 +1,202 @@
+{
+  "projectRoot": "/Users/can/Documents/GitHub/cosmoskin",
+  "batchFiles": [
+    {
+      "path": "functions/api/account/skin-profile.js",
+      "language": "javascript",
+      "sizeLines": 75,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/summary.js",
+      "language": "javascript",
+      "sizeLines": 382,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/support-requests.js",
+      "language": "javascript",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/coupons/index.js",
+      "language": "javascript",
+      "sizeLines": 102,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/dashboard.js",
+      "language": "javascript",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/session.js",
+      "language": "javascript",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/auth/register.js",
+      "language": "javascript",
+      "sizeLines": 192,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/coupons/validate.js",
+      "language": "javascript",
+      "sizeLines": 157,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/birthday-benefits.js",
+      "language": "javascript",
+      "sizeLines": 40,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/points-expiry.js",
+      "language": "javascript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/recalculate-memberships.js",
+      "language": "javascript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/release-expired-inventory.js",
+      "language": "javascript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/dhl/webhook.js",
+      "language": "javascript",
+      "sizeLines": 9,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/invoices.js",
+      "language": "javascript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/loyalty/recalculate-user.js",
+      "language": "javascript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/loyalty/redeem.js",
+      "language": "javascript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/payment/bank-accounts.js",
+      "language": "javascript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/shipping/track.js",
+      "language": "javascript",
+      "sizeLines": 4,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "functions/api/account/skin-profile.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/summary.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/loyalty-config.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/return-attachments.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/support-requests.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/coupons/index.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/coupon-admin.js",
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/dashboard.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/session.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/auth/register.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/coupons/validate.js": [
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/cron/birthday-benefits.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/cron/points-expiry.js": [
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/cron/recalculate-memberships.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/cron/release-expired-inventory.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/dhl/webhook.js": [
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/invoices.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/loyalty/recalculate-user.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/loyalty/redeem.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/payment/bank-accounts.js": [
+      "functions/api/_lib/bank-accounts.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/shipping/track.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ]
+  }
+}

@@ -1,0 +1,1597 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/_lib/account.js",
+      "type": "file",
+      "name": "account.js",
+      "filePath": "functions/api/_lib/account.js",
+      "summary": "Shared account-domain helpers: string cleaning, bearer-token user resolution via Supabase, and normalization of order items and favorite-product payloads against the product catalog.",
+      "tags": [
+        "utility",
+        "middleware",
+        "authentication",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/account.js:requireUser",
+      "type": "function",
+      "name": "requireUser",
+      "filePath": "functions/api/_lib/account.js",
+      "lineRange": [
+        14,
+        21
+      ],
+      "summary": "Extracts a bearer token from the request, resolves it to a Supabase user, and returns either the authenticated user or a 401 JSON response.",
+      "tags": [
+        "authentication",
+        "middleware"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/account.js:groupByOrderId",
+      "type": "function",
+      "name": "groupByOrderId",
+      "filePath": "functions/api/_lib/account.js",
+      "lineRange": [
+        27,
+        35
+      ],
+      "summary": "Groups a flat list of rows into a Map keyed by order_id.",
+      "tags": [
+        "utility",
+        "data-transform"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/account.js:resolveOrderItem",
+      "type": "function",
+      "name": "resolveOrderItem",
+      "filePath": "functions/api/_lib/account.js",
+      "lineRange": [
+        37,
+        51
+      ],
+      "summary": "Enriches a raw order line item with current catalog product data (name, brand, image, URL) resolved by slug or name.",
+      "tags": [
+        "data-model",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/account.js:normalizeFavoritePayload",
+      "type": "function",
+      "name": "normalizeFavoritePayload",
+      "filePath": "functions/api/_lib/account.js",
+      "lineRange": [
+        53,
+        69
+      ],
+      "summary": "Validates and normalizes a client-submitted favorite-product payload into a canonical shape backed by catalog data, returning null if the product cannot be resolved.",
+      "tags": [
+        "validation",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/_lib/coupon-admin.js",
+      "type": "file",
+      "name": "coupon-admin.js",
+      "filePath": "functions/api/_lib/coupon-admin.js",
+      "summary": "Admin-facing coupon helpers: usage-stat aggregation, enrichment of coupon rows for the admin UI, and validation/normalization of coupon patch payloads from the admin panel.",
+      "tags": [
+        "api-handler",
+        "validation",
+        "admin",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/coupon-admin.js:fetchCouponUsageStats",
+      "type": "function",
+      "name": "fetchCouponUsageStats",
+      "filePath": "functions/api/_lib/coupon-admin.js",
+      "lineRange": [
+        27,
+        42
+      ],
+      "summary": "Computes total and active redemption counts for a coupon code from the redemptions table.",
+      "tags": [
+        "data-model",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupon-admin.js:enrichCouponForAdmin",
+      "type": "function",
+      "name": "enrichCouponForAdmin",
+      "filePath": "functions/api/_lib/coupon-admin.js",
+      "lineRange": [
+        44,
+        54
+      ],
+      "summary": "Combines the customer-facing coupon presentation with usage statistics for the admin coupon list view.",
+      "tags": [
+        "data-model",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupon-admin.js:buildCouponPatchPayload",
+      "type": "function",
+      "name": "buildCouponPatchPayload",
+      "filePath": "functions/api/_lib/coupon-admin.js",
+      "lineRange": [
+        56,
+        122
+      ],
+      "summary": "Validates and builds the DB update payload for an admin coupon edit, enforcing type, value, and eligibility metadata constraints and collecting validation errors.",
+      "tags": [
+        "validation",
+        "admin"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/_lib/coupons.js",
+      "type": "file",
+      "name": "coupons.js",
+      "filePath": "functions/api/_lib/coupons.js",
+      "summary": "Core coupon engine: normalizes coupon codes/money, evaluates full eligibility (dates, tiers, exclusions, birthday/first-order/loyalty rules), and computes discounts server-side for checkout and account surfaces.",
+      "tags": [
+        "validation",
+        "data-model",
+        "backend",
+        "service"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Contains a single large 300+ line eligibility-evaluation function (validateCouponEligibility) implementing many business rules; heavy use of small pure normalization helpers composed together."
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:normalizeCouponCode",
+      "type": "function",
+      "name": "normalizeCouponCode",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        67,
+        69
+      ],
+      "summary": "Normalizes a coupon code string to uppercase, trimmed form.",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:isBirthdayCouponEligible",
+      "type": "function",
+      "name": "isBirthdayCouponEligible",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        90,
+        102
+      ],
+      "summary": "Determines whether the current date falls within the eligible window around a customer's stored birthday.",
+      "tags": [
+        "validation",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:findOrders",
+      "type": "function",
+      "name": "findOrders",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        135,
+        162
+      ],
+      "summary": "Fetches a user's or guest's past orders from Supabase for use in coupon eligibility checks (e.g. first-order or repeat-use rules).",
+      "tags": [
+        "data-model",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:findRedemptions",
+      "type": "function",
+      "name": "findRedemptions",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        164,
+        194
+      ],
+      "summary": "Fetches prior redemption records for a coupon code scoped to a user or guest email, used to enforce per-customer usage limits.",
+      "tags": [
+        "data-model",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:findReservations",
+      "type": "function",
+      "name": "findReservations",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        196,
+        211
+      ],
+      "summary": "Fetches active coupon reservations (in-progress checkout holds) scoped to a user or guest email.",
+      "tags": [
+        "data-model",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:discountFor",
+      "type": "function",
+      "name": "discountFor",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        315,
+        331
+      ],
+      "summary": "Computes the monetary discount for a coupon (percent, fixed, or free-shipping) against an eligible subtotal, applying max-discount caps.",
+      "tags": [
+        "business-logic",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:hasTrustedSmartRoutineCompletion",
+      "type": "function",
+      "name": "hasTrustedSmartRoutineCompletion",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        338,
+        348
+      ],
+      "summary": "Checks whether a user has a trusted completed smart-routine record, gating routine-completion coupons.",
+      "tags": [
+        "business-logic",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:resolveEligibilitySpec",
+      "type": "function",
+      "name": "resolveEligibilitySpec",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        350,
+        375
+      ],
+      "summary": "Derives the concrete eligibility rule spec (allowed tiers, required flags) for a coupon code from its DB row and code-specific defaults.",
+      "tags": [
+        "business-logic",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "type": "function",
+      "name": "validateCouponEligibility",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        406,
+        730
+      ],
+      "summary": "Main server-side coupon validation entry point: checks activation window, exclusions, redemption limits, membership tier, birthday/first-order/routine conditions, and returns a pass/fail eligibility result with discount amount and customer-facing messaging.",
+      "tags": [
+        "validation",
+        "business-logic",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:publicCouponRow",
+      "type": "function",
+      "name": "publicCouponRow",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        732,
+        753
+      ],
+      "summary": "Shapes an internal coupon validation result into the public response object returned to the client.",
+      "tags": [
+        "serialization",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:normalizeExclusionList",
+      "type": "function",
+      "name": "normalizeExclusionList",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        757,
+        767
+      ],
+      "summary": "Normalizes a raw excluded-product/category list (array or comma-separated string) into a deduplicated, lowercased array.",
+      "tags": [
+        "validation",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:detectDiscountFieldConflicts",
+      "type": "function",
+      "name": "detectDiscountFieldConflicts",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        769,
+        790
+      ],
+      "summary": "Flags inconsistencies between a coupon's type field and its populated discount value fields, for admin-facing data integrity warnings.",
+      "tags": [
+        "validation",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "type": "function",
+      "name": "resolveCouponPresentation",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        792,
+        852
+      ],
+      "summary": "Builds the full customer/admin-facing presentation object for a coupon row, combining envelope data, eligibility spec, and exclusion lists.",
+      "tags": [
+        "data-model",
+        "serialization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/coupons.js:sanitizeEligibilityMetadataPatch",
+      "type": "function",
+      "name": "sanitizeEligibilityMetadataPatch",
+      "filePath": "functions/api/_lib/coupons.js",
+      "lineRange": [
+        854,
+        890
+      ],
+      "summary": "Sanitizes an admin-submitted eligibility metadata patch, merging it with existing metadata and validating allowed tier codes.",
+      "tags": [
+        "validation",
+        "admin"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/_lib/loyalty-config.js",
+      "type": "file",
+      "name": "loyalty-config.js",
+      "filePath": "functions/api/_lib/loyalty-config.js",
+      "summary": "Canonical loyalty tier configuration (Essential/Signature/Elite thresholds and labels) and helpers to normalize tier codes and compute a customer's tier and progress from spend/order count, mirroring the SQL RPC in the loyalty ledger migration.",
+      "tags": [
+        "data-model",
+        "business-logic",
+        "config"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/loyalty-config.js:computeTierFromSpend",
+      "type": "function",
+      "name": "computeTierFromSpend",
+      "filePath": "functions/api/_lib/loyalty-config.js",
+      "lineRange": [
+        33,
+        51
+      ],
+      "summary": "Computes the customer's loyalty tier, progress percentage, and next-tier target from their product-net spend and completed order count, matching the SQL OR-threshold rule.",
+      "tags": [
+        "business-logic",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/_lib/order-cancellation.js",
+      "type": "file",
+      "name": "order-cancellation.js",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "summary": "Server-side order cancellation domain logic: status sets defining blocking conditions, eligibility evaluation (direct cancel vs. cancel request vs. blocked), and execution of the cancellation including inventory release and coupon redemption cleanup.",
+      "tags": [
+        "business-logic",
+        "service",
+        "backend"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:functions/api/_lib/order-cancellation.js:OrderCancellationError",
+      "type": "class",
+      "name": "OrderCancellationError",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        56,
+        62
+      ],
+      "summary": "Custom error type carrying an HTTP status and machine-readable code for blocked order cancellation attempts.",
+      "tags": [
+        "error-handling",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/order-cancellation.js:assertHardBlocks",
+      "type": "function",
+      "name": "assertHardBlocks",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        64,
+        84
+      ],
+      "summary": "Throws OrderCancellationError if the order is already terminal, shipped, or has an active return, preventing any cancellation path.",
+      "tags": [
+        "validation",
+        "business-logic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/order-cancellation.js:resolveCancelMode",
+      "type": "function",
+      "name": "resolveCancelMode",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        86,
+        116
+      ],
+      "summary": "Determines whether an order qualifies for immediate direct cancellation or must go through a cancel-request/review flow, based on order and payment status.",
+      "tags": [
+        "business-logic",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/order-cancellation.js:evaluateCancelEligibility",
+      "type": "function",
+      "name": "evaluateCancelEligibility",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        118,
+        139
+      ],
+      "summary": "Top-level eligibility check combining hard blocks and cancel-mode resolution to decide whether and how an order can be cancelled.",
+      "tags": [
+        "business-logic",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/order-cancellation.js:releaseCouponRedemptions",
+      "type": "function",
+      "name": "releaseCouponRedemptions",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        156,
+        162
+      ],
+      "summary": "Releases/reverts coupon redemption records tied to a cancelled order.",
+      "tags": [
+        "backend",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/order-cancellation.js:executeDirectCancel",
+      "type": "function",
+      "name": "executeDirectCancel",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        179,
+        221
+      ],
+      "summary": "Executes an immediate order cancellation: updates order/payment status, releases reserved inventory, and reverts coupon redemptions.",
+      "tags": [
+        "business-logic",
+        "backend",
+        "service"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/order-cancellation.js:executeCancelRequest",
+      "type": "function",
+      "name": "executeCancelRequest",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        223,
+        257
+      ],
+      "summary": "Records a customer cancel request for review (rather than cancelling immediately) and logs the corresponding customer event.",
+      "tags": [
+        "business-logic",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/order-cancellation.js:loadOwnedOrderBundle",
+      "type": "function",
+      "name": "loadOwnedOrderBundle",
+      "filePath": "functions/api/_lib/order-cancellation.js",
+      "lineRange": [
+        259,
+        289
+      ],
+      "summary": "Loads an order together with its shipments and return requests, scoped and verified to belong to the requesting user, for use in cancellation eligibility checks.",
+      "tags": [
+        "data-model",
+        "backend",
+        "authorization"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/_lib/response.js",
+      "type": "file",
+      "name": "response.js",
+      "filePath": "functions/api/_lib/response.js",
+      "summary": "Tiny shared HTTP response helpers used across Cloudflare Pages Functions: JSON response builder with no-store cache headers, header helper, and redirect helper.",
+      "tags": [
+        "utility",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/_lib/return-attachments.js",
+      "type": "file",
+      "name": "return-attachments.js",
+      "filePath": "functions/api/_lib/return-attachments.js",
+      "summary": "Shared helper that generates short-lived signed URLs for return-request attachment previews/downloads, enforcing that callers only pass rows already scoped to an authorized reader (customer's own return or admin).",
+      "tags": [
+        "security",
+        "service",
+        "backend"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Contract documented in a large comment block: never accepts client-supplied file paths directly, only DB rows pre-scoped by the caller."
+    },
+    {
+      "id": "function:functions/api/_lib/return-attachments.js:signOneAttachment",
+      "type": "function",
+      "name": "signOneAttachment",
+      "filePath": "functions/api/_lib/return-attachments.js",
+      "lineRange": [
+        66,
+        94
+      ],
+      "summary": "Generates a signed storage URL and preview metadata for a single return-attachment row, swallowing signing errors into a generic error code.",
+      "tags": [
+        "security",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/_lib/return-attachments.js:signReturnAttachments",
+      "type": "function",
+      "name": "signReturnAttachments",
+      "filePath": "functions/api/_lib/return-attachments.js",
+      "lineRange": [
+        108,
+        111
+      ],
+      "summary": "Batch-signs a list of return-attachment rows into downloadable/previewable URLs; the module's sole public export.",
+      "tags": [
+        "security",
+        "backend",
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/_lib/supabase.js",
+      "type": "file",
+      "name": "supabase.js",
+      "filePath": "functions/api/_lib/supabase.js",
+      "summary": "Low-level Supabase REST/Auth client wrapper used by all API functions: service-role headers, request timeouts, response parsing, and CRUD/RPC/storage helpers (select, insert, update, delete, upsert, rpc, signed URLs).",
+      "tags": [
+        "service",
+        "backend",
+        "data-model"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/_lib/supabase.js:getUserFromAccessToken",
+      "type": "function",
+      "name": "getUserFromAccessToken",
+      "filePath": "functions/api/_lib/supabase.js",
+      "lineRange": [
+        42,
+        53
+      ],
+      "summary": "Resolves a Supabase auth access token to the corresponding user record via the Supabase Auth API.",
+      "tags": [
+        "authentication",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/supabase.js:updateRowsWhere",
+      "type": "function",
+      "name": "updateRowsWhere",
+      "filePath": "functions/api/_lib/supabase.js",
+      "lineRange": [
+        106,
+        122
+      ],
+      "summary": "Updates rows in a Supabase table matching arbitrary filter parameters and returns the updated rows.",
+      "tags": [
+        "data-model",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/_lib/supabase.js:createSignedStorageUrl",
+      "type": "function",
+      "name": "createSignedStorageUrl",
+      "filePath": "functions/api/_lib/supabase.js",
+      "lineRange": [
+        207,
+        234
+      ],
+      "summary": "Requests a time-limited signed URL for a Supabase Storage object using the service-role key, for secure client-side file access.",
+      "tags": [
+        "security",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/account/addresses.js",
+      "type": "file",
+      "name": "addresses.js",
+      "filePath": "functions/api/account/addresses.js",
+      "summary": "Cloudflare Pages Function implementing the /api/account/addresses endpoint: list, create, update, and delete a customer's saved shipping addresses, enforcing a single default address.",
+      "tags": [
+        "api-handler",
+        "backend",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/addresses.js:normalizeAddress",
+      "type": "function",
+      "name": "normalizeAddress",
+      "filePath": "functions/api/account/addresses.js",
+      "lineRange": [
+        5,
+        28
+      ],
+      "summary": "Cleans and normalizes a raw address payload's fields into a canonical shape for storage.",
+      "tags": [
+        "validation",
+        "data-model"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/addresses.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/addresses.js",
+      "lineRange": [
+        46,
+        59
+      ],
+      "summary": "Handles GET requests, returning the authenticated user's saved addresses.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/addresses.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/account/addresses.js",
+      "lineRange": [
+        61,
+        80
+      ],
+      "summary": "Handles POST requests to create a new address for the authenticated user, validating and normalizing the payload first.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/addresses.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/account/addresses.js",
+      "lineRange": [
+        82,
+        103
+      ],
+      "summary": "Handles PATCH requests to update an existing address owned by the authenticated user.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/addresses.js:onRequestDelete",
+      "type": "function",
+      "name": "onRequestDelete",
+      "filePath": "functions/api/account/addresses.js",
+      "lineRange": [
+        105,
+        124
+      ],
+      "summary": "Handles DELETE requests to remove an address owned by the authenticated user.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/account/coupons.js",
+      "type": "file",
+      "name": "coupons.js",
+      "filePath": "functions/api/account/coupons.js",
+      "summary": "Cloudflare Pages Function implementing GET /api/account/coupons, listing the authenticated customer's saved/redeemed coupons with live eligibility presentation.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/coupons.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/coupons.js",
+      "lineRange": [
+        22,
+        99
+      ],
+      "summary": "Fetches the user's coupon redemption history and enriches each with current presentation and eligibility data before returning it.",
+      "tags": [
+        "api-handler",
+        "backend"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "file:functions/api/_lib/catalog.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:groupByOrderId",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:resolveOrderItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:normalizeFavoritePayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:groupByOrderId",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:resolveOrderItem",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/account.js",
+      "target": "function:functions/api/_lib/account.js:normalizeFavoritePayload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/account.js:requireUser",
+      "target": "function:functions/api/_lib/supabase.js:getUserFromAccessToken",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "file:functions/api/_lib/coupons.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "function:functions/api/_lib/coupon-admin.js:fetchCouponUsageStats",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "function:functions/api/_lib/coupon-admin.js:enrichCouponForAdmin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "function:functions/api/_lib/coupon-admin.js:buildCouponPatchPayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "function:functions/api/_lib/coupon-admin.js:fetchCouponUsageStats",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "function:functions/api/_lib/coupon-admin.js:enrichCouponForAdmin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupon-admin.js",
+      "target": "function:functions/api/_lib/coupon-admin.js:buildCouponPatchPayload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupon-admin.js:enrichCouponForAdmin",
+      "target": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupon-admin.js:buildCouponPatchPayload",
+      "target": "function:functions/api/_lib/coupons.js:normalizeCouponCode",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupon-admin.js:buildCouponPatchPayload",
+      "target": "function:functions/api/_lib/coupons.js:normalizeExclusionList",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupon-admin.js:buildCouponPatchPayload",
+      "target": "function:functions/api/_lib/coupons.js:sanitizeEligibilityMetadataPatch",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:normalizeCouponCode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:isBirthdayCouponEligible",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:findOrders",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:findRedemptions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:findReservations",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:discountFor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:hasTrustedSmartRoutineCompletion",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:resolveEligibilitySpec",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:publicCouponRow",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:detectDiscountFieldConflicts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:normalizeExclusionList",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:sanitizeEligibilityMetadataPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:normalizeCouponCode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:isBirthdayCouponEligible",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:publicCouponRow",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:normalizeExclusionList",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/coupons.js",
+      "target": "function:functions/api/_lib/coupons.js:sanitizeEligibilityMetadataPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "target": "function:functions/api/_lib/coupons.js:findOrders",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "target": "function:functions/api/_lib/coupons.js:findRedemptions",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "target": "function:functions/api/_lib/coupons.js:findReservations",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "target": "function:functions/api/_lib/coupons.js:discountFor",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "target": "function:functions/api/_lib/coupons.js:hasTrustedSmartRoutineCompletion",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "target": "function:functions/api/_lib/coupons.js:isBirthdayCouponEligible",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "target": "function:functions/api/_lib/coupons.js:resolveEligibilitySpec",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "target": "function:functions/api/_lib/coupons.js:detectDiscountFieldConflicts",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-config.js",
+      "target": "function:functions/api/_lib/loyalty-config.js:computeTierFromSpend",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/loyalty-config.js",
+      "target": "function:functions/api/_lib/loyalty-config.js:computeTierFromSpend",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "file:functions/api/_lib/inventory.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "class:functions/api/_lib/order-cancellation.js:OrderCancellationError",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:assertHardBlocks",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:resolveCancelMode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:evaluateCancelEligibility",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:releaseCouponRedemptions",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:executeDirectCancel",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:executeCancelRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:loadOwnedOrderBundle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "class:functions/api/_lib/order-cancellation.js:OrderCancellationError",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:assertHardBlocks",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:resolveCancelMode",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:evaluateCancelEligibility",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:executeDirectCancel",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:executeCancelRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/order-cancellation.js",
+      "target": "function:functions/api/_lib/order-cancellation.js:loadOwnedOrderBundle",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/order-cancellation.js:evaluateCancelEligibility",
+      "target": "function:functions/api/_lib/order-cancellation.js:assertHardBlocks",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/order-cancellation.js:evaluateCancelEligibility",
+      "target": "function:functions/api/_lib/order-cancellation.js:resolveCancelMode",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/order-cancellation.js:executeDirectCancel",
+      "target": "function:functions/api/_lib/order-cancellation.js:releaseCouponRedemptions",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/return-attachments.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/return-attachments.js",
+      "target": "function:functions/api/_lib/return-attachments.js:signOneAttachment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/return-attachments.js",
+      "target": "function:functions/api/_lib/return-attachments.js:signReturnAttachments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/return-attachments.js",
+      "target": "function:functions/api/_lib/return-attachments.js:signReturnAttachments",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/return-attachments.js:signReturnAttachments",
+      "target": "function:functions/api/_lib/return-attachments.js:signOneAttachment",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/return-attachments.js:signOneAttachment",
+      "target": "function:functions/api/_lib/supabase.js:createSignedStorageUrl",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/supabase.js",
+      "target": "file:functions/api/_lib/http.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/_lib/supabase.js",
+      "target": "function:functions/api/_lib/supabase.js:getUserFromAccessToken",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/supabase.js",
+      "target": "function:functions/api/_lib/supabase.js:updateRowsWhere",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/supabase.js",
+      "target": "function:functions/api/_lib/supabase.js:createSignedStorageUrl",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/_lib/supabase.js",
+      "target": "function:functions/api/_lib/supabase.js:getUserFromAccessToken",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/supabase.js",
+      "target": "function:functions/api/_lib/supabase.js:updateRowsWhere",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/_lib/supabase.js",
+      "target": "function:functions/api/_lib/supabase.js:createSignedStorageUrl",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:normalizeAddress",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestDelete",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/addresses.js",
+      "target": "function:functions/api/account/addresses.js:onRequestDelete",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/addresses.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/addresses.js:onRequestPost",
+      "target": "function:functions/api/account/addresses.js:normalizeAddress",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/addresses.js:onRequestPatch",
+      "target": "function:functions/api/account/addresses.js:normalizeAddress",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/coupons.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/coupons.js",
+      "target": "file:functions/api/_lib/coupons.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/coupons.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/coupons.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/coupons.js",
+      "target": "function:functions/api/account/coupons.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/coupons.js",
+      "target": "function:functions/api/account/coupons.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/coupons.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/coupons.js:onRequestGet",
+      "target": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/_lib/coupons.js:resolveCouponPresentation",
+      "target": "function:functions/api/_lib/coupons.js:normalizeExclusionList",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

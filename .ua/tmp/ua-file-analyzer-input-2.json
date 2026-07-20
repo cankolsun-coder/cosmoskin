@@ -1,0 +1,223 @@
+{
+  "projectRoot": "/Users/can/Documents/GitHub/cosmoskin",
+  "batchFiles": [
+    {
+      "path": "functions/api/_lib/admin-audit.js",
+      "language": "javascript",
+      "sizeLines": 83,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/admin.js",
+      "language": "javascript",
+      "sizeLines": 287,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/bank-accounts.js",
+      "language": "javascript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/cloudflare-access-jwt.js",
+      "language": "javascript",
+      "sizeLines": 186,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/commerce-finalization.js",
+      "language": "javascript",
+      "sizeLines": 397,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/inventory.js",
+      "language": "javascript",
+      "sizeLines": 411,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/loyalty-ledger.js",
+      "language": "javascript",
+      "sizeLines": 139,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/shipping-providers.js",
+      "language": "javascript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/bank-accounts.js",
+      "language": "javascript",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/compliance.js",
+      "language": "javascript",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/coupons/issue-customer-coupon.js",
+      "language": "javascript",
+      "sizeLines": 36,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/customers.js",
+      "language": "javascript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/email-logs.js",
+      "language": "javascript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory.js",
+      "language": "javascript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/[slug].js",
+      "language": "javascript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/[slug]/movements.js",
+      "language": "javascript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/adjust.js",
+      "language": "javascript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/invoices.js",
+      "language": "javascript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/lots.js",
+      "language": "javascript",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    }
+  ],
+  "batchImportData": {
+    "functions/api/_lib/admin-audit.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/cloudflare-access-jwt.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/admin.js": [
+      "functions/api/_lib/cloudflare-access-jwt.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/bank-accounts.js": [
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/cloudflare-access-jwt.js": [],
+    "functions/api/_lib/commerce-finalization.js": [
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/inventory.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/restock-email.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/loyalty-ledger.js": [
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/shipping-providers.js": [],
+    "functions/api/admin/bank-accounts.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/bank-accounts.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/compliance.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/coupons/issue-customer-coupon.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/customers.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/email-logs.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/inventory.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/inventory/[slug].js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/admin/inventory/[slug]/movements.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/inventory/adjust.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/admin/invoices.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/lifecycle-emails.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/lots.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ]
+  }
+}

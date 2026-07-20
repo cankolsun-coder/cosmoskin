@@ -1,0 +1,103 @@
+# .understandignore — patterns for files/dirs to exclude from analysis
+# Syntax: same as .gitignore (globs, # comments, ! negation, trailing / for dirs)
+# Lines below are suggestions — uncomment to activate.
+# Use ! prefix to force-include something excluded by defaults.
+#
+# Built-in defaults (always excluded unless negated):
+#   node_modules/, .git/, dist/, build/, obj/, *.lock, *.min.js, etc.
+#
+
+# --- Custom exclusions (report/log/binary noise, per user request) ---
+
+# Root-level dated report/runbook/manifest docs (COSMOSKIN_*.md/.txt/.json/.sql)
+COSMOSKIN_*.md
+COSMOSKIN_*.txt
+COSMOSKIN_*.json
+COSMOSKIN_*.sql
+CHANGELOG-*.md
+README_FINAL*.md
+MOBILE_FINAL_CHANGELOG*.md
+SMART_ROUTINE_UPDATE_REPORT.md
+yorum-test.md
+
+# QA run artifacts (screenshots, logs, pdfs) — not source
+qa/
+
+# Cloudflare wrangler local dev cache
+.wrangler/
+
+# Static email preview HTML (rendered output, not a template source)
+email-previews/
+
+# Binary/image assets across the repo
+*.png
+*.webp
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.csv
+*.log
+
+# --- From .gitignore (uncomment to exclude) ---
+
+# .DS_Store
+# .DS_Store?
+# ._*
+# .Spotlight-V100
+# .Trashes
+# *.swp
+# *.swo
+# npm-debug.log*
+# email-previews/
+
+# --- Detected directories (uncomment to exclude) ---
+
+# docs/
+# scripts/
+# tests/
+
+# --- Test file patterns (uncomment to exclude) ---
+
+# JS / TS
+# *.test.*
+# *.spec.*
+# *.snap
+# C# / .NET
+# **/*Tests.cs
+# **/*Test.cs
+# **/*Fixture.cs
+# **/*.Tests.csproj
+# Java / Kotlin
+# **/src/test/**
+# **/*Test.java
+# **/*IT.java
+# **/*Spec.kt
+# Go
+# **/*_test.go
+# C++
+# **/*_test.cc
+# **/*_test.cpp
+# **/*_test.cxx
+# **/*Test.cc
+# **/*Test.cpp
+# **/*_unittest.cc
+# **/*_unittest.cpp
+# **/*_browsertest.cc
+# **/*_benchmark.cc
+# **/*Benchmark.cpp
+# Python
+# **/test_*.py
+# **/*_test.py
+# **/tests.py
+# **/conftest.py
+# Rust
+# **/tests.rs
+# **/test_*.rs
+# **/*_test.rs
+# **/bench_*.rs
+# **/*_bench.rs

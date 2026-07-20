@@ -1,0 +1,6322 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 19,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 19,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 19,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "functions/api/_lib/admin-audit.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 83,
+      "nonEmptyLines": 76,
+      "functions": [
+        {
+          "name": "requestIp",
+          "startLine": 5,
+          "endLine": 8,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "userAgent",
+          "startLine": 10,
+          "endLine": 12,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "getAccessEmail",
+          "startLine": 14,
+          "endLine": 16,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "getAdminRecord",
+          "startLine": 18,
+          "endLine": 33,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "hasAdminPermission",
+          "startLine": 35,
+          "endLine": 53,
+          "params": [
+            "context",
+            "permission"
+          ]
+        },
+        {
+          "name": "requireAdminPermission",
+          "startLine": 55,
+          "endLine": 62,
+          "params": [
+            "context",
+            "permission"
+          ]
+        },
+        {
+          "name": "recordAdminActivity",
+          "startLine": 64,
+          "endLine": 83,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "getAccessEmail",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "getAdminRecord",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "hasAdminPermission",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "requireAdminPermission",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "recordAdminActivity",
+          "line": 64,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "requestIp",
+          "callee": "headers.get",
+          "lineNumber": 7
+        },
+        {
+          "caller": "requestIp",
+          "callee": "headers.get('x-forwarded-for')?.split(',')[0]?.trim",
+          "lineNumber": 7
+        },
+        {
+          "caller": "requestIp",
+          "callee": "headers.get('x-forwarded-for')?.split",
+          "lineNumber": 7
+        },
+        {
+          "caller": "requestIp",
+          "callee": "headers.get",
+          "lineNumber": 7
+        },
+        {
+          "caller": "userAgent",
+          "callee": "String(context?.request?.headers?.get('user-agent') || '').slice",
+          "lineNumber": 11
+        },
+        {
+          "caller": "userAgent",
+          "callee": "String",
+          "lineNumber": 11
+        },
+        {
+          "caller": "userAgent",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 11
+        },
+        {
+          "caller": "getAccessEmail",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 15
+        },
+        {
+          "caller": "getAdminRecord",
+          "callee": "getAccessEmail",
+          "lineNumber": 19
+        },
+        {
+          "caller": "getAdminRecord",
+          "callee": "resolveCloudflareAccessEmailFromJwt",
+          "lineNumber": 21
+        },
+        {
+          "caller": "getAdminRecord",
+          "callee": "getVerifiedSessionEmail",
+          "lineNumber": 24
+        },
+        {
+          "caller": "getAdminRecord",
+          "callee": "selectRows(context, 'admin_users', {\n    select: 'id,email,role,role_code,permissions,is_active,status',\n    email: `eq.${String(email).toLowerCase()}`,\n    limit: '1'\n  }).catch",
+          "lineNumber": 27
+        },
+        {
+          "caller": "getAdminRecord",
+          "callee": "selectRows",
+          "lineNumber": 27
+        },
+        {
+          "caller": "getAdminRecord",
+          "callee": "String(email).toLowerCase",
+          "lineNumber": 29
+        },
+        {
+          "caller": "getAdminRecord",
+          "callee": "String",
+          "lineNumber": 29
+        },
+        {
+          "caller": "hasAdminPermission",
+          "callee": "getAdminRecord",
+          "lineNumber": 40
+        },
+        {
+          "caller": "hasAdminPermission",
+          "callee": "Array.isArray",
+          "lineNumber": 44
+        },
+        {
+          "caller": "hasAdminPermission",
+          "callee": "direct.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "hasAdminPermission",
+          "callee": "direct.includes",
+          "lineNumber": 45
+        },
+        {
+          "caller": "hasAdminPermission",
+          "callee": "selectRows(context, 'admin_permissions', {\n    select: 'permission',\n    role_code: `eq.${role}`\n  }).catch",
+          "lineNumber": 48
+        },
+        {
+          "caller": "hasAdminPermission",
+          "callee": "selectRows",
+          "lineNumber": 48
+        },
+        {
+          "caller": "hasAdminPermission",
+          "callee": "(rows || []).some",
+          "lineNumber": 52
+        },
+        {
+          "caller": "requireAdminPermission",
+          "callee": "hasAdminPermission",
+          "lineNumber": 56
+        },
+        {
+          "caller": "recordAdminActivity",
+          "callee": "getAdminRecord",
+          "lineNumber": 66
+        },
+        {
+          "caller": "recordAdminActivity",
+          "callee": "insertRow",
+          "lineNumber": 67
+        },
+        {
+          "caller": "recordAdminActivity",
+          "callee": "getAccessEmail",
+          "lineNumber": 69
+        },
+        {
+          "caller": "recordAdminActivity",
+          "callee": "String",
+          "lineNumber": 73
+        },
+        {
+          "caller": "recordAdminActivity",
+          "callee": "requestIp",
+          "lineNumber": 76
+        },
+        {
+          "caller": "recordAdminActivity",
+          "callee": "userAgent",
+          "lineNumber": 77
+        },
+        {
+          "caller": "recordAdminActivity",
+          "callee": "console.error",
+          "lineNumber": 81
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 5,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/admin.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 287,
+      "nonEmptyLines": 255,
+      "functions": [
+        {
+          "name": "requestIp",
+          "startLine": 17,
+          "endLine": 22,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "cleanupBucket",
+          "startLine": 24,
+          "endLine": 28,
+          "params": [
+            "key"
+          ]
+        },
+        {
+          "name": "assertNotThrottled",
+          "startLine": 30,
+          "endLine": 37,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "recordFailure",
+          "startLine": 39,
+          "endLine": 45,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "clearFailures",
+          "startLine": 47,
+          "endLine": 49,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "timingSafeEqual",
+          "startLine": 51,
+          "endLine": 60,
+          "params": []
+        },
+        {
+          "name": "toBase64Url",
+          "startLine": 62,
+          "endLine": 66,
+          "params": [
+            "bytes"
+          ]
+        },
+        {
+          "name": "hmac",
+          "startLine": 68,
+          "endLine": 77,
+          "params": [
+            "secret",
+            "value"
+          ]
+        },
+        {
+          "name": "sessionSecret",
+          "startLine": 79,
+          "endLine": 81,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "assertSessionSecret",
+          "startLine": 83,
+          "endLine": 87,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "sessionTtlSeconds",
+          "startLine": 89,
+          "endLine": 92,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "assertCloudflareAccess",
+          "startLine": 94,
+          "endLine": 102,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "getCloudflareAccessEmail",
+          "startLine": 104,
+          "endLine": 106,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "encodeSessionEmail",
+          "startLine": 110,
+          "endLine": 112,
+          "params": [
+            "email"
+          ]
+        },
+        {
+          "name": "decodeSessionEmail",
+          "startLine": 114,
+          "endLine": 125,
+          "params": [
+            "encoded"
+          ]
+        },
+        {
+          "name": "resolveActiveAdminByEmail",
+          "startLine": 127,
+          "endLine": 138,
+          "params": [
+            "context",
+            "email"
+          ]
+        },
+        {
+          "name": "verifySignedSessionPayload",
+          "startLine": 140,
+          "endLine": 175,
+          "params": [
+            "context",
+            "token"
+          ]
+        },
+        {
+          "name": "verifySignedSession",
+          "startLine": 177,
+          "endLine": 179,
+          "params": [
+            "context",
+            "token"
+          ]
+        },
+        {
+          "name": "getVerifiedSessionEmail",
+          "startLine": 181,
+          "endLine": 190,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "issueAdminSession",
+          "startLine": 201,
+          "endLine": 239,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "assertAdmin",
+          "startLine": 241,
+          "endLine": 263,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "readJsonBody",
+          "startLine": 265,
+          "endLine": 275,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "adminError",
+          "startLine": 277,
+          "endLine": 287,
+          "params": [
+            "error"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "AdminAuthError",
+          "startLine": 192,
+          "endLine": 199,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "getCloudflareAccessEmail",
+          "line": 104,
+          "isDefault": false
+        },
+        {
+          "name": "describeAccessIdentity",
+          "line": 108,
+          "isDefault": false
+        },
+        {
+          "name": "resolveCloudflareAccessEmail",
+          "line": 108,
+          "isDefault": false
+        },
+        {
+          "name": "getVerifiedSessionEmail",
+          "line": 181,
+          "isDefault": false
+        },
+        {
+          "name": "AdminAuthError",
+          "line": 192,
+          "isDefault": false
+        },
+        {
+          "name": "issueAdminSession",
+          "line": 201,
+          "isDefault": false
+        },
+        {
+          "name": "assertAdmin",
+          "line": 241,
+          "isDefault": false
+        },
+        {
+          "name": "readJsonBody",
+          "line": 265,
+          "isDefault": false
+        },
+        {
+          "name": "adminError",
+          "line": 277,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "requestIp",
+          "callee": "headers.get",
+          "lineNumber": 19
+        },
+        {
+          "caller": "requestIp",
+          "callee": "headers.get('x-forwarded-for')?.split(',')[0]?.trim",
+          "lineNumber": 20
+        },
+        {
+          "caller": "requestIp",
+          "callee": "headers.get('x-forwarded-for')?.split",
+          "lineNumber": 20
+        },
+        {
+          "caller": "requestIp",
+          "callee": "headers.get",
+          "lineNumber": 20
+        },
+        {
+          "caller": "cleanupBucket",
+          "callee": "Date.now",
+          "lineNumber": 24
+        },
+        {
+          "caller": "cleanupBucket",
+          "callee": "adminAuthBuckets.get",
+          "lineNumber": 25
+        },
+        {
+          "caller": "cleanupBucket",
+          "callee": "adminAuthBuckets.delete",
+          "lineNumber": 26
+        },
+        {
+          "caller": "cleanupBucket",
+          "callee": "adminAuthBuckets.get",
+          "lineNumber": 27
+        },
+        {
+          "caller": "assertNotThrottled",
+          "callee": "requestIp",
+          "lineNumber": 31
+        },
+        {
+          "caller": "assertNotThrottled",
+          "callee": "cleanupBucket",
+          "lineNumber": 32
+        },
+        {
+          "caller": "assertNotThrottled",
+          "callee": "Math.max",
+          "lineNumber": 34
+        },
+        {
+          "caller": "assertNotThrottled",
+          "callee": "Math.ceil",
+          "lineNumber": 34
+        },
+        {
+          "caller": "assertNotThrottled",
+          "callee": "Date.now",
+          "lineNumber": 34
+        },
+        {
+          "caller": "recordFailure",
+          "callee": "requestIp",
+          "lineNumber": 40
+        },
+        {
+          "caller": "recordFailure",
+          "callee": "Date.now",
+          "lineNumber": 41
+        },
+        {
+          "caller": "recordFailure",
+          "callee": "cleanupBucket",
+          "lineNumber": 42
+        },
+        {
+          "caller": "recordFailure",
+          "callee": "adminAuthBuckets.set",
+          "lineNumber": 44
+        },
+        {
+          "caller": "clearFailures",
+          "callee": "adminAuthBuckets.delete",
+          "lineNumber": 48
+        },
+        {
+          "caller": "clearFailures",
+          "callee": "requestIp",
+          "lineNumber": 48
+        },
+        {
+          "caller": "timingSafeEqual",
+          "callee": "encoder.encode",
+          "lineNumber": 52
+        },
+        {
+          "caller": "timingSafeEqual",
+          "callee": "String",
+          "lineNumber": 52
+        },
+        {
+          "caller": "timingSafeEqual",
+          "callee": "encoder.encode",
+          "lineNumber": 53
+        },
+        {
+          "caller": "timingSafeEqual",
+          "callee": "String",
+          "lineNumber": 53
+        },
+        {
+          "caller": "timingSafeEqual",
+          "callee": "Math.max",
+          "lineNumber": 54
+        },
+        {
+          "caller": "toBase64Url",
+          "callee": "bytes.forEach",
+          "lineNumber": 64
+        },
+        {
+          "caller": "toBase64Url",
+          "callee": "String.fromCharCode",
+          "lineNumber": 64
+        },
+        {
+          "caller": "toBase64Url",
+          "callee": "btoa(binary).replace(/\\+/g, '-').replace(/\\//g, '_').replace",
+          "lineNumber": 65
+        },
+        {
+          "caller": "toBase64Url",
+          "callee": "btoa(binary).replace(/\\+/g, '-').replace",
+          "lineNumber": 65
+        },
+        {
+          "caller": "toBase64Url",
+          "callee": "btoa(binary).replace",
+          "lineNumber": 65
+        },
+        {
+          "caller": "toBase64Url",
+          "callee": "btoa",
+          "lineNumber": 65
+        },
+        {
+          "caller": "hmac",
+          "callee": "crypto.subtle.importKey",
+          "lineNumber": 69
+        },
+        {
+          "caller": "hmac",
+          "callee": "encoder.encode",
+          "lineNumber": 71
+        },
+        {
+          "caller": "hmac",
+          "callee": "toBase64Url",
+          "lineNumber": 76
+        },
+        {
+          "caller": "hmac",
+          "callee": "crypto.subtle.sign",
+          "lineNumber": 76
+        },
+        {
+          "caller": "hmac",
+          "callee": "encoder.encode",
+          "lineNumber": 76
+        },
+        {
+          "caller": "sessionSecret",
+          "callee": "String",
+          "lineNumber": 80
+        },
+        {
+          "caller": "assertSessionSecret",
+          "callee": "sessionSecret",
+          "lineNumber": 84
+        },
+        {
+          "caller": "sessionTtlSeconds",
+          "callee": "Number",
+          "lineNumber": 90
+        },
+        {
+          "caller": "sessionTtlSeconds",
+          "callee": "Math.min",
+          "lineNumber": 91
+        },
+        {
+          "caller": "sessionTtlSeconds",
+          "callee": "Math.max",
+          "lineNumber": 91
+        },
+        {
+          "caller": "sessionTtlSeconds",
+          "callee": "Number.isFinite",
+          "lineNumber": 91
+        },
+        {
+          "caller": "assertCloudflareAccess",
+          "callee": "String(context?.env?.REQUIRE_CLOUDFLARE_ACCESS || '').toLowerCase",
+          "lineNumber": 95
+        },
+        {
+          "caller": "assertCloudflareAccess",
+          "callee": "String",
+          "lineNumber": 95
+        },
+        {
+          "caller": "assertCloudflareAccess",
+          "callee": "headers.get",
+          "lineNumber": 97
+        },
+        {
+          "caller": "assertCloudflareAccess",
+          "callee": "headers.get",
+          "lineNumber": 98
+        },
+        {
+          "caller": "getCloudflareAccessEmail",
+          "callee": "getDirectAccessEmail",
+          "lineNumber": 105
+        },
+        {
+          "caller": "encodeSessionEmail",
+          "callee": "toBase64Url",
+          "lineNumber": 111
+        },
+        {
+          "caller": "encodeSessionEmail",
+          "callee": "encoder.encode",
+          "lineNumber": 111
+        },
+        {
+          "caller": "encodeSessionEmail",
+          "callee": "String(email).trim().toLowerCase",
+          "lineNumber": 111
+        },
+        {
+          "caller": "encodeSessionEmail",
+          "callee": "String(email).trim",
+          "lineNumber": 111
+        },
+        {
+          "caller": "encodeSessionEmail",
+          "callee": "String",
+          "lineNumber": 111
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "String(encoded).replace(/-/g, '+').replace",
+          "lineNumber": 117
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "String(encoded).replace",
+          "lineNumber": 117
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "String",
+          "lineNumber": 117
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "'='.repeat",
+          "lineNumber": 118
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "atob",
+          "lineNumber": 119
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "binary.trim().toLowerCase",
+          "lineNumber": 120
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "binary.trim",
+          "lineNumber": 120
+        },
+        {
+          "caller": "decodeSessionEmail",
+          "callee": "email.includes",
+          "lineNumber": 121
+        },
+        {
+          "caller": "resolveActiveAdminByEmail",
+          "callee": "String(email || '').trim().toLowerCase",
+          "lineNumber": 128
+        },
+        {
+          "caller": "resolveActiveAdminByEmail",
+          "callee": "String(email || '').trim",
+          "lineNumber": 128
+        },
+        {
+          "caller": "resolveActiveAdminByEmail",
+          "callee": "String",
+          "lineNumber": 128
+        },
+        {
+          "caller": "resolveActiveAdminByEmail",
+          "callee": "selectRows(context, 'admin_users', {\n    select: 'id,email,role,role_code,permissions,is_active,status',\n    email: `eq.${normalized}`,\n    limit: '1'\n  }).catch",
+          "lineNumber": 130
+        },
+        {
+          "caller": "resolveActiveAdminByEmail",
+          "callee": "selectRows",
+          "lineNumber": 130
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "assertSessionSecret",
+          "lineNumber": 141
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "String(token || '').split",
+          "lineNumber": 142
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "String",
+          "lineNumber": 142
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Number",
+          "lineNumber": 147
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 148
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Math.floor",
+          "lineNumber": 148
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Date.now",
+          "lineNumber": 148
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "hmac",
+          "lineNumber": 153
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "sessionSecret",
+          "lineNumber": 153
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "timingSafeEqual",
+          "lineNumber": 154
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Number",
+          "lineNumber": 160
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 161
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Math.floor",
+          "lineNumber": 161
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "Date.now",
+          "lineNumber": 161
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "decodeSessionEmail",
+          "lineNumber": 164
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "hmac",
+          "lineNumber": 169
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "sessionSecret",
+          "lineNumber": 169
+        },
+        {
+          "caller": "verifySignedSessionPayload",
+          "callee": "timingSafeEqual",
+          "lineNumber": 170
+        },
+        {
+          "caller": "verifySignedSession",
+          "callee": "verifySignedSessionPayload",
+          "lineNumber": 178
+        },
+        {
+          "caller": "getVerifiedSessionEmail",
+          "callee": "String",
+          "lineNumber": 182
+        },
+        {
+          "caller": "getVerifiedSessionEmail",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 182
+        },
+        {
+          "caller": "getVerifiedSessionEmail",
+          "callee": "token.startsWith",
+          "lineNumber": 183
+        },
+        {
+          "caller": "getVerifiedSessionEmail",
+          "callee": "verifySignedSessionPayload",
+          "lineNumber": 185
+        },
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 194
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "assertCloudflareAccess",
+          "lineNumber": 202
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "assertSessionSecret",
+          "lineNumber": 203
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "assertNotThrottled",
+          "lineNumber": 204
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "String",
+          "lineNumber": 205
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "String",
+          "lineNumber": 206
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 206
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "timingSafeEqual",
+          "lineNumber": 207
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "recordFailure",
+          "lineNumber": 208
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "resolveCloudflareAccessEmail",
+          "lineNumber": 212
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "String(context?.env?.ADMIN_ACCESS_IDENTITY_DEBUG || '').toLowerCase",
+          "lineNumber": 214
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "String",
+          "lineNumber": 214
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "console.info",
+          "lineNumber": 215
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "describeAccessIdentity",
+          "lineNumber": 215
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "hasAccessJwtHeader",
+          "lineNumber": 217
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "hasAccessEmailHeader",
+          "lineNumber": 217
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "accessTeamDomain",
+          "lineNumber": 217
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "resolveActiveAdminByEmail",
+          "lineNumber": 223
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "clearFailures",
+          "lineNumber": 228
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "Math.floor",
+          "lineNumber": 229
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "Date.now",
+          "lineNumber": 229
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "sessionTtlSeconds",
+          "lineNumber": 229
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "crypto.randomUUID().replace",
+          "lineNumber": 230
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 230
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "encodeSessionEmail",
+          "lineNumber": 231
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "hmac",
+          "lineNumber": 233
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "sessionSecret",
+          "lineNumber": 233
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "new Date(expiresAt * 1000).toISOString",
+          "lineNumber": 236
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "String(admin.email || accessEmail).trim().toLowerCase",
+          "lineNumber": 237
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "String(admin.email || accessEmail).trim",
+          "lineNumber": 237
+        },
+        {
+          "caller": "issueAdminSession",
+          "callee": "String",
+          "lineNumber": 237
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "assertCloudflareAccess",
+          "lineNumber": 242
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "assertNotThrottled",
+          "lineNumber": 243
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "String",
+          "lineNumber": 244
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 244
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "supplied.startsWith",
+          "lineNumber": 247
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "verifySignedSession",
+          "lineNumber": 248
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "String(context?.env?.ADMIN_ALLOW_LEGACY_TOKEN || 'false').toLowerCase",
+          "lineNumber": 249
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "String",
+          "lineNumber": 249
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "Boolean",
+          "lineNumber": 250
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "timingSafeEqual",
+          "lineNumber": 251
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "String",
+          "lineNumber": 251
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "recordFailure",
+          "lineNumber": 254
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "recordFailure",
+          "lineNumber": 258
+        },
+        {
+          "caller": "assertAdmin",
+          "callee": "clearFailures",
+          "lineNumber": 261
+        },
+        {
+          "caller": "readJsonBody",
+          "callee": "context.request.headers.get",
+          "lineNumber": 266
+        },
+        {
+          "caller": "readJsonBody",
+          "callee": "contentType.toLowerCase().includes",
+          "lineNumber": 267
+        },
+        {
+          "caller": "readJsonBody",
+          "callee": "contentType.toLowerCase",
+          "lineNumber": 267
+        },
+        {
+          "caller": "readJsonBody",
+          "callee": "Object.assign",
+          "lineNumber": 268
+        },
+        {
+          "caller": "readJsonBody",
+          "callee": "context.request.json",
+          "lineNumber": 271
+        },
+        {
+          "caller": "readJsonBody",
+          "callee": "Object.assign",
+          "lineNumber": 273
+        },
+        {
+          "caller": "adminError",
+          "callee": "Number",
+          "lineNumber": 278
+        },
+        {
+          "caller": "adminError",
+          "callee": "String",
+          "lineNumber": 280
+        },
+        {
+          "caller": "adminError",
+          "callee": "json",
+          "lineNumber": 286
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 9,
+        "functionCount": 23,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "functions/api/_lib/bank-accounts.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 70,
+      "nonEmptyLines": 62,
+      "functions": [
+        {
+          "name": "normalizeIban",
+          "startLine": 6,
+          "endLine": 8,
+          "params": []
+        },
+        {
+          "name": "isValidTurkishIban",
+          "startLine": 10,
+          "endLine": 21,
+          "params": []
+        },
+        {
+          "name": "normalizeBankAccount",
+          "startLine": 23,
+          "endLine": 35,
+          "params": []
+        },
+        {
+          "name": "validateBankAccount",
+          "startLine": 37,
+          "endLine": 46,
+          "params": []
+        },
+        {
+          "name": "getValidatedBankAccounts",
+          "startLine": 48,
+          "endLine": 65,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "getPrimaryBankAccount",
+          "startLine": 67,
+          "endLine": 70,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeIban",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "isValidTurkishIban",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeBankAccount",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "validateBankAccount",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "getValidatedBankAccounts",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "getPrimaryBankAccount",
+          "line": 67,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeIban",
+          "callee": "String(value || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeIban",
+          "callee": "String(value || '').replace",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeIban",
+          "callee": "String",
+          "lineNumber": 7
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "normalizeIban",
+          "lineNumber": 11
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "/^TR\\d{24}$/.test",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "iban.slice",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "iban.slice",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "/[A-Z]/.test",
+          "lineNumber": 16
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "String",
+          "lineNumber": 16
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "char.charCodeAt",
+          "lineNumber": 16
+        },
+        {
+          "caller": "isValidTurkishIban",
+          "callee": "Number",
+          "lineNumber": 19
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String(row.currency || 'TRY').trim().toUpperCase",
+          "lineNumber": 24
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String(row.currency || 'TRY').trim",
+          "lineNumber": 24
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String",
+          "lineNumber": 24
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String(row.bank_name || row.bankName || '').trim",
+          "lineNumber": 27
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String(row.account_holder || row.accountName || '').trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "normalizeIban",
+          "lineNumber": 29
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String(row.branch || row.branch_name || '').trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "String",
+          "lineNumber": 30
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "Boolean",
+          "lineNumber": 32
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "Boolean",
+          "lineNumber": 32
+        },
+        {
+          "caller": "normalizeBankAccount",
+          "callee": "Number",
+          "lineNumber": 33
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "normalizeBankAccount",
+          "lineNumber": 38
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "errors.push",
+          "lineNumber": 40
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "errors.push",
+          "lineNumber": 41
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "errors.push",
+          "lineNumber": 42
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "isValidTurkishIban",
+          "lineNumber": 43
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "errors.push",
+          "lineNumber": 43
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "SUPPORTED_CURRENCIES.has",
+          "lineNumber": 44
+        },
+        {
+          "caller": "validateBankAccount",
+          "callee": "errors.push",
+          "lineNumber": 44
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "selectRows",
+          "lineNumber": 50
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "String",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "Math.max",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "Math.min",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "Number",
+          "lineNumber": 54
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "(rows || [])\n      .map(validateBankAccount)\n      .filter((entry) => entry.valid)\n      .map",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "(rows || [])\n      .map(validateBankAccount)\n      .filter",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "(rows || [])\n      .map",
+          "lineNumber": 56
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "console.warn",
+          "lineNumber": 62
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "String(error?.message || 'unknown').slice",
+          "lineNumber": 62
+        },
+        {
+          "caller": "getValidatedBankAccounts",
+          "callee": "String",
+          "lineNumber": 62
+        },
+        {
+          "caller": "getPrimaryBankAccount",
+          "callee": "getValidatedBankAccounts",
+          "lineNumber": 68
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/cloudflare-access-jwt.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 186,
+      "nonEmptyLines": 156,
+      "functions": [
+        {
+          "name": "readEnv",
+          "startLine": 5,
+          "endLine": 11,
+          "params": [
+            "context",
+            "...keys"
+          ]
+        },
+        {
+          "name": "accessTeamDomain",
+          "startLine": 13,
+          "endLine": 21,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "accessAudience",
+          "startLine": 23,
+          "endLine": 25,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "accessCertsUrl",
+          "startLine": 27,
+          "endLine": 32,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "base64UrlToBytes",
+          "startLine": 34,
+          "endLine": 43,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "decodeJsonSegment",
+          "startLine": 45,
+          "endLine": 47,
+          "params": [
+            "segment"
+          ]
+        },
+        {
+          "name": "maskEmail",
+          "startLine": 49,
+          "endLine": 54,
+          "params": [
+            "email"
+          ]
+        },
+        {
+          "name": "fetchAccessCerts",
+          "startLine": 56,
+          "endLine": 65,
+          "params": [
+            "url"
+          ]
+        },
+        {
+          "name": "importRsaVerifyKey",
+          "startLine": 67,
+          "endLine": 75,
+          "params": [
+            "jwk"
+          ]
+        },
+        {
+          "name": "verifyAccessJwtAssertion",
+          "startLine": 77,
+          "endLine": 143,
+          "params": [
+            "context",
+            "jwtAssertion"
+          ]
+        },
+        {
+          "name": "getDirectAccessEmail",
+          "startLine": 145,
+          "endLine": 148,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "hasAccessEmailHeader",
+          "startLine": 150,
+          "endLine": 152,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "hasAccessJwtHeader",
+          "startLine": 154,
+          "endLine": 156,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "resolveCloudflareAccessEmailFromJwt",
+          "startLine": 158,
+          "endLine": 163,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "resolveCloudflareAccessEmail",
+          "startLine": 165,
+          "endLine": 169,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "describeAccessIdentity",
+          "startLine": 171,
+          "endLine": 182,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "clearAccessCertsCacheForTests",
+          "startLine": 184,
+          "endLine": 186,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "accessTeamDomain",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "accessAudience",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "accessCertsUrl",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "getDirectAccessEmail",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "hasAccessEmailHeader",
+          "line": 150,
+          "isDefault": false
+        },
+        {
+          "name": "hasAccessJwtHeader",
+          "line": 154,
+          "isDefault": false
+        },
+        {
+          "name": "resolveCloudflareAccessEmailFromJwt",
+          "line": 158,
+          "isDefault": false
+        },
+        {
+          "name": "resolveCloudflareAccessEmail",
+          "line": 165,
+          "isDefault": false
+        },
+        {
+          "name": "describeAccessIdentity",
+          "line": 171,
+          "isDefault": false
+        },
+        {
+          "name": "clearAccessCertsCacheForTests",
+          "line": 184,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "readEnv",
+          "callee": "String(context?.env?.[key] || '').trim",
+          "lineNumber": 7
+        },
+        {
+          "caller": "readEnv",
+          "callee": "String",
+          "lineNumber": 7
+        },
+        {
+          "caller": "accessTeamDomain",
+          "callee": "readEnv",
+          "lineNumber": 14
+        },
+        {
+          "caller": "accessTeamDomain",
+          "callee": "raw\n    .replace(/^https?:\\/\\//i, '')\n    .replace(/\\/.*$/, '')\n    .replace(/\\.cloudflareaccess\\.com$/i, '')\n    .trim",
+          "lineNumber": 16
+        },
+        {
+          "caller": "accessTeamDomain",
+          "callee": "raw\n    .replace(/^https?:\\/\\//i, '')\n    .replace(/\\/.*$/, '')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "accessTeamDomain",
+          "callee": "raw\n    .replace(/^https?:\\/\\//i, '')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "accessTeamDomain",
+          "callee": "raw\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "accessAudience",
+          "callee": "readEnv",
+          "lineNumber": 24
+        },
+        {
+          "caller": "accessCertsUrl",
+          "callee": "accessTeamDomain",
+          "lineNumber": 27
+        },
+        {
+          "caller": "accessCertsUrl",
+          "callee": "readEnv",
+          "lineNumber": 28
+        },
+        {
+          "caller": "base64UrlToBytes",
+          "callee": "String(value).replace(/-/g, '+').replace",
+          "lineNumber": 35
+        },
+        {
+          "caller": "base64UrlToBytes",
+          "callee": "String(value).replace",
+          "lineNumber": 35
+        },
+        {
+          "caller": "base64UrlToBytes",
+          "callee": "String",
+          "lineNumber": 35
+        },
+        {
+          "caller": "base64UrlToBytes",
+          "callee": "'='.repeat",
+          "lineNumber": 36
+        },
+        {
+          "caller": "base64UrlToBytes",
+          "callee": "atob",
+          "lineNumber": 37
+        },
+        {
+          "caller": "base64UrlToBytes",
+          "callee": "binary.charCodeAt",
+          "lineNumber": 40
+        },
+        {
+          "caller": "decodeJsonSegment",
+          "callee": "JSON.parse",
+          "lineNumber": 46
+        },
+        {
+          "caller": "decodeJsonSegment",
+          "callee": "new TextDecoder().decode",
+          "lineNumber": 46
+        },
+        {
+          "caller": "decodeJsonSegment",
+          "callee": "base64UrlToBytes",
+          "lineNumber": 46
+        },
+        {
+          "caller": "maskEmail",
+          "callee": "String(email || '').split",
+          "lineNumber": 50
+        },
+        {
+          "caller": "maskEmail",
+          "callee": "String",
+          "lineNumber": 50
+        },
+        {
+          "caller": "maskEmail",
+          "callee": "local.slice",
+          "lineNumber": 52
+        },
+        {
+          "caller": "maskEmail",
+          "callee": "local.slice",
+          "lineNumber": 52
+        },
+        {
+          "caller": "fetchAccessCerts",
+          "callee": "certsCache.get",
+          "lineNumber": 57
+        },
+        {
+          "caller": "fetchAccessCerts",
+          "callee": "Date.now",
+          "lineNumber": 58
+        },
+        {
+          "caller": "fetchAccessCerts",
+          "callee": "fetch",
+          "lineNumber": 59
+        },
+        {
+          "caller": "fetchAccessCerts",
+          "callee": "response.json",
+          "lineNumber": 61
+        },
+        {
+          "caller": "fetchAccessCerts",
+          "callee": "Array.isArray",
+          "lineNumber": 62
+        },
+        {
+          "caller": "fetchAccessCerts",
+          "callee": "certsCache.set",
+          "lineNumber": 63
+        },
+        {
+          "caller": "fetchAccessCerts",
+          "callee": "Date.now",
+          "lineNumber": 63
+        },
+        {
+          "caller": "importRsaVerifyKey",
+          "callee": "crypto.subtle.importKey",
+          "lineNumber": 68
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "String(jwtAssertion || '').trim",
+          "lineNumber": 78
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "String",
+          "lineNumber": 78
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "accessTeamDomain",
+          "lineNumber": 81
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "token.split",
+          "lineNumber": 84
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "decodeJsonSegment",
+          "lineNumber": 90
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "decodeJsonSegment",
+          "lineNumber": 91
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "accessAudience",
+          "lineNumber": 99
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "Array.isArray",
+          "lineNumber": 101
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "audiences.filter(Boolean).includes",
+          "lineNumber": 102
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "audiences.filter",
+          "lineNumber": 102
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "Math.floor",
+          "lineNumber": 107
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "Date.now",
+          "lineNumber": 107
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "Number",
+          "lineNumber": 108
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "Number",
+          "lineNumber": 109
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "accessCertsUrl",
+          "lineNumber": 111
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "fetchAccessCerts",
+          "lineNumber": 116
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "keys.find",
+          "lineNumber": 121
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "importRsaVerifyKey",
+          "lineNumber": 126
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "crypto.subtle.verify",
+          "lineNumber": 127
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "base64UrlToBytes",
+          "lineNumber": 130
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "encoder.encode",
+          "lineNumber": 131
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "String(payload.email || '').trim().toLowerCase",
+          "lineNumber": 139
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "String(payload.email || '').trim",
+          "lineNumber": 139
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "String",
+          "lineNumber": 139
+        },
+        {
+          "caller": "verifyAccessJwtAssertion",
+          "callee": "email.includes",
+          "lineNumber": 140
+        },
+        {
+          "caller": "getDirectAccessEmail",
+          "callee": "String(context?.request?.headers?.get('Cf-Access-Authenticated-User-Email') || '').trim",
+          "lineNumber": 146
+        },
+        {
+          "caller": "getDirectAccessEmail",
+          "callee": "String",
+          "lineNumber": 146
+        },
+        {
+          "caller": "getDirectAccessEmail",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 146
+        },
+        {
+          "caller": "getDirectAccessEmail",
+          "callee": "email.includes",
+          "lineNumber": 147
+        },
+        {
+          "caller": "getDirectAccessEmail",
+          "callee": "email.toLowerCase",
+          "lineNumber": 147
+        },
+        {
+          "caller": "hasAccessEmailHeader",
+          "callee": "Boolean",
+          "lineNumber": 151
+        },
+        {
+          "caller": "hasAccessEmailHeader",
+          "callee": "getDirectAccessEmail",
+          "lineNumber": 151
+        },
+        {
+          "caller": "hasAccessJwtHeader",
+          "callee": "Boolean",
+          "lineNumber": 155
+        },
+        {
+          "caller": "hasAccessJwtHeader",
+          "callee": "String(context?.request?.headers?.get('Cf-Access-Jwt-Assertion') || '').trim",
+          "lineNumber": 155
+        },
+        {
+          "caller": "hasAccessJwtHeader",
+          "callee": "String",
+          "lineNumber": 155
+        },
+        {
+          "caller": "hasAccessJwtHeader",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 155
+        },
+        {
+          "caller": "resolveCloudflareAccessEmailFromJwt",
+          "callee": "context?.request?.headers?.get",
+          "lineNumber": 159
+        },
+        {
+          "caller": "resolveCloudflareAccessEmailFromJwt",
+          "callee": "verifyAccessJwtAssertion",
+          "lineNumber": 161
+        },
+        {
+          "caller": "resolveCloudflareAccessEmail",
+          "callee": "getDirectAccessEmail",
+          "lineNumber": 166
+        },
+        {
+          "caller": "resolveCloudflareAccessEmail",
+          "callee": "resolveCloudflareAccessEmailFromJwt",
+          "lineNumber": 168
+        },
+        {
+          "caller": "describeAccessIdentity",
+          "callee": "getDirectAccessEmail",
+          "lineNumber": 172
+        },
+        {
+          "caller": "describeAccessIdentity",
+          "callee": "hasAccessJwtHeader",
+          "lineNumber": 174
+        },
+        {
+          "caller": "describeAccessIdentity",
+          "callee": "resolveCloudflareAccessEmailFromJwt",
+          "lineNumber": 175
+        },
+        {
+          "caller": "describeAccessIdentity",
+          "callee": "Boolean",
+          "lineNumber": 178
+        },
+        {
+          "caller": "describeAccessIdentity",
+          "callee": "hasAccessJwtHeader",
+          "lineNumber": 179
+        },
+        {
+          "caller": "describeAccessIdentity",
+          "callee": "maskEmail",
+          "lineNumber": 180
+        },
+        {
+          "caller": "clearAccessCertsCacheForTests",
+          "callee": "certsCache.clear",
+          "lineNumber": 185
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 10,
+        "functionCount": 17,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/commerce-finalization.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 397,
+      "nonEmptyLines": 368,
+      "functions": [
+        {
+          "name": "ensureShipmentShell",
+          "startLine": 28,
+          "endLine": 44,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "finalizeCommerceAfterPayment",
+          "startLine": 46,
+          "endLine": 129,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "confirmManualBankTransferPayment",
+          "startLine": 144,
+          "endLine": 242,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "rejectManualBankTransferPayment",
+          "startLine": 273,
+          "endLine": 397,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "ensureShipmentShell",
+          "line": 28,
+          "isDefault": false
+        },
+        {
+          "name": "finalizeCommerceAfterPayment",
+          "line": 46,
+          "isDefault": false
+        },
+        {
+          "name": "confirmManualBankTransferPayment",
+          "line": 144,
+          "isDefault": false
+        },
+        {
+          "name": "rejectManualBankTransferPayment",
+          "line": 273,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "ensureShipmentShell",
+          "callee": "selectRows",
+          "lineNumber": 31
+        },
+        {
+          "caller": "ensureShipmentShell",
+          "callee": "Array.isArray",
+          "lineNumber": 36
+        },
+        {
+          "caller": "ensureShipmentShell",
+          "callee": "insertRow",
+          "lineNumber": 37
+        },
+        {
+          "caller": "ensureShipmentShell",
+          "callee": "console.error",
+          "lineNumber": 42
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows(context, 'orders', {\n    select: 'id,user_id,customer_email,customer_first_name,customer_last_name,customer_phone,order_number,coupon_code,discount_amount,total_amount,invoice_type,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,billing_address_line,billing_city,billing_district,billing_postal_code,legal_consents',\n    id: `eq.${orderId}`,\n    limit: '1'\n  }).catch",
+          "lineNumber": 48
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows",
+          "lineNumber": 48
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "new Date().toISOString",
+          "lineNumber": 57
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows(context, 'coupon_redemptions', {\n      select: 'id,status', order_id: `eq.${orderId}`, code: `eq.${order.coupon_code}`, limit: '1'\n    }).catch",
+          "lineNumber": 58
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows",
+          "lineNumber": 58
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "updateRows(context, 'coupon_redemptions', { id: existingRedemption[0].id }, {\n        status: 'used',\n        metadata: { source: 'iyzico_callback', previous_status: existingRedemption[0].status || null },\n        updated_at: now\n      }).catch",
+          "lineNumber": 62
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "updateRows",
+          "lineNumber": 62
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows(context, 'coupons', {\n        select: 'id,code', code: `eq.${order.coupon_code}`, limit: '1'\n      }).catch",
+          "lineNumber": 68
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows",
+          "lineNumber": 68
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "insertRow(context, 'coupon_redemptions', {\n        coupon_id: coupons?.[0]?.id || null,\n        order_id: orderId,\n        user_id: order.user_id || null,\n        customer_email: order.customer_email || null,\n        code: order.coupon_code,\n        discount_amount: Number(order.discount_amount || 0),\n        status: 'used',\n        metadata: { source: 'iyzico_callback' },\n        created_at: now\n      }).catch",
+          "lineNumber": 71
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "insertRow",
+          "lineNumber": 71
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "Number",
+          "lineNumber": 77
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "updateRows(context, 'customer_coupons', { user_id: order.user_id, code: order.coupon_code }, {\n        status: 'used', used_at: now, order_id: orderId, updated_at: now\n      }).catch",
+          "lineNumber": 84
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "updateRows",
+          "lineNumber": 84
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "updateRows(context, 'customer_coupons', { customer_email: String(order.customer_email).toLowerCase(), code: order.coupon_code }, {\n        status: 'used', used_at: now, order_id: orderId, updated_at: now\n      }).catch",
+          "lineNumber": 89
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "updateRows",
+          "lineNumber": 89
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "String(order.customer_email).toLowerCase",
+          "lineNumber": 89
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "String",
+          "lineNumber": 89
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows(context, 'invoice_records', {\n    select: 'id', order_id: `eq.${orderId}`, limit: '1'\n  }).catch",
+          "lineNumber": 95
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "selectRows",
+          "lineNumber": 95
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "insertRow(context, 'invoice_records', {\n      order_id: orderId,\n      provider: context.env.EARCHIVE_PROVIDER || 'manual',\n      invoice_status: 'pending',\n      metadata: {\n        order_number: order.order_number || '',\n        total_amount: order.total_amount || 0,\n        source: 'iyzico_callback',\n        invoice_ready_data: {\n          billing_type: order.invoice_type === 'Kurumsal' ? 'corporate' : 'individual',\n          billing_name: order.company_title || [order.billing_first_name, order.billing_last_name].filter(Boolean).join(' '),\n          billing_tax_number: order.tax_number || null,\n          billing_tax_office: order.tax_office || null,\n          billing_email: order.billing_email || order.corporate_email || order.customer_email,\n          billing_phone: order.billing_phone || order.customer_phone || null,\n          billing_address: order.billing_address_line || null,\n          billing_city: order.billing_city || null,\n          billing_district: order.billing_district || null,\n          billing_postal_code: order.billing_postal_code || null,\n          e_invoice_taxpayer: Boolean(order.is_e_invoice_taxpayer),\n          legal_consents: order.legal_consents || null\n        }\n      }\n    }).catch",
+          "lineNumber": 99
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "insertRow",
+          "lineNumber": 99
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "[order.billing_first_name, order.billing_last_name].filter(Boolean).join",
+          "lineNumber": 109
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "[order.billing_first_name, order.billing_last_name].filter",
+          "lineNumber": 109
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "Boolean",
+          "lineNumber": 118
+        },
+        {
+          "caller": "finalizeCommerceAfterPayment",
+          "callee": "awardOrderPoints",
+          "lineNumber": 128
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "selectRows(context, 'orders', {\n    select: 'id,payment_method,payment_status,status,fulfillment_status,order_number',\n    id: `eq.${orderId}`,\n    limit: '1'\n  }).catch",
+          "lineNumber": 147
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "selectRows",
+          "lineNumber": 147
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "Object.assign",
+          "lineNumber": 155
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "selectRows(context, 'payment_events', {\n    select: 'id',\n    order_id: `eq.${orderId}`,\n    provider: 'eq.bank_transfer',\n    event_type: 'eq.bank_transfer_payment_confirmed',\n    status: 'eq.processed',\n    limit: '1'\n  }).catch",
+          "lineNumber": 158
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "selectRows",
+          "lineNumber": 158
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "new Date().toISOString",
+          "lineNumber": 170
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "selectRows(context, 'payments', {\n    select: 'id,status',\n    order_id: `eq.${orderId}`,\n    provider: 'eq.bank_transfer',\n    order: 'created_at.desc',\n    limit: '1'\n  }).catch",
+          "lineNumber": 172
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "selectRows",
+          "lineNumber": 172
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "updateRows(context, 'payments', { id: payment.id }, {\n      status: 'paid',\n      raw_callback_response: {\n        source: 'admin_manual_bank_transfer',\n        approved_by_email: approvedByEmail || null,\n        approved_by_admin_id: approvedByAdminId || null,\n        confirmed_at: now\n      },\n      updated_at: now\n    }).catch",
+          "lineNumber": 181
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "updateRows",
+          "lineNumber": 181
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 190
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 190
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "['not_started', 'unfulfilled'].includes",
+          "lineNumber": 198
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 198
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "updateRows(context, 'orders', { id: orderId }, {\n      payment_status: 'paid',\n      status: ['cancelled', 'payment_failed', 'refunded', 'partially_refunded'].includes(String(order.status || '')) ? order.status : 'paid',\n      ...fulfillmentUpdate,\n      paid_at: now,\n      updated_at: now\n    }).catch",
+          "lineNumber": 199
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "updateRows",
+          "lineNumber": 199
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "['cancelled', 'payment_failed', 'refunded', 'partially_refunded'].includes",
+          "lineNumber": 201
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 201
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 205
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 205
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "convertInventoryReservations(context, orderId).catch",
+          "lineNumber": 212
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "convertInventoryReservations",
+          "lineNumber": 212
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 213
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 213
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "finalizeCommerceAfterPayment",
+          "lineNumber": 220
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "ensureShipmentShell",
+          "lineNumber": 221
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "insertRow(context, 'payment_events', {\n    order_id: orderId,\n    provider: 'bank_transfer',\n    provider_payment_id: null,\n    event_type: 'bank_transfer_payment_confirmed',\n    status: 'processed',\n    raw_reference: null,\n    processed_at: now,\n    metadata: {\n      source: 'admin_manual_bank_transfer',\n      approved_by_email: approvedByEmail || null,\n      approved_by_admin_id: approvedByAdminId || null,\n      order_number: order.order_number || null,\n      note: note || null,\n      inventory_conversion: conversion\n    }\n  }).catch",
+          "lineNumber": 223
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "insertRow",
+          "lineNumber": 223
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 239
+        },
+        {
+          "caller": "confirmManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 239
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows(context, 'orders', {\n    select: 'id,payment_method,payment_status,status,fulfillment_status,order_number,coupon_code',\n    id: `eq.${orderId}`,\n    limit: '1'\n  }).catch",
+          "lineNumber": 276
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows",
+          "lineNumber": 276
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "Object.assign",
+          "lineNumber": 284
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "ALREADY_SETTLED_ORDER_STATUSES.has",
+          "lineNumber": 287
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 287
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows(context, 'payment_events', {\n    select: 'id',\n    order_id: `eq.${orderId}`,\n    provider: 'eq.bank_transfer',\n    event_type: 'eq.bank_transfer_payment_rejected',\n    status: 'eq.processed',\n    limit: '1'\n  }).catch",
+          "lineNumber": 291
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows",
+          "lineNumber": 291
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "new Date().toISOString",
+          "lineNumber": 303
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows(context, 'payments', {\n    select: 'id,status',\n    order_id: `eq.${orderId}`,\n    provider: 'eq.bank_transfer',\n    order: 'created_at.desc',\n    limit: '1'\n  }).catch",
+          "lineNumber": 305
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows",
+          "lineNumber": 305
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "['failed', 'cancelled'].includes",
+          "lineNumber": 313
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 313
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "updateRows(context, 'payments', { id: payment.id }, {\n      status: 'failed',\n      raw_callback_response: {\n        source: 'admin_manual_bank_transfer_rejection',\n        rejected_by_email: rejectedByEmail || null,\n        rejected_by_admin_id: rejectedByAdminId || null,\n        reason: reason || null,\n        confirmed_at: now\n      },\n      updated_at: now\n    }).catch",
+          "lineNumber": 314
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "updateRows",
+          "lineNumber": 314
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 324
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 324
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "updateRows(context, 'orders', { id: orderId }, {\n      payment_status: 'failed',\n      status: order.status === 'cancelled' ? order.status : 'cancelled',\n      fulfillment_status: 'cancelled',\n      updated_at: now\n    }).catch",
+          "lineNumber": 335
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "updateRows",
+          "lineNumber": 335
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 340
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 340
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "releaseInventoryReservations(context, orderId, 'admin_bank_transfer_rejected').catch",
+          "lineNumber": 347
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "releaseInventoryReservations",
+          "lineNumber": 347
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 348
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 348
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows(context, 'coupon_redemptions', {\n      select: 'id,status',\n      order_id: `eq.${orderId}`,\n      limit: '10'\n    }).catch",
+          "lineNumber": 357
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "selectRows",
+          "lineNumber": 357
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "(existingRedemptions || []).filter",
+          "lineNumber": 362
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 362
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "updateRows(context, 'coupon_redemptions', { order_id: orderId }, {\n        status: 'released',\n        metadata: { source: 'admin_bank_transfer_rejection' },\n        updated_at: now\n      }).catch",
+          "lineNumber": 364
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "updateRows",
+          "lineNumber": 364
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 368
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 368
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "insertRow(context, 'payment_events', {\n    order_id: orderId,\n    provider: 'bank_transfer',\n    provider_payment_id: null,\n    event_type: 'bank_transfer_payment_rejected',\n    status: 'processed',\n    raw_reference: null,\n    processed_at: now,\n    metadata: {\n      source: 'admin_manual_bank_transfer_rejection',\n      rejected_by_email: rejectedByEmail || null,\n      rejected_by_admin_id: rejectedByAdminId || null,\n      order_number: order.order_number || null,\n      reason: reason || null,\n      inventory_release: inventoryRelease,\n      coupon_release: couponRelease\n    }\n  }).catch",
+          "lineNumber": 377
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "insertRow",
+          "lineNumber": 377
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "console.error",
+          "lineNumber": 394
+        },
+        {
+          "caller": "rejectManualBankTransferPayment",
+          "callee": "String",
+          "lineNumber": 394
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/inventory.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 411,
+      "nonEmptyLines": 380,
+      "functions": [
+        {
+          "name": "normalizeSlug",
+          "startLine": 12,
+          "endLine": 19,
+          "params": []
+        },
+        {
+          "name": "normalizeEmail",
+          "startLine": 21,
+          "endLine": 23,
+          "params": []
+        },
+        {
+          "name": "validEmail",
+          "startLine": 25,
+          "endLine": 27,
+          "params": []
+        },
+        {
+          "name": "catalogProduct",
+          "startLine": 29,
+          "endLine": 32,
+          "params": [
+            "slug"
+          ]
+        },
+        {
+          "name": "catalogProducts",
+          "startLine": 34,
+          "endLine": 36,
+          "params": []
+        },
+        {
+          "name": "normalizeInventoryRow",
+          "startLine": 38,
+          "endLine": 57,
+          "params": []
+        },
+        {
+          "name": "toPublicInventory",
+          "startLine": 59,
+          "endLine": 70,
+          "params": []
+        },
+        {
+          "name": "getInventoryRows",
+          "startLine": 72,
+          "endLine": 81,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "getInventoryMap",
+          "startLine": 83,
+          "endLine": 86,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "stockBlockReason",
+          "startLine": 98,
+          "endLine": 104,
+          "params": [
+            "product",
+            "inv",
+            "quantity",
+            "available",
+            "backorder"
+          ]
+        },
+        {
+          "name": "buildCheckItem",
+          "startLine": 106,
+          "endLine": 143,
+          "params": []
+        },
+        {
+          "name": "stockValidationCode",
+          "startLine": 145,
+          "endLine": 153,
+          "params": [
+            "reason"
+          ]
+        },
+        {
+          "name": "releaseExpiredReservationsBestEffort",
+          "startLine": 155,
+          "endLine": 159,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "validateCartStock",
+          "startLine": 161,
+          "endLine": 204,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "assertAdminInventoryPayload",
+          "startLine": 206,
+          "endLine": 231,
+          "params": []
+        },
+        {
+          "name": "normalizeMovementReason",
+          "startLine": 233,
+          "endLine": 236,
+          "params": []
+        },
+        {
+          "name": "ensureInventoryRow",
+          "startLine": 238,
+          "endLine": 253,
+          "params": [
+            "context",
+            "slug"
+          ]
+        },
+        {
+          "name": "setInventory",
+          "startLine": 255,
+          "endLine": 275,
+          "params": [
+            "context",
+            "slug",
+            "payload"
+          ]
+        },
+        {
+          "name": "adjustInventory",
+          "startLine": 277,
+          "endLine": 291,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "notifyRestockAlerts",
+          "startLine": 293,
+          "endLine": 339,
+          "params": [
+            "context",
+            "slug"
+          ]
+        },
+        {
+          "name": "reservationExpiry",
+          "startLine": 342,
+          "endLine": 344,
+          "params": []
+        },
+        {
+          "name": "isMissingAtomicInventoryRpc",
+          "startLine": 346,
+          "endLine": 348,
+          "params": [
+            "error"
+          ]
+        },
+        {
+          "name": "atomicInventoryError",
+          "startLine": 350,
+          "endLine": 364,
+          "params": [
+            "error",
+            "operation"
+          ]
+        },
+        {
+          "name": "reserveInventoryForOrder",
+          "startLine": 366,
+          "endLine": 387,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "releaseInventoryReservations",
+          "startLine": 389,
+          "endLine": 400,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "convertInventoryReservations",
+          "startLine": 402,
+          "endLine": 410,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "normalizeSlug",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeEmail",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "validEmail",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "catalogProduct",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "catalogProducts",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeInventoryRow",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "toPublicInventory",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "getInventoryRows",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "getInventoryMap",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "STOCK_VALIDATION_MESSAGES",
+          "line": 88,
+          "isDefault": false
+        },
+        {
+          "name": "stockBlockReason",
+          "line": 98,
+          "isDefault": false
+        },
+        {
+          "name": "buildCheckItem",
+          "line": 106,
+          "isDefault": false
+        },
+        {
+          "name": "stockValidationCode",
+          "line": 145,
+          "isDefault": false
+        },
+        {
+          "name": "releaseExpiredReservationsBestEffort",
+          "line": 155,
+          "isDefault": false
+        },
+        {
+          "name": "validateCartStock",
+          "line": 161,
+          "isDefault": false
+        },
+        {
+          "name": "assertAdminInventoryPayload",
+          "line": 206,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeMovementReason",
+          "line": 233,
+          "isDefault": false
+        },
+        {
+          "name": "setInventory",
+          "line": 255,
+          "isDefault": false
+        },
+        {
+          "name": "adjustInventory",
+          "line": 277,
+          "isDefault": false
+        },
+        {
+          "name": "notifyRestockAlerts",
+          "line": 293,
+          "isDefault": false
+        },
+        {
+          "name": "reserveInventoryForOrder",
+          "line": 366,
+          "isDefault": false
+        },
+        {
+          "name": "releaseInventoryReservations",
+          "line": 389,
+          "isDefault": false
+        },
+        {
+          "name": "convertInventoryReservations",
+          "line": 402,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeSlug",
+          "callee": "String(value || '')\n    .trim()\n    .replace(/^.*\\/products\\//, '')\n    .replace(/\\.html.*$/, '')\n    .replace(/[^a-z0-9-]/gi, '')\n    .toLowerCase",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeSlug",
+          "callee": "String(value || '')\n    .trim()\n    .replace(/^.*\\/products\\//, '')\n    .replace(/\\.html.*$/, '')\n    .replace",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeSlug",
+          "callee": "String(value || '')\n    .trim()\n    .replace(/^.*\\/products\\//, '')\n    .replace",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeSlug",
+          "callee": "String(value || '')\n    .trim()\n    .replace",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeSlug",
+          "callee": "String(value || '')\n    .trim",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeSlug",
+          "callee": "String",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeEmail",
+          "callee": "String(value || '').trim().toLowerCase",
+          "lineNumber": 22
+        },
+        {
+          "caller": "normalizeEmail",
+          "callee": "String(value || '').trim",
+          "lineNumber": 22
+        },
+        {
+          "caller": "normalizeEmail",
+          "callee": "String",
+          "lineNumber": 22
+        },
+        {
+          "caller": "validEmail",
+          "callee": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test",
+          "lineNumber": 26
+        },
+        {
+          "caller": "validEmail",
+          "callee": "String(value || '').trim",
+          "lineNumber": 26
+        },
+        {
+          "caller": "validEmail",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "catalogProduct",
+          "callee": "normalizeSlug",
+          "lineNumber": 30
+        },
+        {
+          "caller": "catalogProducts",
+          "callee": "Array.isArray",
+          "lineNumber": 35
+        },
+        {
+          "caller": "catalogProducts",
+          "callee": "Object.values",
+          "lineNumber": 35
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Math.max",
+          "lineNumber": 39
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Number",
+          "lineNumber": 39
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Math.max",
+          "lineNumber": 40
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Number",
+          "lineNumber": 40
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Math.max",
+          "lineNumber": 41
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Number",
+          "lineNumber": 41
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Math.max",
+          "lineNumber": 42
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "ADMIN_STATUS.has",
+          "lineNumber": 43
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "String",
+          "lineNumber": 43
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "String",
+          "lineNumber": 43
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "normalizeSlug",
+          "lineNumber": 46
+        },
+        {
+          "caller": "normalizeInventoryRow",
+          "callee": "Boolean",
+          "lineNumber": 52
+        },
+        {
+          "caller": "toPublicInventory",
+          "callee": "normalizeInventoryRow",
+          "lineNumber": 60
+        },
+        {
+          "caller": "toPublicInventory",
+          "callee": "ACTIVE_STATUS.has",
+          "lineNumber": 61
+        },
+        {
+          "caller": "getInventoryRows",
+          "callee": "slugs.map(normalizeSlug).filter",
+          "lineNumber": 77
+        },
+        {
+          "caller": "getInventoryRows",
+          "callee": "slugs.map",
+          "lineNumber": 77
+        },
+        {
+          "caller": "getInventoryRows",
+          "callee": "normalized.join",
+          "lineNumber": 78
+        },
+        {
+          "caller": "getInventoryRows",
+          "callee": "selectRows",
+          "lineNumber": 79
+        },
+        {
+          "caller": "getInventoryRows",
+          "callee": "(rows || []).map",
+          "lineNumber": 80
+        },
+        {
+          "caller": "getInventoryMap",
+          "callee": "getInventoryRows",
+          "lineNumber": 84
+        },
+        {
+          "caller": "getInventoryMap",
+          "callee": "rows.map",
+          "lineNumber": 85
+        },
+        {
+          "caller": "buildCheckItem",
+          "callee": "normalizeSlug",
+          "lineNumber": 107
+        },
+        {
+          "caller": "buildCheckItem",
+          "callee": "Math.max",
+          "lineNumber": 108
+        },
+        {
+          "caller": "buildCheckItem",
+          "callee": "Math.floor",
+          "lineNumber": 108
+        },
+        {
+          "caller": "buildCheckItem",
+          "callee": "Number",
+          "lineNumber": 108
+        },
+        {
+          "caller": "buildCheckItem",
+          "callee": "catalogProduct",
+          "lineNumber": 109
+        },
+        {
+          "caller": "buildCheckItem",
+          "callee": "invMap.get",
+          "lineNumber": 110
+        },
+        {
+          "caller": "buildCheckItem",
+          "callee": "stockBlockReason",
+          "lineNumber": 114
+        },
+        {
+          "caller": "releaseExpiredReservationsBestEffort",
+          "callee": "rpc",
+          "lineNumber": 157
+        },
+        {
+          "caller": "releaseExpiredReservationsBestEffort",
+          "callee": "Math.max",
+          "lineNumber": 157
+        },
+        {
+          "caller": "releaseExpiredReservationsBestEffort",
+          "callee": "Math.min",
+          "lineNumber": 157
+        },
+        {
+          "caller": "releaseExpiredReservationsBestEffort",
+          "callee": "Number",
+          "lineNumber": 157
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "releaseExpiredReservationsBestEffort",
+          "lineNumber": 162
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "Array.isArray",
+          "lineNumber": 163
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "Array.from",
+          "lineNumber": 171
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "cartLines.map((line) => normalizeSlug(line.product_slug || line.slug || line.product_id || line.id)).filter",
+          "lineNumber": 171
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "cartLines.map",
+          "lineNumber": 171
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "normalizeSlug",
+          "lineNumber": 171
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "getInventoryMap",
+          "lineNumber": 180
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "cartLines.map",
+          "lineNumber": 181
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "buildCheckItem",
+          "lineNumber": 181
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "items.filter",
+          "lineNumber": 182
+        },
+        {
+          "caller": "validateCartStock",
+          "callee": "blocked.map",
+          "lineNumber": 194
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Number",
+          "lineNumber": 209
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 210
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Object.assign",
+          "lineNumber": 210
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Math.floor",
+          "lineNumber": 211
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Number",
+          "lineNumber": 214
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 215
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Object.assign",
+          "lineNumber": 215
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Math.floor",
+          "lineNumber": 216
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Number",
+          "lineNumber": 219
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 220
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Object.assign",
+          "lineNumber": 220
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Math.floor",
+          "lineNumber": 221
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Boolean",
+          "lineNumber": 223
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "String(body.status || '').trim",
+          "lineNumber": 225
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "String",
+          "lineNumber": 225
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "ADMIN_STATUS.has",
+          "lineNumber": 226
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "Object.assign",
+          "lineNumber": 226
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "String(body.sku || '').trim",
+          "lineNumber": 229
+        },
+        {
+          "caller": "assertAdminInventoryPayload",
+          "callee": "String",
+          "lineNumber": 229
+        },
+        {
+          "caller": "normalizeMovementReason",
+          "callee": "String(reason || '').trim",
+          "lineNumber": 234
+        },
+        {
+          "caller": "normalizeMovementReason",
+          "callee": "String",
+          "lineNumber": 234
+        },
+        {
+          "caller": "normalizeMovementReason",
+          "callee": "MOVEMENT_REASONS.has",
+          "lineNumber": 235
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "normalizeSlug",
+          "lineNumber": 239
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "catalogProduct",
+          "lineNumber": 240
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "Object.assign",
+          "lineNumber": 240
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "getInventoryRows(context, [normalized]).catch",
+          "lineNumber": 241
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "getInventoryRows",
+          "lineNumber": 241
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "insertRow",
+          "lineNumber": 243
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "normalized.toUpperCase().replace",
+          "lineNumber": 245
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "normalized.toUpperCase",
+          "lineNumber": 245
+        },
+        {
+          "caller": "ensureInventoryRow",
+          "callee": "normalizeInventoryRow",
+          "lineNumber": 252
+        },
+        {
+          "caller": "setInventory",
+          "callee": "ensureInventoryRow",
+          "lineNumber": 256
+        },
+        {
+          "caller": "setInventory",
+          "callee": "new Date().toISOString",
+          "lineNumber": 258
+        },
+        {
+          "caller": "setInventory",
+          "callee": "updateRows",
+          "lineNumber": 259
+        },
+        {
+          "caller": "setInventory",
+          "callee": "getInventoryRows",
+          "lineNumber": 260
+        },
+        {
+          "caller": "setInventory",
+          "callee": "Number",
+          "lineNumber": 261
+        },
+        {
+          "caller": "setInventory",
+          "callee": "insertRow(context, 'inventory_movements', {\n      product_slug: current.product_slug,\n      change: Number(payload.stock_on_hand) - current.stock_on_hand,\n      previous_stock_on_hand: current.stock_on_hand,\n      new_stock_on_hand: Number(payload.stock_on_hand),\n      reason: normalizeMovementReason(meta.reason || 'manual_adjustment'),\n      note: meta.note || null,\n      related_order_id: meta.related_order_id || null,\n      created_by: meta.created_by || 'admin'\n    }).catch",
+          "lineNumber": 262
+        },
+        {
+          "caller": "setInventory",
+          "callee": "insertRow",
+          "lineNumber": 262
+        },
+        {
+          "caller": "setInventory",
+          "callee": "Number",
+          "lineNumber": 264
+        },
+        {
+          "caller": "setInventory",
+          "callee": "Number",
+          "lineNumber": 266
+        },
+        {
+          "caller": "setInventory",
+          "callee": "normalizeMovementReason",
+          "lineNumber": 267
+        },
+        {
+          "caller": "setInventory",
+          "callee": "notifyRestockAlerts(context, updated.product_slug).catch",
+          "lineNumber": 273
+        },
+        {
+          "caller": "setInventory",
+          "callee": "notifyRestockAlerts",
+          "lineNumber": 273
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "normalizeSlug",
+          "lineNumber": 278
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "Math.trunc",
+          "lineNumber": 279
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "Number",
+          "lineNumber": 279
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "Object.assign",
+          "lineNumber": 280
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "Number.isFinite",
+          "lineNumber": 281
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "Object.assign",
+          "lineNumber": 281
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "ensureInventoryRow",
+          "lineNumber": 282
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "Object.assign",
+          "lineNumber": 284
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "setInventory",
+          "lineNumber": 285
+        },
+        {
+          "caller": "adjustInventory",
+          "callee": "normalizeMovementReason",
+          "lineNumber": 286
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "normalizeSlug",
+          "lineNumber": 294
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "catalogProduct",
+          "lineNumber": 295
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "selectRows(context, 'restock_alerts', {\n    select: '*',\n    product_slug: `eq.${normalized}`,\n    status: 'eq.waiting',\n    order: 'created_at.asc',\n    limit: '100'\n  }).catch",
+          "lineNumber": 296
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "selectRows",
+          "lineNumber": 296
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "String(context.env.PUBLIC_SITE_URL || 'https://www.cosmoskin.com.tr').replace",
+          "lineNumber": 304
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "String",
+          "lineNumber": 304
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "sendRestockEmail",
+          "lineNumber": 308
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "updateRows",
+          "lineNumber": 317
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "new Date().toISOString",
+          "lineNumber": 319
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "new Date().toISOString",
+          "lineNumber": 320
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "updateRows(context, 'restock_alerts', { id: alert.id }, {\n          last_attempt_at: new Date().toISOString(),\n          last_error: result.reason || 'email_skipped'\n        }).catch",
+          "lineNumber": 325
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "updateRows",
+          "lineNumber": 325
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "new Date().toISOString",
+          "lineNumber": 326
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "updateRows(context, 'restock_alerts', { id: alert.id }, {\n        last_attempt_at: new Date().toISOString(),\n        last_error: String(error?.message || 'email_error').slice(0, 500)\n      }).catch",
+          "lineNumber": 332
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "updateRows",
+          "lineNumber": 332
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "new Date().toISOString",
+          "lineNumber": 333
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "String(error?.message || 'email_error').slice",
+          "lineNumber": 334
+        },
+        {
+          "caller": "notifyRestockAlerts",
+          "callee": "String",
+          "lineNumber": 334
+        },
+        {
+          "caller": "reservationExpiry",
+          "callee": "new Date(Date.now() + Math.max(1, Number(minutes || 15)) * 60 * 1000).toISOString",
+          "lineNumber": 343
+        },
+        {
+          "caller": "reservationExpiry",
+          "callee": "Date.now",
+          "lineNumber": 343
+        },
+        {
+          "caller": "reservationExpiry",
+          "callee": "Math.max",
+          "lineNumber": 343
+        },
+        {
+          "caller": "reservationExpiry",
+          "callee": "Number",
+          "lineNumber": 343
+        },
+        {
+          "caller": "isMissingAtomicInventoryRpc",
+          "callee": "/reserve_order_inventory|release_order_inventory|convert_order_inventory|schema cache|function .* does not exist|Could not find/i.test",
+          "lineNumber": 347
+        },
+        {
+          "caller": "isMissingAtomicInventoryRpc",
+          "callee": "String",
+          "lineNumber": 347
+        },
+        {
+          "caller": "atomicInventoryError",
+          "callee": "isMissingAtomicInventoryRpc",
+          "lineNumber": 351
+        },
+        {
+          "caller": "atomicInventoryError",
+          "callee": "console.error",
+          "lineNumber": 352
+        },
+        {
+          "caller": "atomicInventoryError",
+          "callee": "Object.assign",
+          "lineNumber": 353
+        },
+        {
+          "caller": "atomicInventoryError",
+          "callee": "String",
+          "lineNumber": 358
+        },
+        {
+          "caller": "atomicInventoryError",
+          "callee": "/yeterli stok|stokta yok|satışta değil|stok kaydı bulunamadı/i.test",
+          "lineNumber": 359
+        },
+        {
+          "caller": "atomicInventoryError",
+          "callee": "Object.assign",
+          "lineNumber": 360
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "Object.assign",
+          "lineNumber": 367
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "(cart || []).map((item) => ({\n    product_slug: normalizeSlug(item.product_slug || item.slug || item.product_id || item.id),\n    quantity: Math.max(1, Math.floor(Number(item.quantity ?? item.qty ?? 1) || 1)),\n    product_name: item.product_name || item.name || item.product_slug || item.id || 'Ürün'\n  })).filter",
+          "lineNumber": 368
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "(cart || []).map",
+          "lineNumber": 368
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "normalizeSlug",
+          "lineNumber": 369
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "Math.max",
+          "lineNumber": 370
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "Math.floor",
+          "lineNumber": 370
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "Number",
+          "lineNumber": 370
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "Object.assign",
+          "lineNumber": 373
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "rpc",
+          "lineNumber": 376
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "normalizedItems.map",
+          "lineNumber": 378
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "reservationExpiry",
+          "lineNumber": 379
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "Array.isArray",
+          "lineNumber": 383
+        },
+        {
+          "caller": "reserveInventoryForOrder",
+          "callee": "atomicInventoryError",
+          "lineNumber": 385
+        },
+        {
+          "caller": "releaseInventoryReservations",
+          "callee": "rpc",
+          "lineNumber": 392
+        },
+        {
+          "caller": "releaseInventoryReservations",
+          "callee": "String(reason || 'payment_failed').slice",
+          "lineNumber": 394
+        },
+        {
+          "caller": "releaseInventoryReservations",
+          "callee": "String",
+          "lineNumber": 394
+        },
+        {
+          "caller": "releaseInventoryReservations",
+          "callee": "atomicInventoryError",
+          "lineNumber": 398
+        },
+        {
+          "caller": "convertInventoryReservations",
+          "callee": "rpc",
+          "lineNumber": 405
+        },
+        {
+          "caller": "convertInventoryReservations",
+          "callee": "atomicInventoryError",
+          "lineNumber": 408
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 23,
+        "functionCount": 26,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/loyalty-ledger.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 139,
+      "nonEmptyLines": 131,
+      "functions": [
+        {
+          "name": "awardOrderPoints",
+          "startLine": 22,
+          "endLine": 30,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "promoteOrderPoints",
+          "startLine": 37,
+          "endLine": 45,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "promoteDueLoyaltyPoints",
+          "startLine": 52,
+          "endLine": 59,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "computeRefundRatio",
+          "startLine": 61,
+          "endLine": 73,
+          "params": [
+            "context",
+            "orderId",
+            "refundAmount"
+          ]
+        },
+        {
+          "name": "reverseOrderPoints",
+          "startLine": 85,
+          "endLine": 102,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "getLoyaltyBalance",
+          "startLine": 109,
+          "endLine": 125,
+          "params": [
+            "context",
+            "userId"
+          ]
+        },
+        {
+          "name": "recalculateMembership",
+          "startLine": 131,
+          "endLine": 139,
+          "params": [
+            "context",
+            "userId"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "awardOrderPoints",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "promoteOrderPoints",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "promoteDueLoyaltyPoints",
+          "line": 52,
+          "isDefault": false
+        },
+        {
+          "name": "reverseOrderPoints",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "getLoyaltyBalance",
+          "line": 109,
+          "isDefault": false
+        },
+        {
+          "name": "recalculateMembership",
+          "line": 131,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "awardOrderPoints",
+          "callee": "rpc",
+          "lineNumber": 25
+        },
+        {
+          "caller": "awardOrderPoints",
+          "callee": "console.error",
+          "lineNumber": 27
+        },
+        {
+          "caller": "awardOrderPoints",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "promoteOrderPoints",
+          "callee": "rpc",
+          "lineNumber": 40
+        },
+        {
+          "caller": "promoteOrderPoints",
+          "callee": "console.error",
+          "lineNumber": 42
+        },
+        {
+          "caller": "promoteOrderPoints",
+          "callee": "String",
+          "lineNumber": 42
+        },
+        {
+          "caller": "promoteDueLoyaltyPoints",
+          "callee": "rpc",
+          "lineNumber": 54
+        },
+        {
+          "caller": "promoteDueLoyaltyPoints",
+          "callee": "console.error",
+          "lineNumber": 56
+        },
+        {
+          "caller": "promoteDueLoyaltyPoints",
+          "callee": "String",
+          "lineNumber": 56
+        },
+        {
+          "caller": "computeRefundRatio",
+          "callee": "Number",
+          "lineNumber": 62
+        },
+        {
+          "caller": "computeRefundRatio",
+          "callee": "Number.isFinite",
+          "lineNumber": 63
+        },
+        {
+          "caller": "computeRefundRatio",
+          "callee": "selectRows(context, 'loyalty_points_ledger', {\n    select: 'points_basis_amount',\n    order_id: `eq.${orderId}`,\n    event_type: 'eq.purchase',\n    limit: '1'\n  }).catch",
+          "lineNumber": 64
+        },
+        {
+          "caller": "computeRefundRatio",
+          "callee": "selectRows",
+          "lineNumber": 64
+        },
+        {
+          "caller": "computeRefundRatio",
+          "callee": "Number",
+          "lineNumber": 70
+        },
+        {
+          "caller": "computeRefundRatio",
+          "callee": "Number.isFinite",
+          "lineNumber": 71
+        },
+        {
+          "caller": "computeRefundRatio",
+          "callee": "Math.min",
+          "lineNumber": 72
+        },
+        {
+          "caller": "reverseOrderPoints",
+          "callee": "computeRefundRatio",
+          "lineNumber": 90
+        },
+        {
+          "caller": "reverseOrderPoints",
+          "callee": "rpc",
+          "lineNumber": 92
+        },
+        {
+          "caller": "reverseOrderPoints",
+          "callee": "console.error",
+          "lineNumber": 99
+        },
+        {
+          "caller": "reverseOrderPoints",
+          "callee": "String",
+          "lineNumber": 99
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "rpc",
+          "lineNumber": 113
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Array.isArray",
+          "lineNumber": 114
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Math.max",
+          "lineNumber": 117
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Math.round",
+          "lineNumber": 117
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Number",
+          "lineNumber": 117
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Math.max",
+          "lineNumber": 118
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Math.round",
+          "lineNumber": 118
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Number",
+          "lineNumber": 118
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Math.max",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Math.round",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "Number",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "console.error",
+          "lineNumber": 122
+        },
+        {
+          "caller": "getLoyaltyBalance",
+          "callee": "String",
+          "lineNumber": 122
+        },
+        {
+          "caller": "recalculateMembership",
+          "callee": "rpc",
+          "lineNumber": 134
+        },
+        {
+          "caller": "recalculateMembership",
+          "callee": "console.error",
+          "lineNumber": 136
+        },
+        {
+          "caller": "recalculateMembership",
+          "callee": "String",
+          "lineNumber": 136
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 6,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/shipping-providers.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 30,
+      "nonEmptyLines": 29,
+      "functions": [
+        {
+          "name": "dhlConfigured",
+          "startLine": 1,
+          "endLine": 3,
+          "params": []
+        },
+        {
+          "name": "buildManualShipmentPayload",
+          "startLine": 5,
+          "endLine": 30,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "dhlConfigured",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "buildManualShipmentPayload",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "dhlConfigured",
+          "callee": "Boolean",
+          "lineNumber": 2
+        },
+        {
+          "caller": "buildManualShipmentPayload",
+          "callee": "Number",
+          "lineNumber": 15
+        },
+        {
+          "caller": "buildManualShipmentPayload",
+          "callee": "[order.customer_first_name, order.customer_last_name].filter(Boolean).join",
+          "lineNumber": 18
+        },
+        {
+          "caller": "buildManualShipmentPayload",
+          "callee": "[order.customer_first_name, order.customer_last_name].filter",
+          "lineNumber": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/bank-accounts.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 69,
+      "nonEmptyLines": 64,
+      "functions": [
+        {
+          "name": "toDbPayload",
+          "startLine": 10,
+          "endLine": 27,
+          "params": []
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 29,
+          "endLine": 38,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 40,
+          "endLine": 51,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPatch",
+          "startLine": 53,
+          "endLine": 69,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 29,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPatch",
+          "line": 53,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toDbPayload",
+          "callee": "normalizeBankAccount",
+          "lineNumber": 11
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "validateBankAccount",
+          "lineNumber": 12
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "Object.assign",
+          "lineNumber": 14
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "validation.errors.join",
+          "lineNumber": 14
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "Boolean",
+          "lineNumber": 23
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "Math.max",
+          "lineNumber": 24
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "Math.trunc",
+          "lineNumber": 24
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "Number",
+          "lineNumber": 24
+        },
+        {
+          "caller": "toDbPayload",
+          "callee": "new Date().toISOString",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(rows || []).map",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 36
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 42
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 43
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "readJsonBody",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "toDbPayload",
+          "lineNumber": 45
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 46
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date().toISOString",
+          "lineNumber": 46
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "normalizeBankAccount",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdmin",
+          "lineNumber": 55
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "requireAdminPermission",
+          "lineNumber": 56
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "readJsonBody",
+          "lineNumber": 57
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "String(body.id || '').trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "String",
+          "lineNumber": 58
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 59
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows",
+          "lineNumber": 60
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 61
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "toDbPayload",
+          "lineNumber": 62
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "updateRows",
+          "lineNumber": 63
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows",
+          "lineNumber": 64
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 65
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "normalizeBankAccount",
+          "lineNumber": 65
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "adminError",
+          "lineNumber": 67
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 3,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/compliance.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 65,
+      "nonEmptyLines": 61,
+      "functions": [
+        {
+          "name": "normalizePayload",
+          "startLine": 9,
+          "endLine": 17,
+          "params": []
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 19,
+          "endLine": 43,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPatch",
+          "startLine": 45,
+          "endLine": 65,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPatch",
+          "line": 45,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizePayload",
+          "callee": "['barcode','uts_code_or_reference','origin_country','importer_name','distributor_name','inci_ingredients','usage_instructions','warnings','pao_info','admin_note'].forEach",
+          "lineNumber": 11
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "cleanText",
+          "lineNumber": 12
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "Boolean",
+          "lineNumber": 14
+        },
+        {
+          "caller": "normalizePayload",
+          "callee": "new Date().toISOString",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "normalizeSlug",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'product_compliance', { select: '*', product_slug: `eq.${slug}`, limit: '1' }).catch",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 27
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'product_compliance', { select: '*', order: 'product_slug.asc' }).catch",
+          "lineNumber": 29
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 29
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(rows || []).map",
+          "lineNumber": 30
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogProducts().map",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogProducts",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "map.get",
+          "lineNumber": 36
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "map.get",
+          "lineNumber": 37
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 39
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 41
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdmin",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "requireAdminPermission",
+          "lineNumber": 48
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "readJsonBody",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "normalizeSlug",
+          "lineNumber": 50
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 51
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "normalizePayload",
+          "lineNumber": 52
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows(context, 'product_compliance', { select: 'id', product_slug: `eq.${slug}`, limit: '1' }).catch",
+          "lineNumber": 53
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows",
+          "lineNumber": 53
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "updateRows",
+          "lineNumber": 56
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows(context, 'product_compliance', { select: '*', product_slug: `eq.${slug}`, limit: '1' }).catch",
+          "lineNumber": 57
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "selectRows",
+          "lineNumber": 57
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "insertRow",
+          "lineNumber": 59
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 61
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "adminError",
+          "lineNumber": 63
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 2,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/coupons/issue-customer-coupon.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 36,
+      "nonEmptyLines": 34,
+      "functions": [
+        {
+          "name": "normalizeCode",
+          "startLine": 6,
+          "endLine": 9,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 11,
+          "endLine": 36,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 11,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeCode",
+          "callee": "String(value || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '').slice",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeCode",
+          "callee": "String(value || '').trim().toUpperCase().replace",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeCode",
+          "callee": "String(value || '').trim().toUpperCase",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeCode",
+          "callee": "String(value || '').trim",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeCode",
+          "callee": "String",
+          "lineNumber": 7
+        },
+        {
+          "caller": "normalizeCode",
+          "callee": "crypto.randomUUID().slice(0, 8).toUpperCase",
+          "lineNumber": 8
+        },
+        {
+          "caller": "normalizeCode",
+          "callee": "crypto.randomUUID().slice",
+          "lineNumber": 8
+        },
+        {
+          "caller": "normalizeCode",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "readJsonBody",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.user_id || '').trim",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.email || '').trim().toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.email || '').trim",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String(body.reason || '').trim",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "normalizeCode",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 27
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 29
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date(Date.now() + 1000 * 60 * 60 * 24 * 30).toISOString",
+          "lineNumber": 30
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Date.now",
+          "lineNumber": 30
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "recordAdminActivity",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 35
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/customers.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 32,
+      "nonEmptyLines": 31,
+      "functions": [
+        {
+          "name": "onRequestGet",
+          "startLine": 6,
+          "endLine": 32,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'orders', {\n      select: 'customer_email,customer_first_name,customer_last_name,total_amount,payment_status,created_at',\n      order: 'created_at.desc',\n      limit: '1000'\n    }).catch",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(order.customer_email || '').toLowerCase",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "map.get",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "map.set",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.from(map.values()).sort((a,b) => String(b.last_order_at || '').localeCompare(String(a.last_order_at || ''))).slice",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.from(map.values()).sort",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.from",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "map.values",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(b.last_order_at || '').localeCompare",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 28
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/email-logs.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 6,
+      "nonEmptyLines": 6,
+      "functions": [
+        {
+          "name": "clean",
+          "startLine": 5,
+          "endLine": 5,
+          "params": [
+            "v"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 6,
+          "endLine": 6,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "clean",
+          "callee": "String(v||'').trim().slice",
+          "lineNumber": 5
+        },
+        {
+          "caller": "clean",
+          "callee": "String(v||'').trim",
+          "lineNumber": 5
+        },
+        {
+          "caller": "clean",
+          "callee": "String",
+          "lineNumber": 5
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.min",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "email.replace",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context,'email_events',params).catch",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 6
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 6
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/inventory.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 55,
+      "nonEmptyLines": 50,
+      "functions": [
+        {
+          "name": "textIncludes",
+          "startLine": 7,
+          "endLine": 11,
+          "params": [
+            "product",
+            "q"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 13,
+          "endLine": 55,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "textIncludes",
+          "callee": "[product.name, product.brand, product.slug, product.sku, product.category].join(' ').toLocaleLowerCase",
+          "lineNumber": 9
+        },
+        {
+          "caller": "textIncludes",
+          "callee": "[product.name, product.brand, product.slug, product.sku, product.category].join",
+          "lineNumber": 9
+        },
+        {
+          "caller": "textIncludes",
+          "callee": "haystack.includes",
+          "lineNumber": 10
+        },
+        {
+          "caller": "textIncludes",
+          "callee": "q.toLocaleLowerCase",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(url.searchParams.get('search') || '').trim",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(url.searchParams.get('filter') || url.searchParams.get('status') || 'all').trim",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "getInventoryRows(context).catch",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "getInventoryRows",
+          "lineNumber": 20
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "inventory.map",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogProducts().map((product) => {\n      const row = map.get(product.slug) || normalizeInventoryRow({ product_slug: product.slug, stock_on_hand: 0, stock_reserved: 0, status: 'active' });\n      const flags = {\n        in_stock: row.status === 'active' && (row.allow_backorder || row.available_stock > 0),\n        low_stock: row.status === 'active' && row.available_stock > 0 && row.available_stock <= row.low_stock_threshold,\n        out_of_stock: row.status === 'active' && !row.allow_backorder && row.available_stock <= 0\n      };\n      return { ...product, sku: row.sku || product.slug.toUpperCase().replace(/-/g, '_'), inventory: row, flags };\n    }).filter",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogProducts().map",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogProducts",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "map.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "normalizeInventoryRow",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "product.slug.toUpperCase().replace",
+          "lineNumber": 29
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "product.slug.toUpperCase",
+          "lineNumber": 29
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "textIncludes",
+          "lineNumber": 30
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.filter",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'restock_alerts', { select: 'id', status: 'eq.waiting', limit: '500' }).catch",
+          "lineNumber": 41
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 41
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.filter",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.filter",
+          "lineNumber": 45
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.filter",
+          "lineNumber": 46
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.filter",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 51
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 53
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/inventory/[slug].js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 18,
+      "functions": [
+        {
+          "name": "onRequestPatch",
+          "startLine": 6,
+          "endLine": 19,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPatch",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdmin",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "requireAdminPermission",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "normalizeSlug",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "readJsonBody",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdminInventoryPayload",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "Object.keys",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "setInventory",
+          "lineNumber": 14
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "adminError",
+          "lineNumber": 17
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/inventory/[slug]/movements.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 21,
+      "functions": [
+        {
+          "name": "onRequestGet",
+          "startLine": 7,
+          "endLine": 22,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "normalizeSlug",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 18
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/inventory/adjust.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 16,
+      "nonEmptyLines": 15,
+      "functions": [
+        {
+          "name": "onRequestPost",
+          "startLine": 6,
+          "endLine": 16,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestPost",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 8
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 9
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "readJsonBody",
+          "lineNumber": 10
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adjustInventory",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 12
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 14
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/invoices.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 25,
+      "nonEmptyLines": 25,
+      "functions": [
+        {
+          "name": "clean",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "v"
+          ]
+        },
+        {
+          "name": "isUrl",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "v"
+          ]
+        },
+        {
+          "name": "dispatchInvoiceReadyEmail",
+          "startLine": 11,
+          "endLine": 22,
+          "params": [
+            "context",
+            "invoiceId",
+            "source"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 23,
+          "endLine": 23,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 24,
+          "endLine": 24,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPatch",
+          "startLine": 25,
+          "endLine": 25,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 23,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPatch",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "clean",
+          "callee": "String(v||'').trim().slice",
+          "lineNumber": 7
+        },
+        {
+          "caller": "clean",
+          "callee": "String(v||'').trim",
+          "lineNumber": 7
+        },
+        {
+          "caller": "clean",
+          "callee": "String",
+          "lineNumber": 7
+        },
+        {
+          "caller": "isUrl",
+          "callee": "/^https?:\\/\\//i.test",
+          "lineNumber": 7
+        },
+        {
+          "caller": "dispatchInvoiceReadyEmail",
+          "callee": "selectRows(context,'invoice_records',{select:'*',id:`eq.${invoiceId}`,limit:'1'}).catch",
+          "lineNumber": 13
+        },
+        {
+          "caller": "dispatchInvoiceReadyEmail",
+          "callee": "selectRows",
+          "lineNumber": 13
+        },
+        {
+          "caller": "dispatchInvoiceReadyEmail",
+          "callee": "selectRows(context,'orders',{select:'id,order_number,customer_email,customer_first_name,customer_last_name,total_amount,currency,subtotal_amount,shipping_amount,vat_amount',id:`eq.${invoice.order_id}`,limit:'1'}).catch",
+          "lineNumber": 15
+        },
+        {
+          "caller": "dispatchInvoiceReadyEmail",
+          "callee": "selectRows",
+          "lineNumber": 15
+        },
+        {
+          "caller": "dispatchInvoiceReadyEmail",
+          "callee": "maybeSendInvoiceReadyEmail",
+          "lineNumber": 17
+        },
+        {
+          "caller": "dispatchInvoiceReadyEmail",
+          "callee": "console.error",
+          "lineNumber": 19
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.min",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context,'invoice_records',params).catch",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 23
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "readJsonBody",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "TYPES.has",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "STATUSES.has",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "isUrl",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "selectRows(context,'orders',{select:'id,order_number',id:`eq.${orderId}`,limit:'1'}).catch",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "selectRows",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date().toISOString",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow(context,'order_status_events',{order_id:orderId,status:'invoice_'+invoice_status,event_type:'invoice_'+invoice_status,source:'admin',created_by:'admin',message:'Fatura kaydı güncellendi.',note:payload.invoice_number||null,metadata:{invoice_id:invoice?.id||null}}).catch",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "dispatchInvoiceReadyEmail",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 24
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdmin",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "requireAdminPermission",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "readJsonBody",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "clean",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "new Date().toISOString",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "clean",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "STATUSES.has",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "['invoice_number','provider','provider_reference','pdf_url','error_message'].forEach",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "clean",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "isUrl",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "updateRows",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "dispatchInvoiceReadyEmail",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "adminError",
+          "lineNumber": 25
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 3,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/lots.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 98,
+      "nonEmptyLines": 91,
+      "functions": [
+        {
+          "name": "normalizeDate",
+          "startLine": 11,
+          "endLine": 16,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "payload",
+          "startLine": 18,
+          "endLine": 37,
+          "params": []
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 39,
+          "endLine": 69,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 71,
+          "endLine": 83,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPatch",
+          "startLine": 85,
+          "endLine": 98,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 71,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPatch",
+          "line": 85,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeDate",
+          "callee": "String",
+          "lineNumber": 13
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "Number.isNaN",
+          "lineNumber": 14
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.getTime",
+          "lineNumber": 14
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString().slice",
+          "lineNumber": 15
+        },
+        {
+          "caller": "normalizeDate",
+          "callee": "d.toISOString",
+          "lineNumber": 15
+        },
+        {
+          "caller": "payload",
+          "callee": "cleanText",
+          "lineNumber": 19
+        },
+        {
+          "caller": "payload",
+          "callee": "STATUSES.has",
+          "lineNumber": 20
+        },
+        {
+          "caller": "payload",
+          "callee": "Object.assign",
+          "lineNumber": 20
+        },
+        {
+          "caller": "payload",
+          "callee": "Math.max",
+          "lineNumber": 21
+        },
+        {
+          "caller": "payload",
+          "callee": "Math.floor",
+          "lineNumber": 21
+        },
+        {
+          "caller": "payload",
+          "callee": "Number",
+          "lineNumber": 21
+        },
+        {
+          "caller": "payload",
+          "callee": "normalizeDate",
+          "lineNumber": 22
+        },
+        {
+          "caller": "payload",
+          "callee": "new Date(`${expiryDate}T23:59:59Z`).getTime",
+          "lineNumber": 23
+        },
+        {
+          "caller": "payload",
+          "callee": "Date.now",
+          "lineNumber": 23
+        },
+        {
+          "caller": "payload",
+          "callee": "Object.assign",
+          "lineNumber": 24
+        },
+        {
+          "caller": "payload",
+          "callee": "normalizeSlug",
+          "lineNumber": 27
+        },
+        {
+          "caller": "payload",
+          "callee": "cleanText",
+          "lineNumber": 28
+        },
+        {
+          "caller": "payload",
+          "callee": "cleanText",
+          "lineNumber": 31
+        },
+        {
+          "caller": "payload",
+          "callee": "cleanText",
+          "lineNumber": 32
+        },
+        {
+          "caller": "payload",
+          "callee": "new Date(body.received_at).toISOString",
+          "lineNumber": 33
+        },
+        {
+          "caller": "payload",
+          "callee": "new Date().toISOString",
+          "lineNumber": 35
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 41
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 42
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "normalizeSlug",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'inventory_lots', params).catch",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 47
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'product_inventory', { select: 'product_slug,stock_on_hand,stock_reserved,status', product_slug: `eq.${slug}`, limit: '1' }).catch",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 49
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Date.now",
+          "lineNumber": 51
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(lots || []).reduce",
+          "lineNumber": 53
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 54
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 54
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "new Date(`${lot.expiry_date}T23:59:59Z`).getTime",
+          "lineNumber": 55
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 56
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 57
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 63
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 63
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 63
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 65
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 67
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 73
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 74
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "readJsonBody",
+          "lineNumber": 75
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "payload",
+          "lineNumber": 76
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 77
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 78
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 79
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 81
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdmin",
+          "lineNumber": 87
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "requireAdminPermission",
+          "lineNumber": 88
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "readJsonBody",
+          "lineNumber": 89
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 90
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "payload",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "updateRows",
+          "lineNumber": 93
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "adminError",
+          "lineNumber": 96
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 3,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    }
+  ]
+}

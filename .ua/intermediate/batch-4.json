@@ -1,0 +1,1853 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/account/skin-profile.js",
+      "type": "file",
+      "name": "skin-profile.js",
+      "filePath": "functions/api/account/skin-profile.js",
+      "summary": "Cloudflare Pages Function providing GET/POST endpoints to read and persist a customer's skin profile (skin type, sensitivity, goals, concerns) into the customer_skin_profiles table.",
+      "tags": [
+        "api-handler",
+        "account",
+        "skin-profile",
+        "cloudflare-pages-function"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/skin-profile.js:normalizePayload",
+      "type": "function",
+      "name": "normalizePayload",
+      "filePath": "functions/api/account/skin-profile.js",
+      "lineRange": [
+        20,
+        44
+      ],
+      "summary": "Normalizes and sanitizes a raw skin-profile POST body into a validated row shape (arrays deduped, strings cleaned) ready for upsert.",
+      "tags": [
+        "normalization",
+        "validation",
+        "skin-profile"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/skin-profile.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/skin-profile.js",
+      "lineRange": [
+        46,
+        56
+      ],
+      "summary": "Fetches the authenticated user's most recent skin profile row from Supabase.",
+      "tags": [
+        "api-handler",
+        "get-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/skin-profile.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/account/skin-profile.js",
+      "lineRange": [
+        58,
+        69
+      ],
+      "summary": "Authenticates the user, normalizes the submitted skin-profile payload, and upserts it into customer_skin_profiles.",
+      "tags": [
+        "api-handler",
+        "post-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/skin-profile.js:onRequest",
+      "type": "function",
+      "name": "onRequest",
+      "filePath": "functions/api/account/skin-profile.js",
+      "lineRange": [
+        71,
+        75
+      ],
+      "summary": "Method dispatcher routing GET/POST to the appropriate handler and rejecting other verbs.",
+      "tags": [
+        "router",
+        "method-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/account/summary.js",
+      "type": "file",
+      "name": "summary.js",
+      "filePath": "functions/api/account/summary.js",
+      "summary": "Large aggregation endpoint that assembles the entire account dashboard payload for the authenticated user: orders, addresses, favorites, notifications, loyalty balance, coupons, skin profile, routines, consents, and support requests.",
+      "tags": [
+        "api-handler",
+        "account",
+        "dashboard-aggregation",
+        "complex"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Fires a large batch of parallel Supabase selectRows queries via Promise.all and stitches results together with in-memory grouping helpers."
+    },
+    {
+      "id": "function:functions/api/account/summary.js:orderProductNetAmount",
+      "type": "function",
+      "name": "orderProductNetAmount",
+      "filePath": "functions/api/account/summary.js",
+      "lineRange": [
+        24,
+        38
+      ],
+      "summary": "Computes the net product amount for an order by summing line items or falling back to subtotal minus discount.",
+      "tags": [
+        "utility",
+        "pricing"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/summary.js:computeTier",
+      "type": "function",
+      "name": "computeTier",
+      "filePath": "functions/api/account/summary.js",
+      "lineRange": [
+        40,
+        51
+      ],
+      "summary": "Calculates a customer's membership tier and progress from their paid order history.",
+      "tags": [
+        "loyalty",
+        "membership-tier"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/account/summary.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/summary.js",
+      "lineRange": [
+        70,
+        382
+      ],
+      "summary": "Authenticates the user then fetches and assembles orders, addresses, favorites, notifications, profile, membership, loyalty ledger, coupons, skin profile, routine results, consents, notification preferences, and support requests into one dashboard summary response.",
+      "tags": [
+        "api-handler",
+        "aggregation",
+        "account-dashboard"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/account/support-requests.js",
+      "type": "file",
+      "name": "support-requests.js",
+      "filePath": "functions/api/account/support-requests.js",
+      "summary": "Account API endpoint letting authenticated customers list their support tickets and submit new ones.",
+      "tags": [
+        "api-handler",
+        "support",
+        "customer-service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/support-requests.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/account/support-requests.js",
+      "lineRange": [
+        12,
+        26
+      ],
+      "summary": "Returns the authenticated user's support requests ordered by creation date.",
+      "tags": [
+        "api-handler",
+        "get-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/account/support-requests.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/account/support-requests.js",
+      "lineRange": [
+        28,
+        53
+      ],
+      "summary": "Validates and inserts a new support request row for the authenticated user, normalizing its category.",
+      "tags": [
+        "api-handler",
+        "post-endpoint",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/admin/coupons/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "functions/api/admin/coupons/index.js",
+      "summary": "Admin API for listing, creating, and patching discount coupons, gated by admin RBAC permissions and audited via admin-audit.js.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "coupon-management",
+        "rbac"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/coupons/index.js:payloadFrom",
+      "type": "function",
+      "name": "payloadFrom",
+      "filePath": "functions/api/admin/coupons/index.js",
+      "lineRange": [
+        14,
+        44
+      ],
+      "summary": "Builds a validated coupon insert payload from an admin request body, normalizing discount type, code, dates, and eligibility metadata.",
+      "tags": [
+        "validation",
+        "coupon"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/coupons/index.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/coupons/index.js",
+      "lineRange": [
+        46,
+        56
+      ],
+      "summary": "Lists all coupons enriched with usage statistics for the admin dashboard, requiring admin auth and permission.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "get-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/coupons/index.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/coupons/index.js",
+      "lineRange": [
+        58,
+        71
+      ],
+      "summary": "Creates a new coupon from the validated payload after checking admin permissions.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "post-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/coupons/index.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/coupons/index.js",
+      "lineRange": [
+        73,
+        102
+      ],
+      "summary": "Updates an existing coupon's fields by code, applying a sanitized patch payload and requiring admin permission.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "patch-endpoint"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/admin/dashboard.js",
+      "type": "file",
+      "name": "dashboard.js",
+      "filePath": "functions/api/admin/dashboard.js",
+      "summary": "Admin API endpoint aggregating today's key operational metrics: order counts, revenue, low-stock and expiring inventory, pending returns, and email delivery stats.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "dashboard",
+        "metrics"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/dashboard.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/dashboard.js",
+      "lineRange": [
+        9,
+        52
+      ],
+      "summary": "Runs parallel Supabase queries across orders, inventory, restock alerts, emails, returns, payments, and shipments, then reduces them into today's admin dashboard metrics.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "aggregation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/admin/session.js",
+      "type": "file",
+      "name": "session.js",
+      "filePath": "functions/api/admin/session.js",
+      "summary": "Admin session endpoint that issues a signed admin session (POST) after Cloudflare Access verification and reports session status (GET).",
+      "tags": [
+        "api-handler",
+        "admin",
+        "auth",
+        "session"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/session.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/session.js",
+      "lineRange": [
+        4,
+        11
+      ],
+      "summary": "Issues a new admin session token/cookie via issueAdminSession after validating the Cloudflare Access identity.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "auth"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/session.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/session.js",
+      "lineRange": [
+        13,
+        18
+      ],
+      "summary": "Returns a simple acknowledgement for admin session status checks.",
+      "tags": [
+        "api-handler",
+        "admin"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/auth/register.js",
+      "type": "file",
+      "name": "register.js",
+      "filePath": "functions/api/auth/register.js",
+      "summary": "Public registration endpoint that validates email/password, creates a Supabase auth user via the admin REST API, upserts a profile row, and records KVKK/membership consent.",
+      "tags": [
+        "api-handler",
+        "auth",
+        "registration",
+        "kvkk-consent"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/auth/register.js:validatePassword",
+      "type": "function",
+      "name": "validatePassword",
+      "filePath": "functions/api/auth/register.js",
+      "lineRange": [
+        32,
+        42
+      ],
+      "summary": "Checks a candidate password against a set of strength rules (length, character classes).",
+      "tags": [
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/auth/register.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/auth/register.js",
+      "lineRange": [
+        50,
+        182
+      ],
+      "summary": "Validates the registration payload, calls the Supabase Admin API to create the auth user, upserts the profile, and records KVKK and membership-terms consent records.",
+      "tags": [
+        "api-handler",
+        "registration",
+        "supabase-auth"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:functions/api/auth/register.js:onRequest",
+      "type": "function",
+      "name": "onRequest",
+      "filePath": "functions/api/auth/register.js",
+      "lineRange": [
+        184,
+        192
+      ],
+      "summary": "Method dispatcher that routes POST to onRequestPost and rejects other verbs.",
+      "tags": [
+        "router",
+        "method-dispatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/coupons/validate.js",
+      "type": "file",
+      "name": "validate.js",
+      "filePath": "functions/api/coupons/validate.js",
+      "summary": "Public coupon-validation endpoint that recomputes cart pricing from the trusted product catalog server-side, validates coupon eligibility, and returns a discount preview.",
+      "tags": [
+        "api-handler",
+        "coupon",
+        "pricing",
+        "cart-validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/coupons/validate.js:calculateCouponPreview",
+      "type": "function",
+      "name": "calculateCouponPreview",
+      "filePath": "functions/api/coupons/validate.js",
+      "lineRange": [
+        15,
+        45
+      ],
+      "summary": "Computes the discount preview (percent, fixed, amount, or free-shipping) for a coupon against a given subtotal, clamped to safe bounds.",
+      "tags": [
+        "coupon",
+        "pricing-calculation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/coupons/validate.js:buildTrustedCartLines",
+      "type": "function",
+      "name": "buildTrustedCartLines",
+      "filePath": "functions/api/coupons/validate.js",
+      "lineRange": [
+        53,
+        81
+      ],
+      "summary": "Rebuilds cart line items from the server-trusted priced catalog index instead of trusting client-submitted prices, preventing price tampering.",
+      "tags": [
+        "cart",
+        "pricing",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/coupons/validate.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/coupons/validate.js",
+      "lineRange": [
+        89,
+        157
+      ],
+      "summary": "Authenticates (optionally) the requester, rebuilds trusted cart totals, and validates coupon eligibility before returning a discount preview.",
+      "tags": [
+        "api-handler",
+        "coupon-validation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/cron/birthday-benefits.js",
+      "type": "file",
+      "name": "birthday-benefits.js",
+      "filePath": "functions/api/cron/birthday-benefits.js",
+      "summary": "Scheduled Cloudflare cron endpoint that awards birthday loyalty points to active profiles whose birthday matches today's date.",
+      "tags": [
+        "cron-job",
+        "loyalty",
+        "scheduled-task"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/cron/birthday-benefits.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/cron/birthday-benefits.js",
+      "lineRange": [
+        10,
+        40
+      ],
+      "summary": "Finds active profiles with a birthday matching today, then inserts a birthday_benefits record and loyalty ledger points award for each.",
+      "tags": [
+        "cron-job",
+        "loyalty",
+        "birthday-benefit"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/cron/points-expiry.js",
+      "type": "file",
+      "name": "points-expiry.js",
+      "filePath": "functions/api/cron/points-expiry.js",
+      "summary": "Minimal scheduled cron endpoint stub for expiring stale loyalty points, currently a placeholder that authenticates the cron secret and returns ok.",
+      "tags": [
+        "cron-job",
+        "loyalty",
+        "points-expiry"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/cron/points-expiry.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/cron/points-expiry.js",
+      "lineRange": [
+        9,
+        14
+      ],
+      "summary": "Verifies the cron secret and returns a success acknowledgement; the actual expiry logic is not yet implemented here.",
+      "tags": [
+        "cron-job",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/cron/recalculate-memberships.js",
+      "type": "file",
+      "name": "recalculate-memberships.js",
+      "filePath": "functions/api/cron/recalculate-memberships.js",
+      "summary": "Scheduled cron endpoint that batch-recalculates customer membership tiers by invoking the recalculate_customer_membership Supabase RPC for each active profile.",
+      "tags": [
+        "cron-job",
+        "membership",
+        "loyalty"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/cron/recalculate-memberships.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/cron/recalculate-memberships.js",
+      "lineRange": [
+        14,
+        29
+      ],
+      "summary": "Fetches a batch of profiles and calls the recalculate_customer_membership RPC for each, honoring an optional limit parameter.",
+      "tags": [
+        "cron-job",
+        "membership"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/cron/release-expired-inventory.js",
+      "type": "file",
+      "name": "release-expired-inventory.js",
+      "filePath": "functions/api/cron/release-expired-inventory.js",
+      "summary": "Scheduled cron endpoint that releases reserved inventory holds whose reservation window has expired, protected by a constant-time cron-secret comparison.",
+      "tags": [
+        "cron-job",
+        "inventory",
+        "stock-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/cron/release-expired-inventory.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/cron/release-expired-inventory.js",
+      "lineRange": [
+        13,
+        27
+      ],
+      "summary": "Verifies the cron secret with a timing-safe comparison, then calls the release-expired-inventory RPC with an optional batch-size limit.",
+      "tags": [
+        "cron-job",
+        "inventory"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/cron/release-expired-inventory.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/cron/release-expired-inventory.js",
+      "lineRange": [
+        29,
+        31
+      ],
+      "summary": "Lightweight health-check handler confirming the cron endpoint is reachable.",
+      "tags": [
+        "health-check"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/dhl/webhook.js",
+      "type": "file",
+      "name": "webhook.js",
+      "filePath": "functions/api/dhl/webhook.js",
+      "summary": "Minimal webhook receiver stub for DHL shipping status callbacks; currently echoes the payload without persisting shipment updates.",
+      "tags": [
+        "webhook",
+        "shipping",
+        "dhl-integration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/dhl/webhook.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/dhl/webhook.js",
+      "lineRange": [
+        3,
+        9
+      ],
+      "summary": "Reads the DHL webhook JSON body and returns an acknowledgement; does not yet update shipment/order state.",
+      "tags": [
+        "webhook",
+        "shipping"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/invoices.js",
+      "type": "file",
+      "name": "invoices.js",
+      "filePath": "functions/api/invoices.js",
+      "summary": "Account API endpoint returning the authenticated user's invoice records, optionally filtered by order id.",
+      "tags": [
+        "api-handler",
+        "invoices",
+        "account"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/invoices.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/invoices.js",
+      "lineRange": [
+        5,
+        25
+      ],
+      "summary": "Authenticates the user, resolves the relevant order ids (optionally filtered), and returns matching invoice_records rows.",
+      "tags": [
+        "api-handler",
+        "get-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/invoices.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/invoices.js",
+      "lineRange": [
+        26,
+        28
+      ],
+      "summary": "Stub POST handler that returns a not-allowed style response; invoice creation is not supported via this route.",
+      "tags": [
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/loyalty/recalculate-user.js",
+      "type": "file",
+      "name": "recalculate-user.js",
+      "filePath": "functions/api/loyalty/recalculate-user.js",
+      "summary": "Authenticated endpoint letting a logged-in user trigger recalculation of their own membership tier via the Supabase RPC.",
+      "tags": [
+        "api-handler",
+        "loyalty",
+        "membership-recalculation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/loyalty/recalculate-user.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/loyalty/recalculate-user.js",
+      "lineRange": [
+        5,
+        13
+      ],
+      "summary": "Requires an authenticated user and calls the recalculate_customer_membership RPC for that user's id.",
+      "tags": [
+        "api-handler",
+        "loyalty"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/loyalty/redeem.js",
+      "type": "file",
+      "name": "redeem.js",
+      "filePath": "functions/api/loyalty/redeem.js",
+      "summary": "Authenticated endpoint allowing users to redeem loyalty points for a discount coupon, with idempotency-key replay protection against double redemption.",
+      "tags": [
+        "api-handler",
+        "loyalty",
+        "points-redemption"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/loyalty/redeem.js:findReplay",
+      "type": "function",
+      "name": "findReplay",
+      "filePath": "functions/api/loyalty/redeem.js",
+      "lineRange": [
+        17,
+        30
+      ],
+      "summary": "Looks up a prior loyalty-ledger transaction by idempotency reference and returns its associated coupon if the redemption already happened.",
+      "tags": [
+        "idempotency",
+        "loyalty"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/loyalty/redeem.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/loyalty/redeem.js",
+      "lineRange": [
+        32,
+        104
+      ],
+      "summary": "Validates the requested point redemption against the user's balance, checks for a replayed idempotency key, then inserts the ledger debit and generates a redemption coupon.",
+      "tags": [
+        "api-handler",
+        "loyalty-redemption",
+        "coupon-generation"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:functions/api/payment/bank-accounts.js",
+      "type": "file",
+      "name": "bank-accounts.js",
+      "filePath": "functions/api/payment/bank-accounts.js",
+      "summary": "Public endpoint returning the store's validated bank transfer account details for the bank-transfer checkout payment method.",
+      "tags": [
+        "api-handler",
+        "payment",
+        "bank-transfer"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/payment/bank-accounts.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/payment/bank-accounts.js",
+      "lineRange": [
+        6,
+        22
+      ],
+      "summary": "Fetches and returns validated bank account details, returning a safe error message on failure without leaking internals.",
+      "tags": [
+        "api-handler",
+        "get-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/shipping/track.js",
+      "type": "file",
+      "name": "track.js",
+      "filePath": "functions/api/shipping/track.js",
+      "summary": "Tiny single-expression endpoint that looks up shipment tracking info by order id or tracking number query parameter.",
+      "tags": [
+        "api-handler",
+        "shipping",
+        "tracking"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/shipping/track.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/shipping/track.js",
+      "lineRange": [
+        4,
+        4
+      ],
+      "summary": "One-line arrow-function handler that reads query params and returns matching shipment tracking rows.",
+      "tags": [
+        "api-handler",
+        "get-endpoint"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "function:functions/api/account/skin-profile.js:normalizePayload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "function:functions/api/account/skin-profile.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "function:functions/api/account/skin-profile.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "function:functions/api/account/skin-profile.js:onRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "function:functions/api/account/skin-profile.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "function:functions/api/account/skin-profile.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "function:functions/api/account/skin-profile.js:onRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/skin-profile.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/account/skin-profile.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/skin-profile.js:onRequestPost",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "function:functions/api/account/summary.js:orderProductNetAmount",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "function:functions/api/account/summary.js:computeTier",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "function:functions/api/account/summary.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "function:functions/api/account/summary.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "file:functions/api/_lib/coupons.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "file:functions/api/_lib/loyalty-config.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "file:functions/api/_lib/loyalty-ledger.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "file:functions/api/_lib/return-attachments.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/summary.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/account/summary.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/summary.js:onRequestGet",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:getLoyaltyBalance",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/summary.js:onRequestGet",
+      "target": "function:functions/api/_lib/coupons.js:isBirthdayCouponEligible",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/summary.js:onRequestGet",
+      "target": "function:functions/api/_lib/return-attachments.js:signReturnAttachments",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/summary.js:computeTier",
+      "target": "function:functions/api/_lib/loyalty-config.js:computeTierFromSpend",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/support-requests.js",
+      "target": "function:functions/api/account/support-requests.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/support-requests.js",
+      "target": "function:functions/api/account/support-requests.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/support-requests.js",
+      "target": "function:functions/api/account/support-requests.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/account/support-requests.js",
+      "target": "function:functions/api/account/support-requests.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/account/support-requests.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/support-requests.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/account/support-requests.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/account/support-requests.js:onRequestGet",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/account/support-requests.js:onRequestPost",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "function:functions/api/admin/coupons/index.js:payloadFrom",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "function:functions/api/admin/coupons/index.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "function:functions/api/admin/coupons/index.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "function:functions/api/admin/coupons/index.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "function:functions/api/admin/coupons/index.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "function:functions/api/admin/coupons/index.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "function:functions/api/admin/coupons/index.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "file:functions/api/_lib/coupon-admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "file:functions/api/_lib/coupons.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin-audit.js:requireAdminPermission",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestGet",
+      "target": "function:functions/api/_lib/coupon-admin.js:enrichCouponForAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestPost",
+      "target": "function:functions/api/_lib/coupon-admin.js:enrichCouponForAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestPatch",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestPatch",
+      "target": "function:functions/api/_lib/coupon-admin.js:buildCouponPatchPayload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:onRequestPatch",
+      "target": "function:functions/api/_lib/coupon-admin.js:enrichCouponForAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/coupons/index.js:payloadFrom",
+      "target": "function:functions/api/_lib/coupons.js:sanitizeEligibilityMetadataPatch",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/coupons/index.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/dashboard.js",
+      "target": "function:functions/api/admin/dashboard.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/dashboard.js",
+      "target": "function:functions/api/admin/dashboard.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/dashboard.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/dashboard.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/dashboard.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/dashboard.js:onRequestGet",
+      "target": "function:functions/api/_lib/admin.js:assertAdmin",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/dashboard.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/session.js",
+      "target": "function:functions/api/admin/session.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/session.js",
+      "target": "function:functions/api/admin/session.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/session.js",
+      "target": "function:functions/api/admin/session.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/session.js",
+      "target": "function:functions/api/admin/session.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/session.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/session.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/session.js:onRequestPost",
+      "target": "function:functions/api/_lib/admin.js:issueAdminSession",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/session.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/auth/register.js",
+      "target": "function:functions/api/auth/register.js:validatePassword",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/auth/register.js",
+      "target": "function:functions/api/auth/register.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/auth/register.js",
+      "target": "function:functions/api/auth/register.js:onRequest",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/auth/register.js",
+      "target": "function:functions/api/auth/register.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/auth/register.js",
+      "target": "function:functions/api/auth/register.js:onRequest",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/auth/register.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/auth/register.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/auth/register.js:onRequestPost",
+      "target": "function:functions/api/_lib/supabase.js:upsertRow",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "function:functions/api/coupons/validate.js:calculateCouponPreview",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "function:functions/api/coupons/validate.js:buildTrustedCartLines",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "function:functions/api/coupons/validate.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "function:functions/api/coupons/validate.js:calculateCouponPreview",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "function:functions/api/coupons/validate.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "file:functions/api/_lib/coupons.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "file:functions/api/_lib/product-pricing.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/coupons/validate.js:buildTrustedCartLines",
+      "target": "function:functions/api/_lib/product-pricing.js:buildPricedCatalogIndex",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/coupons/validate.js:buildTrustedCartLines",
+      "target": "function:functions/api/_lib/product-pricing.js:getPayableUnitPriceTry",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/coupons/validate.js:onRequestPost",
+      "target": "function:functions/api/_lib/coupons.js:validateCouponEligibility",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/coupons/validate.js:onRequestPost",
+      "target": "function:functions/api/_lib/supabase.js:getUserFromAccessToken",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/coupons/validate.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/cron/birthday-benefits.js",
+      "target": "function:functions/api/cron/birthday-benefits.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/cron/birthday-benefits.js",
+      "target": "function:functions/api/cron/birthday-benefits.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/cron/birthday-benefits.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/cron/birthday-benefits.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/cron/points-expiry.js",
+      "target": "function:functions/api/cron/points-expiry.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/cron/points-expiry.js",
+      "target": "function:functions/api/cron/points-expiry.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/cron/points-expiry.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/cron/recalculate-memberships.js",
+      "target": "function:functions/api/cron/recalculate-memberships.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/cron/recalculate-memberships.js",
+      "target": "function:functions/api/cron/recalculate-memberships.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/cron/recalculate-memberships.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/cron/recalculate-memberships.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/cron/release-expired-inventory.js",
+      "target": "function:functions/api/cron/release-expired-inventory.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/cron/release-expired-inventory.js",
+      "target": "function:functions/api/cron/release-expired-inventory.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/cron/release-expired-inventory.js",
+      "target": "function:functions/api/cron/release-expired-inventory.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/cron/release-expired-inventory.js",
+      "target": "function:functions/api/cron/release-expired-inventory.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/cron/release-expired-inventory.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/cron/release-expired-inventory.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/dhl/webhook.js",
+      "target": "function:functions/api/dhl/webhook.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/dhl/webhook.js",
+      "target": "function:functions/api/dhl/webhook.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/dhl/webhook.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/invoices.js",
+      "target": "function:functions/api/invoices.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/invoices.js",
+      "target": "function:functions/api/invoices.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/invoices.js",
+      "target": "function:functions/api/invoices.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/invoices.js",
+      "target": "function:functions/api/invoices.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/invoices.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/invoices.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/invoices.js:onRequestGet",
+      "target": "function:functions/api/_lib/supabase.js:getUserFromAccessToken",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/loyalty/recalculate-user.js",
+      "target": "function:functions/api/loyalty/recalculate-user.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/loyalty/recalculate-user.js",
+      "target": "function:functions/api/loyalty/recalculate-user.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/loyalty/recalculate-user.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/loyalty/recalculate-user.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/loyalty/recalculate-user.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/loyalty/recalculate-user.js:onRequestPost",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/loyalty/redeem.js",
+      "target": "function:functions/api/loyalty/redeem.js:findReplay",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/loyalty/redeem.js",
+      "target": "function:functions/api/loyalty/redeem.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/loyalty/redeem.js",
+      "target": "function:functions/api/loyalty/redeem.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/loyalty/redeem.js",
+      "target": "file:functions/api/_lib/account.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/loyalty/redeem.js",
+      "target": "file:functions/api/_lib/loyalty-ledger.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/loyalty/redeem.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/loyalty/redeem.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/loyalty/redeem.js:onRequestPost",
+      "target": "function:functions/api/_lib/loyalty-ledger.js:getLoyaltyBalance",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/loyalty/redeem.js:onRequestPost",
+      "target": "function:functions/api/_lib/account.js:requireUser",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/payment/bank-accounts.js",
+      "target": "function:functions/api/payment/bank-accounts.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/payment/bank-accounts.js",
+      "target": "function:functions/api/payment/bank-accounts.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/payment/bank-accounts.js",
+      "target": "file:functions/api/_lib/bank-accounts.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/payment/bank-accounts.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/payment/bank-accounts.js:onRequestGet",
+      "target": "function:functions/api/_lib/bank-accounts.js:getValidatedBankAccounts",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/shipping/track.js",
+      "target": "function:functions/api/shipping/track.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/shipping/track.js",
+      "target": "function:functions/api/shipping/track.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/shipping/track.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/shipping/track.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    }
+  ]
+}

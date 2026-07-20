@@ -1,0 +1,5591 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 9,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 9,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 9,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "functions/api/_lib/catalog.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 98,
+      "nonEmptyLines": 84,
+      "functions": [
+        {
+          "name": "toArray",
+          "startLine": 3,
+          "endLine": 7,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "normalizeText",
+          "startLine": 9,
+          "endLine": 13,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "slugify",
+          "startLine": 15,
+          "endLine": 26,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "extractSlug",
+          "startLine": 37,
+          "endLine": 43,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "normalizeProduct",
+          "startLine": 45,
+          "endLine": 64,
+          "params": [
+            "product"
+          ]
+        },
+        {
+          "name": "getCatalogProductByHandle",
+          "startLine": 80,
+          "endLine": 88,
+          "params": [
+            "handle"
+          ]
+        },
+        {
+          "name": "getCatalogProductByName",
+          "startLine": 90,
+          "endLine": 94,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "resolveCatalogProduct",
+          "startLine": 96,
+          "endLine": 98,
+          "params": [
+            "reference"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "products",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "catalog",
+          "line": 72,
+          "isDefault": false
+        },
+        {
+          "name": "getCatalogProductByHandle",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "getCatalogProductByName",
+          "line": 90,
+          "isDefault": false
+        },
+        {
+          "name": "resolveCatalogProduct",
+          "line": 96,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "toArray",
+          "callee": "Array.isArray",
+          "lineNumber": 4
+        },
+        {
+          "caller": "toArray",
+          "callee": "value.filter",
+          "lineNumber": 4
+        },
+        {
+          "caller": "normalizeText",
+          "callee": "String(value || '')\n    .trim()\n    .toLocaleLowerCase",
+          "lineNumber": 10
+        },
+        {
+          "caller": "normalizeText",
+          "callee": "String(value || '')\n    .trim",
+          "lineNumber": 10
+        },
+        {
+          "caller": "normalizeText",
+          "callee": "String",
+          "lineNumber": 10
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace(/ı/g, 'i')\n    .replace(/ö/g, 'o')\n    .replace(/ş/g, 's')\n    .replace(/ü/g, 'u')\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace(/ı/g, 'i')\n    .replace(/ö/g, 'o')\n    .replace(/ş/g, 's')\n    .replace(/ü/g, 'u')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace(/ı/g, 'i')\n    .replace(/ö/g, 'o')\n    .replace(/ş/g, 's')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace(/ı/g, 'i')\n    .replace(/ö/g, 'o')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace(/ı/g, 'i')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace(/ç/g, 'c')\n    .replace(/ğ/g, 'g')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace(/ç/g, 'c')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase('tr-TR')\n    .replace",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String(value || '')\n    .toLocaleLowerCase",
+          "lineNumber": 16
+        },
+        {
+          "caller": "slugify",
+          "callee": "String",
+          "lineNumber": 16
+        },
+        {
+          "caller": "extractSlug",
+          "callee": "String(value || '').trim",
+          "lineNumber": 38
+        },
+        {
+          "caller": "extractSlug",
+          "callee": "String",
+          "lineNumber": 38
+        },
+        {
+          "caller": "extractSlug",
+          "callee": "raw.match",
+          "lineNumber": 40
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "extractSlug",
+          "lineNumber": 46
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String(product.category || '').trim",
+          "lineNumber": 49
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String",
+          "lineNumber": 49
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String(product.categorySlug || CATEGORY_SLUGS[category] || slugify(category)).trim",
+          "lineNumber": 50
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String",
+          "lineNumber": 50
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "slugify",
+          "lineNumber": 50
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String(product.name || '').trim",
+          "lineNumber": 55
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String",
+          "lineNumber": 55
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String(product.brand || '').trim",
+          "lineNumber": 56
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String",
+          "lineNumber": 56
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "Number",
+          "lineNumber": 57
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String(product.image || '').trim",
+          "lineNumber": 58
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String",
+          "lineNumber": 58
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String(product.url || `/products/${slug}.html`).trim",
+          "lineNumber": 59
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String",
+          "lineNumber": 59
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "toArray(product.aliases).map((alias) => String(alias || '').trim()).filter",
+          "lineNumber": 62
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "toArray(product.aliases).map",
+          "lineNumber": 62
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "toArray",
+          "lineNumber": 62
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String(alias || '').trim",
+          "lineNumber": 62
+        },
+        {
+          "caller": "normalizeProduct",
+          "callee": "String",
+          "lineNumber": 62
+        },
+        {
+          "caller": "getCatalogProductByHandle",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 83
+        },
+        {
+          "caller": "getCatalogProductByHandle",
+          "callee": "extractSlug",
+          "lineNumber": 85
+        },
+        {
+          "caller": "getCatalogProductByName",
+          "callee": "normalizeText",
+          "lineNumber": 91
+        },
+        {
+          "caller": "resolveCatalogProduct",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 97
+        },
+        {
+          "caller": "resolveCatalogProduct",
+          "callee": "getCatalogProductByName",
+          "lineNumber": 97
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/product-pricing.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 609,
+      "nonEmptyLines": 552,
+      "functions": [
+        {
+          "name": "normalizeProductSlug",
+          "startLine": 25,
+          "endLine": 32,
+          "params": [
+            "slug"
+          ]
+        },
+        {
+          "name": "getStaticCatalogProduct",
+          "startLine": 34,
+          "endLine": 36,
+          "params": [
+            "slug"
+          ]
+        },
+        {
+          "name": "getBaseCatalogPriceTry",
+          "startLine": 38,
+          "endLine": 42,
+          "params": [
+            "catalogProduct"
+          ]
+        },
+        {
+          "name": "validateRegularPriceInput",
+          "startLine": 44,
+          "endLine": 66,
+          "params": [
+            "rawPrice"
+          ]
+        },
+        {
+          "name": "normalizeNullableAdminField",
+          "startLine": 68,
+          "endLine": 72,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "normalizeNullableAdminIntegerPrice",
+          "startLine": 74,
+          "endLine": 92,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "normalizeNullableAdminTimestamp",
+          "startLine": 94,
+          "endLine": 103,
+          "params": [
+            "raw"
+          ]
+        },
+        {
+          "name": "isMissingSaleColumnError",
+          "startLine": 105,
+          "endLine": 108,
+          "params": [
+            "error"
+          ]
+        },
+        {
+          "name": "isMissingSaleAuditColumnError",
+          "startLine": 110,
+          "endLine": 113,
+          "params": [
+            "error"
+          ]
+        },
+        {
+          "name": "validateAdminPriceUpdateInput",
+          "startLine": 115,
+          "endLine": 163,
+          "params": []
+        },
+        {
+          "name": "buildAdminPriceStatusLabel",
+          "startLine": 165,
+          "endLine": 172,
+          "params": [
+            "pricing"
+          ]
+        },
+        {
+          "name": "buildPriceHistoryEventMeta",
+          "startLine": 174,
+          "endLine": 201,
+          "params": []
+        },
+        {
+          "name": "normalizePriceHistoryItem",
+          "startLine": 203,
+          "endLine": 209,
+          "params": []
+        },
+        {
+          "name": "resolveEffectivePricing",
+          "startLine": 211,
+          "endLine": 321,
+          "params": [
+            "catalogProduct"
+          ]
+        },
+        {
+          "name": "isMissingOverrideTableError",
+          "startLine": 323,
+          "endLine": 328,
+          "params": [
+            "error"
+          ]
+        },
+        {
+          "name": "loadPriceOverrideRows",
+          "startLine": 330,
+          "endLine": 358,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "buildPriceOverrideMap",
+          "startLine": 360,
+          "endLine": 362,
+          "params": []
+        },
+        {
+          "name": "loadActivePriceOverrideMap",
+          "startLine": 364,
+          "endLine": 367,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "getPayableUnitPriceTry",
+          "startLine": 369,
+          "endLine": 376,
+          "params": [
+            "pricedProduct"
+          ]
+        },
+        {
+          "name": "compareAtIsDisplayOnly",
+          "startLine": 378,
+          "endLine": 384,
+          "params": []
+        },
+        {
+          "name": "applyEffectivePricingToCatalogProduct",
+          "startLine": 386,
+          "endLine": 406,
+          "params": [
+            "catalogProduct",
+            "pricing"
+          ]
+        },
+        {
+          "name": "resolveProductPricing",
+          "startLine": 408,
+          "endLine": 413,
+          "params": [
+            "context",
+            "slug"
+          ]
+        },
+        {
+          "name": "buildPricedCatalogIndex",
+          "startLine": 415,
+          "endLine": 427,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "buildAdminPricingFields",
+          "startLine": 429,
+          "endLine": 463,
+          "params": [
+            "catalogProduct",
+            "pricing"
+          ]
+        },
+        {
+          "name": "upsertAdminProductPriceOverride",
+          "startLine": 465,
+          "endLine": 609,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "classes": [
+        {
+          "name": "ProductPriceValidationError",
+          "startLine": 16,
+          "endLine": 23,
+          "methods": [
+            "constructor"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "EFFECTIVE_PRICE_SOURCE_STATIC",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "EFFECTIVE_PRICE_SOURCE_OVERRIDE",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "EFFECTIVE_PRICE_SOURCE_SALE",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "SUPPORTED_CURRENCY",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "MAX_REGULAR_PRICE_TRY",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "CATALOG_MISSING_WARNING",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "CATALOG_INVALID_WARNING",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "CATALOG_MISSING_EDIT_WARNING",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "PRICING_PERMISSION_DENIED",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "P1E_MIGRATION_REQUIRED_CODE",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "P1E_MIGRATION_REQUIRED_MESSAGE",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "ProductPriceValidationError",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeProductSlug",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "getStaticCatalogProduct",
+          "line": 34,
+          "isDefault": false
+        },
+        {
+          "name": "getBaseCatalogPriceTry",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "validateRegularPriceInput",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeNullableAdminField",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeNullableAdminIntegerPrice",
+          "line": 74,
+          "isDefault": false
+        },
+        {
+          "name": "normalizeNullableAdminTimestamp",
+          "line": 94,
+          "isDefault": false
+        },
+        {
+          "name": "isMissingSaleColumnError",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "isMissingSaleAuditColumnError",
+          "line": 110,
+          "isDefault": false
+        },
+        {
+          "name": "validateAdminPriceUpdateInput",
+          "line": 115,
+          "isDefault": false
+        },
+        {
+          "name": "buildAdminPriceStatusLabel",
+          "line": 165,
+          "isDefault": false
+        },
+        {
+          "name": "buildPriceHistoryEventMeta",
+          "line": 174,
+          "isDefault": false
+        },
+        {
+          "name": "normalizePriceHistoryItem",
+          "line": 203,
+          "isDefault": false
+        },
+        {
+          "name": "resolveEffectivePricing",
+          "line": 211,
+          "isDefault": false
+        },
+        {
+          "name": "loadPriceOverrideRows",
+          "line": 330,
+          "isDefault": false
+        },
+        {
+          "name": "buildPriceOverrideMap",
+          "line": 360,
+          "isDefault": false
+        },
+        {
+          "name": "loadActivePriceOverrideMap",
+          "line": 364,
+          "isDefault": false
+        },
+        {
+          "name": "getPayableUnitPriceTry",
+          "line": 369,
+          "isDefault": false
+        },
+        {
+          "name": "compareAtIsDisplayOnly",
+          "line": 378,
+          "isDefault": false
+        },
+        {
+          "name": "applyEffectivePricingToCatalogProduct",
+          "line": 386,
+          "isDefault": false
+        },
+        {
+          "name": "resolveProductPricing",
+          "line": 408,
+          "isDefault": false
+        },
+        {
+          "name": "buildPricedCatalogIndex",
+          "line": 415,
+          "isDefault": false
+        },
+        {
+          "name": "buildAdminPricingFields",
+          "line": 429,
+          "isDefault": false
+        },
+        {
+          "name": "upsertAdminProductPriceOverride",
+          "line": 465,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "super",
+          "lineNumber": 18
+        },
+        {
+          "caller": "normalizeProductSlug",
+          "callee": "String(slug || '')\n    .trim()\n    .replace(/^.*\\/products\\//, '')\n    .replace(/\\.html.*$/, '')\n    .replace(/[^a-z0-9-]/gi, '')\n    .toLowerCase",
+          "lineNumber": 26
+        },
+        {
+          "caller": "normalizeProductSlug",
+          "callee": "String(slug || '')\n    .trim()\n    .replace(/^.*\\/products\\//, '')\n    .replace(/\\.html.*$/, '')\n    .replace",
+          "lineNumber": 26
+        },
+        {
+          "caller": "normalizeProductSlug",
+          "callee": "String(slug || '')\n    .trim()\n    .replace(/^.*\\/products\\//, '')\n    .replace",
+          "lineNumber": 26
+        },
+        {
+          "caller": "normalizeProductSlug",
+          "callee": "String(slug || '')\n    .trim()\n    .replace",
+          "lineNumber": 26
+        },
+        {
+          "caller": "normalizeProductSlug",
+          "callee": "String(slug || '')\n    .trim",
+          "lineNumber": 26
+        },
+        {
+          "caller": "normalizeProductSlug",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "getStaticCatalogProduct",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 35
+        },
+        {
+          "caller": "getStaticCatalogProduct",
+          "callee": "normalizeProductSlug",
+          "lineNumber": 35
+        },
+        {
+          "caller": "getBaseCatalogPriceTry",
+          "callee": "Number",
+          "lineNumber": 39
+        },
+        {
+          "caller": "getBaseCatalogPriceTry",
+          "callee": "Number.isFinite",
+          "lineNumber": 40
+        },
+        {
+          "caller": "getBaseCatalogPriceTry",
+          "callee": "Number.isInteger",
+          "lineNumber": 40
+        },
+        {
+          "caller": "validateRegularPriceInput",
+          "callee": "Number",
+          "lineNumber": 48
+        },
+        {
+          "caller": "validateRegularPriceInput",
+          "callee": "Number.isFinite",
+          "lineNumber": 49
+        },
+        {
+          "caller": "validateRegularPriceInput",
+          "callee": "Number.isNaN",
+          "lineNumber": 49
+        },
+        {
+          "caller": "validateRegularPriceInput",
+          "callee": "Number.isInteger",
+          "lineNumber": 55
+        },
+        {
+          "caller": "validateRegularPriceInput",
+          "callee": "String(rawCurrency || SUPPORTED_CURRENCY).trim().toUpperCase",
+          "lineNumber": 61
+        },
+        {
+          "caller": "validateRegularPriceInput",
+          "callee": "String(rawCurrency || SUPPORTED_CURRENCY).trim",
+          "lineNumber": 61
+        },
+        {
+          "caller": "validateRegularPriceInput",
+          "callee": "String",
+          "lineNumber": 61
+        },
+        {
+          "caller": "normalizeNullableAdminIntegerPrice",
+          "callee": "normalizeNullableAdminField",
+          "lineNumber": 75
+        },
+        {
+          "caller": "normalizeNullableAdminIntegerPrice",
+          "callee": "Number",
+          "lineNumber": 78
+        },
+        {
+          "caller": "normalizeNullableAdminIntegerPrice",
+          "callee": "Number.isFinite",
+          "lineNumber": 79
+        },
+        {
+          "caller": "normalizeNullableAdminIntegerPrice",
+          "callee": "Number.isNaN",
+          "lineNumber": 79
+        },
+        {
+          "caller": "normalizeNullableAdminIntegerPrice",
+          "callee": "Number.isInteger",
+          "lineNumber": 85
+        },
+        {
+          "caller": "normalizeNullableAdminTimestamp",
+          "callee": "normalizeNullableAdminField",
+          "lineNumber": 95
+        },
+        {
+          "caller": "normalizeNullableAdminTimestamp",
+          "callee": "Date.parse",
+          "lineNumber": 98
+        },
+        {
+          "caller": "normalizeNullableAdminTimestamp",
+          "callee": "String",
+          "lineNumber": 98
+        },
+        {
+          "caller": "normalizeNullableAdminTimestamp",
+          "callee": "Number.isFinite",
+          "lineNumber": 99
+        },
+        {
+          "caller": "normalizeNullableAdminTimestamp",
+          "callee": "new Date(ms).toISOString",
+          "lineNumber": 102
+        },
+        {
+          "caller": "isMissingSaleColumnError",
+          "callee": "String",
+          "lineNumber": 106
+        },
+        {
+          "caller": "isMissingSaleColumnError",
+          "callee": "/sale_price_try|compare_at_price_try|sale_starts_at|sale_ends_at|column .* does not exist|schema cache/i.test",
+          "lineNumber": 107
+        },
+        {
+          "caller": "isMissingSaleAuditColumnError",
+          "callee": "String",
+          "lineNumber": 111
+        },
+        {
+          "caller": "isMissingSaleAuditColumnError",
+          "callee": "/old_sale_price_try|new_sale_price_try|old_compare_at_price_try|new_compare_at_price_try|old_sale_starts_at|new_sale_starts_at|old_sale_ends_at|new_sale_ends_at|column .* does not exist|schema cache/i.test",
+          "lineNumber": 112
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "validateRegularPriceInput",
+          "lineNumber": 116
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "normalizeNullableAdminIntegerPrice",
+          "lineNumber": 121
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "normalizeNullableAdminIntegerPrice",
+          "lineNumber": 125
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "normalizeNullableAdminTimestamp",
+          "lineNumber": 129
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "normalizeNullableAdminTimestamp",
+          "lineNumber": 130
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "['sale_price_try', 'compare_at_price_try', 'sale_starts_at', 'sale_ends_at']\n    .some",
+          "lineNumber": 132
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "Date.parse",
+          "lineNumber": 149
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "String",
+          "lineNumber": 149
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "Date.parse",
+          "lineNumber": 150
+        },
+        {
+          "caller": "validateAdminPriceUpdateInput",
+          "callee": "String",
+          "lineNumber": 150
+        },
+        {
+          "caller": "addChange",
+          "callee": "changed_fields.push",
+          "lineNumber": 181
+        },
+        {
+          "caller": "addChange",
+          "callee": "labels.push",
+          "lineNumber": 182
+        },
+        {
+          "caller": "addChange",
+          "callee": "labels.push",
+          "lineNumber": 183
+        },
+        {
+          "caller": "buildPriceHistoryEventMeta",
+          "callee": "addChange",
+          "lineNumber": 186
+        },
+        {
+          "caller": "buildPriceHistoryEventMeta",
+          "callee": "addChange",
+          "lineNumber": 187
+        },
+        {
+          "caller": "buildPriceHistoryEventMeta",
+          "callee": "addChange",
+          "lineNumber": 188
+        },
+        {
+          "caller": "buildPriceHistoryEventMeta",
+          "callee": "changed_fields.push",
+          "lineNumber": 193
+        },
+        {
+          "caller": "buildPriceHistoryEventMeta",
+          "callee": "labels.push",
+          "lineNumber": 194
+        },
+        {
+          "caller": "buildPriceHistoryEventMeta",
+          "callee": "labels.join",
+          "lineNumber": 199
+        },
+        {
+          "caller": "normalizePriceHistoryItem",
+          "callee": "buildPriceHistoryEventMeta",
+          "lineNumber": 204
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "normalizeProductSlug",
+          "lineNumber": 212
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "getBaseCatalogPriceTry",
+          "lineNumber": 213
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Boolean",
+          "lineNumber": 214
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Boolean",
+          "lineNumber": 216
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "normalizeProductSlug",
+          "lineNumber": 219
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number",
+          "lineNumber": 225
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 226
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isInteger",
+          "lineNumber": 226
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 241
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number",
+          "lineNumber": 241
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number",
+          "lineNumber": 241
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 242
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number",
+          "lineNumber": 242
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number",
+          "lineNumber": 242
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Date.now",
+          "lineNumber": 243
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Date.parse",
+          "lineNumber": 244
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "String",
+          "lineNumber": 244
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Date.parse",
+          "lineNumber": 245
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "String",
+          "lineNumber": 245
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 267
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isInteger",
+          "lineNumber": 267
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 269
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 270
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 300
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isFinite",
+          "lineNumber": 307
+        },
+        {
+          "caller": "resolveEffectivePricing",
+          "callee": "Number.isInteger",
+          "lineNumber": 307
+        },
+        {
+          "caller": "isMissingOverrideTableError",
+          "callee": "String",
+          "lineNumber": 324
+        },
+        {
+          "caller": "isMissingOverrideTableError",
+          "callee": "/column .* does not exist/i.test",
+          "lineNumber": 326
+        },
+        {
+          "caller": "isMissingOverrideTableError",
+          "callee": "/relation .*product_price_overrides|product_price_overrides.*relation|product_price_overrides.*does not exist|404/i.test",
+          "lineNumber": 327
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "Array.isArray",
+          "lineNumber": 335
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "slugs.map(normalizeProductSlug).filter",
+          "lineNumber": 336
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "slugs.map",
+          "lineNumber": 336
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "normalized.join",
+          "lineNumber": 339
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "selectRows",
+          "lineNumber": 342
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "isMissingOverrideTableError",
+          "lineNumber": 344
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "String",
+          "lineNumber": 346
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "Number",
+          "lineNumber": 347
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "/sale_price_try|compare_at_price_try|sale_starts_at|sale_ends_at/i.test",
+          "lineNumber": 349
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "/column .* does not exist/i.test",
+          "lineNumber": 350
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "/schema cache/i.test",
+          "lineNumber": 351
+        },
+        {
+          "caller": "loadPriceOverrideRows",
+          "callee": "selectRows",
+          "lineNumber": 354
+        },
+        {
+          "caller": "buildPriceOverrideMap",
+          "callee": "(rows || []).map",
+          "lineNumber": 361
+        },
+        {
+          "caller": "buildPriceOverrideMap",
+          "callee": "normalizeProductSlug",
+          "lineNumber": 361
+        },
+        {
+          "caller": "loadActivePriceOverrideMap",
+          "callee": "loadPriceOverrideRows",
+          "lineNumber": 365
+        },
+        {
+          "caller": "loadActivePriceOverrideMap",
+          "callee": "buildPriceOverrideMap",
+          "lineNumber": 366
+        },
+        {
+          "caller": "getPayableUnitPriceTry",
+          "callee": "Number",
+          "lineNumber": 371
+        },
+        {
+          "caller": "getPayableUnitPriceTry",
+          "callee": "Number.isFinite",
+          "lineNumber": 372
+        },
+        {
+          "caller": "getPayableUnitPriceTry",
+          "callee": "Number.isInteger",
+          "lineNumber": 372
+        },
+        {
+          "caller": "getPayableUnitPriceTry",
+          "callee": "Number",
+          "lineNumber": 373
+        },
+        {
+          "caller": "getPayableUnitPriceTry",
+          "callee": "Number.isFinite",
+          "lineNumber": 374
+        },
+        {
+          "caller": "compareAtIsDisplayOnly",
+          "callee": "Number",
+          "lineNumber": 379
+        },
+        {
+          "caller": "compareAtIsDisplayOnly",
+          "callee": "Number",
+          "lineNumber": 380
+        },
+        {
+          "caller": "compareAtIsDisplayOnly",
+          "callee": "Number.isFinite",
+          "lineNumber": 381
+        },
+        {
+          "caller": "compareAtIsDisplayOnly",
+          "callee": "Number.isFinite",
+          "lineNumber": 382
+        },
+        {
+          "caller": "resolveProductPricing",
+          "callee": "normalizeProductSlug",
+          "lineNumber": 409
+        },
+        {
+          "caller": "resolveProductPricing",
+          "callee": "getStaticCatalogProduct",
+          "lineNumber": 410
+        },
+        {
+          "caller": "resolveProductPricing",
+          "callee": "loadActivePriceOverrideMap",
+          "lineNumber": 411
+        },
+        {
+          "caller": "resolveProductPricing",
+          "callee": "resolveEffectivePricing",
+          "lineNumber": 412
+        },
+        {
+          "caller": "resolveProductPricing",
+          "callee": "map.get",
+          "lineNumber": 412
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "loadActivePriceOverrideMap",
+          "lineNumber": 416
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "Array.isArray",
+          "lineNumber": 418
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "resolveEffectivePricing",
+          "lineNumber": 420
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "overrideMap.get",
+          "lineNumber": 420
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "applyEffectivePricingToCatalogProduct",
+          "lineNumber": 421
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "[priced.id, priced.slug].concat(priced.aliases || []).filter(Boolean).forEach",
+          "lineNumber": 422
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "[priced.id, priced.slug].concat(priced.aliases || []).filter",
+          "lineNumber": 422
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "[priced.id, priced.slug].concat",
+          "lineNumber": 422
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "index.set",
+          "lineNumber": 423
+        },
+        {
+          "caller": "buildPricedCatalogIndex",
+          "callee": "String",
+          "lineNumber": 423
+        },
+        {
+          "caller": "buildAdminPricingFields",
+          "callee": "normalizeProductSlug",
+          "lineNumber": 430
+        },
+        {
+          "caller": "buildAdminPricingFields",
+          "callee": "String(catalogProduct?.name || '').trim",
+          "lineNumber": 431
+        },
+        {
+          "caller": "buildAdminPricingFields",
+          "callee": "String",
+          "lineNumber": 431
+        },
+        {
+          "caller": "buildAdminPricingFields",
+          "callee": "Boolean",
+          "lineNumber": 432
+        },
+        {
+          "caller": "buildAdminPricingFields",
+          "callee": "Boolean",
+          "lineNumber": 446
+        },
+        {
+          "caller": "buildAdminPricingFields",
+          "callee": "buildAdminPriceStatusLabel",
+          "lineNumber": 450
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "normalizeProductSlug",
+          "lineNumber": 476
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "getStaticCatalogProduct",
+          "lineNumber": 477
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "loadPriceOverrideRows",
+          "lineNumber": 482
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "getBaseCatalogPriceTry",
+          "lineNumber": 484
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 490
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "new Date().toISOString",
+          "lineNumber": 491
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "[sale_price_try, compare_at_price_try, sale_starts_at, sale_ends_at]\n    .some",
+          "lineNumber": 497
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "upsertRow",
+          "lineNumber": 522
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "isMissingSaleColumnError",
+          "lineNumber": 529
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "isMissingSaleColumnError",
+          "lineNumber": 532
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "upsertRow",
+          "lineNumber": 533
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "insertRow",
+          "lineNumber": 572
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "isMissingSaleAuditColumnError",
+          "lineNumber": 574
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "insertRow",
+          "lineNumber": 578
+        },
+        {
+          "caller": "upsertAdminProductPriceOverride",
+          "callee": "resolveEffectivePricing",
+          "lineNumber": 593
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 36,
+        "functionCount": 25,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "functions/api/_lib/products-data.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 5,
+      "nonEmptyLines": 4,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/_lib/restock-email.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 126,
+      "nonEmptyLines": 116,
+      "functions": [
+        {
+          "name": "sender",
+          "startLine": 15,
+          "endLine": 20,
+          "params": []
+        },
+        {
+          "name": "formatMoney",
+          "startLine": 22,
+          "endLine": 28,
+          "params": []
+        },
+        {
+          "name": "emailImage",
+          "startLine": 34,
+          "endLine": 45,
+          "params": []
+        },
+        {
+          "name": "resolveDisplayPricing",
+          "startLine": 49,
+          "endLine": 58,
+          "params": [
+            "envOrContext",
+            "product"
+          ]
+        },
+        {
+          "name": "priceLineHtml",
+          "startLine": 60,
+          "endLine": 67,
+          "params": []
+        },
+        {
+          "name": "resolveProduct",
+          "startLine": 69,
+          "endLine": 81,
+          "params": []
+        },
+        {
+          "name": "renderRestockEmail",
+          "startLine": 83,
+          "endLine": 109,
+          "params": []
+        },
+        {
+          "name": "sendRestockEmail",
+          "startLine": 111,
+          "endLine": 126,
+          "params": [
+            "env"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "renderRestockEmail",
+          "line": 83,
+          "isDefault": false
+        },
+        {
+          "name": "sendRestockEmail",
+          "line": 111,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "formatMoney",
+          "callee": "new Intl.NumberFormat('tr-TR', { style: 'currency', currency: currency || 'TRY', maximumFractionDigits: 0 }).format",
+          "lineNumber": 24
+        },
+        {
+          "caller": "formatMoney",
+          "callee": "Number",
+          "lineNumber": 24
+        },
+        {
+          "caller": "formatMoney",
+          "callee": "Number(value || 0).toFixed",
+          "lineNumber": 26
+        },
+        {
+          "caller": "formatMoney",
+          "callee": "Number",
+          "lineNumber": 26
+        },
+        {
+          "caller": "emailImage",
+          "callee": "`${productName || product?.name || ''}`.toLocaleLowerCase",
+          "lineNumber": 35
+        },
+        {
+          "caller": "emailImage",
+          "callee": "String(product?.slug || product?.id || '').trim",
+          "lineNumber": 36
+        },
+        {
+          "caller": "emailImage",
+          "callee": "String",
+          "lineNumber": 36
+        },
+        {
+          "caller": "emailImage",
+          "callee": "toAbsoluteEmailUrl",
+          "lineNumber": 37
+        },
+        {
+          "caller": "emailImage",
+          "callee": "name.includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "emailImage",
+          "callee": "name.includes",
+          "lineNumber": 38
+        },
+        {
+          "caller": "emailImage",
+          "callee": "toAbsoluteEmailUrl",
+          "lineNumber": 38
+        },
+        {
+          "caller": "emailImage",
+          "callee": "/beauty-of-joseon.*relief-sun-spf50|beauty-of-joseon-relief-sun-spf50/i.test",
+          "lineNumber": 39
+        },
+        {
+          "caller": "emailImage",
+          "callee": "String",
+          "lineNumber": 39
+        },
+        {
+          "caller": "emailImage",
+          "callee": "toAbsoluteEmailUrl",
+          "lineNumber": 40
+        },
+        {
+          "caller": "emailImage",
+          "callee": "resolveEmailProductImage",
+          "lineNumber": 44
+        },
+        {
+          "caller": "resolveDisplayPricing",
+          "callee": "loadActivePriceOverrideMap",
+          "lineNumber": 52
+        },
+        {
+          "caller": "resolveDisplayPricing",
+          "callee": "resolveEffectivePricing",
+          "lineNumber": 53
+        },
+        {
+          "caller": "resolveDisplayPricing",
+          "callee": "overrideMap.get",
+          "lineNumber": 53
+        },
+        {
+          "caller": "resolveDisplayPricing",
+          "callee": "applyEffectivePricingToCatalogProduct",
+          "lineNumber": 54
+        },
+        {
+          "caller": "priceLineHtml",
+          "callee": "Number",
+          "lineNumber": 61
+        },
+        {
+          "caller": "priceLineHtml",
+          "callee": "formatMoney",
+          "lineNumber": 62
+        },
+        {
+          "caller": "priceLineHtml",
+          "callee": "Number",
+          "lineNumber": 63
+        },
+        {
+          "caller": "priceLineHtml",
+          "callee": "formatMoney",
+          "lineNumber": 64
+        },
+        {
+          "caller": "priceLineHtml",
+          "callee": "escapeHtml",
+          "lineNumber": 66
+        },
+        {
+          "caller": "priceLineHtml",
+          "callee": "escapeHtml",
+          "lineNumber": 66
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 71
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "getCatalogProductByName",
+          "lineNumber": 71
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "toAbsoluteEmailUrl",
+          "lineNumber": 72
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "getEmailOrigin",
+          "lineNumber": 72
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "emailImage",
+          "lineNumber": 73
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "resolveProduct",
+          "lineNumber": 84
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "getEmailOrigin",
+          "lineNumber": 85
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "Number",
+          "lineNumber": 87
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "formatMoney",
+          "lineNumber": 88
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "emailProductThumb",
+          "lineNumber": 93
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 95
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 96
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "priceLineHtml",
+          "lineNumber": 97
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "escapeHtml",
+          "lineNumber": 98
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "renderEmailShell",
+          "lineNumber": 99
+        },
+        {
+          "caller": "renderRestockEmail",
+          "callee": "emailCtaRow",
+          "lineNumber": 104
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "String(to || '').trim().toLowerCase",
+          "lineNumber": 112
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "String(to || '').trim",
+          "lineNumber": 112
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "String",
+          "lineNumber": 112
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 115
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "getCatalogProductByName",
+          "lineNumber": 115
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "resolveDisplayPricing",
+          "lineNumber": 116
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "renderRestockEmail",
+          "lineNumber": 117
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "fetch",
+          "lineNumber": 118
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "JSON.stringify",
+          "lineNumber": 121
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "sender",
+          "lineNumber": 121
+        },
+        {
+          "caller": "sendRestockEmail",
+          "callee": "response.text",
+          "lineNumber": 123
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/inventory/health.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 61,
+      "nonEmptyLines": 58,
+      "functions": [
+        {
+          "name": "duplicates",
+          "startLine": 8,
+          "endLine": 12,
+          "params": [
+            "values"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 14,
+          "endLine": 61,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "duplicates",
+          "callee": "values.forEach",
+          "lineNumber": 10
+        },
+        {
+          "caller": "duplicates",
+          "callee": "counts.set",
+          "lineNumber": 10
+        },
+        {
+          "caller": "duplicates",
+          "callee": "counts.get",
+          "lineNumber": 10
+        },
+        {
+          "caller": "duplicates",
+          "callee": "Array.from(counts.entries()).filter(([, count]) => count > 1).map",
+          "lineNumber": 11
+        },
+        {
+          "caller": "duplicates",
+          "callee": "Array.from(counts.entries()).filter",
+          "lineNumber": 11
+        },
+        {
+          "caller": "duplicates",
+          "callee": "Array.from",
+          "lineNumber": 11
+        },
+        {
+          "caller": "duplicates",
+          "callee": "counts.entries",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 17
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.map",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(rows || []).map",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(row.product_slug || '').trim().toLowerCase",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(row.product_slug || '').trim",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 22
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogSlugs.filter",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "inventorySet.has",
+          "lineNumber": 25
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "inventorySlugs.filter",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogSet.has",
+          "lineNumber": 26
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(rows || []).flatMap",
+          "lineNumber": 27
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 29
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 30
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number.isInteger",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "issues.push",
+          "lineNumber": 31
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number.isInteger",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "issues.push",
+          "lineNumber": 32
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "issues.push",
+          "lineNumber": 33
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogSet.has",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "issues.push",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(rows || []).filter((row) => row.allow_backorder).map",
+          "lineNumber": 37
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(rows || []).filter",
+          "lineNumber": 37
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "duplicates",
+          "lineNumber": 41
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "duplicates",
+          "lineNumber": 42
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 44
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "new Date().toISOString",
+          "lineNumber": 56
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 59
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 1,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/products.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 179,
+      "nonEmptyLines": 168,
+      "functions": [
+        {
+          "name": "normalizeStatus",
+          "startLine": 15,
+          "endLine": 19,
+          "params": [
+            "status"
+          ]
+        },
+        {
+          "name": "formatInventoryRow",
+          "startLine": 21,
+          "endLine": 29,
+          "params": [
+            "inv"
+          ]
+        },
+        {
+          "name": "buildAdminCatalogProductRow",
+          "startLine": 31,
+          "endLine": 41,
+          "params": [
+            "catalogProduct",
+            "inv",
+            "overrideRow"
+          ]
+        },
+        {
+          "name": "buildAdminOrphanInventoryRow",
+          "startLine": 43,
+          "endLine": 59,
+          "params": [
+            "inv"
+          ]
+        },
+        {
+          "name": "applyInventoryStatusPayload",
+          "startLine": 61,
+          "endLine": 76,
+          "params": [
+            "payload",
+            "status"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 78,
+          "endLine": 114,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPatch",
+          "startLine": 116,
+          "endLine": 146,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 148,
+          "endLine": 179,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 78,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPatch",
+          "line": 116,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 148,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "normalizeStatus",
+          "callee": "['active', 'inactive', 'discontinued'].includes",
+          "lineNumber": 16
+        },
+        {
+          "caller": "normalizeStatus",
+          "callee": "['draft', 'archived'].includes",
+          "lineNumber": 17
+        },
+        {
+          "caller": "buildAdminCatalogProductRow",
+          "callee": "resolveEffectivePricing",
+          "lineNumber": 32
+        },
+        {
+          "caller": "buildAdminCatalogProductRow",
+          "callee": "buildAdminPricingFields",
+          "lineNumber": 33
+        },
+        {
+          "caller": "buildAdminCatalogProductRow",
+          "callee": "String(productSource?.updated || '').trim",
+          "lineNumber": 38
+        },
+        {
+          "caller": "buildAdminCatalogProductRow",
+          "callee": "String",
+          "lineNumber": 38
+        },
+        {
+          "caller": "buildAdminCatalogProductRow",
+          "callee": "formatInventoryRow",
+          "lineNumber": 39
+        },
+        {
+          "caller": "buildAdminOrphanInventoryRow",
+          "callee": "String(inv?.product_slug || '').trim",
+          "lineNumber": 44
+        },
+        {
+          "caller": "buildAdminOrphanInventoryRow",
+          "callee": "String",
+          "lineNumber": 44
+        },
+        {
+          "caller": "buildAdminOrphanInventoryRow",
+          "callee": "resolveEffectivePricing",
+          "lineNumber": 45
+        },
+        {
+          "caller": "buildAdminOrphanInventoryRow",
+          "callee": "buildAdminPricingFields",
+          "lineNumber": 46
+        },
+        {
+          "caller": "buildAdminOrphanInventoryRow",
+          "callee": "formatInventoryRow",
+          "lineNumber": 57
+        },
+        {
+          "caller": "applyInventoryStatusPayload",
+          "callee": "String(status || '').trim",
+          "lineNumber": 63
+        },
+        {
+          "caller": "applyInventoryStatusPayload",
+          "callee": "String",
+          "lineNumber": 63
+        },
+        {
+          "caller": "applyInventoryStatusPayload",
+          "callee": "normalizeStatus",
+          "lineNumber": 75
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 80
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 81
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 82
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'product_inventory', { select: '*', order: 'product_slug.asc' }).catch",
+          "lineNumber": 83
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 83
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "loadActivePriceOverrideMap",
+          "lineNumber": 84
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "hasAdminPermission",
+          "lineNumber": 85
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(inventory || []).map",
+          "lineNumber": 87
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 88
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogList.map((p) => p.slug).filter",
+          "lineNumber": 89
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogList.map",
+          "lineNumber": 89
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogList.map",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "buildAdminCatalogProductRow",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "invMap.get",
+          "lineNumber": 93
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "overrideMap.get",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(inv?.product_slug || '').trim",
+          "lineNumber": 97
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 97
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "catalogSlugs.has",
+          "lineNumber": 98
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.push",
+          "lineNumber": 99
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "buildAdminOrphanInventoryRow",
+          "lineNumber": 99
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "products.sort",
+          "lineNumber": 102
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(a.slug || '').localeCompare",
+          "lineNumber": 102
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 102
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 102
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 104
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 112
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "assertAdmin",
+          "lineNumber": 118
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "requireAdminPermission",
+          "lineNumber": 119
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "context.request.json",
+          "lineNumber": 120
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 121
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 132
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "Number",
+          "lineNumber": 135
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "Number",
+          "lineNumber": 136
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "Number",
+          "lineNumber": 137
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "applyInventoryStatusPayload",
+          "lineNumber": 138
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "String(body.sku || '').trim",
+          "lineNumber": 139
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "String",
+          "lineNumber": 139
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "new Date().toISOString",
+          "lineNumber": 140
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "updateRows",
+          "lineNumber": 141
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "json",
+          "lineNumber": 142
+        },
+        {
+          "caller": "onRequestPatch",
+          "callee": "adminError",
+          "lineNumber": 144
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 150
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 151
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "context.request.json",
+          "lineNumber": 152
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 153
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 164
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 166
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "body.product_slug.toUpperCase().replace",
+          "lineNumber": 168
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "body.product_slug.toUpperCase",
+          "lineNumber": 168
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 169
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 170
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Number",
+          "lineNumber": 171
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "Boolean",
+          "lineNumber": 172
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "normalizeStatus",
+          "lineNumber": 173
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 175
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 177
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 3,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/catalog/effective-prices.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 48,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "onRequestGet",
+          "startLine": 9,
+          "endLine": 48,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "onRequestGet",
+          "callee": "loadActivePriceOverrideMap",
+          "lineNumber": 11
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 13
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "resolveEffectivePricing",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "overrideMap.get",
+          "lineNumber": 15
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "applyEffectivePricingToCatalogProduct",
+          "lineNumber": 16
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Boolean",
+          "lineNumber": 21
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 34
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "new Date().toISOString",
+          "lineNumber": 38
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 46
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/get-orders.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 136,
+      "nonEmptyLines": 126,
+      "functions": [
+        {
+          "name": "resolveOrderItem",
+          "startLine": 6,
+          "endLine": 20,
+          "params": []
+        },
+        {
+          "name": "groupByOrderId",
+          "startLine": 21,
+          "endLine": 28,
+          "params": []
+        },
+        {
+          "name": "isCustomerVisibleStatusEvent",
+          "startLine": 50,
+          "endLine": 56,
+          "params": []
+        },
+        {
+          "name": "publicInvoice",
+          "startLine": 58,
+          "endLine": 70,
+          "params": []
+        },
+        {
+          "name": "publicReturn",
+          "startLine": 71,
+          "endLine": 83,
+          "params": []
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 85,
+          "endLine": 136,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequestGet",
+          "line": 85,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "resolveOrderItem",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 8
+        },
+        {
+          "caller": "resolveOrderItem",
+          "callee": "getCatalogProductByName",
+          "lineNumber": 9
+        },
+        {
+          "caller": "groupByOrderId",
+          "callee": "(rows || []).reduce",
+          "lineNumber": 22
+        },
+        {
+          "caller": "groupByOrderId",
+          "callee": "grouped.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "groupByOrderId",
+          "callee": "list.push",
+          "lineNumber": 24
+        },
+        {
+          "caller": "groupByOrderId",
+          "callee": "grouped.set",
+          "lineNumber": 25
+        },
+        {
+          "caller": "isCustomerVisibleStatusEvent",
+          "callee": "String(event.status || event.event_type || '').toLowerCase().trim",
+          "lineNumber": 51
+        },
+        {
+          "caller": "isCustomerVisibleStatusEvent",
+          "callee": "String(event.status || event.event_type || '').toLowerCase",
+          "lineNumber": 51
+        },
+        {
+          "caller": "isCustomerVisibleStatusEvent",
+          "callee": "String",
+          "lineNumber": 51
+        },
+        {
+          "caller": "isCustomerVisibleStatusEvent",
+          "callee": "HIDDEN_CUSTOMER_STATUS_EVENTS.has",
+          "lineNumber": 53
+        },
+        {
+          "caller": "isCustomerVisibleStatusEvent",
+          "callee": "String(event.source || '').toLowerCase",
+          "lineNumber": 54
+        },
+        {
+          "caller": "isCustomerVisibleStatusEvent",
+          "callee": "String",
+          "lineNumber": 54
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "context.request.headers.get",
+          "lineNumber": 87
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "authHeader.replace",
+          "lineNumber": 88
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 89
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "getUserFromAccessToken",
+          "lineNumber": 90
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 91
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.min",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number.parseInt",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 94
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number.parseInt",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 95
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 97
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String(user.email || '').toLowerCase",
+          "lineNumber": 99
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 99
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 101
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 102
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Array.isArray",
+          "lineNumber": 105
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "orders.map(order => order.id).filter",
+          "lineNumber": 105
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "orders.map",
+          "lineNumber": 105
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "ids.join",
+          "lineNumber": 108
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Promise.all",
+          "lineNumber": 109
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'order_items', { select: 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total', order_id: inFilter, order: 'created_at.asc' }).catch",
+          "lineNumber": 110
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 110
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'shipments', { select: 'order_id,status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at', order_id: inFilter, order: 'created_at.desc' }).catch",
+          "lineNumber": 111
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 111
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'order_status_events', { select: 'order_id,status,message,source,created_at,event_type,note', order_id: inFilter, order: 'created_at.asc' }).catch",
+          "lineNumber": 112
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 112
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'invoice_records', { select: 'id,order_id,invoice_type,invoice_status,invoice_number,provider,pdf_url,issued_at,created_at', order_id: inFilter, order: 'created_at.desc' }).catch",
+          "lineNumber": 113
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 113
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'return_requests', { select: 'id,order_id,reason,status,refund_status,customer_note,admin_note,created_at,updated_at', order_id: inFilter, order: 'created_at.desc' }).catch",
+          "lineNumber": 114
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 114
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 118
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 119
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 120
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 121
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupByOrderId",
+          "lineNumber": 122
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(orders || []).map",
+          "lineNumber": 123
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(groupedItems.get(order.id) || []).map",
+          "lineNumber": 125
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedItems.get",
+          "lineNumber": 125
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(groupedShipments.get(order.id) || []).map",
+          "lineNumber": 126
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedShipments.get",
+          "lineNumber": 126
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(groupedEvents.get(order.id) || []).filter",
+          "lineNumber": 127
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedEvents.get",
+          "lineNumber": 127
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(groupedInvoices.get(order.id) || []).map",
+          "lineNumber": 128
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedInvoices.get",
+          "lineNumber": 128
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "(groupedReturns.get(order.id) || []).map",
+          "lineNumber": 129
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "groupedReturns.get",
+          "lineNumber": 129
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 131
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "console.error",
+          "lineNumber": 133
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 134
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 1,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/reviews/[[path]].js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 1213,
+      "nonEmptyLines": 1075,
+      "functions": [
+        {
+          "name": "getSupabaseConfig",
+          "startLine": 16,
+          "endLine": 24,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "supabaseRequest",
+          "startLine": 26,
+          "endLine": 62,
+          "params": [
+            "context",
+            "path"
+          ]
+        },
+        {
+          "name": "selectRows",
+          "startLine": 64,
+          "endLine": 70,
+          "params": [
+            "context",
+            "table"
+          ]
+        },
+        {
+          "name": "insertRows",
+          "startLine": 72,
+          "endLine": 81,
+          "params": [
+            "context",
+            "table",
+            "rows"
+          ]
+        },
+        {
+          "name": "insertRow",
+          "startLine": 83,
+          "endLine": 86,
+          "params": [
+            "context",
+            "table",
+            "payload"
+          ]
+        },
+        {
+          "name": "updateRows",
+          "startLine": 88,
+          "endLine": 101,
+          "params": [
+            "context",
+            "table",
+            "filters",
+            "payload"
+          ]
+        },
+        {
+          "name": "deleteRows",
+          "startLine": 103,
+          "endLine": 114,
+          "params": [
+            "context",
+            "table",
+            "filters"
+          ]
+        },
+        {
+          "name": "isModeratorUuid",
+          "startLine": 118,
+          "endLine": 120,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "resolveModeratorUuid",
+          "startLine": 122,
+          "endLine": 128,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "buildReviewImageModerationPayload",
+          "startLine": 130,
+          "endLine": 141,
+          "params": [
+            "nextStatus",
+            "context"
+          ]
+        },
+        {
+          "name": "buildReviewImageModerationPatchVariants",
+          "startLine": 143,
+          "endLine": 154,
+          "params": [
+            "nextStatus",
+            "context"
+          ]
+        },
+        {
+          "name": "isOptionalReviewImageModerationColumnError",
+          "startLine": 156,
+          "endLine": 163,
+          "params": []
+        },
+        {
+          "name": "logReviewImageModerationFailure",
+          "startLine": 165,
+          "endLine": 174,
+          "params": []
+        },
+        {
+          "name": "patchReviewImageRows",
+          "startLine": 176,
+          "endLine": 191,
+          "params": [
+            "context",
+            "filters",
+            "nextStatus"
+          ]
+        },
+        {
+          "name": "patchReviewImagesByQuery",
+          "startLine": 193,
+          "endLine": 216,
+          "params": [
+            "context",
+            "queryParams",
+            "nextStatus"
+          ]
+        },
+        {
+          "name": "approvePendingReviewImages",
+          "startLine": 218,
+          "endLine": 229,
+          "params": [
+            "context",
+            "reviewId"
+          ]
+        },
+        {
+          "name": "normalizeText",
+          "startLine": 231,
+          "endLine": 233,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "getPathParts",
+          "startLine": 235,
+          "endLine": 238,
+          "params": [
+            "requestUrl"
+          ]
+        },
+        {
+          "name": "methodNotAllowed",
+          "startLine": 240,
+          "endLine": 245,
+          "params": [
+            "methods"
+          ]
+        },
+        {
+          "name": "validationError",
+          "startLine": 247,
+          "endLine": 249,
+          "params": [
+            "message"
+          ]
+        },
+        {
+          "name": "uploadError",
+          "startLine": 251,
+          "endLine": 253,
+          "params": [
+            "message",
+            "code"
+          ]
+        },
+        {
+          "name": "isBlobLikeUploadPart",
+          "startLine": 255,
+          "endLine": 260,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "detectImageType",
+          "startLine": 262,
+          "endLine": 292,
+          "params": []
+        },
+        {
+          "name": "looksLikeMissingColumnError",
+          "startLine": 294,
+          "endLine": 302,
+          "params": []
+        },
+        {
+          "name": "resolveOriginalFileName",
+          "startLine": 304,
+          "endLine": 311,
+          "params": [
+            "file",
+            "detected"
+          ]
+        },
+        {
+          "name": "resolveNextReviewImageSortOrder",
+          "startLine": 313,
+          "endLine": 322,
+          "params": []
+        },
+        {
+          "name": "buildReviewImageInsertPayload",
+          "startLine": 324,
+          "endLine": 353,
+          "params": []
+        },
+        {
+          "name": "resolveProduct",
+          "startLine": 355,
+          "endLine": 364,
+          "params": [
+            "reference"
+          ]
+        },
+        {
+          "name": "encodeStoragePath",
+          "startLine": 366,
+          "endLine": 368,
+          "params": []
+        },
+        {
+          "name": "reviewImagesPublicBase",
+          "startLine": 370,
+          "endLine": 377,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "publicReviewImageUrl",
+          "startLine": 379,
+          "endLine": 386,
+          "params": []
+        },
+        {
+          "name": "filenameFromPath",
+          "startLine": 388,
+          "endLine": 395,
+          "params": []
+        },
+        {
+          "name": "mapImage",
+          "startLine": 397,
+          "endLine": 422,
+          "params": [
+            "image"
+          ]
+        },
+        {
+          "name": "reviewStatus",
+          "startLine": 424,
+          "endLine": 427,
+          "params": [
+            "review"
+          ]
+        },
+        {
+          "name": "mapReview",
+          "startLine": 429,
+          "endLine": 482,
+          "params": [
+            "review"
+          ]
+        },
+        {
+          "name": "buildSummary",
+          "startLine": 484,
+          "endLine": 508,
+          "params": []
+        },
+        {
+          "name": "parseJsonBody",
+          "startLine": 510,
+          "endLine": 516,
+          "params": [
+            "request"
+          ]
+        },
+        {
+          "name": "getUserFromRequest",
+          "startLine": 518,
+          "endLine": 528,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "requireUser",
+          "startLine": 530,
+          "endLine": 539,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "requireAdmin",
+          "startLine": 541,
+          "endLine": 544,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "buildDisplayName",
+          "startLine": 546,
+          "endLine": 550,
+          "params": [
+            "user"
+          ]
+        },
+        {
+          "name": "sanitizeReviewPayload",
+          "startLine": 552,
+          "endLine": 561,
+          "params": []
+        },
+        {
+          "name": "validateReviewPayload",
+          "startLine": 563,
+          "endLine": 575,
+          "params": []
+        },
+        {
+          "name": "sanitizeImages",
+          "startLine": 577,
+          "endLine": 586,
+          "params": []
+        },
+        {
+          "name": "insertReviewImages",
+          "startLine": 588,
+          "endLine": 601,
+          "params": [
+            "context",
+            "reviewId"
+          ]
+        },
+        {
+          "name": "getReviewById",
+          "startLine": 603,
+          "endLine": 610,
+          "params": [
+            "context",
+            "reviewId"
+          ]
+        },
+        {
+          "name": "hasPurchasedProduct",
+          "startLine": 612,
+          "endLine": 637,
+          "params": [
+            "context",
+            "userId",
+            "product"
+          ]
+        },
+        {
+          "name": "handlePublicList",
+          "startLine": 639,
+          "endLine": 707,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "handleCreateReview",
+          "startLine": 709,
+          "endLine": 771,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "handleUpdateReview",
+          "startLine": 773,
+          "endLine": 818,
+          "params": [
+            "context",
+            "reviewId"
+          ]
+        },
+        {
+          "name": "handleCreateImages",
+          "startLine": 820,
+          "endLine": 845,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "uploadReviewPhoto",
+          "startLine": 848,
+          "endLine": 986,
+          "params": [
+            "context",
+            "reviewId"
+          ]
+        },
+        {
+          "name": "handleHelpful",
+          "startLine": 988,
+          "endLine": 1023,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "handleAdminList",
+          "startLine": 1025,
+          "endLine": 1038,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "handleAdminReviewUpdate",
+          "startLine": 1040,
+          "endLine": 1077,
+          "params": [
+            "context",
+            "reviewId"
+          ]
+        },
+        {
+          "name": "handleAdminReviewDelete",
+          "startLine": 1079,
+          "endLine": 1083,
+          "params": [
+            "context",
+            "reviewId"
+          ]
+        },
+        {
+          "name": "handleAdminImageUpdate",
+          "startLine": 1085,
+          "endLine": 1137,
+          "params": [
+            "context",
+            "reviewId",
+            "imageId"
+          ]
+        },
+        {
+          "name": "handleAdminImageDelete",
+          "startLine": 1139,
+          "endLine": 1153,
+          "params": [
+            "context",
+            "reviewId",
+            "imageId"
+          ]
+        },
+        {
+          "name": "onRequest",
+          "startLine": 1155,
+          "endLine": 1213,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "onRequest",
+          "line": 1155,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getSupabaseConfig",
+          "callee": "String(env.SUPABASE_URL || '').replace",
+          "lineNumber": 18
+        },
+        {
+          "caller": "getSupabaseConfig",
+          "callee": "String",
+          "lineNumber": 18
+        },
+        {
+          "caller": "getSupabaseConfig",
+          "callee": "String",
+          "lineNumber": 19
+        },
+        {
+          "caller": "supabaseRequest",
+          "callee": "getSupabaseConfig",
+          "lineNumber": 27
+        },
+        {
+          "caller": "supabaseRequest",
+          "callee": "fetch",
+          "lineNumber": 34
+        },
+        {
+          "caller": "supabaseRequest",
+          "callee": "response.text",
+          "lineNumber": 40
+        },
+        {
+          "caller": "supabaseRequest",
+          "callee": "JSON.parse",
+          "lineNumber": 43
+        },
+        {
+          "caller": "selectRows",
+          "callee": "Object.entries(params).forEach",
+          "lineNumber": 66
+        },
+        {
+          "caller": "selectRows",
+          "callee": "Object.entries",
+          "lineNumber": 66
+        },
+        {
+          "caller": "selectRows",
+          "callee": "qs.set",
+          "lineNumber": 67
+        },
+        {
+          "caller": "selectRows",
+          "callee": "supabaseRequest",
+          "lineNumber": 69
+        },
+        {
+          "caller": "selectRows",
+          "callee": "qs.toString",
+          "lineNumber": 69
+        },
+        {
+          "caller": "insertRows",
+          "callee": "supabaseRequest",
+          "lineNumber": 73
+        },
+        {
+          "caller": "insertRows",
+          "callee": "JSON.stringify",
+          "lineNumber": 79
+        },
+        {
+          "caller": "insertRow",
+          "callee": "insertRows",
+          "lineNumber": 84
+        },
+        {
+          "caller": "insertRow",
+          "callee": "Array.isArray",
+          "lineNumber": 85
+        },
+        {
+          "caller": "updateRows",
+          "callee": "Object.entries(filters || {}).forEach",
+          "lineNumber": 90
+        },
+        {
+          "caller": "updateRows",
+          "callee": "Object.entries",
+          "lineNumber": 90
+        },
+        {
+          "caller": "updateRows",
+          "callee": "qs.set",
+          "lineNumber": 91
+        },
+        {
+          "caller": "updateRows",
+          "callee": "supabaseRequest",
+          "lineNumber": 93
+        },
+        {
+          "caller": "updateRows",
+          "callee": "qs.toString",
+          "lineNumber": 93
+        },
+        {
+          "caller": "updateRows",
+          "callee": "JSON.stringify",
+          "lineNumber": 99
+        },
+        {
+          "caller": "deleteRows",
+          "callee": "Object.entries(filters || {}).forEach",
+          "lineNumber": 105
+        },
+        {
+          "caller": "deleteRows",
+          "callee": "Object.entries",
+          "lineNumber": 105
+        },
+        {
+          "caller": "deleteRows",
+          "callee": "qs.set",
+          "lineNumber": 106
+        },
+        {
+          "caller": "deleteRows",
+          "callee": "supabaseRequest",
+          "lineNumber": 108
+        },
+        {
+          "caller": "deleteRows",
+          "callee": "qs.toString",
+          "lineNumber": 108
+        },
+        {
+          "caller": "isModeratorUuid",
+          "callee": "MODERATOR_UUID_RE.test",
+          "lineNumber": 119
+        },
+        {
+          "caller": "isModeratorUuid",
+          "callee": "String(value || '').trim",
+          "lineNumber": 119
+        },
+        {
+          "caller": "isModeratorUuid",
+          "callee": "String",
+          "lineNumber": 119
+        },
+        {
+          "caller": "resolveModeratorUuid",
+          "callee": "[\n    context.request.headers.get('x-admin-user-id'),\n    context.request.headers.get('cf-access-authenticated-user-id')\n  ].map((value) => String(value || '').trim()).filter",
+          "lineNumber": 123
+        },
+        {
+          "caller": "resolveModeratorUuid",
+          "callee": "[\n    context.request.headers.get('x-admin-user-id'),\n    context.request.headers.get('cf-access-authenticated-user-id')\n  ].map",
+          "lineNumber": 123
+        },
+        {
+          "caller": "resolveModeratorUuid",
+          "callee": "context.request.headers.get",
+          "lineNumber": 124
+        },
+        {
+          "caller": "resolveModeratorUuid",
+          "callee": "context.request.headers.get",
+          "lineNumber": 125
+        },
+        {
+          "caller": "resolveModeratorUuid",
+          "callee": "String(value || '').trim",
+          "lineNumber": 126
+        },
+        {
+          "caller": "resolveModeratorUuid",
+          "callee": "String",
+          "lineNumber": 126
+        },
+        {
+          "caller": "resolveModeratorUuid",
+          "callee": "candidates.find",
+          "lineNumber": 127
+        },
+        {
+          "caller": "buildReviewImageModerationPayload",
+          "callee": "new Date().toISOString",
+          "lineNumber": 134
+        },
+        {
+          "caller": "buildReviewImageModerationPayload",
+          "callee": "resolveModeratorUuid",
+          "lineNumber": 136
+        },
+        {
+          "caller": "buildReviewImageModerationPatchVariants",
+          "callee": "buildReviewImageModerationPayload",
+          "lineNumber": 144
+        },
+        {
+          "caller": "buildReviewImageModerationPatchVariants",
+          "callee": "JSON.stringify",
+          "lineNumber": 151
+        },
+        {
+          "caller": "buildReviewImageModerationPatchVariants",
+          "callee": "JSON.stringify",
+          "lineNumber": 151
+        },
+        {
+          "caller": "buildReviewImageModerationPatchVariants",
+          "callee": "variants.push",
+          "lineNumber": 151
+        },
+        {
+          "caller": "buildReviewImageModerationPatchVariants",
+          "callee": "variants.push",
+          "lineNumber": 152
+        },
+        {
+          "caller": "isOptionalReviewImageModerationColumnError",
+          "callee": "String",
+          "lineNumber": 157
+        },
+        {
+          "caller": "isOptionalReviewImageModerationColumnError",
+          "callee": "looksLikeMissingColumnError",
+          "lineNumber": 159
+        },
+        {
+          "caller": "isOptionalReviewImageModerationColumnError",
+          "callee": "looksLikeMissingColumnError",
+          "lineNumber": 160
+        },
+        {
+          "caller": "isOptionalReviewImageModerationColumnError",
+          "callee": "looksLikeMissingColumnError",
+          "lineNumber": 161
+        },
+        {
+          "caller": "logReviewImageModerationFailure",
+          "callee": "console.error",
+          "lineNumber": 166
+        },
+        {
+          "caller": "logReviewImageModerationFailure",
+          "callee": "Object.keys",
+          "lineNumber": 170
+        },
+        {
+          "caller": "logReviewImageModerationFailure",
+          "callee": "String",
+          "lineNumber": 172
+        },
+        {
+          "caller": "patchReviewImageRows",
+          "callee": "buildReviewImageModerationPatchVariants",
+          "lineNumber": 177
+        },
+        {
+          "caller": "patchReviewImageRows",
+          "callee": "updateRows",
+          "lineNumber": 181
+        },
+        {
+          "caller": "patchReviewImageRows",
+          "callee": "isOptionalReviewImageModerationColumnError",
+          "lineNumber": 184
+        },
+        {
+          "caller": "patchReviewImageRows",
+          "callee": "logReviewImageModerationFailure",
+          "lineNumber": 185
+        },
+        {
+          "caller": "patchReviewImageRows",
+          "callee": "logReviewImageModerationFailure",
+          "lineNumber": 189
+        },
+        {
+          "caller": "patchReviewImagesByQuery",
+          "callee": "buildReviewImageModerationPatchVariants",
+          "lineNumber": 194
+        },
+        {
+          "caller": "patchReviewImagesByQuery",
+          "callee": "supabaseRequest",
+          "lineNumber": 199
+        },
+        {
+          "caller": "patchReviewImagesByQuery",
+          "callee": "qs.toString",
+          "lineNumber": 199
+        },
+        {
+          "caller": "patchReviewImagesByQuery",
+          "callee": "JSON.stringify",
+          "lineNumber": 205
+        },
+        {
+          "caller": "patchReviewImagesByQuery",
+          "callee": "isOptionalReviewImageModerationColumnError",
+          "lineNumber": 209
+        },
+        {
+          "caller": "patchReviewImagesByQuery",
+          "callee": "logReviewImageModerationFailure",
+          "lineNumber": 210
+        },
+        {
+          "caller": "patchReviewImagesByQuery",
+          "callee": "logReviewImageModerationFailure",
+          "lineNumber": 214
+        },
+        {
+          "caller": "approvePendingReviewImages",
+          "callee": "patchReviewImagesByQuery",
+          "lineNumber": 219
+        },
+        {
+          "caller": "normalizeText",
+          "callee": "String(value || '').trim().toLocaleLowerCase",
+          "lineNumber": 232
+        },
+        {
+          "caller": "normalizeText",
+          "callee": "String(value || '').trim",
+          "lineNumber": 232
+        },
+        {
+          "caller": "normalizeText",
+          "callee": "String",
+          "lineNumber": 232
+        },
+        {
+          "caller": "getPathParts",
+          "callee": "new URL(requestUrl).pathname.replace",
+          "lineNumber": 236
+        },
+        {
+          "caller": "getPathParts",
+          "callee": "pathname.split('/').filter",
+          "lineNumber": 237
+        },
+        {
+          "caller": "getPathParts",
+          "callee": "pathname.split",
+          "lineNumber": 237
+        },
+        {
+          "caller": "methodNotAllowed",
+          "callee": "json",
+          "lineNumber": 241
+        },
+        {
+          "caller": "methodNotAllowed",
+          "callee": "methods.join",
+          "lineNumber": 243
+        },
+        {
+          "caller": "validationError",
+          "callee": "json",
+          "lineNumber": 248
+        },
+        {
+          "caller": "uploadError",
+          "callee": "json",
+          "lineNumber": 252
+        },
+        {
+          "caller": "isBlobLikeUploadPart",
+          "callee": "Number",
+          "lineNumber": 257
+        },
+        {
+          "caller": "detectImageType",
+          "callee": "String.fromCharCode",
+          "lineNumber": 284
+        },
+        {
+          "caller": "detectImageType",
+          "callee": "String.fromCharCode",
+          "lineNumber": 285
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "String(message || '').toLowerCase",
+          "lineNumber": 295
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "String",
+          "lineNumber": 295
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "String(column || '').toLowerCase",
+          "lineNumber": 296
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "String",
+          "lineNumber": 296
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "msg.includes",
+          "lineNumber": 299
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "msg.includes",
+          "lineNumber": 300
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "msg.includes",
+          "lineNumber": 300
+        },
+        {
+          "caller": "looksLikeMissingColumnError",
+          "callee": "msg.includes",
+          "lineNumber": 300
+        },
+        {
+          "caller": "resolveOriginalFileName",
+          "callee": "String(file?.name || '').trim",
+          "lineNumber": 305
+        },
+        {
+          "caller": "resolveOriginalFileName",
+          "callee": "String",
+          "lineNumber": 305
+        },
+        {
+          "caller": "resolveOriginalFileName",
+          "callee": "raw.toLowerCase",
+          "lineNumber": 306
+        },
+        {
+          "caller": "resolveOriginalFileName",
+          "callee": "raw.toLowerCase",
+          "lineNumber": 306
+        },
+        {
+          "caller": "resolveOriginalFileName",
+          "callee": "raw.slice",
+          "lineNumber": 307
+        },
+        {
+          "caller": "resolveOriginalFileName",
+          "callee": "String(detected?.extension || 'jpg').replace",
+          "lineNumber": 309
+        },
+        {
+          "caller": "resolveOriginalFileName",
+          "callee": "String",
+          "lineNumber": 309
+        },
+        {
+          "caller": "resolveNextReviewImageSortOrder",
+          "callee": "Number",
+          "lineNumber": 316
+        },
+        {
+          "caller": "resolveNextReviewImageSortOrder",
+          "callee": "Number.isFinite",
+          "lineNumber": 317
+        },
+        {
+          "caller": "resolveNextReviewImageSortOrder",
+          "callee": "Math.max",
+          "lineNumber": 318
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "Number",
+          "lineNumber": 333
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 340
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "Number",
+          "lineNumber": 340
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "Number",
+          "lineNumber": 340
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "resolveOriginalFileName",
+          "lineNumber": 341
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 342
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "Math.ceil",
+          "lineNumber": 342
+        },
+        {
+          "caller": "buildReviewImageInsertPayload",
+          "callee": "Number.isFinite",
+          "lineNumber": 349
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "resolveCatalogProduct",
+          "lineNumber": 359
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "getCatalogProductByName",
+          "lineNumber": 360
+        },
+        {
+          "caller": "resolveProduct",
+          "callee": "resolveCatalogProduct",
+          "lineNumber": 363
+        },
+        {
+          "caller": "encodeStoragePath",
+          "callee": "String(path || '').split('/').filter(Boolean).map(encodeURIComponent).join",
+          "lineNumber": 367
+        },
+        {
+          "caller": "encodeStoragePath",
+          "callee": "String(path || '').split('/').filter(Boolean).map",
+          "lineNumber": 367
+        },
+        {
+          "caller": "encodeStoragePath",
+          "callee": "String(path || '').split('/').filter",
+          "lineNumber": 367
+        },
+        {
+          "caller": "encodeStoragePath",
+          "callee": "String(path || '').split",
+          "lineNumber": 367
+        },
+        {
+          "caller": "encodeStoragePath",
+          "callee": "String",
+          "lineNumber": 367
+        },
+        {
+          "caller": "reviewImagesPublicBase",
+          "callee": "getSupabaseConfig",
+          "lineNumber": 372
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "String(image.public_url || image.signed_url || image.thumbnail_url || image.url || '').trim",
+          "lineNumber": 380
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "String",
+          "lineNumber": 380
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "/^https?:\\/\\//i.test",
+          "lineNumber": 381
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "String(image.storage_path || '').trim",
+          "lineNumber": 382
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "String",
+          "lineNumber": 382
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "String(options.publicBase || '').replace",
+          "lineNumber": 383
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "String",
+          "lineNumber": 383
+        },
+        {
+          "caller": "publicReviewImageUrl",
+          "callee": "encodeStoragePath",
+          "lineNumber": 384
+        },
+        {
+          "caller": "filenameFromPath",
+          "callee": "String(path || '').split('?')[0].split('/').filter(Boolean).pop",
+          "lineNumber": 389
+        },
+        {
+          "caller": "filenameFromPath",
+          "callee": "String(path || '').split('?')[0].split('/').filter",
+          "lineNumber": 389
+        },
+        {
+          "caller": "filenameFromPath",
+          "callee": "String(path || '').split('?')[0].split",
+          "lineNumber": 389
+        },
+        {
+          "caller": "filenameFromPath",
+          "callee": "String(path || '').split",
+          "lineNumber": 389
+        },
+        {
+          "caller": "filenameFromPath",
+          "callee": "String",
+          "lineNumber": 389
+        },
+        {
+          "caller": "filenameFromPath",
+          "callee": "decodeURIComponent",
+          "lineNumber": 391
+        },
+        {
+          "caller": "mapImage",
+          "callee": "String(image?.storage_path || '').trim",
+          "lineNumber": 398
+        },
+        {
+          "caller": "mapImage",
+          "callee": "String",
+          "lineNumber": 398
+        },
+        {
+          "caller": "mapImage",
+          "callee": "publicReviewImageUrl",
+          "lineNumber": 399
+        },
+        {
+          "caller": "mapImage",
+          "callee": "String(image?.public_url || '').trim",
+          "lineNumber": 403
+        },
+        {
+          "caller": "mapImage",
+          "callee": "String",
+          "lineNumber": 403
+        },
+        {
+          "caller": "mapImage",
+          "callee": "String(image?.original_name || '').trim",
+          "lineNumber": 408
+        },
+        {
+          "caller": "mapImage",
+          "callee": "String",
+          "lineNumber": 408
+        },
+        {
+          "caller": "mapImage",
+          "callee": "filenameFromPath",
+          "lineNumber": 408
+        },
+        {
+          "caller": "mapImage",
+          "callee": "Number.isFinite",
+          "lineNumber": 410
+        },
+        {
+          "caller": "mapImage",
+          "callee": "Number",
+          "lineNumber": 410
+        },
+        {
+          "caller": "mapImage",
+          "callee": "Number",
+          "lineNumber": 411
+        },
+        {
+          "caller": "mapImage",
+          "callee": "Number.isFinite",
+          "lineNumber": 412
+        },
+        {
+          "caller": "mapImage",
+          "callee": "Number",
+          "lineNumber": 412
+        },
+        {
+          "caller": "mapImage",
+          "callee": "Number",
+          "lineNumber": 412
+        },
+        {
+          "caller": "mapReview",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 432
+        },
+        {
+          "caller": "mapReview",
+          "callee": "getCatalogProductByName",
+          "lineNumber": 433
+        },
+        {
+          "caller": "mapReview",
+          "callee": "Array.isArray",
+          "lineNumber": 437
+        },
+        {
+          "caller": "mapReview",
+          "callee": "rawImages\n    .filter((image) => !options.publicOnly || (image.status || 'pending') === 'approved')\n    .map",
+          "lineNumber": 438
+        },
+        {
+          "caller": "mapReview",
+          "callee": "rawImages\n    .filter",
+          "lineNumber": 438
+        },
+        {
+          "caller": "mapReview",
+          "callee": "mapImage",
+          "lineNumber": 440
+        },
+        {
+          "caller": "mapReview",
+          "callee": "Number",
+          "lineNumber": 446
+        },
+        {
+          "caller": "mapReview",
+          "callee": "Number",
+          "lineNumber": 447
+        },
+        {
+          "caller": "mapReview",
+          "callee": "reviewStatus",
+          "lineNumber": 448
+        },
+        {
+          "caller": "mapReview",
+          "callee": "reviewStatus",
+          "lineNumber": 449
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "(reviews || []).filter",
+          "lineNumber": 485
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "reviewStatus",
+          "lineNumber": 485
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "approved.forEach",
+          "lineNumber": 489
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "Number",
+          "lineNumber": 490
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "Math.round",
+          "lineNumber": 495
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "approved.reduce",
+          "lineNumber": 495
+        },
+        {
+          "caller": "buildSummary",
+          "callee": "Number",
+          "lineNumber": 495
+        },
+        {
+          "caller": "parseJsonBody",
+          "callee": "request.json",
+          "lineNumber": 512
+        },
+        {
+          "caller": "getUserFromRequest",
+          "callee": "context.request.headers.get",
+          "lineNumber": 519
+        },
+        {
+          "caller": "getUserFromRequest",
+          "callee": "authHeader.replace(/^Bearer\\s+/i, '').trim",
+          "lineNumber": 520
+        },
+        {
+          "caller": "getUserFromRequest",
+          "callee": "authHeader.replace",
+          "lineNumber": 520
+        },
+        {
+          "caller": "getUserFromRequest",
+          "callee": "getUserFromAccessToken",
+          "lineNumber": 523
+        },
+        {
+          "caller": "requireUser",
+          "callee": "getUserFromRequest",
+          "lineNumber": 531
+        },
+        {
+          "caller": "requireUser",
+          "callee": "json",
+          "lineNumber": 535
+        },
+        {
+          "caller": "requireAdmin",
+          "callee": "assertAdmin",
+          "lineNumber": 542
+        },
+        {
+          "caller": "buildDisplayName",
+          "callee": "String(user?.user_metadata?.first_name || '').trim",
+          "lineNumber": 547
+        },
+        {
+          "caller": "buildDisplayName",
+          "callee": "String",
+          "lineNumber": 547
+        },
+        {
+          "caller": "buildDisplayName",
+          "callee": "String(user?.user_metadata?.last_name || '').trim",
+          "lineNumber": 548
+        },
+        {
+          "caller": "buildDisplayName",
+          "callee": "String",
+          "lineNumber": 548
+        },
+        {
+          "caller": "buildDisplayName",
+          "callee": "[firstName, lastName].filter(Boolean).join",
+          "lineNumber": 549
+        },
+        {
+          "caller": "buildDisplayName",
+          "callee": "[firstName, lastName].filter",
+          "lineNumber": 549
+        },
+        {
+          "caller": "buildDisplayName",
+          "callee": "user?.email?.split",
+          "lineNumber": 549
+        },
+        {
+          "caller": "sanitizeReviewPayload",
+          "callee": "String(payload.title || '').trim",
+          "lineNumber": 553
+        },
+        {
+          "caller": "sanitizeReviewPayload",
+          "callee": "String",
+          "lineNumber": 553
+        },
+        {
+          "caller": "sanitizeReviewPayload",
+          "callee": "String(payload.review_body || payload.body || '').trim",
+          "lineNumber": 554
+        },
+        {
+          "caller": "sanitizeReviewPayload",
+          "callee": "String",
+          "lineNumber": 554
+        },
+        {
+          "caller": "sanitizeReviewPayload",
+          "callee": "Number",
+          "lineNumber": 555
+        },
+        {
+          "caller": "sanitizeReviewPayload",
+          "callee": "resolveProduct",
+          "lineNumber": 557
+        },
+        {
+          "caller": "sanitizeReviewPayload",
+          "callee": "resolveProduct",
+          "lineNumber": 558
+        },
+        {
+          "caller": "validateReviewPayload",
+          "callee": "Number.isInteger",
+          "lineNumber": 571
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "(Array.isArray(images) ? images : [])\n    .map((image) => ({\n      storage_path: String(image?.storagePath || image?.storage_path || '').trim(),\n      public_url: String(image?.publicUrl || image?.public_url || '').trim(),\n      width: image?.width ? Number(image.width) : null,\n      height: image?.height ? Number(image.height) : null\n    }))\n    .filter",
+          "lineNumber": 578
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "(Array.isArray(images) ? images : [])\n    .map",
+          "lineNumber": 578
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "Array.isArray",
+          "lineNumber": 578
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "String(image?.storagePath || image?.storage_path || '').trim",
+          "lineNumber": 580
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "String",
+          "lineNumber": 580
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "String(image?.publicUrl || image?.public_url || '').trim",
+          "lineNumber": 581
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "String",
+          "lineNumber": 581
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "Number",
+          "lineNumber": 582
+        },
+        {
+          "caller": "sanitizeImages",
+          "callee": "Number",
+          "lineNumber": 583
+        },
+        {
+          "caller": "insertReviewImages",
+          "callee": "sanitizeImages(images).map",
+          "lineNumber": 589
+        },
+        {
+          "caller": "insertReviewImages",
+          "callee": "sanitizeImages",
+          "lineNumber": 589
+        },
+        {
+          "caller": "insertReviewImages",
+          "callee": "Number.isFinite",
+          "lineNumber": 594
+        },
+        {
+          "caller": "insertReviewImages",
+          "callee": "Number.isFinite",
+          "lineNumber": 595
+        },
+        {
+          "caller": "insertReviewImages",
+          "callee": "insertRows",
+          "lineNumber": 599
+        },
+        {
+          "caller": "insertReviewImages",
+          "callee": "Array.isArray",
+          "lineNumber": 600
+        },
+        {
+          "caller": "getReviewById",
+          "callee": "selectRows",
+          "lineNumber": 604
+        },
+        {
+          "caller": "getReviewById",
+          "callee": "Array.isArray",
+          "lineNumber": 609
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "selectRows",
+          "lineNumber": 613
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "(orders || []).map((order) => order.id).filter",
+          "lineNumber": 620
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "(orders || []).map",
+          "lineNumber": 620
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "selectRows",
+          "lineNumber": 623
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "orderIds.join",
+          "lineNumber": 625
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "normalizeText",
+          "lineNumber": 628
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "(items || []).some",
+          "lineNumber": 630
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "getCatalogProductByHandle",
+          "lineNumber": 632
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "getCatalogProductByName",
+          "lineNumber": 633
+        },
+        {
+          "caller": "hasPurchasedProduct",
+          "callee": "normalizeText",
+          "lineNumber": 635
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "assertRateLimit",
+          "lineNumber": 640
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "getUserFromRequest",
+          "lineNumber": 641
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 643
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "resolveProduct",
+          "lineNumber": 645
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "url.searchParams.get",
+          "lineNumber": 645
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "url.searchParams.get",
+          "lineNumber": 645
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "url.searchParams.get",
+          "lineNumber": 645
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "resolveProduct",
+          "lineNumber": 646
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "url.searchParams.get",
+          "lineNumber": 646
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "validationError",
+          "lineNumber": 649
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "selectRows",
+          "lineNumber": 652
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "(rows || []).map",
+          "lineNumber": 659
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "mapReview",
+          "lineNumber": 659
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "selectRows",
+          "lineNumber": 670
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "Array.isArray",
+          "lineNumber": 676
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "mapReview",
+          "lineNumber": 677
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "hasPurchasedProduct",
+          "lineNumber": 681
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "approvedReviews.map((review) => review.id).filter",
+          "lineNumber": 686
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "approvedReviews.map",
+          "lineNumber": 686
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "selectRows",
+          "lineNumber": 688
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "reviewIds.join",
+          "lineNumber": 691
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "(helpfulRows || []).map((row) => row.review_id).filter",
+          "lineNumber": 693
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "(helpfulRows || []).map",
+          "lineNumber": 693
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "json",
+          "lineNumber": 697
+        },
+        {
+          "caller": "handlePublicList",
+          "callee": "buildSummary",
+          "lineNumber": 700
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "assertRateLimit",
+          "lineNumber": 710
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "requireUser",
+          "lineNumber": 711
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "sanitizeReviewPayload",
+          "lineNumber": 716
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "parseJsonBody",
+          "lineNumber": 716
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "validationError",
+          "lineNumber": 718
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "validateReviewPayload",
+          "lineNumber": 721
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "validationError",
+          "lineNumber": 722
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "hasPurchasedProduct",
+          "lineNumber": 724
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "json",
+          "lineNumber": 726
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "selectRows",
+          "lineNumber": 732
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "Array.isArray",
+          "lineNumber": 739
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "json",
+          "lineNumber": 740
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "insertRow",
+          "lineNumber": 746
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "buildDisplayName",
+          "lineNumber": 749
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "insertReviewImages",
+          "lineNumber": 760
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "mapReview",
+          "lineNumber": 761
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 763
+        },
+        {
+          "caller": "handleCreateReview",
+          "callee": "json",
+          "lineNumber": 766
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "assertRateLimit",
+          "lineNumber": 774
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "requireUser",
+          "lineNumber": 775
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "getReviewById",
+          "lineNumber": 778
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "json",
+          "lineNumber": 780
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "sanitizeReviewPayload",
+          "lineNumber": 785
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "parseJsonBody",
+          "lineNumber": 785
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "validationError",
+          "lineNumber": 787
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "resolveProduct",
+          "lineNumber": 790
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "validateReviewPayload",
+          "lineNumber": 791
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "validationError",
+          "lineNumber": 792
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "updateRows",
+          "lineNumber": 794
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "insertReviewImages",
+          "lineNumber": 803
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "getReviewById",
+          "lineNumber": 804
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "json",
+          "lineNumber": 805
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "mapReview",
+          "lineNumber": 808
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "Array.isArray",
+          "lineNumber": 811
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "Array.isArray",
+          "lineNumber": 813
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "resolveProduct",
+          "lineNumber": 815
+        },
+        {
+          "caller": "handleUpdateReview",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 815
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "requireUser",
+          "lineNumber": 821
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "parseJsonBody",
+          "lineNumber": 826
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "validationError",
+          "lineNumber": 828
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "String(payload.review_id || '').trim",
+          "lineNumber": 831
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "String",
+          "lineNumber": 831
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "validationError",
+          "lineNumber": 832
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "getReviewById",
+          "lineNumber": 834
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "json",
+          "lineNumber": 836
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "insertReviewImages",
+          "lineNumber": 839
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "json",
+          "lineNumber": 840
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "inserted.map",
+          "lineNumber": 843
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "mapImage",
+          "lineNumber": 843
+        },
+        {
+          "caller": "handleCreateImages",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 843
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "assertRateLimit",
+          "lineNumber": 849
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "requireUser",
+          "lineNumber": 850
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "getReviewById",
+          "lineNumber": 852
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "uploadError",
+          "lineNumber": 854
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "uploadError",
+          "lineNumber": 857
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "Array.isArray",
+          "lineNumber": 859
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "validationError",
+          "lineNumber": 860
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "context.request.headers.get",
+          "lineNumber": 862
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "contentType.toLowerCase().includes",
+          "lineNumber": 863
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "contentType.toLowerCase",
+          "lineNumber": 863
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "validationError",
+          "lineNumber": 864
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "context.request.formData",
+          "lineNumber": 866
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "form.get",
+          "lineNumber": 867
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "isBlobLikeUploadPart",
+          "lineNumber": 868
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "uploadError",
+          "lineNumber": 869
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "uploadError",
+          "lineNumber": 872
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "file.arrayBuffer",
+          "lineNumber": 875
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "detectImageType",
+          "lineNumber": 876
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "uploadError",
+          "lineNumber": 878
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "getSupabaseConfig",
+          "lineNumber": 881
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 882
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "fetch",
+          "lineNumber": 883
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "objectPath.split('/').map(encodeURIComponent).join",
+          "lineNumber": 883
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "objectPath.split('/').map",
+          "lineNumber": 883
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "objectPath.split",
+          "lineNumber": 883
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "console.error",
+          "lineNumber": 894
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "String",
+          "lineNumber": 897
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "uploadError",
+          "lineNumber": 901
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "objectPath.split('/').map(encodeURIComponent).join",
+          "lineNumber": 903
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "objectPath.split('/').map",
+          "lineNumber": 903
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "objectPath.split",
+          "lineNumber": 903
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "resolveNextReviewImageSortOrder",
+          "lineNumber": 904
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "buildReviewImageInsertPayload",
+          "lineNumber": 916
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "insertRow",
+          "lineNumber": 917
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "buildReviewImageInsertPayload",
+          "lineNumber": 922
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "looksLikeMissingColumnError",
+          "lineNumber": 927
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "console.warn",
+          "lineNumber": 931
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "Object.keys(fallbackPayload).sort",
+          "lineNumber": 935
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "Object.keys",
+          "lineNumber": 935
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "insertRow",
+          "lineNumber": 939
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "json",
+          "lineNumber": 941
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "mapImage",
+          "lineNumber": 944
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 944
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "console.error",
+          "lineNumber": 947
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "Object.keys(fallbackPayload).sort",
+          "lineNumber": 951
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "Object.keys",
+          "lineNumber": 951
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "console.error",
+          "lineNumber": 959
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "Object.keys(insert.payload).sort",
+          "lineNumber": 963
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "Object.keys",
+          "lineNumber": 963
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "deleteStorageObject",
+          "lineNumber": 968
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "console.warn",
+          "lineNumber": 970
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "console.warn",
+          "lineNumber": 973
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "uploadError",
+          "lineNumber": 979
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "json",
+          "lineNumber": 981
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "mapImage",
+          "lineNumber": 984
+        },
+        {
+          "caller": "uploadReviewPhoto",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 984
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "assertRateLimit",
+          "lineNumber": 989
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "requireUser",
+          "lineNumber": 990
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "parseJsonBody",
+          "lineNumber": 995
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "validationError",
+          "lineNumber": 997
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "String(payload.review_id || '').trim",
+          "lineNumber": 1000
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "String",
+          "lineNumber": 1000
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "String(payload.action || 'add').trim().toLowerCase",
+          "lineNumber": 1001
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "String(payload.action || 'add').trim",
+          "lineNumber": 1001
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "String",
+          "lineNumber": 1001
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "validationError",
+          "lineNumber": 1002
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "deleteRows",
+          "lineNumber": 1005
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "json",
+          "lineNumber": 1009
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "insertRow",
+          "lineNumber": 1013
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "String(error.message || '').toLowerCase",
+          "lineNumber": 1018
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "String",
+          "lineNumber": 1018
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "message.includes",
+          "lineNumber": 1019
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "message.includes",
+          "lineNumber": 1019
+        },
+        {
+          "caller": "handleHelpful",
+          "callee": "json",
+          "lineNumber": 1022
+        },
+        {
+          "caller": "handleAdminList",
+          "callee": "requireAdmin",
+          "lineNumber": 1026
+        },
+        {
+          "caller": "handleAdminList",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 1027
+        },
+        {
+          "caller": "handleAdminList",
+          "callee": "selectRows",
+          "lineNumber": 1029
+        },
+        {
+          "caller": "handleAdminList",
+          "callee": "json",
+          "lineNumber": 1034
+        },
+        {
+          "caller": "handleAdminList",
+          "callee": "(rows || []).map",
+          "lineNumber": 1036
+        },
+        {
+          "caller": "handleAdminList",
+          "callee": "mapReview",
+          "lineNumber": 1036
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "requireAdmin",
+          "lineNumber": 1041
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "parseJsonBody",
+          "lineNumber": 1045
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "validationError",
+          "lineNumber": 1047
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "String(payload.status || '').trim().toLowerCase",
+          "lineNumber": 1050
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "String(payload.status || '').trim",
+          "lineNumber": 1050
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "String",
+          "lineNumber": 1050
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "['approved', 'pending', 'rejected'].includes",
+          "lineNumber": 1051
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "validationError",
+          "lineNumber": 1052
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "getReviewById",
+          "lineNumber": 1055
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "json",
+          "lineNumber": 1057
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "updateRows",
+          "lineNumber": 1060
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "new Date().toISOString",
+          "lineNumber": 1064
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "context.request.headers.get",
+          "lineNumber": 1065
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "approvePendingReviewImages",
+          "lineNumber": 1069
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "getReviewById",
+          "lineNumber": 1072
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "json",
+          "lineNumber": 1073
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "mapReview",
+          "lineNumber": 1075
+        },
+        {
+          "caller": "handleAdminReviewUpdate",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 1075
+        },
+        {
+          "caller": "handleAdminReviewDelete",
+          "callee": "requireAdmin",
+          "lineNumber": 1080
+        },
+        {
+          "caller": "handleAdminReviewDelete",
+          "callee": "deleteRows",
+          "lineNumber": 1081
+        },
+        {
+          "caller": "handleAdminReviewDelete",
+          "callee": "json",
+          "lineNumber": 1082
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "requireAdmin",
+          "lineNumber": 1086
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "parseJsonBody",
+          "lineNumber": 1090
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "validationError",
+          "lineNumber": 1092
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "String(payload.status || '').trim().toLowerCase",
+          "lineNumber": 1095
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "String(payload.status || '').trim",
+          "lineNumber": 1095
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "String",
+          "lineNumber": 1095
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "['approved', 'pending', 'rejected'].includes",
+          "lineNumber": 1096
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "validationError",
+          "lineNumber": 1097
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "selectRows",
+          "lineNumber": 1100
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "json",
+          "lineNumber": 1107
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "patchReviewImageRows",
+          "lineNumber": 1111
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "json",
+          "lineNumber": 1119
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "selectRows",
+          "lineNumber": 1125
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "json",
+          "lineNumber": 1132
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "mapImage",
+          "lineNumber": 1135
+        },
+        {
+          "caller": "handleAdminImageUpdate",
+          "callee": "reviewImagesPublicBase",
+          "lineNumber": 1135
+        },
+        {
+          "caller": "handleAdminImageDelete",
+          "callee": "requireAdmin",
+          "lineNumber": 1140
+        },
+        {
+          "caller": "handleAdminImageDelete",
+          "callee": "selectRows",
+          "lineNumber": 1141
+        },
+        {
+          "caller": "handleAdminImageDelete",
+          "callee": "deleteStorageObject(context, 'review-images', image.storage_path).catch",
+          "lineNumber": 1149
+        },
+        {
+          "caller": "handleAdminImageDelete",
+          "callee": "deleteStorageObject",
+          "lineNumber": 1149
+        },
+        {
+          "caller": "handleAdminImageDelete",
+          "callee": "deleteRows",
+          "lineNumber": 1151
+        },
+        {
+          "caller": "handleAdminImageDelete",
+          "callee": "json",
+          "lineNumber": 1152
+        },
+        {
+          "caller": "onRequest",
+          "callee": "getPathParts",
+          "lineNumber": 1157
+        },
+        {
+          "caller": "onRequest",
+          "callee": "context.request.method.toUpperCase",
+          "lineNumber": 1158
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handlePublicList",
+          "lineNumber": 1161
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleCreateReview",
+          "lineNumber": 1162
+        },
+        {
+          "caller": "onRequest",
+          "callee": "methodNotAllowed",
+          "lineNumber": 1163
+        },
+        {
+          "caller": "onRequest",
+          "callee": "json",
+          "lineNumber": 1167
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleHelpful",
+          "lineNumber": 1171
+        },
+        {
+          "caller": "onRequest",
+          "callee": "methodNotAllowed",
+          "lineNumber": 1172
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleAdminList",
+          "lineNumber": 1177
+        },
+        {
+          "caller": "onRequest",
+          "callee": "methodNotAllowed",
+          "lineNumber": 1178
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleAdminReviewUpdate",
+          "lineNumber": 1182
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleAdminReviewDelete",
+          "lineNumber": 1183
+        },
+        {
+          "caller": "onRequest",
+          "callee": "methodNotAllowed",
+          "lineNumber": 1184
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleAdminImageUpdate",
+          "lineNumber": 1188
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleAdminImageDelete",
+          "lineNumber": 1189
+        },
+        {
+          "caller": "onRequest",
+          "callee": "methodNotAllowed",
+          "lineNumber": 1190
+        },
+        {
+          "caller": "onRequest",
+          "callee": "json",
+          "lineNumber": 1193
+        },
+        {
+          "caller": "onRequest",
+          "callee": "uploadReviewPhoto",
+          "lineNumber": 1197
+        },
+        {
+          "caller": "onRequest",
+          "callee": "methodNotAllowed",
+          "lineNumber": 1198
+        },
+        {
+          "caller": "onRequest",
+          "callee": "handleUpdateReview",
+          "lineNumber": 1202
+        },
+        {
+          "caller": "onRequest",
+          "callee": "methodNotAllowed",
+          "lineNumber": 1203
+        },
+        {
+          "caller": "onRequest",
+          "callee": "json",
+          "lineNumber": 1206
+        },
+        {
+          "caller": "onRequest",
+          "callee": "Number",
+          "lineNumber": 1208
+        },
+        {
+          "caller": "onRequest",
+          "callee": "console.error",
+          "lineNumber": 1209
+        },
+        {
+          "caller": "onRequest",
+          "callee": "json",
+          "lineNumber": 1211
+        }
+      ],
+      "metrics": {
+        "importCount": 5,
+        "exportCount": 1,
+        "functionCount": 59,
+        "classCount": 0
+      }
+    }
+  ]
+}

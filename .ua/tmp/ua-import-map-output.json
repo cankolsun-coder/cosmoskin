@@ -1,0 +1,1132 @@
+{
+  "scriptCompleted": true,
+  "stats": {
+    "filesScanned": 588,
+    "filesWithImports": 113,
+    "totalEdges": 421
+  },
+  "importMap": {
+    ".claude/launch.json": [],
+    ".claude/serve.rb": [],
+    ".cursor/settings.json": [],
+    ".env.example": [],
+    ".ua/.understandignore": [],
+    "AGENTS.md": [],
+    "BREVO_SEGMENT_SETUP.md": [],
+    "CLAUDE.md": [],
+    "DIRECTOR_ROUTINE_HERO_UPDATE.md": [],
+    "MOBILE_QA_FIX_CHANGELOG.md": [],
+    "MOBILE_REDESIGN_IMPLEMENTATION_REPORT.md": [],
+    "MOBILE_WHITE_SCREEN_FIX_REPORT.md": [],
+    "README.md": [],
+    "README_CLOUDFLARE_CRON_SETUP.md": [],
+    "README_CLOUDFLARE_PAGES.md": [],
+    "README_COMMERCE_SETUP.md": [],
+    "README_CONTACT_FORM_SETUP.md": [],
+    "README_ORDER_TRACKING_FRONTEND_FINAL.md": [],
+    "README_PHASE2_ORDERS_ADMIN.md": [],
+    "README_PHASE3_ACCOUNT_DASHBOARD.md": [],
+    "README_PHASE6_COMMERCE_HARDENING.md": [],
+    "README_PHASE_6_1_FIXES.md": [],
+    "README_PHASE_6_2_TARGETED_FIXES.md": [],
+    "SECURITY.md": [],
+    "_headers": [],
+    "_redirects": [],
+    "account/index.html": [],
+    "account/order-detail.html": [],
+    "account/orders.html": [],
+    "account/profile.html": [],
+    "account/returns.html": [],
+    "account/routine-compare.html": [],
+    "account/routine-compare/index.html": [],
+    "account/routine-favorites.html": [],
+    "account/routine-favorites/index.html": [],
+    "account/routine-history.html": [],
+    "account/routine-history/index.html": [],
+    "account/routine-profile.html": [],
+    "account/routine-profile/index.html": [],
+    "account/routines.html": [],
+    "account/routines/index.html": [],
+    "admin/admin-reviews.html": [],
+    "admin/admin-users.html": [],
+    "admin/compliance.html": [],
+    "admin/coupons.html": [],
+    "admin/customers.html": [],
+    "admin/email-logs.html": [],
+    "admin/index.html": [],
+    "admin/inventory.html": [],
+    "admin/invoices.html": [],
+    "admin/legal-settings.html": [],
+    "admin/orders.html": [],
+    "admin/orders/index.html": [],
+    "admin/products.html": [],
+    "admin/returns.html": [],
+    "admin/reviews.html": [],
+    "admin/reviews/index.html": [],
+    "admin/shipments.html": [],
+    "admin/suppliers.html": [],
+    "akilli-rutin.html": [],
+    "allproducts.html": [],
+    "assets/account-dashboard.js": [],
+    "assets/account-premium.css": [],
+    "assets/account-returns.js": [],
+    "assets/account.js": [],
+    "assets/admin-coupons.js": [],
+    "assets/admin-customers.js": [],
+    "assets/admin-dashboard.js": [],
+    "assets/admin-inventory.css": [],
+    "assets/admin-inventory.js": [],
+    "assets/admin-orders-phase6.js": [],
+    "assets/admin-orders.css": [],
+    "assets/admin-orders.js": [],
+    "assets/admin-phase2-console.js": [],
+    "assets/admin-phase2.css": [],
+    "assets/admin-phase3.js": [],
+    "assets/admin-products.js": [],
+    "assets/admin-returns.js": [],
+    "assets/admin-runtime.css": [],
+    "assets/admin-runtime.js": [],
+    "assets/allproducts.css": [],
+    "assets/allproducts.js": [],
+    "assets/app.js": [],
+    "assets/auth-ui-hotfix.js": [],
+    "assets/auth.js": [],
+    "assets/bestsellers.css": [],
+    "assets/bestsellers.js": [],
+    "assets/bottom-nav.js": [],
+    "assets/cart-commerce.js": [],
+    "assets/categories-directory.css": [],
+    "assets/categories-directory.js": [],
+    "assets/checkout-flow.css": [],
+    "assets/checkout-flow.js": [],
+    "assets/collection-renderer.js": [],
+    "assets/commerce.js": [],
+    "assets/contact-form.js": [],
+    "assets/cosmoskin-final-uat-fix.css": [],
+    "assets/cosmoskin-final-uat-fix.js": [],
+    "assets/cosmoskin-fixes.css": [],
+    "assets/cosmoskin-mobile-redesign-v1.css": [],
+    "assets/cosmoskin-mobile-redesign-v1.js": [],
+    "assets/cosmoskin-newsletter.js": [],
+    "assets/cosmoskin-phase3.js": [],
+    "assets/coupon-client.js": [],
+    "assets/data/product-guides.json": [],
+    "assets/favorites-store.js": [],
+    "assets/home-routine.css": [],
+    "assets/home-routine.js": [],
+    "assets/homepage-phase4.css": [],
+    "assets/img/guide/anua-heartleaf-77-soothing-toner/README.txt": [],
+    "assets/img/guide/anua-heartleaf-pore-control-cleansing-oil/README.txt": [],
+    "assets/img/guide/beauty-of-joseon-dynasty-cream/README.txt": [],
+    "assets/img/guide/beauty-of-joseon-glow-deep-serum/README.txt": [],
+    "assets/img/guide/beauty-of-joseon-glow-serum-propolis-niacinamide/README.txt": [],
+    "assets/img/guide/beauty-of-joseon-green-plum-refreshing-cleanser/README.txt": [],
+    "assets/img/guide/beauty-of-joseon-relief-sun-spf50/README.txt": [],
+    "assets/img/guide/by-wishtrend-pure-vitamin-c-21-5-serum/README.txt": [],
+    "assets/img/guide/cosrx-acne-pimple-master-patch/README.txt": [],
+    "assets/img/guide/cosrx-advanced-snail-96-mucin-essence/README.txt": [],
+    "assets/img/guide/cosrx-aha-bha-clarifying-treatment-toner/README.txt": [],
+    "assets/img/guide/cosrx-low-ph-good-morning-gel-cleanser/README.txt": [],
+    "assets/img/guide/cosrx-oil-free-ultra-moisturizing-lotion/README.txt": [],
+    "assets/img/guide/cosrx-salicylic-acid-daily-gentle-cleanser/README.txt": [],
+    "assets/img/guide/cosrx-the-vitamin-c-23-serum/README.txt": [],
+    "assets/img/guide/dr-jart-ceramidin-cream/README.txt": [],
+    "assets/img/guide/goodal-green-tangerine-vitamin-c-serum/README.txt": [],
+    "assets/img/guide/im-from-rice-toner/README.txt": [],
+    "assets/img/guide/innisfree-super-volcanic-clay-mask/README.txt": [],
+    "assets/img/guide/isntree-hyaluronic-acid-watery-sun-gel/README.txt": [],
+    "assets/img/guide/laneige-water-sleeping-mask/README.txt": [],
+    "assets/img/guide/medicube-collagen-night-wrapping-mask/README.txt": [],
+    "assets/img/guide/medicube-zero-pore-pad/README.txt": [],
+    "assets/img/guide/mediheal-nmf-aquaring-sheet-mask/README.txt": [],
+    "assets/img/guide/round-lab-1025-dokdo-cleanser/README.txt": [],
+    "assets/img/guide/round-lab-birch-juice-sunscreen/README.txt": [],
+    "assets/img/guide/round-lab-dokdo-toner/README.txt": [],
+    "assets/img/guide/round-lab-soybean-nourishing-cream/README.txt": [],
+    "assets/img/guide/skin1004-centella-toning-toner/README.txt": [],
+    "assets/img/guide/skin1004-hyalu-cica-water-fit-sun-serum/README.txt": [],
+    "assets/img/guide/skin1004-madagascar-centella-ampoule/README.txt": [],
+    "assets/img/guide/some-by-mi-aha-bha-miracle-toner/README.txt": [],
+    "assets/img/guide/torriden-dive-in-hyaluronic-acid-serum/README.txt": [],
+    "assets/img/guide/torriden-dive-in-watery-moisture-sun-cream/README.txt": [],
+    "assets/img/guide/torriden-solid-in-ceramide-cream/README.txt": [],
+    "assets/inventory-client.js": [],
+    "assets/js/smart-routine.js": [],
+    "assets/legal-modal.css": [],
+    "assets/legal-modal.js": [],
+    "assets/legal-site.css": [],
+    "assets/master-upgrade.css": [],
+    "assets/master-upgrade.js": [],
+    "assets/mobile-enhancements.js": [],
+    "assets/mobile-redesign.css": [],
+    "assets/mobile-redesign.js": [],
+    "assets/mobile-system.css": [],
+    "assets/mobile.css": [],
+    "assets/mobile.js": [],
+    "assets/order-detail.js": [],
+    "assets/order-tracking.js": [],
+    "assets/pdp-professional.css": [],
+    "assets/pdp-professional.js": [],
+    "assets/pdp-quantity.css": [],
+    "assets/pdp-quantity.js": [],
+    "assets/phase6-commerce.css": [],
+    "assets/phase6-commerce.js": [],
+    "assets/price-display.css": [],
+    "assets/price-display.js": [],
+    "assets/product-card-frame.css": [],
+    "assets/product-guide.css": [],
+    "assets/product-guide.js": [],
+    "assets/product-page.css": [],
+    "assets/product-page.js": [],
+    "assets/product-routine.css": [],
+    "assets/product-routine.js": [],
+    "assets/products-data.js": [],
+    "assets/review-summary-badges.js": [],
+    "assets/reviews-widget.css": [],
+    "assets/reviews-widget.js": [],
+    "assets/routine-bundles.css": [],
+    "assets/routine-bundles.js": [],
+    "assets/routine-data-model.js": [],
+    "assets/routine-experience.css": [],
+    "assets/routine-experience.js": [],
+    "assets/routine-route-bridge.js": [],
+    "assets/routines.css": [],
+    "assets/routines.js": [],
+    "assets/site-chrome.js": [],
+    "assets/site-config.js": [],
+    "assets/skin-profile-store.js": [],
+    "assets/smart-routine-wizard.css": [],
+    "assets/smart-routine-wizard.js": [],
+    "assets/smart-routine.css": [],
+    "assets/style.css": [],
+    "auth/callback.html": [],
+    "auth/reset.html": [],
+    "automation/cron-reminders/README.md": [],
+    "automation/cron-reminders/worker.js": [],
+    "automation/cron-reminders/wrangler.jsonc": [],
+    "brands.html": [],
+    "brands/anua.html": [],
+    "brands/beauty-of-joseon.html": [],
+    "brands/by-wishtrend.html": [],
+    "brands/cosrx.html": [],
+    "brands/dr-jart.html": [],
+    "brands/goodal.html": [],
+    "brands/im-from.html": [],
+    "brands/innisfree.html": [],
+    "brands/isntree.html": [],
+    "brands/laneige.html": [],
+    "brands/medicube.html": [],
+    "brands/mediheal.html": [],
+    "brands/round-lab.html": [],
+    "brands/skin1004.html": [],
+    "brands/some-by-mi.html": [],
+    "brands/thank-you-farmer.html": [],
+    "brands/torriden.html": [],
+    "cart.html": [],
+    "categories.html": [],
+    "checkout.html": [],
+    "collections/acne-balance.html": [],
+    "collections/akneye-egilimli-cilt.html": [],
+    "collections/anua.html": [],
+    "collections/barrier.html": [],
+    "collections/beauty-of-joseon.html": [],
+    "collections/bestsellers.html": [],
+    "collections/blemish.html": [],
+    "collections/by-wishtrend.html": [],
+    "collections/care.html": [],
+    "collections/cleanse.html": [],
+    "collections/cosrx.html": [],
+    "collections/dr-jart.html": [],
+    "collections/glow.html": [],
+    "collections/goodal.html": [],
+    "collections/hassas-cilt.html": [],
+    "collections/hydrate.html": [],
+    "collections/hydration.html": [],
+    "collections/im-from.html": [],
+    "collections/innisfree.html": [],
+    "collections/isntree.html": [],
+    "collections/karma-cilt.html": [],
+    "collections/kuru-cilt.html": [],
+    "collections/laneige.html": [],
+    "collections/masks.html": [],
+    "collections/medicube.html": [],
+    "collections/mediheal.html": [],
+    "collections/normal-cilt.html": [],
+    "collections/pore-sebum.html": [],
+    "collections/protect.html": [],
+    "collections/round-lab.html": [],
+    "collections/routine.html": [],
+    "collections/sensitivity.html": [],
+    "collections/skin1004.html": [],
+    "collections/some-by-mi.html": [],
+    "collections/thank-you-farmer.html": [],
+    "collections/torriden.html": [],
+    "collections/treat.html": [],
+    "collections/yagli-cilt.html": [],
+    "contact.html": [],
+    "cosmoskin-club.html": [],
+    "docs/audits/claude-account-audit-20260703.md": [],
+    "docs/prompts/batch-1-safe-functional-fixes.md": [],
+    "explore.html": [],
+    "favorites.html": [],
+    "functions/api/_lib/account.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/admin-audit.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/cloudflare-access-jwt.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/admin.js": [
+      "functions/api/_lib/cloudflare-access-jwt.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/bank-accounts.js": [
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/brevo.js": [],
+    "functions/api/_lib/catalog.js": [
+      "functions/api/_lib/products-data.js"
+    ],
+    "functions/api/_lib/cloudflare-access-jwt.js": [],
+    "functions/api/_lib/commerce-finalization.js": [
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/coupon-admin.js": [
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/coupons.js": [
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/crm-events.js": [
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/email-brand.js": [],
+    "functions/api/_lib/email-events.js": [
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/http.js": [],
+    "functions/api/_lib/inventory.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/restock-email.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/iyzico.js": [
+      "functions/api/_lib/http.js"
+    ],
+    "functions/api/_lib/legal-documents.js": [],
+    "functions/api/_lib/lifecycle-emails.js": [
+      "functions/api/_lib/email-brand.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/order-email.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/loyalty-config.js": [],
+    "functions/api/_lib/loyalty-ledger.js": [
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/newsletter-email.js": [],
+    "functions/api/_lib/order-cancellation.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/order-email.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/email-brand.js"
+    ],
+    "functions/api/_lib/order-pricing-snapshot.js": [],
+    "functions/api/_lib/product-pricing.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/products-data.js": [],
+    "functions/api/_lib/response.js": [],
+    "functions/api/_lib/restock-email.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/email-brand.js",
+      "functions/api/_lib/product-pricing.js"
+    ],
+    "functions/api/_lib/return-attachments.js": [
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/_lib/security.js": [
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/_lib/shipping-providers.js": [],
+    "functions/api/_lib/supabase.js": [
+      "functions/api/_lib/http.js"
+    ],
+    "functions/api/account/addresses.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/coupons.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/favorites.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/membership.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/loyalty-config.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/notifications.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/orders.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/orders/[id].js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/orders/[id]/cancel.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/order-cancellation.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/account/points.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/profile.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/routine-results.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/routines.js": [],
+    "functions/api/account/skin-profile.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/summary.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/loyalty-config.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/return-attachments.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/account/support-requests.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/bank-accounts.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/bank-accounts.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/compliance.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/coupons/index.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/coupon-admin.js",
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/coupons/issue-customer-coupon.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/customers.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/dashboard.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/email-logs.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/inventory.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/inventory/[slug].js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/admin/inventory/[slug]/movements.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/inventory/adjust.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/admin/inventory/health.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/invoices.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/lifecycle-emails.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/lots.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/loyalty/adjust-points.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/orders.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/bank-accounts.js",
+      "functions/api/_lib/commerce-finalization.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/order-email.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/orders/[id].js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/orders/[id]/dhl-shipment.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/shipping-providers.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/orders/[id]/emails.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/admin/orders.js"
+    ],
+    "functions/api/admin/orders/[id]/shipments.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/order-email.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/orders/[id]/status.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/commerce-finalization.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/products.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/products-data.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/products/[slug]/price-history.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/products/[slug]/price.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/admin/refunds.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/lifecycle-emails.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/order-pricing-snapshot.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/returns.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/lifecycle-emails.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/order-email.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/returns/[id]/dhl-return-shipment.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/shipping-providers.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/session.js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/admin/shipments.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/shipments/[id]/label.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/shipments/[id]/sync.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/suppliers.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/admin/users.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/auth/register.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/brevo-sync.js": [
+      "functions/api/_lib/brevo.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/catalog/effective-prices.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/consents.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/contact.js": [],
+    "functions/api/coupons/validate.js": [
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/create-checkout.js": [
+      "functions/api/_lib/bank-accounts.js",
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/iyzico.js",
+      "functions/api/_lib/legal-documents.js",
+      "functions/api/_lib/order-email.js",
+      "functions/api/_lib/order-pricing-snapshot.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/crm/events.js": [
+      "functions/api/_lib/crm-events.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js"
+    ],
+    "functions/api/cron/birthday-benefits.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/cron/points-expiry.js": [
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/cron/recalculate-memberships.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/cron/release-expired-inventory.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/dhl/webhook.js": [
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/email/retry-failed.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/get-orders.js": [
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/inventory.js": [
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/inventory/check.js": [
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js"
+    ],
+    "functions/api/invoices.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/invoices/qnb-create.js": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/iyzico-callback.js": [
+      "functions/api/_lib/brevo.js",
+      "functions/api/_lib/commerce-finalization.js",
+      "functions/api/_lib/crm-events.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/iyzico.js",
+      "functions/api/_lib/order-email.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/loyalty/recalculate-user.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/loyalty/redeem.js": [
+      "functions/api/_lib/account.js",
+      "functions/api/_lib/loyalty-ledger.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/newsletter/subscribe.js": [
+      "functions/api/_lib/crm-events.js",
+      "functions/api/_lib/newsletter-email.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/order-tracking.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/payment/bank-accounts.js": [
+      "functions/api/_lib/bank-accounts.js",
+      "functions/api/_lib/response.js"
+    ],
+    "functions/api/product-compliance.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/public-config.js": [],
+    "functions/api/restock-alerts.js": [
+      "functions/api/_lib/crm-events.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/returns.js": [
+      "functions/api/_lib/crm-events.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/order-email.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/return-attachments.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/reviews/README.md": [],
+    "functions/api/reviews/[[path]].js": [
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/catalog.js",
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/security.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "functions/api/reviews/schema.sql": [],
+    "functions/api/routine-reminders.js": [],
+    "functions/api/shipping/track.js": [
+      "functions/api/_lib/response.js",
+      "functions/api/_lib/supabase.js"
+    ],
+    "hakkimizda.html": [],
+    "iade-degisim.html": [],
+    "index.html": [],
+    "journal.html": [],
+    "js/reviews.js": [],
+    "js/search.js": [],
+    "legal/acik-riza-metni.html": [],
+    "legal/cerez-politikasi.html": [],
+    "legal/cosmoskin-club-kurallari.html": [],
+    "legal/gizlilik-ve-guvenlik-politikasi.html": [],
+    "legal/iade-ve-cayma-politikasi.html": [],
+    "legal/kvkk-aydinlatma-metni.html": [],
+    "legal/mesafeli-satis-sozlesmesi.html": [],
+    "legal/on-bilgilendirme-formu.html": [],
+    "legal/teslimat-ve-kargo.html": [],
+    "legal/ticari-elektronik-ileti-izni.html": [],
+    "legal/uyelik-sozlesmesi.html": [],
+    "legal/veri-sahibi-basvuru-formu.html": [],
+    "mesafeli-satis.html": [],
+    "odeme-ve-guvenlik.html": [],
+    "on-bilgilendirme.html": [],
+    "order-tracking.html": [],
+    "patch_checkout_v6.py": [],
+    "payment/failure.html": [],
+    "payment/success.html": [],
+    "products.json": [],
+    "products/anua-heartleaf-77-soothing-toner.html": [],
+    "products/anua-heartleaf-pore-control-cleansing-oil.html": [],
+    "products/beauty-of-joseon-dynasty-cream.html": [],
+    "products/beauty-of-joseon-glow-deep-serum.html": [],
+    "products/beauty-of-joseon-glow-serum-propolis-niacinamide.html": [],
+    "products/beauty-of-joseon-green-plum-refreshing-cleanser.html": [],
+    "products/beauty-of-joseon-relief-sun-spf50.html": [],
+    "products/by-wishtrend-pure-vitamin-c-21-5-serum.html": [],
+    "products/cosrx-acne-pimple-master-patch.html": [],
+    "products/cosrx-advanced-snail-96-mucin-essence.html": [],
+    "products/cosrx-advanced-snail-96-mucin-power-essence.html": [],
+    "products/cosrx-aha-bha-clarifying-treatment-toner.html": [],
+    "products/cosrx-low-ph-good-morning-gel-cleanser.html": [],
+    "products/cosrx-oil-free-ultra-moisturizing-lotion.html": [],
+    "products/cosrx-salicylic-acid-daily-gentle-cleanser.html": [],
+    "products/cosrx-the-vitamin-c-23-serum.html": [],
+    "products/dr-jart-ceramidin-cream.html": [],
+    "products/goodal-green-tangerine-vitamin-c-serum.html": [],
+    "products/im-from-rice-toner.html": [],
+    "products/innisfree-super-volcanic-clay-mask.html": [],
+    "products/isntree-hyaluronic-acid-watery-sun-gel.html": [],
+    "products/laneige-water-sleeping-mask.html": [],
+    "products/medicube-collagen-night-wrapping-mask.html": [],
+    "products/medicube-zero-pore-pad.html": [],
+    "products/mediheal-nmf-aquaring-sheet-mask.html": [],
+    "products/round-lab-1025-dokdo-cleanser.html": [],
+    "products/round-lab-birch-juice-sunscreen.html": [],
+    "products/round-lab-dokdo-toner.html": [],
+    "products/round-lab-soybean-nourishing-cream.html": [],
+    "products/skin1004-centella-toning-toner.html": [],
+    "products/skin1004-hyalu-cica-water-fit-sun-serum.html": [],
+    "products/skin1004-madagascar-centella-ampoule.html": [],
+    "products/some-by-mi-aha-bha-miracle-toner.html": [],
+    "products/torriden-dive-in-hyaluronic-acid-serum.html": [],
+    "products/torriden-dive-in-serum.html": [],
+    "products/torriden-dive-in-watery-moisture-sun-cream.html": [],
+    "products/torriden-solid-in-ceramide-cream.html": [],
+    "robots.txt": [],
+    "routine.html": [],
+    "rutinler.html": [],
+    "scripts/check-environment.mjs": [],
+    "scripts/email-preview.mjs": [],
+    "scripts/fixtures/iyzico/callback-duplicate.template.json": [],
+    "scripts/fixtures/iyzico/callback-failure.template.json": [],
+    "scripts/fixtures/iyzico/callback-invalid.template.json": [],
+    "scripts/fixtures/iyzico/callback-success.template.json": [],
+    "scripts/launch-readiness-check.mjs": [],
+    "scripts/lib/migration-batch-exemptions.mjs": [],
+    "scripts/lib/product-price-catalog.mjs": [],
+    "scripts/make-test-invoice-pdf.mjs": [],
+    "scripts/reconcile-inventory.mjs": [],
+    "scripts/replay-iyzico-callback.mjs": [],
+    "scripts/run-additional-quality-gates.py": [],
+    "scripts/test-inventory-concurrency.mjs": [],
+    "scripts/validate-a1-admin-endpoint-coverage.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-a1-admin-rbac-hardening.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-a1f-admin-rbac-session-identity.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-account-batch-1-safe-fixes.mjs": [],
+    "scripts/validate-account-batch-3-order-cancellation.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-account-batch-4-loyalty-ledger.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-account-experience-final-polish.mjs": [],
+    "scripts/validate-account-runtime-hotfix.mjs": [],
+    "scripts/validate-account-ui-polish.mjs": [],
+    "scripts/validate-b1-bank-transfer-finalization.mjs": [],
+    "scripts/validate-b2-bank-transfer-rejection-finalization.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-b2e-email-events-integrity.mjs": [
+      "functions/api/_lib/email-events.js",
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-c1-coupon-eligibility-hardening.mjs": [],
+    "scripts/validate-c1b-coupon-exclusions-metadata.mjs": [],
+    "scripts/validate-c1b2-admin-coupon-metadata-visibility.mjs": [],
+    "scripts/validate-c2-cart-checkout-coupon-parity.mjs": [],
+    "scripts/validate-c3-minicart-parity-premium-redesign.mjs": [],
+    "scripts/validate-c4-checkout-order-creation-after-coupon.mjs": [],
+    "scripts/validate-checkout-payment-email-e2e.mjs": [],
+    "scripts/validate-cosmoskin-icons.mjs": [],
+    "scripts/validate-customer-returns-account-pdp-polish.mjs": [],
+    "scripts/validate-d1-returns-refunds-correctness.mjs": [
+      "functions/api/returns.js",
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-d2-refund-amount-correctness.mjs": [
+      "functions/api/admin/refunds.js",
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-d2b-refund-discount-proration.mjs": [
+      "functions/api/admin/refunds.js",
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-d3-refund-snapshot-persistence.mjs": [
+      "functions/api/_lib/order-pricing-snapshot.js",
+      "functions/api/admin/refunds.js"
+    ],
+    "scripts/validate-db1c1a-privileged-function-security-audit.mjs": [],
+    "scripts/validate-db1c1b1-privileged-function-acl-normalization.mjs": [],
+    "scripts/validate-e1-favorites-wishlist-persistence-heart-alignment.mjs": [],
+    "scripts/validate-e4-transactional-email-invoice-refund-brand-integrity.mjs": [],
+    "scripts/validate-h0-live-payment-rpc-hotfix.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-h1-return-attachment-storage-rls.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-h2-return-attachment-preview.mjs": [
+      "scripts/lib/migration-batch-exemptions.mjs"
+    ],
+    "scripts/validate-header-ticker-parity.mjs": [],
+    "scripts/validate-hf1-runtime-commerce-hotfix.mjs": [],
+    "scripts/validate-i1-inventory-checkout-blocking.mjs": [],
+    "scripts/validate-i2-checkout-stock-false-negative.mjs": [],
+    "scripts/validate-legal-commerce-readiness.mjs": [],
+    "scripts/validate-p1a-product-price-source-drift.mjs": [
+      "scripts/lib/product-price-catalog.mjs"
+    ],
+    "scripts/validate-p1b-admin-product-price-readonly.mjs": [],
+    "scripts/validate-p1c-admin-product-price-editing.mjs": [],
+    "scripts/validate-p1c-effective-price-commerce-integrity.mjs": [],
+    "scripts/validate-p1c-effective-price-display-parity.mjs": [],
+    "scripts/validate-p1c3-effective-price-fallback-hardening.mjs": [],
+    "scripts/validate-p1c4-live-pdp-effective-price-runtime.mjs": [],
+    "scripts/validate-p1d-admin-price-audit-history.mjs": [],
+    "scripts/validate-p1e1-sale-price-resolver-model.mjs": [],
+    "scripts/validate-p1e2-admin-sale-price-editing.mjs": [],
+    "scripts/validate-p1e3-storefront-sale-display.mjs": [],
+    "scripts/validate-p1e4-checkout-coupon-sale-snapshot-hardening.mjs": [],
+    "scripts/validate-pdp-routine-intelligence.mjs": [],
+    "scripts/validate-production-launch-readiness.mjs": [],
+    "scripts/validate-r1-admin-review-image-visibility.mjs": [],
+    "scripts/validate-r1b-review-image-upload-failure.mjs": [],
+    "scripts/validate-r1c-review-image-record-failed.mjs": [],
+    "scripts/validate-r1d-review-image-live-schema-alignment.mjs": [],
+    "scripts/validate-r1e-review-image-moderation-alignment.mjs": [],
+    "scripts/validate-r1f-review-image-level-approval.mjs": [],
+    "scripts/validate-r1g-review-moderation-updated-at-schema.mjs": [],
+    "scripts/validate-return-attachment-persistence.mjs": [],
+    "scripts/validate-return-attachment-success-hotfix.mjs": [],
+    "scripts/validate-ux1-minicart-account-premium-polish.mjs": [],
+    "scripts/validate-ux2-product-card-image-frame-standardization.mjs": [],
+    "scripts/validate-ux3-minicart-premium-layout-hardening.mjs": [],
+    "scripts/validate-ux3b-storefront-polish-hotfix.mjs": [],
+    "scripts/validate-ux4-account-profile-preferences-premium-consent.mjs": [],
+    "search.html": [],
+    "site.webmanifest": [],
+    "sitemap.xml": [],
+    "snippets/reviews-component-ready.html": [],
+    "style.css": [],
+    "supabase-email-template.html": [],
+    "supabase/commerce-schema.sql": [],
+    "supabase/hotfixes/20260626_hotfix_order_legal_consents_email.sql": [],
+    "supabase/hotfixes/20260627_hotfix_loyalty_points_ledger_user_id.sql": [],
+    "supabase/hotfixes/20260627_preflight_fix_all_user_id_columns.sql": [],
+    "supabase/migrations/20260418_guest_checkout.sql": [],
+    "supabase/migrations/20260510_newsletter_subscribers.sql": [],
+    "supabase/migrations/20260510_operations_inventory_orders_shipments.sql": [],
+    "supabase/migrations/20260510_phase1_operational_safety.sql": [],
+    "supabase/migrations/20260511_phase2_invoice_returns_refunds.sql": [],
+    "supabase/migrations/20260511_phase3_compliance_crm_security.sql": [],
+    "supabase/migrations/20260517_checkout_bank_transfer_statuses.sql": [],
+    "supabase/migrations/20260616_atomic_inventory_reservation.sql": [],
+    "supabase/migrations/20260616_inventory_reservation_hardening.sql": [],
+    "supabase/migrations/20260616_payment_bank_and_callback_hardening.sql": [],
+    "supabase/migrations/20260616_rls_security_hardening.sql": [],
+    "supabase/migrations/20260626_production_launch_readiness.sql": [],
+    "supabase/migrations/20260627_customer_experience_production_patch.sql": [],
+    "supabase/migrations/20260628_cosmoskin_final_ecommerce_hotfix.sql": [],
+    "supabase/migrations/20260629_cosmoskin_checkout_bank_transfer_final_fix.sql": [],
+    "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix.sql": [],
+    "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix_v2.sql": [],
+    "supabase/migrations/20260629_cosmoskin_post_verification_hotfix.sql": [],
+    "supabase/migrations/20260702_customer_returns_account_pdp_polish.sql": [],
+    "supabase/migrations/20260702_routine_data_sync.sql": [],
+    "supabase/migrations/20260703_account_experience_final_polish.sql": [],
+    "supabase/migrations/20260703_account_runtime_hotfixes.sql": [],
+    "supabase/migrations/20260703_batch1_account_safe_functional_fixes.sql": [],
+    "supabase/migrations/20260703_batch3_customer_order_cancellation.sql": [],
+    "supabase/migrations/20260704_batch4_loyalty_ledger.sql": [],
+    "supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql": [],
+    "supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql": [],
+    "supabase/migrations/20260704_h0c_release_expired_pending_status_patch.sql": [],
+    "supabase/migrations/20260704_h1_return_attachment_storage_rls.sql": [],
+    "supabase/migrations/20260706_d3a_order_item_pricing_snapshot.sql": [],
+    "supabase/migrations/20260707_p1c_admin_product_price_editing.sql": [],
+    "supabase/migrations/20260707_r1g_review_moderation_updated_at_fix.sql": [],
+    "supabase/migrations/20260709_p1e_sale_compare_at_price.sql": [],
+    "supabase/migrations/20260712232725_db1c1b1_privileged_function_acl_normalization.sql": [],
+    "supabase/migrations/20260714161845_e4_email_event_types.sql": [],
+    "supabase/migrations/20260718_profiles_opt_in_columns.sql": [],
+    "supabase/phase51_reviews_hardening.sql": [],
+    "supabase/phase6-commerce-schema.sql": [],
+    "supabase/phase6-inventory-seed.sql": [],
+    "supabase/reviews.sql": [],
+    "supabase/rollback/20260616_prelaunch_recovery.sql": [],
+    "supabase/schema.sql": [],
+    "supabase/scripts/manual/backfill_loyalty_purchase_points_20260704.sql": [],
+    "supabase/supabase.js": [],
+    "supabase/test-data.sql": [],
+    "supabase/test/20260616_inventory_test_setup.sql": [],
+    "supabase/verification/20260616_prelaunch_verification.sql": [],
+    "supabase/verification/20260626_launch_readiness_verification.sql": [],
+    "supabase/verification/verify_auth_account_checkout.sql": [],
+    "supabase/verification/verify_checkout_bank_transfer_final.sql": [],
+    "supabase/verification/verify_checkout_bank_transfer_final_v3.sql": [],
+    "supabase/verification/verify_cosmoskin_final_user_acceptance.sql": [],
+    "supabase/verification/verify_inventory_bank_email.sql": [],
+    "teslimat-kargo.html": [],
+    "tests/local-integration.test.mjs": [
+      "functions/api/_lib/admin-audit.js",
+      "functions/api/_lib/admin.js",
+      "functions/api/_lib/bank-accounts.js",
+      "functions/api/_lib/cloudflare-access-jwt.js",
+      "functions/api/_lib/commerce-finalization.js",
+      "functions/api/_lib/coupon-admin.js",
+      "functions/api/_lib/coupons.js",
+      "functions/api/_lib/email-events.js",
+      "functions/api/_lib/inventory.js",
+      "functions/api/_lib/order-pricing-snapshot.js",
+      "functions/api/_lib/product-pricing.js",
+      "functions/api/account/favorites.js",
+      "functions/api/account/notifications.js",
+      "functions/api/account/profile.js",
+      "functions/api/admin/bank-accounts.js",
+      "functions/api/admin/compliance.js",
+      "functions/api/admin/coupons/index.js",
+      "functions/api/admin/customers.js",
+      "functions/api/admin/dashboard.js",
+      "functions/api/admin/email-logs.js",
+      "functions/api/admin/inventory.js",
+      "functions/api/admin/inventory/[slug].js",
+      "functions/api/admin/inventory/[slug]/movements.js",
+      "functions/api/admin/inventory/adjust.js",
+      "functions/api/admin/invoices.js",
+      "functions/api/admin/lots.js",
+      "functions/api/admin/orders.js",
+      "functions/api/admin/orders/[id].js",
+      "functions/api/admin/orders/[id]/emails.js",
+      "functions/api/admin/orders/[id]/shipments.js",
+      "functions/api/admin/orders/[id]/status.js",
+      "functions/api/admin/products.js",
+      "functions/api/admin/products/[slug]/price-history.js",
+      "functions/api/admin/products/[slug]/price.js",
+      "functions/api/admin/refunds.js",
+      "functions/api/admin/returns.js",
+      "functions/api/admin/session.js",
+      "functions/api/admin/shipments.js",
+      "functions/api/admin/suppliers.js",
+      "functions/api/admin/users.js",
+      "functions/api/coupons/validate.js",
+      "functions/api/create-checkout.js",
+      "functions/api/inventory/check.js",
+      "functions/api/returns.js",
+      "functions/api/reviews/[[path]].js"
+    ],
+    "wrangler.toml": []
+  }
+}

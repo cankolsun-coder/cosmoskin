@@ -1725,3 +1725,154 @@
   .home-hero--premium .hero-btn,
   .home-hero--premium .hero-btn svg{transition:none !important;}
 }
+
+/* ============================================================
+   COSMOSKIN — Desktop Campaign Hero (COSRX Low pH) 20260720
+   Scope: #heroSection, min-width 768px only.
+   Mobile (<=767px, cs-mobile-v1) hero is intentionally untouched:
+   the campaign image, foam and CTA below default to display:none and
+   are only revealed on desktop.
+   ============================================================ */
+.home-hero__stage,
+.home-hero__campaign,
+.home-hero__foam,
+.home-hero__campaign-cta{display:none;}
+
+@media (min-width:768px){
+  /* Canvas becomes a clean full-bleed campaign stage. The sky→foam
+     gradient blends the letterbox edges on ultra-wide screens. */
+  #heroSection.home-hero{background:#d9e6f0;}
+  #heroSection .home-hero__canvas{
+    min-height:0;
+    padding-top:0;
+    background:linear-gradient(180deg,#cadeee 0%,#e7eef2 58%,#f5f1ea 100%);
+  }
+  #heroSection .home-hero__canvas::after{display:none;}
+
+  /* The old editorial copy (eyebrow, title, lead, actions) is hidden
+     visually but the H1 stays in the DOM for SEO / assistive tech. */
+  #heroSection .home-hero__grid{
+    position:absolute;
+    width:1px;height:1px;
+    margin:-1px;padding:0;
+    overflow:hidden;
+    clip:rect(0 0 0 0);
+    white-space:nowrap;
+    border:0;
+    min-height:0;
+  }
+
+  /* Fixed 2:1 stage ratio guarantees a consistent vertical crop at every
+     desktop width, keeping the model + type band framed and the lower
+     image edge out of view. */
+  #heroSection .home-hero__stage{
+    display:block;
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
+    aspect-ratio:2 / 1;
+    max-height:760px;
+  }
+
+  /* Campaign image = LCP element. */
+  #heroSection .home-hero__campaign{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:50% 24%;
+    -webkit-user-select:none;
+    user-select:none;
+    -webkit-user-drag:none;
+  }
+
+  /* Subtle rising foam bubbles over the cloud base — GPU transform
+     + opacity only, capped count, disabled for reduced-motion. */
+  #heroSection .home-hero__foam{
+    display:block;
+    position:absolute;
+    left:0;right:0;bottom:0;
+    height:34%;
+    z-index:2;
+    pointer-events:none;
+    overflow:hidden;
+  }
+  #heroSection .home-hero__foam span{
+    position:absolute;
+    bottom:6%;
+    display:block;
+    width:14px;height:14px;
+    border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.95), rgba(255,255,255,.34) 58%, rgba(255,255,255,0) 72%);
+    box-shadow:0 0 10px rgba(255,255,255,.5), inset 0 0 6px rgba(255,255,255,.6);
+    opacity:0;
+    will-change:transform,opacity;
+    animation:csHeroFoamRise var(--dur,9s) ease-in var(--delay,0s) infinite;
+  }
+  #heroSection .home-hero__foam span:nth-child(1){left:8%;--dur:8.5s;--delay:.2s;width:10px;height:10px;}
+  #heroSection .home-hero__foam span:nth-child(2){left:16%;--dur:11s;--delay:2.4s;width:18px;height:18px;}
+  #heroSection .home-hero__foam span:nth-child(3){left:24%;--dur:9.5s;--delay:4.1s;width:8px;height:8px;}
+  #heroSection .home-hero__foam span:nth-child(4){left:31%;--dur:12s;--delay:1.1s;width:13px;height:13px;}
+  #heroSection .home-hero__foam span:nth-child(5){left:19%;--dur:10s;--delay:6.2s;width:6px;height:6px;}
+  #heroSection .home-hero__foam span:nth-child(6){left:12%;--dur:13s;--delay:3.3s;width:16px;height:16px;}
+  #heroSection .home-hero__foam span:nth-child(7){left:27%;--dur:9s;--delay:5.5s;width:9px;height:9px;}
+  #heroSection .home-hero__foam span:nth-child(8){left:6%;--dur:11.5s;--delay:7.4s;width:12px;height:12px;}
+  @keyframes csHeroFoamRise{
+    0%{opacity:0;transform:translate3d(0,10px,0) scale(.6);}
+    12%{opacity:.9;}
+    70%{opacity:.55;}
+    100%{opacity:0;transform:translate3d(14px,-190px,0) scale(1.05);}
+  }
+
+  /* Campaign CTAs sit on the clean foam zone, bottom-left. */
+  #heroSection .home-hero__campaign-cta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    position:absolute;
+    left:clamp(28px,5vw,92px);
+    bottom:clamp(38px,7vw,76px);
+    z-index:4;
+  }
+  #heroSection .home-hero__campaign-cta .hero-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:26px;
+    min-width:196px;
+    height:56px;
+    padding:0 20px 0 24px;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:.06em;
+    line-height:1;
+    text-transform:uppercase;
+    transition:transform .22s var(--ease-out), box-shadow .22s ease, background .22s ease, border-color .22s ease;
+  }
+  #heroSection .home-hero__campaign-cta .hero-btn svg{width:20px;height:20px;flex:0 0 20px;transition:transform .22s var(--ease-out);}
+  #heroSection .home-hero__campaign-cta .hero-btn:hover{transform:translateY(-2px);}
+  #heroSection .home-hero__campaign-cta .hero-btn:hover svg{transform:translateX(3px);}
+  #heroSection .home-hero__campaign-cta .hero-btn--primary{
+    color:#fff;background:#0e0c0a;border:1px solid #0e0c0a;
+    box-shadow:0 16px 34px rgba(15,11,8,.24);
+  }
+  #heroSection .home-hero__campaign-cta .hero-btn--primary:hover{background:#1a1511;box-shadow:0 22px 46px rgba(15,11,8,.28);}
+  #heroSection .home-hero__campaign-cta .hero-btn--secondary{
+    color:#15110d;background:rgba(255,255,255,.66);
+    border:1px solid rgba(22,18,14,.22);
+    box-shadow:0 12px 30px rgba(20,14,9,.1);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  }
+  #heroSection .home-hero__campaign-cta .hero-btn--secondary:hover{background:rgba(255,255,255,.86);border-color:rgba(22,18,14,.4);}
+}
+
+@media (min-width:768px) and (prefers-reduced-motion:reduce){
+  #heroSection .home-hero__foam span{animation:none;opacity:0;}
+}
+
+/* Ultra-wide: cap the campaign frame so the composition stays centered
+   and editorial rather than stretching the model past comfort. */
+@media (min-width:1720px){
+  #heroSection .home-hero__stage{max-width:1600px;margin:0 auto;}
+}

@@ -1,0 +1,3564 @@
+{
+  "scriptCompleted": true,
+  "contentDigest": "91df68afb5fcb731625f2b7ff5edf5827f73f2296ce27587e077ef03c8e3275f",
+  "files": [
+    {
+      "path": ".claude/launch.json",
+      "language": "json",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".claude/serve.rb",
+      "language": "ruby",
+      "sizeLines": 9,
+      "fileCategory": "code"
+    },
+    {
+      "path": ".cursor/settings.json",
+      "language": "json",
+      "sizeLines": 10,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".env.example",
+      "language": "config",
+      "sizeLines": 85,
+      "fileCategory": "config"
+    },
+    {
+      "path": ".ua/.understandignore",
+      "language": "unknown",
+      "sizeLines": 103,
+      "fileCategory": "code"
+    },
+    {
+      "path": "AGENTS.md",
+      "language": "markdown",
+      "sizeLines": 69,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "BREVO_SEGMENT_SETUP.md",
+      "language": "markdown",
+      "sizeLines": 44,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "CLAUDE.md",
+      "language": "markdown",
+      "sizeLines": 69,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "DIRECTOR_ROUTINE_HERO_UPDATE.md",
+      "language": "markdown",
+      "sizeLines": 18,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "MOBILE_QA_FIX_CHANGELOG.md",
+      "language": "markdown",
+      "sizeLines": 69,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "MOBILE_REDESIGN_IMPLEMENTATION_REPORT.md",
+      "language": "markdown",
+      "sizeLines": 22,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "MOBILE_WHITE_SCREEN_FIX_REPORT.md",
+      "language": "markdown",
+      "sizeLines": 24,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README.md",
+      "language": "markdown",
+      "sizeLines": 2,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_CLOUDFLARE_CRON_SETUP.md",
+      "language": "markdown",
+      "sizeLines": 32,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_CLOUDFLARE_PAGES.md",
+      "language": "markdown",
+      "sizeLines": 18,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_COMMERCE_SETUP.md",
+      "language": "markdown",
+      "sizeLines": 105,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_CONTACT_FORM_SETUP.md",
+      "language": "markdown",
+      "sizeLines": 22,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_ORDER_TRACKING_FRONTEND_FINAL.md",
+      "language": "markdown",
+      "sizeLines": 40,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_PHASE2_ORDERS_ADMIN.md",
+      "language": "markdown",
+      "sizeLines": 88,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_PHASE3_ACCOUNT_DASHBOARD.md",
+      "language": "markdown",
+      "sizeLines": 80,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_PHASE6_COMMERCE_HARDENING.md",
+      "language": "markdown",
+      "sizeLines": 74,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_PHASE_6_1_FIXES.md",
+      "language": "markdown",
+      "sizeLines": 26,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "README_PHASE_6_2_TARGETED_FIXES.md",
+      "language": "markdown",
+      "sizeLines": 16,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "SECURITY.md",
+      "language": "markdown",
+      "sizeLines": 21,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "_headers",
+      "language": "unknown",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "_redirects",
+      "language": "unknown",
+      "sizeLines": 73,
+      "fileCategory": "code"
+    },
+    {
+      "path": "account/index.html",
+      "language": "html",
+      "sizeLines": 18,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/order-detail.html",
+      "language": "html",
+      "sizeLines": 67,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/orders.html",
+      "language": "html",
+      "sizeLines": 35,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/profile.html",
+      "language": "html",
+      "sizeLines": 220,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/returns.html",
+      "language": "html",
+      "sizeLines": 233,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-compare.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-compare/index.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-favorites.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-favorites/index.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-history.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-history/index.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-profile.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routine-profile/index.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routines.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "account/routines/index.html",
+      "language": "html",
+      "sizeLines": 385,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/admin-reviews.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/admin-users.html",
+      "language": "html",
+      "sizeLines": 65,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/compliance.html",
+      "language": "html",
+      "sizeLines": 64,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/coupons.html",
+      "language": "html",
+      "sizeLines": 91,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/customers.html",
+      "language": "html",
+      "sizeLines": 67,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/email-logs.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/index.html",
+      "language": "html",
+      "sizeLines": 97,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/inventory.html",
+      "language": "html",
+      "sizeLines": 120,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/invoices.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/legal-settings.html",
+      "language": "html",
+      "sizeLines": 62,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/orders.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/orders/index.html",
+      "language": "html",
+      "sizeLines": 164,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/products.html",
+      "language": "html",
+      "sizeLines": 89,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/returns.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/reviews.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/reviews/index.html",
+      "language": "html",
+      "sizeLines": 2379,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/shipments.html",
+      "language": "html",
+      "sizeLines": 14,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "admin/suppliers.html",
+      "language": "html",
+      "sizeLines": 65,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "akilli-rutin.html",
+      "language": "html",
+      "sizeLines": 409,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "allproducts.html",
+      "language": "html",
+      "sizeLines": 431,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/account-dashboard.js",
+      "language": "javascript",
+      "sizeLines": 3614,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/account-premium.css",
+      "language": "css",
+      "sizeLines": 3100,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/account-returns.js",
+      "language": "javascript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/account.js",
+      "language": "javascript",
+      "sizeLines": 116,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-coupons.js",
+      "language": "javascript",
+      "sizeLines": 281,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-customers.js",
+      "language": "javascript",
+      "sizeLines": 10,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-dashboard.js",
+      "language": "javascript",
+      "sizeLines": 37,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-inventory.css",
+      "language": "css",
+      "sizeLines": 25,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/admin-inventory.js",
+      "language": "javascript",
+      "sizeLines": 45,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-orders-phase6.js",
+      "language": "javascript",
+      "sizeLines": 2,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-orders.css",
+      "language": "css",
+      "sizeLines": 54,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/admin-orders.js",
+      "language": "javascript",
+      "sizeLines": 1210,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-phase2-console.js",
+      "language": "javascript",
+      "sizeLines": 33,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-phase2.css",
+      "language": "css",
+      "sizeLines": 4,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/admin-phase3.js",
+      "language": "javascript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-products.js",
+      "language": "javascript",
+      "sizeLines": 183,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-returns.js",
+      "language": "javascript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/admin-runtime.css",
+      "language": "css",
+      "sizeLines": 132,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/admin-runtime.js",
+      "language": "javascript",
+      "sizeLines": 446,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/allproducts.css",
+      "language": "css",
+      "sizeLines": 2190,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/allproducts.js",
+      "language": "javascript",
+      "sizeLines": 1077,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/app.js",
+      "language": "javascript",
+      "sizeLines": 1861,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/auth-ui-hotfix.js",
+      "language": "javascript",
+      "sizeLines": 207,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/auth.js",
+      "language": "javascript",
+      "sizeLines": 1184,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/bestsellers.css",
+      "language": "css",
+      "sizeLines": 1195,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/bestsellers.js",
+      "language": "javascript",
+      "sizeLines": 356,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/bottom-nav.js",
+      "language": "javascript",
+      "sizeLines": 20,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/cart-commerce.js",
+      "language": "javascript",
+      "sizeLines": 197,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/categories-directory.css",
+      "language": "css",
+      "sizeLines": 358,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/categories-directory.js",
+      "language": "javascript",
+      "sizeLines": 132,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/checkout-flow.css",
+      "language": "css",
+      "sizeLines": 2364,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/checkout-flow.js",
+      "language": "javascript",
+      "sizeLines": 1760,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/collection-renderer.js",
+      "language": "javascript",
+      "sizeLines": 308,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/commerce.js",
+      "language": "javascript",
+      "sizeLines": 237,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/contact-form.js",
+      "language": "javascript",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/cosmoskin-final-uat-fix.css",
+      "language": "css",
+      "sizeLines": 461,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/cosmoskin-final-uat-fix.js",
+      "language": "javascript",
+      "sizeLines": 130,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/cosmoskin-fixes.css",
+      "language": "css",
+      "sizeLines": 1189,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/cosmoskin-mobile-redesign-v1.css",
+      "language": "css",
+      "sizeLines": 10301,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/cosmoskin-mobile-redesign-v1.js",
+      "language": "javascript",
+      "sizeLines": 965,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/cosmoskin-newsletter.js",
+      "language": "javascript",
+      "sizeLines": 121,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/cosmoskin-phase3.js",
+      "language": "javascript",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/coupon-client.js",
+      "language": "javascript",
+      "sizeLines": 167,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/data/product-guides.json",
+      "language": "json",
+      "sizeLines": 2587,
+      "fileCategory": "config"
+    },
+    {
+      "path": "assets/favorites-store.js",
+      "language": "javascript",
+      "sizeLines": 351,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/home-routine.css",
+      "language": "css",
+      "sizeLines": 589,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/home-routine.js",
+      "language": "javascript",
+      "sizeLines": 303,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/homepage-phase4.css",
+      "language": "css",
+      "sizeLines": 1727,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/img/guide/anua-heartleaf-77-soothing-toner/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/anua-heartleaf-pore-control-cleansing-oil/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/beauty-of-joseon-dynasty-cream/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/beauty-of-joseon-glow-deep-serum/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/beauty-of-joseon-glow-serum-propolis-niacinamide/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/beauty-of-joseon-green-plum-refreshing-cleanser/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/beauty-of-joseon-relief-sun-spf50/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/by-wishtrend-pure-vitamin-c-21-5-serum/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/cosrx-acne-pimple-master-patch/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/cosrx-advanced-snail-96-mucin-essence/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/cosrx-aha-bha-clarifying-treatment-toner/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/cosrx-low-ph-good-morning-gel-cleanser/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/cosrx-oil-free-ultra-moisturizing-lotion/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/cosrx-salicylic-acid-daily-gentle-cleanser/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/cosrx-the-vitamin-c-23-serum/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/dr-jart-ceramidin-cream/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/goodal-green-tangerine-vitamin-c-serum/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/im-from-rice-toner/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/innisfree-super-volcanic-clay-mask/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/isntree-hyaluronic-acid-watery-sun-gel/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/laneige-water-sleeping-mask/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/medicube-collagen-night-wrapping-mask/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/medicube-zero-pore-pad/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/mediheal-nmf-aquaring-sheet-mask/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/round-lab-1025-dokdo-cleanser/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/round-lab-birch-juice-sunscreen/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/round-lab-dokdo-toner/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/round-lab-soybean-nourishing-cream/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/skin1004-centella-toning-toner/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/skin1004-hyalu-cica-water-fit-sun-serum/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/skin1004-madagascar-centella-ampoule/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/some-by-mi-aha-bha-miracle-toner/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/torriden-dive-in-hyaluronic-acid-serum/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/torriden-dive-in-watery-moisture-sun-cream/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/img/guide/torriden-solid-in-ceramide-cream/README.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "assets/inventory-client.js",
+      "language": "javascript",
+      "sizeLines": 463,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/js/smart-routine.js",
+      "language": "javascript",
+      "sizeLines": 1079,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/legal-modal.css",
+      "language": "css",
+      "sizeLines": 149,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/legal-modal.js",
+      "language": "javascript",
+      "sizeLines": 124,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/legal-site.css",
+      "language": "css",
+      "sizeLines": 496,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/master-upgrade.css",
+      "language": "css",
+      "sizeLines": 1031,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/master-upgrade.js",
+      "language": "javascript",
+      "sizeLines": 744,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/mobile-enhancements.js",
+      "language": "javascript",
+      "sizeLines": 366,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/mobile-redesign.css",
+      "language": "css",
+      "sizeLines": 3630,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/mobile-redesign.js",
+      "language": "javascript",
+      "sizeLines": 1495,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/mobile-system.css",
+      "language": "css",
+      "sizeLines": 2,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/mobile.css",
+      "language": "css",
+      "sizeLines": 1112,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/mobile.js",
+      "language": "javascript",
+      "sizeLines": 512,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/order-detail.js",
+      "language": "javascript",
+      "sizeLines": 206,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/order-tracking.js",
+      "language": "javascript",
+      "sizeLines": 121,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/pdp-professional.css",
+      "language": "css",
+      "sizeLines": 1750,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/pdp-professional.js",
+      "language": "javascript",
+      "sizeLines": 1066,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/pdp-quantity.css",
+      "language": "css",
+      "sizeLines": 1,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/pdp-quantity.js",
+      "language": "javascript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/phase6-commerce.css",
+      "language": "css",
+      "sizeLines": 1050,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/phase6-commerce.js",
+      "language": "javascript",
+      "sizeLines": 513,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/price-display.css",
+      "language": "css",
+      "sizeLines": 18,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/price-display.js",
+      "language": "javascript",
+      "sizeLines": 155,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/product-card-frame.css",
+      "language": "css",
+      "sizeLines": 304,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/product-guide.css",
+      "language": "css",
+      "sizeLines": 77,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/product-guide.js",
+      "language": "javascript",
+      "sizeLines": 47,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/product-page.css",
+      "language": "css",
+      "sizeLines": 468,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/product-page.js",
+      "language": "javascript",
+      "sizeLines": 433,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/product-routine.css",
+      "language": "css",
+      "sizeLines": 114,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/product-routine.js",
+      "language": "javascript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/products-data.js",
+      "language": "javascript",
+      "sizeLines": 303,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/review-summary-badges.js",
+      "language": "javascript",
+      "sizeLines": 114,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/reviews-widget.css",
+      "language": "css",
+      "sizeLines": 93,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/reviews-widget.js",
+      "language": "javascript",
+      "sizeLines": 468,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/routine-bundles.css",
+      "language": "css",
+      "sizeLines": 33,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/routine-bundles.js",
+      "language": "javascript",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/routine-data-model.js",
+      "language": "javascript",
+      "sizeLines": 384,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/routine-experience.css",
+      "language": "css",
+      "sizeLines": 3,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/routine-experience.js",
+      "language": "javascript",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/routine-route-bridge.js",
+      "language": "javascript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/routines.css",
+      "language": "css",
+      "sizeLines": 1166,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/routines.js",
+      "language": "javascript",
+      "sizeLines": 1781,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/site-chrome.js",
+      "language": "javascript",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/site-config.js",
+      "language": "javascript",
+      "sizeLines": 64,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/skin-profile-store.js",
+      "language": "javascript",
+      "sizeLines": 193,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/smart-routine-wizard.css",
+      "language": "css",
+      "sizeLines": 62,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/smart-routine-wizard.js",
+      "language": "javascript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "assets/smart-routine.css",
+      "language": "css",
+      "sizeLines": 835,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "assets/style.css",
+      "language": "css",
+      "sizeLines": 9209,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "auth/callback.html",
+      "language": "html",
+      "sizeLines": 268,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "auth/reset.html",
+      "language": "html",
+      "sizeLines": 561,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "automation/cron-reminders/README.md",
+      "language": "markdown",
+      "sizeLines": 36,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "automation/cron-reminders/worker.js",
+      "language": "javascript",
+      "sizeLines": 342,
+      "fileCategory": "code"
+    },
+    {
+      "path": "automation/cron-reminders/wrangler.jsonc",
+      "language": "jsonc",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    },
+    {
+      "path": "brands.html",
+      "language": "html",
+      "sizeLines": 213,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/anua.html",
+      "language": "html",
+      "sizeLines": 347,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/beauty-of-joseon.html",
+      "language": "html",
+      "sizeLines": 422,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/by-wishtrend.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/cosrx.html",
+      "language": "html",
+      "sizeLines": 472,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/dr-jart.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/goodal.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/im-from.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/innisfree.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/isntree.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/laneige.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/medicube.html",
+      "language": "html",
+      "sizeLines": 347,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/mediheal.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/round-lab.html",
+      "language": "html",
+      "sizeLines": 397,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/skin1004.html",
+      "language": "html",
+      "sizeLines": 372,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/some-by-mi.html",
+      "language": "html",
+      "sizeLines": 322,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/thank-you-farmer.html",
+      "language": "html",
+      "sizeLines": 344,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "brands/torriden.html",
+      "language": "html",
+      "sizeLines": 372,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "cart.html",
+      "language": "html",
+      "sizeLines": 215,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "categories.html",
+      "language": "html",
+      "sizeLines": 229,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "checkout.html",
+      "language": "html",
+      "sizeLines": 201,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/acne-balance.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/akneye-egilimli-cilt.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/anua.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/barrier.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/beauty-of-joseon.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/bestsellers.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/blemish.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/by-wishtrend.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/care.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/cleanse.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/cosrx.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/dr-jart.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/glow.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/goodal.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/hassas-cilt.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/hydrate.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/hydration.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/im-from.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/innisfree.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/isntree.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/karma-cilt.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/kuru-cilt.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/laneige.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/masks.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/medicube.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/mediheal.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/normal-cilt.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/pore-sebum.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/protect.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/round-lab.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/routine.html",
+      "language": "html",
+      "sizeLines": 409,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/sensitivity.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/skin1004.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/some-by-mi.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/thank-you-farmer.html",
+      "language": "html",
+      "sizeLines": 181,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/torriden.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/treat.html",
+      "language": "html",
+      "sizeLines": 237,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "collections/yagli-cilt.html",
+      "language": "html",
+      "sizeLines": 225,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "contact.html",
+      "language": "html",
+      "sizeLines": 175,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "cosmoskin-club.html",
+      "language": "html",
+      "sizeLines": 278,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "docs/audits/claude-account-audit-20260703.md",
+      "language": "markdown",
+      "sizeLines": 231,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "docs/prompts/batch-1-safe-functional-fixes.md",
+      "language": "markdown",
+      "sizeLines": 421,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "explore.html",
+      "language": "html",
+      "sizeLines": 67,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "favorites.html",
+      "language": "html",
+      "sizeLines": 243,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "functions/api/_lib/account.js",
+      "language": "javascript",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/admin-audit.js",
+      "language": "javascript",
+      "sizeLines": 83,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/admin.js",
+      "language": "javascript",
+      "sizeLines": 287,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/bank-accounts.js",
+      "language": "javascript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/brevo.js",
+      "language": "javascript",
+      "sizeLines": 127,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/catalog.js",
+      "language": "javascript",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/cloudflare-access-jwt.js",
+      "language": "javascript",
+      "sizeLines": 186,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/commerce-finalization.js",
+      "language": "javascript",
+      "sizeLines": 397,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/coupon-admin.js",
+      "language": "javascript",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/coupons.js",
+      "language": "javascript",
+      "sizeLines": 890,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/crm-events.js",
+      "language": "javascript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/email-brand.js",
+      "language": "javascript",
+      "sizeLines": 136,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/email-events.js",
+      "language": "javascript",
+      "sizeLines": 227,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/http.js",
+      "language": "javascript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/inventory.js",
+      "language": "javascript",
+      "sizeLines": 411,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/iyzico.js",
+      "language": "javascript",
+      "sizeLines": 43,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/legal-documents.js",
+      "language": "javascript",
+      "sizeLines": 72,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/lifecycle-emails.js",
+      "language": "javascript",
+      "sizeLines": 377,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/loyalty-config.js",
+      "language": "javascript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/loyalty-ledger.js",
+      "language": "javascript",
+      "sizeLines": 139,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/newsletter-email.js",
+      "language": "javascript",
+      "sizeLines": 80,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/order-cancellation.js",
+      "language": "javascript",
+      "sizeLines": 289,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/order-email.js",
+      "language": "javascript",
+      "sizeLines": 478,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/order-pricing-snapshot.js",
+      "language": "javascript",
+      "sizeLines": 150,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/product-pricing.js",
+      "language": "javascript",
+      "sizeLines": 609,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/products-data.js",
+      "language": "javascript",
+      "sizeLines": 5,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/response.js",
+      "language": "javascript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/restock-email.js",
+      "language": "javascript",
+      "sizeLines": 126,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/return-attachments.js",
+      "language": "javascript",
+      "sizeLines": 111,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/security.js",
+      "language": "javascript",
+      "sizeLines": 59,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/shipping-providers.js",
+      "language": "javascript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "language": "javascript",
+      "sizeLines": 234,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/addresses.js",
+      "language": "javascript",
+      "sizeLines": 124,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/coupons.js",
+      "language": "javascript",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/favorites.js",
+      "language": "javascript",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/membership.js",
+      "language": "javascript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/notifications.js",
+      "language": "javascript",
+      "sizeLines": 148,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/orders.js",
+      "language": "javascript",
+      "sizeLines": 40,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/orders/[id].js",
+      "language": "javascript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/orders/[id]/cancel.js",
+      "language": "javascript",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/points.js",
+      "language": "javascript",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/profile.js",
+      "language": "javascript",
+      "sizeLines": 212,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/routine-results.js",
+      "language": "javascript",
+      "sizeLines": 171,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/routines.js",
+      "language": "javascript",
+      "sizeLines": 1,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/skin-profile.js",
+      "language": "javascript",
+      "sizeLines": 75,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/summary.js",
+      "language": "javascript",
+      "sizeLines": 382,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/account/support-requests.js",
+      "language": "javascript",
+      "sizeLines": 53,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/bank-accounts.js",
+      "language": "javascript",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/compliance.js",
+      "language": "javascript",
+      "sizeLines": 65,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/coupons/index.js",
+      "language": "javascript",
+      "sizeLines": 102,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/coupons/issue-customer-coupon.js",
+      "language": "javascript",
+      "sizeLines": 36,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/customers.js",
+      "language": "javascript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/dashboard.js",
+      "language": "javascript",
+      "sizeLines": 52,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/email-logs.js",
+      "language": "javascript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory.js",
+      "language": "javascript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/[slug].js",
+      "language": "javascript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/[slug]/movements.js",
+      "language": "javascript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/adjust.js",
+      "language": "javascript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/inventory/health.js",
+      "language": "javascript",
+      "sizeLines": 61,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/invoices.js",
+      "language": "javascript",
+      "sizeLines": 25,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/lots.js",
+      "language": "javascript",
+      "sizeLines": 98,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/loyalty/adjust-points.js",
+      "language": "javascript",
+      "sizeLines": 32,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/orders.js",
+      "language": "javascript",
+      "sizeLines": 522,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/orders/[id].js",
+      "language": "javascript",
+      "sizeLines": 30,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/dhl-shipment.js",
+      "language": "javascript",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/emails.js",
+      "language": "javascript",
+      "sizeLines": 21,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/shipments.js",
+      "language": "javascript",
+      "sizeLines": 84,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/status.js",
+      "language": "javascript",
+      "sizeLines": 112,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/products.js",
+      "language": "javascript",
+      "sizeLines": 179,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/products/[slug]/price-history.js",
+      "language": "javascript",
+      "sizeLines": 72,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/products/[slug]/price.js",
+      "language": "javascript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/refunds.js",
+      "language": "javascript",
+      "sizeLines": 774,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/returns.js",
+      "language": "javascript",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "language": "javascript",
+      "sizeLines": 26,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/session.js",
+      "language": "javascript",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/shipments.js",
+      "language": "javascript",
+      "sizeLines": 6,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/shipments/[id]/label.js",
+      "language": "javascript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/shipments/[id]/sync.js",
+      "language": "javascript",
+      "sizeLines": 15,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/suppliers.js",
+      "language": "javascript",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/admin/users.js",
+      "language": "javascript",
+      "sizeLines": 51,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/auth/register.js",
+      "language": "javascript",
+      "sizeLines": 192,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/brevo-sync.js",
+      "language": "javascript",
+      "sizeLines": 83,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/catalog/effective-prices.js",
+      "language": "javascript",
+      "sizeLines": 48,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/consents.js",
+      "language": "javascript",
+      "sizeLines": 35,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/contact.js",
+      "language": "javascript",
+      "sizeLines": 533,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/coupons/validate.js",
+      "language": "javascript",
+      "sizeLines": 157,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/create-checkout.js",
+      "language": "javascript",
+      "sizeLines": 1227,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/crm/events.js",
+      "language": "javascript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/birthday-benefits.js",
+      "language": "javascript",
+      "sizeLines": 40,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/points-expiry.js",
+      "language": "javascript",
+      "sizeLines": 14,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/recalculate-memberships.js",
+      "language": "javascript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/cron/release-expired-inventory.js",
+      "language": "javascript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/dhl/webhook.js",
+      "language": "javascript",
+      "sizeLines": 9,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/email/retry-failed.js",
+      "language": "javascript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/get-orders.js",
+      "language": "javascript",
+      "sizeLines": 136,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/inventory.js",
+      "language": "javascript",
+      "sizeLines": 31,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/inventory/check.js",
+      "language": "javascript",
+      "sizeLines": 46,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/invoices.js",
+      "language": "javascript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/invoices/qnb-create.js",
+      "language": "javascript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/iyzico-callback.js",
+      "language": "javascript",
+      "sizeLines": 314,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/loyalty/recalculate-user.js",
+      "language": "javascript",
+      "sizeLines": 13,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/loyalty/redeem.js",
+      "language": "javascript",
+      "sizeLines": 104,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/newsletter/subscribe.js",
+      "language": "javascript",
+      "sizeLines": 188,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/order-tracking.js",
+      "language": "javascript",
+      "sizeLines": 87,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/payment/bank-accounts.js",
+      "language": "javascript",
+      "sizeLines": 22,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/product-compliance.js",
+      "language": "javascript",
+      "sizeLines": 38,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/public-config.js",
+      "language": "javascript",
+      "sizeLines": 28,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/restock-alerts.js",
+      "language": "javascript",
+      "sizeLines": 54,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/returns.js",
+      "language": "javascript",
+      "sizeLines": 405,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/reviews/README.md",
+      "language": "markdown",
+      "sizeLines": 107,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "functions/api/reviews/[[path]].js",
+      "language": "javascript",
+      "sizeLines": 1213,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/reviews/schema.sql",
+      "language": "sql",
+      "sizeLines": 17,
+      "fileCategory": "data"
+    },
+    {
+      "path": "functions/api/routine-reminders.js",
+      "language": "javascript",
+      "sizeLines": 167,
+      "fileCategory": "code"
+    },
+    {
+      "path": "functions/api/shipping/track.js",
+      "language": "javascript",
+      "sizeLines": 4,
+      "fileCategory": "code"
+    },
+    {
+      "path": "hakkimizda.html",
+      "language": "html",
+      "sizeLines": 224,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "iade-degisim.html",
+      "language": "html",
+      "sizeLines": 177,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "index.html",
+      "language": "html",
+      "sizeLines": 831,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "journal.html",
+      "language": "html",
+      "sizeLines": 67,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "js/reviews.js",
+      "language": "javascript",
+      "sizeLines": 305,
+      "fileCategory": "code"
+    },
+    {
+      "path": "js/search.js",
+      "language": "javascript",
+      "sizeLines": 322,
+      "fileCategory": "code"
+    },
+    {
+      "path": "legal/acik-riza-metni.html",
+      "language": "html",
+      "sizeLines": 236,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/cerez-politikasi.html",
+      "language": "html",
+      "sizeLines": 235,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/cosmoskin-club-kurallari.html",
+      "language": "html",
+      "sizeLines": 255,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/gizlilik-ve-guvenlik-politikasi.html",
+      "language": "html",
+      "sizeLines": 231,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/iade-ve-cayma-politikasi.html",
+      "language": "html",
+      "sizeLines": 259,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/kvkk-aydinlatma-metni.html",
+      "language": "html",
+      "sizeLines": 282,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/mesafeli-satis-sozlesmesi.html",
+      "language": "html",
+      "sizeLines": 267,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/on-bilgilendirme-formu.html",
+      "language": "html",
+      "sizeLines": 261,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/teslimat-ve-kargo.html",
+      "language": "html",
+      "sizeLines": 236,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/ticari-elektronik-ileti-izni.html",
+      "language": "html",
+      "sizeLines": 240,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/uyelik-sozlesmesi.html",
+      "language": "html",
+      "sizeLines": 245,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "legal/veri-sahibi-basvuru-formu.html",
+      "language": "html",
+      "sizeLines": 247,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "mesafeli-satis.html",
+      "language": "html",
+      "sizeLines": 179,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "odeme-ve-guvenlik.html",
+      "language": "html",
+      "sizeLines": 180,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "on-bilgilendirme.html",
+      "language": "html",
+      "sizeLines": 178,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "order-tracking.html",
+      "language": "html",
+      "sizeLines": 129,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "patch_checkout_v6.py",
+      "language": "python",
+      "sizeLines": 434,
+      "fileCategory": "code"
+    },
+    {
+      "path": "payment/failure.html",
+      "language": "html",
+      "sizeLines": 129,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "payment/success.html",
+      "language": "html",
+      "sizeLines": 129,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products.json",
+      "language": "json",
+      "sizeLines": 1455,
+      "fileCategory": "config"
+    },
+    {
+      "path": "products/anua-heartleaf-77-soothing-toner.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/anua-heartleaf-pore-control-cleansing-oil.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/beauty-of-joseon-dynasty-cream.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/beauty-of-joseon-glow-deep-serum.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/beauty-of-joseon-glow-serum-propolis-niacinamide.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/beauty-of-joseon-green-plum-refreshing-cleanser.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/beauty-of-joseon-relief-sun-spf50.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/by-wishtrend-pure-vitamin-c-21-5-serum.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-acne-pimple-master-patch.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-advanced-snail-96-mucin-essence.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-advanced-snail-96-mucin-power-essence.html",
+      "language": "html",
+      "sizeLines": 427,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-aha-bha-clarifying-treatment-toner.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-low-ph-good-morning-gel-cleanser.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-oil-free-ultra-moisturizing-lotion.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-salicylic-acid-daily-gentle-cleanser.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/cosrx-the-vitamin-c-23-serum.html",
+      "language": "html",
+      "sizeLines": 426,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/dr-jart-ceramidin-cream.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/goodal-green-tangerine-vitamin-c-serum.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/im-from-rice-toner.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/innisfree-super-volcanic-clay-mask.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/isntree-hyaluronic-acid-watery-sun-gel.html",
+      "language": "html",
+      "sizeLines": 422,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/laneige-water-sleeping-mask.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/medicube-collagen-night-wrapping-mask.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/medicube-zero-pore-pad.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/mediheal-nmf-aquaring-sheet-mask.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/round-lab-1025-dokdo-cleanser.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/round-lab-birch-juice-sunscreen.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/round-lab-dokdo-toner.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/round-lab-soybean-nourishing-cream.html",
+      "language": "html",
+      "sizeLines": 426,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/skin1004-centella-toning-toner.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/skin1004-hyalu-cica-water-fit-sun-serum.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/skin1004-madagascar-centella-ampoule.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/some-by-mi-aha-bha-miracle-toner.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/torriden-dive-in-hyaluronic-acid-serum.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/torriden-dive-in-serum.html",
+      "language": "html",
+      "sizeLines": 427,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/torriden-dive-in-watery-moisture-sun-cream.html",
+      "language": "html",
+      "sizeLines": 426,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "products/torriden-solid-in-ceramide-cream.html",
+      "language": "html",
+      "sizeLines": 428,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "robots.txt",
+      "language": "txt",
+      "sizeLines": 5,
+      "fileCategory": "docs"
+    },
+    {
+      "path": "routine.html",
+      "language": "html",
+      "sizeLines": 410,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "rutinler.html",
+      "language": "html",
+      "sizeLines": 409,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "scripts/check-environment.mjs",
+      "language": "javascript",
+      "sizeLines": 18,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/email-preview.mjs",
+      "language": "javascript",
+      "sizeLines": 144,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/fixtures/iyzico/callback-duplicate.template.json",
+      "language": "json",
+      "sizeLines": 10,
+      "fileCategory": "config"
+    },
+    {
+      "path": "scripts/fixtures/iyzico/callback-failure.template.json",
+      "language": "json",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    },
+    {
+      "path": "scripts/fixtures/iyzico/callback-invalid.template.json",
+      "language": "json",
+      "sizeLines": 6,
+      "fileCategory": "config"
+    },
+    {
+      "path": "scripts/fixtures/iyzico/callback-success.template.json",
+      "language": "json",
+      "sizeLines": 11,
+      "fileCategory": "config"
+    },
+    {
+      "path": "scripts/launch-readiness-check.mjs",
+      "language": "javascript",
+      "sizeLines": 87,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/lib/migration-batch-exemptions.mjs",
+      "language": "javascript",
+      "sizeLines": 12,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/lib/product-price-catalog.mjs",
+      "language": "javascript",
+      "sizeLines": 160,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/make-test-invoice-pdf.mjs",
+      "language": "javascript",
+      "sizeLines": 63,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/reconcile-inventory.mjs",
+      "language": "javascript",
+      "sizeLines": 71,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/replay-iyzico-callback.mjs",
+      "language": "javascript",
+      "sizeLines": 29,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/run-additional-quality-gates.py",
+      "language": "python",
+      "sizeLines": 105,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/test-inventory-concurrency.mjs",
+      "language": "javascript",
+      "sizeLines": 67,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-a1-admin-endpoint-coverage.mjs",
+      "language": "javascript",
+      "sizeLines": 532,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-a1-admin-rbac-hardening.mjs",
+      "language": "javascript",
+      "sizeLines": 392,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-a1f-admin-rbac-session-identity.mjs",
+      "language": "javascript",
+      "sizeLines": 277,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-account-batch-1-safe-fixes.mjs",
+      "language": "javascript",
+      "sizeLines": 69,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-account-batch-3-order-cancellation.mjs",
+      "language": "javascript",
+      "sizeLines": 159,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-account-batch-4-loyalty-ledger.mjs",
+      "language": "javascript",
+      "sizeLines": 336,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-account-experience-final-polish.mjs",
+      "language": "javascript",
+      "sizeLines": 62,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-account-runtime-hotfix.mjs",
+      "language": "javascript",
+      "sizeLines": 16,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-account-ui-polish.mjs",
+      "language": "javascript",
+      "sizeLines": 86,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-b1-bank-transfer-finalization.mjs",
+      "language": "javascript",
+      "sizeLines": 426,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-b2-bank-transfer-rejection-finalization.mjs",
+      "language": "javascript",
+      "sizeLines": 348,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-b2e-email-events-integrity.mjs",
+      "language": "javascript",
+      "sizeLines": 192,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-c1-coupon-eligibility-hardening.mjs",
+      "language": "javascript",
+      "sizeLines": 93,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-c1b-coupon-exclusions-metadata.mjs",
+      "language": "javascript",
+      "sizeLines": 70,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-c1b2-admin-coupon-metadata-visibility.mjs",
+      "language": "javascript",
+      "sizeLines": 105,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-c2-cart-checkout-coupon-parity.mjs",
+      "language": "javascript",
+      "sizeLines": 109,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-c3-minicart-parity-premium-redesign.mjs",
+      "language": "javascript",
+      "sizeLines": 138,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-c4-checkout-order-creation-after-coupon.mjs",
+      "language": "javascript",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-checkout-payment-email-e2e.mjs",
+      "language": "javascript",
+      "sizeLines": 163,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-cosmoskin-icons.mjs",
+      "language": "javascript",
+      "sizeLines": 55,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-customer-returns-account-pdp-polish.mjs",
+      "language": "javascript",
+      "sizeLines": 50,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-d1-returns-refunds-correctness.mjs",
+      "language": "javascript",
+      "sizeLines": 269,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-d2-refund-amount-correctness.mjs",
+      "language": "javascript",
+      "sizeLines": 308,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-d2b-refund-discount-proration.mjs",
+      "language": "javascript",
+      "sizeLines": 239,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-d3-refund-snapshot-persistence.mjs",
+      "language": "javascript",
+      "sizeLines": 224,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-db1c1a-privileged-function-security-audit.mjs",
+      "language": "javascript",
+      "sizeLines": 223,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-db1c1b1-privileged-function-acl-normalization.mjs",
+      "language": "javascript",
+      "sizeLines": 319,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-e1-favorites-wishlist-persistence-heart-alignment.mjs",
+      "language": "javascript",
+      "sizeLines": 130,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-e4-transactional-email-invoice-refund-brand-integrity.mjs",
+      "language": "javascript",
+      "sizeLines": 175,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-h0-live-payment-rpc-hotfix.mjs",
+      "language": "javascript",
+      "sizeLines": 470,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-h1-return-attachment-storage-rls.mjs",
+      "language": "javascript",
+      "sizeLines": 312,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-h2-return-attachment-preview.mjs",
+      "language": "javascript",
+      "sizeLines": 410,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-header-ticker-parity.mjs",
+      "language": "javascript",
+      "sizeLines": 42,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-hf1-runtime-commerce-hotfix.mjs",
+      "language": "javascript",
+      "sizeLines": 151,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-i1-inventory-checkout-blocking.mjs",
+      "language": "javascript",
+      "sizeLines": 131,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-i2-checkout-stock-false-negative.mjs",
+      "language": "javascript",
+      "sizeLines": 103,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-legal-commerce-readiness.mjs",
+      "language": "javascript",
+      "sizeLines": 153,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1a-product-price-source-drift.mjs",
+      "language": "javascript",
+      "sizeLines": 190,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1b-admin-product-price-readonly.mjs",
+      "language": "javascript",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1c-admin-product-price-editing.mjs",
+      "language": "javascript",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1c-effective-price-commerce-integrity.mjs",
+      "language": "javascript",
+      "sizeLines": 211,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1c-effective-price-display-parity.mjs",
+      "language": "javascript",
+      "sizeLines": 75,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1c3-effective-price-fallback-hardening.mjs",
+      "language": "javascript",
+      "sizeLines": 110,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1c4-live-pdp-effective-price-runtime.mjs",
+      "language": "javascript",
+      "sizeLines": 89,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1d-admin-price-audit-history.mjs",
+      "language": "javascript",
+      "sizeLines": 95,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1e1-sale-price-resolver-model.mjs",
+      "language": "javascript",
+      "sizeLines": 92,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1e2-admin-sale-price-editing.mjs",
+      "language": "javascript",
+      "sizeLines": 81,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1e3-storefront-sale-display.mjs",
+      "language": "javascript",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-p1e4-checkout-coupon-sale-snapshot-hardening.mjs",
+      "language": "javascript",
+      "sizeLines": 146,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-pdp-routine-intelligence.mjs",
+      "language": "javascript",
+      "sizeLines": 41,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-production-launch-readiness.mjs",
+      "language": "javascript",
+      "sizeLines": 226,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-r1-admin-review-image-visibility.mjs",
+      "language": "javascript",
+      "sizeLines": 162,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-r1b-review-image-upload-failure.mjs",
+      "language": "javascript",
+      "sizeLines": 129,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-r1c-review-image-record-failed.mjs",
+      "language": "javascript",
+      "sizeLines": 119,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-r1d-review-image-live-schema-alignment.mjs",
+      "language": "javascript",
+      "sizeLines": 125,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-r1e-review-image-moderation-alignment.mjs",
+      "language": "javascript",
+      "sizeLines": 119,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-r1f-review-image-level-approval.mjs",
+      "language": "javascript",
+      "sizeLines": 115,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-r1g-review-moderation-updated-at-schema.mjs",
+      "language": "javascript",
+      "sizeLines": 122,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-return-attachment-persistence.mjs",
+      "language": "javascript",
+      "sizeLines": 17,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-return-attachment-success-hotfix.mjs",
+      "language": "javascript",
+      "sizeLines": 19,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-ux1-minicart-account-premium-polish.mjs",
+      "language": "javascript",
+      "sizeLines": 99,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-ux2-product-card-image-frame-standardization.mjs",
+      "language": "javascript",
+      "sizeLines": 107,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-ux3-minicart-premium-layout-hardening.mjs",
+      "language": "javascript",
+      "sizeLines": 174,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-ux3b-storefront-polish-hotfix.mjs",
+      "language": "javascript",
+      "sizeLines": 133,
+      "fileCategory": "code"
+    },
+    {
+      "path": "scripts/validate-ux4-account-profile-preferences-premium-consent.mjs",
+      "language": "javascript",
+      "sizeLines": 136,
+      "fileCategory": "code"
+    },
+    {
+      "path": "search.html",
+      "language": "html",
+      "sizeLines": 470,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "site.webmanifest",
+      "language": "webmanifest",
+      "sizeLines": 0,
+      "fileCategory": "code"
+    },
+    {
+      "path": "sitemap.xml",
+      "language": "xml",
+      "sizeLines": 83,
+      "fileCategory": "config"
+    },
+    {
+      "path": "snippets/reviews-component-ready.html",
+      "language": "html",
+      "sizeLines": 1487,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "style.css",
+      "language": "css",
+      "sizeLines": 7689,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "supabase-email-template.html",
+      "language": "html",
+      "sizeLines": 133,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "supabase/commerce-schema.sql",
+      "language": "sql",
+      "sizeLines": 229,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/hotfixes/20260626_hotfix_order_legal_consents_email.sql",
+      "language": "sql",
+      "sizeLines": 29,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/hotfixes/20260627_hotfix_loyalty_points_ledger_user_id.sql",
+      "language": "sql",
+      "sizeLines": 70,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/hotfixes/20260627_preflight_fix_all_user_id_columns.sql",
+      "language": "sql",
+      "sizeLines": 153,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260418_guest_checkout.sql",
+      "language": "sql",
+      "sizeLines": 1,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260510_newsletter_subscribers.sql",
+      "language": "sql",
+      "sizeLines": 45,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260510_operations_inventory_orders_shipments.sql",
+      "language": "sql",
+      "sizeLines": 143,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260510_phase1_operational_safety.sql",
+      "language": "sql",
+      "sizeLines": 116,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260511_phase2_invoice_returns_refunds.sql",
+      "language": "sql",
+      "sizeLines": 136,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260511_phase3_compliance_crm_security.sql",
+      "language": "sql",
+      "sizeLines": 92,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260517_checkout_bank_transfer_statuses.sql",
+      "language": "sql",
+      "sizeLines": 38,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_atomic_inventory_reservation.sql",
+      "language": "sql",
+      "sizeLines": 43,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_inventory_reservation_hardening.sql",
+      "language": "sql",
+      "sizeLines": 343,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_payment_bank_and_callback_hardening.sql",
+      "language": "sql",
+      "sizeLines": 303,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260616_rls_security_hardening.sql",
+      "language": "sql",
+      "sizeLines": 33,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260626_production_launch_readiness.sql",
+      "language": "sql",
+      "sizeLines": 683,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260627_customer_experience_production_patch.sql",
+      "language": "sql",
+      "sizeLines": 303,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260628_cosmoskin_final_ecommerce_hotfix.sql",
+      "language": "sql",
+      "sizeLines": 312,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_checkout_bank_transfer_final_fix.sql",
+      "language": "sql",
+      "sizeLines": 699,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix.sql",
+      "language": "sql",
+      "sizeLines": 981,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_final_user_acceptance_fix_v2.sql",
+      "language": "sql",
+      "sizeLines": 981,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260629_cosmoskin_post_verification_hotfix.sql",
+      "language": "sql",
+      "sizeLines": 78,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260702_customer_returns_account_pdp_polish.sql",
+      "language": "sql",
+      "sizeLines": 111,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260702_routine_data_sync.sql",
+      "language": "sql",
+      "sizeLines": 56,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_account_experience_final_polish.sql",
+      "language": "sql",
+      "sizeLines": 22,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_account_runtime_hotfixes.sql",
+      "language": "sql",
+      "sizeLines": 19,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_batch1_account_safe_functional_fixes.sql",
+      "language": "sql",
+      "sizeLines": 48,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260703_batch3_customer_order_cancellation.sql",
+      "language": "sql",
+      "sizeLines": 38,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_batch4_loyalty_ledger.sql",
+      "language": "sql",
+      "sizeLines": 613,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h0_live_payment_rpc_hotfix.sql",
+      "language": "sql",
+      "sizeLines": 381,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h0b_release_expired_inventory_patch.sql",
+      "language": "sql",
+      "sizeLines": 124,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h0c_release_expired_pending_status_patch.sql",
+      "language": "sql",
+      "sizeLines": 128,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260704_h1_return_attachment_storage_rls.sql",
+      "language": "sql",
+      "sizeLines": 82,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260706_d3a_order_item_pricing_snapshot.sql",
+      "language": "sql",
+      "sizeLines": 13,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260707_p1c_admin_product_price_editing.sql",
+      "language": "sql",
+      "sizeLines": 56,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260707_r1g_review_moderation_updated_at_fix.sql",
+      "language": "sql",
+      "sizeLines": 44,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260709_p1e_sale_compare_at_price.sql",
+      "language": "sql",
+      "sizeLines": 69,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260712232725_db1c1b1_privileged_function_acl_normalization.sql",
+      "language": "sql",
+      "sizeLines": 174,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260714161845_e4_email_event_types.sql",
+      "language": "sql",
+      "sizeLines": 48,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/migrations/20260718_profiles_opt_in_columns.sql",
+      "language": "sql",
+      "sizeLines": 6,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/phase51_reviews_hardening.sql",
+      "language": "sql",
+      "sizeLines": 98,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/phase6-commerce-schema.sql",
+      "language": "sql",
+      "sizeLines": 143,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/phase6-inventory-seed.sql",
+      "language": "sql",
+      "sizeLines": 38,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/reviews.sql",
+      "language": "sql",
+      "sizeLines": 270,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/rollback/20260616_prelaunch_recovery.sql",
+      "language": "sql",
+      "sizeLines": 29,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/schema.sql",
+      "language": "sql",
+      "sizeLines": 926,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/scripts/manual/backfill_loyalty_purchase_points_20260704.sql",
+      "language": "sql",
+      "sizeLines": 107,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/supabase.js",
+      "language": "javascript",
+      "sizeLines": 49,
+      "fileCategory": "code"
+    },
+    {
+      "path": "supabase/test-data.sql",
+      "language": "sql",
+      "sizeLines": 76,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/test/20260616_inventory_test_setup.sql",
+      "language": "sql",
+      "sizeLines": 33,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/verification/20260616_prelaunch_verification.sql",
+      "language": "sql",
+      "sizeLines": 117,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/verification/20260626_launch_readiness_verification.sql",
+      "language": "sql",
+      "sizeLines": 10,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/verification/verify_auth_account_checkout.sql",
+      "language": "sql",
+      "sizeLines": 8,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/verification/verify_checkout_bank_transfer_final.sql",
+      "language": "sql",
+      "sizeLines": 47,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/verification/verify_checkout_bank_transfer_final_v3.sql",
+      "language": "sql",
+      "sizeLines": 47,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/verification/verify_cosmoskin_final_user_acceptance.sql",
+      "language": "sql",
+      "sizeLines": 54,
+      "fileCategory": "data"
+    },
+    {
+      "path": "supabase/verification/verify_inventory_bank_email.sql",
+      "language": "sql",
+      "sizeLines": 11,
+      "fileCategory": "data"
+    },
+    {
+      "path": "teslimat-kargo.html",
+      "language": "html",
+      "sizeLines": 177,
+      "fileCategory": "markup"
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "language": "javascript",
+      "sizeLines": 6534,
+      "fileCategory": "code"
+    },
+    {
+      "path": "wrangler.toml",
+      "language": "toml",
+      "sizeLines": 14,
+      "fileCategory": "config"
+    }
+  ],
+  "totalFiles": 588,
+  "filteredByIgnore": 555,
+  "estimatedComplexity": "very-large",
+  "stats": {
+    "filesScanned": 588,
+    "byCategory": {
+      "config": 12,
+      "code": 259,
+      "docs": 59,
+      "markup": 201,
+      "data": 57
+    },
+    "byLanguage": {
+      "json": 8,
+      "ruby": 1,
+      "config": 1,
+      "unknown": 3,
+      "markdown": 23,
+      "html": 165,
+      "javascript": 252,
+      "css": 36,
+      "txt": 36,
+      "jsonc": 1,
+      "sql": 57,
+      "python": 2,
+      "webmanifest": 1,
+      "xml": 1,
+      "toml": 1
+    }
+  }
+}

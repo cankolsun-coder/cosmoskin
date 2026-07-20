@@ -1,0 +1,744 @@
+{
+  "nodes": [
+    {
+      "id": "file:functions/api/admin/products/[slug]/price.js",
+      "type": "file",
+      "name": "price.js",
+      "filePath": "functions/api/admin/products/[slug]/price.js",
+      "summary": "Admin endpoint that updates a product's regular/sale/compare-at pricing, validating input and writing an admin price-override with an audit trail.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "pricing",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/products/[slug]/price.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/products/[slug]/price.js",
+      "lineRange": [
+        16,
+        70
+      ],
+      "summary": "Validates a pricing update payload against the static catalog product, upserts the admin price override, and returns the recalculated effective pricing plus audit info.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "pricing",
+        "validation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "type": "file",
+      "name": "dhl-return-shipment.js",
+      "filePath": "functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "summary": "Admin endpoint for creating a DHL return-shipment label; blocked with a 501 while DHL API credentials await documentation/activation, falling back to a manual return shipment record.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "shipping",
+        "returns",
+        "provider-integration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/returns/[id]/dhl-return-shipment.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "lineRange": [
+        7,
+        26
+      ],
+      "summary": "Loads the return request, blocks with a 501 if DHL is configured but not activated, otherwise inserts a manual-fallback return shipment row and logs the admin action.",
+      "tags": [
+        "api-handler",
+        "shipping",
+        "returns",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/shipments.js",
+      "type": "file",
+      "name": "shipments.js",
+      "filePath": "functions/api/admin/shipments.js",
+      "summary": "Admin endpoint listing shipment records with optional status/order_id filters, densely written as a single-line handler.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "shipping"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/shipments.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/shipments.js",
+      "lineRange": [
+        6,
+        6
+      ],
+      "summary": "Lists shipments ordered by creation date, optionally filtered by status or order_id, capped at 150 rows.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "shipping"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/shipments/[id]/label.js",
+      "type": "file",
+      "name": "label.js",
+      "filePath": "functions/api/admin/shipments/[id]/label.js",
+      "summary": "Admin endpoint that returns a shipment's existing label URL, or a 409 if no label has been generated yet (manual DHL flow doesn't auto-produce labels).",
+      "tags": [
+        "api-handler",
+        "admin",
+        "shipping"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/shipments/[id]/label.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/shipments/[id]/label.js",
+      "lineRange": [
+        6,
+        15
+      ],
+      "summary": "Loads a shipment by id and returns its label_url/label_format, or a LABEL_NOT_AVAILABLE error if none exists.",
+      "tags": [
+        "api-handler",
+        "shipping"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/shipments/[id]/sync.js",
+      "type": "file",
+      "name": "sync.js",
+      "filePath": "functions/api/admin/shipments/[id]/sync.js",
+      "summary": "Admin endpoint that records a shipment status-sync request; currently a no-op placeholder since automatic DHL status sync isn't wired up (manual flow only).",
+      "tags": [
+        "api-handler",
+        "admin",
+        "shipping",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/shipments/[id]/sync.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/shipments/[id]/sync.js",
+      "lineRange": [
+        6,
+        15
+      ],
+      "summary": "Looks up a shipment, logs a sync-requested admin activity entry, and returns synced:false with a message that automatic sync requires DHL API/webhook activation.",
+      "tags": [
+        "api-handler",
+        "shipping",
+        "stub"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/suppliers.js",
+      "type": "file",
+      "name": "suppliers.js",
+      "filePath": "functions/api/admin/suppliers.js",
+      "summary": "Admin CRUD API for supplier records: search/list, create, and update supplier contact info with basic field sanitization.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "suppliers",
+        "crud"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:functions/api/admin/suppliers.js:payload",
+      "type": "function",
+      "name": "payload",
+      "filePath": "functions/api/admin/suppliers.js",
+      "lineRange": [
+        15,
+        25
+      ],
+      "summary": "Builds a sanitized supplier row payload from request body fields (name, contact email/phone, website, notes).",
+      "tags": [
+        "utility",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/suppliers.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/suppliers.js",
+      "lineRange": [
+        27,
+        40
+      ],
+      "summary": "Lists supplier_records with an optional name search filter.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "suppliers"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/suppliers.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/suppliers.js",
+      "lineRange": [
+        42,
+        54
+      ],
+      "summary": "Creates a new supplier_records row after validating a required name field.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "suppliers"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/suppliers.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/suppliers.js",
+      "lineRange": [
+        56,
+        69
+      ],
+      "summary": "Updates an existing supplier_records row by id.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "suppliers"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:functions/api/admin/users.js",
+      "type": "file",
+      "name": "users.js",
+      "filePath": "functions/api/admin/users.js",
+      "summary": "Admin RBAC API for managing admin_users records: lists admins, creates new admin role assignments, and updates role/status, gated behind an admin.users.manage permission for mutations.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "rbac",
+        "crud"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Comment in source flags this as the RBAC source-of-truth boundary: minting/elevating an admin_users row (including 'owner') must itself go through a permission-checked admin identity, not just the shared ADMIN_TOKEN."
+    },
+    {
+      "id": "function:functions/api/admin/users.js:onRequestGet",
+      "type": "function",
+      "name": "onRequestGet",
+      "filePath": "functions/api/admin/users.js",
+      "lineRange": [
+        17,
+        23
+      ],
+      "summary": "Lists admin_users rows (id, email, role, status) for the admin RBAC management view.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "rbac"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/users.js:onRequestPost",
+      "type": "function",
+      "name": "onRequestPost",
+      "filePath": "functions/api/admin/users.js",
+      "lineRange": [
+        25,
+        37
+      ],
+      "summary": "Creates a new admin_users row after validating email and role against an allow-list, requiring admin.users.manage permission.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "rbac",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:functions/api/admin/users.js:onRequestPatch",
+      "type": "function",
+      "name": "onRequestPatch",
+      "filePath": "functions/api/admin/users.js",
+      "lineRange": [
+        39,
+        51
+      ],
+      "summary": "Updates an admin_users row's role and/or status, validating both against allow-lists.",
+      "tags": [
+        "api-handler",
+        "admin",
+        "rbac",
+        "validation"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:functions/api/admin/products/[slug]/price.js",
+      "target": "function:functions/api/admin/products/[slug]/price.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price.js",
+      "target": "function:functions/api/admin/products/[slug]/price.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price.js",
+      "target": "file:functions/api/_lib/product-pricing.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/products/[slug]/price.js:onRequestPatch",
+      "target": "function:functions/api/_lib/product-pricing.js:upsertAdminProductPriceOverride",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/products/[slug]/price.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "target": "function:functions/api/admin/returns/[id]/dhl-return-shipment.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "target": "function:functions/api/admin/returns/[id]/dhl-return-shipment.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "target": "file:functions/api/_lib/shipping-providers.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:functions/api/admin/returns/[id]/dhl-return-shipment.js:onRequestPost",
+      "target": "function:functions/api/_lib/shipping-providers.js:dhlConfigured",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/shipments.js",
+      "target": "function:functions/api/admin/shipments.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/shipments.js",
+      "target": "function:functions/api/admin/shipments.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/shipments.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/label.js",
+      "target": "function:functions/api/admin/shipments/[id]/label.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/label.js",
+      "target": "function:functions/api/admin/shipments/[id]/label.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/label.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/label.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/label.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/label.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/sync.js",
+      "target": "function:functions/api/admin/shipments/[id]/sync.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/sync.js",
+      "target": "function:functions/api/admin/shipments/[id]/sync.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/sync.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/sync.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/sync.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/shipments/[id]/sync.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "function:functions/api/admin/suppliers.js:payload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "function:functions/api/admin/suppliers.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "function:functions/api/admin/suppliers.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "function:functions/api/admin/suppliers.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "function:functions/api/admin/suppliers.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "function:functions/api/admin/suppliers.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "function:functions/api/admin/suppliers.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/suppliers.js:onRequestPost",
+      "target": "function:functions/api/admin/suppliers.js:payload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:functions/api/admin/suppliers.js:onRequestPatch",
+      "target": "function:functions/api/admin/suppliers.js:payload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "file:functions/api/_lib/security.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/suppliers.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "function:functions/api/admin/users.js:onRequestGet",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "function:functions/api/admin/users.js:onRequestGet",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "function:functions/api/admin/users.js:onRequestPost",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "function:functions/api/admin/users.js:onRequestPost",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "function:functions/api/admin/users.js:onRequestPatch",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "function:functions/api/admin/users.js:onRequestPatch",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "file:functions/api/_lib/admin-audit.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "file:functions/api/_lib/admin.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "file:functions/api/_lib/response.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "file:functions/api/_lib/security.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "file:functions/api/_lib/supabase.js",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:functions/api/admin/users.js",
+      "target": "file:tests/local-integration.test.mjs",
+      "type": "tested_by",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

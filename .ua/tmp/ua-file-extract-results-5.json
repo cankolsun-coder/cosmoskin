@@ -1,0 +1,4292 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 16,
+  "filesSkipped": [],
+  "analysisOutcomes": {
+    "structure": {
+      "succeeded": 16,
+      "failed": 0
+    },
+    "callGraph": {
+      "succeeded": 16,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "results": [
+    {
+      "path": "functions/api/_lib/order-pricing-snapshot.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 150,
+      "nonEmptyLines": 137,
+      "functions": [
+        {
+          "name": "isPayableSnapshotUnitPrice",
+          "startLine": 5,
+          "endLine": 11,
+          "params": [
+            "unitPrice"
+          ]
+        },
+        {
+          "name": "roundSnapshotMoney",
+          "startLine": 13,
+          "endLine": 17,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "isEligibleLine",
+          "startLine": 19,
+          "endLine": 30,
+          "params": [
+            "eligibility"
+          ]
+        },
+        {
+          "name": "allocateOrderDiscountSnapshots",
+          "startLine": 37,
+          "endLine": 91,
+          "params": []
+        },
+        {
+          "name": "buildOrderItemPricingSnapshots",
+          "startLine": 97,
+          "endLine": 111,
+          "params": []
+        },
+        {
+          "name": "isValidPricingSnapshot",
+          "startLine": 113,
+          "endLine": 127,
+          "params": []
+        },
+        {
+          "name": "orderItemsHaveCompleteSnapshots",
+          "startLine": 129,
+          "endLine": 133,
+          "params": []
+        },
+        {
+          "name": "snapshotAllocationFromOrderItem",
+          "startLine": 135,
+          "endLine": 150,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "PRICING_SNAPSHOT_VERSION",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "PRICING_SNAPSHOT_VERSION_V2",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "isPayableSnapshotUnitPrice",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "roundSnapshotMoney",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "allocateOrderDiscountSnapshots",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "buildOrderItemPricingSnapshots",
+          "line": 97,
+          "isDefault": false
+        },
+        {
+          "name": "isValidPricingSnapshot",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "orderItemsHaveCompleteSnapshots",
+          "line": 129,
+          "isDefault": false
+        },
+        {
+          "name": "snapshotAllocationFromOrderItem",
+          "line": 135,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "isPayableSnapshotUnitPrice",
+          "callee": "Number",
+          "lineNumber": 6
+        },
+        {
+          "caller": "isPayableSnapshotUnitPrice",
+          "callee": "Number",
+          "lineNumber": 7
+        },
+        {
+          "caller": "isPayableSnapshotUnitPrice",
+          "callee": "Number.isFinite",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isPayableSnapshotUnitPrice",
+          "callee": "Number.isFinite",
+          "lineNumber": 9
+        },
+        {
+          "caller": "roundSnapshotMoney",
+          "callee": "Number",
+          "lineNumber": 14
+        },
+        {
+          "caller": "roundSnapshotMoney",
+          "callee": "Number.isFinite",
+          "lineNumber": 15
+        },
+        {
+          "caller": "roundSnapshotMoney",
+          "callee": "Math.round",
+          "lineNumber": 16
+        },
+        {
+          "caller": "isEligibleLine",
+          "callee": "Boolean",
+          "lineNumber": 20
+        },
+        {
+          "caller": "isEligibleLine",
+          "callee": "eligibility",
+          "lineNumber": 20
+        },
+        {
+          "caller": "isEligibleLine",
+          "callee": "String(item.product_slug || item.product_id || item.id || '').trim",
+          "lineNumber": 23
+        },
+        {
+          "caller": "isEligibleLine",
+          "callee": "String",
+          "lineNumber": 23
+        },
+        {
+          "caller": "isEligibleLine",
+          "callee": "eligibility.has",
+          "lineNumber": 25
+        },
+        {
+          "caller": "isEligibleLine",
+          "callee": "eligibility.eligibleSlugs.has",
+          "lineNumber": 26
+        },
+        {
+          "caller": "isEligibleLine",
+          "callee": "eligibility.eligible_slugs.has",
+          "lineNumber": 27
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "(cart || []).filter",
+          "lineNumber": 38
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Number",
+          "lineNumber": 38
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "items.filter",
+          "lineNumber": 39
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "isEligibleLine",
+          "lineNumber": 39
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 40
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "items.reduce",
+          "lineNumber": 40
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 40
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Number",
+          "lineNumber": 40
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 41
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "eligibleItems.reduce",
+          "lineNumber": 41
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 41
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Number",
+          "lineNumber": 41
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 42
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 42
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.min",
+          "lineNumber": 42
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Number",
+          "lineNumber": 42
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "items.map",
+          "lineNumber": 45
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 46
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 47
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Number",
+          "lineNumber": 47
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "isEligibleLine",
+          "lineNumber": 51
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 56
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "items.map((item, idx) => (isEligibleLine(item, eligibility) ? idx : -1)).reduce",
+          "lineNumber": 62
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "items.map",
+          "lineNumber": 62
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "isEligibleLine",
+          "lineNumber": 62
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 62
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "items.map",
+          "lineNumber": 64
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 65
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 66
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Number",
+          "lineNumber": 66
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "isEligibleLine",
+          "lineNumber": 67
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 72
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 74
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 75
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 79
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 79
+        },
+        {
+          "caller": "allocateOrderDiscountSnapshots",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 80
+        },
+        {
+          "caller": "buildOrderItemPricingSnapshots",
+          "callee": "Array.isArray",
+          "lineNumber": 98
+        },
+        {
+          "caller": "buildOrderItemPricingSnapshots",
+          "callee": "String",
+          "lineNumber": 101
+        },
+        {
+          "caller": "buildOrderItemPricingSnapshots",
+          "callee": "allocateOrderDiscountSnapshots",
+          "lineNumber": 103
+        },
+        {
+          "caller": "buildOrderItemPricingSnapshots",
+          "callee": "allocations.map",
+          "lineNumber": 104
+        },
+        {
+          "caller": "isValidPricingSnapshot",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 115
+        },
+        {
+          "caller": "isValidPricingSnapshot",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 116
+        },
+        {
+          "caller": "isValidPricingSnapshot",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 117
+        },
+        {
+          "caller": "isValidPricingSnapshot",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 118
+        },
+        {
+          "caller": "isValidPricingSnapshot",
+          "callee": "Number",
+          "lineNumber": 119
+        },
+        {
+          "caller": "isValidPricingSnapshot",
+          "callee": "Number.isFinite",
+          "lineNumber": 123
+        },
+        {
+          "caller": "isValidPricingSnapshot",
+          "callee": "Math.abs",
+          "lineNumber": 125
+        },
+        {
+          "caller": "orderItemsHaveCompleteSnapshots",
+          "callee": "(orderItems || []).filter",
+          "lineNumber": 130
+        },
+        {
+          "caller": "orderItemsHaveCompleteSnapshots",
+          "callee": "Number",
+          "lineNumber": 130
+        },
+        {
+          "caller": "orderItemsHaveCompleteSnapshots",
+          "callee": "items.every",
+          "lineNumber": 132
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "Math.max",
+          "lineNumber": 136
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "Number",
+          "lineNumber": 136
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 137
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 138
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 139
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 140
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "roundSnapshotMoney",
+          "lineNumber": 140
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "String",
+          "lineNumber": 142
+        },
+        {
+          "caller": "snapshotAllocationFromOrderItem",
+          "callee": "String",
+          "lineNumber": 148
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 9,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "functions/api/admin/refunds.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 774,
+      "nonEmptyLines": 697,
+      "functions": [
+        {
+          "name": "clean",
+          "startLine": 47,
+          "endLine": 47,
+          "params": [
+            "v"
+          ]
+        },
+        {
+          "name": "bool",
+          "startLine": 48,
+          "endLine": 48,
+          "params": [
+            "v"
+          ]
+        },
+        {
+          "name": "roundMoney",
+          "startLine": 50,
+          "endLine": 54,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "sumRefundAmounts",
+          "startLine": 56,
+          "endLine": 63,
+          "params": []
+        },
+        {
+          "name": "resolvePaidAmount",
+          "startLine": 66,
+          "endLine": 83,
+          "params": []
+        },
+        {
+          "name": "resolveProductRefundableCap",
+          "startLine": 89,
+          "endLine": 131,
+          "params": []
+        },
+        {
+          "name": "resolveRefundResponsibility",
+          "startLine": 133,
+          "endLine": 141,
+          "params": []
+        },
+        {
+          "name": "resolveShippingRefundableCap",
+          "startLine": 143,
+          "endLine": 158,
+          "params": []
+        },
+        {
+          "name": "computeRemainingRefundable",
+          "startLine": 160,
+          "endLine": 175,
+          "params": []
+        },
+        {
+          "name": "resolveOrderDiscountAmount",
+          "startLine": 177,
+          "endLine": 191,
+          "params": []
+        },
+        {
+          "name": "allocateOrderDiscount",
+          "startLine": 197,
+          "endLine": 236,
+          "params": []
+        },
+        {
+          "name": "normalizeReturnItemsForProration",
+          "startLine": 238,
+          "endLine": 245,
+          "params": []
+        },
+        {
+          "name": "resolveItemProratedRefundableCapFromSnapshots",
+          "startLine": 247,
+          "endLine": 318,
+          "params": []
+        },
+        {
+          "name": "resolveItemProratedRefundableCap",
+          "startLine": 320,
+          "endLine": 390,
+          "params": []
+        },
+        {
+          "name": "resolveEffectiveRemainingRefundable",
+          "startLine": 392,
+          "endLine": 402,
+          "params": []
+        },
+        {
+          "name": "validateRefundAmount",
+          "startLine": 404,
+          "endLine": 421,
+          "params": [
+            "amount",
+            "balance"
+          ]
+        },
+        {
+          "name": "buildRefundCaps",
+          "startLine": 423,
+          "endLine": 452,
+          "params": [
+            "order",
+            "orderItems"
+          ]
+        },
+        {
+          "name": "loadOrder",
+          "startLine": 454,
+          "endLine": 456,
+          "params": [
+            "context",
+            "id"
+          ]
+        },
+        {
+          "name": "loadOrderItems",
+          "startLine": 458,
+          "endLine": 466,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "loadReturnRequest",
+          "startLine": 468,
+          "endLine": 472,
+          "params": [
+            "context",
+            "id"
+          ]
+        },
+        {
+          "name": "loadPayments",
+          "startLine": 474,
+          "endLine": 482,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "loadRefundsForOrder",
+          "startLine": 484,
+          "endLine": 492,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "loadReturnRequestItems",
+          "startLine": 494,
+          "endLine": 502,
+          "params": [
+            "context",
+            "returnRequestId"
+          ]
+        },
+        {
+          "name": "loadCouponRedemptions",
+          "startLine": 504,
+          "endLine": 512,
+          "params": [
+            "context",
+            "orderId"
+          ]
+        },
+        {
+          "name": "loadRefundBalanceContext",
+          "startLine": 514,
+          "endLine": 566,
+          "params": [
+            "context",
+            "order"
+          ]
+        },
+        {
+          "name": "findCompletedRefund",
+          "startLine": 568,
+          "endLine": 590,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestGet",
+          "startLine": 592,
+          "endLine": 607,
+          "params": [
+            "context"
+          ]
+        },
+        {
+          "name": "onRequestPost",
+          "startLine": 609,
+          "endLine": 774,
+          "params": [
+            "context"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "REFUNDABLE_PAYMENT_STATUSES",
+          "line": 14,
+          "isDefault": false
+        },
+        {
+          "name": "REFUND_RESPONSIBILITIES",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "SELLER_FAULT_REASON_CODES",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "CUSTOMER_PREFERENCE_REASON_CODES",
+          "line": 22,
+          "isDefault": false
+        },
+        {
+          "name": "RETURN_REASON_TO_RESPONSIBILITY",
+          "line": 27,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_REFERENCE_REQUIRED",
+          "line": 36,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_AMOUNT_INVALID",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_AMOUNT_EXCEEDS",
+          "line": 38,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_NOT_REFUNDABLE",
+          "line": 39,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_PAYMENT_MISMATCH",
+          "line": 40,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_PRODUCT_CAP_UNKNOWN",
+          "line": 41,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_SHIPPING_APPROVAL_REQUIRED",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_INVALID_RESPONSIBILITY",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_PRORATION_UNSAFE",
+          "line": 44,
+          "isDefault": false
+        },
+        {
+          "name": "ERR_AMOUNT_EXCEEDS_PAID_ITEM",
+          "line": 45,
+          "isDefault": false
+        },
+        {
+          "name": "roundMoney",
+          "line": 50,
+          "isDefault": false
+        },
+        {
+          "name": "sumRefundAmounts",
+          "line": 56,
+          "isDefault": false
+        },
+        {
+          "name": "resolvePaidAmount",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "resolveProductRefundableCap",
+          "line": 89,
+          "isDefault": false
+        },
+        {
+          "name": "resolveRefundResponsibility",
+          "line": 133,
+          "isDefault": false
+        },
+        {
+          "name": "resolveShippingRefundableCap",
+          "line": 143,
+          "isDefault": false
+        },
+        {
+          "name": "computeRemainingRefundable",
+          "line": 160,
+          "isDefault": false
+        },
+        {
+          "name": "resolveOrderDiscountAmount",
+          "line": 177,
+          "isDefault": false
+        },
+        {
+          "name": "allocateOrderDiscount",
+          "line": 197,
+          "isDefault": false
+        },
+        {
+          "name": "resolveItemProratedRefundableCap",
+          "line": 320,
+          "isDefault": false
+        },
+        {
+          "name": "resolveEffectiveRemainingRefundable",
+          "line": 392,
+          "isDefault": false
+        },
+        {
+          "name": "validateRefundAmount",
+          "line": 404,
+          "isDefault": false
+        },
+        {
+          "name": "buildRefundCaps",
+          "line": 423,
+          "isDefault": false
+        },
+        {
+          "name": "loadRefundBalanceContext",
+          "line": 514,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestGet",
+          "line": 592,
+          "isDefault": false
+        },
+        {
+          "name": "onRequestPost",
+          "line": 609,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "clean",
+          "callee": "String(v || '').trim().slice",
+          "lineNumber": 47
+        },
+        {
+          "caller": "clean",
+          "callee": "String(v || '').trim",
+          "lineNumber": 47
+        },
+        {
+          "caller": "clean",
+          "callee": "String",
+          "lineNumber": 47
+        },
+        {
+          "caller": "roundMoney",
+          "callee": "Number",
+          "lineNumber": 51
+        },
+        {
+          "caller": "roundMoney",
+          "callee": "Number.isFinite",
+          "lineNumber": 52
+        },
+        {
+          "caller": "roundMoney",
+          "callee": "Math.round",
+          "lineNumber": 53
+        },
+        {
+          "caller": "sumRefundAmounts",
+          "callee": "roundMoney",
+          "lineNumber": 58
+        },
+        {
+          "caller": "sumRefundAmounts",
+          "callee": "(refunds || [])\n      .filter((row) => allowed.has(String(row?.status || '')))\n      .reduce",
+          "lineNumber": 59
+        },
+        {
+          "caller": "sumRefundAmounts",
+          "callee": "(refunds || [])\n      .filter",
+          "lineNumber": 59
+        },
+        {
+          "caller": "sumRefundAmounts",
+          "callee": "allowed.has",
+          "lineNumber": 60
+        },
+        {
+          "caller": "sumRefundAmounts",
+          "callee": "String",
+          "lineNumber": 60
+        },
+        {
+          "caller": "sumRefundAmounts",
+          "callee": "Math.max",
+          "lineNumber": 61
+        },
+        {
+          "caller": "sumRefundAmounts",
+          "callee": "Number",
+          "lineNumber": 61
+        },
+        {
+          "caller": "resolvePaidAmount",
+          "callee": "String",
+          "lineNumber": 67
+        },
+        {
+          "caller": "resolvePaidAmount",
+          "callee": "REFUNDABLE_PAYMENT_STATUSES.has",
+          "lineNumber": 68
+        },
+        {
+          "caller": "resolvePaidAmount",
+          "callee": "roundMoney",
+          "lineNumber": 71
+        },
+        {
+          "caller": "resolvePaidAmount",
+          "callee": "(payments || []).find",
+          "lineNumber": 75
+        },
+        {
+          "caller": "resolvePaidAmount",
+          "callee": "String",
+          "lineNumber": 75
+        },
+        {
+          "caller": "resolvePaidAmount",
+          "callee": "roundMoney",
+          "lineNumber": 77
+        },
+        {
+          "caller": "resolvePaidAmount",
+          "callee": "Math.abs",
+          "lineNumber": 78
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 90
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 91
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 92
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 93
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 96
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 98
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 103
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 103
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 108
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 114
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "(orderItems || []).reduce",
+          "lineNumber": 115
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 115
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Number",
+          "lineNumber": 115
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 120
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Math.min",
+          "lineNumber": 120
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 120
+        },
+        {
+          "caller": "resolveProductRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 125
+        },
+        {
+          "caller": "resolveRefundResponsibility",
+          "callee": "clean",
+          "lineNumber": 134
+        },
+        {
+          "caller": "resolveRefundResponsibility",
+          "callee": "REFUND_RESPONSIBILITIES.has",
+          "lineNumber": 135
+        },
+        {
+          "caller": "resolveRefundResponsibility",
+          "callee": "clean",
+          "lineNumber": 136
+        },
+        {
+          "caller": "resolveRefundResponsibility",
+          "callee": "SELLER_FAULT_REASON_CODES.has",
+          "lineNumber": 138
+        },
+        {
+          "caller": "resolveRefundResponsibility",
+          "callee": "CUSTOMER_PREFERENCE_REASON_CODES.has",
+          "lineNumber": 139
+        },
+        {
+          "caller": "resolveShippingRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 144
+        },
+        {
+          "caller": "resolveShippingRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 144
+        },
+        {
+          "caller": "resolveShippingRefundableCap",
+          "callee": "bool",
+          "lineNumber": 151
+        },
+        {
+          "caller": "resolveShippingRefundableCap",
+          "callee": "bool",
+          "lineNumber": 154
+        },
+        {
+          "caller": "resolveShippingRefundableCap",
+          "callee": "clean",
+          "lineNumber": 154
+        },
+        {
+          "caller": "computeRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 161
+        },
+        {
+          "caller": "computeRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 162
+        },
+        {
+          "caller": "computeRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 163
+        },
+        {
+          "caller": "computeRemainingRefundable",
+          "callee": "sumRefundAmounts",
+          "lineNumber": 164
+        },
+        {
+          "caller": "computeRemainingRefundable",
+          "callee": "sumRefundAmounts",
+          "lineNumber": 165
+        },
+        {
+          "caller": "computeRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 166
+        },
+        {
+          "caller": "computeRemainingRefundable",
+          "callee": "Math.max",
+          "lineNumber": 173
+        },
+        {
+          "caller": "resolveOrderDiscountAmount",
+          "callee": "roundMoney",
+          "lineNumber": 178
+        },
+        {
+          "caller": "resolveOrderDiscountAmount",
+          "callee": "(couponRedemptions || []).find",
+          "lineNumber": 182
+        },
+        {
+          "caller": "resolveOrderDiscountAmount",
+          "callee": "String",
+          "lineNumber": 183
+        },
+        {
+          "caller": "resolveOrderDiscountAmount",
+          "callee": "roundMoney",
+          "lineNumber": 186
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "(orderItems || []).filter",
+          "lineNumber": 198
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Number",
+          "lineNumber": 198
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 199
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "items.reduce",
+          "lineNumber": 200
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Math.max",
+          "lineNumber": 200
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Number",
+          "lineNumber": 200
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 202
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Math.max",
+          "lineNumber": 202
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Math.min",
+          "lineNumber": 202
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Number",
+          "lineNumber": 202
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "items.map",
+          "lineNumber": 205
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 206
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "String",
+          "lineNumber": 208
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Math.max",
+          "lineNumber": 212
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Number",
+          "lineNumber": 212
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "items.map",
+          "lineNumber": 218
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 219
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 222
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 224
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 225
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "roundMoney",
+          "lineNumber": 227
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Math.max",
+          "lineNumber": 227
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "String",
+          "lineNumber": 229
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Math.max",
+          "lineNumber": 233
+        },
+        {
+          "caller": "allocateOrderDiscount",
+          "callee": "Number",
+          "lineNumber": 233
+        },
+        {
+          "caller": "normalizeReturnItemsForProration",
+          "callee": "(rows || []).map((row) => ({\n    order_item_id: clean(row.order_item_id || row.id, 120) || null,\n    product_slug: clean(row.product_slug || row.product_id, 180) || null,\n    product_id: clean(row.product_id || row.product_slug, 180) || null,\n    quantity: Math.max(0, Number(row.quantity) || 0)\n  })).filter",
+          "lineNumber": 239
+        },
+        {
+          "caller": "normalizeReturnItemsForProration",
+          "callee": "(rows || []).map",
+          "lineNumber": 239
+        },
+        {
+          "caller": "normalizeReturnItemsForProration",
+          "callee": "clean",
+          "lineNumber": 240
+        },
+        {
+          "caller": "normalizeReturnItemsForProration",
+          "callee": "clean",
+          "lineNumber": 241
+        },
+        {
+          "caller": "normalizeReturnItemsForProration",
+          "callee": "clean",
+          "lineNumber": 242
+        },
+        {
+          "caller": "normalizeReturnItemsForProration",
+          "callee": "Math.max",
+          "lineNumber": 243
+        },
+        {
+          "caller": "normalizeReturnItemsForProration",
+          "callee": "Number",
+          "lineNumber": 243
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "(orderItems || []).filter",
+          "lineNumber": 248
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Number",
+          "lineNumber": 248
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "orderItemsHaveCompleteSnapshots",
+          "lineNumber": 249
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 253
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "items.reduce",
+          "lineNumber": 254
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 254
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Number",
+          "lineNumber": 254
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 256
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 257
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 257
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 257
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "isValidPricingSnapshot",
+          "lineNumber": 266
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "snapshotAllocationFromOrderItem",
+          "lineNumber": 269
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "byId.set",
+          "lineNumber": 270
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "String",
+          "lineNumber": 270
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "String",
+          "lineNumber": 271
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "bySlug.set",
+          "lineNumber": 272
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "byId.get",
+          "lineNumber": 281
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "String",
+          "lineNumber": 281
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "bySlug.get",
+          "lineNumber": 282
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "String",
+          "lineNumber": 282
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "bySlug.get",
+          "lineNumber": 283
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "String",
+          "lineNumber": 283
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 286
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Number",
+          "lineNumber": 286
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Number",
+          "lineNumber": 287
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Number.isFinite",
+          "lineNumber": 288
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 292
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 293
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 294
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 295
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 297
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 298
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 299
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 303
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "Math.max",
+          "lineNumber": 303
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 313
+        },
+        {
+          "caller": "resolveItemProratedRefundableCapFromSnapshots",
+          "callee": "roundMoney",
+          "lineNumber": 314
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "normalizeReturnItemsForProration",
+          "lineNumber": 321
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "(orderItems || []).filter",
+          "lineNumber": 326
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Number",
+          "lineNumber": 326
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "resolveItemProratedRefundableCapFromSnapshots",
+          "lineNumber": 331
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 336
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "items.reduce",
+          "lineNumber": 336
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 336
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Number",
+          "lineNumber": 336
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 337
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Math.abs",
+          "lineNumber": 340
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "resolveOrderDiscountAmount",
+          "lineNumber": 344
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "allocateOrderDiscount",
+          "lineNumber": 345
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "allocations.map",
+          "lineNumber": 346
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "items.map((item) => [String(item.product_slug || item.product_id || ''), byId.get(String(item.id || ''))]).filter",
+          "lineNumber": 348
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "items.map",
+          "lineNumber": 348
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "String",
+          "lineNumber": 348
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "byId.get",
+          "lineNumber": 348
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "String",
+          "lineNumber": 348
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "byId.get",
+          "lineNumber": 356
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "String",
+          "lineNumber": 356
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "bySlug.get",
+          "lineNumber": 357
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "String",
+          "lineNumber": 357
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "bySlug.get",
+          "lineNumber": 358
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "String",
+          "lineNumber": 358
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 361
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Number",
+          "lineNumber": 361
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Number",
+          "lineNumber": 362
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Number.isFinite",
+          "lineNumber": 363
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 367
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 368
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 369
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 370
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 372
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 373
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 374
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 377
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "Math.max",
+          "lineNumber": 377
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 385
+        },
+        {
+          "caller": "resolveItemProratedRefundableCap",
+          "callee": "roundMoney",
+          "lineNumber": 386
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 393
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 397
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 398
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 399
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "Math.min",
+          "lineNumber": 399
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "roundMoney",
+          "lineNumber": 400
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "Math.max",
+          "lineNumber": 401
+        },
+        {
+          "caller": "resolveEffectiveRemainingRefundable",
+          "callee": "Math.min",
+          "lineNumber": 401
+        },
+        {
+          "caller": "validateRefundAmount",
+          "callee": "roundMoney",
+          "lineNumber": 405
+        },
+        {
+          "caller": "validateRefundAmount",
+          "callee": "roundMoney",
+          "lineNumber": 409
+        },
+        {
+          "caller": "validateRefundAmount",
+          "callee": "roundMoney",
+          "lineNumber": 414
+        },
+        {
+          "caller": "buildRefundCaps",
+          "callee": "clean",
+          "lineNumber": 424
+        },
+        {
+          "caller": "buildRefundCaps",
+          "callee": "REFUND_RESPONSIBILITIES.has",
+          "lineNumber": 425
+        },
+        {
+          "caller": "buildRefundCaps",
+          "callee": "resolveRefundResponsibility",
+          "lineNumber": 428
+        },
+        {
+          "caller": "buildRefundCaps",
+          "callee": "resolveProductRefundableCap",
+          "lineNumber": 429
+        },
+        {
+          "caller": "buildRefundCaps",
+          "callee": "bool",
+          "lineNumber": 432
+        },
+        {
+          "caller": "buildRefundCaps",
+          "callee": "clean",
+          "lineNumber": 432
+        },
+        {
+          "caller": "buildRefundCaps",
+          "callee": "resolveShippingRefundableCap",
+          "lineNumber": 436
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "selectRows(context, 'orders', { select: '*', id: `eq.${id}`, limit: '1' }).catch",
+          "lineNumber": 455
+        },
+        {
+          "caller": "loadOrder",
+          "callee": "selectRows",
+          "lineNumber": 455
+        },
+        {
+          "caller": "loadOrderItems",
+          "callee": "selectRows(context, 'order_items', {\n    select: 'id,order_id,product_id,product_slug,unit_price,quantity,line_total,allocated_order_discount,paid_line_total,paid_unit_price,pricing_snapshot_version',\n    order_id: `eq.${orderId}`,\n    order: 'created_at.asc',\n    limit: '100'\n  }).catch",
+          "lineNumber": 460
+        },
+        {
+          "caller": "loadOrderItems",
+          "callee": "selectRows",
+          "lineNumber": 460
+        },
+        {
+          "caller": "loadReturnRequest",
+          "callee": "selectRows(context, 'return_requests', { select: '*', id: `eq.${id}`, limit: '1' }).catch",
+          "lineNumber": 470
+        },
+        {
+          "caller": "loadReturnRequest",
+          "callee": "selectRows",
+          "lineNumber": 470
+        },
+        {
+          "caller": "loadPayments",
+          "callee": "selectRows(context, 'payments', {\n    select: 'id,order_id,status,amount,currency',\n    order_id: `eq.${orderId}`,\n    order: 'created_at.desc',\n    limit: '5'\n  }).catch",
+          "lineNumber": 476
+        },
+        {
+          "caller": "loadPayments",
+          "callee": "selectRows",
+          "lineNumber": 476
+        },
+        {
+          "caller": "loadRefundsForOrder",
+          "callee": "selectRows(context, 'refund_records', {\n    select: '*',\n    order_id: `eq.${orderId}`,\n    order: 'created_at.desc',\n    limit: '100'\n  }).catch",
+          "lineNumber": 486
+        },
+        {
+          "caller": "loadRefundsForOrder",
+          "callee": "selectRows",
+          "lineNumber": 486
+        },
+        {
+          "caller": "loadReturnRequestItems",
+          "callee": "selectRows(context, 'return_request_items', {\n    select: 'id,return_request_id,order_item_id,product_id,product_slug,quantity,unit_price_snapshot,refundable_amount',\n    return_request_id: `eq.${returnRequestId}`,\n    order: 'created_at.asc',\n    limit: '100'\n  }).catch",
+          "lineNumber": 496
+        },
+        {
+          "caller": "loadReturnRequestItems",
+          "callee": "selectRows",
+          "lineNumber": 496
+        },
+        {
+          "caller": "loadCouponRedemptions",
+          "callee": "selectRows(context, 'coupon_redemptions', {\n    select: 'id,order_id,code,discount_amount,status',\n    order_id: `eq.${orderId}`,\n    order: 'created_at.desc',\n    limit: '5'\n  }).catch",
+          "lineNumber": 506
+        },
+        {
+          "caller": "loadCouponRedemptions",
+          "callee": "selectRows",
+          "lineNumber": 506
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "clean",
+          "lineNumber": 515
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "Promise.all",
+          "lineNumber": 516
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "loadPayments",
+          "lineNumber": 517
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "loadRefundsForOrder",
+          "lineNumber": 518
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "loadOrderItems",
+          "lineNumber": 519
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "loadReturnRequest",
+          "lineNumber": 520
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "Promise.resolve",
+          "lineNumber": 520
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "loadCouponRedemptions",
+          "lineNumber": 521
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "resolvePaidAmount",
+          "lineNumber": 524
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "buildRefundCaps",
+          "lineNumber": 527
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "computeRemainingRefundable",
+          "lineNumber": 530
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "loadReturnRequestItems",
+          "lineNumber": 534
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "Array.isArray",
+          "lineNumber": 535
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "resolveItemProratedRefundableCap",
+          "lineNumber": 540
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "Boolean",
+          "lineNumber": 556
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "Boolean",
+          "lineNumber": 557
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "Boolean",
+          "lineNumber": 560
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "resolveOrderDiscountAmount",
+          "lineNumber": 562
+        },
+        {
+          "caller": "loadRefundBalanceContext",
+          "callee": "resolveEffectiveRemainingRefundable",
+          "lineNumber": 564
+        },
+        {
+          "caller": "findCompletedRefund",
+          "callee": "selectRows(context, 'refund_records', {\n      select: '*',\n      return_request_id: `eq.${returnRequestId}`,\n      status: 'eq.completed',\n      limit: '1'\n    }).catch",
+          "lineNumber": 570
+        },
+        {
+          "caller": "findCompletedRefund",
+          "callee": "selectRows",
+          "lineNumber": 570
+        },
+        {
+          "caller": "findCompletedRefund",
+          "callee": "selectRows(context, 'refund_records', {\n      select: '*',\n      order_id: `eq.${orderId}`,\n      status: 'eq.completed',\n      limit: '5'\n    }).catch",
+          "lineNumber": 579
+        },
+        {
+          "caller": "findCompletedRefund",
+          "callee": "selectRows",
+          "lineNumber": 579
+        },
+        {
+          "caller": "findCompletedRefund",
+          "callee": "rows.find",
+          "lineNumber": 586
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "assertAdmin",
+          "lineNumber": 594
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "requireAdminPermission",
+          "lineNumber": 595
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "String",
+          "lineNumber": 597
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.min",
+          "lineNumber": 597
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Math.max",
+          "lineNumber": 597
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "Number",
+          "lineNumber": 597
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 597
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 598
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 598
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "clean",
+          "lineNumber": 599
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "url.searchParams.get",
+          "lineNumber": 599
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows(context, 'refund_records', params).catch",
+          "lineNumber": 602
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "selectRows",
+          "lineNumber": 602
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "json",
+          "lineNumber": 603
+        },
+        {
+          "caller": "onRequestGet",
+          "callee": "adminError",
+          "lineNumber": 605
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "assertAdmin",
+          "lineNumber": 611
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "requireAdminPermission",
+          "lineNumber": 612
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "readJsonBody",
+          "lineNumber": 613
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 614
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 615
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "loadOrder",
+          "lineNumber": 616
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 617
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 619
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "STATUSES.has",
+          "lineNumber": 620
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 620
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 622
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 623
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 627
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "findCompletedRefund",
+          "lineNumber": 629
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "sendRefundCompletedEmailOnce(context, {\n          order,\n          refund: existingCompleted,\n          returnRequestId: existingCompleted.return_request_id || returnRequestId || '',\n          source: 'admin_refunds_repeat'\n        }).catch",
+          "lineNumber": 634
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "sendRefundCompletedEmailOnce",
+          "lineNumber": 634
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 640
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "loadRefundBalanceContext",
+          "lineNumber": 650
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 659
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "validateRefundAmount",
+          "lineNumber": 662
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 664
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 671
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 673
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 675
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date().toISOString",
+          "lineNumber": 676
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 680
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "bool",
+          "lineNumber": 687
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 688
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "bool",
+          "lineNumber": 689
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 702
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow(context, 'order_status_events', {\n      order_id: orderId,\n      status: 'refund_' + status,\n      event_type: 'refund_' + status,\n      source: 'admin',\n      created_by: 'admin',\n      message: 'İade ödeme kaydı oluşturuldu.',\n      note: payload.metadata.note,\n      metadata: {\n        refund_id: refund?.id || null,\n        return_request_id: payload.return_request_id,\n        amount: payload.amount,\n        refund_responsibility: balanceCtx.responsibility,\n        shipping_included: balanceCtx.shippingIncluded\n      }\n    }).catch",
+          "lineNumber": 703
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "insertRow",
+          "lineNumber": 703
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "updateRows(context, 'return_requests', { id: payload.return_request_id }, {\n        refund_status: status === 'completed' ? 'completed' : status === 'failed' ? 'failed' : 'pending',\n        status: status === 'completed' ? 'refunded' : undefined,\n        updated_at: new Date().toISOString()\n      }).catch",
+          "lineNumber": 721
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "updateRows",
+          "lineNumber": 721
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "new Date().toISOString",
+          "lineNumber": 724
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "reverseOrderPoints",
+          "lineNumber": 730
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "clean",
+          "lineNumber": 731
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "sendRefundCompletedEmailOnce(context, {\n        order,\n        refund,\n        returnRequestId: payload.return_request_id || '',\n        source: 'admin_refunds'\n      }).catch",
+          "lineNumber": 738
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "sendRefundCompletedEmailOnce",
+          "lineNumber": 738
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "json",
+          "lineNumber": 746
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "roundMoney",
+          "lineNumber": 759
+        },
+        {
+          "caller": "onRequestPost",
+          "callee": "adminError",
+          "lineNumber": 772
+        }
+      ],
+      "metrics": {
+        "importCount": 7,
+        "exportCount": 31,
+        "functionCount": 28,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/lib/migration-batch-exemptions.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 11,
+      "functions": [
+        {
+          "name": "migrationChangesExcludingBatchMigrations",
+          "startLine": 4,
+          "endLine": 12,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "D3A_MIGRATION_FILE",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "P1C_MIGRATION_FILE",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "migrationChangesExcludingBatchMigrations",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "migrationChangesExcludingBatchMigrations",
+          "callee": "(lines || []).filter",
+          "lineNumber": 5
+        },
+        {
+          "caller": "migrationChangesExcludingBatchMigrations",
+          "callee": "String(line).trim",
+          "lineNumber": 6
+        },
+        {
+          "caller": "migrationChangesExcludingBatchMigrations",
+          "callee": "String",
+          "lineNumber": 6
+        },
+        {
+          "caller": "migrationChangesExcludingBatchMigrations",
+          "callee": "text.includes",
+          "lineNumber": 8
+        },
+        {
+          "caller": "migrationChangesExcludingBatchMigrations",
+          "callee": "text.includes",
+          "lineNumber": 9
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-a1-admin-endpoint-coverage.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 532,
+      "nonEmptyLines": 508,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "isI1InventoryCheckoutChange",
+          "startLine": 18,
+          "endLine": 27,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "stripComments",
+          "startLine": 32,
+          "endLine": 32,
+          "params": [
+            "src"
+          ]
+        },
+        {
+          "name": "extractHandler",
+          "startLine": 34,
+          "endLine": 39,
+          "params": [
+            "src",
+            "name"
+          ]
+        },
+        {
+          "name": "checkGatedEndpoint",
+          "startLine": 105,
+          "endLine": 137,
+          "params": [
+            "batchLabel"
+          ]
+        },
+        {
+          "name": "gitShowHead",
+          "startLine": 255,
+          "endLine": 261,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "stripPermissionScaffolding",
+          "startLine": 262,
+          "endLine": 266,
+          "params": [
+            "src"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 473,
+          "endLine": 479,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 20
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "path.join",
+          "lineNumber": 20
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "process.cwd",
+          "lineNumber": 20
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 21
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "String",
+          "lineNumber": 21
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "src.includes",
+          "lineNumber": 21
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "String",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "src.includes",
+          "lineNumber": 22
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split('\\n').map((line) => line.replace(/\\/\\/.*$/, '')).join",
+          "lineNumber": 32
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split('\\n').map",
+          "lineNumber": 32
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split",
+          "lineNumber": 32
+        },
+        {
+          "caller": "stripComments",
+          "callee": "line.replace",
+          "lineNumber": 32
+        },
+        {
+          "caller": "extractHandler",
+          "callee": "src.indexOf",
+          "lineNumber": 35
+        },
+        {
+          "caller": "extractHandler",
+          "callee": "src.indexOf",
+          "lineNumber": 37
+        },
+        {
+          "caller": "extractHandler",
+          "callee": "src.slice",
+          "lineNumber": 38
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "exists",
+          "lineNumber": 106
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 107
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "stripComments",
+          "lineNumber": 110
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "read",
+          "lineNumber": 110
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "extractHandler",
+          "lineNumber": 111
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 113
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "body.indexOf",
+          "lineNumber": 116
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "body.indexOf",
+          "lineNumber": 117
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 119
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 122
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 124
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "permission.replace",
+          "lineNumber": 126
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "exactCallPattern.test",
+          "lineNumber": 127
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 128
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "body.match",
+          "lineNumber": 130
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 132
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "/import\\s*\\{[^}]*requireAdminPermission[^}]*\\}\\s*from\\s*['\"][./]*_lib\\/admin-audit\\.js['\"]/.test",
+          "lineNumber": 134
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "read",
+          "lineNumber": 134
+        },
+        {
+          "caller": "checkGatedEndpoint",
+          "callee": "failures.push",
+          "lineNumber": 135
+        },
+        {
+          "caller": "gitShowHead",
+          "callee": "execSync",
+          "lineNumber": 257
+        },
+        {
+          "caller": "gitShowHead",
+          "callee": "JSON.stringify(file).replace",
+          "lineNumber": 257
+        },
+        {
+          "caller": "gitShowHead",
+          "callee": "JSON.stringify",
+          "lineNumber": 257
+        },
+        {
+          "caller": "stripPermissionScaffolding",
+          "callee": "src\n    .replace(/\\s*import\\s*\\{\\s*requireAdminPermission\\s*\\}\\s*from\\s*['\"][./]*_lib\\/admin-audit\\.js['\"];?/g, '')\n    .replace",
+          "lineNumber": 263
+        },
+        {
+          "caller": "stripPermissionScaffolding",
+          "callee": "src\n    .replace",
+          "lineNumber": 263
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 475
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 475
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 475
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-a1-admin-rbac-hardening.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 392,
+      "nonEmptyLines": 365,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "stripComments",
+          "startLine": 43,
+          "endLine": 43,
+          "params": [
+            "src"
+          ]
+        },
+        {
+          "name": "extractHandler",
+          "startLine": 196,
+          "endLine": 201,
+          "params": [
+            "src",
+            "name"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 333,
+          "endLine": 339,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split('\\n').map((line) => line.replace(/\\/\\/.*$/, '')).join",
+          "lineNumber": 43
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split('\\n').map",
+          "lineNumber": 43
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split",
+          "lineNumber": 43
+        },
+        {
+          "caller": "stripComments",
+          "callee": "line.replace",
+          "lineNumber": 43
+        },
+        {
+          "caller": "extractHandler",
+          "callee": "src.indexOf",
+          "lineNumber": 197
+        },
+        {
+          "caller": "extractHandler",
+          "callee": "src.indexOf",
+          "lineNumber": 199
+        },
+        {
+          "caller": "extractHandler",
+          "callee": "src.slice",
+          "lineNumber": 200
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 335
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 335
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 335
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-a1f-admin-rbac-session-identity.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 277,
+      "nonEmptyLines": 257,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "stripComments",
+          "startLine": 28,
+          "endLine": 28,
+          "params": [
+            "src"
+          ]
+        },
+        {
+          "name": "extractFn",
+          "startLine": 30,
+          "endLine": 37,
+          "params": [
+            "src",
+            "name"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 227,
+          "endLine": 233,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split('\\n').map((line) => line.replace(/\\/\\/.*$/, '')).join",
+          "lineNumber": 28
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split('\\n').map",
+          "lineNumber": 28
+        },
+        {
+          "caller": "stripComments",
+          "callee": "src.split",
+          "lineNumber": 28
+        },
+        {
+          "caller": "stripComments",
+          "callee": "line.replace",
+          "lineNumber": 28
+        },
+        {
+          "caller": "extractFn",
+          "callee": "src.indexOf",
+          "lineNumber": 31
+        },
+        {
+          "caller": "extractFn",
+          "callee": "src.indexOf",
+          "lineNumber": 32
+        },
+        {
+          "caller": "extractFn",
+          "callee": "src.indexOf",
+          "lineNumber": 33
+        },
+        {
+          "caller": "extractFn",
+          "callee": "src.indexOf",
+          "lineNumber": 35
+        },
+        {
+          "caller": "extractFn",
+          "callee": "src.slice",
+          "lineNumber": 36
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 229
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 229
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 229
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-account-batch-3-order-cancellation.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 159,
+      "nonEmptyLines": 143,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-account-batch-4-loyalty-ledger.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 336,
+      "nonEmptyLines": 312,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 9,
+          "endLine": 9,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "sha256",
+          "startLine": 10,
+          "endLine": 10,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 12,
+          "endLine": 19,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "isI1InventoryCheckoutChange",
+          "startLine": 20,
+          "endLine": 29,
+          "params": [
+            "filePath"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 9
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 9
+        },
+        {
+          "caller": "sha256",
+          "callee": "crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest",
+          "lineNumber": 10
+        },
+        {
+          "caller": "sha256",
+          "callee": "crypto.createHash('sha256').update",
+          "lineNumber": 10
+        },
+        {
+          "caller": "sha256",
+          "callee": "crypto.createHash",
+          "lineNumber": 10
+        },
+        {
+          "caller": "sha256",
+          "callee": "fs.readFileSync",
+          "lineNumber": 10
+        },
+        {
+          "caller": "sha256",
+          "callee": "path.join",
+          "lineNumber": 10
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 14
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 14
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 15
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 15
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 15
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 15
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "String",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "file.endsWith",
+          "lineNumber": 23
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "read('assets/checkout-flow.js').includes",
+          "lineNumber": 23
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "read",
+          "lineNumber": 23
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "file.endsWith",
+          "lineNumber": 24
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "read('functions/api/create-checkout.js').includes",
+          "lineNumber": 24
+        },
+        {
+          "caller": "isI1InventoryCheckoutChange",
+          "callee": "read",
+          "lineNumber": 24
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-b2-bank-transfer-rejection-finalization.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 348,
+      "nonEmptyLines": 323,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "extractBalancedFn",
+          "startLine": 28,
+          "endLine": 54,
+          "params": [
+            "src",
+            "sigPrefix",
+            "name"
+          ]
+        },
+        {
+          "name": "extractFn",
+          "startLine": 55,
+          "endLine": 57,
+          "params": [
+            "src",
+            "name"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        },
+        {
+          "caller": "extractBalancedFn",
+          "callee": "src.indexOf",
+          "lineNumber": 29
+        },
+        {
+          "caller": "extractBalancedFn",
+          "callee": "src.indexOf",
+          "lineNumber": 31
+        },
+        {
+          "caller": "extractBalancedFn",
+          "callee": "src.indexOf",
+          "lineNumber": 43
+        },
+        {
+          "caller": "extractBalancedFn",
+          "callee": "src.slice",
+          "lineNumber": 50
+        },
+        {
+          "caller": "extractFn",
+          "callee": "extractBalancedFn",
+          "lineNumber": 56
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-d1-returns-refunds-correctness.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 269,
+      "nonEmptyLines": 248,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 16,
+          "endLine": 16,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 17,
+          "endLine": 17,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 19,
+          "endLine": 26,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 35,
+          "endLine": 41,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 16
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 16
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 17
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 17
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 21
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 21
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 22
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 22
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 37
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 37
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-d2-refund-amount-correctness.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 308,
+      "nonEmptyLines": 281,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 22,
+          "endLine": 22,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 23,
+          "endLine": 23,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 25,
+          "endLine": 32,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 38,
+          "endLine": 44,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 22
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 22
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 23
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 23
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 27
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 27
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 28
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 28
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 28
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 28
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 40
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 40
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 40
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-d2b-refund-discount-proration.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 239,
+      "nonEmptyLines": 215,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 19,
+          "endLine": 19,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 20,
+          "endLine": 20,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 22,
+          "endLine": 29,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 35,
+          "endLine": 41,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 19
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 19
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 20
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 20
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 24
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 24
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 25
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 25
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 25
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 25
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 37
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 37
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-d3-refund-snapshot-persistence.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 224,
+      "nonEmptyLines": 203,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 16,
+          "endLine": 16,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 17,
+          "endLine": 17,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 26,
+          "endLine": 32,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 16
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 16
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 17
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 17
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 28
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 28
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 28
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 0,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-h0-live-payment-rpc-hotfix.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 470,
+      "nonEmptyLines": 429,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "extractParamNames",
+          "startLine": 73,
+          "endLine": 75,
+          "params": [
+            "callBody"
+          ]
+        },
+        {
+          "name": "extractSqlSignatureParams",
+          "startLine": 76,
+          "endLine": 81,
+          "params": [
+            "sqlFnName"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 228,
+          "endLine": 234,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "Array.from(callBody.matchAll(/(p_[a-zA-Z0-9_]+)\\s*:/g)).map((m) => m[1]).sort",
+          "lineNumber": 74
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "Array.from(callBody.matchAll(/(p_[a-zA-Z0-9_]+)\\s*:/g)).map",
+          "lineNumber": 74
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "Array.from",
+          "lineNumber": 74
+        },
+        {
+          "caller": "extractParamNames",
+          "callee": "callBody.matchAll",
+          "lineNumber": 74
+        },
+        {
+          "caller": "extractSqlSignatureParams",
+          "callee": "migration.match",
+          "lineNumber": 78
+        },
+        {
+          "caller": "extractSqlSignatureParams",
+          "callee": "Array.from(m[1].matchAll(/(p_[a-zA-Z0-9_]+)\\s+/g)).map((x) => x[1]).sort",
+          "lineNumber": 80
+        },
+        {
+          "caller": "extractSqlSignatureParams",
+          "callee": "Array.from(m[1].matchAll(/(p_[a-zA-Z0-9_]+)\\s+/g)).map",
+          "lineNumber": 80
+        },
+        {
+          "caller": "extractSqlSignatureParams",
+          "callee": "Array.from",
+          "lineNumber": 80
+        },
+        {
+          "caller": "extractSqlSignatureParams",
+          "callee": "m[1].matchAll",
+          "lineNumber": 80
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 230
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 230
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 230
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-h1-return-attachment-storage-rls.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 312,
+      "nonEmptyLines": 285,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "extractPolicyBlock",
+          "startLine": 67,
+          "endLine": 70,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 240,
+          "endLine": 246,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        },
+        {
+          "caller": "extractPolicyBlock",
+          "callee": "name.replace",
+          "lineNumber": 68
+        },
+        {
+          "caller": "extractPolicyBlock",
+          "callee": "codeOnly.match",
+          "lineNumber": 69
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 242
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 242
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 242
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "scripts/validate-h2-return-attachment-preview.mjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 410,
+      "nonEmptyLines": 388,
+      "functions": [
+        {
+          "name": "read",
+          "startLine": 7,
+          "endLine": 7,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "exists",
+          "startLine": 8,
+          "endLine": 8,
+          "params": [
+            "file"
+          ]
+        },
+        {
+          "name": "isD3ACheckoutSnapshotChange",
+          "startLine": 10,
+          "endLine": 17,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "gitDiffFile",
+          "startLine": 369,
+          "endLine": 375,
+          "params": [
+            "file"
+          ]
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "read",
+          "callee": "fs.readFileSync",
+          "lineNumber": 7
+        },
+        {
+          "caller": "read",
+          "callee": "path.join",
+          "lineNumber": 7
+        },
+        {
+          "caller": "exists",
+          "callee": "fs.existsSync",
+          "lineNumber": 8
+        },
+        {
+          "caller": "exists",
+          "callee": "path.join",
+          "lineNumber": 8
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String(filePath).endsWith",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "String",
+          "lineNumber": 12
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync(path.join(process.cwd(), filePath), 'utf8').includes",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "fs.readFileSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "path.join",
+          "lineNumber": 13
+        },
+        {
+          "caller": "isD3ACheckoutSnapshotChange",
+          "callee": "process.cwd",
+          "lineNumber": 13
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync(`git diff --name-only HEAD -- ${JSON.stringify(file)}`, { cwd: root, encoding: 'utf8' }).trim",
+          "lineNumber": 371
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "execSync",
+          "lineNumber": 371
+        },
+        {
+          "caller": "gitDiffFile",
+          "callee": "JSON.stringify",
+          "lineNumber": 371
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    }
+  ]
+}

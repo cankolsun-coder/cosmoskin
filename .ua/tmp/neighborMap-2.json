@@ -1,0 +1,1189 @@
+{
+  "functions/api/_lib/admin-audit.js": [
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "functions/api/admin/coupons/index.js",
+      "batchIndex": 4,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPost",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/loyalty/adjust-points.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "resendOrderEmail"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id].js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/dhl-shipment.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/emails.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/shipments.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/status.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/products.js",
+      "batchIndex": 7,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/products/[slug]/price-history.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/products/[slug]/price.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/refunds.js",
+      "batchIndex": 5,
+      "symbols": [
+        "REFUNDABLE_PAYMENT_STATUSES",
+        "REFUND_RESPONSIBILITIES",
+        "SELLER_FAULT_REASON_CODES",
+        "CUSTOMER_PREFERENCE_REASON_CODES",
+        "RETURN_REASON_TO_RESPONSIBILITY",
+        "ERR_REFERENCE_REQUIRED",
+        "ERR_AMOUNT_INVALID",
+        "ERR_AMOUNT_EXCEEDS",
+        "ERR_NOT_REFUNDABLE",
+        "ERR_PAYMENT_MISMATCH",
+        "ERR_PRODUCT_CAP_UNKNOWN",
+        "ERR_SHIPPING_APPROVAL_REQUIRED",
+        "ERR_INVALID_RESPONSIBILITY",
+        "ERR_PRORATION_UNSAFE",
+        "ERR_AMOUNT_EXCEEDS_PAID_ITEM",
+        "roundMoney",
+        "sumRefundAmounts",
+        "resolvePaidAmount",
+        "resolveProductRefundableCap",
+        "resolveRefundResponsibility",
+        "resolveShippingRefundableCap",
+        "computeRemainingRefundable",
+        "resolveOrderDiscountAmount",
+        "allocateOrderDiscount",
+        "resolveItemProratedRefundableCap",
+        "resolveEffectiveRemainingRefundable",
+        "validateRefundAmount",
+        "buildRefundCaps",
+        "loadRefundBalanceContext",
+        "onRequestGet",
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/returns.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/shipments.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/shipments/[id]/label.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/shipments/[id]/sync.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/suppliers.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPost",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/users.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPost",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/email/retry-failed.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/invoices/qnb-create.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/_lib/admin.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "functions/api/admin/coupons/index.js",
+      "batchIndex": 4,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPost",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/dashboard.js",
+      "batchIndex": 4,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/inventory/health.js",
+      "batchIndex": 7,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/loyalty/adjust-points.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "resendOrderEmail"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id].js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/dhl-shipment.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/emails.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/shipments.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/status.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/products.js",
+      "batchIndex": 7,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/products/[slug]/price-history.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/products/[slug]/price.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/refunds.js",
+      "batchIndex": 5,
+      "symbols": [
+        "REFUNDABLE_PAYMENT_STATUSES",
+        "REFUND_RESPONSIBILITIES",
+        "SELLER_FAULT_REASON_CODES",
+        "CUSTOMER_PREFERENCE_REASON_CODES",
+        "RETURN_REASON_TO_RESPONSIBILITY",
+        "ERR_REFERENCE_REQUIRED",
+        "ERR_AMOUNT_INVALID",
+        "ERR_AMOUNT_EXCEEDS",
+        "ERR_NOT_REFUNDABLE",
+        "ERR_PAYMENT_MISMATCH",
+        "ERR_PRODUCT_CAP_UNKNOWN",
+        "ERR_SHIPPING_APPROVAL_REQUIRED",
+        "ERR_INVALID_RESPONSIBILITY",
+        "ERR_PRORATION_UNSAFE",
+        "ERR_AMOUNT_EXCEEDS_PAID_ITEM",
+        "roundMoney",
+        "sumRefundAmounts",
+        "resolvePaidAmount",
+        "resolveProductRefundableCap",
+        "resolveRefundResponsibility",
+        "resolveShippingRefundableCap",
+        "computeRemainingRefundable",
+        "resolveOrderDiscountAmount",
+        "allocateOrderDiscount",
+        "resolveItemProratedRefundableCap",
+        "resolveEffectiveRemainingRefundable",
+        "validateRefundAmount",
+        "buildRefundCaps",
+        "loadRefundBalanceContext",
+        "onRequestGet",
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/returns.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/session.js",
+      "batchIndex": 4,
+      "symbols": [
+        "onRequestPost",
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/shipments.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/shipments/[id]/label.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/shipments/[id]/sync.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/suppliers.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPost",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/users.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPost",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/email/retry-failed.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/invoices/qnb-create.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/reviews/[[path]].js",
+      "batchIndex": 7,
+      "symbols": [
+        "onRequest"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/_lib/bank-accounts.js": [
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "resendOrderEmail"
+      ]
+    },
+    {
+      "path": "functions/api/create-checkout.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestPost",
+        "calculateTotalsWithCoupon",
+        "getEftReservationMinutes",
+        "serializeOrderItemInsertRow",
+        "persistOrderItems",
+        "buildPriceChangedNotice",
+        "extractClientSubtotalHint",
+        "normalizeCart"
+      ]
+    },
+    {
+      "path": "functions/api/payment/bank-accounts.js",
+      "batchIndex": 4,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/_lib/cloudflare-access-jwt.js": [
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/_lib/commerce-finalization.js": [
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "resendOrderEmail"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/status.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/iyzico-callback.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestPost",
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/_lib/inventory.js": [
+    {
+      "path": "functions/api/_lib/catalog.js",
+      "batchIndex": 7,
+      "symbols": [
+        "products",
+        "catalog",
+        "getCatalogProductByHandle",
+        "getCatalogProductByName",
+        "resolveCatalogProduct"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/restock-email.js",
+      "batchIndex": 7,
+      "symbols": [
+        "renderRestockEmail",
+        "sendRestockEmail"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/order-cancellation.js",
+      "batchIndex": 1,
+      "symbols": [
+        "BLOCKED_ORDER_STATUSES",
+        "BLOCKED_FULFILLMENT_STATUSES",
+        "SHIPPED_SHIPMENT_STATUSES",
+        "ACTIVE_RETURN_STATUSES",
+        "DIRECT_CANCEL_ORDER_STATUSES",
+        "DIRECT_CANCEL_PAYMENT_STATUSES",
+        "CANCEL_REQUEST_ORDER_STATUSES",
+        "PAID_PAYMENT_STATUSES",
+        "cleanCancelReason",
+        "hasBlockingShipment",
+        "hasActiveReturn",
+        "isTerminalCancelled",
+        "OrderCancellationError",
+        "assertHardBlocks",
+        "resolveCancelMode",
+        "evaluateCancelEligibility",
+        "executeDirectCancel",
+        "executeCancelRequest",
+        "loadOwnedOrderBundle"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "resendOrderEmail"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/status.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/create-checkout.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestPost",
+        "calculateTotalsWithCoupon",
+        "getEftReservationMinutes",
+        "serializeOrderItemInsertRow",
+        "persistOrderItems",
+        "buildPriceChangedNotice",
+        "extractClientSubtotalHint",
+        "normalizeCart"
+      ]
+    },
+    {
+      "path": "functions/api/inventory.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/inventory/check.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/restock-alerts.js",
+      "batchIndex": 8,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/_lib/loyalty-ledger.js": [
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "functions/api/account/points.js",
+      "batchIndex": 1,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/account/summary.js",
+      "batchIndex": 4,
+      "symbols": [
+        "onRequestGet"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch",
+        "resendOrderEmail"
+      ]
+    },
+    {
+      "path": "functions/api/admin/orders/[id]/status.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/admin/refunds.js",
+      "batchIndex": 5,
+      "symbols": [
+        "REFUNDABLE_PAYMENT_STATUSES",
+        "REFUND_RESPONSIBILITIES",
+        "SELLER_FAULT_REASON_CODES",
+        "CUSTOMER_PREFERENCE_REASON_CODES",
+        "RETURN_REASON_TO_RESPONSIBILITY",
+        "ERR_REFERENCE_REQUIRED",
+        "ERR_AMOUNT_INVALID",
+        "ERR_AMOUNT_EXCEEDS",
+        "ERR_NOT_REFUNDABLE",
+        "ERR_PAYMENT_MISMATCH",
+        "ERR_PRODUCT_CAP_UNKNOWN",
+        "ERR_SHIPPING_APPROVAL_REQUIRED",
+        "ERR_INVALID_RESPONSIBILITY",
+        "ERR_PRORATION_UNSAFE",
+        "ERR_AMOUNT_EXCEEDS_PAID_ITEM",
+        "roundMoney",
+        "sumRefundAmounts",
+        "resolvePaidAmount",
+        "resolveProductRefundableCap",
+        "resolveRefundResponsibility",
+        "resolveShippingRefundableCap",
+        "computeRemainingRefundable",
+        "resolveOrderDiscountAmount",
+        "allocateOrderDiscount",
+        "resolveItemProratedRefundableCap",
+        "resolveEffectiveRemainingRefundable",
+        "validateRefundAmount",
+        "buildRefundCaps",
+        "loadRefundBalanceContext",
+        "onRequestGet",
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/returns.js",
+      "batchIndex": 6,
+      "symbols": [
+        "onRequestGet",
+        "onRequestPatch"
+      ]
+    },
+    {
+      "path": "functions/api/loyalty/redeem.js",
+      "batchIndex": 4,
+      "symbols": [
+        "onRequestPost"
+      ]
+    }
+  ],
+  "functions/api/_lib/shipping-providers.js": [
+    {
+      "path": "functions/api/admin/orders/[id]/dhl-shipment.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    },
+    {
+      "path": "functions/api/admin/returns/[id]/dhl-return-shipment.js",
+      "batchIndex": 3,
+      "symbols": [
+        "onRequestPost"
+      ]
+    }
+  ],
+  "functions/api/admin/bank-accounts.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/compliance.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/security.js",
+      "batchIndex": 8,
+      "symbols": [
+        "normalizeEmail",
+        "validEmail",
+        "cleanText",
+        "normalizeSlug",
+        "publicError",
+        "clientKey",
+        "assertRateLimit",
+        "safeMetadata"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/coupons/issue-customer-coupon.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    }
+  ],
+  "functions/api/admin/customers.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/email-logs.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/inventory.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/inventory/[slug].js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/inventory/[slug]/movements.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/inventory/adjust.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/invoices.js": [
+    {
+      "path": "functions/api/_lib/lifecycle-emails.js",
+      "batchIndex": 6,
+      "symbols": [
+        "refundEmailIdempotencyKey",
+        "sendRefundCompletedEmailOnce",
+        "normalizeInvoiceForEmail",
+        "invoiceEmailVersionKey",
+        "invoiceEmailIdempotencyKey",
+        "isInvoiceEmailEligible",
+        "maybeSendInvoiceReadyEmail"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ],
+  "functions/api/admin/lots.js": [
+    {
+      "path": "functions/api/_lib/response.js",
+      "batchIndex": 1,
+      "symbols": [
+        "json",
+        "noStoreHeaders",
+        "redirect"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/security.js",
+      "batchIndex": 8,
+      "symbols": [
+        "normalizeEmail",
+        "validEmail",
+        "cleanText",
+        "normalizeSlug",
+        "publicError",
+        "clientKey",
+        "assertRateLimit",
+        "safeMetadata"
+      ]
+    },
+    {
+      "path": "functions/api/_lib/supabase.js",
+      "batchIndex": 1,
+      "symbols": [
+        "getUserFromAccessToken",
+        "insertRow",
+        "insertRows",
+        "updateRows",
+        "updateRowsWhere",
+        "selectRows",
+        "deleteRows",
+        "rpc",
+        "deleteStorageObject",
+        "upsertRow",
+        "upsertRows",
+        "createSignedStorageUrl"
+      ]
+    },
+    {
+      "path": "tests/local-integration.test.mjs",
+      "batchIndex": 3,
+      "symbols": []
+    }
+  ]
+}
