@@ -28,7 +28,7 @@
 .concern-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .concern-card{display:flex;flex-direction:column;height:100%;background:#fff;border-radius:28px;overflow:hidden;border:1px solid rgba(22,18,14,.07);box-shadow:var(--shadow-soft);transition:transform .25s var(--ease-out), box-shadow .25s var(--ease-out), border-color .25s ease}
 .concern-card:hover,.brand-feature-card:hover{transform:translateY(-4px);box-shadow:0 18px 50px rgba(18,12,8,.12)}
-.concern-card img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.concern-card img{width:100%;height:auto;aspect-ratio:3/4;object-fit:cover}
 .concern-card__body{padding:20px 20px 22px}
 .concern-card__body h3{margin:6px 0 8px;font-size:22px;line-height:1.1;font-family:var(--serif)}
 .concern-card__body p{margin:0;color:var(--muted)}
