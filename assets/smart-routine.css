@@ -833,3 +833,270 @@
 .smart-routine__offer-icon .cs-icon{width:18px;height:18px;color:inherit;}
 .smart-routine__goal[aria-pressed="true"] .cs-icon--goal,
 .smart-routine__goal[aria-pressed="true"] .smart-routine__goal-check .cs-icon{filter:brightness(0) invert(1) drop-shadow(0 4px 12px rgba(255,255,255,.16));}
+
+/* ============================================================
+   COSMOSKIN — Smart Routine · Desktop Premium Redesign 20260720
+   Scope: #smart-routine only, min-width 769px only.
+   Mobile (≤768px, cs-mobile-v1) intentionally untouched.
+   ============================================================ */
+@media (min-width:769px){
+
+  /* — 1 · Icon system: SVG <img> repainted with currentColor via mask.
+       The raster content is pushed out of the content box; the box is
+       filled with currentColor clipped by the same SVG used as a mask.
+       Result: ink/gold icons everywhere, automatic white on dark. — */
+  #smart-routine img[style*="--sr-icon"]{
+    background-color:currentColor;
+    -webkit-mask:var(--sr-icon) center / contain no-repeat;
+    mask:var(--sr-icon) center / contain no-repeat;
+    object-fit:contain;
+    object-position:-9999px 0;
+    filter:none!important;
+  }
+  #smart-routine .smart-routine__badge img,
+  #smart-routine .smart-routine__match img,
+  #smart-routine .smart-routine__meta-item img,
+  #smart-routine .smart-routine__trust-item img{color:#A8783E;}
+  #smart-routine .smart-routine__daypart-title img{color:#7C5B33;}
+  #smart-routine .smart-routine__note img{color:#8B6535;}
+  #smart-routine .smart-routine__privacy img{color:rgba(44,26,20,.52);}
+  #smart-routine .smart-routine__goal .cs-icon--goal{color:#7C5B33;width:22px!important;height:22px!important;}
+  #smart-routine .smart-routine__goal[aria-pressed="true"] .cs-icon--goal{color:#F6E9D6;transform:none;}
+  #smart-routine .smart-routine__goal-check{color:#2C1A14;}
+  #smart-routine .smart-routine__step-icon .cs-icon{color:#2C1A14;width:22px;height:22px;}
+  #smart-routine .smart-routine__step-arrow{color:rgba(44,26,20,.34);width:14px;height:14px;}
+  #smart-routine .smart-routine__connector{color:#A8783E;}
+  #smart-routine .smart-routine__offer-icon .cs-icon{color:#FFF7EC;}
+  #smart-routine .smart-routine__btn img{color:currentColor;}
+
+  /* — 2 · Empty / status states: span the full product row, calm card — */
+  #smart-routine .smart-routine__empty{
+    grid-column:1 / -1;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    min-height:148px;
+    padding:24px 26px;
+    border:1px dashed rgba(166,120,62,.34);
+    border-radius:16px;
+    background:linear-gradient(180deg,rgba(255,253,249,.92),rgba(247,240,231,.72));
+    color:#6F6257;
+  }
+  #smart-routine .smart-routine__empty strong{
+    display:block;
+    margin-bottom:7px;
+    font-family:var(--serif);
+    font-size:21px;
+    font-weight:600;
+    letter-spacing:-.02em;
+    line-height:1.12;
+    color:#1C1209;
+  }
+  #smart-routine .smart-routine__empty span{
+    display:block;
+    max-width:46ch;
+    font-size:12.5px;
+    line-height:1.62;
+    font-weight:600;
+    color:rgba(44,26,20,.60);
+  }
+
+  /* — 3 · Actions: primary on its own row; labels may wrap, never clip — */
+  #smart-routine .smart-routine__actions{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:14px;
+  }
+  #smart-routine .smart-routine__btn{
+    min-width:0;
+    min-height:52px;
+    padding:10px 16px;
+    border-radius:14px;
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:0;
+    line-height:1.25;
+    white-space:normal;
+    text-align:center;
+  }
+  #smart-routine .smart-routine__btn[data-sr-add-cart]{grid-column:1 / -1;font-size:14px;}
+  #smart-routine .smart-routine__btn img{flex:0 0 18px;width:18px;height:18px;}
+  #smart-routine .smart-routine__btn--view,
+  #smart-routine .smart-routine__btn--view:hover{
+    background:rgba(255,253,249,.88)!important;
+    border-color:rgba(166,120,62,.38)!important;
+    color:#6F5030!important;
+    box-shadow:none;
+  }
+  #smart-routine .smart-routine__btn--view:hover{
+    background:#FFF7EC!important;
+    border-color:rgba(166,120,62,.55)!important;
+    transform:translateY(-1px);
+    box-shadow:0 12px 26px rgba(44,26,20,.07);
+  }
+  #smart-routine .smart-routine__tertiary{color:#7C5B33;}
+
+  /* — 4 · Left panel: quiet section labels, scannable goal chips — */
+  #smart-routine .smart-routine__panel-title{
+    font-family:var(--sans)!important;
+    font-size:12px!important;
+    font-weight:800!important;
+    letter-spacing:.14em!important;
+    text-transform:uppercase;
+    color:#5B4A3D;
+    gap:10px!important;
+    margin:0 0 14px;
+  }
+  #smart-routine .smart-routine__number{
+    width:26px;
+    height:26px;
+    flex:0 0 26px;
+    font-size:11px;
+    box-shadow:0 8px 18px rgba(44,26,20,.14);
+  }
+  #smart-routine .smart-routine__goal{
+    flex-direction:row!important;
+    justify-content:flex-start;
+    align-items:center!important;
+    gap:10px!important;
+    min-height:54px!important;
+    padding:10px 34px 10px 13px!important;
+    border-radius:14px!important;
+    border-color:rgba(44,26,20,.12);
+  }
+  #smart-routine .smart-routine__goal span:last-child{
+    font-size:12.5px!important;
+    font-weight:800!important;
+    line-height:1.22!important;
+    text-align:left;
+  }
+  /* master-upgrade forces a light background with !important; restore the
+     pressed state so the selected chip is legible (dark chip, ivory label) */
+  #smart-routine .smart-routine__goal[aria-pressed="true"]{
+    background:linear-gradient(180deg,#2F2018,#15100C)!important;
+    border-color:rgba(44,26,20,.34)!important;
+    color:#FBF7F1;
+    box-shadow:0 14px 30px rgba(44,26,20,.16);
+  }
+  #smart-routine .smart-routine__goal-check{
+    top:50%!important;
+    right:10px!important;
+    transform:translateY(-50%) scale(.82);
+    width:20px;
+    height:20px;
+    border:1px solid rgba(44,26,20,.10);
+  }
+  #smart-routine .smart-routine__goal[aria-pressed="true"] .smart-routine__goal-check{transform:translateY(-50%) scale(1);}
+  #smart-routine .smart-routine__skin-pill{min-height:38px;min-width:0;padding:0 16px;font-size:12.5px;}
+
+  /* — 5 · Middle column: refined step timeline — */
+  #smart-routine .smart-routine__column-title{margin-bottom:14px;font-size:20px;}
+  #smart-routine .smart-routine__steps{gap:11px;margin-top:16px;}
+  #smart-routine .smart-routine__steps::before{left:14px;}
+  #smart-routine .smart-routine__step{grid-template-columns:29px minmax(0,1fr);gap:12px;}
+  #smart-routine .smart-routine__step-index{width:29px;height:29px;font-size:12px;}
+  #smart-routine .smart-routine__step-card{
+    grid-template-columns:44px minmax(0,1fr);
+    gap:12px;
+    min-height:66px;
+    padding:10px 13px 10px 11px;
+    border-radius:15px;
+  }
+  #smart-routine .smart-routine__step-arrow{display:none;}
+  #smart-routine .smart-routine__step-icon{
+    width:44px;
+    height:44px;
+    border-color:rgba(166,120,62,.20);
+    background:radial-gradient(circle at 35% 30%,#FFFDF9,#F5EBDF 76%);
+  }
+  #smart-routine .smart-routine__step-copy strong{font-size:12.5px;margin-bottom:2px;}
+  #smart-routine .smart-routine__step-copy span{font-size:11.5px;line-height:1.4;}
+  #smart-routine .smart-routine__note{margin-top:22px;padding:14px 16px;font-size:11.5px;}
+
+  /* — 6 · Right column: result header, dayparts, product flow — */
+  #smart-routine .smart-routine__routine-title{font-size:21px;}
+  #smart-routine .smart-routine__routine-subtitle{margin-top:7px;font-size:12px;line-height:1.5;}
+  #smart-routine .smart-routine__match{white-space:nowrap;}
+  #smart-routine .smart-routine__daypart{
+    margin-top:14px;
+    padding:14px 14px 15px!important;
+  }
+  #smart-routine .smart-routine__daypart:first-of-type{margin-top:6px;}
+  #smart-routine .smart-routine__daypart-title{margin:0 0 11px;letter-spacing:.16em!important;}
+  #smart-routine .smart-routine__daypart-title img{width:18px;height:18px;}
+  /* Product flow: the narrow right column can't host a 3–4 column card
+     grid (110px cards, stacked text). Render each product as a calm
+     horizontal row instead — thumb, step, name, reason, price. */
+  #smart-routine .smart-routine__product-flow,
+  #smart-routine .smart-routine__daypart--night .smart-routine__product-flow{
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+  }
+  #smart-routine .smart-routine__connector{display:none;}
+  #smart-routine .smart-routine__product-card{
+    grid-template-columns:74px minmax(0,1fr)!important;
+    grid-template-rows:none!important;
+    align-items:center;
+    min-height:0!important;
+    border-radius:14px!important;
+  }
+  #smart-routine .smart-routine__product-media{
+    align-self:stretch;
+    min-height:84px;
+    padding:8px!important;
+  }
+  #smart-routine .smart-routine__product-media img{height:62px!important;}
+  #smart-routine .smart-routine__product-info{padding:10px 34px 11px 12px!important;}
+  #smart-routine .smart-routine__product-step{margin-bottom:3px!important;font-size:9px!important;letter-spacing:.12em!important;}
+  #smart-routine .smart-routine__product-name{
+    min-height:0!important;
+    font-size:12.5px!important;
+    line-height:1.3!important;
+    -webkit-line-clamp:1;
+  }
+  #smart-routine .smart-routine__product-reason{
+    display:-webkit-box;
+    -webkit-line-clamp:1;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    margin:4px 0 0;
+    color:rgba(44,26,20,.55);
+    font-size:10.5px;
+    line-height:1.45;
+    font-weight:600;
+  }
+  #smart-routine .smart-routine__product-reason strong{display:none;}
+  #smart-routine .smart-routine__rating{justify-content:flex-start;gap:6px;margin-top:5px;font-size:10.5px;}
+  #smart-routine .smart-routine__product-price{margin-top:5px!important;font-size:12.5px!important;}
+  #smart-routine .smart-routine__product-info .cs-stock-badge{margin-top:5px;}
+  #smart-routine .smart-routine__product-remove{
+    width:24px;
+    height:24px;
+    top:50%;
+    right:9px;
+    transform:translateY(-50%) scale(.9);
+  }
+  #smart-routine .smart-routine__product-wrap:hover .smart-routine__product-remove,
+  #smart-routine .smart-routine__product-remove:focus-visible{transform:translateY(-50%) scale(1);}
+
+  /* — 7 · Summary, offer, trust — */
+  #smart-routine .smart-routine__bundle-offer{margin-top:14px;padding:12px 15px;border-radius:15px;}
+  #smart-routine .smart-routine__offer-icon{width:34px;height:34px;}
+  #smart-routine .smart-routine__meta-grid{margin-top:12px;}
+  #smart-routine .smart-routine__meta-item{min-height:62px;padding:11px 15px;}
+  #smart-routine .smart-routine__meta-item img{width:20px;height:20px;}
+  #smart-routine .smart-routine__meta-item span{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;}
+  #smart-routine .smart-routine__meta-item strong{font-size:15px;}
+  #smart-routine .smart-routine__privacy{margin-top:12px;}
+  #smart-routine .smart-routine__trustbar{margin-top:26px;}
+  #smart-routine .smart-routine__trust-item{min-height:70px;padding:13px 18px;}
+  #smart-routine .smart-routine__trust-item img{width:22px;height:22px;}
+  #smart-routine .smart-routine__trust-item strong{font-size:12.5px;}
+  #smart-routine .smart-routine__trust-item span{font-size:11px;line-height:1.4;}
+}
+
+/* Wide desktop only: give the result column more room for product rows.
+   Below 1181px the existing 2-column tablet stack must win. */
+@media (min-width:1181px){
+  #smart-routine .smart-routine__shell{grid-template-columns:minmax(280px,1fr) minmax(236px,.78fr) minmax(430px,1.5fr);}
+}

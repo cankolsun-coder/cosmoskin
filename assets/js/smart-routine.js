@@ -30,7 +30,7 @@
   };
 
   function iconImg(src, className) {
-    return '<img class="' + esc(className || 'cs-icon cs-icon--md') + '" src="' + esc(src) + '" alt="" aria-hidden="true" loading="lazy">';
+    return '<img class="' + esc(className || 'cs-icon cs-icon--md') + '" src="' + esc(src) + '" style="--sr-icon:url(' + esc(src) + ')" alt="" aria-hidden="true" loading="lazy">';
   }
 
   var goalConfig = [
