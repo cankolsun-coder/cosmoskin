@@ -2,7 +2,7 @@ import { selectRows, insertRow, updateRows, updateRowsWhere } from '../_lib/supa
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { requireAdminPermission } from '../_lib/admin-audit.js';
-import { sendRefundCompletedEmailOnce } from '../_lib/lifecycle-emails.js';
+import { sendRefundCompletedEmailOnce, sendRefundLifecycleEmailOnce } from '../_lib/lifecycle-emails.js';
 import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
 import { refundIyzicoPayment, extractIyzicoItemTransactions, allocateRefundAcrossTransactions } from '../_lib/iyzico.js';
 import { getClientIp } from '../_lib/http.js';
@@ -794,10 +794,26 @@ export async function onRequestPost(context) {
           note: message,
           metadata: { refund_id: refund?.id || null, return_request_id: payload.return_request_id, amount: payload.amount }
         }).catch(() => null);
+        await sendRefundLifecycleEmailOnce(context, {
+          order,
+          refund,
+          returnRequestId: payload.return_request_id || '',
+          emailType: 'refund_failed',
+          source: 'admin_refunds'
+        }).catch((error) => console.error('refund_failed email failed:', { message: error?.message || 'unknown' }));
         return json({ ok: false, error: message, refund, code: 'IYZICO_REFUND_FAILED' }, { status: 502 });
       }
     } else {
       refund = await insertRow(context, 'refund_records', payload);
+      if (refund.status === 'pending' || refund.status === 'failed') {
+        await sendRefundLifecycleEmailOnce(context, {
+          order,
+          refund,
+          returnRequestId: payload.return_request_id || '',
+          emailType: refund.status === 'pending' ? 'refund_pending' : 'refund_failed',
+          source: 'admin_refunds'
+        }).catch((error) => console.error(`${refund.status === 'pending' ? 'refund_pending' : 'refund_failed'} email failed:`, { message: error?.message || 'unknown' }));
+      }
     }
 
     await insertRow(context, 'order_status_events', {

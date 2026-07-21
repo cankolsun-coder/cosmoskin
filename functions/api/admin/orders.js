@@ -220,7 +220,8 @@ async function sendAndLogStatusEmail(context, order, status, emailType) {
     payment_confirmed_manual: `Ödemeniz onaylandı | ${order.order_number || 'COSMOSKIN'}`,
     order_preparing: `Siparişiniz hazırlanıyor | ${order.order_number || 'COSMOSKIN'}`,
     order_packed: `Siparişiniz paketlendi | ${order.order_number || 'COSMOSKIN'}`,
-    payment_failed: `Ödeme işlemi tamamlanamadı | ${order.order_number || 'COSMOSKIN'}`
+    payment_failed: `Ödeme işlemi tamamlanamadı | ${order.order_number || 'COSMOSKIN'}`,
+    order_cancelled: `Siparişiniz iptal edildi | ${order.order_number || 'COSMOSKIN'}`
   };
   try {
     const result = await sendOrderStatusEmail(context.env, { order, status, items: order.order_items || [], emailType });
@@ -381,6 +382,11 @@ export async function onRequestPatch(context) {
           const latestOrderForCancel = await loadOrder(context, id);
           await sendAndLogCommerceEmail(context, latestOrderForCancel, 'bank_transfer_not_received_cancelled', body.message || 'Havale/EFT ödemesi alınamadı.');
         }
+      } else if (status === 'cancelled') {
+        // Generic admin cancellation (unpaid order) — mark_bank_transfer_not_received
+        // above already sends its own more specific cancellation email.
+        const latestOrderForCancel = await loadOrder(context, id);
+        await sendAndLogStatusEmail(context, latestOrderForCancel, 'cancelled', 'order_cancelled');
       }
       if (body.action === 'mark_preparing' || body.status === 'preparing' || body.fulfillment_status === 'preparing') {
         const latestOrderForPreparing = await loadOrder(context, id);
@@ -518,5 +524,6 @@ export async function resendOrderEmail(context, orderId, emailType) {
   if (emailType === 'order_packed') return await sendAndLogStatusEmail(context, order, 'packed', 'order_packed');
   if (emailType === 'payment_failed') return await sendAndLogStatusEmail(context, order, 'payment_failed', 'payment_failed');
   if (emailType === 'order_created') return await sendAndLogStatusEmail(context, order, 'pending', 'order_created');
+  if (emailType === 'order_cancelled') return await sendAndLogStatusEmail(context, order, 'cancelled', 'order_cancelled');
   throw Object.assign(new Error('email_type desteklenmiyor.'), { status: 400 });
 }
