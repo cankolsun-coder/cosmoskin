@@ -294,7 +294,7 @@ export async function onRequestGet(context) {
         birthday_change_count: Number(profile?.birthday_change_count || 0),
         birthday_last_changed_at: profile?.birthday_last_changed_at || null,
         birth_date_locked: Boolean(profile?.birth_date_locked),
-        account_status: profile?.account_status || 'active',
+        account_status: 'active',
         skin_type: skinProfiles?.[0]?.skin_type || meta.skin_type || '',
         skin_sensitivity: skinProfiles?.[0]?.skin_sensitivity || skinProfiles?.[0]?.sensitivity || meta.skin_sensitivity || '',
         skin_concerns: Array.isArray(skinProfiles?.[0]?.skin_concerns) ? skinProfiles[0].skin_concerns : (Array.isArray(skinProfiles?.[0]?.concerns) ? skinProfiles[0].concerns : (Array.isArray(meta.skin_concerns) ? meta.skin_concerns : [])),
