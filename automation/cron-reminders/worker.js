@@ -318,6 +318,38 @@ function authorizeManualRun(request, env) {
   return !!env.REMINDER_CRON_SECRET && supplied === env.REMINDER_CRON_SECRET;
 }
 
+// P0 fix: this worker is the only Cloudflare cron trigger in the project —
+// Pages Functions cannot run scheduled() handlers on their own — so the
+// commerce-critical /api/cron/* endpoints (inventory-reservation release,
+// stuck-payment reconciliation, points expiry, membership recalculation,
+// birthday benefits) must be dispatched from here or they never run at all.
+async function callPagesCronEndpoint(env, path, { useBearer = true } = {}) {
+  const secret = String(env.CRON_SECRET || '');
+  if (!secret) return { ok: false, path, error: 'CRON_SECRET yapılandırılmamış.' };
+  const headers = useBearer ? { Authorization: `Bearer ${secret}` } : { 'x-cron-secret': secret };
+  try {
+    const response = await fetch(`${getSiteUrl(env)}${path}`, { method: 'POST', headers });
+    const result = await parseResponse(response);
+    return { ok: true, path, result };
+  } catch (error) {
+    return { ok: false, path, error: error.message || 'Bilinmeyen hata' };
+  }
+}
+
+async function runFrequentPagesCronJobs(env) {
+  const paths = ['/api/cron/release-expired-inventory', '/api/cron/reconcile-pending-payments'];
+  const results = [];
+  for (const path of paths) results.push(await callPagesCronEndpoint(env, path, { useBearer: true }));
+  return results;
+}
+
+async function runDailyPagesCronJobs(env) {
+  const paths = ['/api/cron/points-expiry', '/api/cron/recalculate-memberships', '/api/cron/birthday-benefits'];
+  const results = [];
+  for (const path of paths) results.push(await callPagesCronEndpoint(env, path, { useBearer: false }));
+  return results;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -337,6 +369,19 @@ export default {
   },
 
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(runDispatch(env, { now: new Date(controller.scheduledTime) }));
+    if (controller.cron === '*/15 * * * *') {
+      ctx.waitUntil(runFrequentPagesCronJobs(env).then((results) => {
+        const failed = results.filter((r) => !r.ok);
+        if (failed.length) console.error('frequent Pages cron jobs failed:', failed);
+      }));
+      return;
+    }
+    ctx.waitUntil(Promise.all([
+      runDispatch(env, { now: new Date(controller.scheduledTime) }).catch((error) => console.error('reminder dispatch failed:', error?.message || error)),
+      runDailyPagesCronJobs(env).then((results) => {
+        const failed = results.filter((r) => !r.ok);
+        if (failed.length) console.error('daily Pages cron jobs failed:', failed);
+      })
+    ]));
   }
 };

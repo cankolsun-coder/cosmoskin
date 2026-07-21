@@ -199,15 +199,7 @@ async function findReservations(context, code, user, customerEmail) {
   if (user?.id) filters.user_id = `eq.${user.id}`;
   else if (email) filters.customer_email = `eq.${email}`;
   else return [];
-  const redemptionReservations = await safeSelect(context, 'coupon_redemptions', filters);
-  const reservationRows = await safeSelect(context, 'coupon_reservations', {
-    select: '*',
-    code: `eq.${code}`,
-    ...(user?.id ? { user_id: `eq.${user.id}` } : { customer_email: `eq.${email}` }),
-    status: 'eq.reserved',
-    limit: '20'
-  });
-  return [...(redemptionReservations || []), ...(reservationRows || [])];
+  return await safeSelect(context, 'coupon_redemptions', filters);
 }
 
 async function findProfile(context, user) {

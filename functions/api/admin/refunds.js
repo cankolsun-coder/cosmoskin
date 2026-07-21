@@ -1,9 +1,11 @@
-import { selectRows, insertRow, updateRows } from '../_lib/supabase.js';
+import { selectRows, insertRow, updateRows, updateRowsWhere } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { assertAdmin, adminError, readJsonBody } from '../_lib/admin.js';
 import { requireAdminPermission } from '../_lib/admin-audit.js';
 import { sendRefundCompletedEmailOnce } from '../_lib/lifecycle-emails.js';
 import { reverseOrderPoints } from '../_lib/loyalty-ledger.js';
+import { refundIyzicoPayment, extractIyzicoItemTransactions, allocateRefundAcrossTransactions } from '../_lib/iyzico.js';
+import { getClientIp } from '../_lib/http.js';
 import {
   isValidPricingSnapshot,
   orderItemsHaveCompleteSnapshots,
@@ -474,11 +476,27 @@ async function loadReturnRequest(context, id) {
 async function loadPayments(context, orderId) {
   if (!orderId) return [];
   return await selectRows(context, 'payments', {
-    select: 'id,order_id,status,amount,currency',
+    select: 'id,order_id,status,amount,currency,provider,provider_payment_id,raw_callback_response',
     order_id: `eq.${orderId}`,
     order: 'created_at.desc',
     limit: '5'
   }).catch(() => []);
+}
+
+async function findRecentPendingRefund(context, { orderId, returnRequestId, windowMs = 5 * 60 * 1000 }) {
+  const rows = await selectRows(context, 'refund_records', {
+    select: '*',
+    order_id: `eq.${orderId}`,
+    status: 'eq.pending',
+    order: 'created_at.desc',
+    limit: '5'
+  }).catch(() => []);
+  const cutoff = Date.now() - windowMs;
+  return (rows || []).find((row) => {
+    if (returnRequestId && row.return_request_id !== returnRequestId) return false;
+    const created = new Date(row.created_at || 0).getTime();
+    return Number.isFinite(created) && created >= cutoff;
+  }) || null;
 }
 
 async function loadRefundsForOrder(context, orderId) {
@@ -621,11 +639,18 @@ export async function onRequestPost(context) {
 
     const returnRequestId = clean(body.return_request_id, 120) || null;
     const providerReference = clean(body.provider_reference, 200);
+    const explicitProvider = clean(body.provider, 80) || null;
+    const isIyzicoOrder = order.payment_method === 'iyzico';
+    // Real money movement only happens when the admin marks a refund "completed"
+    // on an iyzico-paid order — every other status/provider combination stays
+    // manual bookkeeping (bank transfer has no refund API to call).
+    const attemptRealRefund = status === 'completed' && (explicitProvider ? explicitProvider === 'iyzico' : isIyzicoOrder);
+
+    if (status === 'completed' && !attemptRealRefund && !providerReference) {
+      return json({ ok: false, error: ERR_REFERENCE_REQUIRED }, { status: 400 });
+    }
 
     if (status === 'completed') {
-      if (!providerReference) {
-        return json({ ok: false, error: ERR_REFERENCE_REQUIRED }, { status: 400 });
-      }
       const existingCompleted = await findCompletedRefund(context, { returnRequestId, orderId });
       if (existingCompleted) {
         // E4: repeated completion callback — the dispatcher's durable claim
@@ -643,6 +668,18 @@ export async function onRequestPost(context) {
           refund: existingCompleted,
           email: repeatEmail,
           message: 'Bu iade kaydı zaten tamamlanmış.'
+        });
+      }
+    }
+
+    if (attemptRealRefund) {
+      const inFlight = await findRecentPendingRefund(context, { orderId, returnRequestId });
+      if (inFlight) {
+        return json({
+          ok: true,
+          idempotent: true,
+          refund: inFlight,
+          message: 'Bu iade işlemi zaten sürüyor. Lütfen kısa süre sonra admin panelinden sonucu kontrol edin.'
         });
       }
     }
@@ -670,13 +707,12 @@ export async function onRequestPost(context) {
       amount: amountCheck.amount,
       currency: clean(body.currency || order.currency || 'TRY', 10),
       status,
-      provider: clean(body.provider, 80) || 'manual',
+      provider: explicitProvider || (isIyzicoOrder ? 'iyzico' : 'manual'),
       provider_reference: status === 'completed' ? providerReference : (providerReference || null),
       error_message: clean(body.error_message, 500) || null,
       completed_at: status === 'completed' ? new Date().toISOString() : null,
       metadata: {
-        manual: true,
-        warning: 'Gerçek Iyzico refund API çağrısı yapılmadı.',
+        manual: !attemptRealRefund,
         note: clean(body.note, 500) || null,
         remaining_refundable_before: balanceCtx.remaining,
         refund_responsibility: balanceCtx.responsibility,
@@ -699,14 +735,78 @@ export async function onRequestPost(context) {
       }
     };
 
-    const refund = await insertRow(context, 'refund_records', payload);
+    let refund;
+    if (attemptRealRefund) {
+      refund = await insertRow(context, 'refund_records', {
+        ...payload,
+        status: 'pending',
+        provider_reference: null,
+        completed_at: null
+      });
+      try {
+        const iyzicoPayment = (balanceCtx.payments || []).find((p) => p.provider === 'iyzico' && p.status === 'paid')
+          || (balanceCtx.payments || []).find((p) => p.provider === 'iyzico');
+        if (!iyzicoPayment) throw new Error('iyzico ödeme kaydı bulunamadı.');
+        const itemTransactions = extractIyzicoItemTransactions(iyzicoPayment.raw_callback_response);
+        if (!itemTransactions.length) {
+          throw new Error('iyzico işlem detayları bulunamadı (itemTransactions eksik). Otomatik refund yapılamadı, lütfen manuel işleyin.');
+        }
+        const { allocations, remainder } = allocateRefundAcrossTransactions(itemTransactions, payload.amount);
+        if (!allocations.length || remainder > 0.01) {
+          throw new Error('İade tutarı iyzico işlem tutarlarıyla tam eşleşmiyor. Otomatik refund yapılamadı, lütfen manuel işleyin.');
+        }
+        const ip = getClientIp(context.request);
+        const providerResponses = [];
+        for (const allocation of allocations) {
+          const response = await refundIyzicoPayment(context.env || {}, {
+            paymentTransactionId: allocation.paymentTransactionId,
+            price: allocation.amount,
+            ip,
+            currency: payload.currency,
+            conversationId: orderId,
+            description: clean(body.note, 200) || null
+          });
+          providerResponses.push({ paymentTransactionId: allocation.paymentTransactionId, amount: allocation.amount, response });
+        }
+        const derivedReference = providerResponses.map((r) => r.paymentTransactionId).join(',');
+        const [updated] = await updateRowsWhere(context, 'refund_records', { id: `eq.${refund.id}` }, {
+          status: 'completed',
+          provider_reference: derivedReference || null,
+          completed_at: new Date().toISOString(),
+          metadata: { ...payload.metadata, provider_response: providerResponses }
+        });
+        refund = updated || { ...refund, status: 'completed', provider_reference: derivedReference || null };
+      } catch (refundError) {
+        const message = String(refundError?.message || 'iyzico refund çağrısı başarısız oldu.').slice(0, 500);
+        const [updated] = await updateRowsWhere(context, 'refund_records', { id: `eq.${refund.id}` }, {
+          status: 'failed',
+          error_message: message,
+          metadata: { ...payload.metadata, provider_error: message }
+        }).catch(() => []);
+        refund = updated || { ...refund, status: 'failed', error_message: message };
+        await insertRow(context, 'order_status_events', {
+          order_id: orderId,
+          status: 'refund_failed',
+          event_type: 'refund_failed',
+          source: 'admin',
+          created_by: 'admin',
+          message: 'iyzico refund çağrısı başarısız oldu.',
+          note: message,
+          metadata: { refund_id: refund?.id || null, return_request_id: payload.return_request_id, amount: payload.amount }
+        }).catch(() => null);
+        return json({ ok: false, error: message, refund, code: 'IYZICO_REFUND_FAILED' }, { status: 502 });
+      }
+    } else {
+      refund = await insertRow(context, 'refund_records', payload);
+    }
+
     await insertRow(context, 'order_status_events', {
       order_id: orderId,
-      status: 'refund_' + status,
-      event_type: 'refund_' + status,
+      status: 'refund_' + refund.status,
+      event_type: 'refund_' + refund.status,
       source: 'admin',
       created_by: 'admin',
-      message: 'İade ödeme kaydı oluşturuldu.',
+      message: attemptRealRefund ? 'İade iyzico üzerinden tamamlandı.' : 'İade ödeme kaydı oluşturuldu.',
       note: payload.metadata.note,
       metadata: {
         refund_id: refund?.id || null,
@@ -719,14 +819,14 @@ export async function onRequestPost(context) {
 
     if (payload.return_request_id) {
       await updateRows(context, 'return_requests', { id: payload.return_request_id }, {
-        refund_status: status === 'completed' ? 'completed' : status === 'failed' ? 'failed' : 'pending',
-        status: status === 'completed' ? 'refunded' : undefined,
+        refund_status: refund.status === 'completed' ? 'completed' : refund.status === 'failed' ? 'failed' : 'pending',
+        status: refund.status === 'completed' ? 'refunded' : undefined,
         updated_at: new Date().toISOString()
       }).catch(() => null);
     }
 
     let email = null;
-    if (status === 'completed') {
+    if (refund.status === 'completed') {
       await reverseOrderPoints(context, orderId, {
         reason: clean(body.note, 200) || 'admin_refund_completed',
         source: 'admin_refund',
@@ -766,7 +866,9 @@ export async function onRequestPost(context) {
         discount_source: balanceCtx.discountSource,
         effective_remaining_before: balanceCtx.effectiveRemaining
       },
-      message: 'Refund kaydı oluşturuldu. Gerçek ödeme sağlayıcı refund işlemi çalıştırılmadı.'
+      message: attemptRealRefund
+        ? 'İade iyzico üzerinden başarıyla tamamlandı.'
+        : (refund.status === 'completed' ? 'Refund kaydı tamamlandı olarak işaretlendi.' : 'Refund kaydı oluşturuldu.')
     });
   } catch (error) {
     return adminError(error, 'Refund kaydı oluşturulamadı.');
