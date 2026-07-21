@@ -15,7 +15,7 @@ export async function onRequestPost(context) {
   try {
     assertCron(context);
     const limit = Math.min(500, Math.max(1, Number(context.env.CRON_BATCH_LIMIT || 100)));
-    const profiles = await selectRows(context, 'profiles', { select: 'id', account_status: 'eq.active', limit: String(limit) });
+    const profiles = await selectRows(context, 'profiles', { select: 'id', limit: String(limit) });
     let recalculated = 0;
     for (const profile of profiles || []) {
       if (!profile.id) continue;
