@@ -1,3 +1,9 @@
+export function getClientIp(request) {
+  return request.headers.get('cf-connecting-ip')
+    || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || '127.0.0.1';
+}
+
 export async function fetchWithTimeout(input, init = {}, timeoutMs = 15000, timeoutMessage = 'Dış servis zaman aşımına uğradı.') {
   const configured = Number(timeoutMs);
   const delay = Number.isFinite(configured) ? Math.max(1000, Math.min(60000, configured)) : 15000;

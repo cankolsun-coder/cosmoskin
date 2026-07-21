@@ -1,5 +1,6 @@
-import { getUserFromAccessToken, insertRow, insertRows, updateRows, selectRows } from './_lib/supabase.js';
+import { getUserFromAccessToken, insertRow, insertRows, updateRows, selectRows, rpc } from './_lib/supabase.js';
 import { iyzicoRequest } from './_lib/iyzico.js';
+import { getClientIp } from './_lib/http.js';
 import { catalog } from './_lib/catalog.js';
 import { buildPricedCatalogIndex, getPayableUnitPriceTry } from './_lib/product-pricing.js';
 import { releaseInventoryReservations, reserveInventoryForOrder, stockValidationCode, validateCartStock } from './_lib/inventory.js';
@@ -293,20 +294,42 @@ async function applyCoupon(context, cart, subtotal, couponCode, customer = {}, u
   };
 }
 
+function isMissingCouponClaimRpc(error) {
+  const msg = String(error?.message || '');
+  return /claim_coupon_redemption/i.test(msg) && /(schema cache|does not exist|could not find)/i.test(msg);
+}
+
+function mapCouponClaimError(error) {
+  const msg = String(error?.message || '');
+  if (isMissingCouponClaimRpc(error)) {
+    return new CheckoutError('Kupon sistemi yapılandırması eksik. Lütfen destek ile iletişime geçin.', 503, 'COUPON_ATOMIC_RPC_MISSING');
+  }
+  if (/kullanım limiti doldu/i.test(msg)) {
+    return new CheckoutError('Bu kupon kullanım limitine ulaştı. Lütfen kuponu kaldırıp tekrar deneyin.', 409, 'COUPON_LIMIT_REACHED');
+  }
+  if (/Kuponun süresi doldu|Kupon henüz başlamadı|Kupon aktif değil|Kupon bulunamadı/i.test(msg)) {
+    return new CheckoutError('Kupon artık geçerli değil. Lütfen kuponu kaldırıp tekrar deneyin.', 409, 'COUPON_NO_LONGER_VALID');
+  }
+  return null;
+}
+
 async function recordCouponUsage(context, { coupon, orderId, user, customer, discount, status = 'reserved', source = 'checkout' }) {
   if (!coupon?.code || !discount) return;
   const now = new Date().toISOString();
-  await insertRow(context, 'coupon_redemptions', {
-    coupon_id: coupon.id || null,
-    order_id: orderId,
-    user_id: user?.id || null,
-    customer_email: String(customer?.email || '').trim().toLowerCase() || null,
-    code: coupon.code,
-    discount_amount: normalizeMoney(discount || 0),
-    status,
-    metadata: { source, payment_status: status === 'reserved' ? 'pending' : 'used' },
-    created_at: now
-  }).catch((error) => console.warn('coupon redemption log failed:', String(error?.message || error).slice(0, 180)));
+  try {
+    await rpc(context, 'claim_coupon_redemption', {
+      p_coupon_code: coupon.code,
+      p_order_id: orderId,
+      p_user_id: user?.id || null,
+      p_customer_email: customer?.email || null,
+      p_discount_amount: normalizeMoney(discount || 0),
+      p_status: status,
+      p_source: source
+    });
+  } catch (error) {
+    const mapped = mapCouponClaimError(error);
+    throw mapped instanceof CheckoutError ? mapped : error;
+  }
   const customerCouponStatus = status === 'used' ? 'used' : 'reserved';
   if (user?.id) {
     await updateRows(context, 'customer_coupons', { user_id: user.id, code: coupon.code }, {
@@ -360,12 +383,6 @@ function createOrderNumber() {
 
 function iyzicoDate(value) {
   return new Date(value || Date.now()).toISOString().slice(0, 19).replace('T', ' ');
-}
-
-function getClientIp(request) {
-  return request.headers.get('cf-connecting-ip')
-    || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || '127.0.0.1';
 }
 
 function getUserAgent(request) {
