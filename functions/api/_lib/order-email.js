@@ -116,6 +116,14 @@ const COPY = {
     subject: 'İade ödemeniz tamamlandı', eyebrow: 'İade Ödemesi', title: 'İade ödemeniz tamamlandı.',
     body: 'İade süreciniz tamamlandı. Tutarın ödeme aracınıza yansıması bankanızın işlem sürelerine bağlıdır.', icon: '✓', tone: 'success', cta: 'Sipariş Detayını Gör'
   },
+  refund_pending: {
+    subject: 'İade işleminiz başlatıldı', eyebrow: 'İade Süreci', title: 'İade işleminiz başlatıldı.',
+    body: 'İade tutarınızın işlenmesi başlatıldı. Tutarın ödeme aracınıza yansıması bankanızın işlem sürelerine bağlıdır.', icon: '↺', tone: 'bank', cta: 'Sipariş Detayını Gör'
+  },
+  refund_failed: {
+    subject: 'İade işleminizde bir gecikme oluştu', eyebrow: 'İade Süreci', title: 'İade işleminizde bir gecikme oluştu.',
+    body: 'İade tutarınızı işlerken bir sorunla karşılaştık. Ekibimiz konuyu inceliyor ve en kısa sürede sizinle iletişime geçecek. Anlayışınız için teşekkür ederiz.', icon: '!', tone: 'warning', cta: 'Sipariş Detayını Gör'
+  },
   invoice_ready: {
     subject: 'Faturanız hazır', eyebrow: 'Fatura Bilgisi', title: 'Faturanız hazır.',
     body: 'Siparişinize ait faturanız oluşturuldu. Faturanızı aşağıdaki bağlantıdan görüntüleyebilir, dilediğiniz zaman hesabınızdan tekrar ulaşabilirsiniz.', icon: '▤', tone: 'neutral', cta: 'Faturanı Görüntüle'
@@ -356,7 +364,7 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
   const deliveredNotice = type === 'shipment_delivered'
     ? 'Hasarlı, eksik veya yanlış ürün bildiriminizi teslimattan itibaren 48 saat içinde fotoğraf/video ile destek@cosmoskin.com.tr üzerinden bize iletebilirsiniz.'
     : '';
-  const refundNotice = type === 'refund_completed'
+  const refundNotice = (type === 'refund_completed' || type === 'refund_pending')
     ? 'İade tutarının hesabınıza veya kartınıza yansıma süresi bankanızın işlem sürelerine göre değişebilir.'
     : '';
   const bodyHtml = `
@@ -368,7 +376,7 @@ export function buildCommerceEmailHtml({ order = {}, type = 'order_created', env
         <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#55504a;line-height:1.75;margin:0 0 10px;text-align:center;">Merhaba ${escapeHtml(customerName(order))},</p>
         <p style="font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#55504a;line-height:1.75;margin:0 auto 12px;text-align:center;max-width:460px;">${escapeHtml(copy.body)}</p>
         ${emailAntiTrimLine(type, order, copy)}
-        ${type === 'refund_completed' ? refundBlock(refund, order, currency) : ''}
+        ${['refund_completed', 'refund_pending', 'refund_failed'].includes(type) ? refundBlock(refund, order, currency) : ''}
         ${type === 'invoice_ready' ? invoiceBlock(invoice, order, currency) : ''}
         ${infoBox('Sipariş Bilgisi', totalRows)}
         ${type === 'bank_transfer_pending' ? bankAccountsBlock(bankAccounts, order) : ''}
@@ -391,7 +399,7 @@ export function buildCommerceText({ order = {}, type = 'order_created', shipment
   const copy = copyFor(type);
   const lines = ['COSMOSKIN', copy.subject, copy.body, `Sipariş No: ${orderNumber(order)}`];
   if (order.total_amount != null) lines.push(`Toplam: ${formatMoney(order.total_amount, order.currency || 'TRY')}`);
-  if (type === 'refund_completed' && refund && Number(refund.amount) > 0) {
+  if (['refund_completed', 'refund_pending', 'refund_failed'].includes(type) && refund && Number(refund.amount) > 0) {
     lines.push(`İade Tutarı: ${formatMoney(refund.amount, refund.currency || order.currency || 'TRY')} (${refundKind(refund, order)})`);
     if (refund.provider_reference) lines.push(`İade Referansı: ${refund.provider_reference}`);
     const method = paymentMethodLabel(order, refund);

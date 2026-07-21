@@ -264,6 +264,70 @@ export async function sendRefundCompletedEmailOnce(context, { order = {}, refund
 }
 
 // ---------------------------------------------------------------------------
+// Refund lifecycle emails (pending / failed) — P1
+// ---------------------------------------------------------------------------
+
+export function refundLifecycleEmailIdempotencyKey(emailType, { refundId = '', returnRequestId = '', orderId = '', customerEmail = '' } = {}) {
+  const scope = returnRequestId ? `return:${returnRequestId}` : (refundId ? `refund:${refundId}` : `order:${orderId}`);
+  return `${emailType}:${scope}:${cleanEmail(customerEmail)}`;
+}
+
+/**
+ * Sends refund_pending or refund_failed exactly once per (refund/return,
+ * email type), using only the email_events claim ledger (same primitives as
+ * maybeSendInvoiceReadyEmail below). Deliberately lighter than
+ * sendRefundCompletedEmailOnce's dual-layer CAS: a missed or duplicate
+ * "we're processing"/"we hit an issue" notice is not the financial-
+ * correctness risk that double-confirming a completed refund would be, so
+ * this never touches refund_records.metadata (and can't collide with the
+ * completed-email stamp there).
+ */
+export async function sendRefundLifecycleEmailOnce(context, { order = {}, refund = null, returnRequestId = '', emailType, source = 'admin_refunds' } = {}) {
+  const customerEmail = cleanEmail(order.customer_email);
+  if (!customerEmail) return { sent: false, skipped: true, reason: 'customer_email_missing' };
+  const linkedReturnId = returnRequestId || refund?.return_request_id || '';
+  const idempotencyKey = refundLifecycleEmailIdempotencyKey(emailType, {
+    refundId: refund?.id || '',
+    returnRequestId: linkedReturnId,
+    orderId: order.id || '',
+    customerEmail
+  });
+  const subject = getCommerceEmailSubject(emailType);
+
+  const claim = await claimEmailEvent(context, {
+    emailType,
+    idempotencyKey,
+    orderId: order.id || null,
+    customerEmail,
+    subject,
+    metadata: { source, refund_id: refund?.id || null, return_request_id: linkedReturnId || null }
+  });
+  if (!claim.claimed) {
+    if (claim.reason === 'duplicate') return { sent: false, skipped: true, reason: 'skipped_duplicate', idempotency_key: idempotencyKey };
+    return { sent: false, error: 'refund_email_claim_unavailable', pending_retry: true, idempotency_key: idempotencyKey };
+  }
+
+  let result;
+  try {
+    result = await sendCommerceTransactionalEmail(context.env, { order, type: emailType, refund: refund || undefined });
+  } catch (error) {
+    result = { sent: false, error: error?.message || 'email_failed' };
+  }
+
+  const settledStatus = result.sent ? 'sent' : (result.skipped ? 'skipped' : 'failed');
+  const settled = await settleEmailEventClaim(context, {
+    eventId: claim.event?.id,
+    status: settledStatus,
+    provider: result.provider || (context.env?.BREVO_API_KEY ? 'brevo' : null),
+    providerMessageId: result.provider_message_id || null,
+    errorMessage: result.reason || result.error || null,
+    metadata: { source, refund_id: refund?.id || null, return_request_id: linkedReturnId || null }
+  });
+  if (!settled) console.error('refund lifecycle email claim settle matched no pending row:', { idempotencyKey, emailType });
+  return { ...result, idempotency_key: idempotencyKey };
+}
+
+// ---------------------------------------------------------------------------
 // Invoice-ready email
 // ---------------------------------------------------------------------------
 

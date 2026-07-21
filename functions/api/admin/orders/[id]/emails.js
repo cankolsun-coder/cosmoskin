@@ -3,7 +3,7 @@ import { assertAdmin, adminError, readJsonBody } from '../../../_lib/admin.js';
 import { requireAdminPermission } from '../../../_lib/admin-audit.js';
 import { resendOrderEmail } from '../../orders.js';
 
-const SAFE_RESEND_TYPES = new Set(['shipment_created', 'shipment_updated', 'shipment_delivered', 'order_created', 'payment_success', 'payment_confirmed_manual', 'bank_transfer_pending', 'bank_transfer_reminder', 'bank_transfer_not_received_cancelled', 'order_preparing', 'order_packed', 'payment_failed']);
+const SAFE_RESEND_TYPES = new Set(['shipment_created', 'shipment_updated', 'shipment_delivered', 'order_created', 'payment_success', 'payment_confirmed_manual', 'bank_transfer_pending', 'bank_transfer_reminder', 'bank_transfer_not_received_cancelled', 'order_preparing', 'order_packed', 'payment_failed', 'order_cancelled']);
 
 export async function onRequestPost(context) {
   try {

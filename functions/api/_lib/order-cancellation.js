@@ -1,6 +1,8 @@
 import { insertRow, selectRows, updateRows } from './supabase.js';
 import { releaseInventoryReservations } from './inventory.js';
 import { cleanString } from './account.js';
+import { sendOrderStatusEmail, getCommerceEmailSubject } from './order-email.js';
+import { recordEmailEvent } from './email-events.js';
 
 export const BLOCKED_ORDER_STATUSES = new Set([
   'shipped', 'delivered', 'cancelled', 'refunded', 'partially_refunded', 'return_requested', 'returned'
@@ -161,6 +163,37 @@ async function releaseCouponRedemptions(context, orderId) {
   }).catch(() => null);
 }
 
+async function sendOrderCancelledEmailSafely(context, order, note = '') {
+  const customerEmail = String(order?.customer_email || '').trim().toLowerCase();
+  if (!customerEmail) return;
+  const subject = getCommerceEmailSubject('order_cancelled');
+  try {
+    const result = await sendOrderStatusEmail(context.env, { order, status: 'cancelled', emailType: 'order_cancelled' });
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: customerEmail,
+      email_type: 'order_cancelled',
+      provider: result.provider || (context.env.BREVO_API_KEY ? 'brevo' : null),
+      status: result.sent ? 'sent' : (result.skipped ? 'skipped' : 'failed'),
+      subject,
+      provider_message_id: result.provider_message_id || null,
+      error_message: result.reason || result.error || null,
+      metadata: { source: 'customer_cancellation', note: note || null }
+    });
+  } catch (error) {
+    await recordEmailEvent(context, {
+      order_id: order.id,
+      customer_email: customerEmail,
+      email_type: 'order_cancelled',
+      provider: context.env.BREVO_API_KEY ? 'brevo' : null,
+      status: 'failed',
+      subject,
+      error_message: String(error?.message || 'order_cancelled_email_failed').slice(0, 500),
+      metadata: { source: 'customer_cancellation' }
+    }).catch(() => null);
+  }
+}
+
 async function failOpenPayments(context, orderId) {
   const rows = await selectRows(context, 'payments', {
     select: 'id,status',
@@ -211,6 +244,8 @@ export async function executeDirectCancel(context, order, { reason = null } = {}
     note: reason || null,
     metadata: { cancelled_by: 'customer', cancel_reason: reason || null }
   });
+
+  await sendOrderCancelledEmailSafely(context, { ...order, status: 'cancelled', cancel_reason: reason || order.cancel_reason || null }, reason);
 
   return {
     ok: true,
