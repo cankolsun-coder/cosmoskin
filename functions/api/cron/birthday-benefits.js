@@ -14,7 +14,7 @@ export async function onRequestPost(context) {
     const month = String(today.getUTCMonth() + 1).padStart(2, '0');
     const day = String(today.getUTCDate()).padStart(2, '0');
     const year = today.getUTCFullYear();
-    const profiles = await selectRows(context, 'profiles', { select: 'id,email,birthday', account_status: 'eq.active', limit: '200' }).catch(() => []);
+    const profiles = await selectRows(context, 'profiles', { select: 'id,email,birthday', limit: '200' }).catch(() => []);
     let issued = 0;
     for (const p of profiles || []) {
       if (!p.birthday || String(p.birthday).slice(5, 10) !== `${month}-${day}`) continue;
