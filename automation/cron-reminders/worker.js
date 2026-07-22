@@ -92,6 +92,12 @@ function inferItemMeta(item = {}) {
   return { category: 'product', display: item.product_name || 'Ürün' };
 }
 
+// P3 #22: consent is read here, live, on every cron tick — `user` is
+// re-fetched from Supabase Auth fresh each run (see runDispatch's
+// listAuthUsers call), never cached from subscribe/registration time. If
+// a customer flips routineEmails/restockEmails/lowStockAlerts off, the
+// very next run (every cron tick) sees that immediately; there is no
+// snapshot of consent taken anywhere earlier that this could drift from.
 function getReminderPrefs(user = {}) {
   const meta = user.user_metadata || {};
   return {
@@ -321,8 +327,9 @@ function authorizeManualRun(request, env) {
 // P0 fix: this worker is the only Cloudflare cron trigger in the project —
 // Pages Functions cannot run scheduled() handlers on their own — so the
 // commerce-critical /api/cron/* endpoints (inventory-reservation release,
-// stuck-payment reconciliation, points expiry, membership recalculation,
-// birthday benefits) must be dispatched from here or they never run at all.
+// stuck-payment reconciliation, bank-transfer reminder emails, points
+// expiry, membership recalculation, birthday benefits) must be dispatched
+// from here or they never run at all.
 async function callPagesCronEndpoint(env, path, { useBearer = true } = {}) {
   const secret = String(env.CRON_SECRET || '');
   if (!secret) return { ok: false, path, error: 'CRON_SECRET yapılandırılmamış.' };
@@ -337,7 +344,7 @@ async function callPagesCronEndpoint(env, path, { useBearer = true } = {}) {
 }
 
 async function runFrequentPagesCronJobs(env) {
-  const paths = ['/api/cron/release-expired-inventory', '/api/cron/reconcile-pending-payments'];
+  const paths = ['/api/cron/release-expired-inventory', '/api/cron/reconcile-pending-payments', '/api/cron/bank-transfer-reminder'];
   const results = [];
   for (const path of paths) results.push(await callPagesCronEndpoint(env, path, { useBearer: true }));
   return results;

@@ -172,6 +172,12 @@ Before production deploy, confirm: `/admin/*` and `/api/admin/*` behind Cloudfla
 - Old migration files — never rewrite; add new migrations on top.
 - Checkout / bank transfer / return attachment persistence — working production paths.
 
+## Product decisions (deliberate, not TODOs)
+
+- **Club points never expire (decided 2026-07-22).** `functions/api/cron/points-expiry.js` is a permanent no-op by design, not an unfinished feature — confirmed with the store owner. The ledger schema (`loyalty_points_ledger.expires_at`, `supabase/migrations/20260704_batch4_loyalty_ledger.sql`) already supports expiry end-to-end (balance RPC excludes expired rows) if this is ever reversed, but no code path sets `expires_at`, so it's always NULL. Do not "finish" this cron without a new explicit decision from the owner.
+- **120 unused-index Supabase advisor findings left untouched (decided 2026-07-22).** Total size across all 120 is ~2.5MB (negligible) and `pg_stat_database.stats_reset` shows only ~61 days of accumulated stats on a project still under active schema/feature development (this session alone added several migrations) — per this repo's own DB1 audit ("do not remove indexes from static inference alone"), bulk-dropping now risks removing an index for a code path that hasn't fired yet, not one that's genuinely dead. Revisit once the store has real, stable production traffic history. The 13 confirmed byte-for-byte *duplicate* indexes were a separate, safe fix and were already dropped (see `20260722_p3_drop_duplicate_indexes.sql`).
+- **DHL API integration status (as of 2026-07-22):** store has a live DHL Express shipping account (account number) but no MyDHL API Developer Portal credentials yet. `functions/api/_lib/shipping-providers.js` (`dhlConfigured`) + `dhl-shipment.js` / `dhl-return-shipment.js` deliberately return `501 DHL_API_NOT_IMPLEMENTED` if DHL env vars are ever set, instead of shipping untested API code — mirrors the iyzico sandbox lesson. System runs on `manual_fallback` (admin enters tracking numbers by hand) until real test credentials from developer.dhl.com are obtained.
+
 ## Batch 1 behavior to preserve
 
 - **WELCOME10:** Shown only without successful paid order; manual entry at checkout only.

@@ -21,6 +21,10 @@
 
 import { json } from '../_lib/response.js';
 import { upsertRow, insertRows } from '../_lib/supabase.js';
+import { getClientIp, isRateLimited } from '../_lib/rate-limit.js';
+
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_MAX_REQUESTS = 5;
 
 const PASSWORD_RULES = [
   { code: 'length', test: (p) => p.length >= 8,                                message: 'Şifre en az 8 karakter olmalı.' },
@@ -62,6 +66,11 @@ export async function onRequestPost(context) {
 
   if (!validateEmail(email)) {
     return json({ ok: false, code: 'invalid_email', error: 'Geçerli bir e-posta adresi girin.' }, { status: 400 });
+  }
+
+  const rateKey = `register:${getClientIp(context)}:${email}`;
+  if (isRateLimited(rateKey, { windowMs: RATE_WINDOW_MS, max: RATE_MAX_REQUESTS })) {
+    return json({ ok: false, code: 'rate_limited', error: 'Çok fazla kayıt denemesi yapıldı. Lütfen biraz sonra tekrar deneyin.' }, { status: 429 });
   }
 
   if (!firstName || !lastName) {
