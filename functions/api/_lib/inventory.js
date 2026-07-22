@@ -344,7 +344,7 @@ function reservationExpiry(minutes = 15) {
 }
 
 function isMissingAtomicInventoryRpc(error) {
-  return /reserve_order_inventory|release_order_inventory|convert_order_inventory|restock_cancelled_order_inventory|schema cache|function .* does not exist|Could not find/i.test(String(error?.message || ''));
+  return /reserve_order_inventory|release_order_inventory|convert_order_inventory|restock_cancelled_order_inventory|release_order_item_inventory|schema cache|function .* does not exist|Could not find/i.test(String(error?.message || ''));
 }
 
 function atomicInventoryError(error, operation) {
@@ -429,6 +429,26 @@ export async function restockCancelledOrderInventory(context, orderId, reason = 
     return result || { restocked_lines: 0, restocked_quantity: 0, idempotent: true };
   } catch (error) {
     throw atomicInventoryError(error, 'restock');
+  }
+}
+
+/**
+ * P1 fix (single-item cancellation): releases/restocks exactly one product
+ * line within an order, whichever state it's in (still-reserved on an
+ * unpaid order, or converted/deducted on a paid one) — see
+ * release_order_item_inventory().
+ */
+export async function releaseOrderItemInventory(context, orderId, productSlug, reason = 'order_item_cancelled') {
+  if (!orderId || !productSlug) return { released_lines: 0, released_quantity: 0, idempotent: true };
+  try {
+    const result = await rpc(context, 'release_order_item_inventory', {
+      p_order_id: orderId,
+      p_product_slug: normalizeSlug(productSlug),
+      p_reason: String(reason || 'order_item_cancelled').slice(0, 120)
+    });
+    return result || { released_lines: 0, released_quantity: 0, idempotent: true };
+  } catch (error) {
+    throw atomicInventoryError(error, 'release_item');
   }
 }
 

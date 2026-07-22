@@ -1463,13 +1463,26 @@
     }
     if (flags.alreadyCancelled || (!flags.canDirectCancel && !flags.canRequestCancel)) return '';
     var mode = flags.canDirectCancel ? 'direct' : 'request';
-    var label = mode === 'direct' ? 'Siparişi iptal et' : 'İptal talebi gönder';
+    var wholeOrderLabel = mode === 'direct' ? 'Siparişi iptal et' : 'İptal talebi gönder';
+    // P1: per-item cancel is only offered once an order-level cancel is
+    // already allowed (same eligibility above) AND more than one active line
+    // remains — cancelling the sole remaining item is just a whole-order
+    // cancel, handled by the button below instead.
+    var activeItems = orderItems(order).filter(function (item) { return !item.cancelled_at; });
+    var itemRows = mode === 'direct' && activeItems.length > 1 ? activeItems.map(function (item) {
+      var qty = Number(item.quantity || item.qty || 1);
+      return '<div class="cs-order-cancel-item">' +
+        '<span>' + escapeHtml(item.product_name || item.name || 'Ürün') + ' · ' + qty + ' adet</span>' +
+        '<button class="cs-mini-btn" type="button" data-cancel-order-item="' + escapeHtml(order.id || '') + '" data-cancel-item-id="' + escapeHtml(item.id || '') + '">Bu ürünü iptal et</button>' +
+      '</div>';
+    }).join('') : '';
     return '<details class="cs-order-cancel-block">' +
       '<summary>Siparişi iptal et</summary>' +
       '<div class="cs-order-cancel-block__body">' +
+        (itemRows ? '<div class="cs-order-cancel-items">' + itemRows + '</div>' : '') +
         '<label class="cs-order-cancel-reason"><span>İptal nedeni (isteğe bağlı)</span>' +
         '<select class="cs-input" data-cancel-reason-for="' + escapeHtml(order.id || '') + '">' + orderCancelReasonOptions() + '</select></label>' +
-        '<button class="cs-mini-btn cs-mini-btn--danger" type="button" data-cancel-order="' + escapeHtml(order.id || '') + '" data-cancel-mode="' + mode + '">' + escapeHtml(label) + '</button>' +
+        '<button class="cs-mini-btn cs-mini-btn--danger" type="button" data-cancel-order="' + escapeHtml(order.id || '') + '" data-cancel-mode="' + mode + '">' + escapeHtml(itemRows ? 'Tüm siparişi iptal et' : wholeOrderLabel) + '</button>' +
       '</div></details>';
   }
 
@@ -2970,6 +2983,7 @@
       var savedRoutineCart = e.target.closest('[data-add-saved-routine-cart]'); if (savedRoutineCart) { e.preventDefault(); addSavedRoutineToCart(savedRoutineCart.dataset.addSavedRoutineCart); }
       var repeat = e.target.closest('[data-repeat-order]'); if (repeat) { repeatOrder(repeat.dataset.repeatOrder); }
       var cancelBtn = e.target.closest('[data-cancel-order]'); if (cancelBtn) { e.preventDefault(); cancelOrder(cancelBtn.dataset.cancelOrder, cancelBtn.dataset.cancelMode).catch(handleError); }
+      var cancelItemBtn = e.target.closest('[data-cancel-order-item]'); if (cancelItemBtn) { e.preventDefault(); cancelOrderItem(cancelItemBtn.dataset.cancelOrderItem, cancelItemBtn.dataset.cancelItemId).catch(handleError); }
       var addAddress = e.target.closest('#addAddressBtn,[data-open-address-modal]'); if (addAddress) { e.preventDefault(); openAddressModal(); }
       var editAddress = e.target.closest('[data-edit-address]'); if (editAddress) { e.preventDefault(); openAddressModal(editAddress.dataset.editAddress); }
       var delAddress = e.target.closest('[data-delete-address]'); if (delAddress) { e.preventDefault(); deleteAddress(delAddress.dataset.deleteAddress).catch(handleError); }
@@ -3102,6 +3116,16 @@
     await loadSummary();
     switchTab(state.activeTab, false);
     showToast(data.message || (mode === 'direct' ? 'Siparişiniz iptal edildi.' : 'İptal talebiniz alındı.'));
+  }
+  async function cancelOrderItem(orderId, orderItemId) {
+    if (!orderId || !orderItemId) return;
+    if (!window.confirm('Bu ürünü siparişinizden iptal etmek istediğinize emin misiniz?')) return;
+    var reasonEl = document.querySelector('[data-cancel-reason-for="' + String(orderId).replace(/"/g, '') + '"]');
+    var reason = reasonEl ? String(reasonEl.value || '').trim() : '';
+    var data = await apiFetch('/account/orders/' + encodeURIComponent(orderId) + '/cancel-item', { method: 'POST', body: { order_item_id: orderItemId, reason: reason || undefined } });
+    await loadSummary();
+    switchTab(state.activeTab, false);
+    showToast(data.message || 'Ürün siparişinizden iptal edildi.');
   }
   function addSavedRoutineToCart(id) { var r = state.summary.routine_results.find(function (item) { return String(item.id || '') === String(id || ''); }); var products = asArray(r?.recommended_products || r?.products || r?.result?.recommended_products || r?.result?.products).map(function (p) { return getProductByHandle(p.product_slug || p.slug || p.id) || normalizeProduct(p); }).filter(Boolean); if (!products.length) return showToast('Bu rutinde sepete eklenebilecek ürün bulunamadı.', 'warning'); products.forEach(addToCart); }
   function copyCoupon(code) { if (!code) return; (navigator.clipboard?.writeText(code) || Promise.reject()).then(function () { showToast('Kupon kodu kopyalandı.'); }).catch(function () { window.prompt('Kupon kodunu kopyalayın:', code); }); }

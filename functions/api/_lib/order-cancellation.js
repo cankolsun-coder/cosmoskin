@@ -1,5 +1,5 @@
 import { insertRow, selectRows, updateRows } from './supabase.js';
-import { releaseInventoryReservations, restockCancelledOrderInventory } from './inventory.js';
+import { releaseInventoryReservations, restockCancelledOrderInventory, releaseOrderItemInventory } from './inventory.js';
 import { cleanString } from './account.js';
 import { sendOrderStatusEmail, getCommerceEmailSubject } from './order-email.js';
 import { recordEmailEvent } from './email-events.js';
@@ -260,6 +260,80 @@ export async function executeDirectCancel(context, order, { reason = null } = {}
     message: wasPaid
       ? 'Siparişiniz iptal edildi. Ödemeniz alınmıştı; iade süreci ekibimiz tarafından kısa süre içinde başlatılacak.'
       : 'Siparişiniz iptal edildi.'
+  };
+}
+
+// P1: cancel a single line item within a multi-item order instead of the
+// whole order. Callers MUST already have validated order-level eligibility
+// via resolveCancelMode()/assertHardBlocks() (same contract as
+// executeDirectCancel's caller in account/orders/[id]/cancel.js) — this
+// function only handles the item-level branching on top of that.
+export async function executeItemCancel(context, order, orderItems, targetItemId, { reason = null } = {}) {
+  const items = Array.isArray(orderItems) ? orderItems : [];
+  const target = items.find((item) => String(item.id) === String(targetItemId));
+  if (!target) {
+    throw new OrderCancellationError('Sipariş kalemi bulunamadı.', 404, 'ORDER_ITEM_NOT_FOUND');
+  }
+  if (target.cancelled_at) {
+    return { ok: true, alreadyCancelled: true, wholeOrderCancelled: false, message: 'Bu ürün zaten iptal edilmiş.' };
+  }
+
+  const activeItems = items.filter((item) => !item.cancelled_at);
+  if (activeItems.length <= 1) {
+    // Cancelling the only remaining active line is just a whole-order cancel.
+    const result = await executeDirectCancel(context, order, { reason });
+    return { ...result, wholeOrderCancelled: true };
+  }
+
+  const now = new Date().toISOString();
+  const wasPaid = String(order.payment_status || '').toLowerCase() === 'paid';
+
+  await releaseOrderItemInventory(
+    context,
+    order.id,
+    target.product_slug,
+    wasPaid ? 'customer_cancelled_item_after_payment' : 'customer_cancelled_item'
+  );
+
+  if (wasPaid) {
+    const itemValue = Number(target.paid_line_total ?? target.line_total ?? 0);
+    await reverseOrderPoints(context, order.id, {
+      reason: reason || 'customer_cancelled_item',
+      source: 'customer',
+      refundAmount: itemValue
+    });
+  }
+
+  await updateRows(context, 'order_items', { id: target.id }, {
+    cancelled_at: now,
+    cancel_reason: reason || null
+  });
+
+  await recordCustomerEvent(context, order.id, {
+    status: order.status || 'updated',
+    event_type: 'cancel_order_item',
+    previous_status: order.status || null,
+    new_status: order.status || null,
+    message: `Müşteri tek bir ürünü iptal etti: ${target.product_name || target.product_slug || target.id}.`,
+    note: reason || null,
+    metadata: {
+      order_item_id: target.id,
+      product_slug: target.product_slug || null,
+      product_name: target.product_name || null,
+      quantity: target.quantity || null,
+      was_paid: wasPaid,
+      refund_pending: wasPaid,
+      refundable_amount: wasPaid ? Number(target.paid_line_total ?? target.line_total ?? 0) : 0
+    }
+  });
+
+  return {
+    ok: true,
+    alreadyCancelled: false,
+    wholeOrderCancelled: false,
+    message: wasPaid
+      ? 'Ürün siparişinizden iptal edildi. Ödenen tutar için iade süreci ekibimiz tarafından kısa süre içinde başlatılacak.'
+      : 'Ürün siparişinizden iptal edildi.'
   };
 }
 
