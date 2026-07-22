@@ -92,6 +92,12 @@ function inferItemMeta(item = {}) {
   return { category: 'product', display: item.product_name || 'Ürün' };
 }
 
+// P3 #22: consent is read here, live, on every cron tick — `user` is
+// re-fetched from Supabase Auth fresh each run (see runDispatch's
+// listAuthUsers call), never cached from subscribe/registration time. If
+// a customer flips routineEmails/restockEmails/lowStockAlerts off, the
+// very next run (every cron tick) sees that immediately; there is no
+// snapshot of consent taken anywhere earlier that this could drift from.
 function getReminderPrefs(user = {}) {
   const meta = user.user_metadata || {};
   return {

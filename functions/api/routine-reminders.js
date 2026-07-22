@@ -117,33 +117,20 @@ export async function onRequestPost(context) {
     }
 
     if (body.action === 'dispatch_due') {
-      const secret = context.request.headers.get('x-reminder-secret') || '';
-      if (!context.env.REMINDER_CRON_SECRET || secret !== context.env.REMINDER_CRON_SECRET) {
-        return json({ ok: false, error: 'Yetkisiz istek.' }, 401);
-      }
-      const senderName = context.env.BREVO_SENDER_NAME || 'COSMOSKIN';
-      let sent = 0;
-      for (const subscriber of body.subscribers) {
-        if (!validateEmail(subscriber.email || '')) continue;
-        const htmlContent = buildReminderEmail({
-          email: subscriber.email,
-          name: subscriber.name,
-          type: subscriber.type,
-          cadenceDays: subscriber.cadenceDays,
-          highlights: subscriber.highlights,
-          nextDate: subscriber.nextDate,
-          env: context.env
-        });
-        await sendBrevoEmail(context.env, {
-          sender: { email: context.env.CONTACT_FROM_EMAIL, name: senderName },
-          to: [{ email: subscriber.email, name: subscriber.name || subscriber.email }],
-          subject: subscriber.type === 'restock' ? 'COSMOSKIN | Yeniden sipariş zamanı yaklaşıyor' : 'COSMOSKIN | Rutin hatırlatman hazır',
-          htmlContent,
-          textContent: 'COSMOSKIN hatırlatman hazır. Hesabına girerek rutinini ve tercihlerini gözden geçirebilirsin.'
-        });
-        sent += 1;
-      }
-      return json({ ok: true, sent });
+      // P3 #22: this branch sent to whatever `subscribers` array the caller
+      // supplied with no opt-in check of its own — it trusted the caller to
+      // have already filtered by live consent. Confirmed via repo-wide
+      // search that nothing calls this endpoint (no fetch, no cron
+      // dispatch, no admin UI reference): automation/cron-reminders/
+      // worker.js's own processUser()/runDispatch() superseded it long ago
+      // with a self-contained implementation that re-reads each user's
+      // routine_reminders preference live from Supabase Auth on every cron
+      // run, immediately before sending — i.e. it already checks consent at
+      // send time, not subscribe time. Disabled rather than "fixed" to
+      // trust a live lookup here, since re-implementing that check for a
+      // caller that doesn't exist would just be a second copy to drift out
+      // of sync with the one in worker.js.
+      return json({ ok: false, error: 'Bu action kaldırıldı. Rutin hatırlatma gönderimleri automation/cron-reminders/worker.js üzerinden yönetilir.' }, 410);
     }
 
     if (!validateEmail(body.email)) {
