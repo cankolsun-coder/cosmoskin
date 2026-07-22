@@ -383,13 +383,18 @@ export async function onRequestPatch(context) {
           const latestOrderForCancel = await loadOrder(context, id);
           await sendAndLogCommerceEmail(context, latestOrderForCancel, 'bank_transfer_not_received_cancelled', body.message || 'Havale/EFT ödemesi alınamadı.');
         }
-      } else if (status === 'cancelled') {
+      } else if (status === 'cancelled' && before.status !== 'cancelled') {
         // Generic admin cancellation (unpaid order) — mark_bank_transfer_not_received
-        // above already sends its own more specific cancellation email.
+        // above already sends its own more specific cancellation email. Gated
+        // on before.status so a repeat PATCH on an already-cancelled order
+        // (double click, retried request) can't re-send the email.
         const latestOrderForCancel = await loadOrder(context, id);
         await sendAndLogStatusEmail(context, latestOrderForCancel, 'cancelled', 'order_cancelled');
       }
-      if (body.action === 'mark_preparing' || body.status === 'preparing' || body.fulfillment_status === 'preparing') {
+      if ((body.action === 'mark_preparing' || body.status === 'preparing' || body.fulfillment_status === 'preparing')
+        && before.status !== 'preparing' && before.fulfillment_status !== 'preparing') {
+        // Gated on before state: re-submitting the same "mark preparing"
+        // action on an order already in preparing is a no-op, not a resend.
         const latestOrderForPreparing = await loadOrder(context, id);
         await sendAndLogStatusEmail(context, latestOrderForPreparing, 'preparing', 'order_preparing');
       }
@@ -427,8 +432,15 @@ export async function onRequestPatch(context) {
         shipped_at: body.shipped_at || new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
-      const existing = await selectRows(context, 'shipments', { select: 'id', order_id: `eq.${id}`, limit: '1' }).catch(() => []);
+      const existing = await selectRows(context, 'shipments', { select: 'id,carrier,carrier_name,tracking_number,status', order_id: `eq.${id}`, limit: '1' }).catch(() => []);
       const emailType = existing?.[0]?.id ? 'shipment_updated' : 'shipment_created';
+      // A repeat submit with identical carrier/tracking/status is not a real
+      // update — don't re-notify the customer of "new" shipping info they
+      // already got, e.g. a double click or retried request.
+      const shipmentUnchanged = Boolean(existing?.[0]?.id)
+        && String(existing[0].carrier_name || existing[0].carrier || '') === String(shipmentPayload.carrier_name || shipmentPayload.carrier || '')
+        && String(existing[0].tracking_number || '') === String(shipmentPayload.tracking_number || '')
+        && String(existing[0].status || '') === String(shipmentPayload.status || '');
       if (existing?.[0]?.id) {
         await updateRows(context, 'shipments', { id: existing[0].id }, shipmentPayload);
         shipment = { id: existing[0].id, order_id: id, ...shipmentPayload };
@@ -447,13 +459,13 @@ export async function onRequestPatch(context) {
         metadata: { shipment_id: shipment?.id || null, carrier: shipmentPayload.carrier_name, tracking_number: shipmentPayload.tracking_number }
       });
       await recordShipmentEvent(context, shipment, { event_type: emailType, status: shipmentPayload.status, note: body.message || 'Kargo bilgisi kaydedildi.', metadata: { carrier: shipmentPayload.carrier_name, tracking_number: shipmentPayload.tracking_number } });
-      const shouldNotify = body.suppress_customer_email === true ? false : body.notify_customer !== false;
+      const shouldNotify = body.suppress_customer_email === true ? false : (body.notify_customer !== false && !shipmentUnchanged);
       if (shouldNotify) {
         const latestOrder = await loadOrder(context, id);
         shipmentEmail = await sendAndLogShipmentEmail(context, latestOrder, shipment, emailType);
         shipmentMessage = shipmentEmail.sent ? 'Kargo bilgisi kaydedildi ve müşteriye e-posta gönderildi.' : (shipmentEmail.skipped ? 'Kargo bilgisi kaydedildi ancak e-posta gönderilemedi.' : 'Kargo bilgisi kaydedildi ancak e-posta gönderilemedi.');
       } else {
-        shipmentEmail = { sent: false, skipped: true, reason: 'admin_suppressed' };
+        shipmentEmail = { sent: false, skipped: true, reason: shipmentUnchanged ? 'no_change' : 'admin_suppressed' };
         await recordEmailEvent(context, {
           order_id: id,
           customer_email: before.customer_email || 'missing@cosmoskin.local',
@@ -461,7 +473,7 @@ export async function onRequestPatch(context) {
           provider: null,
           status: 'skipped',
           subject: shipmentSubject(),
-          error_message: 'admin_suppressed',
+          error_message: shipmentUnchanged ? 'no_change' : 'admin_suppressed',
           metadata: { shipment_id: shipment?.id || null }
         });
         shipmentMessage = 'Kargo bilgisi kaydedildi.';
@@ -469,7 +481,8 @@ export async function onRequestPatch(context) {
     }
 
     let deliveredEmail = null;
-    if ((body.action === 'mark_delivered' || status === 'delivered' || fulfillment === 'delivered') && !shipment) {
+    if ((body.action === 'mark_delivered' || status === 'delivered' || fulfillment === 'delivered') && !shipment
+      && before.status !== 'delivered' && before.fulfillment_status !== 'delivered') {
       const latestShipments = await selectRows(context, 'shipments', { select: '*', order_id: `eq.${id}`, order: 'created_at.desc', limit: '1' }).catch(() => []);
       const latestShipment = latestShipments?.[0] || null;
       if (latestShipment?.id) {
