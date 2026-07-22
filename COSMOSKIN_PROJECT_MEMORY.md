@@ -172,6 +172,11 @@ Before production deploy, confirm: `/admin/*` and `/api/admin/*` behind Cloudfla
 - Old migration files — never rewrite; add new migrations on top.
 - Checkout / bank transfer / return attachment persistence — working production paths.
 
+## Product decisions (deliberate, not TODOs)
+
+- **Club points never expire (decided 2026-07-22).** `functions/api/cron/points-expiry.js` is a permanent no-op by design, not an unfinished feature — confirmed with the store owner. The ledger schema (`loyalty_points_ledger.expires_at`, `supabase/migrations/20260704_batch4_loyalty_ledger.sql`) already supports expiry end-to-end (balance RPC excludes expired rows) if this is ever reversed, but no code path sets `expires_at`, so it's always NULL. Do not "finish" this cron without a new explicit decision from the owner.
+- **DHL API integration status (as of 2026-07-22):** store has a live DHL Express shipping account (account number) but no MyDHL API Developer Portal credentials yet. `functions/api/_lib/shipping-providers.js` (`dhlConfigured`) + `dhl-shipment.js` / `dhl-return-shipment.js` deliberately return `501 DHL_API_NOT_IMPLEMENTED` if DHL env vars are ever set, instead of shipping untested API code — mirrors the iyzico sandbox lesson. System runs on `manual_fallback` (admin enters tracking numbers by hand) until real test credentials from developer.dhl.com are obtained.
+
 ## Batch 1 behavior to preserve
 
 - **WELCOME10:** Shown only without successful paid order; manual entry at checkout only.
