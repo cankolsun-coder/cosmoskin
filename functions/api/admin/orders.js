@@ -398,6 +398,13 @@ export async function onRequestPatch(context) {
         const latestOrderForPreparing = await loadOrder(context, id);
         await sendAndLogStatusEmail(context, latestOrderForPreparing, 'preparing', 'order_preparing');
       }
+      if ((body.action === 'mark_packed' || body.fulfillment_status === 'packed') && before.fulfillment_status !== 'packed') {
+        // Previously only reachable via manual admin resend (emails.js) —
+        // mark_packed had no auto-trigger at all. Gated on before state
+        // the same way mark_preparing is.
+        const latestOrderForPacked = await loadOrder(context, id);
+        await sendAndLogStatusEmail(context, latestOrderForPacked, 'packed', 'order_packed');
+      }
       if (body.action === 'mark_payment_paid' && before.payment_method === 'bank_transfer') {
         // B1: finalize the same commerce side effects a successful card
         // payment gets (payments row, payment_events audit, coupon
