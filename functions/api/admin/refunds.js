@@ -460,7 +460,7 @@ async function loadOrder(context, id) {
 async function loadOrderItems(context, orderId) {
   if (!orderId) return [];
   return await selectRows(context, 'order_items', {
-    select: 'id,order_id,product_id,product_slug,unit_price,quantity,line_total,allocated_order_discount,paid_line_total,paid_unit_price,pricing_snapshot_version',
+    select: 'id,order_id,product_id,product_slug,unit_price,quantity,line_total,allocated_order_discount,paid_line_total,paid_unit_price,pricing_snapshot_version,cancelled_at',
     order_id: `eq.${orderId}`,
     order: 'created_at.asc',
     limit: '100'
@@ -553,6 +553,14 @@ export async function loadRefundBalanceContext(context, order, options = {}) {
     if (!returnItems.length && Array.isArray(returnRequest?.requested_items)) {
       returnItems = returnRequest.requested_items;
     }
+  } else {
+    // P1: a customer's single-item cancellation (order_items.cancelled_at)
+    // feeds the same item-prorated refund cap admins already see for
+    // returns — no synthetic return_request needed for a pre-shipment
+    // cancellation.
+    returnItems = (orderItems || [])
+      .filter((item) => item.cancelled_at)
+      .map((item) => ({ order_item_id: item.id, product_slug: item.product_slug, product_id: item.product_id, quantity: item.quantity }));
   }
 
   const proration = resolveItemProratedRefundableCap(order, orderItems, returnItems, couponRedemptions);

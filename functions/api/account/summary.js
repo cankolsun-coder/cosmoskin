@@ -163,7 +163,7 @@ export async function onRequestGet(context) {
       const inFilter = buildInFilter(ids);
       [orderItems, shipments, events, invoices, returns] = await Promise.all([
         selectRows(context, 'order_items', {
-          select: 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total',
+          select: 'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total,cancelled_at',
           order_id: inFilter,
           order: 'created_at.asc'
         }).catch(() => []),

@@ -1461,6 +1461,12 @@ body > .cs-address-modal--v2,
 .account-page .cs-mini-btn--danger{border-color:rgba(160,48,48,.35);color:#8a2e2e;}
 .account-page .cs-mini-btn--danger:hover{background:rgba(160,48,48,.06);}
 
+/* P1_6 — per-item cancel within a multi-item order */
+.account-page .cs-order-cancel-items{display:grid;gap:8px;}
+.account-page .cs-order-cancel-item{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid rgba(26,21,16,.1);border-radius:8px;background:#fffdf9;}
+.account-page .cs-order-cancel-item span{font-size:13px;color:rgba(26,21,16,.78);min-width:0;overflow-wrap:anywhere;}
+.account-page .cs-order-cancel-item .cs-mini-btn{flex-shrink:0;}
+
 /* UX4 — Account profile/preferences premium redesign + consent-safe UI */
 .account-page .cs-overview-hero-grid--ux4{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(280px,.78fr) minmax(280px,.78fr);gap:18px;margin:0 0 18px;padding:0 18px;align-items:stretch;}
 .account-page .cs-overview-grid--ux4{display:grid;grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(280px,.82fr));gap:18px;padding:0 18px 18px;align-items:stretch;}

@@ -3791,6 +3791,13 @@
     text-transform: none !important;
     letter-spacing: .01em !important;
   }
+  /* P1_6 — per-item rows stack (name above, full-width button below) instead
+     of the desktop side-by-side row, so the 100%-width button rule above
+     never squeezes the product name off-screen. */
+  body.cs-route-account .cs-order-cancel-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
 
   /* Orders panel title polish */
   body.cs-route-account .cs-tab-title--premium .cs-tab-title__copy {
