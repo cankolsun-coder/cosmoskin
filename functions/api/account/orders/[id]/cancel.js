@@ -2,7 +2,6 @@ import { json } from '../../../_lib/response.js';
 import { requireUser } from '../../../_lib/account.js';
 import {
   cleanCancelReason,
-  executeCancelRequest,
   executeDirectCancel,
   loadOwnedOrderBundle,
   OrderCancellationError,
@@ -50,11 +49,6 @@ export async function onRequestPost(context) {
 
     if (resolved.mode === 'direct') {
       const result = await executeDirectCancel(context, order, { reason });
-      return json({ ok: true, ...result });
-    }
-
-    if (resolved.mode === 'request') {
-      const result = await executeCancelRequest(context, order, { reason });
       return json({ ok: true, ...result });
     }
 

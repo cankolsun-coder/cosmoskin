@@ -1,9 +1,10 @@
 import { insertRow, selectRows, updateRows } from './supabase.js';
-import { releaseInventoryReservations } from './inventory.js';
+import { releaseInventoryReservations, restockCancelledOrderInventory } from './inventory.js';
 import { cleanString } from './account.js';
 import { sendOrderStatusEmail, getCommerceEmailSubject } from './order-email.js';
 import { recordEmailEvent } from './email-events.js';
 import { releaseOrderCouponUsage } from './commerce-finalization.js';
+import { reverseOrderPoints } from './loyalty-ledger.js';
 
 export const BLOCKED_ORDER_STATUSES = new Set([
   'shipped', 'delivered', 'cancelled', 'refunded', 'partially_refunded', 'return_requested', 'returned'
@@ -20,8 +21,11 @@ export const DIRECT_CANCEL_ORDER_STATUSES = new Set([
 export const DIRECT_CANCEL_PAYMENT_STATUSES = new Set([
   'pending', 'initiated', 'awaiting_transfer', 'failed', 'authorized'
 ]);
-export const CANCEL_REQUEST_ORDER_STATUSES = new Set(['paid', 'confirmed', 'preparing', 'packed']);
-export const PAID_PAYMENT_STATUSES = new Set(['paid', 'refunded', 'partially_refunded']);
+// P1: paid-but-not-yet-shipped statuses eligible for immediate customer
+// cancellation (payment stays captured; refund is a separate admin step —
+// see executeDirectCancel). Renamed conceptually from the old
+// "cancel request" set now that these cancel directly instead of queuing.
+export const PAID_DIRECT_CANCEL_STATUSES = new Set(['paid', 'confirmed', 'preparing', 'packed']);
 
 const ALLOWED_REASONS = new Set([
   'Vazgeçtim',
@@ -67,7 +71,6 @@ export class OrderCancellationError extends Error {
 export function assertHardBlocks(order = {}, shipments = [], returnRows = []) {
   const status = String(order.status || '').toLowerCase();
   const fulfillment = String(order.fulfillment_status || '').toLowerCase();
-  const payment = String(order.payment_status || '').toLowerCase();
 
   if (BLOCKED_ORDER_STATUSES.has(status)) {
     throw new OrderCancellationError('Bu sipariş durumunda iptal işlemi yapılamaz.', 409);
@@ -81,11 +84,13 @@ export function assertHardBlocks(order = {}, shipments = [], returnRows = []) {
   if (hasActiveReturn(returnRows)) {
     throw new OrderCancellationError('Aktif iade talebi bulunan siparişler için iptal işlemi yapılamaz.', 409);
   }
-  if (payment === 'paid' && order.cancel_requested_at) {
-    throw new OrderCancellationError('Bu sipariş için iptal talebiniz zaten alınmış.', 409);
-  }
 }
 
+// P1: every eligible order now cancels immediately in one step — paid orders
+// included. A paid order keeps payment_status='paid' after cancelling
+// (money was actually captured); the refund itself is a separate,
+// explicit admin action (functions/api/admin/refunds.js), which already
+// calls the real iyzico refund API in one click.
 export function resolveCancelMode(order = {}, shipments = [], returnRows = []) {
   if (isTerminalCancelled(order)) {
     return { mode: 'direct', alreadyCancelled: true };
@@ -96,20 +101,14 @@ export function resolveCancelMode(order = {}, shipments = [], returnRows = []) {
   const status = String(order.status || '').toLowerCase();
   const payment = String(order.payment_status || '').toLowerCase();
 
-  if (payment === 'paid') {
-    if (CANCEL_REQUEST_ORDER_STATUSES.has(status) && !order.cancel_requested_at) {
-      return { mode: 'request', alreadyCancelled: false };
-    }
-    throw new OrderCancellationError('Ödemesi alınmış bu sipariş doğrudan iptal edilemez. İptal talebi için uygun değilse destek ekibiyle iletişime geçin.', 409);
-  }
-
   if (['refunded', 'partially_refunded'].includes(payment)) {
     throw new OrderCancellationError('Bu sipariş durumunda iptal işlemi yapılamaz.', 409);
   }
 
   const directEligible =
     DIRECT_CANCEL_ORDER_STATUSES.has(status)
-    || DIRECT_CANCEL_PAYMENT_STATUSES.has(payment);
+    || DIRECT_CANCEL_PAYMENT_STATUSES.has(payment)
+    || (payment === 'paid' && PAID_DIRECT_CANCEL_STATUSES.has(status));
 
   if (directEligible) {
     return { mode: 'direct', alreadyCancelled: false };
@@ -122,21 +121,18 @@ export function evaluateCancelEligibility(order = {}, shipments = [], returnRows
   try {
     const resolved = resolveCancelMode(order, shipments, returnRows);
     if (resolved.alreadyCancelled) {
-      return { canDirectCancel: false, canRequestCancel: false, alreadyCancelled: true, cancelRequested: Boolean(order.cancel_requested_at) };
+      return { canDirectCancel: false, canRequestCancel: false, alreadyCancelled: true, cancelRequested: false };
     }
     if (resolved.mode === 'direct') {
       return { canDirectCancel: true, canRequestCancel: false, alreadyCancelled: false, cancelRequested: false };
     }
-    if (resolved.mode === 'request') {
-      return { canDirectCancel: false, canRequestCancel: true, alreadyCancelled: false, cancelRequested: false };
-    }
-    return { canDirectCancel: false, canRequestCancel: false, alreadyCancelled: false, cancelRequested: Boolean(order.cancel_requested_at) };
+    return { canDirectCancel: false, canRequestCancel: false, alreadyCancelled: false, cancelRequested: false };
   } catch (_) {
     return {
       canDirectCancel: false,
       canRequestCancel: false,
       alreadyCancelled: isTerminalCancelled(order),
-      cancelRequested: Boolean(order.cancel_requested_at)
+      cancelRequested: false
     };
   }
 }
@@ -213,13 +209,28 @@ export async function executeDirectCancel(context, order, { reason = null } = {}
   }
 
   const now = new Date().toISOString();
-  await releaseInventoryReservations(context, order.id, 'customer_cancelled');
+  const wasPaid = String(order.payment_status || '').toLowerCase() === 'paid';
+
+  if (wasPaid) {
+    // Stock was already converted (permanently deducted) at payment time —
+    // add it back. Payment itself is left alone; it genuinely succeeded and
+    // the money is still with COSMOSKIN, so this is a refund-owed order now,
+    // not a failed payment.
+    await restockCancelledOrderInventory(context, order.id, 'customer_cancelled_after_payment');
+    await reverseOrderPoints(context, order.id, {
+      reason: reason || 'customer_cancelled_paid_order',
+      source: 'customer',
+      ratio: 1
+    });
+  } else {
+    await releaseInventoryReservations(context, order.id, 'customer_cancelled');
+    await failOpenPayments(context, order.id);
+  }
   await releaseOrderCouponUsage(context, order.id, { source: 'customer_cancelled' });
-  await failOpenPayments(context, order.id);
 
   await updateRows(context, 'orders', { id: order.id }, {
     status: 'cancelled',
-    payment_status: 'failed',
+    payment_status: wasPaid ? 'paid' : 'failed',
     fulfillment_status: 'cancelled',
     cancelled_at: order.cancelled_at || now,
     cancelled_by: 'customer',
@@ -233,9 +244,11 @@ export async function executeDirectCancel(context, order, { reason = null } = {}
     event_type: 'cancel_order',
     previous_status: order.status || null,
     new_status: 'cancelled',
-    message: 'Müşteri siparişi iptal etti.',
+    message: wasPaid
+      ? 'Müşteri ödenmiş siparişi iptal etti; refund admin onayı bekliyor.'
+      : 'Müşteri siparişi iptal etti.',
     note: reason || null,
-    metadata: { cancelled_by: 'customer', cancel_reason: reason || null }
+    metadata: { cancelled_by: 'customer', cancel_reason: reason || null, was_paid: wasPaid, refund_pending: wasPaid }
   });
 
   await sendOrderCancelledEmailSafely(context, { ...order, status: 'cancelled', cancel_reason: reason || order.cancel_reason || null }, reason);
@@ -244,43 +257,9 @@ export async function executeDirectCancel(context, order, { reason = null } = {}
     ok: true,
     mode: 'direct',
     alreadyCancelled: false,
-    message: 'Siparişiniz iptal edildi.'
-  };
-}
-
-export async function executeCancelRequest(context, order, { reason = null } = {}) {
-  if (order.cancel_requested_at) {
-    return {
-      ok: true,
-      mode: 'request',
-      alreadyRequested: true,
-      message: 'İptal talebiniz zaten alınmış.'
-    };
-  }
-
-  const now = new Date().toISOString();
-  await updateRows(context, 'orders', { id: order.id }, {
-    cancel_requested_at: now,
-    cancel_request_reason: reason || null,
-    cancellation_status: 'request_pending',
-    updated_at: now
-  });
-
-  await recordCustomerEvent(context, order.id, {
-    status: 'refund_pending',
-    event_type: 'customer_cancel_requested',
-    previous_status: order.status || null,
-    new_status: order.status || null,
-    message: 'Müşteri kargoya verilmeden önce iptal talebi oluşturdu.',
-    note: reason || null,
-    metadata: { cancel_request_reason: reason || null, cancellation_status: 'request_pending' }
-  });
-
-  return {
-    ok: true,
-    mode: 'request',
-    alreadyRequested: false,
-    message: 'İptal talebiniz alındı. Siparişiniz henüz kargoya verilmediği için talebiniz ekibimiz tarafından incelenecek. Ödeme alındıysa ücret iadesi kontrol sonrası başlatılır.'
+    message: wasPaid
+      ? 'Siparişiniz iptal edildi. Ödemeniz alınmıştı; iade süreci ekibimiz tarafından kısa süre içinde başlatılacak.'
+      : 'Siparişiniz iptal edildi.'
   };
 }
 
