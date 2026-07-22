@@ -1440,7 +1440,7 @@
       return { canDirectCancel: false, canRequestCancel: false, cancelRequested: false, alreadyCancelled: false };
     }
     if (payment === 'paid' && ['paid', 'confirmed', 'preparing', 'packed'].includes(status)) {
-      return { canDirectCancel: false, canRequestCancel: true, cancelRequested: false, alreadyCancelled: false };
+      return { canDirectCancel: true, canRequestCancel: false, cancelRequested: false, alreadyCancelled: false };
     }
     if (['paid', 'refunded', 'partially_refunded'].includes(payment)) {
       return { canDirectCancel: false, canRequestCancel: false, cancelRequested: false, alreadyCancelled: false };

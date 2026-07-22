@@ -344,7 +344,7 @@ function reservationExpiry(minutes = 15) {
 }
 
 function isMissingAtomicInventoryRpc(error) {
-  return /reserve_order_inventory|release_order_inventory|convert_order_inventory|schema cache|function .* does not exist|Could not find/i.test(String(error?.message || ''));
+  return /reserve_order_inventory|release_order_inventory|convert_order_inventory|restock_cancelled_order_inventory|schema cache|function .* does not exist|Could not find/i.test(String(error?.message || ''));
 }
 
 function atomicInventoryError(error, operation) {
@@ -406,6 +406,29 @@ export async function convertInventoryReservations(context, orderId) {
     return result || { converted: 0, deducted: 0, idempotent: true };
   } catch (error) {
     throw atomicInventoryError(error, 'convert');
+  }
+}
+
+/**
+ * P1 fix: a paid order's stock was already CONVERTED (permanently deducted
+ * from stock_on_hand) at payment time — release_order_inventory only
+ * releases still-'reserved' rows, so it's a no-op for a paid order and
+ * cancelling one previously left stock permanently short. This is the
+ * reverse of convert_order_inventory: adds the quantity back for that
+ * order's 'converted' reservation rows and marks them 'released'. Never
+ * called for unpaid orders (those still have 'reserved' rows and use
+ * releaseInventoryReservations instead).
+ */
+export async function restockCancelledOrderInventory(context, orderId, reason = 'order_cancelled_after_payment') {
+  if (!orderId) return { restocked_lines: 0, restocked_quantity: 0, idempotent: true };
+  try {
+    const result = await rpc(context, 'restock_cancelled_order_inventory', {
+      p_order_id: orderId,
+      p_reason: String(reason || 'order_cancelled_after_payment').slice(0, 120)
+    });
+    return result || { restocked_lines: 0, restocked_quantity: 0, idempotent: true };
+  } catch (error) {
+    throw atomicInventoryError(error, 'restock');
   }
 }
 
