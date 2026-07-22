@@ -1852,42 +1852,58 @@ button[disabled] { opacity: 0.72; cursor: wait; }
    21. COOKIE BANNER
    ============================================================ */
 .cookie {
+  /* 2026-07-22: blocking, centered consent gate (Sephora/Rhode standard).
+     Full-screen dimmed overlay above header (340) but below the preferences
+     modal (#cookiePreferences.show is raised to 380) so "Detaylı tercihler"
+     still layers correctly. */
   position: fixed;
-  left: 16px; right: 16px;
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-  /* UX3 2026-07-11: below .backdrop (310) and .drawer/.modal (320) so the
-     consent banner never covers an open cart drawer or its CTA. */
-  z-index: 305;
+  inset: 0;
+  z-index: 360;
   display: none;
+  align-items: center;
   justify-content: center;
-  pointer-events: none;
+  padding: 24px;
+  background: rgba(22, 17, 12, .52);
+  -webkit-backdrop-filter: blur(7px) saturate(105%);
+  backdrop-filter: blur(7px) saturate(105%);
+  pointer-events: auto;
 }
 
 .cookie.show {
   display: flex;
-  animation: csCookieIn .48s cubic-bezier(.22, 1, .36, 1);
+  animation: csCookieFade .4s ease both;
+}
+
+@keyframes csCookieFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes csCookieIn {
-  from { opacity: 0; transform: translateY(18px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(22px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .cookie-card {
   pointer-events: auto;
-  width: min(720px, 100%);
-  padding: 20px 22px;
-  border-radius: 28px;
-  background:
-    linear-gradient(145deg, rgba(255,253,250,.98), rgba(248,240,231,.94)),
-    #fffdf9;
+  width: min(500px, 100%);
+  max-height: min(88vh, 720px);
+  overflow-y: auto;
+  padding: 34px 34px 30px;
+  border-radius: 30px;
+  background: linear-gradient(160deg, #fffdfa 0%, #f9f2e9 100%);
   border: 1px solid rgba(42, 32, 22, .10);
-  box-shadow: 0 24px 70px rgba(26, 21, 16, .18);
+  box-shadow: 0 40px 120px rgba(26, 21, 16, .30), 0 2px 8px rgba(26, 21, 16, .08);
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 18px;
   align-items: stretch;
+  text-align: left;
+  animation: csCookieIn .55s cubic-bezier(.22, 1, .36, 1) both;
 }
+
+/* Preferences modal must sit above the consent gate */
+#cookiePreferences.show { z-index: 380; }
 
 .cookie-card .cookie-kicker {
   margin: 0;
@@ -1933,26 +1949,22 @@ button[disabled] { opacity: 0.72; cursor: wait; }
 }
 
 .cookie-actions {
+  /* column-reverse: the primary "Tümünü Kabul Et" (last in DOM) rises to the
+     top for CTA prominence, then "Sadece Zorunlu", then "Tercihleri Yönet". */
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column-reverse;
+  gap: 9px;
+  margin-top: 2px;
 }
 
 .cookie-actions .btn {
-  min-height: 44px;
+  width: 100%;
+  min-height: 48px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: .06em;
+  letter-spacing: .08em;
   text-transform: uppercase;
-}
-
-@media (min-width: 769px) {
-  .cookie-card {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-  }
-  .cookie-actions { justify-content: flex-end; }
 }
 
 .stack {
@@ -2208,8 +2220,11 @@ button[disabled] { opacity: 0.72; cursor: wait; }
   .hero-copy h1 { font-size: 48px; max-width: none; }
   .page-hero h1, .section-head h2, .about-panel h2 { font-size: 40px; }
 
-  .cookie { left: 10px; right: 10px; bottom: 10px; }
-  .cookie-actions { justify-content: flex-start; }
+  .cookie { padding: 16px; z-index: 9000; }
+  /* Above the mobile v1 chrome (bottom-nav 6400 / header 6500 / sheets 7010)
+     so the consent gate truly blocks navigation until a choice is made. */
+  #cookiePreferences.show { z-index: 9020; }
+  .cookie-card { padding: 26px 22px 24px; border-radius: 26px; }
   .drawer { width: 100vw; }
 
   .footer { padding: 28px 12px 36px; }
@@ -8472,6 +8487,19 @@ body.checkout-cart-empty .checkout-empty-state a{display:inline-flex;margin-top:
 .order-detail-page .cs-detail-track{border-radius:999px;min-height:42px;font-weight:800;letter-spacing:.08em;}
 @media(max-width:980px){.order-detail-page .cs-order-detail-shell{max-width:calc(100% - 32px);padding-top:120px}.order-detail-page .cs-order-detail-grid{grid-template-columns:1fr}.order-detail-page .cs-order-detail-aside{grid-template-columns:repeat(2,minmax(0,1fr));}.order-detail-page .cs-order-progress.is-detail{grid-template-columns:repeat(5,minmax(0,1fr));}}
 @media(max-width:720px){.order-detail-page .cs-order-detail-shell{max-width:calc(100% - 24px);padding-top:112px}.order-detail-page .cs-order-detail-hero{display:grid}.order-detail-page .cs-order-progress.is-detail{grid-template-columns:1fr;gap:12px}.order-detail-page .cs-detail-item{grid-template-columns:62px minmax(0,1fr)}.order-detail-page .cs-detail-item b{grid-column:2;text-align:left}.order-detail-page .cs-order-detail-aside{grid-template-columns:1fr}.order-detail-page .cs-detail-summary strong{max-width:66%;}}
+
+/* Cancelled-item + adjusted-total presentation (2026-07-22, issue 4) */
+.cs-detail-item.is-cancelled{background:#f7f0e9;border-color:#e7d7c6}
+.cs-detail-item.is-cancelled .cs-order-thumb{opacity:.55}
+.cs-detail-item.is-cancelled strong{text-decoration:line-through;text-decoration-color:rgba(140,60,48,.45);color:#8f8377}
+.cs-detail-item.is-cancelled b{text-decoration:line-through;color:#a99a89}
+.cs-detail-item__flag{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:999px;background:#fbeae6;color:#a3392c;font-size:10px;font-weight:800;letter-spacing:.10em;text-transform:uppercase}
+.cs-detail-items__note{margin:6px 0 0;font-size:11.5px;line-height:1.55;color:#8a7d72}
+.cs-detail-summary .is-cancelled-row strong{color:#a3392c}
+.cs-detail-summary .is-refund-row strong{color:#2f6f3b}
+.cs-detail-summary .is-total-final{border-top:1px solid #d8c6b0;border-bottom:0;padding-top:13px;margin-top:0}
+.cs-detail-summary .is-total-final span{font-weight:800;color:#18130f}
+.cs-detail-summary .is-total-final strong{font-size:18px;color:#18130f}
 
 
 /* Premium payment logos from brand assets */

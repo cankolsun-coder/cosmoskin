@@ -93,12 +93,21 @@
       return '<div class="cs-order-step ' + (step.done ? 'is-done ' : '') + (step.current ? 'is-current ' : '') + (step.problem ? 'is-problem ' : '') + (step.muted ? 'is-muted' : '') + '"><span></span><strong>' + escapeHtml(step.label) + '</strong><small>' + escapeHtml(formatDate(step.date, true)) + '</small></div>';
     }).join('') + '</div>';
   }
+  function itemCancelled(item) { return !!(item && item.cancelled_at); }
+  function cancelledItemsTotal(order) {
+    return (order.order_items || []).reduce(function (sum, it) {
+      return itemCancelled(it) ? sum + Number(it.paid_line_total != null ? it.paid_line_total : (it.line_total || 0)) : sum;
+    }, 0);
+  }
   function renderItems(order) {
     var items = (order.order_items || []).map(resolveItem);
+    var anyCancelled = items.some(itemCancelled);
     return '<div class="cs-detail-card-head"><span>Ürünler</span><h2>Siparişteki Ürünler</h2></div><div class="cs-detail-items">' + (items.length ? items.map(function (item) {
       var image = item.image ? '<img src="' + escapeHtml(item.image) + '" alt="' + escapeHtml(item.product_name) + '" loading="lazy">' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14v11H5zM8 8a4 4 0 0 1 8 0" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
-      return '<a class="cs-detail-item" href="' + escapeHtml(item.product_url) + '"><span class="cs-order-thumb">' + image + '</span><span><small>' + escapeHtml(item.brand) + '</small><strong>' + escapeHtml(item.product_name) + '</strong><em>Adet: ' + escapeHtml(item.quantity || 1) + ' · Birim: ' + escapeHtml(formatMoney(item.unit_price || 0)) + '</em></span><b>' + escapeHtml(formatMoney(item.line_total || 0)) + '</b></a>';
-    }).join('') : '<p class="account-mini">Ürün detayı bulunamadı.</p>') + '</div>';
+      var cancelled = itemCancelled(item);
+      var flag = cancelled ? '<span class="cs-detail-item__flag">İptal edildi</span>' : '';
+      return '<a class="cs-detail-item' + (cancelled ? ' is-cancelled' : '') + '" href="' + escapeHtml(item.product_url) + '"><span class="cs-order-thumb">' + image + '</span><span><small>' + escapeHtml(item.brand) + '</small><strong>' + escapeHtml(item.product_name) + '</strong><em>Adet: ' + escapeHtml(item.quantity || 1) + ' · Birim: ' + escapeHtml(formatMoney(item.unit_price || 0)) + '</em>' + flag + '</span><b>' + escapeHtml(formatMoney(item.line_total || 0)) + '</b></a>';
+    }).join('') : '<p class="account-mini">Ürün detayı bulunamadı.</p>') + (anyCancelled ? '<p class="cs-detail-items__note">Üzeri çizili ürünler iptal edildi ve güncel tutara dahil değildir.</p>' : '') + '</div>';
   }
   function isCustomerVisibleEvent(event) {
     if (!event) return false;
@@ -152,7 +161,20 @@
   function renderSummary(order) {
     var invoice = (order.invoices || []).find(function (item) { return item && item.pdf_url; });
     var latestReturn = (order.return_requests || [])[0];
-    return '<div class="cs-detail-card-head"><span>Özet</span><h2>Ödeme Kırılımı</h2></div><div class="cs-detail-summary"><div><span>Ara Toplam</span><strong>' + escapeHtml(formatMoney(order.subtotal_amount || 0)) + '</strong></div><div><span>KDV</span><strong>' + escapeHtml(formatMoney(order.vat_amount || 0)) + '</strong></div><div><span>Kargo</span><strong>' + escapeHtml(formatMoney(order.shipping_amount || 0)) + '</strong></div><div><span>İndirim</span><strong>-' + escapeHtml(formatMoney(order.discount_amount || 0)) + '</strong></div><div class="is-total"><span>Toplam</span><strong>' + escapeHtml(formatMoney(order.total_amount || 0)) + '</strong></div><div><span>Ödeme</span><strong>' + escapeHtml(paymentLabels[order.payment_status] || order.payment_status || '—') + '</strong></div>' + (latestReturn ? '<div><span>İade Talebi</span><strong>' + escapeHtml(latestReturn.status || 'requested') + ' / ' + escapeHtml(latestReturn.refund_status || 'not_started') + '</strong></div>' : '') + '</div>' + (invoice ? '<a class="btn btn-primary cs-detail-track" href="' + escapeHtml(invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a>' : '<p class="account-mini">Fatura bağlantısı yalnızca fatura kaydı oluştuğunda gösterilir.</p>');
+    var cancelledTotal = cancelledItemsTotal(order);
+    var originalTotal = Number(order.total_amount || 0);
+    var isPaid = String(order.payment_status || '').toLowerCase() === 'paid' || !!order.paid_at;
+    var extra = '';
+    if (cancelledTotal > 0) {
+      extra += '<div class="is-cancelled-row"><span>İptal Edilen Ürünler</span><strong>-' + escapeHtml(formatMoney(cancelledTotal)) + '</strong></div>';
+      if (isPaid) {
+        extra += '<div class="is-refund-row"><span>İade Edilecek Tutar</span><strong>' + escapeHtml(formatMoney(cancelledTotal)) + '</strong></div>';
+      } else {
+        extra += '<div class="is-total is-total-final"><span>Güncel Ödenecek Tutar</span><strong>' + escapeHtml(formatMoney(Math.max(0, originalTotal - cancelledTotal))) + '</strong></div>';
+      }
+    }
+    var totalLabel = cancelledTotal > 0 ? 'Sipariş Tutarı' : 'Toplam';
+    return '<div class="cs-detail-card-head"><span>Özet</span><h2>Ödeme Kırılımı</h2></div><div class="cs-detail-summary"><div><span>Ara Toplam</span><strong>' + escapeHtml(formatMoney(order.subtotal_amount || 0)) + '</strong></div><div><span>KDV</span><strong>' + escapeHtml(formatMoney(order.vat_amount || 0)) + '</strong></div><div><span>Kargo</span><strong>' + escapeHtml(formatMoney(order.shipping_amount || 0)) + '</strong></div><div><span>İndirim</span><strong>-' + escapeHtml(formatMoney(order.discount_amount || 0)) + '</strong></div><div class="is-total"><span>' + totalLabel + '</span><strong>' + escapeHtml(formatMoney(originalTotal)) + '</strong></div>' + extra + '<div><span>Ödeme</span><strong>' + escapeHtml(paymentLabels[order.payment_status] || order.payment_status || '—') + '</strong></div>' + (latestReturn ? '<div><span>İade Talebi</span><strong>' + escapeHtml(latestReturn.status || 'requested') + ' / ' + escapeHtml(latestReturn.refund_status || 'not_started') + '</strong></div>' : '') + '</div>' + (invoice ? '<a class="btn btn-primary cs-detail-track" href="' + escapeHtml(invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a>' : '<p class="account-mini">Fatura bağlantısı yalnızca fatura kaydı oluştuğunda gösterilir.</p>');
   }
   function renderShipping(order) {
     var shipment = getPrimaryShipment(order);

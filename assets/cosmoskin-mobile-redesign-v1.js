@@ -712,7 +712,7 @@
     if (!node || node.nodeType !== 1) return false;
     if (OVERLAY_IDS[node.id]) return true;
     var cls = node.classList;
-    return cls.contains('modal') || cls.contains('drawer') || cls.contains('backdrop') || cls.contains('mobile-sticky-pdp') || cls.contains('mobile-sticky-checkout');
+    return cls.contains('modal') || cls.contains('drawer') || cls.contains('backdrop') || cls.contains('cookie') || cls.contains('mobile-sticky-pdp') || cls.contains('mobile-sticky-checkout');
   }
   function isShellNode(node){
     if (!node || node.nodeType !== 1) return false;

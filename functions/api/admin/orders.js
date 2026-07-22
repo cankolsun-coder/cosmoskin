@@ -10,7 +10,7 @@ import { awardOrderPoints, promoteOrderPoints, reverseOrderPoints } from '../_li
 import { confirmManualBankTransferPayment, rejectManualBankTransferPayment, releaseOrderCouponUsage } from '../_lib/commerce-finalization.js';
 
 const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
-const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
+const ITEM_SELECT = 'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total,paid_line_total,cancelled_at,cancel_reason';
 const SHIPMENT_SELECT = 'id,order_id,status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at';
 const INVOICE_SELECT = 'id,order_id,invoice_type,invoice_status,invoice_number,provider,provider_reference,pdf_url,issued_at,error_message,created_at,updated_at';
 const RETURN_SELECT = 'id,order_id,customer_email,reason,status,customer_note,admin_note,refund_status,created_at,updated_at';

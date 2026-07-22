@@ -107,7 +107,7 @@ export async function onRequestGet(context) {
     if (ids.length) {
       const inFilter = `in.(${ids.join(',')})`;
       [items, shipments, events, invoices, returns] = await Promise.all([
-        selectRows(context, 'order_items', { select: 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total', order_id: inFilter, order: 'created_at.asc' }).catch(() => []),
+        selectRows(context, 'order_items', { select: 'id,order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total,paid_line_total,cancelled_at,cancel_reason', order_id: inFilter, order: 'created_at.asc' }).catch(() => []),
         selectRows(context, 'shipments', { select: 'order_id,status,carrier,carrier_name,tracking_number,tracking_url,shipped_at,delivered_at,created_at,updated_at', order_id: inFilter, order: 'created_at.desc' }).catch(() => []),
         selectRows(context, 'order_status_events', { select: 'order_id,status,message,source,created_at,event_type,note', order_id: inFilter, order: 'created_at.asc' }).catch(() => []),
         selectRows(context, 'invoice_records', { select: 'id,order_id,invoice_type,invoice_status,invoice_number,provider,pdf_url,issued_at,created_at', order_id: inFilter, order: 'created_at.desc' }).catch(() => []),

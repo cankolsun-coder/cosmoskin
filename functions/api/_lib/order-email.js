@@ -179,6 +179,16 @@ function emailImageForItem(item = {}, product = {}, slug = '', env = {}) {
   if (/beauty-of-joseon.*relief-sun-spf50|beauty-of-joseon-relief-sun-spf50/i.test(rawImage)) {
     return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES['beauty-of-joseon-relief-sun-spf50'], env);
   }
+  // Prefer the pre-flattened, non-transparent email PNG for any catalog product.
+  // The card images are transparent WebP/PNG; email clients (Outlook, some Gmail
+  // paths) can't render WebP and composite transparency onto black — the ivory
+  // -email.png guarantees a clean light frame everywhere. Generated for every
+  // catalog slug under /assets/img/email/products/. Only used when the item maps
+  // to a known catalog product, so the file is guaranteed to exist.
+  const catalogSlug = `${product?.slug || product?.id || ''}`.trim().toLowerCase();
+  if (product && /^[a-z0-9][a-z0-9-]*$/.test(catalogSlug)) {
+    return absoluteUrl(`/assets/img/email/products/${catalogSlug}-email.png`, env);
+  }
   // E4: canonical resolver — absolute HTTPS or the branded fallback, never a
   // relative/localhost URL and never an empty src.
   return resolveEmailProductImage({ ...item, image: rawImage, product }, env);

@@ -669,6 +669,11 @@ body > .cs-address-modal--v2,
 .account-page .header.account-header .brand{display:inline-flex!important;align-items:center!important;gap:22px!important;min-width:0!important;}
 .account-page .header.account-header .brand .brand-logo{display:block!important;width:46px!important;height:46px!important;object-fit:contain!important;flex:0 0 46px!important;}
 .account-page .header.account-header .account-return-btn{width:auto!important;min-width:136px!important;height:42px!important;padding:0 18px!important;border-radius:999px!important;white-space:nowrap!important;line-height:1!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;font-size:11px!important;letter-spacing:.10em!important;font-weight:800!important;}
+/* 2026-07-22 (issue 5): `.account-premium-page a{color:inherit}` was overriding
+   `.btn-primary{color:#fff}`, leaving the dark "Alışverişe Dön" pill with dark
+   (invisible) text. Pin readable contrast on both return buttons explicitly. */
+.account-page .header.account-header .header-tools a.btn.account-return-btn.btn-primary{color:#fffdf9!important;}
+.account-page .header.account-header .header-tools a.btn.account-return-btn.btn-secondary{color:#18130f!important;}
 .account-page .header.account-header .header-tools{flex-wrap:nowrap!important;min-width:max-content!important;}
 .account-page .cs-account-journal-footer{min-height:0!important;}
 .account-page .cs-account-journal-actions > span{min-height:44px;border-radius:12px;padding:0 18px;display:inline-flex;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#fff8ef;font-size:12px;}
@@ -2728,6 +2733,9 @@ body > .cs-address-modal--v2,
 .cs-order-card--v6 .cs-order-card__copy strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font:700 14px/1.3 var(--cs-sans);color:#17130f;}
 .cs-order-card--v6 .cs-order-card__copy small{font:500 12px/1.2 var(--cs-sans);color:#8a7d6f;}
 .cs-order-card--v6 .cs-order-card__price{align-self:start;font:700 15px/1 var(--cs-sans);color:#17130f;font-variant-numeric:tabular-nums;}
+.cs-order-card--v6 .cs-order-card__price--adjusted{display:grid;justify-items:end;gap:2px;line-height:1.15;}
+.cs-order-card--v6 .cs-order-card__price--adjusted s{font-weight:600;font-size:11.5px;color:#a99a89;text-decoration-color:rgba(140,60,48,.5);}
+.cs-order-card--v6 .cs-order-card__meta-cancel b{color:#a3392c;}
 .cs-order-card--v6 .cs-order-card__meta{display:flex;flex-wrap:wrap;gap:22px;padding:16px 22px 0;}
 .cs-order-card--v6 .cs-order-card__meta>span{display:grid;gap:4px;}
 .cs-order-card--v6 .cs-order-card__meta em{font:600 10px/1 var(--cs-sans);font-style:normal;letter-spacing:.08em;text-transform:uppercase;color:#8a7d6f;}

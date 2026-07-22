@@ -565,11 +565,20 @@
   function renderItemsTab(order) {
     var items = itemsOf(order);
     if (!items.length) return emptyDetail('Ürün kaydı yok', 'Bu sipariş için order_items verisi bulunamadı. Layout kırılmadan kontrollü boş durum gösteriliyor.');
+    var lineValue = function (item) { return Number(item.line_total || Number(item.unit_price || 0) * Number(item.quantity || 1)); };
+    var cancelledItems = items.filter(function (item) { return item.cancelled_at; });
+    var cancelledTotal = cancelledItems.reduce(function (s, it) { return s + Number(it.paid_line_total != null ? it.paid_line_total : lineValue(it)); }, 0);
+    var activeTotal = items.filter(function (item) { return !item.cancelled_at; }).reduce(function (s, it) { return s + lineValue(it); }, 0);
+    var summary = cancelledItems.length
+      ? '<div class="cs-items-cancel-summary"><span><em>İptal edilen</em><b>' + cancelledItems.length + ' ürün · -' + escapeHtml(formatMoney(cancelledTotal, order.currency)) + '</b></span><span><em>Aktif ürün toplamı</em><b>' + escapeHtml(formatMoney(activeTotal, order.currency)) + '</b></span></div>'
+      : '';
     return '<section class="cs-detail-card"><h3>Ürünler</h3><div class="cs-items-list">' + items.map(function (item) {
       var img = item.image ? '<img src="' + attr(item.image) + '" alt="" loading="lazy" />' : '<img alt="" />';
       var link = item.product_slug ? '<a class="cs-link-btn" href="/products/' + attr(item.product_slug) + '.html" target="_blank" rel="noopener">Ürün sayfası</a>' : '<span>Ürün linki yok</span>';
-      return '<article class="cs-item-row">' + img + '<div><strong>' + escapeHtml(item.product_name || 'Ürün adı yok') + '</strong><span>' + escapeHtml(item.brand || 'Marka yok') + ' · SKU: ' + escapeHtml(item.sku || '—') + ' · Adet: ' + escapeHtml(item.quantity || 1) + '</span>' + link + '</div><div class="cs-money">' + escapeHtml(formatMoney(item.line_total || Number(item.unit_price || 0) * Number(item.quantity || 1), order.currency)) + '</div></article>';
-    }).join('') + '</div></section>';
+      var cancelled = !!item.cancelled_at;
+      var flag = cancelled ? '<span class="cs-item-cancel-flag">İptal edildi' + (item.cancelled_at ? ' · ' + escapeHtml(formatDate(item.cancelled_at)) : '') + (item.cancel_reason ? ' · ' + escapeHtml(item.cancel_reason) : '') + '</span>' : '';
+      return '<article class="cs-item-row' + (cancelled ? ' is-cancelled' : '') + '">' + img + '<div><strong>' + escapeHtml(item.product_name || 'Ürün adı yok') + flag + '</strong><span>' + escapeHtml(item.brand || 'Marka yok') + ' · SKU: ' + escapeHtml(item.sku || '—') + ' · Adet: ' + escapeHtml(item.quantity || 1) + '</span>' + link + '</div><div class="cs-money">' + escapeHtml(formatMoney(lineValue(item), order.currency)) + '</div></article>';
+    }).join('') + '</div>' + summary + '</section>';
   }
   function renderShipmentTab(order) {
     var shipment = latestShipment(order);

@@ -714,7 +714,7 @@ html,body{max-width:100%;overflow-x:clip}
   scrollbar-color:rgba(26,21,16,.18) transparent;
 }
 #cartDrawer.cart-drawer-premium.cart-drawer--filled .cart-items{
-  min-height:clamp(150px,30dvh,300px) !important;
+  min-height:clamp(96px,18dvh,260px) !important;
 }
 #cartDrawer.cart-drawer-premium.cart-drawer--filled .cart-items:empty::before{
   content:'Sepet ürünleri yükleniyor…';
@@ -875,15 +875,16 @@ html,body{max-width:100%;overflow-x:clip}
 
 /* --- Recommendations: compact premium row, render only when populated --- */
 #cartDrawer .cart-drawer-premium__recs{
-  flex:0 1 auto;
-  min-height:0;
-  overflow-y:auto;
+  flex:0 0 auto;
   margin:10px 0 0;
   padding:12px;
   border-radius:18px;
   background:rgba(255,250,244,.9);
   border:1px solid rgba(26,21,16,.07);
-  overflow:hidden;
+  max-height:clamp(120px,34vh,360px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
   box-shadow:none;
 }
 #cartDrawer .cart-drawer-premium__recs[hidden]{display:none !important;}
