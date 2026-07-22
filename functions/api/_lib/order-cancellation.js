@@ -183,6 +183,43 @@ async function sendOrderCancelledEmailSafely(context, order, note = '') {
   }
 }
 
+// Notifies the customer of the new amount due after a single item is cancelled
+// on an unpaid bank-transfer order (the first bank email carried the old total).
+async function sendItemCancelledEmailSafely(context, emailOrder, activeItems, note = '') {
+  const customerEmail = String(emailOrder?.customer_email || '').trim().toLowerCase();
+  if (!customerEmail) return;
+  const subject = getCommerceEmailSubject('order_item_cancelled');
+  try {
+    const result = await sendOrderStatusEmail(context.env, {
+      order: emailOrder,
+      emailType: 'order_item_cancelled',
+      items: activeItems
+    });
+    await recordEmailEvent(context, {
+      order_id: emailOrder.id,
+      customer_email: customerEmail,
+      email_type: 'order_item_cancelled',
+      provider: result.provider || (context.env.BREVO_API_KEY ? 'brevo' : null),
+      status: result.sent ? 'sent' : (result.skipped ? 'skipped' : 'failed'),
+      subject,
+      provider_message_id: result.provider_message_id || null,
+      error_message: result.reason || result.error || null,
+      metadata: { source: 'customer_item_cancellation', note: note || null }
+    });
+  } catch (error) {
+    await recordEmailEvent(context, {
+      order_id: emailOrder.id,
+      customer_email: customerEmail,
+      email_type: 'order_item_cancelled',
+      provider: context.env.BREVO_API_KEY ? 'brevo' : null,
+      status: 'failed',
+      subject,
+      error_message: String(error?.message || 'order_item_cancelled_email_failed').slice(0, 500),
+      metadata: { source: 'customer_item_cancellation' }
+    }).catch(() => null);
+  }
+}
+
 async function failOpenPayments(context, orderId) {
   const rows = await selectRows(context, 'payments', {
     select: 'id,status',
@@ -360,6 +397,19 @@ export async function executeItemCancel(context, order, orderItems, targetItemId
         total_amount: recomputedTotals.total_amount,
         updated_at: now
       });
+
+      // The first bank-transfer email carried the old total, so tell the
+      // customer the new amount due on bank-transfer / awaiting-payment orders.
+      const paymentMethod = String(order.payment_method || '').toLowerCase();
+      const paymentStatus = String(order.payment_status || '').toLowerCase();
+      const orderStatus = String(order.status || '').toLowerCase();
+      const isBankTransfer = paymentMethod === 'bank_transfer'
+        || paymentStatus === 'awaiting_transfer'
+        || orderStatus === 'pending_bank_transfer';
+      if (isBankTransfer) {
+        const emailOrder = { ...order, ...recomputedTotals, order_items: remainingActive };
+        await sendItemCancelledEmailSafely(context, emailOrder, remainingActive, reason);
+      }
     }
   }
 

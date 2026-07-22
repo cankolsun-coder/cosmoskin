@@ -131,6 +131,10 @@ const COPY = {
   order_cancelled: {
     subject: 'Siparişiniz iptal edildi', eyebrow: 'Sipariş İptali', title: 'Siparişiniz iptal edildi.',
     body: 'Siparişiniz iptal edildi. Ödemeniz alındıysa iade süreci ayrıca bilgilendirilecektir. Dilerseniz ürünleri yeniden sepete ekleyerek yeni sipariş oluşturabilirsiniz.', icon: '×', tone: 'warning', cta: 'Alışverişe Devam Et'
+  },
+  order_item_cancelled: {
+    subject: 'Siparişiniz güncellendi — ödenecek tutar değişti', eyebrow: 'Sipariş Güncellemesi', title: 'Siparişinizden bir ürün iptal edildi.',
+    body: 'Talebiniz üzerine siparişinizden bir ürün iptal edildi. Güncel sipariş özetiniz ve ödenecek tutarınız aşağıdadır. Havale/EFT ödemenizi güncel tutar üzerinden yapabilir, ödeme açıklamasına sipariş numaranızı yazmayı unutmayın.', icon: '↺', tone: 'bank', cta: 'Sipariş Detayını Gör'
   }
 };
 

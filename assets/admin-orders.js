@@ -924,9 +924,18 @@
     var refunds = order.refunds || [];
     var balance = refundBalanceSummary(order);
     var defaultAmount = balance.refundable ? balance.effectiveRemaining : 0;
+    // Informational only (no change to the refundable cap/allocation): when the
+    // customer cancelled item(s) on a PAID order, surface the pending-refund
+    // amount so the operator can refund the right figure.
+    var cancelledItemsPaid = itemsOf(order).filter(function (it) { return it && it.cancelled_at; });
+    var cancelledRefundPending = Math.round(cancelledItemsPaid.reduce(function (s, it) { return s + Math.max(0, Number(it.paid_line_total != null ? it.paid_line_total : (it.line_total || 0))); }, 0) * 100) / 100;
+    var isPaidOrder = String(order.payment_status || '').toLowerCase() === 'paid' || !!order.paid_at;
+    var cancelledRefundHint = (isPaidOrder && cancelledItemsPaid.length && cancelledRefundPending > 0)
+      ? '<div class="cs-warning">Müşteri ' + cancelledItemsPaid.length + ' ürünü iptal etti. İadesi bekleyen tahmini tutar: <strong>' + escapeHtml(formatMoney(cancelledRefundPending, order.currency)) + '</strong>. Refund kaydını bu tutar üzerinden oluşturabilirsiniz.</div>'
+      : '';
     return '<section class="cs-detail-card"><h3>İade / Refund</h3>' + (returns.length ? '<div class="cs-record-list">' + returns.map(renderReturnRecord).join('') + '</div>' : '<p>Bu sipariş için iade talebi bulunmuyor.</p>') + '</section>' +
       '<section class="cs-detail-card"><h3>Refund kayıtları</h3>' + (refunds.length ? '<div class="cs-record-list">' + refunds.map(function (r) { return '<article class="cs-record"><div class="cs-record-head"><strong>' + escapeHtml(formatMoney(r.amount, r.currency || order.currency)) + '</strong>' + renderBadge('refund', r.status || 'pending') + '</div><small>' + escapeHtml(r.provider || 'manual') + ' · Ref: ' + escapeHtml(r.provider_reference || '—') + ' · ' + escapeHtml(formatDate(r.completed_at || r.created_at)) + '</small>' + (r.error_message ? '<div class="cs-error-box">' + escapeHtml(r.error_message) + '</div>' : '') + '</article>'; }).join('') + '</div>' : '<p>Refund kaydı bulunmuyor.</p>') + '</section>' +
-      '<details class="cs-op-form"><summary>Refund kaydı oluştur</summary><form id="refundCreateForm" data-order-id="' + attr(order.id) + '" data-remaining-refundable="' + attr(defaultAmount) + '" data-product-cap="' + attr(balance.productCap) + '" data-shipping-cap="0" data-shipping-included="0" data-currency="' + attr(order.currency || 'TRY') + '"><div class="cs-warning">Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.</div>' + renderRefundBalanceSummary(order) +
+      '<details class="cs-op-form"><summary>Refund kaydı oluştur</summary><form id="refundCreateForm" data-order-id="' + attr(order.id) + '" data-remaining-refundable="' + attr(defaultAmount) + '" data-product-cap="' + attr(balance.productCap) + '" data-shipping-cap="0" data-shipping-included="0" data-currency="' + attr(order.currency || 'TRY') + '"><div class="cs-warning">Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.</div>' + cancelledRefundHint + renderRefundBalanceSummary(order) +
       '<div class="cs-form-grid"><label>İade talebi<select name="return_request_id"><option value="">Seçiniz</option>' + returns.map(function (r) {
         var itemsJson = attr(JSON.stringify(Array.isArray(r.requested_items) ? r.requested_items : []));
         return '<option value="' + attr(r.id) + '" data-return-items="' + itemsJson + '">' + escapeHtml(r.reason || r.id) + '</option>';
