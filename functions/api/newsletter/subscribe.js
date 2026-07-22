@@ -2,11 +2,11 @@ import { insertRow, insertRows, selectRows, updateRows } from '../_lib/supabase.
 import { json } from '../_lib/response.js';
 import { renderNewsletterWelcomeEmail } from '../_lib/newsletter-email.js';
 import { recordCrmEvent } from '../_lib/crm-events.js';
+import { getClientIp, isRateLimited } from '../_lib/rate-limit.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_REQUESTS = 6;
-const rateBucket = new Map();
 
 function normalizeEmail(value = '') {
   return String(value || '').trim().toLowerCase();
@@ -25,23 +25,9 @@ function cleanSource(value = 'footer') {
   return source || 'footer';
 }
 
-function getClientKey(context, email) {
-  const headers = context.request.headers;
-  const ip = headers.get('CF-Connecting-IP') || headers.get('x-forwarded-for') || 'unknown-ip';
-  return `${ip}:${email || 'no-email'}`;
-}
-
 function rateLimit(context, email) {
-  const key = getClientKey(context, email);
-  const now = Date.now();
-  const existing = rateBucket.get(key) || { count: 0, resetAt: now + WINDOW_MS };
-  if (existing.resetAt <= now) {
-    rateBucket.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return false;
-  }
-  existing.count += 1;
-  rateBucket.set(key, existing);
-  return existing.count > MAX_REQUESTS;
+  const key = `newsletter:${getClientIp(context)}:${email || 'no-email'}`;
+  return isRateLimited(key, { windowMs: WINDOW_MS, max: MAX_REQUESTS });
 }
 
 async function sendWelcomeEmail(env, email) {

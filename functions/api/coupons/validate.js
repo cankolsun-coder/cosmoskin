@@ -2,10 +2,13 @@ import { getUserFromAccessToken } from '../_lib/supabase.js';
 import { json } from '../_lib/response.js';
 import { validateCouponEligibility } from '../_lib/coupons.js';
 import { buildPricedCatalogIndex, getPayableUnitPriceTry } from '../_lib/product-pricing.js';
+import { getClientIp, isRateLimited } from '../_lib/rate-limit.js';
 
 
 const COUPON_PREVIEW_FREE_SHIPPING_LIMIT = 2500;
 const COUPON_PREVIEW_STANDARD_SHIPPING = 119;
+const RATE_WINDOW_MS = 5 * 60 * 1000;
+const RATE_MAX_REQUESTS = 30;
 
 function normalizeMoney(value) {
   const number = Number(value || 0);
@@ -88,6 +91,13 @@ function authToken(context, body = {}) {
 
 export async function onRequestPost(context) {
   try {
+    // Keyed by IP alone (not IP+code) so this caps total coupon-code guesses
+    // from one requester, not just repeats of the same code.
+    const rateKey = `coupon_validate:${getClientIp(context)}`;
+    if (isRateLimited(rateKey, { windowMs: RATE_WINDOW_MS, max: RATE_MAX_REQUESTS })) {
+      return json({ ok: false, code: 'rate_limited', error: 'Çok fazla deneme yapıldı. Lütfen biraz sonra tekrar deneyin.' }, { status: 429 });
+    }
+
     const body = await context.request.json().catch(() => ({}));
     const code = String(body.code || body.coupon_code || '').trim().toUpperCase();
     const cart = Array.isArray(body.cart) ? body.cart : [];
