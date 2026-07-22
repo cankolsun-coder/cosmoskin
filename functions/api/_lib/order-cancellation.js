@@ -268,6 +268,40 @@ export async function executeDirectCancel(context, order, { reason = null } = {}
 // via resolveCancelMode()/assertHardBlocks() (same contract as
 // executeDirectCancel's caller in account/orders/[id]/cancel.js) — this
 // function only handles the item-level branching on top of that.
+// Mirrors the KDV-dahil totals math in functions/api/create-checkout.js
+// (VAT_RATE 0.20, FREE_SHIPPING_LIMIT 2500, vat = discountedSubtotal·0.2/1.2).
+// Karar A: the free shipping earned at checkout is preserved — cancelling items
+// never adds a shipping fee, so shipping_amount is carried over unchanged.
+// Karar B: the coupon is not voided — the discount that was allocated to the
+// cancelled line is dropped (via paid_line_total snapshots) and the remaining
+// lines keep their share.
+const CANCEL_VAT_RATE = 0.20;
+function roundMoney(value) { return Math.round((Number(value) || 0) * 100) / 100; }
+export function recomputeActiveOrderTotals(activeItems, order = {}) {
+  const items = Array.isArray(activeItems) ? activeItems : [];
+  const subtotal = roundMoney(items.reduce((sum, it) => sum + Math.max(0, Number(it.line_total) || 0), 0));
+  const hasSnapshots = items.length > 0 && items.every((it) => {
+    const paid = Number(it.paid_line_total);
+    return Number.isFinite(paid) && paid >= 0;
+  });
+  let discount;
+  let discountedSubtotal;
+  if (hasSnapshots) {
+    discountedSubtotal = roundMoney(items.reduce((sum, it) => sum + Math.max(0, Number(it.paid_line_total) || 0), 0));
+    discount = roundMoney(Math.max(0, subtotal - discountedSubtotal));
+  } else {
+    // No per-line snapshots: scale the original order discount proportionally.
+    const origSubtotal = roundMoney(Number(order.subtotal_amount) || 0) || subtotal;
+    const origDiscount = roundMoney(Number(order.discount_amount) || 0);
+    discount = origSubtotal > 0 ? roundMoney(Math.min(subtotal, origDiscount * (subtotal / origSubtotal))) : 0;
+    discountedSubtotal = roundMoney(Math.max(0, subtotal - discount));
+  }
+  const shipping = roundMoney(Number(order.shipping_amount) || 0); // Karar A
+  const vat = roundMoney((discountedSubtotal * CANCEL_VAT_RATE) / (1 + CANCEL_VAT_RATE));
+  const total = roundMoney(Math.max(0, discountedSubtotal + shipping));
+  return { subtotal_amount: subtotal, discount_amount: discount, shipping_amount: shipping, vat_amount: vat, total_amount: total };
+}
+
 export async function executeItemCancel(context, order, orderItems, targetItemId, { reason = null } = {}) {
   const items = Array.isArray(orderItems) ? orderItems : [];
   const target = items.find((item) => String(item.id) === String(targetItemId));
@@ -309,6 +343,26 @@ export async function executeItemCancel(context, order, orderItems, targetItemId
     cancel_reason: reason || null
   });
 
+  // Unpaid orders (bank transfer / awaiting payment): the customer still owes
+  // money, so recompute the amount due from the remaining active lines. Paid
+  // orders keep total_amount as captured — the cancelled line becomes a pending
+  // refund handled by admin/refunds.js instead.
+  let recomputedTotals = null;
+  if (!wasPaid && !order.paid_at) {
+    const remainingActive = activeItems.filter((item) => String(item.id) !== String(target.id));
+    if (remainingActive.length) {
+      recomputedTotals = recomputeActiveOrderTotals(remainingActive, order);
+      await updateRows(context, 'orders', { id: order.id }, {
+        subtotal_amount: recomputedTotals.subtotal_amount,
+        vat_amount: recomputedTotals.vat_amount,
+        shipping_amount: recomputedTotals.shipping_amount,
+        discount_amount: recomputedTotals.discount_amount,
+        total_amount: recomputedTotals.total_amount,
+        updated_at: now
+      });
+    }
+  }
+
   await recordCustomerEvent(context, order.id, {
     status: order.status || 'updated',
     event_type: 'cancel_order_item',
@@ -323,7 +377,9 @@ export async function executeItemCancel(context, order, orderItems, targetItemId
       quantity: target.quantity || null,
       was_paid: wasPaid,
       refund_pending: wasPaid,
-      refundable_amount: wasPaid ? Number(target.paid_line_total ?? target.line_total ?? 0) : 0
+      refundable_amount: wasPaid ? Number(target.paid_line_total ?? target.line_total ?? 0) : 0,
+      previous_order_total: recomputedTotals ? Number(order.total_amount || 0) : null,
+      new_order_total: recomputedTotals ? recomputedTotals.total_amount : null
     }
   });
 
@@ -331,6 +387,7 @@ export async function executeItemCancel(context, order, orderItems, targetItemId
     ok: true,
     alreadyCancelled: false,
     wholeOrderCancelled: false,
+    orderTotal: recomputedTotals ? recomputedTotals.total_amount : null,
     message: wasPaid
       ? 'Ürün siparişinizden iptal edildi. Ödenen tutar için iade süreci ekibimiz tarafından kısa süre içinde başlatılacak.'
       : 'Ürün siparişinizden iptal edildi.'

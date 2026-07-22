@@ -161,19 +161,25 @@
   function renderSummary(order) {
     var invoice = (order.invoices || []).find(function (item) { return item && item.pdf_url; });
     var latestReturn = (order.return_requests || [])[0];
+    var cancelledItems = (order.order_items || []).filter(itemCancelled);
     var cancelledTotal = cancelledItemsTotal(order);
     var originalTotal = Number(order.total_amount || 0);
     var isPaid = String(order.payment_status || '').toLowerCase() === 'paid' || !!order.paid_at;
+    // Unpaid orders have their order.* totals recomputed server-side to the
+    // active items, so the breakdown/total below already reflect the
+    // cancellation — we only surface the cancelled count. Paid orders keep the
+    // captured total and show the pending refund amount.
     var extra = '';
-    if (cancelledTotal > 0) {
-      extra += '<div class="is-cancelled-row"><span>İptal Edilen Ürünler</span><strong>-' + escapeHtml(formatMoney(cancelledTotal)) + '</strong></div>';
+    var totalLabel = 'Toplam';
+    if (cancelledItems.length) {
+      extra += '<div class="is-cancelled-row"><span>İptal Edilen Ürünler</span><strong>' + cancelledItems.length + ' ürün</strong></div>';
       if (isPaid) {
         extra += '<div class="is-refund-row"><span>İade Edilecek Tutar</span><strong>' + escapeHtml(formatMoney(cancelledTotal)) + '</strong></div>';
+        totalLabel = 'Ödenen Tutar';
       } else {
-        extra += '<div class="is-total is-total-final"><span>Güncel Ödenecek Tutar</span><strong>' + escapeHtml(formatMoney(Math.max(0, originalTotal - cancelledTotal))) + '</strong></div>';
+        totalLabel = 'Ödenecek Tutar';
       }
     }
-    var totalLabel = cancelledTotal > 0 ? 'Sipariş Tutarı' : 'Toplam';
     return '<div class="cs-detail-card-head"><span>Özet</span><h2>Ödeme Kırılımı</h2></div><div class="cs-detail-summary"><div><span>Ara Toplam</span><strong>' + escapeHtml(formatMoney(order.subtotal_amount || 0)) + '</strong></div><div><span>KDV</span><strong>' + escapeHtml(formatMoney(order.vat_amount || 0)) + '</strong></div><div><span>Kargo</span><strong>' + escapeHtml(formatMoney(order.shipping_amount || 0)) + '</strong></div><div><span>İndirim</span><strong>-' + escapeHtml(formatMoney(order.discount_amount || 0)) + '</strong></div><div class="is-total"><span>' + totalLabel + '</span><strong>' + escapeHtml(formatMoney(originalTotal)) + '</strong></div>' + extra + '<div><span>Ödeme</span><strong>' + escapeHtml(paymentLabels[order.payment_status] || order.payment_status || '—') + '</strong></div>' + (latestReturn ? '<div><span>İade Talebi</span><strong>' + escapeHtml(latestReturn.status || 'requested') + ' / ' + escapeHtml(latestReturn.refund_status || 'not_started') + '</strong></div>' : '') + '</div>' + (invoice ? '<a class="btn btn-primary cs-detail-track" href="' + escapeHtml(invoice.pdf_url) + '" target="_blank" rel="noopener">Faturayı Görüntüle</a>' : '<p class="account-mini">Fatura bağlantısı yalnızca fatura kaydı oluştuğunda gösterilir.</p>');
   }
   function renderShipping(order) {

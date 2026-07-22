@@ -1512,10 +1512,10 @@
     var cancelBlock = orderCancelControls(order);
     var invoiceLabel = invoiceReady ? 'Hazır' : 'Bekleniyor';
     var cinfo = cancelledItemsInfo(order);
-    var origTotal = Number(order.total_amount || firstItem.line_total || p.price || 0);
-    var priceHtml = (cinfo.count > 0 && !paymentPaid(order))
-      ? '<b class="cs-order-card__price cs-order-card__price--adjusted"><s>' + escapeHtml(formatMoney(origTotal)) + '</s>' + escapeHtml(formatMoney(Math.max(0, origTotal - cinfo.total))) + '</b>'
-      : '<b class="cs-order-card__price">' + escapeHtml(formatMoney(origTotal)) + '</b>';
+    // order.total_amount is the current amount due (server recomputes it to the
+    // active items for unpaid orders), so show it directly; the cancelled count
+    // is surfaced in the meta row below.
+    var priceHtml = '<b class="cs-order-card__price">' + escapeHtml(formatMoney(order.total_amount || firstItem.line_total || p.price || 0)) + '</b>';
     var delay = Number.isFinite(index) ? ' style="--cs-order-i:' + index + '"' : '';
     return '<article class="cs-order-card cs-order-card--v6"' + delay + '>' +
       '<header class="cs-order-card__head">' +
