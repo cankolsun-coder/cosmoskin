@@ -3,6 +3,7 @@ import { releaseInventoryReservations } from './inventory.js';
 import { cleanString } from './account.js';
 import { sendOrderStatusEmail, getCommerceEmailSubject } from './order-email.js';
 import { recordEmailEvent } from './email-events.js';
+import { releaseOrderCouponUsage } from './commerce-finalization.js';
 
 export const BLOCKED_ORDER_STATUSES = new Set([
   'shipped', 'delivered', 'cancelled', 'refunded', 'partially_refunded', 'return_requested', 'returned'
@@ -155,14 +156,6 @@ async function recordCustomerEvent(context, orderId, payload = {}) {
   }).catch(() => null);
 }
 
-async function releaseCouponRedemptions(context, orderId) {
-  await updateRows(context, 'coupon_redemptions', { order_id: orderId }, {
-    status: 'released',
-    metadata: { source: 'customer_cancelled' },
-    updated_at: new Date().toISOString()
-  }).catch(() => null);
-}
-
 async function sendOrderCancelledEmailSafely(context, order, note = '') {
   const customerEmail = String(order?.customer_email || '').trim().toLowerCase();
   if (!customerEmail) return;
@@ -221,7 +214,7 @@ export async function executeDirectCancel(context, order, { reason = null } = {}
 
   const now = new Date().toISOString();
   await releaseInventoryReservations(context, order.id, 'customer_cancelled');
-  await releaseCouponRedemptions(context, order.id);
+  await releaseOrderCouponUsage(context, order.id, { source: 'customer_cancelled' });
   await failOpenPayments(context, order.id);
 
   await updateRows(context, 'orders', { id: order.id }, {

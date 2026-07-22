@@ -128,6 +128,43 @@ export async function finalizeCommerceAfterPayment(context, orderId) {
   await awardOrderPoints(context, orderId);
 }
 
+// P1 fix: releasing coupon_redemptions alone left customer_coupons (WELCOME10,
+// club-points-redeemed coupons, admin-issued coupons, etc.) permanently stuck
+// in 'used'/'reserved' when the order that consumed them got cancelled or
+// rejected — the customer lost the coupon's value with no recovery path.
+// This is the single place that undoes both. Guards on
+// customer_coupons.order_id = orderId so a coupon already re-applied to a
+// different order is never touched.
+export async function releaseOrderCouponUsage(context, orderId, { source = 'order_cancelled' } = {}) {
+  if (!orderId) return;
+  const now = new Date().toISOString();
+  await updateRows(context, 'coupon_redemptions', { order_id: orderId }, {
+    status: 'released',
+    metadata: { source },
+    updated_at: now
+  }).catch((error) => console.error('coupon_redemptions release failed:', { orderId, message: error?.message || String(error) }));
+
+  const orders = await selectRows(context, 'orders', {
+    select: 'coupon_code,user_id,customer_email',
+    id: `eq.${orderId}`,
+    limit: '1'
+  }).catch(() => []);
+  const order = orders?.[0];
+  if (!order?.coupon_code) return;
+
+  const patch = { status: 'available', used_at: null, reserved_at: null, order_id: null, updated_at: now };
+  if (order.user_id) {
+    await updateRows(context, 'customer_coupons', { user_id: order.user_id, code: order.coupon_code, order_id: orderId }, patch).catch((error) => {
+      console.error('customer_coupons release failed:', { orderId, message: error?.message || String(error) });
+    });
+  }
+  if (order.customer_email) {
+    await updateRows(context, 'customer_coupons', { customer_email: String(order.customer_email).toLowerCase(), code: order.coupon_code, order_id: orderId }, patch).catch((error) => {
+      console.error('customer_coupons release failed (email):', { orderId, message: error?.message || String(error) });
+    });
+  }
+}
+
 // ---------------------------------------------------------------------------
 // B1 — manual bank-transfer payment confirmation.
 //
@@ -351,7 +388,9 @@ export async function rejectManualBankTransferPayment(context, orderId, { reject
 
   // Coupon release — same target state (status:'released') the existing
   // rejection path already writes, relocated here with an idempotency
-  // pre-check (only write if a matching row isn't already 'released').
+  // pre-check (only write if a matching row isn't already 'released'). Also
+  // releases the underlying customer_coupons row (see releaseOrderCouponUsage)
+  // so a WELCOME10/club-points coupon isn't stuck 'used' on a rejected order.
   let couponRelease = { released: 0 };
   if (order.coupon_code) {
     const existingRedemptions = await selectRows(context, 'coupon_redemptions', {
@@ -361,11 +400,7 @@ export async function rejectManualBankTransferPayment(context, orderId, { reject
     }).catch(() => []);
     const pendingRelease = (existingRedemptions || []).filter((r) => String(r.status || '') !== 'released');
     if (pendingRelease.length) {
-      await updateRows(context, 'coupon_redemptions', { order_id: orderId }, {
-        status: 'released',
-        metadata: { source: 'admin_bank_transfer_rejection' },
-        updated_at: now
-      }).catch((error) => console.error('bank transfer rejection coupon release failed:', { orderId, message: error?.message || String(error) }));
+      await releaseOrderCouponUsage(context, orderId, { source: 'admin_bank_transfer_rejection' });
       couponRelease = { released: pendingRelease.length };
     }
   }

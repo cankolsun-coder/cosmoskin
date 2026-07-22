@@ -7,7 +7,7 @@ import { recordEmailEvent } from '../_lib/email-events.js';
 import { convertInventoryReservations, releaseInventoryReservations } from '../_lib/inventory.js';
 import { getValidatedBankAccounts } from '../_lib/bank-accounts.js';
 import { awardOrderPoints, promoteOrderPoints, reverseOrderPoints } from '../_lib/loyalty-ledger.js';
-import { confirmManualBankTransferPayment, rejectManualBankTransferPayment } from '../_lib/commerce-finalization.js';
+import { confirmManualBankTransferPayment, rejectManualBankTransferPayment, releaseOrderCouponUsage } from '../_lib/commerce-finalization.js';
 
 const ORDER_SELECT = 'id,order_number,user_id,status,payment_status,fulfillment_status,payment_method,currency,subtotal_amount,vat_amount,shipping_amount,discount_amount,total_amount,customer_email,customer_first_name,customer_last_name,customer_phone,invoice_type,identity_number,billing_first_name,billing_last_name,billing_email,billing_phone,company_title,tax_office,tax_number,corporate_email,is_e_invoice_taxpayer,city,district,postal_code,address_line,billing_address_line,billing_city,billing_district,billing_postal_code,cargo_note,legal_consents,metadata,created_at,updated_at,paid_at,fulfilled_at,delivered_at,cancelled_at';
 const ITEM_SELECT = 'order_id,product_id,product_slug,product_name,brand,sku,image,unit_price,quantity,line_total';
@@ -341,6 +341,7 @@ export async function onRequestPatch(context) {
       // Inventory is finalized before publishing the new order state. Atomic RPCs are idempotent.
       if (status === 'cancelled') {
         await releaseInventoryReservations(context, id, 'admin_cancelled');
+        await releaseOrderCouponUsage(context, id, { source: 'admin_cancelled' });
       } else if (paymentStatus === 'paid') {
         await convertInventoryReservations(context, id);
       }
@@ -376,7 +377,7 @@ export async function onRequestPatch(context) {
           });
         } else {
           await releaseInventoryReservations(context, id, 'bank_transfer_payment_not_received').catch(() => null);
-          await updateRows(context, 'coupon_redemptions', { order_id: id }, { status: 'released', metadata: { source: 'admin_bank_transfer_not_received' } }).catch(() => null);
+          await releaseOrderCouponUsage(context, id, { source: 'admin_bank_transfer_not_received' });
         }
         if (bankTransferRejection?.idempotent !== true && bankTransferRejection?.blocked !== true) {
           const latestOrderForCancel = await loadOrder(context, id);
