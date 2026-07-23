@@ -131,6 +131,10 @@ const COPY = {
   order_cancelled: {
     subject: 'Siparişiniz iptal edildi', eyebrow: 'Sipariş İptali', title: 'Siparişiniz iptal edildi.',
     body: 'Siparişiniz iptal edildi. Ödemeniz alındıysa iade süreci ayrıca bilgilendirilecektir. Dilerseniz ürünleri yeniden sepete ekleyerek yeni sipariş oluşturabilirsiniz.', icon: '×', tone: 'warning', cta: 'Alışverişe Devam Et'
+  },
+  order_item_cancelled: {
+    subject: 'Siparişiniz güncellendi — ödenecek tutar değişti', eyebrow: 'Sipariş Güncellemesi', title: 'Siparişinizden bir ürün iptal edildi.',
+    body: 'Talebiniz üzerine siparişinizden bir ürün iptal edildi. Güncel sipariş özetiniz ve ödenecek tutarınız aşağıdadır. Havale/EFT ödemenizi güncel tutar üzerinden yapabilir, ödeme açıklamasına sipariş numaranızı yazmayı unutmayın.', icon: '↺', tone: 'bank', cta: 'Sipariş Detayını Gör'
   }
 };
 
@@ -178,6 +182,16 @@ function emailImageForItem(item = {}, product = {}, slug = '', env = {}) {
   if (EMAIL_PRODUCT_IMAGE_OVERRIDES[key]) return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES[key], env);
   if (/beauty-of-joseon.*relief-sun-spf50|beauty-of-joseon-relief-sun-spf50/i.test(rawImage)) {
     return absoluteUrl(EMAIL_PRODUCT_IMAGE_OVERRIDES['beauty-of-joseon-relief-sun-spf50'], env);
+  }
+  // Prefer the pre-flattened, non-transparent email PNG for any catalog product.
+  // The card images are transparent WebP/PNG; email clients (Outlook, some Gmail
+  // paths) can't render WebP and composite transparency onto black — the ivory
+  // -email.png guarantees a clean light frame everywhere. Generated for every
+  // catalog slug under /assets/img/email/products/. Only used when the item maps
+  // to a known catalog product, so the file is guaranteed to exist.
+  const catalogSlug = `${product?.slug || product?.id || ''}`.trim().toLowerCase();
+  if (product && /^[a-z0-9][a-z0-9-]*$/.test(catalogSlug)) {
+    return absoluteUrl(`/assets/img/email/products/${catalogSlug}-email.png`, env);
   }
   // E4: canonical resolver — absolute HTTPS or the branded fallback, never a
   // relative/localhost URL and never an empty src.

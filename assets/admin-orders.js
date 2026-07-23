@@ -565,11 +565,20 @@
   function renderItemsTab(order) {
     var items = itemsOf(order);
     if (!items.length) return emptyDetail('Ürün kaydı yok', 'Bu sipariş için order_items verisi bulunamadı. Layout kırılmadan kontrollü boş durum gösteriliyor.');
+    var lineValue = function (item) { return Number(item.line_total || Number(item.unit_price || 0) * Number(item.quantity || 1)); };
+    var cancelledItems = items.filter(function (item) { return item.cancelled_at; });
+    var cancelledTotal = cancelledItems.reduce(function (s, it) { return s + Number(it.paid_line_total != null ? it.paid_line_total : lineValue(it)); }, 0);
+    var activeTotal = items.filter(function (item) { return !item.cancelled_at; }).reduce(function (s, it) { return s + lineValue(it); }, 0);
+    var summary = cancelledItems.length
+      ? '<div class="cs-items-cancel-summary"><span><em>İptal edilen</em><b>' + cancelledItems.length + ' ürün · -' + escapeHtml(formatMoney(cancelledTotal, order.currency)) + '</b></span><span><em>Aktif ürün toplamı</em><b>' + escapeHtml(formatMoney(activeTotal, order.currency)) + '</b></span></div>'
+      : '';
     return '<section class="cs-detail-card"><h3>Ürünler</h3><div class="cs-items-list">' + items.map(function (item) {
       var img = item.image ? '<img src="' + attr(item.image) + '" alt="" loading="lazy" />' : '<img alt="" />';
       var link = item.product_slug ? '<a class="cs-link-btn" href="/products/' + attr(item.product_slug) + '.html" target="_blank" rel="noopener">Ürün sayfası</a>' : '<span>Ürün linki yok</span>';
-      return '<article class="cs-item-row">' + img + '<div><strong>' + escapeHtml(item.product_name || 'Ürün adı yok') + '</strong><span>' + escapeHtml(item.brand || 'Marka yok') + ' · SKU: ' + escapeHtml(item.sku || '—') + ' · Adet: ' + escapeHtml(item.quantity || 1) + '</span>' + link + '</div><div class="cs-money">' + escapeHtml(formatMoney(item.line_total || Number(item.unit_price || 0) * Number(item.quantity || 1), order.currency)) + '</div></article>';
-    }).join('') + '</div></section>';
+      var cancelled = !!item.cancelled_at;
+      var flag = cancelled ? '<span class="cs-item-cancel-flag">İptal edildi' + (item.cancelled_at ? ' · ' + escapeHtml(formatDate(item.cancelled_at)) : '') + (item.cancel_reason ? ' · ' + escapeHtml(item.cancel_reason) : '') + '</span>' : '';
+      return '<article class="cs-item-row' + (cancelled ? ' is-cancelled' : '') + '">' + img + '<div><strong>' + escapeHtml(item.product_name || 'Ürün adı yok') + flag + '</strong><span>' + escapeHtml(item.brand || 'Marka yok') + ' · SKU: ' + escapeHtml(item.sku || '—') + ' · Adet: ' + escapeHtml(item.quantity || 1) + '</span>' + link + '</div><div class="cs-money">' + escapeHtml(formatMoney(lineValue(item), order.currency)) + '</div></article>';
+    }).join('') + '</div>' + summary + '</section>';
   }
   function renderShipmentTab(order) {
     var shipment = latestShipment(order);
@@ -915,9 +924,18 @@
     var refunds = order.refunds || [];
     var balance = refundBalanceSummary(order);
     var defaultAmount = balance.refundable ? balance.effectiveRemaining : 0;
+    // Informational only (no change to the refundable cap/allocation): when the
+    // customer cancelled item(s) on a PAID order, surface the pending-refund
+    // amount so the operator can refund the right figure.
+    var cancelledItemsPaid = itemsOf(order).filter(function (it) { return it && it.cancelled_at; });
+    var cancelledRefundPending = Math.round(cancelledItemsPaid.reduce(function (s, it) { return s + Math.max(0, Number(it.paid_line_total != null ? it.paid_line_total : (it.line_total || 0))); }, 0) * 100) / 100;
+    var isPaidOrder = String(order.payment_status || '').toLowerCase() === 'paid' || !!order.paid_at;
+    var cancelledRefundHint = (isPaidOrder && cancelledItemsPaid.length && cancelledRefundPending > 0)
+      ? '<div class="cs-warning">Müşteri ' + cancelledItemsPaid.length + ' ürünü iptal etti. İadesi bekleyen tahmini tutar: <strong>' + escapeHtml(formatMoney(cancelledRefundPending, order.currency)) + '</strong>. Refund kaydını bu tutar üzerinden oluşturabilirsiniz.</div>'
+      : '';
     return '<section class="cs-detail-card"><h3>İade / Refund</h3>' + (returns.length ? '<div class="cs-record-list">' + returns.map(renderReturnRecord).join('') + '</div>' : '<p>Bu sipariş için iade talebi bulunmuyor.</p>') + '</section>' +
       '<section class="cs-detail-card"><h3>Refund kayıtları</h3>' + (refunds.length ? '<div class="cs-record-list">' + refunds.map(function (r) { return '<article class="cs-record"><div class="cs-record-head"><strong>' + escapeHtml(formatMoney(r.amount, r.currency || order.currency)) + '</strong>' + renderBadge('refund', r.status || 'pending') + '</div><small>' + escapeHtml(r.provider || 'manual') + ' · Ref: ' + escapeHtml(r.provider_reference || '—') + ' · ' + escapeHtml(formatDate(r.completed_at || r.created_at)) + '</small>' + (r.error_message ? '<div class="cs-error-box">' + escapeHtml(r.error_message) + '</div>' : '') + '</article>'; }).join('') + '</div>' : '<p>Refund kaydı bulunmuyor.</p>') + '</section>' +
-      '<details class="cs-op-form"><summary>Refund kaydı oluştur</summary><form id="refundCreateForm" data-order-id="' + attr(order.id) + '" data-remaining-refundable="' + attr(defaultAmount) + '" data-product-cap="' + attr(balance.productCap) + '" data-shipping-cap="0" data-shipping-included="0" data-currency="' + attr(order.currency || 'TRY') + '"><div class="cs-warning">Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.</div>' + renderRefundBalanceSummary(order) +
+      '<details class="cs-op-form"><summary>Refund kaydı oluştur</summary><form id="refundCreateForm" data-order-id="' + attr(order.id) + '" data-remaining-refundable="' + attr(defaultAmount) + '" data-product-cap="' + attr(balance.productCap) + '" data-shipping-cap="0" data-shipping-included="0" data-currency="' + attr(order.currency || 'TRY') + '"><div class="cs-warning">Bu işlem gerçek Iyzico refund API çağrısı yapmaz; yalnızca operasyonel kayıt oluşturur.</div>' + cancelledRefundHint + renderRefundBalanceSummary(order) +
       '<div class="cs-form-grid"><label>İade talebi<select name="return_request_id"><option value="">Seçiniz</option>' + returns.map(function (r) {
         var itemsJson = attr(JSON.stringify(Array.isArray(r.requested_items) ? r.requested_items : []));
         return '<option value="' + attr(r.id) + '" data-return-items="' + itemsJson + '">' + escapeHtml(r.reason || r.id) + '</option>';

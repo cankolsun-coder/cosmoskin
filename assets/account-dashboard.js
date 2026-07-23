@@ -516,6 +516,11 @@
   }
   function orderItems(order) { return asArray(order?.order_items || order?.items); }
   function itemCount(order) { return orderItems(order).reduce(function (sum, item) { return sum + (Number(item.quantity) || 1); }, 0); }
+  function cancelledItemsInfo(order) {
+    var cancelled = orderItems(order).filter(function (it) { return it && it.cancelled_at; });
+    var total = cancelled.reduce(function (s, it) { return s + Number(it.paid_line_total != null ? it.paid_line_total : (it.line_total || 0)); }, 0);
+    return { count: cancelled.length, total: total };
+  }
   function shipment(order) { return order?.latest_shipment || asArray(order?.shipments)[0] || {}; }
   function safeOrderNumber(order) { return String(order?.order_number || order?.id || 'Sipariş numarası yok'); }
   function orderStatusText(order) {
@@ -1506,6 +1511,11 @@
       : '';
     var cancelBlock = orderCancelControls(order);
     var invoiceLabel = invoiceReady ? 'Hazır' : 'Bekleniyor';
+    var cinfo = cancelledItemsInfo(order);
+    // order.total_amount is the current amount due (server recomputes it to the
+    // active items for unpaid orders), so show it directly; the cancelled count
+    // is surfaced in the meta row below.
+    var priceHtml = '<b class="cs-order-card__price">' + escapeHtml(formatMoney(order.total_amount || firstItem.line_total || p.price || 0)) + '</b>';
     var delay = Number.isFinite(index) ? ' style="--cs-order-i:' + index + '"' : '';
     return '<article class="cs-order-card cs-order-card--v6"' + delay + '>' +
       '<header class="cs-order-card__head">' +
@@ -1524,11 +1534,12 @@
           '<strong>' + escapeHtml(p.product_name || firstItem.product_name || 'Ürün bilgisi bekleniyor') + '</strong>' +
           '<small>' + qty + ' adet' + moreLabel + '</small>' +
         '</span>' +
-        '<b class="cs-order-card__price">' + escapeHtml(formatMoney(order.total_amount || firstItem.line_total || p.price || 0)) + '</b>' +
+        priceHtml +
       '</a>' +
       '<div class="cs-order-card__meta" role="list">' +
         '<span role="listitem"><em>Durum</em><b>' + escapeHtml(shipLabel) + '</b></span>' +
         (carrier ? '<span role="listitem"><em>Kargo</em><b>' + escapeHtml(carrier) + '</b></span>' : '') +
+        (cinfo.count > 0 ? '<span role="listitem" class="cs-order-card__meta-cancel"><em>İptal</em><b>' + cinfo.count + ' ürün</b></span>' : '') +
         '<span role="listitem"><em>Fatura</em><b>' + escapeHtml(invoiceLabel) + '</b></span>' +
       '</div>' +
       '<div class="cs-order-card__actions">' +

@@ -52,3 +52,14 @@ a{color:inherit}.is-hidden{display:none!important}
 @media(max-width:1180px){.cs-admin-shell{grid-template-columns:1fr}.cs-admin-sidebar{position:static;height:auto}.cs-sidebar-nav{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible}.cs-admin-main{padding:22px}.cs-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cs-filter-panel{grid-template-columns:repeat(3,minmax(0,1fr))}.cs-admin-topbar{display:grid}.cs-admin-actions{justify-content:flex-start;max-width:none}.cs-detail-drawer{width:min(860px,96vw)}}
 @media(max-width:860px){.cs-sidebar-nav{grid-template-columns:1fr}.cs-filter-panel{grid-template-columns:repeat(2,minmax(0,1fr))}.cs-table-wrap{display:none}.cs-mobile-orders{display:grid}.cs-section-head{display:grid}.cs-detail-tabs{top:98px}.cs-grid-2,.cs-grid-3,.cs-form-grid{grid-template-columns:1fr}.cs-item-row{grid-template-columns:48px 1fr}.cs-item-row .cs-money{grid-column:2}.cs-toolbar-head{grid-template-columns:1fr}.cs-filter-toggle{display:inline-flex;width:max-content}.cs-filter-panel{display:none}.cs-filter-panel.is-open{display:grid}.cs-toolbar-footer{display:grid}.cs-toolbar-buttons{justify-content:flex-start}}
 @media(max-width:540px){.cs-admin-main{padding:14px}.cs-admin-sidebar{padding:18px}.cs-auth-card{padding:24px;border-radius:24px}.cs-summary-grid{grid-template-columns:1fr}.cs-order-card-grid{grid-template-columns:1fr}.cs-detail-drawer{width:100vw}.cs-detail-head{padding:18px}.cs-detail-tabs{top:92px;padding:10px 18px}.cs-detail-body{padding:14px 18px 24px}.cs-detail-title-row{display:grid}.cs-confirm-actions{display:grid}.cs-confirm-actions .cs-btn{width:100%}.cs-toast-stack{right:12px;bottom:12px}.cs-toolbar,.cs-table-card,.cs-tabs-card{padding:14px;border-radius:20px}}
+
+/* Cancelled order items in the admin detail (2026-07-22, issue 4) */
+.cs-item-row.is-cancelled{background:#faf1ea;border-color:#e7d7c6;opacity:.9}
+.cs-item-row.is-cancelled img{opacity:.5}
+.cs-item-row.is-cancelled strong{color:#8f8377}
+.cs-item-row.is-cancelled .cs-money{text-decoration:line-through;color:#a99a89}
+.cs-item-cancel-flag{display:inline-block;margin-left:8px;padding:2px 9px;border-radius:999px;background:#fbeae6;color:#a3392c;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;vertical-align:middle}
+.cs-items-cancel-summary{display:flex;flex-wrap:wrap;gap:10px;margin-top:2px}
+.cs-items-cancel-summary span{flex:1 1 160px;display:grid;gap:4px;border:1px solid var(--line);border-radius:14px;background:var(--panel-2);padding:10px 12px}
+.cs-items-cancel-summary em{font-style:normal;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--muted)}
+.cs-items-cancel-summary b{font-size:14px;color:#17130f}

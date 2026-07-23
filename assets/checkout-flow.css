@@ -1482,13 +1482,11 @@ body.checkout-premium-page {
 .cs-checkout-step[data-step-nav="payment"],
 .cs-checkout-step[data-step-nav="review"] { cursor: pointer; }
 .cs-checkout-step::before { display: none !important; }
-.cs-checkout-step span,
-.cs-checkout-step__dot { width: auto; height: auto; background: transparent; box-shadow: none; }
-.cs-checkout-step strong { color: inherit; font-size: inherit; letter-spacing: inherit; }
+/* Keep the pill-dot design from the base stepper block (lines 164-240): the
+   opaque 28px dot + ivory ring mask the rail so the step number stays readable
+   and the connector never crosses through it. Only the button chrome is flattened. */
 .cs-checkout-step small { display: none; }
 .cs-checkout-step.is-active { background: transparent !important; box-shadow: none !important; }
-.cs-checkout-step.is-active span,
-.cs-checkout-step.is-complete span { background: transparent; }
 .cs-checkout-grid { grid-template-columns: minmax(0, 1fr) minmax(360px, 420px); gap: 34px; }
 .cs-checkout-card,
 .cs-checkout-summary-card,
