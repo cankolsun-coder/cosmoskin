@@ -15,3 +15,9 @@
 node_modules/
 npm-debug.log*
 email-previews/
+.lighthouseci/
+lighthouse-reports/
+repomix-*.xml
+repomix-*.md
+.wrangler/
+**/.wrangler/

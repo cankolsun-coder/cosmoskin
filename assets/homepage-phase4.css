@@ -1786,6 +1786,15 @@
     -webkit-user-drag:none;
   }
 
+  /* The responsive <picture> wrapper around the campaign image must be
+     transparent to layout so the image fills the 2:1 stage exactly as the
+     bare <img> did — no CLS, overlays (foam/CTA) keep their stacking. */
+  #heroSection .home-hero__stage > picture{
+    position:absolute;
+    inset:0;
+    display:block;
+  }
+
   /* Subtle rising foam bubbles over the cloud base — GPU transform
      + opacity only, capped count, disabled for reduced-motion. */
   #heroSection .home-hero__foam{

@@ -1,0 +1,4 @@
+^file://.*/api/
+^https://www\.cosmoskin\.com\.tr/api/
+^https://www\.dhl\.com/tr-tr/home/tracking\.html\?tracking-id=TEST
+^file://.*/%7B%7B%20\.ConfirmationURL%20%7D%7D$
