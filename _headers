@@ -60,3 +60,15 @@
 /supabase-email-template.html
   X-Robots-Tag: noindex, nofollow, noarchive
   Cache-Control: no-store, private, max-age=0
+
+/email-previews/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
+
+/qa/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
+
+/snippets/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
