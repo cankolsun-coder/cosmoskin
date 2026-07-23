@@ -80,8 +80,9 @@ const ROUTE_RULES = [
   [/^email-previews\/.+\.html$/, 'email-preview', 'noindex'],
   [/^qa\/.+\.html$/, 'qa-report', 'noindex'],
   [/^snippets\/.+\.html$/, 'dev-snippet', 'noindex'],
-  [/^journal\.html$/, 'editorial', 'noindex'], // thin/stub — flip to 'index' once real articles ship
-  [/^explore\.html$/, 'editorial-hub', 'noindex'], // thin/stub fallback shell
+  [/^journal\.html$/, 'editorial-hub', 'index'], // now a real index linking to /journal/*.html articles
+  [/^journal\/.+\.html$/, 'editorial-article', 'index'],
+  [/^explore\.html$/, 'editorial-nav', 'noindex'], // thin fallback-style navigation hub, no unique content of its own
   [/^routine\.html$/, 'editorial-tool', 'index'],
   [/^(contact|hakkimizda|cosmoskin-club|odeme-ve-guvenlik)\.html$/, 'about-info', 'index'],
 ];

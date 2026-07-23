@@ -54,8 +54,9 @@ const ROUTE_RULES = [
   [/^email-previews\/.+\.html$/, 'email-preview', 'noindex'],
   [/^qa\/.+\.html$/, 'qa-report', 'noindex'],
   [/^snippets\/.+\.html$/, 'dev-snippet', 'noindex'],
-  [/^journal\.html$/, 'editorial', 'noindex'],
-  [/^explore\.html$/, 'editorial-hub', 'noindex'],
+  [/^journal\.html$/, 'editorial-hub', 'index'],
+  [/^journal\/.+\.html$/, 'editorial-article', 'index'],
+  [/^explore\.html$/, 'editorial-nav', 'noindex'],
   [/^routine\.html$/, 'editorial-tool', 'index'],
   [/^(contact|hakkimizda|cosmoskin-club|odeme-ve-guvenlik)\.html$/, 'about-info', 'index'],
 ];
