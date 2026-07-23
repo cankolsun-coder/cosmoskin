@@ -41,7 +41,15 @@
   X-Robots-Tag: noindex, nofollow, noarchive
   Cache-Control: no-store, private, max-age=0
 
+/cart
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
+
 /checkout.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
+
+/checkout
   X-Robots-Tag: noindex, nofollow, noarchive
   Cache-Control: no-store, private, max-age=0
 
@@ -49,7 +57,15 @@
   X-Robots-Tag: noindex, nofollow, noarchive
   Cache-Control: no-store, private, max-age=0
 
+/favorites
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
+
 /order-tracking.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
+
+/order-tracking
   X-Robots-Tag: noindex, nofollow, noarchive
   Cache-Control: no-store, private, max-age=0
 
@@ -58,6 +74,10 @@
   Cache-Control: no-store, private, max-age=0
 
 /supabase-email-template.html
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: no-store, private, max-age=0
+
+/supabase-email-template
   X-Robots-Tag: noindex, nofollow, noarchive
   Cache-Control: no-store, private, max-age=0
 

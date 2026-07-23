@@ -32,7 +32,8 @@ This is the COSMOSKIN premium Korean skincare e-commerce site. Production domain
 - Any new consumer (account widget, recommendation engine, routine builder) must read via `COSMOSKINSkinProfile.get()` and subscribe via `COSMOSKINSkinProfile.subscribe()`.
 
 ## Routes
-- `/account/routines/` is THE canonical Rutinler page. All legacy aliases (`/routine.html`, `/rutinler.html`, `/collections/routine.html`) redirect once to it with 302 rules.
+- `/routine.html` is THE canonical public Rutinler page (the "Akıllı Rutin" tool/hub) — self-canonical, indexed, in `sitemap.xml`. Legacy aliases (`/rutinler.html`, `/collections/routine.html`, `/akilli-rutin.html`) 302-redirect to it. `assets/cosmoskin-mobile-redesign-v1.js`'s `normalizeRoutineLinks()` actively rewrites any link pointing at those aliases back to `/routine.html`.
+- `/account/routines/` is a separate, private, authenticated, `noindex` dashboard ("Rutinlerim" — a signed-in user's saved routines). It is not the public SEO landing page and legacy aliases do not redirect to it.
 - Sub-views use query strings: `?view=profile|favorites|history|dashboard`. Rendered by `assets/routines.js`.
 - Category dropdown links must point to real `/collections/*.html` files. Don't route categories to routines/account pages.
 - Skin-type / skin-concern dropdowns should prefer dedicated concern pages where they exist: `/collections/hydration.html`, `/collections/sensitivity.html`, `/collections/pore-sebum.html`, `/collections/barrier.html`, `/collections/acne-balance.html`, `/collections/blemish.html`, `/collections/glow.html`.
