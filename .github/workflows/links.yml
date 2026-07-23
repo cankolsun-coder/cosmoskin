@@ -1,0 +1,61 @@
+name: Broken Link Check
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - "**/*.html"
+      - "**/*.md"
+      - ".lycheeignore"
+      - ".github/workflows/links.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.html"
+      - "**/*.md"
+      - ".lycheeignore"
+      - ".github/workflows/links.yml"
+
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    name: Check broken links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Check HTML and Markdown links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          lycheeVersion: v0.24.2
+          args: >-
+            --root-dir "${{ github.workspace }}"
+            --verbose
+            --no-progress
+            './**/*.html'
+            './**/*.md'
+          fail: false
+          failIfEmpty: false
+          format: markdown
+          jobSummary: true
+          output: lychee-report.md
+
+      - name: Save link report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lychee-link-report
+          path: lychee-report.md
+          if-no-files-found: warn
+          retention-days: 14
