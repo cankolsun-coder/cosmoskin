@@ -105,7 +105,7 @@
       load.hidden = false;
       load.innerHTML = '<div class="cs-loading-card is-error cs-account-fatal-card">' +
         '<span class="cs-overline">HESAP BİLGİSİ</span>' +
-        '<strong>' + escapeHtml(title || 'Bilgiler şu anda yüklenemedi.') + '</strong>' +
+        '<strong role="heading" aria-level="1">' + escapeHtml(title || 'Bilgiler şu anda yüklenemedi.') + '</strong>' +
         '<p>' + escapeHtml(message || 'Hesap bilgileri alınırken bir hata oluştu.') + '</p>' +
         (detail ? '<small>' + escapeHtml(detail) + '</small>' : '') +
         '<div class="cs-fatal-actions"><button class="cs-pill-btn cs-pill-btn--dark" onclick="window.location.reload()" type="button">Tekrar Dene</button><a class="cs-pill-btn" href="/index.html">Anasayfaya Dön</a></div>' +
@@ -918,7 +918,11 @@
     }
     var content = $('.cs-account-content');
     if (content) {
+      // Single page-level h1 (visually hidden at every width via inline clip
+      // — no stylesheet dependency). Panel titles are exposed as level-2.
+      // switchTab() keeps this text in sync with the active view.
       content.innerHTML = [
+        '<h1 id="accountPageHeading" style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0">Hesabım</h1>',
         panel('overview','overviewPanel'), panel('orders','ordersPanel'), panel('returns','returnsPanel'), panel('favorites','favoritesPanel'), panel('invoices','invoicesPanel'),
         panel('routines','routinesPanel'), panel('skin-profile','skinPanel'), panel('club','clubPanel'), panel('coupons','couponsPanel'), panel('profile','profilePanel'),
         panel('addresses','addressesPanel'), panel('payments','paymentsPanel'), panel('notifications','notificationsPanel'), panel('security','securityPanel'), panel('support','supportPanel')
@@ -941,9 +945,13 @@
   function panel(tab, id) { return '<section class="cs-panel" data-panel="' + escapeHtml(tab) + '" id="' + escapeHtml(id) + '"></section>'; }
   var PANEL_BACK_SVG = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   function panelChrome(title, lede, actionsHtml) {
+    // Panel titles keep the <h1> tag (multiple stylesheets, incl. the frozen
+    // mobile CSS, bind ".cs-tab-title h1") but are exposed to assistive tech
+    // as level-2 via aria-level; the single page-level h1 lives in
+    // #accountPageHeading (see ensureAccountDom / switchTab).
     return '<div class="cs-tab-title cs-tab-title--premium">' +
       '<button type="button" class="cs-panel-back" data-tab-link="overview" aria-label="Hesabıma dön">' + PANEL_BACK_SVG + '<span>Hesabım</span></button>' +
-      '<div class="cs-tab-title__copy"><span class="cs-overline">HESABIM</span><h1>' + title + '</h1>' +
+      '<div class="cs-tab-title__copy"><span class="cs-overline">HESABIM</span><h1 aria-level="2">' + title + '</h1>' +
       (lede ? '<p>' + lede + '</p>' : '') + '</div>' +
       (actionsHtml ? '<div class="cs-panel-actions">' + actionsHtml + '</div>' : '') +
       '</div>';
@@ -1114,7 +1122,7 @@
       comm.newsletter || comm.newsletter_opt_in ? 'Journal' : null
     ].filter(Boolean);
     el.innerHTML = '<section class="cs-overview-page cs-overview-page--v4">' +
-      '<header class="cs-tab-title cs-tab-title--overview cs-tab-title--home cs-tab-title--desktop-only"><div class="cs-tab-title__copy"><span class="cs-overline">ÜYELİK ALANI</span><h1>' + greeting + '</h1><p>Sipariş, puan, favori ve bakım tercihlerin tek, sakin bir panelde.</p></div></header>' +
+      '<header class="cs-tab-title cs-tab-title--overview cs-tab-title--home cs-tab-title--desktop-only"><div class="cs-tab-title__copy"><span class="cs-overline">ÜYELİK ALANI</span><h1 aria-level="2">' + greeting + '</h1><p>Sipariş, puan, favori ve bakım tercihlerin tek, sakin bir panelde.</p></div></header>' +
       '<div class="cs-stat-grid cs-stat-grid--pulse">' + overviewStatCards() + '</div>' +
       '<div class="cs-overview-hero-grid cs-overview-hero-grid--v3">' + clubMiniCard(l) + skinMiniCard(sp) + '</div>' +
       '<div class="cs-overview-modules cs-overview-modules--v3">' +
@@ -1126,8 +1134,8 @@
       accountPulseModule(user) +
       '<article class="cs-card cs-overview-module cs-overview-module--desktop-only cs-profile-completion-card"><div class="cs-card-head"><span>PROFİL TAMAMLAMA</span><a data-tab-link="profile" href="/account/profile.html?tab=profile">Düzenle</a></div><div class="cs-profile-completion"><div class="cs-profile-completion__ring" style="--cs-completion:' + completion + '%"><strong>' + completion + '%</strong><span>tamamlandı</span></div><div class="cs-profile-completion__copy"><p>' + (user.birthday ? 'Doğum tarihiniz kayıtlı.' : 'Doğum tarihinizi ekleyerek doğum günü avantajlarını açabilirsiniz.') + '</p><small>' + escapeHtml([user.first_name, user.last_name].filter(Boolean).join(' ') || 'Ad soyad bekleniyor') + (user.phone ? ' · ' + escapeHtml(user.phone) : '') + '</small></div></div></article>' +
       '<article class="cs-card cs-overview-module cs-overview-module--desktop-only cs-preferences-preview-card"><div class="cs-card-head"><span>İLETİŞİM TERCİHLERİ</span><a data-tab-link="notifications" href="/account/profile.html?tab=notifications">Yönet</a></div><div class="cs-preferences-preview"><p>' + (prefSummary.length ? 'Aktif: ' + escapeHtml(prefSummary.join(' · ')) : 'Henüz pazarlama veya Journal tercihi seçilmedi.') + '</p><small>Sipariş ve kargo bildirimleri varsayılan olarak açıktır.</small><a class="cs-mini-btn dark" data-tab-link="notifications" href="/account/profile.html?tab=notifications">Tercihleri Düzenle</a></div></article>' +
-      '<article class="cs-card cs-overview-module cs-overview-module--desktop-only"><div class="cs-card-head"><span>HIZLI ERİŞİM</span></div><div class="cs-quick-grid cs-quick-grid--compact">' + quickCards().join('') + '</div></article>' +
-      '<article class="cs-card cs-overview-module cs-overview-module--desktop-only"><div class="cs-card-head"><span>HESAP GÜVENLİĞİ</span><a data-tab-link="security" href="/account/profile.html?tab=security">Ayarlar</a></div><ul class="cs-security-list cs-security-list--compact">' + securityChecklist().slice(0, 3).map(securityRow).join('') + '</ul></article>' +
+      '<article class="cs-card cs-overview-module cs-overview-module--desktop-only cs-overview-module--quick"><div class="cs-card-head"><span>HIZLI ERİŞİM</span></div><div class="cs-quick-grid cs-quick-grid--compact">' + quickCards().join('') + '</div></article>' +
+      '<article class="cs-card cs-overview-module cs-overview-module--desktop-only cs-overview-module--security-summary"><div class="cs-card-head"><span>HESAP GÜVENLİĞİ</span><a data-tab-link="security" href="/account/profile.html?tab=security">Ayarlar</a></div><ul class="cs-security-list cs-security-list--compact">' + securityChecklist().slice(0, 3).map(securityRow).join('') + '</ul></article>' +
       '<nav class="cs-overview-more cs-overview-more--v3" aria-label="Diğer hesap bölümleri">' +
         '<header class="cs-overview-more__head"><span>Hesap yönetimi</span></header>' +
         '<div class="cs-overview-more__list">' + overviewMoreLinks() + '</div>' +
@@ -2036,7 +2044,7 @@
       }
       var cartBtn = stock.sellable
         ? '<button class="cs-skin-slide__cart" type="button" data-add-product-cart="' + escapeHtml(slug) + '" aria-label="Sepete ekle">+</button>'
-        : '<a class="cs-skin-slide__cart cs-skin-slide__cart--link" href="' + escapeHtml(p.url || '/allproducts.html') + '" aria-label="Ürünü incele">→</a>';
+        : '<a class="cs-skin-slide__cart cs-skin-slide__cart--link" href="' + escapeHtml(p.url || '/allproducts.html') + '" aria-label="Ürünü incele"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="16" height="16"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>';
       return '<article class="cs-skin-slide" style="--cs-skin-i:' + i + '">' +
         '<a class="cs-skin-slide__media" href="' + escapeHtml(p.url || '/allproducts.html') + '">' +
           '<img src="' + escapeHtml(p.image || '/assets/logo-mark-beige.png') + '" alt="' + escapeHtml(p.product_name || 'Ürün') + '" loading="lazy">' +
@@ -2746,8 +2754,13 @@
     document.body.dataset.accountTab = tab;
     var app = $('#accountApp');
     if (app) app.dataset.tab = tab;
-    $$('#accountNav [data-tab]').forEach(function (a) { a.classList.toggle('is-active', a.dataset.tab === tab); });
-    $$('#accountHub [data-tab]').forEach(function (a) { a.classList.toggle('is-active', a.dataset.tab === tab); });
+    $$('#accountNav [data-tab]').forEach(function (a) { var on = a.dataset.tab === tab; a.classList.toggle('is-active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    $$('#accountHub [data-tab]').forEach(function (a) { var on = a.dataset.tab === tab; a.classList.toggle('is-active', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    var pageHeading = document.getElementById('accountPageHeading');
+    if (pageHeading) {
+      var navLabel = document.querySelector('#accountNav [data-tab="' + tab + '"] .cs-nav-text');
+      pageHeading.textContent = navLabel && navLabel.textContent ? navLabel.textContent + ' · Hesabım' : 'Hesabım';
+    }
     $$('.cs-panel').forEach(function (p) {
       var active = p.dataset.panel === tab;
       p.classList.toggle('is-active', active);

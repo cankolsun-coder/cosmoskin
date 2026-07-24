@@ -1,0 +1,624 @@
+/* ==========================================================================
+   COSMOSKIN — Account Desktop Redesign (v2)
+   --------------------------------------------------------------------------
+   Presentation-only desktop refinement of the authenticated account workspace.
+   Loaded AFTER every existing account stylesheet on /account/profile.html.
+
+   HARD SCOPE RULE: every rule in this file lives inside @media (min-width:1024px).
+   The committed mobile experience (<=1023px) is frozen and untouched.
+
+   Design system (see project brief Stage 2):
+     workspace max   1200px      sidebar 272px       column gap 32px
+     spacing         4/8/12/16/24/32/40
+     radius          card 18 · well 14 · pill 999
+     surface         page = warm gradient · panel #fffdf8 · well #fbf6ee
+     border          hairline var(--cs-border)
+     shadow          one soft rest shadow · no stacked/heavy shadows
+     type            H1 serif 30px · overline 11px bronze · body 13.5px
+     buttons         primary matte-black · secondary ivory+hairline
+                     tertiary bronze-text · destructive isolated red
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+
+  /* --- account-local tokens (desktop-only; aliased to the existing
+         COSMOSKIN --cs-* tokens from account-premium.css so there is a
+         single source of truth — fallbacks mirror the shipped values) ---- */
+  .account-premium-page {
+    --csd-maxw: 1200px;
+    --csd-side: 272px;
+    --csd-gap: 32px;
+    --csd-ink: var(--cs-text, #17130f);
+    --csd-panel: var(--cs-surface, #fffdf8);
+    --csd-well: var(--cs-surface-soft, #fbf6ee);
+    --csd-line: var(--cs-border, rgba(42, 32, 24, .10));
+    --csd-line-strong: var(--cs-border-strong, rgba(42, 32, 24, .16));
+    --csd-muted: #6f6256;
+    --csd-soft: #8b8177;
+    --csd-bronze: #a97b45; /* between --cs-bronze and --cs-bronze-dark; kept literal to preserve the approved tone */
+    --csd-radius: 18px;
+    --csd-radius-sm: 14px;
+    --csd-shadow: 0 14px 40px rgba(40, 30, 20, .05); /* deliberately softer than --cs-card-shadow */
+    --csd-danger: #a8402f;
+  }
+
+  /* ======================================================================
+     1 · WORKSPACE + LAYOUT
+     ====================================================================== */
+  .account-premium-page .cs-account-layout {
+    max-width: var(--csd-maxw) !important;
+    margin-inline: auto !important;
+    grid-template-columns: var(--csd-side) minmax(0, 1fr) !important;
+    gap: var(--csd-gap) !important;
+    padding-top: 30px !important;
+    padding-bottom: 72px !important;
+    align-items: start !important;
+  }
+
+  .account-premium-page .cs-account-content {
+    display: grid !important;
+    gap: 20px !important;
+    min-width: 0 !important;
+  }
+
+  /* ======================================================================
+     2 · SIDEBAR
+     ====================================================================== */
+  .account-premium-page .cs-account-sidebar {
+    position: sticky !important;
+    top: 96px !important;
+    display: grid !important;
+    gap: 14px !important;
+    align-content: start !important;
+  }
+
+  /* Identity card — calmer, safe truncation */
+  .account-premium-page .cs-profile-card {
+    box-shadow: var(--csd-shadow) !important;
+    border-radius: var(--csd-radius) !important;
+  }
+  .account-premium-page .cs-profile-card #accountName,
+  .account-premium-page .cs-profile-card #accountEmail {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .account-premium-page .cs-profile-info {
+    min-width: 0;
+  }
+  /* Member-since value: fit "30 Mayıs 2025" without ellipsis clipping */
+  .account-premium-page .cs-profile-meta-item b {
+    font-size: 15px !important;
+    white-space: nowrap;
+    letter-spacing: -.01em;
+  }
+  .account-premium-page #accountMemberSince {
+    font-size: 12.5px !important;
+    letter-spacing: -.01em;
+  }
+  .account-premium-page .cs-profile-card__meta {
+    gap: 10px !important;
+  }
+  /* Meta labels ("TOPLAM PUAN" / "ÜYE TARİHİ") must not wrap */
+  .account-premium-page .cs-profile-meta-item small {
+    white-space: nowrap !important;
+    font-size: 9px !important;
+    letter-spacing: .1em !important;
+  }
+
+  /* Navigation — one coherent system */
+  .account-premium-page .cs-account-nav {
+    border-radius: var(--csd-radius) !important;
+    box-shadow: var(--csd-shadow) !important;
+    padding: 6px !important;
+    display: grid !important;
+    gap: 1px !important;
+    background: rgba(255, 253, 248, .94) !important;
+  }
+  .account-premium-page .cs-account-nav .cs-nav-label {
+    padding: 14px 12px 6px !important;
+    font: 800 10px/1 var(--cs-sans) !important;
+    letter-spacing: .16em !important;
+    color: var(--csd-soft) !important;
+    text-transform: uppercase;
+  }
+  .account-premium-page .cs-account-nav .cs-nav-label:first-child {
+    padding-top: 8px !important;
+  }
+  .account-premium-page .cs-account-nav a {
+    position: relative;
+    min-height: 42px !important;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-radius: 12px !important;
+    gap: 11px !important;
+    font: 750 13px/1.2 var(--cs-sans) !important;
+    color: #4c4238 !important;
+    white-space: nowrap;
+  }
+  .account-premium-page .cs-account-nav a .cs-nav-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .account-premium-page .cs-account-nav a:hover {
+    background: #f7efe3 !important;
+    color: var(--csd-ink) !important;
+  }
+  .account-premium-page .cs-account-nav a:before { content: none !important; }
+  .account-premium-page .cs-account-nav a.is-active,
+  .account-premium-page .cs-account-nav a[aria-current="page"] {
+    background: #f2e5d3 !important;
+    color: var(--csd-ink) !important;
+  }
+  .account-premium-page .cs-account-nav a.is-active .cs-nav-icon,
+  .account-premium-page .cs-account-nav a[aria-current="page"] .cs-nav-icon {
+    background: #b78a55 !important;
+    color: #fffaf3 !important;
+    border-color: rgba(141, 102, 60, .38) !important;
+  }
+  .account-premium-page .cs-account-nav a .cs-nav-icon {
+    width: 26px !important;
+    height: 26px !important;
+    flex: 0 0 26px !important;
+    border-radius: 9px !important;
+  }
+  .account-premium-page .cs-account-nav a em {
+    min-width: 20px;
+    height: 20px;
+    font-size: 10.5px;
+  }
+  .account-premium-page .cs-account-nav a:focus-visible {
+    outline: 2px solid rgba(169, 123, 69, .6) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Logout — clearly separated */
+  .account-premium-page .cs-logout {
+    margin-top: 2px !important;
+    border: 1px solid var(--csd-line) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 253, 248, .7) !important;
+    color: #6a5f54 !important;
+    min-height: 42px !important;
+    font: 800 12px/1 var(--cs-sans) !important;
+    letter-spacing: .06em;
+  }
+  .account-premium-page .cs-logout:hover {
+    background: #f7efe3 !important;
+    color: var(--csd-ink) !important;
+  }
+
+  /* ======================================================================
+     3 · PANELS + PANEL HEADER GRAMMAR
+     ====================================================================== */
+  .account-premium-page .cs-panel {
+    border-radius: var(--csd-radius) !important;
+    box-shadow: var(--csd-shadow) !important;
+    border-color: var(--csd-line) !important;
+  }
+
+  /* The persistent sidebar makes the per-panel "back to Hesabım" redundant */
+  .account-premium-page .cs-panel-back { display: none !important; }
+
+  .account-premium-page .cs-tab-title--premium,
+  .account-premium-page .cs-tab-title {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    flex-wrap: wrap;
+  }
+  .account-premium-page .cs-tab-title__copy { min-width: 0; }
+  .account-premium-page .cs-tab-title h1 {
+    font-family: var(--cs-serif) !important;
+    font-weight: 500 !important;
+    font-size: 30px !important;
+    letter-spacing: -.02em !important;
+    line-height: 1.06 !important;
+    color: var(--csd-ink) !important;
+    margin: 6px 0 0 !important;
+  }
+  .account-premium-page .cs-tab-title p {
+    font-size: 13.5px !important;
+    color: var(--csd-muted) !important;
+    margin: 6px 0 0 !important;
+  }
+  .account-premium-page .cs-panel-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  /* ======================================================================
+     4 · OVERVIEW — first-principles hierarchy
+     Priority: 1 recent order · 2 club · 3 saved beauty (skin) + slim stats
+     Redundant duplicate blocks are suppressed on desktop.
+     ====================================================================== */
+
+  /* Suppress destinations already owned by the sidebar / a primary module.
+     The quick/security-summary modules carry explicit class hooks (added in
+     account-dashboard.js) instead of :has() so the suppression cannot fail
+     on engines without :has() support. */
+  .account-premium-page #overviewPanel .cs-recs-rail,                 /* storefront carousel */
+  .account-premium-page #overviewPanel .cs-account-pulse,            /* dup nav to notif/addr/club */
+  .account-premium-page #overviewPanel .cs-overview-more,            /* dup of sidebar */
+  .account-premium-page #overviewPanel .cs-overview-module--quick,
+  .account-premium-page #overviewPanel .cs-overview-module--security-summary {
+    display: none !important;
+  }
+
+  /* Overview home header — quiet, not a marketing hero */
+  .account-premium-page #overviewPanel .cs-tab-title--home {
+    display: block !important;
+    margin-bottom: 4px;
+  }
+  .account-premium-page #overviewPanel .cs-tab-title--home h1 {
+    font-size: 34px !important;
+    margin-top: 8px !important;
+  }
+
+  /* Stats — demoted to one slim metric strip, not four dominant cards */
+  .account-premium-page #overviewPanel .cs-stat-grid--pulse {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .account-premium-page #overviewPanel .cs-stat-grid--pulse .cs-stat {
+    padding: 14px 16px !important;
+    border-radius: var(--csd-radius-sm) !important;
+    box-shadow: none !important;
+    background: rgba(255, 253, 248, .72) !important;
+    border: 1px solid var(--csd-line) !important;
+  }
+  .account-premium-page #overviewPanel .cs-stat-grid--pulse .cs-stat strong {
+    font-size: 22px !important;
+  }
+
+  /* Priority pair: club + skin. Stack full-width on narrow desktop where a
+     half-width club card collides; go side-by-side only with real room. */
+  .account-premium-page #overviewPanel .cs-overview-hero-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    align-items: stretch;
+  }
+  .account-premium-page #overviewPanel .cs-overview-hero-grid > .cs-skin-profile-card--mini {
+    grid-column: auto !important;
+  }
+
+  /* Module stack becomes a calm 2-column management area,
+     with the recent order spanning full width as the hero */
+  .account-premium-page #overviewPanel .cs-overview-modules {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+    align-items: start !important;
+  }
+  .account-premium-page #overviewPanel .cs-overview-modules > .cs-overview-module--order {
+    grid-column: 1 / -1 !important;
+    order: -1;
+  }
+  .account-premium-page #overviewPanel .cs-overview-modules > .cs-coupon-strip {
+    grid-column: 1 / -1 !important;
+  }
+  .account-premium-page #overviewPanel .cs-overview-module {
+    box-shadow: var(--csd-shadow) !important;
+    border-radius: var(--csd-radius) !important;
+    margin: 0 !important;
+  }
+
+  /* Unified card-head label rhythm across overview modules */
+  .account-premium-page #overviewPanel .cs-card-head > span {
+    font: 800 10.5px/1 var(--cs-sans) !important;
+    letter-spacing: .16em !important;
+    color: var(--csd-soft) !important;
+  }
+  .account-premium-page #overviewPanel .cs-card-head a {
+    font: 750 11.5px/1 var(--cs-sans) !important;
+    color: var(--csd-bronze) !important;
+    letter-spacing: .02em;
+  }
+
+  /* ======================================================================
+     5 · BUTTON SYSTEM (one visual hierarchy)
+     Secondary is the base; primary uses doubled-class specificity so it
+     always wins over secondary regardless of source order. This also fixes
+     a latent contrast bug where a descendant-anchor color rule turned the
+     dark __btn--primary variants dark-text-on-dark (invisible labels).
+     ====================================================================== */
+
+  /* Secondary — ivory + hairline (base look for all account buttons) */
+  .account-premium-page .cs-pill-btn,
+  .account-premium-page .cs-mini-btn,
+  .account-premium-page .cs-skin-profile-card__btn,
+  .account-premium-page .cs-club-mini__btn,
+  .account-premium-page .cs-order-spotlight__btn,
+  .account-premium-page .cs-order-card__btn,
+  .account-premium-page .cs-ticket__btn,
+  .account-premium-page .cs-address-modal__btn {
+    border: 1px solid var(--csd-line-strong) !important;
+    background: rgba(255, 253, 248, .9) !important;
+    color: #2a2119 !important;
+    box-shadow: none !important;
+  }
+  .account-premium-page .cs-pill-btn:hover,
+  .account-premium-page .cs-mini-btn:hover,
+  .account-premium-page .cs-skin-profile-card__btn:hover,
+  .account-premium-page .cs-club-mini__btn:hover,
+  .account-premium-page .cs-order-spotlight__btn:hover,
+  .account-premium-page .cs-order-card__btn:hover,
+  .account-premium-page .cs-ticket__btn:hover,
+  .account-premium-page .cs-address-modal__btn:hover {
+    background: #f7efe3 !important;
+    border-color: var(--csd-bronze) !important;
+  }
+
+  /* Primary — matte black + light label (both properties owned here, so
+     contrast is guaranteed no matter the original background) */
+  .account-premium-page .cs-pill-btn.cs-pill-btn--dark,
+  .account-premium-page .cs-mini-btn.dark,
+  .account-premium-page .cs-skin-profile-card__btn.cs-skin-profile-card__btn--primary,
+  .account-premium-page .cs-club-mini__btn.cs-club-mini__btn--solid,
+  .account-premium-page .cs-order-spotlight__btn.cs-order-spotlight__btn--primary,
+  .account-premium-page .cs-order-card__btn.cs-order-card__btn--primary,
+  .account-premium-page .cs-ticket__btn.cs-ticket__btn--primary,
+  .account-premium-page .cs-address-modal__btn.cs-address-modal__btn--primary,
+  .account-premium-page .cs-inv-studio__btn.cs-inv-studio__btn--dark,
+  .account-premium-page .cs-pay-note__btn.cs-pay-note__btn--dark,
+  .account-premium-page .cs-security-action__btn.cs-security-action__btn--dark,
+  .account-premium-page .cs-pay-method__cta {
+    background: var(--csd-ink) !important;
+    color: #fdf7ee !important;
+    border: 1px solid var(--csd-ink) !important;
+    box-shadow: 0 10px 22px rgba(23, 19, 15, .16) !important;
+  }
+  .account-premium-page .cs-pill-btn.cs-pill-btn--dark:hover,
+  .account-premium-page .cs-mini-btn.dark:hover,
+  .account-premium-page .cs-skin-profile-card__btn.cs-skin-profile-card__btn--primary:hover,
+  .account-premium-page .cs-club-mini__btn.cs-club-mini__btn--solid:hover,
+  .account-premium-page .cs-order-spotlight__btn.cs-order-spotlight__btn--primary:hover,
+  .account-premium-page .cs-order-card__btn.cs-order-card__btn--primary:hover,
+  .account-premium-page .cs-ticket__btn.cs-ticket__btn--primary:hover,
+  .account-premium-page .cs-address-modal__btn.cs-address-modal__btn--primary:hover,
+  .account-premium-page .cs-inv-studio__btn.cs-inv-studio__btn--dark:hover,
+  .account-premium-page .cs-pay-note__btn.cs-pay-note__btn--dark:hover,
+  .account-premium-page .cs-security-action__btn.cs-security-action__btn--dark:hover,
+  .account-premium-page .cs-pay-method__cta:hover {
+    background: #241d16 !important;
+  }
+
+  /* Tertiary — quiet text */
+  .account-premium-page .cs-pill-btn--quiet {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: var(--csd-bronze) !important;
+    box-shadow: none !important;
+  }
+  /* Destructive — isolated red tone (address delete: .cs-mini-btn[data-delete-address]) */
+  .account-premium-page [data-delete-address] {
+    color: var(--csd-danger) !important;
+    border-color: rgba(168, 64, 47, .3) !important;
+    background: rgba(168, 64, 47, .04) !important;
+  }
+  .account-premium-page [data-delete-address]:hover {
+    background: rgba(168, 64, 47, .09) !important;
+    border-color: rgba(168, 64, 47, .5) !important;
+  }
+  .account-premium-page .cs-pill-btn:focus-visible,
+  .account-premium-page .cs-mini-btn:focus-visible {
+    outline: 2px solid rgba(169, 123, 69, .6) !important;
+    outline-offset: 2px !important;
+  }
+
+  /* ======================================================================
+     6 · FORMS
+     ====================================================================== */
+  .account-premium-page .cs-form,
+  .account-premium-page .cs-form-compact {
+    max-width: 640px;
+  }
+  .account-premium-page .cs-form.cs-form--wide,
+  .account-premium-page .cs-address-form {
+    max-width: none;
+  }
+  .account-premium-page .cs-input,
+  .account-premium-page .cs-form select,
+  .account-premium-page .cs-form input,
+  .account-premium-page .cs-form textarea {
+    min-height: 44px;
+  }
+  .account-premium-page .cs-form textarea.cs-input,
+  .account-premium-page .cs-form-compact textarea.cs-input {
+    min-height: 112px;
+  }
+  .account-premium-page .cs-input:focus,
+  .account-premium-page .cs-input:focus-visible {
+    outline: 2px solid rgba(169, 123, 69, .5);
+    outline-offset: 1px;
+    border-color: var(--csd-bronze);
+  }
+  .account-premium-page .cs-form label > span,
+  .account-premium-page .cs-form-compact label > span {
+    font: 700 11.5px/1.2 var(--cs-sans);
+    letter-spacing: .04em;
+    color: #5c5147;
+  }
+
+  /* ======================================================================
+     7 · EMPTY / LOADING / ERROR / GATE STATES
+     ====================================================================== */
+  .account-premium-page .cs-empty {
+    text-align: center;
+    padding: 40px 28px !important;
+    max-width: 460px;
+    margin-inline: auto;
+  }
+  .account-premium-page .cs-empty strong {
+    font-family: var(--cs-serif);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--csd-ink);
+  }
+  .account-premium-page .cs-empty p {
+    color: var(--csd-muted);
+    font-size: 13.5px;
+  }
+
+  .account-premium-page .cs-account-fatal-card,
+  .account-premium-page .cs-account-gate {
+    max-width: 560px !important;
+    margin-inline: auto !important;
+    border-radius: var(--csd-radius) !important;
+    box-shadow: var(--csd-shadow) !important;
+  }
+  .account-premium-page .cs-account-gate h1 {
+    font-family: var(--cs-serif) !important;
+    font-weight: 500 !important;
+    font-size: 38px !important;
+    letter-spacing: -.02em;
+    color: var(--csd-ink) !important;
+  }
+
+  /* Loading skeleton — reflect the real workspace to avoid layout shift */
+  .account-premium-page .cs-loading-card--premium {
+    max-width: var(--csd-maxw);
+    margin-inline: auto;
+    border-radius: var(--csd-radius);
+    box-shadow: var(--csd-shadow);
+  }
+
+  /* ======================================================================
+     8 · SUBCATEGORY POLISH (consistent grammar)
+     ====================================================================== */
+
+  /* Orders — breathing room, no cramped repeated buttons */
+  .account-premium-page .cs-order-card {
+    border-radius: var(--csd-radius-sm) !important;
+  }
+
+  /* Favorites — stable premium grid */
+  .account-premium-page .cs-favorites-grid,
+  .account-premium-page .cs-fav-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+  }
+
+  /* Invoices — minimal document list */
+  .account-premium-page .cs-inv-card {
+    border-radius: var(--csd-radius-sm) !important;
+  }
+
+  /* Addresses — clear default hierarchy */
+  .account-premium-page .cs-address-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+  }
+
+  /* Security — full-panel list: no color-only status, no empty gaps */
+  .account-premium-page .cs-security-list li {
+    grid-template-columns: minmax(180px, .9fr) 1fr auto !important;
+    align-items: center !important;
+    gap: 14px !important;
+  }
+  .account-premium-page .cs-status-pill {
+    letter-spacing: .08em;
+  }
+
+  /* Notifications — readable preference groups, not a dense table */
+  .account-premium-page .cs-toggle-grid {
+    gap: 12px !important;
+  }
+
+  /* Skin profile panel — FIX: account-premium.css line ~492 still carries
+     ".cs-skin-products{grid-column:3}" from the retired 3-column
+     cs-skin-content-grid layout. The current cs-skin-studio grid defines no
+     columns, so above 1260px (where the max-width:1260 correction stops
+     matching) the products rail collapses into a ~128px implicit track.
+     Span it across the studio at every desktop width. */
+  .account-premium-page .cs-skin-studio .cs-skin-products {
+    grid-column: 1 / -1 !important;
+    grid-row: auto !important;
+  }
+
+  /* Skin profile mini — FIX: the decorative aura renders position:relative,
+     so it eats a ~430px grid row and leaves a huge empty gap above the
+     content. Pull it out of flow as the background glow it is meant to be. */
+  .account-premium-page .cs-skin-profile-card--mini {
+    position: relative !important;
+  }
+  .account-premium-page .cs-skin-profile-card--mini > .cs-skin-profile-card__aura {
+    position: absolute !important;
+    inset: 0 !important;
+    height: auto !important;
+    width: auto !important;
+    z-index: 0 !important;
+    pointer-events: none;
+  }
+  .account-premium-page .cs-skin-profile-card--mini > *:not(.cs-skin-profile-card__aura) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Club — premium membership, not a bank card (calm any metallic sheen) */
+  .account-premium-page .cs-club-mini__sheen,
+  .account-premium-page .cs-loyalty-card .cs-loyalty-card__sheen {
+    opacity: .35 !important;
+  }
+  /* FIX: brand crown is iconSvg() -> <img>, but the source only sizes
+     `.cs-club-mini__brand svg`, leaving the <img> unconstrained (rendered
+     ~417px). Constrain the image so the header reads as designed. */
+  .account-premium-page .cs-club-mini__brand img,
+  .account-premium-page .cs-club-mini__brand .cs-icon {
+    width: 14px !important;
+    height: 14px !important;
+    flex: 0 0 14px !important;
+    object-fit: contain !important;
+  }
+  /* Same guard for any account card that places an iconSvg() image in a
+     small brand/label chip and only sized the svg variant. */
+  .account-premium-page .cs-overline .cs-icon,
+  .account-premium-page .cs-card-head .cs-icon {
+    width: 15px !important;
+    height: 15px !important;
+    flex: 0 0 auto;
+  }
+
+  /* ======================================================================
+     9 · ICON / GLYPH HYGIENE (desktop)
+     Neutralize decorative dingbat pseudo-content flagged in the audit.
+     (Elite-tier only; mobile remains frozen.)
+     ====================================================================== */
+  .account-premium-page .cs-tier-card--elite:after,
+  .account-premium-page .cs-loyalty-summary--elite:before {
+    content: "" !important;
+  }
+
+  /* ======================================================================
+     10 · MOTION
+     ====================================================================== */
+  @media (prefers-reduced-motion: reduce) {
+    .account-premium-page .cs-profile-card__aura,
+    .account-premium-page .cs-skin-profile-card__aura,
+    .account-premium-page .cs-club-mini__sheen {
+      animation: none !important;
+    }
+  }
+
+}
+
+/* ==========================================================================
+   WIDE DESKTOP (>=1200px) — subset of the >=1024 desktop scope.
+   Club + skin become the side-by-side priority pair only when the content
+   column is wide enough for the club card to breathe.
+   ========================================================================== */
+@media (min-width: 1200px) {
+  .account-premium-page #overviewPanel .cs-overview-hero-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .account-premium-page #overviewPanel .cs-overview-hero-grid > .cs-club-mini,
+  .account-premium-page #overviewPanel .cs-overview-hero-grid > .cs-skin-profile-card--mini {
+    grid-column: auto !important;
+  }
+}
